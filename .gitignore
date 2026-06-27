@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vite
+.vercel
+.env
+.env.local
+
+# Secrets — never commit
+*.secrets
+.env.secrets
+**/.env.secrets
+
+# Supabase CLI local state
+supabase/.temp/

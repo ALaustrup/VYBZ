@@ -1,0 +1,2069 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  Bell,
+  Camera,
+  Check,
+  Coins,
+  Crown,
+  Eye,
+  EyeOff,
+  Flame,
+  Gift,
+  Glasses,
+  Globe,
+  Heart,
+  Inbox,
+  Lock,
+  LogOut,
+  Megaphone,
+  MessageCircle,
+  Music,
+  Send,
+  Settings,
+  ShieldAlert,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  HardDrive,
+  Trash2,
+  Upload,
+  UserPlus,
+  Users,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
+import { PROFILE } from "@/data/profile";
+import { EmptyState } from "@/components/EmptyState";
+import { BG_VARIANTS } from "@/lib/backgrounds";
+import { PAGE_TRANSITIONS } from "@/lib/transitions";
+import { DOCK_COLORS, DOCK_FX } from "@/lib/dock";
+import { GODMODE_DISCOUNT_LABEL, priceFor } from "@/lib/economy";
+import { processImage } from "@/lib/media";
+import { uploadPublicMedia, usernameAvailable } from "@/lib/backend";
+import { isValidUsername, normalizeUsername } from "@/lib/username";
+import { VeiledArt } from "@/components/VeiledArt";
+import { Handle } from "@/components/Handle";
+import { IdentityMeta } from "@/components/IdentityMeta";
+import { Copyright } from "@/components/Copyright";
+import { SecureAccount } from "@/components/SecureAccount";
+import { PasskeySetup } from "@/components/PasskeySetup";
+import { VerifyGate } from "@/components/VerifyGate";
+import { LifelineOptIn } from "@/components/LifelineOptIn";
+import { CreditsShop } from "@/components/CreditsShop";
+import { LegalLinks } from "@/components/LegalLinks";
+import { useApp } from "@/store/AppStore";
+import {
+  playSound,
+  setSoundEnabled,
+  setSoundVolume,
+  useSoundSettings,
+} from "@/lib/sound";
+import {
+  OFFLINE_PRESETS_MB,
+  cacheUsageBytes,
+  clearOfflineCache,
+  setOfflineLimitMB,
+  useOfflineSettings,
+} from "@/lib/offline";
+import { avatarGradient, cx, formatCount, timeAgo } from "@/lib/utils";
+import type { Confession, Gender, Identity, OwnConfession } from "@/types";
+
+/** Quiet reputation tiers — kindness builds reach, transparently. */
+function karmaTier(k: number): { label: string; color: string } {
+  if (k >= 500) return { label: "Luminous", color: "#ffd166" };
+  if (k >= 250) return { label: "Trusted", color: "#34f5a0" };
+  if (k >= 100) return { label: "Warm", color: "#c77dff" };
+  return { label: "New soul", color: "#9aa0aa" };
+}
+
+export function ProfilePage() {
+  const {
+    isPremium,
+    godmodePrice,
+    openPremium,
+    identity,
+    identityPublic,
+    updateIdentity,
+    friends,
+    acceptFriend,
+    declineFriend,
+    backendFriends,
+    acceptFriendById,
+    removeFriendById,
+    openFriendChat,
+    openConnection,
+    nsfwOptIn,
+    setNsfwOptIn,
+    nsfwEligible,
+    karma,
+    streak,
+    bgVariant,
+    setBgVariant,
+    pageTransition,
+    setPageTransition,
+    dockColor,
+    setDockColor,
+    dockFx,
+    setDockFx,
+    avatarUrl,
+    setAvatar,
+    bannerUrl,
+    setBanner,
+    isUnlocked,
+    unlock,
+    showToast,
+    userConfessions,
+    backendConfessions,
+    openCompose,
+    notifyActivity,
+    setNotifyActivity,
+    giftPowerUp,
+    account,
+    signOut,
+    openInbox,
+    openAccountGate,
+    openLifeline,
+    openFeedback,
+    backendEnabled,
+    isAdmin,
+    credits,
+    hasWallet,
+    profileId,
+    musicUrl,
+    setMusicUrl,
+  } = useApp();
+  const alias = account?.alias ?? PROFILE.alias;
+  const [tab, setTab] = useState<"posts" | "friends" | "about">("posts");
+  const [editImage, setEditImage] = useState<null | "avatar" | "banner">(null);
+  const avatarFileRef = useRef<HTMLInputElement>(null);
+  const bannerFileRef = useRef<HTMLInputElement>(null);
+
+  async function handleImageFile(file: File | undefined, kind: "avatar" | "banner") {
+    if (!file) return;
+    try {
+      // Avatars/banners don't need 8K — keep them lean for the public bucket.
+      const out = await processImage(file, kind === "banner" ? 1920 : 1024, 0.9);
+      let url = out.dataUrl;
+      // Persist to Storage on the backend so it follows the account (and keeps
+      // prefs small); fall back to the inline data URL in local mode.
+      if (backendEnabled && profileId) {
+        url = (await uploadPublicMedia(out.dataUrl, profileId)) ?? out.dataUrl;
+      }
+      (kind === "avatar" ? setAvatar : setBanner)(url);
+      setEditImage(null);
+    } catch {
+      showToast("Couldn't read that image. Try another.");
+    }
+  }
+
+  // Settings live in their own "About" tab now, so show them expanded by default.
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [nsfwGateOpen, setNsfwGateOpen] = useState(false);
+  const [shopOpen, setShopOpen] = useState(false);
+  // Whether to display the public "Veils" count on your own profile.
+  const [showVeils, setShowVeils] = useState<boolean>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("veiled.showVeils") ?? "true");
+    } catch {
+      return true;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("veiled.showVeils", JSON.stringify(showVeils));
+    } catch {
+      /* ignore */
+    }
+  }, [showVeils]);
+
+  /**
+   * Select a customization item, buying it first if it's a paid lock the user
+   * doesn't own yet. Exclusive items are Godmode-only. `apply` switches to it.
+   */
+  async function pickCustomization(
+    itemId: string,
+    base: number,
+    exclusive: boolean,
+    apply: () => void
+  ) {
+    if (exclusive) {
+      if (!isPremium) {
+        showToast("That's a Godmode exclusive.");
+        return;
+      }
+      apply();
+      return;
+    }
+    if (base <= 0 || isUnlocked(itemId)) {
+      apply();
+      return;
+    }
+    const ok = await unlock(itemId, base);
+    if (ok) {
+      apply();
+      showToast("Unlocked! ✨");
+    }
+  }
+
+  function toggleNsfw() {
+    if (nsfwOptIn) {
+      setNsfwOptIn(false);
+      return;
+    }
+    if (nsfwEligible) setNsfwOptIn(true);
+    else setNsfwGateOpen(true);
+  }
+
+  const friendList = Object.values(friends);
+  const incoming = friendList.filter((f) => f.status === "incoming");
+  const accepted = friendList.filter((f) => f.status === "friends");
+  const pending = friendList.filter((f) => f.status === "requested");
+
+  const connections = Object.values(backendFriends);
+  const connIncoming = connections.filter((f) => f.status === "incoming");
+  const connAccepted = connections.filter((f) => f.status === "friends");
+  const connPending = connections.filter((f) => f.status === "requested");
+
+  const headerGrad = avatarGradient(alias);
+  const tier = karmaTier(karma);
+
+  // Real own posts (local + your backend posts) — never demo data, so a brand
+  // new account shows an honest, empty profile.
+  const ownPosts = useMemo<OwnConfession[]>(() => {
+    const map = new Map<string, Confession>();
+    for (const c of userConfessions) map.set(c.id, c);
+    for (const c of backendConfessions) {
+      if (c.authorId && c.authorId === profileId) map.set(c.id, c);
+    }
+    return [...map.values()]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map((c) => ({ ...c, views: 0, reveals: 0, trend: [] }));
+  }, [userConfessions, backendConfessions, profileId]);
+
+  // Stats derived from real posts (0 for new users).
+  const stats = useMemo(() => {
+    const confessions = ownPosts.length;
+    const feels = ownPosts.reduce((s, c) => s + (c.feels || 0), 0);
+    const wilds = ownPosts.reduce((s, c) => s + (c.wilds || 0), 0);
+    const total = feels + wilds;
+    const resonance = total ? Math.round((feels / total) * 100) : 0;
+    return { confessions, feels, wilds, resonance };
+  }, [ownPosts]);
+
+  // Reach scales gently with reputation; a fresh account starts low, not fake.
+  const reach = Math.min(100, (stats.confessions > 0 ? 20 : 5) + Math.floor(karma / 12));
+  return (
+    <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6">
+      {/* Identity header with a personalized banner + avatar. */}
+      <div className="relative mb-4 overflow-hidden rounded-3xl border border-white/10 p-6">
+        <div className="absolute inset-0 -z-10">
+          {bannerUrl ? (
+            <img src={bannerUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <VeiledArt seed={PROFILE.seed} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/40 to-ink-950/20" />
+        </div>
+
+        {/* Banner edit. */}
+        <button
+          onClick={() => setEditImage("banner")}
+          aria-label="Change banner"
+          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full glass text-white/80 active:scale-90"
+        >
+          <Camera className="h-4 w-4" />
+        </button>
+
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div
+              className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl"
+              style={
+                avatarUrl
+                  ? { boxShadow: `0 0 24px -6px ${headerGrad[0]}` }
+                  : {
+                      background: `linear-gradient(150deg, ${headerGrad[0]}, ${headerGrad[1]})`,
+                      boxShadow: `0 0 24px -4px ${headerGrad[0]}`,
+                    }
+              }
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <Sparkles className="h-7 w-7 text-white" />
+              )}
+            </div>
+            {/* Avatar edit. */}
+            <button
+              onClick={() => setEditImage("avatar")}
+              aria-label="Change avatar"
+              className="absolute -bottom-1.5 -left-1.5 flex h-7 w-7 items-center justify-center rounded-full glass text-white/85 active:scale-90"
+            >
+              <Camera className="h-3.5 w-3.5" />
+            </button>
+            {streak > 0 && (
+              <span className="absolute -bottom-1.5 -right-1.5 flex items-center gap-0.5 rounded-full bg-ink-950 px-1.5 py-0.5 text-[10px] font-bold text-amber-300 ring-1 ring-amber-300/40">
+                <Flame className="h-3 w-3" />
+                {streak}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-display text-2xl font-bold text-white">
+              <Handle username={account?.username} emoji={alias} size={24} />
+            </h2>
+            <div className="mt-0.5 flex flex-wrap items-center gap-2">
+              <span
+                className={cx(
+                  "rounded-full px-2 py-0.5 text-[11px] font-bold",
+                  account?.anonymous
+                    ? "bg-white/10 text-white/60"
+                    : "bg-feel/20 text-feel"
+                )}
+              >
+                {account?.anonymous ? "Guest" : "Member"}
+              </span>
+              <span
+                className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold"
+                style={{ color: tier.color, backgroundColor: `${tier.color}22` }}
+              >
+                <ShieldCheck className="h-3 w-3" /> {tier.label}
+              </span>
+              {isPremium && (
+                <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[11px] font-bold text-amber-300">
+                  <Crown className="h-3 w-3" /> Godmode
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <p className="mt-4 text-xs text-white/40">
+          Joined{" "}
+          {new Date(account?.createdAt ?? Date.now()).toLocaleDateString(undefined, {
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+
+        {/* Stats portfolio — always visible at the top. */}
+        <div className="mt-4 grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-ink-950/40 py-3 text-center backdrop-blur-sm">
+          <div>
+            <p className="font-display text-lg font-bold text-white">
+              {formatCount(stats.confessions)}
+            </p>
+            <p className="text-[10px] uppercase tracking-wider text-white/45">
+              Confessions
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-lg font-bold text-feel">
+              {formatCount(stats.feels)}
+            </p>
+            <p className="text-[10px] uppercase tracking-wider text-white/45">
+              Vybs
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-lg font-bold text-glow">
+              {stats.resonance}%
+            </p>
+            <p className="text-[10px] uppercase tracking-wider text-white/45">
+              Resonance
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Slim conversion banner — only for guests. One tap to create an account. */}
+      {account?.anonymous && (
+        <button
+          onClick={openAccountGate}
+          className="mb-3 flex w-full items-center gap-3 rounded-2xl border border-veil-400/30 bg-veil-500/10 px-4 py-3 text-left transition active:scale-[0.99]"
+        >
+          <Sparkles className="h-5 w-5 shrink-0 text-veil-200" />
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold text-white">
+              Create your free account
+            </span>
+            <span className="text-[11px] text-white/55">
+              Verify an email to unlock your V¢ wallet &amp; keep your name forever.
+            </span>
+          </span>
+          <span className="shrink-0 rounded-full bg-veil-500 px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
+            Create
+          </span>
+        </button>
+      )}
+
+      {/* Dashboard tiles — your wallet, messages, friends, and settings, all one
+          tap away. (Games live in the taskbar's Play; XR is in Settings.) */}
+      <div className="mb-3 grid grid-cols-4 gap-2">
+        <button
+          onClick={() => (hasWallet ? setShopOpen(true) : openAccountGate())}
+          className="flex flex-col items-center gap-1 rounded-2xl bg-amber-300/10 py-3 text-amber-200 ring-1 ring-amber-300/25 transition active:scale-[0.97]"
+        >
+          <Coins className="h-5 w-5" />
+          <span className="text-[11px] font-semibold">{hasWallet ? `${credits} V¢` : "Wallet"}</span>
+        </button>
+        <button
+          onClick={openInbox}
+          className="flex flex-col items-center gap-1 rounded-2xl bg-veil-500/15 py-3 text-veil-100 ring-1 ring-veil-400/30 transition active:scale-[0.97]"
+        >
+          <Inbox className="h-5 w-5" />
+          <span className="text-[11px] font-semibold">Messages</span>
+        </button>
+        <button
+          onClick={() => setTab("friends")}
+          className="flex flex-col items-center gap-1 rounded-2xl bg-white/[0.04] py-3 text-white/80 transition active:scale-[0.97]"
+        >
+          <Users className="h-5 w-5" />
+          <span className="text-[11px] font-semibold">Friends</span>
+        </button>
+        <button
+          onClick={() => {
+            setTab("about");
+            setSettingsOpen(true);
+          }}
+          className="flex flex-col items-center gap-1 rounded-2xl bg-white/[0.04] py-3 text-white/80 transition active:scale-[0.97]"
+        >
+          <Settings className="h-5 w-5" />
+          <span className="text-[11px] font-semibold">Settings</span>
+        </button>
+      </div>
+
+      {/* Discover — your personalized For You feed + matchmaking, driven by what
+          you Vyb. This is where community-driven, taste-based discovery lives. */}
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <Link
+          to="/foryou"
+          className="flex items-center gap-2.5 rounded-2xl border border-veil-400/30 bg-veil-500/10 p-3.5 transition active:scale-[0.98]"
+        >
+          <Sparkles className="h-5 w-5 text-veil-200" />
+          <span>
+            <span className="block font-display text-sm font-semibold text-white">For You</span>
+            <span className="text-[11px] text-white/50">Shaped by your Vybs</span>
+          </span>
+        </Link>
+        <Link
+          to="/connect"
+          className="flex items-center gap-2.5 rounded-2xl border border-aqua-400/30 bg-aqua-400/10 p-3.5 transition active:scale-[0.98]"
+        >
+          <Users className="h-5 w-5 text-aqua-300" />
+          <span>
+            <span className="block font-display text-sm font-semibold text-white">Connect</span>
+            <span className="text-[11px] text-white/50">People you'll vibe with</span>
+          </span>
+        </Link>
+      </div>
+
+      {/* Tabbed, social-network-style navigation. */}
+      <div className="sticky top-0 z-10 -mx-4 mb-3 px-4 pb-2 pt-1">
+        <div className="glass flex items-center gap-1 rounded-2xl p-1">
+          {(
+            [
+              ["posts", "Posts"],
+              ["friends", "Friends"],
+              ["about", "About"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={cx(
+                "relative flex-1 rounded-xl py-2 text-sm font-semibold transition",
+                tab === id ? "text-white" : "text-white/45"
+              )}
+            >
+              {tab === id && (
+                <motion.span
+                  layoutId="profile-tab"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  className="absolute inset-0 rounded-xl bg-veil-500/20 ring-1 ring-veil-400/40"
+                />
+              )}
+              <span className="relative">{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ===== ABOUT tab ===== */}
+      {tab === "about" && (
+      <>
+      {/* Settings overlay — a single tap on "Settings" opens the full panel. */}
+      <AnimatePresence>
+        {settingsOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSettingsOpen(false)}
+              className="fixed inset-0 z-[58] bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 34 }}
+              className="fixed inset-x-0 bottom-0 z-[58] mx-auto flex max-h-[92%] max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900"
+            >
+              <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-white/20" />
+              <div className="flex items-center justify-between px-5 pb-1 pt-3">
+                <h2 className="font-display text-xl font-bold text-gradient">Settings</h2>
+                <button
+                  onClick={() => setSettingsOpen(false)}
+                  aria-label="Close"
+                  className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] pt-2">
+                <div className="space-y-3">
+                {/* MYVYB XR + operator console live here. (Wallet / Messages /
+                    Friends / Settings are the dashboard tiles above.) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    to="/xr"
+                    className={cx(
+                      "flex items-center justify-center gap-2 rounded-2xl bg-white/[0.04] py-3 text-sm font-semibold text-white/80 transition active:scale-[0.98]",
+                      !isAdmin && "col-span-2"
+                    )}
+                  >
+                    <Glasses className="h-4 w-4" /> MYVYB XR
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="flex items-center justify-center gap-2 rounded-2xl bg-white/[0.04] py-3 text-sm font-semibold text-veil-200 ring-1 ring-veil-400/20 transition active:scale-[0.98]"
+                    >
+                      <ShieldCheck className="h-4 w-4" /> Operator console
+                    </Link>
+                  )}
+                </div>
+
+                {/* Lifelines — always one tap from Settings, never buried. */}
+                <button
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    openLifeline();
+                  }}
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-feel/30 bg-feel/10 p-4 text-left transition active:scale-[0.99]"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-feel/20 text-feel">
+                      <Heart className="h-4 w-4" />
+                    </span>
+                    <span>
+                      <span className="block font-display text-sm font-semibold text-white">
+                        Talk to someone
+                      </span>
+                      <span className="text-[11px] text-white/55">
+                        Peer support. Anonymous. Anytime.
+                      </span>
+                    </span>
+                  </span>
+                  <span className="rounded-full bg-feel px-3 py-1 text-xs font-bold text-black">
+                    Open
+                  </span>
+                </button>
+
+                {/* Bug report / feature suggestion / contact admin. */}
+                <button
+                  onClick={() => {
+                    setSettingsOpen(false);
+                    openFeedback();
+                  }}
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.07] p-4 text-left transition active:scale-[0.99]"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-veil-500/20 text-veil-200">
+                      <Megaphone className="h-4 w-4" />
+                    </span>
+                    <span>
+                      <span className="block font-display text-sm font-semibold text-white">
+                        Send us a message
+                      </span>
+                      <span className="text-[11px] text-white/55">
+                        Report a bug, suggest a feature, or contact an admin.
+                      </span>
+                    </span>
+                  </span>
+                  <span className="rounded-full bg-veil-500 px-3 py-1 text-xs font-bold text-white">
+                    Open
+                  </span>
+                </button>
+
+                <UsernameSettings />
+                <AboutYou
+                  identity={identity}
+                  isPublic={identityPublic}
+                  onSave={updateIdentity}
+                />
+                <SecureAccount />
+                <PasskeySetup />
+                {profileId && (
+                  <Link
+                    to={`/u/${profileId}`}
+                    className="mb-3 flex items-center justify-center gap-2 rounded-2xl border border-white/10 py-2.5 text-sm font-semibold text-white/70 active:scale-[0.98]"
+                  >
+                    <Eye className="h-4 w-4" /> View my public profile
+                  </Link>
+                )}
+                {hasWallet && (
+                  <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+                    <div className="mb-1 flex items-center gap-2">
+                      <Music className="h-4 w-4 text-veil-300" />
+                      <h3 className="font-display text-sm font-semibold text-white">
+                        Profile music
+                      </h3>
+                    </div>
+                    <p className="mb-2 text-xs text-white/50">
+                      Paste a Spotify, YouTube Music, SoundCloud, or Apple Music link.
+                    </p>
+                    <input
+                      defaultValue={musicUrl ?? ""}
+                      onBlur={(e) => setMusicUrl(e.target.value)}
+                      placeholder="https://open.spotify.com/…"
+                      className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {/* Sensitive (NSFW) media. */}
+                <button
+                  onClick={toggleNsfw}
+                  className="flex w-full items-center justify-between rounded-2xl bg-white/[0.02] p-4 text-left"
+                >
+                  <div className="min-w-0 pr-3">
+                    <div className="flex items-center gap-1.5">
+                      <ShieldAlert
+                        className={cx(
+                          "h-4 w-4",
+                          nsfwOptIn ? "text-wild" : "text-white/40"
+                        )}
+                      />
+                      <h3 className="font-display text-sm font-semibold text-white">
+                        Show sensitive (NSFW) content
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-white/50">
+                      Off by default. Requires a verified account and 18+
+                      confirmation. When on, media flagged NSFW appears unblurred.
+                    </p>
+                  </div>
+                  <span
+                    className={cx(
+                      "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+                      nsfwOptIn ? "bg-veil-500" : "bg-white/15"
+                    )}
+                  >
+                    <span
+                      className={cx(
+                        "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+                        nsfwOptIn ? "left-[22px]" : "left-0.5"
+                      )}
+                    />
+                  </span>
+                </button>
+
+                {/* Activity popups. */}
+                <button
+                  onClick={() => setNotifyActivity(!notifyActivity)}
+                  className="flex w-full items-center justify-between rounded-2xl bg-white/[0.02] p-4 text-left"
+                >
+                  <div className="min-w-0 pr-3">
+                    <div className="flex items-center gap-1.5">
+                      <Bell
+                        className={cx(
+                          "h-4 w-4",
+                          notifyActivity ? "text-veil-200" : "text-white/40"
+                        )}
+                      />
+                      <h3 className="font-display text-sm font-semibold text-white">
+                        Activity alerts
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-white/50">
+                      A popup when someone Vybs, Fails, comments on, or messages
+                      your posts. Your Activity tab always keeps the history.
+                    </p>
+                  </div>
+                  <span
+                    className={cx(
+                      "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+                      notifyActivity ? "bg-veil-500" : "bg-white/15"
+                    )}
+                  >
+                    <span
+                      className={cx(
+                        "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+                        notifyActivity ? "left-[22px]" : "left-0.5"
+                      )}
+                    />
+                  </span>
+                </button>
+
+                {/* Show Veil counts on your profile. */}
+                <button
+                  onClick={() => setShowVeils((v) => !v)}
+                  className="flex w-full items-center justify-between rounded-2xl bg-white/[0.02] p-4 text-left"
+                >
+                  <div className="min-w-0 pr-3">
+                    <div className="flex items-center gap-1.5">
+                      <EyeOff
+                        className={cx("h-4 w-4", showVeils ? "text-veil-200" : "text-white/40")}
+                      />
+                      <h3 className="font-display text-sm font-semibold text-white">
+                        Show Fail counts
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-white/50">
+                      Display the number of Fails alongside Vybs on your profile.
+                    </p>
+                  </div>
+                  <span
+                    className={cx(
+                      "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+                      showVeils ? "bg-veil-500" : "bg-white/15"
+                    )}
+                  >
+                    <span
+                      className={cx(
+                        "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+                        showVeils ? "left-[22px]" : "left-0.5"
+                      )}
+                    />
+                  </span>
+                </button>
+
+                {/* Sound. */}
+                <SoundControl />
+
+                {/* Offline storage. */}
+                <OfflineControl />
+
+                {/* Lifelines — peer-support volunteer opt-in. */}
+                <LifelineOptIn />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Membership — MYVYB Plus status or upgrade CTA. */}
+      {isPremium ? (
+        <div className="mb-3 flex items-center gap-3 rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300">
+            <Crown className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-display font-semibold text-white">
+              MYVYB Plus · Godmode
+            </p>
+            <p className="text-xs text-amber-200/70">
+              Unlimited messaging &amp; Power Ups, active for life.
+            </p>
+          </div>
+          <span className="ml-auto font-display text-xl font-bold text-amber-300">
+            ∞
+          </span>
+        </div>
+      ) : (
+        <button
+          onClick={openPremium}
+          className="mb-3 flex w-full items-center gap-3 rounded-2xl border border-amber-300/25 bg-gradient-to-r from-amber-400/10 to-veil-500/10 p-4 text-left transition active:scale-[0.99]"
+        >
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400/15 text-amber-300">
+            <Crown className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-display font-semibold text-white">
+              Unlock Godmode — {godmodePrice}
+            </p>
+            <p className="text-xs text-white/55">
+              Unlimited messaging · Power Up gifting · premium backgrounds
+            </p>
+          </div>
+          <span className="ml-auto font-display text-sm font-bold text-amber-300">
+            Upgrade
+          </span>
+        </button>
+      )}
+
+      </>
+      )}
+
+      {/* ===== POSTS tab ===== */}
+      {tab === "posts" && (
+      <>
+      {/* Veil Reputation (karma) — transparent, kindness-driven reach. */}
+      <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="flex items-center gap-2 eyebrow">
+            <ShieldCheck className="h-4 w-4" style={{ color: tier.color }} />
+            Veil reputation
+          </span>
+          <span
+            className="rounded-full px-2.5 py-0.5 text-xs font-bold"
+            style={{ color: tier.color, backgroundColor: `${tier.color}22` }}
+          >
+            {tier.label}
+          </span>
+        </div>
+        <div className="flex items-end justify-between">
+          <p className="font-display text-2xl font-bold text-white">
+            {formatCount(karma)}{" "}
+            <span className="text-sm font-normal text-white/40">karma</span>
+          </p>
+          <p className="text-xs text-white/40">{reach}% reach</p>
+        </div>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${reach}%` }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="h-full rounded-full"
+            style={{ backgroundColor: tier.color, boxShadow: `0 0 12px ${tier.color}` }}
+          />
+        </div>
+        <p className="mt-2 text-[11px] leading-snug text-white/40">
+          Empathy — felt confessions, kind comments, friendships — quietly grows
+          your reach. Cruelty shrinks it. No secret bans; just honest gravity.
+        </p>
+      </div>
+
+      </>
+      )}
+
+      {/* ===== ABOUT tab (continued — personalization) ===== */}
+      {tab === "about" && (
+      <>
+      {/* Living background — the touch-reactive backdrop. Premium variants
+          are a Godmode personalization (replaces the old cosmetic auras). */}
+      <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+        <p className="mb-2 flex items-center gap-2 eyebrow">
+          <Sparkles className="h-4 w-4 text-glow" />
+          Living background
+        </p>
+        <div className="flex flex-wrap gap-2.5">
+          {BG_VARIANTS.map((v) => {
+            const selected = v.id === bgVariant;
+            const owned = v.price === 0 || isUnlocked(`bg:${v.id}`);
+            return (
+              <button
+                key={v.id}
+                onClick={() =>
+                  pickCustomization(`bg:${v.id}`, v.price, !!v.exclusive, () =>
+                    setBgVariant(v.id)
+                  )
+                }
+                className={cx(
+                  "relative flex h-11 w-16 items-end justify-center rounded-xl pb-1 text-[9px] font-semibold text-white/90 transition active:scale-90",
+                  selected && "ring-2 ring-white ring-offset-2 ring-offset-ink-900"
+                )}
+                style={{
+                  background: `linear-gradient(150deg, ${v.colors[0]}, ${v.colors[1]}, ${v.colors[2]})`,
+                }}
+                aria-label={v.label}
+              >
+                <span className="rounded bg-black/35 px-1 leading-tight backdrop-blur-sm">
+                  {v.label}
+                </span>
+                <PriceBadge
+                  exclusive={!!v.exclusive}
+                  owned={owned}
+                  selected={selected}
+                  isPremium={isPremium}
+                  price={priceFor(v.price, isPremium)}
+                />
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-[11px] text-white/40">
+          Unlock with V¢ — yours forever. {isPremium ? GODMODE_DISCOUNT_LABEL + "." : "Touch the background to stir it."}
+        </p>
+      </div>
+
+      {/* Page transitions (Godmode personalization). */}
+      <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+        <p className="mb-2 flex items-center gap-2 eyebrow">
+          <Sparkles className="h-4 w-4 text-glow" />
+          Page transition
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {PAGE_TRANSITIONS.map((t) => {
+            const selected = t.id === pageTransition;
+            const owned = t.price === 0 || isUnlocked(`transition:${t.id}`);
+            return (
+              <button
+                key={t.id}
+                onClick={() =>
+                  pickCustomization(`transition:${t.id}`, t.price, !!t.exclusive, () =>
+                    setPageTransition(t.id)
+                  )
+                }
+                className={cx(
+                  "relative rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
+                  selected
+                    ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {t.label}
+                {!owned && (
+                  <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] text-amber-300/90">
+                    <Coins className="h-2.5 w-2.5" />
+                    {priceFor(t.price, isPremium)}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Dock style — color theme + effect (V¢; Godmode discounted). */}
+      <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+        <p className="mb-2 flex items-center gap-2 eyebrow">
+          <Sparkles className="h-4 w-4 text-glow" />
+          Dock color
+        </p>
+        <div className="flex flex-wrap gap-2.5">
+          {DOCK_COLORS.map((c) => {
+            const selected = c.id === dockColor;
+            const owned = c.price === 0 || isUnlocked(`dockcolor:${c.id}`);
+            const swatch =
+              c.colors.length === 1
+                ? c.colors[0]
+                : `linear-gradient(90deg, ${c.colors.join(", ")})`;
+            return (
+              <button
+                key={c.id}
+                onClick={() =>
+                  pickCustomization(`dockcolor:${c.id}`, c.price, !!c.exclusive, () =>
+                    setDockColor(c.id)
+                  )
+                }
+                className={cx(
+                  "relative flex h-9 w-16 items-end justify-center rounded-xl pb-0.5 text-[9px] font-semibold text-white transition active:scale-90",
+                  selected && "ring-2 ring-white ring-offset-2 ring-offset-ink-900"
+                )}
+                style={{ background: swatch }}
+                aria-label={c.label}
+              >
+                <span className="rounded bg-black/35 px-1 leading-tight backdrop-blur-sm">
+                  {c.label}
+                </span>
+                <PriceBadge
+                  exclusive={!!c.exclusive}
+                  owned={owned}
+                  selected={selected}
+                  isPremium={isPremium}
+                  price={priceFor(c.price, isPremium)}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mb-2 mt-4 flex items-center gap-2 eyebrow">
+          <Sparkles className="h-4 w-4 text-glow" />
+          Dock effect
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {DOCK_FX.map((f) => {
+            const selected = f.id === dockFx;
+            const owned = f.price === 0 || isUnlocked(`dockfx:${f.id}`);
+            return (
+              <button
+                key={f.id}
+                onClick={() =>
+                  pickCustomization(`dockfx:${f.id}`, f.price, !!f.exclusive, () =>
+                    setDockFx(f.id)
+                  )
+                }
+                className={cx(
+                  "relative rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
+                  selected
+                    ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {f.label}
+                {f.exclusive && !isPremium ? (
+                  <Crown className="ml-1 inline h-3 w-3 text-amber-300" />
+                ) : (
+                  !owned && (
+                    <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] text-amber-300/90">
+                      <Coins className="h-2.5 w-2.5" />
+                      {priceFor(f.price, isPremium)}
+                    </span>
+                  )
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-2 text-[11px] text-white/40">
+          {isPremium
+            ? `Customize your dock. ${GODMODE_DISCOUNT_LABEL} on everything.`
+            : "Earn V¢ and customize your dock — unlocks are permanent."}
+        </p>
+      </div>
+
+      </>
+      )}
+
+      {/* ===== POSTS tab (continued — analytics + confessions) ===== */}
+      {tab === "posts" && (
+      <>
+      {/* Headline stats. */}
+      <div className={cx("mb-3 grid gap-3", showVeils ? "grid-cols-3" : "grid-cols-2")}>
+        <StatTile label="Confessions" value={stats.confessions} />
+        <StatTile label="Vybs" value={stats.feels} accent="#34f5a0" />
+        {showVeils && <StatTile label="Fails" value={stats.wilds} accent="#6366f1" />}
+      </div>
+
+      {/* Analytics row. */}
+      <div className="mb-6 grid grid-cols-2 gap-3">
+        <AnalyticsCard
+          label="Resonance"
+          value={`${stats.resonance}%`}
+          hint="felt, not veiled"
+          progress={stats.resonance}
+          color="#c77dff"
+        />
+        <AnalyticsCard
+          label="Feel share"
+          value={`${stats.resonance}%`}
+          hint="Vybs vs. Fails"
+          progress={stats.resonance}
+          color="#34f5a0"
+        />
+      </div>
+
+      </>
+      )}
+
+      {/* ===== FRIENDS tab ===== */}
+      {tab === "friends" && (
+      <>
+      {/* Friends & requests. */}
+      <div className="mb-6">
+        <div className="mb-3 flex items-center justify-between px-1">
+          <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-white">
+            <Users className="h-4 w-4 text-veil-200" />
+            Friends
+          </h3>
+          <span className="text-xs text-white/40">{accepted.length}</span>
+        </div>
+
+        {incoming.length > 0 && (
+          <div className="mb-3 space-y-2">
+            <p className="px-1 text-xs uppercase tracking-wider text-veil-200/80">
+              Friend requests
+            </p>
+            {incoming.map((f) => (
+              <div
+                key={f.confessionId}
+                className="flex items-center gap-3 rounded-2xl border border-veil-400/30 bg-veil-500/[0.08] p-3"
+              >
+                <FriendAvatar friend={f} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-display font-semibold text-white">
+                    <Handle emoji={f.alias} size={14} />
+                  </div>
+                  <IdentityMeta
+                    gender={f.gender}
+                    age={f.age}
+                    location={f.location}
+                    size="sm"
+                  />
+                </div>
+                <button
+                  onClick={() => acceptFriend(f.confessionId)}
+                  aria-label="Accept"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-feel/20 text-feel transition active:scale-90"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => declineFriend(f.confessionId)}
+                  aria-label="Decline"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white/50 transition active:scale-90"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {accepted.length === 0 && incoming.length === 0 && pending.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.02] p-6 text-center">
+            <UserPlus className="h-6 w-6 text-white/30" />
+            <p className="text-sm text-white/45">
+              Meet someone in a room or the feed, then add them as a friend.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {accepted.map((f) => (
+              <div
+                key={f.confessionId}
+                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3"
+              >
+                <FriendAvatar friend={f} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-display font-semibold text-white">
+                    <Handle emoji={f.alias} size={14} />
+                  </div>
+                  <IdentityMeta
+                    gender={f.gender}
+                    age={f.age}
+                    location={f.location}
+                    size="sm"
+                  />
+                </div>
+                {isPremium && (
+                  <button
+                    onClick={() => giftPowerUp(f.confessionId, f.alias)}
+                    aria-label="Gift Power Up"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-amber-400/15 text-amber-300 transition active:scale-90"
+                  >
+                    <Gift className="h-4 w-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => openConnection(f.confessionId, "message")}
+                  className="flex items-center gap-1.5 rounded-full bg-veil-500 px-4 py-2 text-sm font-semibold text-white shadow-glow transition active:scale-95"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Message
+                </button>
+              </div>
+            ))}
+            {pending.map((f) => (
+              <div
+                key={f.confessionId}
+                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3 opacity-70"
+              >
+                <FriendAvatar friend={f} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-display font-semibold text-white">
+                    <Handle emoji={f.alias} size={14} />
+                  </div>
+                  <p className="text-xs text-white/40">Request sent</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Connections — real, profile-to-profile friends (from rooms / posts). */}
+      {connections.length > 0 && (
+        <div className="mb-6">
+          <div className="mb-3 flex items-center justify-between px-1">
+            <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-white">
+              <Users className="h-4 w-4 text-feel" />
+              Connections
+            </h3>
+            <span className="text-xs text-white/40">{connAccepted.length}</span>
+          </div>
+
+          {connIncoming.length > 0 && (
+            <div className="mb-3 space-y-2">
+              <p className="px-1 text-xs uppercase tracking-wider text-veil-200/80">
+                Requests
+              </p>
+              {connIncoming.map((f) => (
+                <div
+                  key={f.peerId}
+                  className="flex items-center gap-3 rounded-2xl border border-veil-400/30 bg-veil-500/[0.08] p-3"
+                >
+                  <AuraDot aura={f.aura} alias={f.alias} />
+                  <span className="min-w-0 flex-1 truncate font-display font-semibold text-white">{f.alias}</span>
+                  <button
+                    onClick={() => acceptFriendById(f.peerId)}
+                    aria-label="Accept"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-feel/20 text-feel transition active:scale-90"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => removeFriendById(f.peerId)}
+                    aria-label="Decline"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-white/50 transition active:scale-90"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {connAccepted.map((f) => (
+              <div
+                key={f.peerId}
+                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3"
+              >
+                <AuraDot aura={f.aura} alias={f.alias} />
+                <span className="min-w-0 flex-1 truncate font-display font-semibold text-white">{f.alias}</span>
+                <button
+                  onClick={() => removeFriendById(f.peerId)}
+                  className="rounded-full border border-white/10 px-3 py-1.5 text-xs font-medium text-white/45 transition active:scale-95"
+                >
+                  Remove
+                </button>
+                <button
+                  onClick={() =>
+                    openFriendChat({ id: f.peerId, alias: f.alias, aura: f.aura })
+                  }
+                  className="flex items-center gap-1.5 rounded-full bg-veil-500 px-4 py-2 text-sm font-semibold text-white shadow-glow transition active:scale-95"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Message
+                </button>
+              </div>
+            ))}
+            {connPending.map((f) => (
+              <div
+                key={f.peerId}
+                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3 opacity-70"
+              >
+                <AuraDot aura={f.aura} alias={f.alias} />
+                <div className="min-w-0 flex-1">
+                  <span className="truncate font-display font-semibold text-white">{f.alias}</span>
+                  <p className="text-xs text-white/40">Request sent</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      </>
+      )}
+
+      {/* ===== POSTS tab (continued — your confessions) ===== */}
+      {tab === "posts" && (
+      <>
+      <div className="mb-3 flex items-center justify-between px-1">
+        <h3 className="font-display text-lg font-semibold text-white">
+          Your confessions
+        </h3>
+        <span className="text-xs text-white/40">
+          {stats.confessions} {stats.confessions === 1 ? "post" : "posts"}
+        </span>
+      </div>
+
+      {ownPosts.length === 0 ? (
+        <EmptyState
+          icon={Sparkles}
+          title="No confessions yet"
+          body="Your posts will live here. Share your first secret — it's completely anonymous."
+          action={
+            <button
+              onClick={openCompose}
+              className="mt-1 rounded-full bg-veil-500 px-5 py-2.5 text-sm font-semibold text-white shadow-glow active:scale-95"
+            >
+              Confess something
+            </button>
+          }
+        />
+      ) : (
+        <div className="space-y-3">
+          {ownPosts.map((confession) => (
+            <OwnCard key={confession.id} confession={confession} />
+          ))}
+        </div>
+      )}
+      </>
+      )}
+
+      {/* ===== ABOUT tab (continued — account footer) ===== */}
+      {tab === "about" && (
+      <>
+      <button
+        onClick={signOut}
+        className="mx-auto mt-8 flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-sm font-semibold text-white/55 transition active:scale-95"
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </button>
+
+      <LegalLinks className="mt-6" />
+      <Copyright className="mt-4" />
+      </>
+      )}
+
+      <VerifyGate
+        mode="nsfw"
+        open={nsfwGateOpen}
+        onClose={() => setNsfwGateOpen(false)}
+      />
+      <CreditsShop open={shopOpen} onClose={() => setShopOpen(false)} />
+
+      {/* Hidden file pickers for avatar / banner uploads. */}
+      <input
+        ref={avatarFileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          handleImageFile(e.target.files?.[0], "avatar");
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={bannerFileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          handleImageFile(e.target.files?.[0], "banner");
+          e.target.value = "";
+        }}
+      />
+
+      {/* Avatar / banner edit sheet. */}
+      <AnimatePresence>
+        {editImage && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setEditImage(null)}
+              className="fixed inset-0 z-[60] bg-black/75 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 320, damping: 34 }}
+              className="fixed inset-x-0 bottom-0 z-[60] mx-auto max-w-md rounded-t-3xl border-t border-white/10 bg-ink-900 p-5 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+            >
+              <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-white/20" />
+              <h3 className="mb-4 font-display text-lg font-bold text-white">
+                {editImage === "avatar" ? "Your avatar" : "Your banner"}
+              </h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() =>
+                    (editImage === "avatar" ? avatarFileRef : bannerFileRef).current?.click()
+                  }
+                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left active:scale-[0.98]"
+                >
+                  <Upload className="h-5 w-5 text-veil-200" />
+                  <span className="text-sm font-semibold text-white">Upload an image</span>
+                </button>
+                {(editImage === "avatar" ? avatarUrl : bannerUrl) && (
+                  <button
+                    onClick={() => {
+                      (editImage === "avatar" ? setAvatar : setBanner)(null);
+                      setEditImage(null);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-4 text-left text-white/60 active:scale-[0.98]"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                    <span className="text-sm font-semibold">Remove</span>
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/** Corner badge for a customization swatch: check / crown / V¢ price. */
+function PriceBadge({
+  exclusive,
+  owned,
+  selected,
+  isPremium,
+  price,
+}: {
+  exclusive: boolean;
+  owned: boolean;
+  selected: boolean;
+  isPremium: boolean;
+  price: number;
+}) {
+  if (selected)
+    return (
+      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-feel text-ink-950">
+        <Check className="h-2.5 w-2.5" />
+      </span>
+    );
+  if (exclusive && !isPremium)
+    return (
+      <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-ink-950">
+        <Crown className="h-2.5 w-2.5 text-amber-300" />
+      </span>
+    );
+  if (!owned)
+    return (
+      <span className="absolute -right-1 -top-1 flex items-center gap-0.5 rounded-full bg-ink-950 px-1 py-0.5 text-[8px] font-bold text-amber-300">
+        <Coins className="h-2 w-2" />
+        {price}
+      </span>
+    );
+  return null;
+}
+
+/** Small identity-tinted initial avatar for backend connections. */
+function AuraDot({ aura, alias }: { aura: string; alias: string }) {
+  const g = avatarGradient(alias || aura);
+  return (
+    <div
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-white/90"
+      style={{
+        background: `linear-gradient(150deg, ${g[0]}, ${g[1]})`,
+      }}
+    >
+      {(alias || "?").charAt(0).toUpperCase()}
+    </div>
+  );
+}
+
+function AboutYou({
+  identity,
+  isPublic,
+  onSave,
+}: {
+  identity: Identity;
+  isPublic: boolean;
+  onSave: (identity: Identity, isPublic: boolean) => void;
+}) {
+  const [gender, setGender] = useState<Gender | null>(identity.gender ?? null);
+  const [ageOn, setAgeOn] = useState(identity.age != null);
+  const [age, setAge] = useState(identity.age ?? 24);
+  const [location, setLocation] = useState(identity.location ?? "");
+  const [pub, setPub] = useState(isPublic);
+  const { identityChangesRemaining, selfChangeIdentity, showToast } = useApp();
+  const [changing, setChanging] = useState(false);
+  // Sex and age are permanent once set — except a one-time self change.
+  const genderLocked = identity.gender != null && !changing;
+  const ageLocked = identity.age != null && !changing;
+  const canRequestChange =
+    (identity.gender != null || identity.age != null) &&
+    identityChangesRemaining > 0 &&
+    !changing;
+
+  // Re-sync when the profile loads/changes from the backend.
+  useEffect(() => {
+    setGender(identity.gender ?? null);
+    setAgeOn(identity.age != null);
+    setAge(identity.age ?? 24);
+    setLocation(identity.location ?? "");
+    setPub(isPublic);
+  }, [identity, isPublic]);
+
+  async function save() {
+    // Using the one-time change routes sex/age through the server (which lifts
+    // permanence for this one edit); location + visibility save normally.
+    if (changing) {
+      const ok = await selfChangeIdentity(gender ?? undefined, ageOn ? age : undefined);
+      showToast(ok ? "Identity updated (one-time change used)." : "No change credit left.");
+      setChanging(false);
+    }
+    onSave(
+      {
+        gender: gender ?? undefined,
+        age: ageOn ? age : undefined,
+        location: location.trim() || undefined,
+      },
+      pub
+    );
+  }
+
+  return (
+    <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/55">
+          About you
+        </p>
+        <button
+          onClick={() => setPub((v) => !v)}
+          className={cx(
+            "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition active:scale-95",
+            pub
+              ? "border-feel/40 bg-feel/10 text-feel"
+              : "border-white/15 bg-white/5 text-white/55"
+          )}
+        >
+          {pub ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+          {pub ? "Public" : "Private"}
+        </button>
+      </div>
+
+      {/* Gender (permanent once set). */}
+      <div className="mb-1 flex gap-2">
+        {(["F", "M"] as Gender[]).map((g) => {
+          const selected = gender === g;
+          return (
+            <button
+              key={g}
+              disabled={genderLocked}
+              onClick={() => !genderLocked && setGender(selected ? null : g)}
+              className={cx(
+                "flex-1 rounded-xl border py-2 text-sm font-semibold transition",
+                selected
+                  ? "border-veil-400/60 bg-veil-500/20 text-white"
+                  : "border-white/10 text-white/50",
+                genderLocked ? "opacity-90" : "active:scale-95"
+              )}
+            >
+              {g === "F" ? "♀ Female" : "♂ Male"}
+            </button>
+          );
+        })}
+      </div>
+      {(genderLocked || ageLocked) && (
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <p className="flex items-center gap-1 text-[11px] text-white/35">
+            <Lock className="h-3 w-3" /> Sex & age are permanent.
+          </p>
+          {canRequestChange && (
+            <button
+              onClick={() => setChanging(true)}
+              className="rounded-full border border-veil-400/40 px-2.5 py-1 text-[11px] font-semibold text-veil-200 active:scale-95"
+            >
+              Use 1-time change
+            </button>
+          )}
+        </div>
+      )}
+      {changing && (
+        <p className="mb-3 text-[11px] font-semibold text-veil-200">
+          One-time change active — set your sex/age, then Save.
+        </p>
+      )}
+
+      {/* Age (permanent once set). */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-white/80">Show age</span>
+          <button
+            disabled={ageLocked}
+            onClick={() => !ageLocked && setAgeOn((v) => !v)}
+            className={cx(
+              "relative h-6 w-11 rounded-full transition-colors",
+              ageOn ? "bg-veil-500" : "bg-white/15",
+              ageLocked && "opacity-90"
+            )}
+          >
+            <span
+              className={cx(
+                "absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all",
+                ageOn ? "left-[22px]" : "left-0.5"
+              )}
+            />
+          </button>
+        </div>
+        {ageOn && (
+          <div className="flex items-center gap-3 pt-2.5">
+            <input
+              type="range"
+              min={13}
+              max={99}
+              value={age}
+              disabled={ageLocked}
+              onChange={(e) => setAge(Number(e.target.value))}
+              className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/15 accent-veil-400 disabled:cursor-not-allowed"
+            />
+            <span className="w-8 text-center font-display text-lg font-bold text-veil-200">
+              {age}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Location. */}
+      <input
+        type="text"
+        value={location}
+        maxLength={28}
+        onChange={(e) => setLocation(e.target.value)}
+        placeholder="Location (e.g. Downtown)"
+        className="mb-3 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+      />
+
+      <button
+        onClick={save}
+        className="w-full rounded-xl bg-veil-500 py-2.5 text-sm font-semibold text-white shadow-glow transition active:scale-[0.98]"
+      >
+        Save profile
+      </button>
+      <p className="mt-2 text-[11px] text-white/40">
+        {pub
+          ? "Shown alongside your confessions."
+          : "Hidden from everyone — never attached to your posts."}
+      </p>
+    </div>
+  );
+}
+
+function FriendAvatar({ friend }: { friend: { seed: number } }) {
+  return (
+    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+      <VeiledArt seed={friend.seed} revealed />
+    </div>
+  );
+}
+
+function StatTile({
+  label,
+  value,
+  accent = "#ffffff",
+}: {
+  label: string;
+  value: number;
+  accent?: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-center">
+      <p className="font-display text-xl font-bold" style={{ color: accent }}>
+        {formatCount(value)}
+      </p>
+      <p className="mt-0.5 text-[10px] uppercase tracking-wider text-white/45">
+        {label}
+      </p>
+    </div>
+  );
+}
+
+function AnalyticsCard({
+  label,
+  value,
+  hint,
+  progress,
+  color,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  progress: number;
+  color: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+      <p className="eyebrow">{label}</p>
+      <p className="mt-1 font-display text-2xl font-bold" style={{ color }}>
+        {value}
+      </p>
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="h-full rounded-full"
+          style={{ backgroundColor: color, boxShadow: `0 0 12px ${color}` }}
+        />
+      </div>
+      <p className="mt-1.5 text-[11px] text-white/40">{hint}</p>
+    </div>
+  );
+}
+
+function OwnCard({ confession }: { confession: OwnConfession }) {
+  const [revealed, setRevealed] = useState(false);
+  const [whisperOpen, setWhisperOpen] = useState(false);
+  const [whisperDraft, setWhisperDraft] = useState("");
+  const { whispers, setWhisper, isSpotlighted, spotlight } = useApp();
+  const whisper = whispers[confession.id];
+  const spotlighted = isSpotlighted(confession.id);
+
+  function submitWhisper() {
+    if (!whisperDraft.trim()) return;
+    setWhisper(confession.id, whisperDraft);
+    setWhisperDraft("");
+    setWhisperOpen(false);
+  }
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03]">
+      <button
+        onClick={() => setRevealed((r) => !r)}
+        className="flex w-full items-stretch gap-3 p-3 text-left"
+      >
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
+          <VeiledArt seed={confession.seed} revealed={revealed} />
+        </div>
+        <div className="min-w-0 flex-1">
+          {confession.featured && (
+            <span className="mb-1 inline-block text-[10px] font-semibold text-glow">
+              ✦ Featured
+            </span>
+          )}
+          <p
+            className={cx(
+              "text-sm leading-snug text-white/85",
+              revealed ? "" : "line-clamp-2"
+            )}
+          >
+            {confession.text}
+          </p>
+          {revealed && (
+            <IdentityMeta
+              gender={confession.gender}
+              age={confession.age}
+              location={confession.location}
+              size="sm"
+              className="mt-1"
+            />
+          )}
+          <p className="mt-1 text-[11px] text-white/40">
+            {timeAgo(confession.createdAt)}
+          </p>
+        </div>
+      </button>
+
+      <div className="flex items-center gap-4 border-t border-white/8 px-3 py-2.5 text-xs">
+        <span className="flex items-center gap-1 text-feel">
+          <Eye className="h-3.5 w-3.5" />
+          {formatCount(confession.feels)}
+        </span>
+        <span className="flex items-center gap-1 text-shroud">
+          <EyeOff className="h-3.5 w-3.5" />
+          {formatCount(confession.wilds)}
+        </span>
+        <span className="flex items-center gap-1 text-white/45">
+          <Eye className="h-3.5 w-3.5" />
+          {formatCount(confession.views)}
+        </span>
+        <Sparkline data={confession.trend} className="ml-auto" />
+      </div>
+
+      {/* Existing whisper-back to everyone who felt this confession. */}
+      {whisper && (
+        <div className="flex items-start gap-2 border-t border-white/8 bg-veil-500/[0.06] px-3 py-2.5">
+          <Megaphone className="mt-0.5 h-3.5 w-3.5 shrink-0 text-veil-200" />
+          <p className="text-xs italic leading-snug text-white/75">{whisper}</p>
+        </div>
+      )}
+
+      {/* Whisper composer. */}
+      {whisperOpen && (
+        <div className="flex items-center gap-2 border-t border-white/8 px-3 py-2.5">
+          <input
+            value={whisperDraft}
+            onChange={(e) => setWhisperDraft(e.target.value.slice(0, 120))}
+            onKeyDown={(e) => e.key === "Enter" && submitWhisper()}
+            placeholder="One line to everyone who felt you…"
+            className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
+          />
+          <button
+            onClick={submitWhisper}
+            aria-label="Send whisper"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-veil-500 text-white"
+          >
+            <Send className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Owner actions: whisper + spotlight. */}
+      <div className="flex items-center gap-2 border-t border-white/8 px-3 py-2.5">
+        <button
+          onClick={() => setWhisperOpen((v) => !v)}
+          className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/70 transition active:scale-95"
+        >
+          <Megaphone className="h-3.5 w-3.5" />
+          {whisper ? "Update whisper" : "Whisper back"}
+        </button>
+        <button
+          onClick={() => spotlight(confession.id)}
+          disabled={spotlighted}
+          className={cx(
+            "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
+            spotlighted
+              ? "bg-amber-400/15 text-amber-300"
+              : "bg-white/5 text-white/70"
+          )}
+        >
+          <Star className="h-3.5 w-3.5" />
+          {spotlighted ? "Spotlighted" : "Spotlight"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Tiny inline SVG sparkline of the 7-day reaction trend. */
+function Sparkline({
+  data,
+  className,
+}: {
+  data: number[];
+  className?: string;
+}) {
+  const w = 60;
+  const h = 20;
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const span = max - min || 1;
+  const points = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * w;
+      const y = h - ((v - min) / span) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return (
+    <svg width={w} height={h} className={className} aria-hidden>
+      <polyline
+        points={points}
+        fill="none"
+        stroke="#c77dff"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/** One-time username customization (everyone starts with a random one). */
+function UsernameSettings() {
+  const { account, usernameLocked, changeUsername, backendEnabled, showToast } =
+    useApp();
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [avail, setAvail] = useState<null | "checking" | boolean>(null);
+  const [busy, setBusy] = useState(false);
+  const checkRef = useRef<number | null>(null);
+
+  const clean = normalizeUsername(name);
+  const valid = isValidUsername(clean);
+
+  useEffect(() => {
+    setAvail(null);
+    if (!editing || !valid || !backendEnabled) return;
+    setAvail("checking");
+    if (checkRef.current) clearTimeout(checkRef.current);
+    checkRef.current = window.setTimeout(async () => {
+      setAvail(await usernameAvailable(clean));
+    }, 450);
+    return () => {
+      if (checkRef.current) clearTimeout(checkRef.current);
+    };
+  }, [clean, valid, editing, backendEnabled]);
+
+  async function save() {
+    if (avail !== true || busy) return;
+    setBusy(true);
+    const ok = await changeUsername(clean);
+    setBusy(false);
+    if (ok) {
+      setEditing(false);
+      setName("");
+    } else {
+      showToast("Couldn't change username — it may be taken or already used.");
+    }
+  }
+
+  return (
+    <div className="rounded-2xl bg-white/[0.02] p-4">
+      <div className="flex items-center gap-1.5">
+        <Sparkles className="h-4 w-4 text-veil-200" />
+        <h3 className="font-display text-sm font-semibold text-white">Username</h3>
+      </div>
+      <p className="mt-1 text-sm text-white/70">
+        You are <span className="font-semibold text-white">{account?.username ?? "—"}</span>
+      </p>
+
+      {usernameLocked ? (
+        <p className="mt-2 text-xs text-white/40">
+          You've used your one-time username change.
+        </p>
+      ) : !editing ? (
+        <button
+          onClick={() => setEditing(true)}
+          className="mt-3 rounded-full bg-veil-500/20 px-4 py-2 text-xs font-semibold text-veil-100 ring-1 ring-veil-400/30 active:scale-95"
+        >
+          Customize Username
+        </button>
+      ) : (
+        <div className="mt-3">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Green Panda"
+            autoFocus
+            className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+          />
+          <div className="mt-1.5 h-4 text-xs">
+            {!name ? null : !valid ? (
+              <span className="text-white/40">Use 1–3 words, letters only</span>
+            ) : avail === "checking" ? (
+              <span className="text-white/40">Checking…</span>
+            ) : avail === true ? (
+              <span className="font-semibold text-feel">✓ {clean} is available</span>
+            ) : avail === false ? (
+              <span className="font-semibold text-wild">Taken — try another</span>
+            ) : null}
+          </div>
+          <p className="mt-1 text-[11px] text-white/35">
+            One-time change — choose carefully.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              onClick={save}
+              disabled={avail !== true || busy}
+              className="flex-1 rounded-full bg-veil-500 py-2 text-xs font-semibold text-white shadow-glow active:scale-95 disabled:bg-white/10 disabled:text-white/40 disabled:shadow-none"
+            >
+              {busy ? "Saving…" : "Save (one-time)"}
+            </button>
+            <button
+              onClick={() => {
+                setEditing(false);
+                setName("");
+              }}
+              className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/55 active:scale-95"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Master sound toggle + volume for platform and game audio. */
+function SoundControl() {
+  const { enabled, volume } = useSoundSettings();
+  return (
+    <div className="rounded-2xl bg-white/[0.02] p-4">
+      <button
+        onClick={() => {
+          const next = !enabled;
+          setSoundEnabled(next);
+          if (next) playSound("tap");
+        }}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <div className="min-w-0 pr-3">
+          <div className="flex items-center gap-1.5">
+            {enabled ? (
+              <Volume2 className="h-4 w-4 text-veil-200" />
+            ) : (
+              <VolumeX className="h-4 w-4 text-white/40" />
+            )}
+            <h3 className="font-display text-sm font-semibold text-white">Sound</h3>
+          </div>
+          <p className="mt-1 text-xs leading-relaxed text-white/50">
+            Tactile cues across the app and games. Off by default on silent.
+          </p>
+        </div>
+        <span
+          className={cx(
+            "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+            enabled ? "bg-veil-500" : "bg-white/15"
+          )}
+        >
+          <span
+            className={cx(
+              "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+              enabled ? "left-[22px]" : "left-0.5"
+            )}
+          />
+        </span>
+      </button>
+
+      {enabled && (
+        <div className="mt-3 flex items-center gap-3">
+          <VolumeX className="h-3.5 w-3.5 shrink-0 text-white/35" />
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={volume}
+            onChange={(e) => setSoundVolume(Number(e.target.value))}
+            onPointerUp={() => playSound("tap")}
+            className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-veil-400"
+            aria-label="Sound volume"
+          />
+          <Volume2 className="h-3.5 w-3.5 shrink-0 text-white/55" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OfflineControl() {
+  const { limitMB } = useOfflineSettings();
+  const [usedMB, setUsedMB] = useState<number | null>(null);
+
+  const refresh = useCallback(() => {
+    void cacheUsageBytes().then((b) => setUsedMB(Math.round((b / (1024 * 1024)) * 10) / 10));
+  }, []);
+  useEffect(() => {
+    refresh();
+  }, [refresh, limitMB]);
+
+  const label = (mb: number) =>
+    mb === 0 ? "Off" : mb >= 1000 ? `${mb / 1000} GB` : `${mb} MB`;
+
+  return (
+    <div className="rounded-2xl bg-white/[0.02] p-4">
+      <div className="flex items-center gap-1.5">
+        <HardDrive className="h-4 w-4 text-veil-200" />
+        <h3 className="font-display text-sm font-semibold text-white">
+          Offline storage
+        </h3>
+      </div>
+      <p className="mt-1 text-xs leading-relaxed text-white/50">
+        Automatically keep recent photos &amp; videos on this device for offline
+        enjoyment. Choose how much space to use.
+        {usedMB != null && limitMB > 0 && (
+          <span className="text-white/40"> Currently using {usedMB} MB.</span>
+        )}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {OFFLINE_PRESETS_MB.map((mb) => (
+          <button
+            key={mb}
+            onClick={() => {
+              setOfflineLimitMB(mb);
+              setTimeout(refresh, 400);
+            }}
+            className={cx(
+              "rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
+              limitMB === mb
+                ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                : "bg-white/[0.04] text-white/55"
+            )}
+          >
+            {label(mb)}
+          </button>
+        ))}
+      </div>
+      {limitMB > 0 && (usedMB ?? 0) > 0 && (
+        <button
+          onClick={() => {
+            void clearOfflineCache().then(refresh);
+          }}
+          className="mt-3 text-xs font-semibold text-white/45 underline-offset-2 hover:underline"
+        >
+          Clear offline media now
+        </button>
+      )}
+    </div>
+  );
+}

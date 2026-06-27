@@ -1,0 +1,19 @@
+{
+  "name": "Veiled XR",
+  "short_name": "Veiled XR",
+  "description": "Step inside the veil — anonymous confessions, all around you, in immersive VR.",
+  "id": "/xr",
+  "start_url": "/xr",
+  "scope": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#050307",
+  "theme_color": "#050307",
+  "categories": ["social", "lifestyle", "entertainment"],
+  "ovr_package_name": "app.getveiled.xr",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

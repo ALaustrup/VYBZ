@@ -1,0 +1,123 @@
+name: Deploy
+
+# Automated deploy pipeline running on GitHub's infrastructure.
+#
+#   push to main  → build + deploy to PRODUCTION  (myvybsocial.vercel.app)
+#   push to dev   → build + deploy to the DEV environment (dev alias)
+#   manual run    → optionally also apply Supabase migrations + deploy functions
+#
+# ── Required GitHub repo secrets (Settings → Secrets and variables → Actions) ──
+#   VERCEL_TOKEN              Vercel account token (vercel.com/account/tokens)
+#   VERCEL_ORG_ID             from `vercel link` → .vercel/project.json
+#   VERCEL_PROJECT_ID         from `vercel link` → .vercel/project.json
+#   VITE_SUPABASE_URL         e.g. https://xhgmpodfpcxfshaqspgh.supabase.co
+#   VITE_SUPABASE_ANON_KEY    Supabase anon/public key
+#   VITE_VAPID_PUBLIC_KEY     Web Push VAPID public key
+#   SUPABASE_ACCESS_TOKEN     Supabase PAT (only needed for the migrations job)
+#   SUPABASE_PROJECT_REF      e.g. xhgmpodfpcxfshaqspgh (only for migrations job)
+#
+# First-time project IDs: run `npx vercel link` locally once, then copy the
+# orgId/projectId out of .vercel/project.json into the GH secrets.
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: "Also apply Supabase migrations + deploy Edge Functions"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Optional: database migrations + edge functions ────────────────────────
+  supabase:
+    name: Supabase migrations + functions
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_migrations }}
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Link project
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+      - name: Apply migrations
+        run: supabase db push
+      - name: Deploy Edge Functions
+        run: |
+          for fn in supabase/functions/*/; do
+            name="$(basename "$fn")"
+            [ "$name" = "_shared" ] && continue
+            echo "Deploying $name"
+            supabase functions deploy "$name" --no-verify-jwt || echo "skip $name"
+          done
+
+  # ── Web deploy (always) ───────────────────────────────────────────────────
+  vercel:
+    name: Build & deploy web
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "target=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "target=preview" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel env
+        run: vercel pull --yes --environment=${{ steps.env.outputs.target }} --token "${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Build
+        run: vercel build ${{ steps.env.outputs.target == 'production' && '--prod' || '' }} --token "${{ secrets.VERCEL_TOKEN }}"
+
+      - name: Deploy
+        id: deploy
+        run: |
+          URL=$(vercel deploy --prebuilt ${{ steps.env.outputs.target == 'production' && '--prod' || '' }} --token "${{ secrets.VERCEL_TOKEN }}")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed to $URL"
+
+      - name: Alias (production → canonical domain)
+        if: ${{ steps.env.outputs.target == 'production' }}
+        run: |
+          vercel alias set "${{ steps.deploy.outputs.url }}" myvybsocial.vercel.app --token "${{ secrets.VERCEL_TOKEN }}" || true
+
+      - name: Alias (dev → dev domain)
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: |
+          vercel alias set "${{ steps.deploy.outputs.url }}" dev-myvybsocial.vercel.app --token "${{ secrets.VERCEL_TOKEN }}" || true
+
+      - name: Summary
+        run: |
+          echo "### MYVYB deployed :rocket:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Environment: **${{ steps.env.outputs.target }}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "- URL: ${{ steps.deploy.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"

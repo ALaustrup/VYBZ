@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  /* Content protection: deter saving user-uploaded media. Disables image drag,
+     the iOS long-press "Save Image" callout, and text-selection on media. The
+     JS guard (lib/mediaGuard.ts) cancels the right-click/long-press menu. */
+  img,
+  video,
+  canvas,
+  [data-protect-media],
+  [data-protect-media] * {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Block print / print-to-PDF capture of any media (and the app generally). */
+  @media print {
+    html {
+      display: none !important;
+    }
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-white font-body antialiased;
+    /* Prevent the rubber-band overscroll that breaks the swipe feel on mobile. */
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+    /* Editorial readability: a touch more line height + optical kerning. */
+    line-height: 1.5;
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Respect users who prefer fewer animations. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Frosted dark-glass panel used by nav and overlays. A faint top highlight +
+     saturation sell the "Smoked Glass" look over the living background. */
+  .glass {
+    @apply border border-white/10 bg-white/[0.055];
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 18px 40px -28px rgba(0, 0, 0, 0.85);
+  }
+
+  /* A heavier panel for cards/sheets that hold dense content. */
+  .glass-panel {
+    @apply rounded-3xl border border-white/10 bg-ink-900/55;
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+      0 24px 60px -34px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Subtle gradient text for headlines. */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(120deg, #e7dcfd 0%, #a87cf8 50%, #c77dff 100%);
+  }
+
+  /* Consistent eyebrow / section label — editorial, quiet, uniform across pages. */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase text-white/45;
+    letter-spacing: 0.16em;
+  }
+
+  /* Shimmering skeleton / accent line. */
+  .shimmer {
+    background: linear-gradient(
+      100deg,
+      rgba(255, 255, 255, 0.04) 30%,
+      rgba(199, 125, 255, 0.18) 50%,
+      rgba(255, 255, 255, 0.04) 70%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Hide scrollbars while keeping scroll behaviour. */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Premium text effects (V¢ / Godmode). Applied to a confession's <p> via the
+ * helpers in src/lib/expression.ts. Kept subtle so the words stay legible.
+ * ------------------------------------------------------------------------- */
+
+/* Iridescent sweep across the glyphs. */
+.fx-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    #ffffff 20%,
+    #c77dff 40%,
+    #8b4ff2 55%,
+    #ffffff 75%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: fx-shimmer-move 3.2s linear infinite;
+  /* Keep a faint shadow so it reads on busy images. */
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.85));
+}
+
+@keyframes fx-shimmer-move {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Soft violet neon halo. */
+.fx-glow {
+  text-shadow:
+    0 0 6px rgba(199, 125, 255, 0.55),
+    0 0 16px rgba(139, 79, 242, 0.45),
+    0 2px 10px rgba(0, 0, 0, 0.9);
+  animation: fx-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes fx-glow-pulse {
+  0%, 100% { text-shadow: 0 0 6px rgba(199, 125, 255, 0.45), 0 0 14px rgba(139, 79, 242, 0.35), 0 2px 10px rgba(0, 0, 0, 0.9); }
+  50% { text-shadow: 0 0 10px rgba(199, 125, 255, 0.7), 0 0 24px rgba(139, 79, 242, 0.55), 0 2px 10px rgba(0, 0, 0, 0.9); }
+}
+
+/* Unstable, haunting flicker. */
+.fx-flicker {
+  animation: fx-flicker-anim 4s steps(1) infinite;
+}
+
+@keyframes fx-flicker-anim {
+  0%, 19%, 21%, 49%, 52%, 100% { opacity: 1; }
+  20% { opacity: 0.45; }
+  50% { opacity: 0.7; }
+  51% { opacity: 0.35; }
+}
+
+/* Words drift up on first paint. */
+.fx-rise {
+  animation: fx-rise-anim 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fx-rise-anim {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-shimmer,
+  .fx-glow,
+  .fx-flicker,
+  .fx-rise {
+    animation: none;
+  }
+}
+
+/* The app lives inside a phone-sized frame; lock it to the viewport. */
+#root {
+  overflow: hidden;
+}
