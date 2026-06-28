@@ -295,11 +295,22 @@ const transparency: LegalDoc = {
       ],
     },
     {
+      heading: "AI on MYVYB (Companions & Echoes)",
+      bullets: [
+        "AI is always labelled. Companions are clearly-marked AI personas owned by MYVYB — they are never real people and never pretend to be.",
+        "An Echo is an optional AI version of YOU. It can only be created and switched on from your own account, by you, with explicit consent — we never build an AI of someone from observed or scraped data.",
+        "Your Echo speaks only from the profile details you choose to share, never your private (hidden) sections, and it is always disclosed as an AI Echo — it will never claim to be the real you or make promises on your behalf.",
+        "You are always in control: pause or delete your Echo at any time (deleting also removes its conversations), and review every conversation it has had.",
+        "Echoes are 18+ only and stay within your age layer. All AI chats run the same crisis-safety checks as the rest of MYVYB and hand off to real help (988 / findahelpline.com) when needed.",
+      ],
+    },
+    {
       heading: "What we never do",
       bullets: [
         "We do not sell your personal data.",
         "We do not show your private profile sections to other users.",
         "We do not enable sensitive content for anyone by default — it is strictly opt-in, verified, and 18+.",
+        "We do not create an AI Echo of anyone without their own explicit, revocable consent.",
       ],
     },
     {

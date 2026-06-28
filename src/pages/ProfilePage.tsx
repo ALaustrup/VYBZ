@@ -48,6 +48,7 @@ import { Handle } from "@/components/Handle";
 import { IdentityMeta } from "@/components/IdentityMeta";
 import { Copyright } from "@/components/Copyright";
 import { SecureAccount } from "@/components/SecureAccount";
+import { EchoSettings } from "@/components/EchoSettings";
 import { PasskeySetup } from "@/components/PasskeySetup";
 import { VerifyGate } from "@/components/VerifyGate";
 import { LifelineOptIn } from "@/components/LifelineOptIn";
@@ -612,6 +613,7 @@ export function ProfilePage() {
                   onSave={updateIdentity}
                 />
                 <ProfileDetailsEditor />
+                <EchoSettings />
                 <SecureAccount />
                 <PasskeySetup />
                 {profileId && (

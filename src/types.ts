@@ -97,12 +97,44 @@ export interface Companion {
   nsfw: boolean;
 }
 
-/** One turn in a companion conversation. */
+/** One turn in a companion (or Echo) conversation. */
 export interface CompanionMessage {
   role: "user" | "assistant";
   content: string;
   /** Epoch ms; client-stamped for optimistic turns, else from created_at. */
   t: number;
+}
+
+/**
+ * Echoes — an opt-in AI persona of a REAL user, created and controlled only by
+ * that user. Always disclosed as AI; never an impersonation built without consent.
+ */
+export interface EchoConfig {
+  enabled: boolean;
+  displayName: string;
+  tone: "warm" | "playful" | "direct" | "thoughtful";
+  greeting: string;
+  /** The owner's own note on how their Echo should come across. */
+  bioSeed: string;
+  consentAt: string | null;
+}
+
+/** A target member's Echo, as visible to a visitor (only when available). */
+export interface EchoPublic {
+  owner: string;
+  displayName: string;
+  tone: string;
+  greeting: string;
+  enabled: boolean;
+}
+
+/** A person who has talked to the owner's Echo (for transcript review). */
+export interface EchoVisitor {
+  visitorId: string;
+  username: string | null;
+  alias: string;
+  lastAt: number;
+  msgs: number;
 }
 
 export interface Confession {

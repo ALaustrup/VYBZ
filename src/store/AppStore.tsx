@@ -456,6 +456,11 @@ interface AppState {
   companionId: string | null;
   openCompanions: (companionId?: string) => void;
   closeCompanions: () => void;
+  /** Echo chat sheet — talk to a real member's opt-in AI Echo while they're away. */
+  echoOpen: boolean;
+  echoOwnerId: string | null;
+  openEcho: (ownerId: string) => void;
+  closeEcho: () => void;
   enablePushNotifications: () => Promise<boolean>;
   // Single-post viewer (opened from a "fully unveiled" notification).
   activePostId: string | null;
@@ -2220,6 +2225,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCompanionOpen(true);
   }, []);
   const closeCompanions = useCallback(() => setCompanionOpen(false), []);
+  const [echoOpen, setEchoOpen] = useState(false);
+  const [echoOwnerId, setEchoOwnerId] = useState<string | null>(null);
+  const openEcho = useCallback((ownerId: string) => {
+    setEchoOwnerId(ownerId);
+    setEchoOpen(true);
+  }, []);
+  const closeEcho = useCallback(() => setEchoOpen(false), []);
   const maybeAskPush = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
@@ -2628,6 +2640,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       companionId,
       openCompanions,
       closeCompanions,
+      echoOpen,
+      echoOwnerId,
+      openEcho,
+      closeEcho,
       enablePushNotifications,
       activePostId,
       openPost,
@@ -2797,6 +2813,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       companionId,
       openCompanions,
       closeCompanions,
+      echoOpen,
+      echoOwnerId,
+      openEcho,
+      closeEcho,
       enablePushNotifications,
       activePostId,
       openPost,

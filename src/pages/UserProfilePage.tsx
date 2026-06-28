@@ -1,6 +1,15 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Crown, Heart, Loader2, Music, Sparkles, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  Crown,
+  Heart,
+  Loader2,
+  MessageCircle,
+  Music,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import * as backend from "@/lib/backend";
 import { Handle } from "@/components/Handle";
@@ -16,19 +25,21 @@ import {
 import { musicEmbed } from "@/lib/music";
 import { cx, formatCount, timeAgo } from "@/lib/utils";
 import { TRAITS } from "@/lib/profileFields";
-import type { Confession } from "@/types";
+import type { Confession, EchoPublic } from "@/types";
 
 export function UserProfilePage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const { displayLevel, isNsfwHidden } = useApp();
+  const { displayLevel, isNsfwHidden, openEcho } = useApp();
   const [profile, setProfile] = useState<backend.PublicProfile | null>(null);
   const [posts, setPosts] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [echo, setEcho] = useState<EchoPublic | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setEcho(null);
     (async () => {
       const [p, c] = await Promise.all([
         backend.fetchPublicProfile(id),
@@ -38,6 +49,10 @@ export function UserProfilePage() {
       setProfile(p);
       setPosts(c);
       setLoading(false);
+      // Echo availability is gated server-side (enabled, both adults, not blocked).
+      backend.fetchEchoPublic(id).then((e) => {
+        if (!cancelled) setEcho(e);
+      });
     })();
     return () => {
       cancelled = true;
@@ -140,6 +155,30 @@ export function UserProfilePage() {
           <Stat label="Resonance" value={formatCount(profile.feels)} icon={<Heart className="h-3.5 w-3.5 text-feel-400" />} />
           <Stat label="Posts" value={String(profile.posts)} />
         </div>
+
+        {/* Echo — chat with this member's opt-in AI while they're away. */}
+        {echo && (
+          <button
+            onClick={() => openEcho(profile.id)}
+            className="group mt-3 flex w-full items-center gap-3 rounded-2xl border border-aqua-400/25 bg-aqua-500/10 px-4 py-3 text-left transition active:scale-[0.98]"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-aqua-500/20 text-aqua-300">
+              <MessageCircle className="h-4.5 w-4.5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
+                Chat with {echo.displayName || "their"} Echo
+                <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white/55">
+                  AI
+                </span>
+              </span>
+              <span className="mt-0.5 block text-[11px] text-white/45">
+                An AI of this member, switched on by them
+              </span>
+            </span>
+            <Sparkles className="h-4 w-4 shrink-0 text-aqua-300/70" />
+          </button>
+        )}
       </div>
 
       {/* Rich public profile (privacy-sanitized server-side). */}

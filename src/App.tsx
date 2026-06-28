@@ -33,6 +33,7 @@ import { NotificationPopup } from "@/components/NotificationPopup";
 import { UploadIndicator } from "@/components/UploadIndicator";
 import { ConnectNowSheet } from "@/components/Presence";
 import { CompanionSheet } from "@/components/CompanionSheet";
+import { EchoSheet } from "@/components/EchoSheet";
 import { FeedsPage } from "@/pages/FeedsPage";
 import { ForYouPage } from "@/pages/ForYouPage";
 import { MatchmakingPage } from "@/pages/MatchmakingPage";
@@ -229,6 +230,7 @@ export function App() {
       <FeedbackSheet />
       <ConnectNowSheet />
       <CompanionSheet />
+      <EchoSheet />
       <PremiumSheet />
       <AccountGate />
       <InstallPrompt />

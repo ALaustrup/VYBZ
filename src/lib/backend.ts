@@ -12,6 +12,9 @@ import type {
   Companion,
   CompanionMessage,
   Confession,
+  EchoConfig,
+  EchoPublic,
+  EchoVisitor,
   Identity,
   Message,
   NotificationKind,
@@ -1204,6 +1207,146 @@ export async function sendCompanionMessage(
     handoff: d.handoff,
     limited: Boolean(d.limited),
   };
+}
+
+// --- Echoes (opt-in AI of a real member) -----------------------------------
+
+/** The version string stamped when a user consents to enabling their Echo. */
+export const ECHO_CONSENT_VERSION = "2026-06-28";
+
+/** Owner: read my Echo config (null when I've never set one up). */
+export async function fetchMyEcho(): Promise<EchoConfig | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("echo_get");
+  if (error || !Array.isArray(data) || data.length === 0) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const r = data[0] as any;
+  return {
+    enabled: Boolean(r.enabled),
+    displayName: String(r.display_name ?? ""),
+    tone: (r.tone ?? "warm") as EchoConfig["tone"],
+    greeting: String(r.greeting ?? ""),
+    bioSeed: String(r.bio_seed ?? ""),
+    consentAt: r.consent_at ?? null,
+  };
+}
+
+/** Owner: create / update my Echo (records consent when enabling). */
+export async function saveMyEcho(cfg: {
+  enabled: boolean;
+  displayName: string;
+  tone: string;
+  greeting: string;
+  bioSeed: string;
+}): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase.rpc("echo_upsert", {
+    p_enabled: cfg.enabled,
+    p_display_name: cfg.displayName,
+    p_tone: cfg.tone,
+    p_greeting: cfg.greeting,
+    p_bio_seed: cfg.bioSeed,
+    p_consent_version: ECHO_CONSENT_VERSION,
+  });
+  return !error;
+}
+
+/** Owner: quick enable/disable. */
+export async function setMyEchoEnabled(enabled: boolean): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase.rpc("echo_set_enabled", { p_enabled: enabled });
+  return !error;
+}
+
+/** Owner: permanently delete my Echo + all its conversations. */
+export async function deleteMyEcho(): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase.rpc("echo_delete");
+  return !error;
+}
+
+/** Visitor: is this user's Echo available to me right now? */
+export async function fetchEchoPublic(userId: string): Promise<EchoPublic | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("echo_public", { p_user: userId });
+  if (error || !Array.isArray(data) || data.length === 0) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const r = data[0] as any;
+  if (!r.enabled) return null;
+  return {
+    owner: String(r.owner),
+    displayName: String(r.display_name ?? ""),
+    tone: String(r.tone ?? "warm"),
+    greeting: String(r.greeting ?? ""),
+    enabled: true,
+  };
+}
+
+/** Visitor: my conversation with a given Echo (oldest → newest). */
+export async function fetchEchoHistory(
+  ownerId: string,
+  limit = 40
+): Promise<CompanionMessage[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("echo_history", {
+    p_owner: ownerId,
+    p_limit: limit,
+  });
+  if (error || !Array.isArray(data)) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((m) => ({
+    role: m.role === "assistant" ? "assistant" : "user",
+    content: String(m.content ?? ""),
+    t: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+  }));
+}
+
+/** Visitor: send one message to a member's Echo. */
+export async function sendEchoMessage(
+  ownerId: string,
+  text: string
+): Promise<CompanionReply> {
+  if (!supabase) return { reply: null, error: true };
+  const { data, error } = await supabase.functions.invoke("echo-chat", {
+    body: { owner_id: ownerId, text },
+  });
+  if (error || !data) return { reply: null, error: true };
+  const d = data as { reply?: string | null; handoff?: "lifeline"; limited?: boolean };
+  return { reply: d.reply ?? null, handoff: d.handoff, limited: Boolean(d.limited) };
+}
+
+/** Owner: people who've chatted with my Echo (for transcript review). */
+export async function fetchEchoVisitors(): Promise<EchoVisitor[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("echo_visitors");
+  if (error || !Array.isArray(data)) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    visitorId: String(r.visitor_id),
+    username: r.username ?? null,
+    alias: String(r.alias ?? ""),
+    lastAt: r.last_at ? new Date(r.last_at).getTime() : 0,
+    msgs: Number(r.msgs ?? 0),
+  }));
+}
+
+/** Owner: full transcript with one visitor. */
+export async function fetchEchoTranscript(
+  visitorId: string,
+  limit = 80
+): Promise<CompanionMessage[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("echo_transcript", {
+    p_visitor: visitorId,
+    p_limit: limit,
+  });
+  if (error || !Array.isArray(data)) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((m) => ({
+    role: m.role === "assistant" ? "assistant" : "user",
+    content: String(m.content ?? ""),
+    t: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+  }));
 }
 
 // --- Spark (dating) --------------------------------------------------------
