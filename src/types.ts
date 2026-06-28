@@ -82,6 +82,29 @@ export interface AmbientPresence {
   layer: "teen" | "adult";
 }
 
+/**
+ * Never Alone — a platform-owned, clearly-labelled AI companion the user can
+ * always talk to. Never an impersonation of a real person.
+ */
+export interface Companion {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  emoji: string;
+  /** Accent hex used to theme the chat bubble + header. */
+  accent: string;
+  nsfw: boolean;
+}
+
+/** One turn in a companion conversation. */
+export interface CompanionMessage {
+  role: "user" | "assistant";
+  content: string;
+  /** Epoch ms; client-stamped for optimistic turns, else from created_at. */
+  t: number;
+}
+
 export interface Confession {
   id: string;
   /** Ephemeral anonymous alias (e.g. "Velvet Ghost"). */

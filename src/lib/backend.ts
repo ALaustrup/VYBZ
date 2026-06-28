@@ -9,6 +9,8 @@ import type {
   CircleMember,
   CircleMessage,
   Comment,
+  Companion,
+  CompanionMessage,
   Confession,
   Identity,
   Message,
@@ -1117,6 +1119,73 @@ export async function fetchAmbientPresence(): Promise<AmbientPresence | null> {
     roulette: Number(r.roulette ?? 0),
     lifelines: Number(r.lifelines ?? 0),
     layer: r.layer === "teen" ? "teen" : "adult",
+  };
+}
+
+// --- Never Alone: AI companions --------------------------------------------
+
+/** Companions the current user is allowed to talk to (age + NSFW aware). */
+export async function fetchCompanions(): Promise<Companion[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("list_companions");
+  if (error || !Array.isArray(data)) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((c) => ({
+    id: String(c.id),
+    slug: String(c.slug),
+    name: String(c.name),
+    tagline: String(c.tagline ?? ""),
+    emoji: String(c.emoji ?? "✨"),
+    accent: String(c.accent ?? "#6366f1"),
+    nsfw: Boolean(c.nsfw),
+  }));
+}
+
+/** Past conversation with one companion (oldest → newest). */
+export async function fetchCompanionHistory(
+  companionId: string,
+  limit = 40
+): Promise<CompanionMessage[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("companion_history", {
+    p_companion: companionId,
+    p_limit: limit,
+  });
+  if (error || !Array.isArray(data)) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((m) => ({
+    role: m.role === "assistant" ? "assistant" : "user",
+    content: String(m.content ?? ""),
+    t: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+  }));
+}
+
+export interface CompanionReply {
+  /** The companion's reply, or null when rate-limited. */
+  reply: string | null;
+  /** When set, the client should surface a Lifeline + 988 handoff. */
+  handoff?: "lifeline";
+  /** True when the free daily allowance is used up. */
+  limited?: boolean;
+  /** True when the request failed (network/backend). */
+  error?: boolean;
+}
+
+/** Send one message to a companion; the Edge Function stores both turns. */
+export async function sendCompanionMessage(
+  companionId: string,
+  text: string
+): Promise<CompanionReply> {
+  if (!supabase) return { reply: null, error: true };
+  const { data, error } = await supabase.functions.invoke("companion-chat", {
+    body: { companion_id: companionId, text },
+  });
+  if (error || !data) return { reply: null, error: true };
+  const d = data as { reply?: string | null; handoff?: "lifeline"; limited?: boolean };
+  return {
+    reply: d.reply ?? null,
+    handoff: d.handoff,
+    limited: Boolean(d.limited),
   };
 }
 

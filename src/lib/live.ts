@@ -130,14 +130,22 @@ export async function watch(opts: {
   url: string;
   token: string;
   videoEl: HTMLVideoElement;
+  /** Optional second element for a blurred "cover" backdrop so the contained
+   *  foreground video always fits any screen without cropping or black bars. */
+  bgVideoEl?: HTMLVideoElement;
   audioEl?: HTMLAudioElement;
   onStatus?: (s: LiveStatus) => void;
 }): Promise<LiveConnect> {
   const room = new Room({ adaptiveStream: true });
 
   const attach = (track: RemoteTrack) => {
-    if (track.kind === Track.Kind.Video) track.attach(opts.videoEl);
-    else if (track.kind === Track.Kind.Audio && opts.audioEl) track.attach(opts.audioEl);
+    if (track.kind === Track.Kind.Video) {
+      track.attach(opts.videoEl);
+      // LiveKit supports attaching a track to multiple elements.
+      if (opts.bgVideoEl) track.attach(opts.bgVideoEl);
+    } else if (track.kind === Track.Kind.Audio && opts.audioEl) {
+      track.attach(opts.audioEl);
+    }
   };
 
   room.on(

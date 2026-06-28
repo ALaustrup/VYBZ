@@ -64,46 +64,30 @@ export function LivePage() {
     identity.age != null &&
     identity.gender != null;
 
+  // Viewer + publisher go edge-to-edge (full-bleed) so the stream always uses
+  // the entire available area and fits any device. Setup is a scrollable form.
   return (
-    <div className="flex h-full flex-col">
-      {/* Header — only shown in viewer + setup; the live publisher view goes
-          full-screen for presence. */}
-      {mode !== "streaming" && (
-        <div className="flex items-center justify-between px-4 pb-1 pt-3">
-          <h1 className="flex items-center gap-2 font-display text-xl font-bold text-gradient">
-            <Radio className="h-5 w-5 text-veil-300" /> Live
-          </h1>
-          {mode === "viewer" && (
-            <button
-              onClick={() => setMode("streamer-setup")}
-              className="btn btn-primary rounded-full px-4 py-1.5 text-sm"
-            >
-              <Video className="h-4 w-4" /> Go live
-            </button>
-          )}
-        </div>
+    <div className="relative h-full w-full overflow-hidden">
+      {mode === "viewer" && (
+        <ViewerCarousel onGoLive={() => setMode("streamer-setup")} />
       )}
-
-      <div className="min-h-0 flex-1">
-        {mode === "viewer" && <ViewerCarousel />}
-        {mode === "streamer-setup" && (
-          <StreamerSetup
-            canStream={canStream}
-            onCancel={() => setMode("viewer")}
-            onGoLive={() => setMode("streaming")}
-          />
-        )}
-        {mode === "streaming" && (
-          <StreamerLive onEnded={() => setMode("viewer")} />
-        )}
-      </div>
+      {mode === "streamer-setup" && (
+        <StreamerSetup
+          canStream={canStream}
+          onCancel={() => setMode("viewer")}
+          onGoLive={() => setMode("streaming")}
+        />
+      )}
+      {mode === "streaming" && (
+        <StreamerLive onEnded={() => setMode("viewer")} />
+      )}
     </div>
   );
 }
 
 // ── Viewer carousel ────────────────────────────────────────────────────────
 
-function ViewerCarousel() {
+function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
   const { showToast } = useApp();
   const [queue, setQueue] = useState<LiveStream[]>([]);
   const [idx, setIdx] = useState(0);
@@ -180,11 +164,13 @@ function ViewerCarousel() {
             The stage is yours
           </h2>
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
-            No one's live right now. Tap{" "}
-            <span className="font-semibold text-white">Go live</span> to start a
-            stream — the community swipes to keep the best ones up.
+            No one's live right now. Be the first — the community swipes to keep
+            the best streams up.
           </p>
-          <button onClick={load} className="btn btn-ghost mt-6 px-5 py-2.5 text-xs">
+          <button onClick={onGoLive} className="btn btn-primary mt-6 px-6 py-2.5 text-sm">
+            <Video className="h-4 w-4" /> Go live
+          </button>
+          <button onClick={load} className="btn btn-ghost mt-2 px-5 py-2 text-xs">
             Refresh
           </button>
         </div>
@@ -199,6 +185,7 @@ function ViewerCarousel() {
       onVyb={onVyb}
       onFail={onFail}
       onReport={onReport}
+      onGoLive={onGoLive}
     />
   );
 }
@@ -208,14 +195,17 @@ function ViewerStreamCard({
   onVyb,
   onFail,
   onReport,
+  onGoLive,
 }: {
   stream: LiveStream;
   onVyb: () => void;
   onFail: () => void;
   onReport: () => void;
+  onGoLive: () => void;
 }) {
   const { account } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const connRef = useRef<LiveConnect | null>(null);
   const [status, setStatus] = useState<LiveStatus>("connecting");
@@ -238,6 +228,7 @@ function ViewerStreamCard({
           url: t.url,
           token: t.token,
           videoEl: videoRef.current,
+          bgVideoEl: bgVideoRef.current ?? undefined,
           audioEl: audioRef.current ?? undefined,
           onStatus: (s) => !cancelled && setStatus(s),
         });
@@ -273,6 +264,17 @@ function ViewerStreamCard({
         onDragEnd={onDragEnd}
         className="absolute inset-0 overflow-hidden bg-black"
       >
+        {/* Blurred "cover" backdrop fills the screen; the real video sits on top
+            contained, so the full frame always fits any device/source aspect
+            without cropping faces or leaving hard black bars. */}
+        <video
+          ref={bgVideoRef}
+          autoPlay
+          playsInline
+          muted
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl"
+        />
         <video
           ref={videoRef}
           autoPlay
@@ -281,7 +283,7 @@ function ViewerStreamCard({
           disablePictureInPicture
           controlsList="nodownload noremoteplayback noplaybackrate"
           onContextMenu={(e) => e.preventDefault()}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain"
         />
         <audio ref={audioRef} autoPlay />
 
@@ -312,16 +314,28 @@ function ViewerStreamCard({
                 </span>
               )}
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onReport();
-              }}
-              aria-label="Report"
-              className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
-            >
-              <Flag className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onGoLive();
+                }}
+                aria-label="Go live"
+                className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500/90 px-3 text-xs font-semibold text-white shadow-glow active:scale-90"
+              >
+                <Video className="h-4 w-4" /> Go live
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReport();
+                }}
+                aria-label="Report"
+                className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
+              >
+                <Flag className="h-4 w-4" />
+              </button>
+            </div>
           </div>
           {stream.title && (
             <p className="mt-2 line-clamp-2 max-w-full text-sm font-medium text-white drop-shadow">
@@ -417,7 +431,7 @@ function StreamerSetup({
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-6 pt-2">
+    <div className="no-scrollbar mx-auto h-full max-w-md overflow-y-auto px-4 pb-6 pt-4">
       <div className="rounded-3xl border border-white/8 bg-white/[0.03] p-5">
         <h2 className="font-display text-lg font-bold text-white">Start a live stream</h2>
         <p className="mt-1 text-xs leading-relaxed text-white/55">
@@ -632,6 +646,7 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
     }
   }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const connRef = useRef<LiveConnect | null>(null);
   const [status, setStatus] = useState<LiveStatus>("connecting");
 
@@ -665,7 +680,10 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
           "camera" as any
         );
         const t2 = local?.track;
-        if (t2 && videoRef.current) t2.attach(videoRef.current);
+        if (t2 && videoRef.current) {
+          t2.attach(videoRef.current);
+          if (bgVideoRef.current) t2.attach(bgVideoRef.current);
+        }
       } catch {
         setStatus("error");
       }
@@ -691,11 +709,19 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
   return (
     <div className="relative h-full w-full bg-black">
       <video
+        ref={bgVideoRef}
+        autoPlay
+        playsInline
+        muted
+        aria-hidden
+        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl"
+      />
+      <video
         ref={videoRef}
         autoPlay
         playsInline
         muted
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent p-4">
         <div className="flex items-center gap-2">

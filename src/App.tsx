@@ -32,6 +32,7 @@ import { Toast } from "@/components/Toast";
 import { NotificationPopup } from "@/components/NotificationPopup";
 import { UploadIndicator } from "@/components/UploadIndicator";
 import { ConnectNowSheet } from "@/components/Presence";
+import { CompanionSheet } from "@/components/CompanionSheet";
 import { FeedsPage } from "@/pages/FeedsPage";
 import { ForYouPage } from "@/pages/ForYouPage";
 import { MatchmakingPage } from "@/pages/MatchmakingPage";
@@ -227,6 +228,7 @@ export function App() {
       <LifelineSheet />
       <FeedbackSheet />
       <ConnectNowSheet />
+      <CompanionSheet />
       <PremiumSheet />
       <AccountGate />
       <InstallPrompt />

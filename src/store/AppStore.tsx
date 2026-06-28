@@ -450,6 +450,12 @@ interface AppState {
   connectNowOpen: boolean;
   openConnectNow: () => void;
   closeConnectNow: () => void;
+  /** AI Companions sheet — the always-available "never alone" floor. Pass a
+   *  companion id to open straight into a chat, or nothing to open the picker. */
+  companionOpen: boolean;
+  companionId: string | null;
+  openCompanions: (companionId?: string) => void;
+  closeCompanions: () => void;
   enablePushNotifications: () => Promise<boolean>;
   // Single-post viewer (opened from a "fully unveiled" notification).
   activePostId: string | null;
@@ -2204,6 +2210,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [connectNowOpen, setConnectNowOpen] = useState(false);
   const openConnectNow = useCallback(() => setConnectNowOpen(true), []);
   const closeConnectNow = useCallback(() => setConnectNowOpen(false), []);
+  const [companionOpen, setCompanionOpen] = useState(false);
+  const [companionId, setCompanionId] = useState<string | null>(null);
+  const openCompanions = useCallback((id?: string) => {
+    setCompanionId(id ?? null);
+    setCompanionOpen(true);
+  }, []);
+  const closeCompanions = useCallback(() => setCompanionOpen(false), []);
   const maybeAskPush = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
@@ -2608,6 +2621,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       connectNowOpen,
       openConnectNow,
       closeConnectNow,
+      companionOpen,
+      companionId,
+      openCompanions,
+      closeCompanions,
       enablePushNotifications,
       activePostId,
       openPost,
@@ -2773,6 +2790,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       connectNowOpen,
       openConnectNow,
       closeConnectNow,
+      companionOpen,
+      companionId,
+      openCompanions,
+      closeCompanions,
       enablePushNotifications,
       activePostId,
       openPost,

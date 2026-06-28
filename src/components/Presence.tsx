@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   LifeBuoy,
+  MessageCircle,
   Radio,
   Shuffle,
   Sparkles,
@@ -93,7 +94,13 @@ function Chip({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
  * available right now instead of letting them bounce off an empty surface.
  */
 export function ConnectNowSheet() {
-  const { connectNowOpen, closeConnectNow, ambientPresence, openLifeline } = useApp();
+  const {
+    connectNowOpen,
+    closeConnectNow,
+    ambientPresence,
+    openLifeline,
+    openCompanions,
+  } = useApp();
   const navigate = useNavigate();
 
   const live = ambientPresence?.live ?? 0;
@@ -181,6 +188,15 @@ export function ConnectNowSheet() {
                 title="Browse people by vibe"
                 meta="Matched to you"
                 onClick={() => go("/connect")}
+              />
+              <RouteRow
+                icon={MessageCircle}
+                title="Talk to a companion"
+                meta="AI · always here for you"
+                onClick={() => {
+                  closeConnectNow();
+                  openCompanions();
+                }}
               />
             </div>
 
