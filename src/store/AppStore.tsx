@@ -993,7 +993,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (next: ProfileDetails) => {
       setProfileDetails(next);
       if (BACKEND_ENABLED && profileIdRef.current) {
-        void backend.saveProfileDetails(profileIdRef.current, next);
+        void backend.saveProfileDetails(profileIdRef.current, next).then(() => {
+          // Phase 3 — refresh the semantic profile vector so matches improve.
+          void backend.refreshProfileEmbedding();
+        });
       }
       showToast("Profile updated.");
     },

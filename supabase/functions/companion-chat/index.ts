@@ -22,6 +22,11 @@ const SERVICE_KEY =
 // Free users: messages per rolling 24h. Godmode is unlimited.
 const FREE_DAILY = Number(Deno.env.get("COMPANION_FREE_DAILY") ?? "40");
 const HISTORY_TURNS = 12;
+// Phase 3 — companion memory (RAG). Embeddings are OpenAI-only; when no key is
+// set the companion still works, just without long-term recall.
+const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
+const EMBED_MODEL = "text-embedding-3-small";
+const RECALL_K = 4;
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -125,6 +130,23 @@ async function llmReply(messages: LLMMsg[], teen: boolean): Promise<string | nul
     }
   }
   return null;
+}
+
+async function embedText(text: string): Promise<number[] | null> {
+  if (!OPENAI_KEY) return null;
+  try {
+    const res = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${OPENAI_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ model: EMBED_MODEL, input: text.slice(0, 6000) }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const vec = data?.data?.[0]?.embedding;
+    return Array.isArray(vec) ? vec : null;
+  } catch {
+    return null;
+  }
 }
 
 function buildSystem(p: Persona, ctx: string, teen: boolean): string {
@@ -252,7 +274,28 @@ Deno.serve(async (req: Request) => {
     .reverse()
     .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
-  const system = buildSystem(p, profileContext(profile), teen);
+  // Companion memory (RAG): embed this turn, recall the most relevant things the
+  // user has shared with this companion before, and weave them into the prompt.
+  const qvec = await embedText(text);
+  let recallBlock = "";
+  if (qvec) {
+    const { data: mem } = await admin.rpc("companion_recall", {
+      p_user: uid,
+      p_companion: p.id,
+      p_embedding: `[${qvec.join(",")}]`,
+      p_limit: RECALL_K,
+    });
+    const lines = ((mem ?? []) as { role: string; content: string }[])
+      .filter((m) => m.role === "user")
+      .map((m) => `- ${m.content.slice(0, 200)}`);
+    if (lines.length) {
+      recallBlock =
+        ` Things the user has shared with you before (use naturally for continuity, ` +
+        `do not list them back): \n${lines.join("\n")}`;
+    }
+  }
+
+  const system = buildSystem(p, profileContext(profile), teen) + recallBlock;
   const messages: LLMMsg[] = [{ role: "system", content: system }, ...history];
 
   let reply = await llmReply(messages, teen);
@@ -265,6 +308,14 @@ Deno.serve(async (req: Request) => {
   await admin.from("companion_messages").insert({
     user_id: uid, companion_id: p.id, role: "assistant", content: reply,
   });
+
+  // Persist the user's turn as a recallable memory (fire-and-forget).
+  if (qvec) {
+    await admin
+      .from("companion_memory")
+      .insert({ user_id: uid, companion_id: p.id, role: "user", content: text, embedding: qvec })
+      .then(() => {}, () => {});
+  }
 
   return json({ reply });
 });

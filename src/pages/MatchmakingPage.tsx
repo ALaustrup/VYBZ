@@ -75,7 +75,7 @@ export function MatchmakingPage() {
 
         <p className="mb-2 flex items-center gap-1.5 text-[11px] text-white/40">
           <Sparkles className="h-3.5 w-3.5 text-veil-300" />
-          Ranked by shared taste, interests &amp; intent
+          Ranked by shared taste, interests &amp; how you vibe
         </p>
 
         {loading ? (
@@ -113,6 +113,11 @@ export function MatchmakingPage() {
                   {m.sharedInterestNames.length > 0 && (
                     <p className="mt-0.5 truncate text-[11px] text-veil-200/80">
                       {m.sharedInterestNames.slice(0, 4).join(" · ")}
+                    </p>
+                  )}
+                  {m.resonance >= 0.55 && (
+                    <p className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-aqua-300">
+                      <Sparkles className="h-3 w-3" /> Strong resonance · you just vibe
                     </p>
                   )}
                 </div>

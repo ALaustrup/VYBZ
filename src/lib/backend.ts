@@ -1072,6 +1072,8 @@ export interface UserMatch {
   sharedInterestNames: string[];
   /** Blended 0..1 compatibility (behaviour + declared signals). */
   affinity: number;
+  /** 0..1 semantic similarity of your profiles (0 when no embedding yet). */
+  resonance: number;
 }
 
 /**
@@ -1095,7 +1097,22 @@ export async function fetchUserMatches(limit = 12): Promise<UserMatch[]> {
     sharedIntent: r.shared_intent ?? 0,
     sharedInterestNames: (r.shared_interest_names as string[] | null) ?? [],
     affinity: Number(r.affinity ?? 0),
+    resonance: Number(r.resonance ?? 0),
   }));
+}
+
+/**
+ * Recompute the caller's semantic profile vector server-side (fire-and-forget).
+ * Powers the "resonance" term in user_matches + Companion memory. No-ops cleanly
+ * when no OpenAI key is configured; matchmaking still works without it.
+ */
+export async function refreshProfileEmbedding(): Promise<void> {
+  if (!supabase) return;
+  try {
+    await supabase.functions.invoke("embed", { body: {} });
+  } catch {
+    /* best-effort */
+  }
 }
 
 // --- Never Alone: ambient presence -----------------------------------------
