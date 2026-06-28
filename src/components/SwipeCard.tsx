@@ -151,7 +151,7 @@ export function SwipeCard({
             animate={{ scale: 6, opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{ backgroundColor: ripple === "feel" ? "#34f5a0" : "#6366f1" }}
+            style={{ backgroundColor: ripple === "feel" ? "#34f5a0" : "rgb(var(--accent-rgb))" }}
           />
         )}
 

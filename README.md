@@ -1,6 +1,6 @@
 # MYVYB
 
-> Secrets, beautifully hidden.
+> Social Evolved.
 
 MYVYB is a premium, mobile-first **PWA** for **anonymous confessions and social
 discovery**. The crowd **Fails** content it doesn't want and **Vybs** content it
@@ -8,7 +8,7 @@ loves — those votes decide what surfaces and what gets buried, and shape the
 communities that form around shared taste. Connect with a confession and you
 unlock its comments and a private line to the poster.
 
-**Live:** https://myvybsocial.vercel.app
+**Live:** https://myvyb.astramatrix.com
 
 > 📐 **Full architecture & feature reference:** see
 > [`ARCHITECTURE.md`](./ARCHITECTURE.md) — the authoritative, up-to-date guide to
@@ -120,19 +120,20 @@ supabase secrets set STRIPE_SECRET_KEY=sk_live_... STRIPE_WEBHOOK_SECRET=whsec_.
 ### Branded auth emails
 
 When a user links an email (durable account), Supabase sends a confirmation. We
-set the **Site URL / redirect allow-list** to `myvybsocial.vercel.app` so the link
+set the **Site URL / redirect allow-list** to `myvyb.astramatrix.com` so the link
 re-opens the app directly (not `localhost`).
 
 Customising the email *body* (the branded "Welcome to MYVYB" template in
 `supabase/email-templates/confirm.html`) requires a **custom SMTP sender** — on
-the free tier Supabase won't let you edit templates with its default mailer. Once
-you have a sender (Resend recommended — free tier, verify a domain like
-`myvybsocial.vercel.app`), apply everything in one shot:
+the free tier Supabase won't let you edit templates with its default mailer. The
+sender domain **must be verified in Resend first** (`astramatrix.com` → Resend →
+Domains → add the SPF + DKIM DNS records). Then apply everything in one shot:
 
 ```bash
 SUPABASE_ACCESS_TOKEN=sbp_... SUPABASE_PROJECT_REF=<ref> \
 SMTP_HOST=smtp.resend.com SMTP_PORT=465 SMTP_USER=resend SMTP_PASS=<api-key> \
-SMTP_SENDER_EMAIL="hello@myvybsocial.vercel.app" SMTP_SENDER_NAME="MYVYB" \
+SMTP_SENDER_EMAIL="noreply@astramatrix.com" SMTP_SENDER_NAME="MYVYB" \
+APP_URL="https://myvyb.astramatrix.com" \
 node supabase/configure-email.mjs
 ```
 
@@ -147,12 +148,12 @@ cross-device**. With no link configured, a labeled demo unlock runs instead.
 ## Deploying to Vercel
 
 `vercel.json` sets the Vite preset, `dist` output, SPA rewrites, and asset
-caching. Production domain: **myvybsocial.vercel.app**.
+caching. Production domain: **myvyb.astramatrix.com**.
 
 ```bash
 cd apps/veiled
 vercel --prod                       # production deploy
-vercel alias set <deployment-url> myvybsocial.vercel.app
+vercel alias set <deployment-url> myvyb.astramatrix.com
 ```
 
 Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_STRIPE_PAYMENT_LINK`

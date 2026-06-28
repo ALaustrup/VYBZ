@@ -31,9 +31,9 @@ export function UploadIndicator() {
               className="absolute inset-y-0 left-0 rounded-r-full"
               style={{
                 background:
-                  "linear-gradient(90deg, #4338ca 0%, #6366f1 55%, #a5b4fc 100%)",
+                  "linear-gradient(90deg, rgb(var(--accent-rgb) / 0.65) 0%, rgb(var(--accent-rgb)) 55%, rgb(var(--accent-rgb) / 0.85) 100%)",
                 boxShadow:
-                  "0 0 12px 1px rgba(99,102,241,0.85), 0 0 4px rgba(165,180,252,0.95)",
+                  "0 0 12px 1px rgb(var(--accent-rgb) / 0.85), 0 0 4px rgb(var(--accent-rgb) / 0.95)",
               }}
               animate={{ width: `${Math.max(5, pct)}%` }}
               transition={{ type: "spring", stiffness: 120, damping: 24 }}
@@ -58,10 +58,10 @@ export function UploadIndicator() {
               <motion.span
                 className="h-1.5 w-1.5 rounded-full"
                 style={{
-                  background: done ? "#34f5a0" : "#818cf8",
+                  background: done ? "#34f5a0" : "rgb(var(--accent-rgb))",
                   boxShadow: done
                     ? "0 0 8px 1px rgba(52,245,160,0.9)"
-                    : "0 0 8px 1px rgba(129,140,248,0.95)",
+                    : "0 0 8px 1px rgb(var(--accent-rgb) / 0.95)",
                 }}
                 animate={done ? { opacity: 1, scale: 1 } : { opacity: [0.4, 1, 0.4], scale: [0.85, 1.15, 0.85] }}
                 transition={done ? { duration: 0.2 } : { duration: 1.1, repeat: Infinity, ease: "easeInOut" }}

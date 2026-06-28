@@ -62,7 +62,7 @@ export function WhisperCard({
         minHeight: reader ? 140 : undefined,
         background: reader
           ? `linear-gradient(155deg, ${palette[0]}22, ${palette[1]}14)`
-          : "#050307",
+          : "#191c22",
       }}
     >
       {/* Background layer. */}

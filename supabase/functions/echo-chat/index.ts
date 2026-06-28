@@ -130,14 +130,21 @@ async function llmReply(messages: LLMMsg[]): Promise<string | null> {
     models?: string[];
     headers?: Record<string, string>;
   }
+  // OpenRouter is preferred (cost) until monetization funds OpenAI; the others
+  // remain automatic fallbacks if OpenRouter is unavailable/rate-limited.
   const providers: Provider[] = [
-    { key: Deno.env.get("OPENAI_API_KEY"), url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" },
     {
       key: Deno.env.get("OPENROUTER_API_KEY"),
       url: "https://openrouter.ai/api/v1/chat/completions",
-      models: ["meta-llama/llama-3.3-70b-instruct:free", "qwen/qwen3-next-80b-a3b-instruct:free"],
-      headers: { "X-Title": "MYVYB", "HTTP-Referer": "https://astramatrix.com" },
+      models: [
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "qwen/qwen3-next-80b-a3b-instruct:free",
+        "google/gemini-2.0-flash-exp:free",
+        "mistralai/mistral-small-3.2-24b-instruct:free",
+      ],
+      headers: { "X-Title": "MYVYB", "HTTP-Referer": "https://myvyb.astramatrix.com" },
     },
+    { key: Deno.env.get("OPENAI_API_KEY"), url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" },
     { key: Deno.env.get("XAI_API_KEY"), url: "https://api.x.ai/v1/chat/completions", model: "grok-3-mini" },
   ];
   for (const p of providers) {

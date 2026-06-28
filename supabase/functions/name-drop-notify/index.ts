@@ -18,8 +18,8 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY =
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "Veiled <veiled@demiurge.cloud>";
-const APP_URL = Deno.env.get("APP_URL") ?? "https://getveiled.vercel.app";
+const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MYVYB <noreply@astramatrix.com>";
+const APP_URL = Deno.env.get("APP_URL") ?? "https://myvyb.astramatrix.com";
 
 // The reset fires at last_active_at + 7d. We notify in the final hour before it.
 const RESET_DAYS = 7;

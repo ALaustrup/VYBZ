@@ -16,7 +16,7 @@ export interface BgVariant {
 }
 
 export const BG_VARIANTS: BgVariant[] = [
-  { id: "aurora", label: "Aurora", colors: ["#7129e6", "#2dd4bf", "#5b8cff"], premium: false, price: 0 },
+  { id: "aurora", label: "Slate", colors: ["#3a3f4b", "#4a5161", "#2b2f39"], premium: false, price: 0 },
   { id: "ember", label: "Ember", colors: ["#ff7a18", "#b3263f", "#7129e6"], premium: true, price: 120 },
   { id: "tide", label: "Tide", colors: ["#14b8a6", "#2563eb", "#7129e6"], premium: true, price: 120 },
   { id: "ink", label: "Ink Smoke", colors: ["#4b5165", "#6b7280", "#3a3f55"], premium: true, price: 120 },

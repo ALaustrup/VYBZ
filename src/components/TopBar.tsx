@@ -36,7 +36,7 @@ export function TopBar() {
             <BrandMark className="h-7 w-7 text-veil-300" />
           </Link>
           <span className="h-5 w-px shrink-0 bg-white/15" />
-          <h1 className="truncate font-display text-lg font-semibold tracking-tightish text-white/90">
+          <h1 className="glow-accent accent-fade truncate font-display text-lg font-semibold tracking-tightish text-white/90">
             {title}
           </h1>
         </div>

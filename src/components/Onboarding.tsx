@@ -6,9 +6,11 @@ import {
   Check,
   Fingerprint,
   Loader2,
+  LogIn,
   Mail,
   MapPin,
-  Sparkles,
+  Plus,
+  UserRound,
 } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import { BrandMark, Wordmark } from "@/components/Brand";
@@ -18,6 +20,22 @@ import type { Gender } from "@/types";
 
 type Step = "welcome" | "register" | "login";
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+/** "Welcome back" hint cached for recoverable accounts (see AppStore). */
+interface LastIdentity {
+  name: string | null;
+  avatarUrl: string | null;
+}
+function readLastIdentity(): LastIdentity | null {
+  try {
+    const raw = window.localStorage.getItem("veiled.lastIdentity");
+    if (!raw) return null;
+    const v = JSON.parse(raw) as LastIdentity;
+    return v && (v.name || v.avatarUrl) ? v : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * One-button entry. New visitors tap "Find Yours" and are dropped straight in
@@ -31,6 +49,9 @@ export function Onboarding() {
   const [step, setStep] = useState<Step>("welcome");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
+  const [last, setLast] = useState<LastIdentity | null>(() => readLastIdentity());
+  const [imgOk, setImgOk] = useState(true);
+  const returning = !!last;
 
   async function find() {
     if (busy) return;
@@ -47,6 +68,29 @@ export function Onboarding() {
     const ok = await signInWithPasskey().catch(() => false);
     setBusy(false);
     if (!ok) showToast("Passkey sign-in was cancelled or unavailable.");
+  }
+
+  // Tapping the entry circle: returning members with a passkey sign in directly;
+  // everyone else lands on the account login form.
+  function enterTap() {
+    if (busy) return;
+    if (returning && passkeysSupported()) {
+      void loginPasskey();
+      return;
+    }
+    setStep("login");
+  }
+
+  // "Not you?" — forget this device's cached face and reset to the new-visitor
+  // entry (the account itself is untouched and still recoverable via login).
+  function forget() {
+    try {
+      window.localStorage.removeItem("veiled.lastIdentity");
+    } catch {
+      /* ignore */
+    }
+    setLast(null);
+    setImgOk(true);
   }
 
   async function loginEmail() {
@@ -89,39 +133,94 @@ export function Onboarding() {
               >
                 <BrandMark className="mb-5 h-16 w-16" />
                 <Wordmark imgClassName="h-10 w-auto" textClassName="text-4xl" />
-                <p className="mt-5 max-w-[16rem] text-[15px] leading-relaxed text-white/60">
-                  Anonymous social, your way. Express, swipe, meet by vibe.
+                <p className="text-gradient mt-4 font-display text-lg font-semibold tracking-tightish">
+                  Social Evolved.
                 </p>
 
+                {/* The front door: a single entry avatar. Returning members see
+                    their own face and tap to sign in; new visitors see a neutral
+                    mark that opens the login form. */}
                 <button
-                  onClick={() => setStep("register")}
+                  onClick={enterTap}
                   disabled={busy}
-                  className="btn btn-primary mt-9 w-full py-4 text-lg"
+                  aria-label={
+                    returning
+                      ? `Sign in${last?.name ? ` as ${last.name}` : ""}`
+                      : "Sign in to MYVYB"
+                  }
+                  className="group relative mt-9 flex flex-col items-center outline-none"
                 >
-                  <Sparkles className="h-5 w-5" /> Get started
+                  <span className="relative flex h-28 w-28 items-center justify-center">
+                    {/* Orange accent ring + glow. */}
+                    <span className="absolute inset-0 rounded-full ring-2 ring-veil-500/55 shadow-glow transition group-hover:ring-veil-400/80 group-active:scale-95" />
+                    <span className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full glass">
+                      {busy ? (
+                        <Loader2 className="h-8 w-8 animate-spin text-white/85" />
+                      ) : returning && last?.avatarUrl && imgOk ? (
+                        <img
+                          src={last.avatarUrl}
+                          alt=""
+                          onError={() => setImgOk(false)}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <UserRound
+                          className="h-12 w-12 text-white/85"
+                          strokeWidth={2}
+                        />
+                      )}
+                    </span>
+                    {/* Corner badge — sign-in arrow for returning, "+" for new. */}
+                    <span className="btn btn-primary absolute -bottom-1 -right-1 h-9 w-9 rounded-full !p-0">
+                      {returning ? (
+                        <LogIn className="h-4 w-4" />
+                      ) : (
+                        <Plus className="h-4 w-4" />
+                      )}
+                    </span>
+                  </span>
+
+                  <span className="mt-5 text-[15px] font-semibold text-white">
+                    {returning
+                      ? `Welcome back${last?.name ? `, ${last.name}` : ""}`
+                      : "Tap to sign in"}
+                  </span>
+                  <span className="mt-1 text-[12px] leading-relaxed text-white/45">
+                    {returning
+                      ? "Tap your photo to continue"
+                      : "Sign in to your MYVYB account"}
+                  </span>
                 </button>
-                <p className="mt-3 max-w-[18rem] text-[12px] leading-relaxed text-white/40">
-                  Age, sex &amp; location only. ~10 seconds, no email.
-                </p>
 
-                <button
-                  onClick={find}
-                  disabled={busy}
-                  className="btn btn-ghost mt-5 w-full py-3.5"
-                >
-                  {busy ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>Just browse for now</>
+                {/* Join + secondary affordances. */}
+                <div className="mt-8 flex flex-col items-center gap-3.5">
+                  <button
+                    onClick={() => setStep("register")}
+                    className="text-[13px] font-medium text-white/55 transition hover:text-white/80"
+                  >
+                    {returning ? "Use a different account · " : "New here? "}
+                    <span className="font-semibold text-veil-200 underline-offset-2 hover:underline">
+                      Join MYVYB
+                    </span>
+                  </button>
+
+                  {returning && (
+                    <button
+                      onClick={forget}
+                      className="text-[12px] text-white/40 underline-offset-2 transition hover:text-white/60"
+                    >
+                      Not you? Forget this device
+                    </button>
                   )}
-                </button>
 
-                <button
-                  onClick={() => setStep("login")}
-                  className="mt-6 text-[13px] font-medium text-white/45 underline-offset-2 transition hover:text-white/70"
-                >
-                  Already have an account? Log in
-                </button>
+                  <button
+                    onClick={find}
+                    disabled={busy}
+                    className="text-[12px] text-white/35 underline-offset-2 transition hover:text-white/55"
+                  >
+                    Just browse for now
+                  </button>
+                </div>
               </motion.div>
             )}
 
@@ -180,6 +279,16 @@ export function Onboarding() {
                   className="btn btn-ghost mt-3 w-full py-3.5"
                 >
                   Email me a sign-in link
+                </button>
+
+                <button
+                  onClick={() => setStep("register")}
+                  className="mt-6 text-[13px] font-medium text-white/50 transition hover:text-white/80"
+                >
+                  New to MYVYB?{" "}
+                  <span className="font-semibold text-veil-200 underline-offset-2 hover:underline">
+                    Join MYVYB
+                  </span>
                 </button>
               </motion.div>
             )}

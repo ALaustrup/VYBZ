@@ -23,7 +23,7 @@ interface Step {
 const STEPS: Step[] = [
   {
     icon: Sparkles,
-    accent: "#818cf8",
+    accent: "#ff8c3d",
     title: "Welcome to MYVYB",
     body: "Anonymous by default. Express freely.",
   },

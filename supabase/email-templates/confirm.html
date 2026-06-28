@@ -1,5 +1,5 @@
 <!--
-  Veiled — branded auth confirmation / welcome email.
+  MYVYB — branded auth confirmation / welcome email.
 
   Used for the "Confirm signup", "Confirm email change", and "Magic link"
   templates so a user who links an email to their anonymous account receives a
@@ -8,22 +8,23 @@
   NOTE: Supabase only allows custom email templates when a custom SMTP provider
   is configured (or on a paid plan). Apply this with supabase/configure-email.mjs
   after setting SMTP credentials. {{ .ConfirmationURL }} is substituted by GoTrue
-  and, once clicked, redirects to the app (Site URL = https://getveiled.vercel.app).
+  and, once clicked, redirects to the app (Site URL = https://myvyb.astramatrix.com).
 -->
-<div style="background:#050307;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <div style="max-width:480px;margin:0 auto;background:#0c0710;border:1px solid #1e1430;border-radius:20px;padding:36px 32px;">
-    <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;color:#c77dff;">Veiled</div>
-    <h1 style="font-size:22px;margin:24px 0 10px;color:#ffffff;">Welcome to Veiled</h1>
-    <p style="font-size:15px;line-height:1.6;color:#b9b2c7;margin:0 0 26px;">
-      Confirm this email to secure your veil. Your account stays anonymous &mdash;
-      this just lets you recover it on any device. Tap below to confirm and jump
-      straight back into the app.
+<div style="background:#16181d;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <div style="max-width:480px;margin:0 auto;background:#1c1f26;border:1px solid #30353f;border-radius:20px;padding:36px 32px;">
+    <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;color:#ff7a18;">MYVYB</div>
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.5px;color:#ff9d4d;margin-top:2px;">Social Evolved.</div>
+    <h1 style="font-size:22px;margin:24px 0 10px;color:#ffffff;">Welcome to MYVYB</h1>
+    <p style="font-size:15px;line-height:1.6;color:#c9ccd4;margin:0 0 26px;">
+      Confirm this email to secure your account. You stay anonymous &mdash; this
+      just lets you recover your profile on any device. Tap below to confirm and
+      jump straight back into the app.
     </p>
-    <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#7c3aed;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 30px;border-radius:14px;">Confirm &amp; open Veiled</a>
-    <p style="font-size:12px;line-height:1.6;color:#6b6478;margin:30px 0 0;">
+    <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#ff7a18;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 30px;border-radius:14px;">Confirm &amp; open MYVYB</a>
+    <p style="font-size:12px;line-height:1.6;color:#8b8f99;margin:30px 0 0;">
       If you didn&rsquo;t request this, simply ignore this email &mdash; nothing
-      will change and your veil stays as it is.
+      will change and your account stays as it is.
     </p>
-    <p style="font-size:12px;color:#4a4458;margin:22px 0 0;">&copy; Veiled by Astra Matrix, Inc.</p>
+    <p style="font-size:12px;color:#6b6f78;margin:22px 0 0;">&copy; MYVYB by Astra Matrix, Inc.</p>
   </div>
 </div>

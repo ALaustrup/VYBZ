@@ -51,17 +51,17 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "MYVYB — anonymous social, live & dating",
+        name: "MYVYB — Social Evolved",
         short_name: "MYVYB",
         description:
-          "Express anonymously, swipe a feed you control, go live, and match by vibe.",
+          "Social Evolved. Express anonymously, swipe a feed you control, go live, and match by vibe.",
         id: "/",
         start_url: "/",
         scope: "/",
         display: "standalone",
         orientation: "portrait",
-        background_color: "#050307",
-        theme_color: "#050307",
+        background_color: "#191c22",
+        theme_color: "#191c22",
         categories: ["social", "lifestyle"],
         icons: [
           {

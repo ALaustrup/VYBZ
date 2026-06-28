@@ -126,7 +126,7 @@ export function XRPage() {
           <div className="pointer-events-none max-w-xs rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-xs leading-relaxed text-white/55">
             Drag to look around · tap a confession to Feel it. For the full
             room-scale experience, open{" "}
-            <span className="font-semibold text-white/80">myvybsocial.vercel.app/xr</span>{" "}
+            <span className="font-semibold text-white/80">myvyb.astramatrix.com/xr</span>{" "}
             in your Meta Quest 2/3 browser and tap{" "}
             <span className="font-semibold text-veil-200">Enter VR</span>.
           </div>

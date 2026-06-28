@@ -4,36 +4,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Core surface palette — "Smoked Glass": refined graphite/charcoal,
-        // cooler and less suffocating than pure black, so frosted panels and the
-        // living background read as premium dark glass rather than a void.
+        // Core surface palette — "Smoked Glass" on neutral graphite. A true mid
+        // dark-gray base (no hue bias) so each page's accent reads as a hint of
+        // color over calm glass rather than the base fighting the accent.
         ink: {
-          950: "#0a0b0f",
-          900: "#0f1117",
-          800: "#161922",
-          700: "#1f2430",
-          600: "#2a3040",
+          950: "#191c22",
+          900: "#20242c",
+          800: "#2a2f39",
+          700: "#353b47",
+          600: "#424956",
         },
-        // Brand accent — refined to a professional indigo (was vivid purple).
-        // Reads elegant and corporate-clean for buttons/accents while staying in
-        // the brand's violet-adjacent family.
+        // Brand accent — DYNAMIC. Every veil-* utility resolves to the current
+        // page's accent via the --accent-rgb CSS variable (set per route in
+        // App.tsx from the page's taskbar-icon color). The ramp collapses to a
+        // single hue; lightness is expressed through the utility's alpha.
         veil: {
-          50: "#eef2ff",
-          100: "#e0e7ff",
-          200: "#c7d2fe",
-          300: "#a5b4fc",
-          400: "#818cf8",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
-          800: "#3730a3",
-          900: "#312e81",
+          50: "rgb(var(--accent-rgb) / <alpha-value>)",
+          100: "rgb(var(--accent-rgb) / <alpha-value>)",
+          200: "rgb(var(--accent-rgb) / <alpha-value>)",
+          300: "rgb(var(--accent-rgb) / <alpha-value>)",
+          400: "rgb(var(--accent-rgb) / <alpha-value>)",
+          500: "rgb(var(--accent-rgb) / <alpha-value>)",
+          600: "rgb(var(--accent-rgb) / <alpha-value>)",
+          700: "rgb(var(--accent-rgb) / <alpha-value>)",
+          800: "rgb(var(--accent-rgb) / <alpha-value>)",
+          900: "rgb(var(--accent-rgb) / <alpha-value>)",
         },
-        // Reaction accents.
+        // Reaction accents (semantic, fixed — they convey meaning, not theme).
         feel: "#34f5a0", // Unveil — green (reveal)
         wild: "#ff3b5c", // legacy red (kept for some accents)
-        shroud: "#6366f1", // Veil — indigo (re-shroud)
-        glow: "#c77dff",
+        shroud: "rgb(var(--accent-rgb) / <alpha-value>)", // Veil — follows accent
+        glow: "#a87cf8",
         // Iridescent secondary accent — pairs with violet for the "Smoked Glass"
         // sheen on the living background and focal highlights.
         aqua: {
@@ -82,22 +83,22 @@ export default {
         tightish: "-0.01em",
       },
       boxShadow: {
-        // Softer, restrained glow — reserved for focal elements only.
-        glow: "0 0 28px -12px rgba(99, 102, 241, 0.5)",
+        // Restrained accent glow — follows the per-page accent.
+        glow: "0 0 28px -12px rgb(var(--accent-rgb) / 0.5)",
         "glow-feel": "0 0 34px -12px rgba(52, 245, 160, 0.4)",
         "glow-wild": "0 0 34px -12px rgba(255, 59, 92, 0.4)",
-        "glow-shroud": "0 0 34px -12px rgba(99, 102, 241, 0.4)",
+        "glow-shroud": "0 0 34px -12px rgb(var(--accent-rgb) / 0.45)",
         card: "0 20px 50px -24px rgba(0, 0, 0, 0.8)",
-        // Solid, tactile button depth — a crisp top highlight + grounded drop so
-        // primary actions read as physical, pressable hardware (industrial feel).
+        // Glass button depth — a crisp top highlight + a soft accent halo so
+        // primary actions glow their page color rather than read as a solid fill.
         "btn-primary":
-          "inset 0 1px 0 0 rgba(255,255,255,0.22), inset 0 -1px 0 0 rgba(0,0,0,0.28), 0 10px 22px -12px rgba(67,56,202,0.85)",
+          "inset 0 1px 0 0 rgba(255,255,255,0.14), inset 0 -1px 0 0 rgba(0,0,0,0.22), 0 10px 26px -16px rgb(var(--accent-rgb) / 0.6)",
         "btn-solid":
-          "inset 0 1px 0 0 rgba(255,255,255,0.10), inset 0 -1px 0 0 rgba(0,0,0,0.35), 0 8px 18px -12px rgba(0,0,0,0.9)",
+          "inset 0 1px 0 0 rgba(255,255,255,0.10), inset 0 -1px 0 0 rgba(0,0,0,0.30), 0 8px 18px -12px rgba(0,0,0,0.85)",
       },
       backgroundImage: {
         "veil-radial":
-          "radial-gradient(circle at 18% 8%, rgba(113,41,230,0.13), transparent 42%), radial-gradient(circle at 88% 92%, rgba(199,125,255,0.09), transparent 48%)",
+          "radial-gradient(circle at 18% 8%, rgb(var(--accent-rgb) / 0.10), transparent 42%), radial-gradient(circle at 88% 92%, rgb(var(--accent-rgb) / 0.07), transparent 48%)",
       },
       keyframes: {
         "pulse-glow": {

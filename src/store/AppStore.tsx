@@ -128,6 +128,10 @@ const KEYS = {
   // non-anonymous account). Its presence resumes them on this device — even
   // offline — so the sign-on screen isn't shown again until logout/reset.
   identityAccount: "veiled.identityAccount",
+  // Lightweight "welcome back" hint for a recoverable account: their avatar +
+  // display name, shown in the landing entry circle after logout so they can tap
+  // their own face to sign back in. Survives sign-out; cleared via "Not you?".
+  lastIdentity: "veiled.lastIdentity",
 } as const;
 
 const SEED_BATTLE_VOTES: Record<string, BattleVote> = BATTLES.reduce(
@@ -815,6 +819,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (prefs.pageTransition) setPageTransitionState(prefs.pageTransition);
         if (prefs.avatarUrl !== undefined) setAvatarUrlState(prefs.avatarUrl);
         if (prefs.bannerUrl !== undefined) setBannerUrlState(prefs.bannerUrl);
+        // Cache a "welcome back" hint for recoverable (non-anonymous) accounts so
+        // the landing entry circle can show their face after they sign out.
+        if (!prof.anonymous) {
+          save(KEYS.lastIdentity, {
+            name: prof.alias ?? username ?? null,
+            avatarUrl: prefs.avatarUrl ?? null,
+          });
+        }
         if (Array.isArray(prefs.unlocks) && prefs.unlocks.length) {
           setOwnedUnlocks((prev) =>
             Array.from(new Set([...prev, ...(prefs.unlocks ?? [])]))

@@ -5,6 +5,24 @@
 @layer base {
   :root {
     color-scheme: dark;
+    /* Per-page accent (r g b channels). Set per route in App.tsx from the page's
+       taskbar-icon color; this brand-violet is the calm default for non-nav
+       surfaces (onboarding, legal, connect). */
+    --accent-rgb: 168 124 248;
+  }
+
+  /* Opt-in smooth cross-fade for persistent accent-driven chrome (page tint,
+     top-bar title) as you move between pages. Applied narrowly — never globally. */
+  .accent-fade {
+    transition-property: color, border-color, background-color, background-image,
+      box-shadow, text-shadow, opacity;
+    transition-duration: 260ms;
+    transition-timing-function: ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .accent-fade {
+      transition-duration: 0.01ms;
+    }
   }
 
   /* Content protection: deter saving user-uploaded media. Disables image drag,
@@ -81,12 +99,21 @@
       0 24px 60px -34px rgba(0, 0, 0, 0.9);
   }
 
-  /* Headline gradient — refined platinum drifting into a cool violet-steel tail.
-     Higher luminance + a tighter hue range reads as elegant and stays legible on
-     the dark glass, instead of the older muddy all-purple wash. */
+  /* Headline treatment — crisp white text that quietly glows the current page's
+     accent. Keeps titles legible and neutral while carrying a hint of the page
+     color (per the "white text that glows the page's icon color" direction). */
   .text-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(118deg, #ffffff 0%, #dcd6ff 48%, #a9b6ff 100%);
+    @apply text-white;
+    text-shadow:
+      0 0 18px rgb(var(--accent-rgb) / 0.45),
+      0 0 38px rgb(var(--accent-rgb) / 0.22);
+  }
+
+  /* Standalone accent glow for any white/black title that opts in. */
+  .glow-accent {
+    text-shadow:
+      0 0 16px rgb(var(--accent-rgb) / 0.5),
+      0 0 34px rgb(var(--accent-rgb) / 0.25);
   }
 
   /* Consistent eyebrow / section label — editorial, quiet, uniform across pages.
@@ -96,58 +123,79 @@
     letter-spacing: 0.2em;
   }
 
-  /* ---- Solid, tactile buttons (industrial chrome) ----------------------------
-     A single shared button system so every CTA feels like real, pressable
-     hardware: a crisp top highlight, a grounded base, and a firm press. */
+  /* ---- Glass buttons ---------------------------------------------------------
+     A single shared button system with a frosted-glass base so every CTA reads
+     as premium dark glass: a crisp top highlight, a soft blur, and a firm press.
+     Accents (orange for primary) come from a translucent tint + hairline. */
   .btn {
     @apply relative inline-flex select-none items-center justify-center gap-2
-      rounded-lg px-4 py-3 font-display text-sm font-semibold
+      rounded-xl px-4 py-3 font-display text-sm font-semibold
       transition-all duration-150 ease-out
       hover:-translate-y-px active:translate-y-0 active:scale-[0.97]
       disabled:cursor-not-allowed disabled:opacity-50
       disabled:hover:translate-y-0;
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
   }
-  /* Primary — professional indigo brand action, solid with a vertical sheen. */
+  /* Primary — neutral dark-glass action that glows the current page's accent.
+     White text, a faint accent tint + accent hairline, so CTAs feel premium and
+     on-theme without flooding the UI with one loud color. */
   .btn-primary {
-    @apply text-white shadow-btn-primary;
-    background-image: linear-gradient(180deg, #6366f1 0%, #4f46e5 52%, #4338ca 100%);
+    @apply border text-white shadow-btn-primary;
+    border-color: rgb(var(--accent-rgb) / 0.4);
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--accent-rgb) / 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 100%
+    );
   }
   .btn-primary:hover {
-    background-image: linear-gradient(180deg, #7c80f6 0%, #6258ec 52%, #4f46e5 100%);
-    /* Lift + an indigo glow halo so primary actions feel alive on hover. */
+    border-color: rgb(var(--accent-rgb) / 0.65);
+    background-image: linear-gradient(
+      180deg,
+      rgb(var(--accent-rgb) / 0.24) 0%,
+      rgba(255, 255, 255, 0.06) 100%
+    );
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-      inset 0 -1px 0 0 rgba(0, 0, 0, 0.28),
-      0 12px 26px -10px rgba(67, 56, 202, 0.95),
-      0 0 24px -4px rgba(99, 102, 241, 0.7);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+      0 12px 28px -14px rgb(var(--accent-rgb) / 0.7),
+      0 0 24px -6px rgb(var(--accent-rgb) / 0.45);
   }
-  /* Solid neutral — brushed-steel secondary action. */
+  /* Neutral glass — secondary action (kept as .btn-steel for back-compat). */
   .btn-steel {
-    @apply text-white shadow-btn-solid;
-    background-image: linear-gradient(180deg, #3a4151 0%, #262b36 100%);
+    @apply border border-white/10 bg-white/[0.06] text-white shadow-btn-solid;
   }
   .btn-steel:hover {
-    background-image: linear-gradient(180deg, #464e61 0%, #2f3543 100%);
+    @apply border-white/20 bg-white/[0.1];
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-      0 10px 22px -12px rgba(0, 0, 0, 0.9),
-      0 0 18px -6px rgba(154, 163, 184, 0.35);
+      0 10px 22px -12px rgba(0, 0, 0, 0.85),
+      0 0 18px -6px rgba(255, 122, 24, 0.3);
   }
-  /* Ghost — quiet hairline action that still feels deliberate. */
+  /* Ghost — quiet hairline glass that still feels deliberate. */
   .btn-ghost {
-    @apply border border-white/10 bg-white/[0.04] text-white/85;
+    @apply border border-white/10 bg-white/[0.05] text-white/85;
   }
   .btn-ghost:hover {
-    @apply border-white/20 bg-white/[0.08];
-    box-shadow: 0 0 18px -8px rgba(99, 102, 241, 0.5);
+    @apply bg-white/[0.09];
+    border-color: rgb(var(--accent-rgb) / 0.4);
+    box-shadow: 0 0 18px -8px rgb(var(--accent-rgb) / 0.5);
   }
-  /* Danger — destructive / NSFW confirmations. */
+  /* Danger — destructive / NSFW confirmations (red glass). */
   .btn-danger {
-    @apply text-white shadow-glow-wild;
-    background-image: linear-gradient(180deg, #ff4d6a 0%, #e11d48 100%);
+    @apply border border-wild/50 text-white shadow-glow-wild;
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 77, 106, 0.3) 0%,
+      rgba(225, 29, 72, 0.18) 100%
+    );
   }
   .btn-danger:hover {
-    background-image: linear-gradient(180deg, #ff5e79 0%, #ec1f4f 100%);
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 94, 121, 0.4) 0%,
+      rgba(236, 31, 79, 0.24) 100%
+    );
     box-shadow: 0 10px 24px -10px rgba(225, 29, 72, 0.85), 0 0 22px -6px rgba(255, 77, 106, 0.7);
   }
 
@@ -156,7 +204,7 @@
     background: linear-gradient(
       100deg,
       rgba(255, 255, 255, 0.04) 30%,
-      rgba(199, 125, 255, 0.18) 50%,
+      rgb(var(--accent-rgb) / 0.18) 50%,
       rgba(255, 255, 255, 0.04) 70%
     );
     background-size: 200% 100%;
@@ -178,13 +226,13 @@
  * helpers in src/lib/expression.ts. Kept subtle so the words stay legible.
  * ------------------------------------------------------------------------- */
 
-/* Iridescent sweep across the glyphs. */
+/* Iridescent sweep across the glyphs (follows the page accent). */
 .fx-shimmer {
   background-image: linear-gradient(
     100deg,
     #ffffff 20%,
-    #c77dff 40%,
-    #8b4ff2 55%,
+    rgb(var(--accent-rgb) / 0.85) 42%,
+    rgb(var(--accent-rgb)) 55%,
     #ffffff 75%
   );
   background-size: 220% 100%;
@@ -201,18 +249,18 @@
   100% { background-position: -200% 0; }
 }
 
-/* Soft violet neon halo. */
+/* Soft neon halo (follows the page accent). */
 .fx-glow {
   text-shadow:
-    0 0 6px rgba(199, 125, 255, 0.55),
-    0 0 16px rgba(139, 79, 242, 0.45),
+    0 0 6px rgb(var(--accent-rgb) / 0.55),
+    0 0 16px rgb(var(--accent-rgb) / 0.45),
     0 2px 10px rgba(0, 0, 0, 0.9);
   animation: fx-glow-pulse 3s ease-in-out infinite;
 }
 
 @keyframes fx-glow-pulse {
-  0%, 100% { text-shadow: 0 0 6px rgba(199, 125, 255, 0.45), 0 0 14px rgba(139, 79, 242, 0.35), 0 2px 10px rgba(0, 0, 0, 0.9); }
-  50% { text-shadow: 0 0 10px rgba(199, 125, 255, 0.7), 0 0 24px rgba(139, 79, 242, 0.55), 0 2px 10px rgba(0, 0, 0, 0.9); }
+  0%, 100% { text-shadow: 0 0 6px rgb(var(--accent-rgb) / 0.45), 0 0 14px rgb(var(--accent-rgb) / 0.35), 0 2px 10px rgba(0, 0, 0, 0.9); }
+  50% { text-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.7), 0 0 24px rgb(var(--accent-rgb) / 0.55), 0 2px 10px rgba(0, 0, 0, 0.9); }
 }
 
 /* Unstable, haunting flicker. */

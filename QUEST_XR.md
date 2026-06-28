@@ -1,12 +1,12 @@
-# Veiled XR — Meta Quest packaging
+# MYVYB XR — Meta Quest packaging
 
-Veiled XR is a WebXR experience (`/xr`) built on Three.js + the native WebXR
+MYVYB XR is a WebXR experience (`/xr`) built on Three.js + the native WebXR
 Device API. It runs in any WebXR browser and is tuned for **Quest 2 / Quest 3**
 (aggressive foveation, reduced framebuffer scale, capped pixel ratio, unlit
 materials, low draw calls, fog culling — targeting 72 fps).
 
-- **Try it now in a headset:** open `https://getveiled.vercel.app/xr` in the
-  Meta Quest Browser and tap **Enter Veiled XR**. (The Quest Browser and a
+- **Try it now in a headset:** open `https://myvyb.astramatrix.com/xr` in the
+  Meta Quest Browser and tap **Enter MYVYB XR**. (The Quest Browser and a
   packaged Quest PWA use the same rendering engine, so this is a faithful
   preview of the store build.)
 - **Desktop/phone:** the same URL shows a draggable 3D preview.
@@ -34,12 +34,12 @@ npm install -g @meta-quest/bubblewrap-cli   # or: github.com/meta-quest/bubblewr
 
 # 2. Initialise from the Quest manifest (served live)
 bubblewrap init \
-  --manifest=https://getveiled.vercel.app/manifest.quest.webmanifest \
+  --manifest=https://myvyb.astramatrix.com/manifest.quest.webmanifest \
   --metaquest
 
 #    In the wizard:
 #      - App mode:         Immersive (launches straight into WebXR)
-#      - Application ID:    app.getveiled.xr   (matches ovr_package_name)
+#      - Application ID:    com.astramatrix.myvyb.xr   (matches ovr_package_name)
 #      - Start URL:         /xr
 #      - Signing key:       generate or point to your keystore
 
@@ -58,7 +58,7 @@ Notes:
 
 - `public/manifest.quest.webmanifest` is the source of truth for the packaged
   app: `start_url` = `/xr`, `display` = `fullscreen`, and `ovr_package_name`
-  (`app.getveiled.xr`) sets the Android package id.
+  (`com.astramatrix.myvyb.xr`) sets the Android package id.
 - Keep the production domain on HTTPS (it is) — WebXR requires a secure context.
 - For "launch directly into VR", choose **Immersive** app mode in the wizard;
   Meta's launcher then auto-starts the WebXR session on open.

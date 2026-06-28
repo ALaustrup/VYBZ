@@ -30,14 +30,22 @@ const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-// Canonical production host plus localhost; any *.vercel.app host (previews and
+// Canonical production hosts plus localhost; any *.vercel.app host (previews and
 // project aliases) is also accepted so passkey registration never 403s on the
 // device the user is actually on. The RP ID is bound to the request hostname.
-const ALLOWED_HOSTS = ["getveiled.vercel.app", "localhost"];
+const ALLOWED_HOSTS = [
+  "myvyb.astramatrix.com",
+  "astramatrix.com",
+  "localhost",
+];
 function hostAllowed(hostname: string): boolean {
-  return ALLOWED_HOSTS.includes(hostname) || hostname.endsWith(".vercel.app");
+  return (
+    ALLOWED_HOSTS.includes(hostname) ||
+    hostname.endsWith(".astramatrix.com") ||
+    hostname.endsWith(".vercel.app")
+  );
 }
-const RP_NAME = "Veiled";
+const RP_NAME = "MYVYB";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",

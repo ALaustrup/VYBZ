@@ -39,7 +39,7 @@ export function VeiledPhoto({
         position: "absolute",
         inset: 0,
         overflow: "hidden",
-        backgroundColor: "#050307",
+        backgroundColor: "#191c22",
       }}
     >
       <div

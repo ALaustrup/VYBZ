@@ -15,7 +15,7 @@ interface Blob {
   color: string;
 }
 
-const BASE = "#08080b";
+const BASE = "#191c22";
 
 /**
  * The living, touch-reactive backdrop — slow drifting accent "clouds" over a

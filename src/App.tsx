@@ -15,6 +15,7 @@ import { InstallPrompt } from "@/components/InstallPrompt";
 import { useApp } from "@/store/AppStore";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { cx } from "@/lib/utils";
+import { pageAccentRgb } from "@/lib/accent";
 import { pageTransition as pageTransitionMeta } from "@/lib/transitions";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { ConnectionSheet } from "@/components/ConnectionSheet";
@@ -80,8 +81,14 @@ function Page({
 
 export function App() {
   const location = useLocation();
-  const { account, authLoading, bgVariant, pageTransition, isOnline, celebrate, showToast } =
+  const { account, authLoading, bgVariant, pageTransition, isOnline, celebrate, showToast, dockColor } =
     useApp();
+
+  // Per-page accent: each destination borrows the hue of its taskbar icon, so the
+  // neutral-gray base picks up a hint of the page's own color. Exposed as a CSS
+  // variable (--accent-rgb) that every veil-* utility + glow resolves against.
+  const accentRgb = pageAccentRgb(location.pathname, dockColor);
+  const accentStyle = { "--accent-rgb": accentRgb } as React.CSSProperties;
 
   // Block right-click / drag / save on user-uploaded media platform-wide.
   useEffect(() => installMediaGuard(), []);
@@ -184,6 +191,9 @@ export function App() {
           <Route path="/spark" element={<Page transition={pageTransition}><SparkPage /></Page>} />
           <Route path="/rooms" element={<Page transition={pageTransition}><RoomsPage /></Page>} />
           <Route path="/profile" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
+          {/* Vanity URL for the signed-in member's own profile (case-insensitive
+              match, so /You and /you both resolve): myvyb.astramatrix.com/You */}
+          <Route path="/you" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
           <Route
             path="/notifications"
             element={<Page transition={pageTransition}><NotificationsPage /></Page>}
@@ -255,10 +265,19 @@ export function App() {
         {/* Darken the living backdrop on large displays so content/text stays
             legible (mobile gets this via its frosted column instead). */}
         <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
-        <div className="flex h-[100dvh] w-full overflow-hidden">
+        <div style={accentStyle} className="flex h-[100dvh] w-full overflow-hidden">
           <SideNav />
           <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-            <div className={cx("mx-auto h-full w-full px-6", desktopMax)}>
+            {/* Hint of the page accent from the top edge. */}
+            <div
+              aria-hidden
+              className="accent-fade pointer-events-none absolute inset-x-0 top-0 z-0 h-64"
+              style={{
+                background:
+                  "radial-gradient(90% 70% at 50% 0%, rgb(var(--accent-rgb) / 0.10), transparent 70%)",
+              }}
+            />
+            <div className={cx("relative z-10 mx-auto h-full w-full px-6", desktopMax)}>
               {routes}
             </div>
           </main>
@@ -275,13 +294,23 @@ export function App() {
     <>
       <DynamicBackground variant={bgVariant} />
       <div
+        style={accentStyle}
         className={cx(
           "relative mx-auto flex h-[100dvh] flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl transition-[max-width]",
           columnMax
         )}
       >
+        {/* Hint of the page's accent — a faint glow from the top edge, never loud. */}
+        <div
+          aria-hidden
+          className="accent-fade pointer-events-none absolute inset-x-0 top-0 z-0 h-56"
+          style={{
+            background:
+              "radial-gradient(120% 80% at 50% 0%, rgb(var(--accent-rgb) / 0.12), transparent 70%)",
+          }}
+        />
         <TopBar />
-        <main className="relative flex-1 overflow-hidden">{routes}</main>
+        <main className="relative z-10 flex-1 overflow-hidden">{routes}</main>
         <BottomNav />
         {overlays}
       </div>
