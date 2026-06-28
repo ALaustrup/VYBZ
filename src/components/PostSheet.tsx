@@ -10,7 +10,6 @@ import { VeiledVideo } from "@/components/VeiledVideo";
 import { Handle } from "@/components/Handle";
 import { IdentityMeta } from "@/components/IdentityMeta";
 import { SafetyMenu } from "@/components/SafetyMenu";
-import { TipButton } from "@/components/TipButton";
 import { Gyro3D } from "@/components/Gyro3D";
 import { fontClassFor, textFxClassFor } from "@/lib/expression";
 import { proximityLabel } from "@/lib/geo";
@@ -85,7 +84,6 @@ export function PostSheet() {
               <div className="h-1.5 w-12 rounded-full bg-white/20" />
             </div>
             <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
-              <TipButton toUserId={confession.authorId} reff={confession.id} compact />
               <SafetyMenu confession={confession} />
               <button
                 onClick={closePost}
@@ -199,10 +197,7 @@ export function PostSheet() {
 
               {/* Action — comment publicly (DMing posters from the feed is off). */}
               <div className="mt-5">
-                <button
-                  onClick={comment}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-veil-500 py-3.5 font-display font-semibold text-white shadow-glow transition active:scale-[0.98]"
-                >
+                <button onClick={comment} className="btn btn-primary w-full py-3.5">
                   <MessagesSquare className="h-4 w-4" />
                   Comment
                 </button>

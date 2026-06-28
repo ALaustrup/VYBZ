@@ -1,8 +1,8 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Bell, Plus } from "lucide-react";
+import { Bell, LifeBuoy, Plus } from "lucide-react";
 import { useApp } from "@/store/AppStore";
-import { BrandLockup } from "@/components/Brand";
+import { BrandLockup, BrandMark } from "@/components/Brand";
 import { cx } from "@/lib/utils";
 
 const TITLES: Record<string, string> = {
@@ -18,25 +18,42 @@ const TITLES: Record<string, string> = {
 export function TopBar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { unreadCount, openCompose } = useApp();
+  const { unreadCount, openCompose, openFeedback } = useApp();
   const title = TITLES[pathname] ?? "MYVYB";
   const isHome = pathname === "/";
   const onNotifications = pathname === "/notifications";
 
   return (
     <header className="relative z-40 flex items-center justify-between px-5 pb-3 pt-5">
+      {/* The brand stays anchored at the top on every screen. On inner pages we
+          show a compact mark + the page title so context and identity coexist. */}
       {isHome ? (
         <BrandLockup markClassName="h-6 w-6 text-veil-300" wordClassName="text-2xl" />
       ) : (
-        <h1 className="font-display text-lg font-semibold tracking-tightish text-white/90">
-          {title}
-        </h1>
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Link to="/" aria-label="MYVYB home" className="shrink-0 active:scale-90">
+            <BrandMark className="h-7 w-7 text-veil-300" />
+          </Link>
+          <span className="h-5 w-px shrink-0 bg-white/15" />
+          <h1 className="truncate font-display text-lg font-semibold tracking-tightish text-white/90">
+            {title}
+          </h1>
+        </div>
       )}
 
       <div className="flex items-center gap-2.5">
         <button
+          onClick={openFeedback}
+          aria-label="Help & support"
+          title="Help & support"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/[0.04] text-white/75 transition active:scale-90"
+        >
+          <LifeBuoy className="h-5 w-5" />
+        </button>
+
+        <button
           onClick={openCompose}
-          aria-label="Confess"
+          aria-label="Express"
           className="flex h-10 w-10 items-center justify-center rounded-full bg-veil-500 text-white shadow-glow transition active:scale-90"
         >
           <Plus className="h-5 w-5" />

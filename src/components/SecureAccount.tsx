@@ -87,7 +87,7 @@ export function SecureAccount() {
         </div>
         <p className="mb-3 text-xs leading-relaxed text-white/55">
           We emailed a confirmation link{linked ? ` to ${linked}` : ""}. Tap it to
-          finish creating your account and unlock your V¢ wallet.
+          finish creating your account and unlock member perks.
         </p>
         <button
           onClick={recheck}
@@ -121,8 +121,8 @@ export function SecureAccount() {
         </span>
       </div>
       <p className="mb-3 text-xs leading-relaxed text-white/55">
-        Verify an email to unlock your V¢ wallet, keep your username, and recover
-        your account on any device. You stay anonymous — your email is never shown.
+        Verify an email to keep your username and recover your account on any
+        device. You stay anonymous — your email is never shown.
       </p>
       <div className="flex gap-2">
         <div className="relative flex-1">

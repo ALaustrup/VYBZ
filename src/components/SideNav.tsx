@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
   Bell,
   Layers,
+  LifeBuoy,
   Radio,
   MessagesSquare,
   Plus,
@@ -25,7 +26,7 @@ const NAV = [
  * the mobile bottom dock on large displays.
  */
 export function SideNav() {
-  const { openCompose, unreadCount, account, credits, hasWallet } = useApp();
+  const { openCompose, openFeedback, unreadCount, account } = useApp();
   const { pathname } = useLocation();
   const alias = account?.alias ?? "";
 
@@ -94,6 +95,14 @@ export function SideNav() {
           </span>
           <span className="relative">Activity</span>
         </NavLink>
+
+        <button
+          onClick={openFeedback}
+          className="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-white/55 transition hover:bg-black/20 hover:text-white/85"
+        >
+          <LifeBuoy className="h-5 w-5" />
+          <span className="relative">Help &amp; support</span>
+        </button>
       </nav>
 
       {/* Profile chip. */}
@@ -119,7 +128,7 @@ export function SideNav() {
             </span>
           </p>
           <p className="text-[11px] text-white/45">
-            {hasWallet ? `${credits} V¢` : "Tap to set up"}
+            {account?.anonymous ? "Tap to set up" : "View profile"}
           </p>
         </div>
       </Link>

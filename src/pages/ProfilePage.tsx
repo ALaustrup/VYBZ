@@ -5,7 +5,6 @@ import {
   Bell,
   Camera,
   Check,
-  Coins,
   Crown,
   Eye,
   EyeOff,
@@ -30,6 +29,7 @@ import {
   Trash2,
   Upload,
   UserPlus,
+  UserRound,
   Users,
   Volume2,
   VolumeX,
@@ -40,7 +40,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { BG_VARIANTS } from "@/lib/backgrounds";
 import { PAGE_TRANSITIONS } from "@/lib/transitions";
 import { DOCK_COLORS, DOCK_FX } from "@/lib/dock";
-import { GODMODE_DISCOUNT_LABEL, priceFor } from "@/lib/economy";
 import { processImage } from "@/lib/media";
 import { uploadPublicMedia, usernameAvailable } from "@/lib/backend";
 import { isValidUsername, normalizeUsername } from "@/lib/username";
@@ -52,7 +51,6 @@ import { SecureAccount } from "@/components/SecureAccount";
 import { PasskeySetup } from "@/components/PasskeySetup";
 import { VerifyGate } from "@/components/VerifyGate";
 import { LifelineOptIn } from "@/components/LifelineOptIn";
-import { CreditsShop } from "@/components/CreditsShop";
 import { LegalLinks } from "@/components/LegalLinks";
 import { useApp } from "@/store/AppStore";
 import {
@@ -69,7 +67,25 @@ import {
   useOfflineSettings,
 } from "@/lib/offline";
 import { avatarGradient, cx, formatCount, timeAgo } from "@/lib/utils";
-import type { Confession, Gender, Identity, OwnConfession } from "@/types";
+import {
+  CHOICE_FIELDS,
+  INTERESTS,
+  MAX_BIO,
+  MAX_INTERESTS,
+  MAX_PROMPTS,
+  PROMPTS,
+  TRAITS,
+  completeness,
+  isHidden,
+  toggleHidden,
+} from "@/lib/profileFields";
+import type {
+  Confession,
+  Gender,
+  Identity,
+  OwnConfession,
+  ProfileDetails,
+} from "@/types";
 
 /** Quiet reputation tiers — kindness builds reach, transparently. */
 function karmaTier(k: number): { label: string; color: string } {
@@ -129,7 +145,6 @@ export function ProfilePage() {
     openFeedback,
     backendEnabled,
     isAdmin,
-    credits,
     hasWallet,
     profileId,
     musicUrl,
@@ -162,7 +177,6 @@ export function ProfilePage() {
   // Settings live in their own "About" tab now, so show them expanded by default.
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [nsfwGateOpen, setNsfwGateOpen] = useState(false);
-  const [shopOpen, setShopOpen] = useState(false);
   // Whether to display the public "Veils" count on your own profile.
   const [showVeils, setShowVeils] = useState<boolean>(() => {
     try {
@@ -293,7 +307,7 @@ export function ProfilePage() {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
               ) : (
-                <Sparkles className="h-7 w-7 text-white" />
+                <UserRound className="h-8 w-8 text-white/95" strokeWidth={2.25} />
               )}
             </div>
             {/* Avatar edit. */}
@@ -355,7 +369,7 @@ export function ProfilePage() {
               {formatCount(stats.confessions)}
             </p>
             <p className="text-[10px] uppercase tracking-wider text-white/45">
-              Confessions
+              Posts
             </p>
           </div>
           <div>
@@ -389,7 +403,7 @@ export function ProfilePage() {
               Create your free account
             </span>
             <span className="text-[11px] text-white/55">
-              Verify an email to unlock your V¢ wallet &amp; keep your name forever.
+              Verify an email to keep your name forever &amp; unlock member perks.
             </span>
           </span>
           <span className="shrink-0 rounded-full bg-veil-500 px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
@@ -398,16 +412,9 @@ export function ProfilePage() {
         </button>
       )}
 
-      {/* Dashboard tiles — your wallet, messages, friends, and settings, all one
-          tap away. (Games live in the taskbar's Play; XR is in Settings.) */}
-      <div className="mb-3 grid grid-cols-4 gap-2">
-        <button
-          onClick={() => (hasWallet ? setShopOpen(true) : openAccountGate())}
-          className="flex flex-col items-center gap-1 rounded-2xl bg-amber-300/10 py-3 text-amber-200 ring-1 ring-amber-300/25 transition active:scale-[0.97]"
-        >
-          <Coins className="h-5 w-5" />
-          <span className="text-[11px] font-semibold">{hasWallet ? `${credits} V¢` : "Wallet"}</span>
-        </button>
+      {/* Dashboard tiles — messages, friends, and settings, all one tap away.
+          (Games live in the taskbar's Play; XR is in Settings.) */}
+      <div className="mb-3 grid grid-cols-3 gap-2">
         <button
           onClick={openInbox}
           className="flex flex-col items-center gap-1 rounded-2xl bg-veil-500/15 py-3 text-veil-100 ring-1 ring-veil-400/30 transition active:scale-[0.97]"
@@ -604,6 +611,7 @@ export function ProfilePage() {
                   isPublic={identityPublic}
                   onSave={updateIdentity}
                 />
+                <ProfileDetailsEditor />
                 <SecureAccount />
                 <PasskeySetup />
                 {profileId && (
@@ -648,12 +656,13 @@ export function ProfilePage() {
                         )}
                       />
                       <h3 className="font-display text-sm font-semibold text-white">
-                        Show sensitive (NSFW) content
+                        NSFW mode (18+)
                       </h3>
                     </div>
                     <p className="mt-1 text-xs leading-relaxed text-white/50">
-                      Off by default. Requires a verified account and 18+
-                      confirmation. When on, media flagged NSFW appears unblurred.
+                      One switch for everything adult. Add a verified email with
+                      18+ age on file, then flip this on to unlock NSFW across the
+                      feed, Live &amp; random chat at once. Off by default.
                     </p>
                   </div>
                   <span
@@ -854,7 +863,6 @@ export function ProfilePage() {
         <div className="flex flex-wrap gap-2.5">
           {BG_VARIANTS.map((v) => {
             const selected = v.id === bgVariant;
-            const owned = v.price === 0 || isUnlocked(`bg:${v.id}`);
             return (
               <button
                 key={v.id}
@@ -877,17 +885,15 @@ export function ProfilePage() {
                 </span>
                 <PriceBadge
                   exclusive={!!v.exclusive}
-                  owned={owned}
                   selected={selected}
                   isPremium={isPremium}
-                  price={priceFor(v.price, isPremium)}
                 />
               </button>
             );
           })}
         </div>
         <p className="mt-2 text-[11px] text-white/40">
-          Unlock with V¢ — yours forever. {isPremium ? GODMODE_DISCOUNT_LABEL + "." : "Touch the background to stir it."}
+          Tap a background to apply it — touch it to stir the motion.
         </p>
       </div>
 
@@ -900,7 +906,6 @@ export function ProfilePage() {
         <div className="flex flex-wrap gap-2">
           {PAGE_TRANSITIONS.map((t) => {
             const selected = t.id === pageTransition;
-            const owned = t.price === 0 || isUnlocked(`transition:${t.id}`);
             return (
               <button
                 key={t.id}
@@ -917,12 +922,6 @@ export function ProfilePage() {
                 )}
               >
                 {t.label}
-                {!owned && (
-                  <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] text-amber-300/90">
-                    <Coins className="h-2.5 w-2.5" />
-                    {priceFor(t.price, isPremium)}
-                  </span>
-                )}
               </button>
             );
           })}
@@ -938,7 +937,6 @@ export function ProfilePage() {
         <div className="flex flex-wrap gap-2.5">
           {DOCK_COLORS.map((c) => {
             const selected = c.id === dockColor;
-            const owned = c.price === 0 || isUnlocked(`dockcolor:${c.id}`);
             const swatch =
               c.colors.length === 1
                 ? c.colors[0]
@@ -963,10 +961,8 @@ export function ProfilePage() {
                 </span>
                 <PriceBadge
                   exclusive={!!c.exclusive}
-                  owned={owned}
                   selected={selected}
                   isPremium={isPremium}
-                  price={priceFor(c.price, isPremium)}
                 />
               </button>
             );
@@ -980,7 +976,6 @@ export function ProfilePage() {
         <div className="flex flex-wrap gap-2">
           {DOCK_FX.map((f) => {
             const selected = f.id === dockFx;
-            const owned = f.price === 0 || isUnlocked(`dockfx:${f.id}`);
             return (
               <button
                 key={f.id}
@@ -997,24 +992,15 @@ export function ProfilePage() {
                 )}
               >
                 {f.label}
-                {f.exclusive && !isPremium ? (
+                {f.exclusive && !isPremium && (
                   <Crown className="ml-1 inline h-3 w-3 text-amber-300" />
-                ) : (
-                  !owned && (
-                    <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] text-amber-300/90">
-                      <Coins className="h-2.5 w-2.5" />
-                      {priceFor(f.price, isPremium)}
-                    </span>
-                  )
                 )}
               </button>
             );
           })}
         </div>
         <p className="mt-2 text-[11px] text-white/40">
-          {isPremium
-            ? `Customize your dock. ${GODMODE_DISCOUNT_LABEL} on everything.`
-            : "Earn V¢ and customize your dock — unlocks are permanent."}
+          Make your dock yours — every style is free.
         </p>
       </div>
 
@@ -1026,7 +1012,7 @@ export function ProfilePage() {
       <>
       {/* Headline stats. */}
       <div className={cx("mb-3 grid gap-3", showVeils ? "grid-cols-3" : "grid-cols-2")}>
-        <StatTile label="Confessions" value={stats.confessions} />
+        <StatTile label="Posts" value={stats.confessions} />
         <StatTile label="Vybs" value={stats.feels} accent="#34f5a0" />
         {showVeils && <StatTile label="Fails" value={stats.wilds} accent="#6366f1" />}
       </div>
@@ -1259,7 +1245,7 @@ export function ProfilePage() {
       <>
       <div className="mb-3 flex items-center justify-between px-1">
         <h3 className="font-display text-lg font-semibold text-white">
-          Your confessions
+          Your expressions
         </h3>
         <span className="text-xs text-white/40">
           {stats.confessions} {stats.confessions === 1 ? "post" : "posts"}
@@ -1269,14 +1255,14 @@ export function ProfilePage() {
       {ownPosts.length === 0 ? (
         <EmptyState
           icon={Sparkles}
-          title="No confessions yet"
-          body="Your posts will live here. Share your first secret — it's completely anonymous."
+          title="Nothing expressed yet"
+          body="Your posts will live here. Express your first thought — openly or anonymously, your call."
           action={
             <button
               onClick={openCompose}
               className="mt-1 rounded-full bg-veil-500 px-5 py-2.5 text-sm font-semibold text-white shadow-glow active:scale-95"
             >
-              Confess something
+              Express yourself
             </button>
           }
         />
@@ -1311,8 +1297,6 @@ export function ProfilePage() {
         open={nsfwGateOpen}
         onClose={() => setNsfwGateOpen(false)}
       />
-      <CreditsShop open={shopOpen} onClose={() => setShopOpen(false)} />
-
       {/* Hidden file pickers for avatar / banner uploads. */}
       <input
         ref={avatarFileRef}
@@ -1391,16 +1375,12 @@ export function ProfilePage() {
 /** Corner badge for a customization swatch: check / crown / V¢ price. */
 function PriceBadge({
   exclusive,
-  owned,
   selected,
   isPremium,
-  price,
 }: {
   exclusive: boolean;
-  owned: boolean;
   selected: boolean;
   isPremium: boolean;
-  price: number;
 }) {
   if (selected)
     return (
@@ -1412,13 +1392,6 @@ function PriceBadge({
     return (
       <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-ink-950">
         <Crown className="h-2.5 w-2.5 text-amber-300" />
-      </span>
-    );
-  if (!owned)
-    return (
-      <span className="absolute -right-1 -top-1 flex items-center gap-0.5 rounded-full bg-ink-950 px-1 py-0.5 text-[8px] font-bold text-amber-300">
-        <Coins className="h-2 w-2" />
-        {price}
       </span>
     );
   return null;
@@ -1612,6 +1585,271 @@ function AboutYou({
         {pub
           ? "Shown alongside your confessions."
           : "Hidden from everyone — never attached to your posts."}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Rich profile data points — interests, intent, languages, traits, and personal
+ * prompts. Public by default; each section has a per-section privacy toggle.
+ * These power both profile personalization and the v3 matchmaking engine.
+ */
+function ProfileDetailsEditor() {
+  const { profileDetails, updateProfileDetails } = useApp();
+  const [draft, setDraft] = useState<ProfileDetails>(profileDetails);
+
+  // Re-sync when the backend profile hydrates/changes.
+  useEffect(() => {
+    setDraft(profileDetails);
+  }, [profileDetails]);
+
+  const pct = completeness(draft);
+
+  function toggleArray(key: "interests" | "lookingFor" | "languages", value: string) {
+    setDraft((d) => {
+      const cur = new Set(d[key] ?? []);
+      if (cur.has(value)) cur.delete(value);
+      else {
+        if (key === "interests" && cur.size >= MAX_INTERESTS) return d;
+        cur.add(value);
+      }
+      return { ...d, [key]: [...cur] };
+    });
+  }
+
+  function setTrait(traitKey: string, value: string) {
+    setDraft((d) => {
+      const traits = { ...(d.traits ?? {}) };
+      if (traits[traitKey] === value) delete traits[traitKey];
+      else traits[traitKey] = value;
+      return { ...d, traits };
+    });
+  }
+
+  function setPrompt(idx: number, q: string, a: string) {
+    setDraft((d) => {
+      const prompts = [...(d.prompts ?? [])];
+      prompts[idx] = { q, a };
+      return { ...d, prompts: prompts.filter((p) => p.q) };
+    });
+  }
+
+  const Privacy = ({ section }: { section: string }) => {
+    const hidden = isHidden(draft, section);
+    return (
+      <button
+        onClick={() => setDraft((d) => toggleHidden(d, section))}
+        className={cx(
+          "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold transition active:scale-95",
+          hidden
+            ? "border-white/15 bg-white/5 text-white/55"
+            : "border-feel/40 bg-feel/10 text-feel"
+        )}
+        aria-label={hidden ? "Private" : "Public"}
+      >
+        {hidden ? <Lock className="h-2.5 w-2.5" /> : <Globe className="h-2.5 w-2.5" />}
+        {hidden ? "Private" : "Public"}
+      </button>
+    );
+  };
+
+  return (
+    <div className="mb-3 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <p className="flex items-center gap-2 eyebrow">
+          <Sparkles className="h-4 w-4 text-glow" /> Your profile
+        </p>
+        <span className="text-[11px] font-semibold text-veil-200">{pct}% complete</span>
+      </div>
+      <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        <div
+          className="h-full rounded-full bg-veil-400 transition-all"
+          style={{ width: `${pct}%`, boxShadow: "0 0 10px #c77dff" }}
+        />
+      </div>
+
+      {/* Bio */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">Bio</span>
+          <Privacy section="bio" />
+        </div>
+        <textarea
+          value={draft.bio ?? ""}
+          maxLength={MAX_BIO}
+          onChange={(e) => setDraft((d) => ({ ...d, bio: e.target.value }))}
+          placeholder="Say something true. What are you about?"
+          rows={3}
+          className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+        />
+        <p className="mt-1 text-right text-[10px] text-white/30">
+          {(draft.bio ?? "").length}/{MAX_BIO}
+        </p>
+      </div>
+
+      {/* Pronouns */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">Pronouns</span>
+          <Privacy section="pronouns" />
+        </div>
+        <input
+          value={draft.pronouns ?? ""}
+          maxLength={24}
+          onChange={(e) => setDraft((d) => ({ ...d, pronouns: e.target.value }))}
+          placeholder="e.g. she/her, they/them"
+          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+        />
+      </div>
+
+      {/* Interests */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">
+            Interests{" "}
+            <span className="text-white/35">
+              ({(draft.interests ?? []).length}/{MAX_INTERESTS})
+            </span>
+          </span>
+          <Privacy section="interests" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {INTERESTS.map((tag) => {
+            const on = (draft.interests ?? []).includes(tag);
+            return (
+              <button
+                key={tag}
+                onClick={() => toggleArray("interests", tag)}
+                className={cx(
+                  "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                  on
+                    ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Looking for + Languages (choice fields) */}
+      {CHOICE_FIELDS.map((field) => (
+        <div key={field.key} className="mb-4">
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-sm font-semibold text-white/80">{field.label}</span>
+            <Privacy section={field.key} />
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {field.options.map((opt) => {
+              const on = ((draft[field.key] as string[] | undefined) ?? []).includes(opt);
+              return (
+                <button
+                  key={opt}
+                  onClick={() =>
+                    toggleArray(field.key as "lookingFor" | "languages", opt)
+                  }
+                  className={cx(
+                    "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                    on
+                      ? "bg-aqua-400/25 text-white ring-1 ring-aqua-400/50"
+                      : "bg-white/[0.04] text-white/55"
+                  )}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* Traits */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">About you</span>
+          <Privacy section="traits" />
+        </div>
+        <div className="space-y-2">
+          {TRAITS.map((trait) => (
+            <div key={trait.key}>
+              <p className="mb-1 text-[11px] uppercase tracking-wider text-white/40">
+                {trait.label}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {trait.options.map((opt) => {
+                  const on = (draft.traits ?? {})[trait.key] === opt;
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => setTrait(trait.key, opt)}
+                      className={cx(
+                        "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                        on
+                          ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                          : "bg-white/[0.04] text-white/55"
+                      )}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Prompts */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">Prompts</span>
+          <Privacy section="prompts" />
+        </div>
+        <div className="space-y-2.5">
+          {Array.from({ length: MAX_PROMPTS }).map((_, i) => {
+            const p = (draft.prompts ?? [])[i];
+            return (
+              <div key={i} className="rounded-xl border border-white/8 bg-white/[0.02] p-2.5">
+                <select
+                  value={p?.q ?? ""}
+                  onChange={(e) => setPrompt(i, e.target.value, p?.a ?? "")}
+                  className="mb-1.5 w-full rounded-lg border border-white/10 bg-ink-900 px-2 py-1.5 text-xs text-white/80 focus:outline-none"
+                >
+                  <option value="">Choose a prompt…</option>
+                  {PROMPTS.map((q) => (
+                    <option key={q} value={q}>
+                      {q}
+                    </option>
+                  ))}
+                </select>
+                {p?.q && (
+                  <input
+                    value={p?.a ?? ""}
+                    maxLength={140}
+                    onChange={(e) => setPrompt(i, p.q, e.target.value)}
+                    placeholder="Your answer…"
+                    className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <button
+        onClick={() => updateProfileDetails(draft)}
+        className="w-full rounded-xl bg-veil-500 py-2.5 text-sm font-semibold text-white shadow-glow transition active:scale-[0.98]"
+      >
+        Save profile
+      </button>
+      <p className="mt-2 text-[11px] text-white/40">
+        Public sections appear on your profile and improve your matches. Private
+        sections are hidden from everyone — but still quietly sharpen who you're
+        matched with.
       </p>
     </div>
   );

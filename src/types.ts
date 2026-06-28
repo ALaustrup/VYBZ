@@ -26,6 +26,45 @@ export interface Identity {
   location?: string;
 }
 
+/** A self-authored personality prompt + answer shown on the profile. */
+export interface ProfilePrompt {
+  q: string;
+  a: string;
+}
+
+/** An external link a user chooses to surface on their profile. */
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
+
+/**
+ * Rich, optional profile data points — the "many bits of info" a user can
+ * share to personalize their profile and power superior matchmaking. Public by
+ * default; any top-level key listed in `hidden` is stripped from the public
+ * profile server-side (but still improves the owner's own matches). Stored as a
+ * single jsonb blob on profiles.profile (owner-private column).
+ */
+export interface ProfileDetails {
+  /** Long-form, expressive bio (distinct from the legacy one-liner). */
+  bio?: string;
+  pronouns?: string;
+  /** Declared interest tags — the strongest compatibility signal. */
+  interests?: string[];
+  /** What the user is here for (drives who they're shown). */
+  lookingFor?: string[];
+  /** Languages spoken. */
+  languages?: string[];
+  /** Single-select lifestyle/personality traits, keyed by trait id. */
+  traits?: Record<string, string>;
+  /** Free-text personality prompts. */
+  prompts?: ProfilePrompt[];
+  /** External links (socials, portfolio, etc.). */
+  links?: ProfileLink[];
+  /** Top-level keys the user has marked private. */
+  hidden?: string[];
+}
+
 export interface Confession {
   id: string;
   /** Ephemeral anonymous alias (e.g. "Velvet Ghost"). */

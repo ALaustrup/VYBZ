@@ -20,10 +20,8 @@ import * as backend from "@/lib/backend";
 import { Handle } from "@/components/Handle";
 import { VeiledPhoto } from "@/components/VeiledPhoto";
 import { Skeleton } from "@/components/Skeleton";
-import { TipButton } from "@/components/TipButton";
 import { processImage } from "@/lib/media";
 import { circleGradient, CIRCLE_THEMES } from "@/lib/cosmetics";
-import { Coins } from "lucide-react";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { cx, timeAgo } from "@/lib/utils";
 import type { Circle, CircleMember, CircleMessage, RoomPresence } from "@/types";
@@ -46,7 +44,6 @@ export function CircleChatPage() {
   const [showSettings, setShowSettings] = useState(false);
   const [revealed, setRevealed] = useState<string[]>([]);
   const [pending, setPending] = useState(false);
-  const [supporter, setSupporter] = useState(false);
   const [codeInput, setCodeInput] = useState("");
   const [showCode, setShowCode] = useState(false);
   const [typer, setTyper] = useState<string | null>(null);
@@ -68,7 +65,6 @@ export function CircleChatPage() {
       void backend.fetchMembership(id, profileId).then((m) => {
         setRole(m?.status === "active" ? m.role : null);
         setPending(m?.status === "pending");
-        setSupporter(!!m?.supporter);
       });
   };
 
@@ -81,15 +77,6 @@ export function CircleChatPage() {
         const m = await backend.fetchMembership(id, profileId);
         setRole(m?.status === "active" ? m.role : null);
         setPending(m?.status === "pending");
-        setSupporter(!!m?.supporter);
-        // Charge today's dues for active supporters (never blocks chat).
-        if (m?.status === "active" && (c?.dues ?? 0) > 0 && m.supporter) {
-          const r = await backend.payCircleDues(id);
-          if (r === "insufficient") {
-            setSupporter(false);
-            showToast("Support paused — not enough V¢ today.");
-          }
-        }
       }
       setMessages(await backend.fetchCircleMessages(id, profileId));
       setLoading(false);
@@ -180,19 +167,6 @@ export function CircleChatPage() {
     }
   }
 
-  async function toggleSupport() {
-    const next = !supporter;
-    setSupporter(next);
-    await backend.setCircleSupport(id, next);
-    if (next) {
-      const r = await backend.payCircleDues(id);
-      if (r === "insufficient") {
-        setSupporter(false);
-        showToast("Not enough V¢ to support today.");
-      } else showToast(`Supporting · ${circle?.dues} V¢/day ✨`);
-    }
-  }
-
   function onType(v: string) {
     setText(v);
     const now = Date.now();
@@ -261,7 +235,6 @@ export function CircleChatPage() {
             {isAnon ? `${people.length} chatting now` : `${circle.memberCount} members · ${people.length} here`}
           </button>
         </div>
-        {!isOwner && <TipButton toUserId={circle.ownerId} reff={`circle:${circle.id}`} compact />}
         {isOwner && (
           <button onClick={() => setShowSettings(true)} aria-label="Settings" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
             <Settings className="h-4 w-4" />
@@ -299,20 +272,6 @@ export function CircleChatPage() {
             ))}
           </div>
         </div>
-      )}
-
-      {/* Support / dues */}
-      {isMember && !isOwner && circle.dues > 0 && (
-        <button
-          onClick={toggleSupport}
-          className={cx(
-            "flex items-center justify-center gap-1.5 border-b border-white/8 px-4 py-2 text-xs font-semibold",
-            supporter ? "bg-amber-300/10 text-amber-200" : "text-white/55"
-          )}
-        >
-          <Coins className="h-3.5 w-3.5" />
-          {supporter ? `Supporting · ${circle.dues} V¢/day` : `Support this circle · ${circle.dues} V¢/day`}
-        </button>
       )}
 
       {/* Join-by-code entry */}
@@ -455,7 +414,6 @@ function CircleSettings({
   const [visibility, setVisibility] = useState(circle.visibility);
   const [joinPolicy, setJoinPolicy] = useState(circle.joinPolicy);
   const [code, setCode] = useState<string | null>(null);
-  const [dues, setDues] = useState(String(circle.dues || 0));
   const [themeId, setThemeId] = useState(circle.theme?.id || "");
   const [slug, setSlug] = useState(circle.slug ?? "");
 
@@ -491,7 +449,6 @@ function CircleSettings({
       toast("Verify your account (18+) before making an adult circle.");
       setNsfw(false);
     }
-    await backend.setCircleDues(circle.id, Math.max(0, Math.min(50, parseInt(dues, 10) || 0)));
     await backend.setCircleTheme(circle.id, themeId ? { id: themeId } : {});
     if (isPremium && slug.trim() && slug.trim() !== circle.slug) {
       const ok = await backend.setCircleSlug(circle.id, slug.trim());
@@ -551,16 +508,6 @@ function CircleSettings({
             <span className={cx("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all", nsfw ? "left-[22px]" : "left-0.5")} />
           </span>
         </button>
-
-        {/* Daily dues (opt-in support) */}
-        <label className="mb-1 block text-xs font-semibold text-white/55">Daily dues (V¢ · 0 = off)</label>
-        <input
-          value={dues}
-          onChange={(e) => setDues(e.target.value.replace(/\D/g, "").slice(0, 2))}
-          inputMode="numeric"
-          placeholder="0"
-          className="mb-3 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-white placeholder:text-white/30"
-        />
 
         {/* Theme */}
         <label className="mb-1 block text-xs font-semibold text-white/55">Theme</label>

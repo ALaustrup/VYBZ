@@ -9,7 +9,7 @@ import {
   verifyEmailCode,
 } from "@/lib/backend";
 import { isValidUsername, normalizeUsername } from "@/lib/username";
-import { cx } from "@/lib/utils";
+import { BrandMark } from "@/components/Brand";
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -70,8 +70,14 @@ export function AccountGate() {
     } else if (res.error === "username taken") {
       setAvail(false);
       showToast("That username was just taken — try another.");
+    } else if (res.error === "email not configured") {
+      showToast("Email isn't set up yet — contact support to enable codes.");
     } else {
-      showToast("Couldn't send the code. Try again.");
+      showToast(
+        res.error && res.error !== "failed"
+          ? `Couldn't send the code: ${res.error}`
+          : "Couldn't send the code. Try again."
+      );
     }
   }
 
@@ -126,13 +132,14 @@ export function AccountGate() {
 
             {mode === "choose" && (
               <>
+                <BrandMark className="mb-3 h-12 w-12" />
                 <h2 className="font-display text-2xl font-bold text-gradient">
                   Join to do that
                 </h2>
                 <p className="mt-2 text-sm leading-relaxed text-white/60">
-                  You're browsing as a guest. Create a free account to unlock your
-                  V¢ wallet, friends, posting perks, and matchmaking — or go all-in
-                  with Godmode.
+                  You're browsing as a guest. Create a free account to unlock
+                  friends, posting perks, and matchmaking — or go all-in with
+                  Godmode.
                 </p>
 
                 <button
@@ -230,12 +237,7 @@ export function AccountGate() {
                       <button
                         onClick={claim}
                         disabled={!EMAIL_RE.test(email) || busy}
-                        className={cx(
-                          "mt-3 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display font-bold transition active:scale-[0.98]",
-                          EMAIL_RE.test(email) && !busy
-                            ? "bg-veil-500 text-white shadow-glow"
-                            : "bg-white/10 text-white/40"
-                        )}
+                        className="btn btn-primary mt-3 w-full"
                       >
                         {busy ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
@@ -278,12 +280,7 @@ export function AccountGate() {
                 <button
                   onClick={verify}
                   disabled={code.length !== 4 || busy}
-                  className={cx(
-                    "mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display font-bold transition active:scale-[0.98]",
-                    code.length === 4 && !busy
-                      ? "bg-veil-500 text-white shadow-glow"
-                      : "bg-white/10 text-white/40"
-                  )}
+                  className="btn btn-primary mt-5 w-full"
                 >
                   {busy ? (
                     <Loader2 className="h-5 w-5 animate-spin" />

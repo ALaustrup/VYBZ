@@ -4,11 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Box,
   Camera,
-  Coins,
   Eye,
   HeartHandshake,
   ImagePlus,
-  Lock,
   Phone,
   Send,
   ShieldAlert,
@@ -34,12 +32,9 @@ import {
   DEFAULT_FX,
   FONT_STYLES,
   TEXT_FX,
-  VIEW_3D_COST,
-  expressionCost,
   fontClassFor,
   textFxClassFor,
 } from "@/lib/expression";
-import { GODMODE_DISCOUNT_LABEL, priceFor } from "@/lib/economy";
 import { CRISIS_RESOURCES, detectsCrisis } from "@/lib/safety";
 import { cx } from "@/lib/utils";
 import { playSound } from "@/lib/sound";
@@ -66,9 +61,6 @@ export function ComposeSheet() {
     addConfession,
     showToast,
     isPremium,
-    hasWallet,
-    credits,
-    spendCredits,
     openLifeline,
   } = useApp();
   const navigate = useNavigate();
@@ -102,11 +94,6 @@ export function ComposeSheet() {
       setView3d(false);
     }
   }, [composeOpen]);
-
-  // Premium expression is free for Godmode; otherwise it costs V¢ at post time.
-  // Anonymous accounts have no wallet, so premium is locked for them.
-  const canBuyPremium = isPremium || hasWallet;
-  const premiumCost = expressionCost(textFx, view3d, isPremium);
 
   async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -160,13 +147,11 @@ export function ComposeSheet() {
 
   async function handlePost() {
     if (!canPost) return;
-    // Charge V¢ for premium expression (free for Godmode). Block if short.
-    if (premiumCost > 0) {
-      const paid = await spendCredits(premiumCost, "post-effects");
-      if (!paid) return;
-    }
     setPosting(true);
-    await addConfession({
+    // Fire-and-forget: the store owns the media upload plus a global progress
+    // indicator, so it keeps running even after the sheet closes and the user
+    // navigates away. We close immediately for a snappy, premium feel.
+    void addConfession({
       text,
       photo: media?.url,
       mediaKind: media?.kind,
@@ -202,10 +187,15 @@ export function ComposeSheet() {
           >
             <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-white/20" />
 
-            <div className="flex items-center justify-between px-5 py-3">
-              <h2 className="font-display text-xl font-bold text-gradient">
-                Confess locally
-              </h2>
+            <div className="flex shrink-0 items-center justify-between px-5 py-3">
+              <div>
+                <h2 className="font-display text-xl font-bold text-gradient">
+                  New post
+                </h2>
+                <p className="text-[11px] text-white/40">
+                  Share it with your area — anonymously.
+                </p>
+              </div>
               <button
                 onClick={closeCompose}
                 aria-label="Close"
@@ -215,7 +205,7 @@ export function ComposeSheet() {
               </button>
             </div>
 
-            <div className="no-scrollbar overflow-y-auto px-5 pb-6">
+            <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4">
               {/* Live preview. */}
               <div className="relative mb-4 block h-56 w-full overflow-hidden rounded-2xl border border-white/10">
                 {gyroPreview ? (
@@ -313,54 +303,32 @@ export function ComposeSheet() {
                 </div>
               </div>
 
-              {/* 3) Premium expression — V¢-paid text effects + 3D view. */}
-              <div className="mb-3 rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-3">
+              {/* 3) Expression — text effects + 3D view, free for everyone. */}
+              <div className="mb-3 rounded-2xl border border-veil-400/15 bg-veil-500/[0.05] p-3">
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-100/90">
+                  <span className="flex items-center gap-1.5 text-xs font-semibold text-veil-100/90">
                     <Sparkles className="h-3.5 w-3.5" /> Effects
-                  </span>
-                  <span className="flex items-center gap-1 text-[11px] text-white/45">
-                    {canBuyPremium ? (
-                      <>
-                        <Coins className="h-3 w-3 text-amber-300" /> {credits} V¢
-                        {isPremium && (
-                          <span className="text-amber-300/90">· {GODMODE_DISCOUNT_LABEL}</span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="h-3 w-3" /> Sign in to unlock
-                      </>
-                    )}
                   </span>
                 </div>
 
                 {/* Text effects. */}
                 <div className="no-scrollbar mb-2 flex gap-1.5 overflow-x-auto">
                   {TEXT_FX.map((fx) => {
-                    const locked = fx.id !== DEFAULT_FX && !canBuyPremium;
                     const active = textFx === fx.id;
                     return (
                       <button
                         key={fx.id}
                         type="button"
-                        disabled={locked}
                         onClick={() => setTextFx(fx.id)}
                         title={fx.hint}
                         className={cx(
-                          "flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95 disabled:opacity-40",
+                          "flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95",
                           active
                             ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
                             : "bg-white/[0.04] text-white/55"
                         )}
                       >
-                        {locked && <Lock className="h-3 w-3" />}
                         {fx.label}
-                        {fx.cost > 0 && (
-                          <span className="text-[10px] text-amber-300/80">
-                            {priceFor(fx.cost, isPremium)}
-                          </span>
-                        )}
                       </button>
                     );
                   })}
@@ -369,9 +337,8 @@ export function ComposeSheet() {
                 {/* 3D gyroscopic media view. */}
                 <button
                   type="button"
-                  disabled={!canBuyPremium}
                   onClick={() => setView3d((v) => !v)}
-                  className="flex w-full items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2 text-left disabled:opacity-40"
+                  className="flex w-full items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2 text-left"
                 >
                   <span className="flex items-center gap-1.5 text-sm text-white/80">
                     <Box
@@ -381,9 +348,6 @@ export function ComposeSheet() {
                       )}
                     />
                     3D gyroscopic view
-                    <span className="text-[11px] text-amber-300/80">
-                      {priceFor(VIEW_3D_COST, isPremium)} V¢
-                    </span>
                   </span>
                   <span
                     className={cx(
@@ -401,16 +365,6 @@ export function ComposeSheet() {
                     />
                   </span>
                 </button>
-
-                {premiumCost > 0 && (
-                  <p className="mt-2 text-[11px] text-white/50">
-                    These effects cost{" "}
-                    <span className="font-semibold text-amber-200">
-                      {premiumCost} V¢
-                    </span>{" "}
-                    when you post.
-                  </p>
-                )}
               </div>
 
               {/* 4) Media — your own photo or video, captured or from storage. */}
@@ -561,29 +515,26 @@ export function ComposeSheet() {
                 )}
               </AnimatePresence>
 
-              <div className="mb-5 flex items-start gap-1.5 text-xs text-white/45">
+              <div className="flex items-start gap-1.5 text-xs text-white/45">
                 <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-veil-300" />
                 Posted anonymously. Your profile details (if public) appear with
-                your confession.
+                your expression.
               </div>
+            </div>
 
+            {/* Sticky action footer — keeps the primary CTA in reach while the
+                body scrolls, mirroring the create/edit layout pattern. */}
+            <div className="shrink-0 border-t border-white/10 bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
               <button
                 onClick={handlePost}
                 disabled={!canPost}
-                className={cx(
-                  "flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 font-display font-semibold transition active:scale-[0.98]",
-                  canPost
-                    ? "bg-veil-500 text-white shadow-glow"
-                    : "cursor-not-allowed bg-white/5 text-white/30"
-                )}
+                className="btn btn-primary w-full py-3.5"
               >
                 <Send className="h-4 w-4" />
                 {posting
                   ? "Releasing…"
                   : text.trim().length >= MIN_LENGTH
-                    ? premiumCost > 0
-                      ? `Release it · ${premiumCost} V¢`
-                      : "Release it to your area"
+                    ? "Release it to your area"
                     : `Write ${Math.max(0, MIN_LENGTH - text.trim().length)} more characters`}
               </button>
             </div>

@@ -16,7 +16,6 @@ import { CONFESSIONS } from "@/data/confessions";
 import { IdentityMeta } from "@/components/IdentityMeta";
 import { SafetyMenu } from "@/components/SafetyMenu";
 import { Handle } from "@/components/Handle";
-import { TipButton } from "@/components/TipButton";
 import { VeiledArt } from "@/components/VeiledArt";
 import { VeiledPhoto } from "@/components/VeiledPhoto";
 import { VeiledVideo } from "@/components/VeiledVideo";
@@ -195,7 +194,6 @@ export function ConnectionSheet() {
                 />
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <TipButton toUserId={confession.authorId} reff={confession.id} compact />
                 {confession.alias !== "You" && <SafetyMenu confession={confession} />}
                 <button
                   onClick={closeConnection}

@@ -40,7 +40,18 @@ export async function publish(opts: {
   token: string;
   onStatus?: (s: LiveStatus) => void;
 }): Promise<LiveConnect> {
-  const room = new Room({ adaptiveStream: true, dynacast: true });
+  const room = new Room({
+    adaptiveStream: true,
+    dynacast: true,
+    // Mobile-first capture: portrait HD with the front camera so the publish
+    // matches a phone's display, and simulcast so viewers on weak networks
+    // automatically drop to a lighter layer instead of buffering.
+    videoCaptureDefaults: {
+      resolution: { width: 720, height: 1280, frameRate: 30 },
+      facingMode: "user",
+    },
+    publishDefaults: { simulcast: true, videoCodec: "vp8" },
+  });
   room.on(RoomEvent.Disconnected, () => opts.onStatus?.("ended"));
   room.on(RoomEvent.MediaDevicesError, () => opts.onStatus?.("error"));
   opts.onStatus?.("connecting");

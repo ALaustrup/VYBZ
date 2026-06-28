@@ -51,10 +51,10 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "MYVYB — secrets, beautifully hidden",
+        name: "MYVYB — anonymous social, live & dating",
         short_name: "MYVYB",
         description:
-          "Anonymous veiled confessions. Swipe through secrets, unveil, and connect.",
+          "Express anonymously, swipe a feed you control, go live, and match by vibe.",
         id: "/",
         start_url: "/",
         scope: "/",

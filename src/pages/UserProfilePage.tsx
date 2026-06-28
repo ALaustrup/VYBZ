@@ -1,12 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Crown, Heart, Loader2, Music, Sparkles } from "lucide-react";
+import { ArrowLeft, Crown, Heart, Loader2, Music, Sparkles, UserRound } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import * as backend from "@/lib/backend";
 import { Handle } from "@/components/Handle";
 import { IdentityMeta } from "@/components/IdentityMeta";
 import { WhisperCard } from "@/components/WhisperCard";
-import { TipButton } from "@/components/TipButton";
 import {
   borderClass,
   fontClass,
@@ -16,12 +15,13 @@ import {
 } from "@/lib/cosmetics";
 import { musicEmbed } from "@/lib/music";
 import { cx, formatCount, timeAgo } from "@/lib/utils";
+import { TRAITS } from "@/lib/profileFields";
 import type { Confession } from "@/types";
 
 export function UserProfilePage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const { displayLevel, isNsfwHidden, profileId } = useApp();
+  const { displayLevel, isNsfwHidden } = useApp();
   const [profile, setProfile] = useState<backend.PublicProfile | null>(null);
   const [posts, setPosts] = useState<Confession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +64,6 @@ export function UserProfilePage() {
 
   const loadout = profile.loadout ?? {};
   const grad = themeGradient(loadout);
-  const isSelf = profile.id === profileId;
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-10">
@@ -105,9 +104,7 @@ export function UserProfilePage() {
             {profile.avatarUrl ? (
               <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="font-display text-xl font-bold text-veil-100">
-                {(profile.username || profile.alias || "?").charAt(0).toUpperCase()}
-              </span>
+              <UserRound className="h-8 w-8 text-veil-100" strokeWidth={2.25} />
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -136,15 +133,17 @@ export function UserProfilePage() {
               Joined {timeAgo(profile.createdAt)}
             </p>
           </div>
-          {!isSelf && <TipButton toUserId={profile.id} reff={`profile:${profile.id}`} />}
         </div>
 
         {/* Stats portfolio. */}
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Stat label="Resonance" value={formatCount(profile.feels)} icon={<Heart className="h-3.5 w-3.5 text-feel-400" />} />
-          <Stat label="Confessions" value={String(profile.posts)} />
+          <Stat label="Posts" value={String(profile.posts)} />
         </div>
       </div>
+
+      {/* Rich public profile (privacy-sanitized server-side). */}
+      <ProfileDetailsView details={profile.details} />
 
       {/* Music. */}
       {(() => {
@@ -169,10 +168,10 @@ export function UserProfilePage() {
 
       {/* Public posts. */}
       <p className="mb-2 mt-5 px-1 text-[11px] uppercase tracking-wider text-white/35">
-        Confessions
+        Posts
       </p>
       {posts.length === 0 ? (
-        <p className="py-8 text-center text-sm text-white/40">No public confessions yet.</p>
+        <p className="py-8 text-center text-sm text-white/40">Nothing public yet.</p>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {posts.map((c) => (
@@ -187,6 +186,84 @@ export function UserProfilePage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Public, privacy-sanitized rendering of a user's rich profile data points. */
+function ProfileDetailsView({ details }: { details: backend.PublicProfile["details"] }) {
+  const traitLabel = (key: string) => TRAITS.find((t) => t.key === key)?.label ?? key;
+  const hasTraits = details.traits && Object.keys(details.traits).length > 0;
+  const prompts = (details.prompts ?? []).filter((p) => p.q && p.a);
+  const nothing =
+    !details.bio &&
+    !details.pronouns &&
+    !(details.interests ?? []).length &&
+    !(details.lookingFor ?? []).length &&
+    !(details.languages ?? []).length &&
+    !hasTraits &&
+    !prompts.length;
+  if (nothing) return null;
+
+  const Chips = ({ items, tone }: { items: string[]; tone: string }) => (
+    <div className="flex flex-wrap gap-1.5">
+      {items.map((x) => (
+        <span key={x} className={cx("rounded-full px-2.5 py-1 text-xs font-medium", tone)}>
+          {x}
+        </span>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="mt-3 space-y-3">
+      {details.bio && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="text-sm leading-relaxed text-white/85">{details.bio}</p>
+          {details.pronouns && (
+            <p className="mt-1.5 text-[11px] text-white/40">{details.pronouns}</p>
+          )}
+        </div>
+      )}
+
+      {(details.interests ?? []).length > 0 && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Interests</p>
+          <Chips items={details.interests ?? []} tone="bg-veil-500/20 text-veil-100" />
+        </div>
+      )}
+
+      {(details.lookingFor ?? []).length > 0 && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Looking for</p>
+          <Chips items={details.lookingFor ?? []} tone="bg-aqua-400/20 text-aqua-100" />
+        </div>
+      )}
+
+      {(details.languages ?? []).length > 0 && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Languages</p>
+          <Chips items={details.languages ?? []} tone="bg-white/10 text-white/80" />
+        </div>
+      )}
+
+      {hasTraits && (
+        <div className="grid grid-cols-2 gap-2">
+          {Object.entries(details.traits ?? {}).map(([k, v]) => (
+            <div key={k} className="rounded-2xl border border-white/8 bg-white/[0.03] p-3">
+              <p className="text-[10px] uppercase tracking-wider text-white/40">{traitLabel(k)}</p>
+              <p className="mt-0.5 text-sm font-semibold text-white">{v}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {prompts.map((p, i) => (
+        <div key={i} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="text-[11px] font-semibold text-veil-200">{p.q}</p>
+          <p className="mt-1 text-sm text-white/85">{p.a}</p>
+        </div>
+      ))}
     </div>
   );
 }

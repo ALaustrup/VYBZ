@@ -1,7 +1,8 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   motion,
+  useMotionTemplate,
   useMotionValue,
   useSpring,
   useTransform,
@@ -23,15 +24,49 @@ const ITEMS = [
   { to: "/profile", label: "You", icon: User, end: false, match: ["/you"] },
 ];
 
-// macOS-style dock magnification + proximity glow tuning.
+// macOS-style dock magnification + proximity glow tuning. Magnification is a
+// pure CSS transform (scale) on a fixed-size base box, so the bar's own height
+// never changes on hover — only the icons grow.
 const BASE = 44;
 const PEAK = 64;
+const PEAK_SCALE = PEAK / BASE;
 const RANGE = 110;
 const GLOW_RANGE = 64;
 
 const reduceMotion =
   typeof window !== "undefined" &&
   window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * Subtle gyroscopic tilt for the dock. Reads the device's orientation and maps
+ * it to a gentle 3D rotation + a sheen that slides across the glass, so the bar
+ * feels like a physical pane of dark glass catching the light as you move. On
+ * desktop / unsupported devices it simply stays flat (graceful no-op).
+ */
+function useGyroTilt() {
+  const rotateX = useSpring(0, { stiffness: 120, damping: 20, mass: 0.4 });
+  const rotateY = useSpring(0, { stiffness: 120, damping: 20, mass: 0.4 });
+  const sheen = useSpring(50, { stiffness: 120, damping: 20, mass: 0.4 });
+
+  useEffect(() => {
+    if (reduceMotion || typeof window === "undefined") return;
+    const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+    function onOrient(e: DeviceOrientationEvent) {
+      const gamma = e.gamma ?? 0; // left/right tilt, ~[-90, 90]
+      const beta = e.beta ?? 0; // front/back tilt, neutral ~45° in hand
+      const gy = clamp(gamma / 45, -1, 1);
+      const bx = clamp((beta - 45) / 45, -1, 1);
+      rotateY.set(gy * 7);
+      rotateX.set(-bx * 5);
+      sheen.set(50 + gy * 42);
+    }
+    window.addEventListener("deviceorientation", onOrient, { passive: true });
+    return () => window.removeEventListener("deviceorientation", onOrient);
+  }, [rotateX, rotateY, sheen]);
+
+  const sheenBg = useMotionTemplate`radial-gradient(140px 70px at ${sheen}% -10%, rgba(255,255,255,0.16), transparent 70%)`;
+  return { rotateX, rotateY, sheenBg };
+}
 
 /**
  * Touch-reactive, macOS-style dock. As a finger glides across, each icon lights
@@ -50,6 +85,7 @@ export function BottomNav() {
   const rowRef = useRef<HTMLDivElement>(null);
   const downXRef = useRef(0);
   const movedRef = useRef(false);
+  const { rotateX, rotateY, sheenBg } = useGyroTilt();
 
   function nearestTo(clientX: number): string | null {
     const row = rowRef.current;
@@ -71,9 +107,17 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="relative z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
-      <div
+    <nav
+      className="relative z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2"
+      style={{ perspective: 700 }}
+    >
+      <motion.div
         ref={rowRef}
+        style={
+          reduceMotion
+            ? undefined
+            : { rotateX, rotateY, transformPerspective: 700 }
+        }
         onPointerDown={(e) => {
           downXRef.current = e.clientX;
           movedRef.current = false;
@@ -99,8 +143,22 @@ export function BottomNav() {
         }}
         onPointerLeave={() => mouseX.set(Infinity)}
         onPointerCancel={() => mouseX.set(Infinity)}
-        className="glass mx-auto flex max-w-md touch-none select-none items-end justify-around rounded-2xl px-2 pb-2 pt-1"
+        className="glass relative mx-auto flex h-[60px] max-w-md touch-none select-none items-end justify-around rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] px-2 pb-2.5 shadow-[0_10px_34px_-14px_rgba(0,0,0,0.95)]"
       >
+        {/* Clipped glass layer (rounded) for the hairline + moving sheen, so the
+            icons can magnify above the bar without being clipped. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+        >
+          <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+          {!reduceMotion && (
+            <motion.span
+              style={{ backgroundImage: sheenBg }}
+              className="absolute inset-0"
+            />
+          )}
+        </span>
         {ITEMS.map((item, i) => {
           const active =
             (item.end ? pathname === item.to : pathname.startsWith(item.to)) ||
@@ -126,7 +184,7 @@ export function BottomNav() {
             />
           );
         })}
-      </div>
+      </motion.div>
     </nav>
   );
 }
@@ -155,8 +213,9 @@ function DockItem({
     return val - (bounds.x + bounds.width / 2);
   });
 
-  const sizeSync = useTransform(distance, [-RANGE, 0, RANGE], [BASE, PEAK, BASE]);
-  const size = useSpring(sizeSync, { mass: 0.1, stiffness: 200, damping: 14 });
+  // Scale (transform) instead of width/height so the bar never reflows.
+  const scaleSync = useTransform(distance, [-RANGE, 0, RANGE], [1, PEAK_SCALE, 1]);
+  const scale = useSpring(scaleSync, { mass: 0.1, stiffness: 200, damping: 14 });
 
   // Proximity glow 0..1, eased; combined with the active-at-rest state so the
   // current page stays lit and others fade to a plain outline.
@@ -187,7 +246,11 @@ function DockItem({
     >
       <motion.div
         ref={ref}
-        style={reduceMotion ? { width: BASE, height: BASE } : { width: size, height: size }}
+        style={
+          reduceMotion
+            ? { width: BASE, height: BASE }
+            : { width: BASE, height: BASE, scale, transformOrigin: "bottom center" }
+        }
         className="relative flex items-center justify-center"
       >
         {/* Colored glow halo (glow / neon / aura). */}
@@ -229,15 +292,6 @@ function DockItem({
           />
         </motion.span>
       </motion.div>
-      {/* Caption only for the active page. */}
-      <span
-        className={cx(
-          "mt-0.5 h-3 text-[9px] font-semibold transition-opacity",
-          active ? "text-white opacity-100" : "opacity-0"
-        )}
-      >
-        {label}
-      </span>
     </button>
   );
 }

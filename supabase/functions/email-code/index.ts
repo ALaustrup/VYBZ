@@ -15,7 +15,12 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY =
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MYVYB <hello@myvybsocial.vercel.app>";
+// Sender. Default points at the production domain (astramatrix.com); once that
+// domain is verified in Resend (SPF/DKIM/DMARC DNS records added), delivery is
+// authenticated. Override per-environment via the RESEND_FROM secret. NOTE: a
+// *.vercel.app address can never be verified by Resend — always use a real
+// domain you control.
+const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MYVYB <noreply@astramatrix.com>";
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
@@ -86,6 +91,11 @@ Deno.serve(async (req: Request) => {
         return json({ error: "invalid username" }, 400);
       if (await usernameTaken(username)) return json({ error: "username taken" }, 409);
 
+      if (!RESEND_API_KEY) {
+        console.error("email-code: RESEND_API_KEY is not set");
+        return json({ error: "email not configured" }, 500);
+      }
+
       const code = makeCode();
       const code_hash = await sha256(code);
       const expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString();
@@ -104,7 +114,13 @@ Deno.serve(async (req: Request) => {
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ from: RESEND_FROM, to: email, subject: `${code} is your MYVYB code`, html }),
       });
-      if (!r.ok) return json({ error: "send failed" }, 502);
+      if (!r.ok) {
+        // Surface Resend's actual reason (e.g. "domain not verified") to logs +
+        // caller so delivery problems are diagnosable instead of silent.
+        const detail = await r.text().catch(() => "");
+        console.error("email-code: Resend send failed", r.status, detail);
+        return json({ error: "send failed", detail: detail.slice(0, 500) }, 502);
+      }
       return json({ ok: true });
     }
 

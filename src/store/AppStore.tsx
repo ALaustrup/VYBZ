@@ -17,6 +17,7 @@ import type {
   FriendStatus,
   Identity,
   Message,
+  ProfileDetails,
   Reaction,
 } from "@/types";
 import { randomUsername } from "@/lib/username";
@@ -33,7 +34,6 @@ import {
   dockColorTheme,
   dockFxStyle,
 } from "@/lib/dock";
-import { priceFor } from "@/lib/economy";
 import { BACKEND_ENABLED } from "@/lib/supabase";
 import * as backend from "@/lib/backend";
 
@@ -96,6 +96,7 @@ const KEYS = {
   userConfessions: "veiled.userConfessions",
   unveiled: "veiled.unveiled",
   identityPublic: "veiled.identityPublic",
+  profileDetails: "veiled.profileDetails",
   premium: "veiled.premium",
   comments: "veiled.comments",
   threads: "veiled.threads",
@@ -204,6 +205,12 @@ interface AppState {
   enterAnonymously: () => void;
   /** One-tap entry: resume a prior session, else create a guest. */
   findYours: () => Promise<void>;
+  /**
+   * Frictionless in-app registration: the only required inputs are Age, Sex &
+   * Location (+ accepted terms). Creates the account without ever leaving the
+   * app; email is optional later (it unlocks the wallet + NSFW).
+   */
+  registerQuick: (identity: Identity, isPublic?: boolean) => void;
   /** True until the initial session-restore completes (hide the landing). */
   authLoading: boolean;
   /** One-time username customization. False if already used or name taken. */
@@ -257,11 +264,23 @@ interface AppState {
   toast: ToastState | null;
   userConfessions: Confession[];
   composeOpen: boolean;
+  /**
+   * Global media-upload progress for the active post, 0..1, or null when idle.
+   * Lives in the store (not the compose sheet) so the upload — and its indicator
+   * — keep running even after the sheet closes and the user changes pages.
+   */
+  uploadProgress: number | null;
 
   // Public/private profile identity (editable; shown on unveiled posts).
   identity: Identity;
   identityPublic: boolean;
   updateIdentity: (identity: Identity, isPublic: boolean) => void;
+
+  // Rich profile data points (interests, prompts, traits, …) powering profile
+  // personalization + superior matchmaking. Public by default, per-section
+  // privacy via ProfileDetails.hidden.
+  profileDetails: ProfileDetails;
+  updateProfileDetails: (details: ProfileDetails) => void;
 
   isPremium: boolean;
   isUnveiled: (confessionId: string) => boolean;
@@ -470,12 +489,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     load<Confession[]>(KEYS.userConfessions, [])
   );
   const [composeOpen, setComposeOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const uploadHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [identity, setIdentity] = useState<Identity>(() =>
     load<Identity>(KEYS.identity, {})
   );
   const [identityPublic, setIdentityPublic] = useState<boolean>(() =>
     load<boolean>(KEYS.identityPublic, true)
+  );
+  const [profileDetails, setProfileDetails] = useState<ProfileDetails>(() =>
+    load<ProfileDetails>(KEYS.profileDetails, {})
   );
   const [isPremium, setIsPremium] = useState<boolean>(() =>
     load<boolean>(KEYS.premium, false)
@@ -636,8 +660,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const effectivePremium = isPremium || passActive;
   const premiumRef = useRef(effectivePremium);
   premiumRef.current = effectivePremium;
-  const creditsRef = useRef(credits);
-  creditsRef.current = credits;
   const nsfwConsentRef = useRef(nsfwConsent);
   nsfwConsentRef.current = nsfwConsent;
   const contactVerifiedRef = useRef(contactVerified);
@@ -677,6 +699,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => save(KEYS.threads, threads), [threads]);
   useEffect(() => save(KEYS.identity, identity), [identity]);
   useEffect(() => save(KEYS.identityPublic, identityPublic), [identityPublic]);
+  useEffect(() => save(KEYS.profileDetails, profileDetails), [profileDetails]);
   useEffect(() => save(KEYS.powerUps, powerUps), [powerUps]);
   useEffect(() => save(KEYS.friends, friends), [friends]);
   useEffect(() => save(KEYS.karma, karma), [karma]);
@@ -779,15 +802,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             Array.from(new Set([...prev, ...(prefs.unlocks ?? [])]))
           );
         }
-        // Gentle once-per-day bonus for identity (non-anonymous) accounts.
-        if (!prof.anonymous) {
-          void backend.claimDailyBonus().then((amt) => {
-            if (amt > 0) {
-              setCredits((c) => c + amt);
-              showToast(`Daily bonus: +${amt} V¢`);
-            }
-          });
-        }
         setAuraState(prof.aura);
         setIdentity({
           gender: prof.gender ?? undefined,
@@ -795,6 +809,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           location: prof.location ?? undefined,
         });
         setIdentityPublic(prof.identity_public ?? true);
+        if (prof.profile && typeof prof.profile === "object")
+          setProfileDetails(prof.profile);
         setUsernameLocked(!!prof.username_changed);
         // NSFW is gated by a verified contact + 18+ consent, so the server
         // profile is the source of truth for the opt-in and consent flags.
@@ -952,6 +968,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const list = await backend.fetchRecentConfessions();
             setBackendConfessions(list);
           });
+      }
+      showToast("Profile updated.");
+    },
+    [showToast]
+  );
+
+  // Save the rich profile data points (interests, prompts, traits, …). Persisted
+  // to the owner-private profiles.profile column; served sanitized to others.
+  const updateProfileDetails = useCallback(
+    (next: ProfileDetails) => {
+      setProfileDetails(next);
+      if (BACKEND_ENABLED && profileIdRef.current) {
+        void backend.saveProfileDetails(profileIdRef.current, next);
       }
       showToast("Profile updated.");
     },
@@ -1401,6 +1430,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     void bootstrapBackend(alias, "veil", undefined, undefined, true);
   }, [bootstrapBackend]);
 
+  // Frictionless registration: the user only supplies Age / Sex / Location and
+  // accepts the terms — no email round-trip, no leaving the app. We create a
+  // guest-tier account with that identity persisted (age + sex lock on first
+  // save). Email verification (wallet + NSFW) stays an optional later step.
+  const registerQuick = useCallback(
+    (newIdentity: Identity, isPublic = true) => {
+      const alias = randomUsername();
+      setAccount({
+        alias,
+        username: alias,
+        aura: "veil",
+        anonymous: true,
+        createdAt: Date.now(),
+      });
+      setAuraState("veil");
+      setIdentity(newIdentity);
+      setIdentityPublic(isPublic);
+      try {
+        localStorage.setItem("veiled.justJoined", "1");
+      } catch {
+        /* ignore */
+      }
+      void bootstrapBackend(alias, "veil", newIdentity, isPublic, true);
+    },
+    [bootstrapBackend]
+  );
+
   // One-tap entry: resume a previous session if one exists, otherwise create a
   // fresh guest account instantly. Powers the "Find Yours" landing button.
   const findYours = useCallback(async () => {
@@ -1833,12 +1889,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setNsfwOptIn = useCallback(
     (on: boolean): boolean => {
-      // Turning OFF is always allowed. Turning ON requires the unlock gate:
-      // a verified contact (email/SMS magic link) AND recorded 18+ consent.
-      if (on && BACKEND_ENABLED && !(contactVerifiedRef.current && nsfwConsentRef.current)) {
+      // Turning OFF is always allowed. Turning ON is a single universal switch:
+      // it requires a verified email AND a permanent 18+ age/sex on file. That's
+      // it — flipping it on records consent and unlocks every NSFW surface.
+      const adultVerified =
+        contactVerifiedRef.current &&
+        (identityRef.current.age ?? 0) >= 18 &&
+        identityRef.current.gender != null;
+      if (on && BACKEND_ENABLED && !adultVerified) {
         return false; // Caller should open the NSFW gate.
       }
       setNsfwOptInState(on);
+      if (on && !nsfwConsentRef.current) {
+        // The single toggle implies consent — record it so it persists.
+        setNsfwConsentState(true);
+        if (BACKEND_ENABLED && profileIdRef.current)
+          void backend.setNsfwConsent(profileIdRef.current, true);
+      }
       if (BACKEND_ENABLED && profileIdRef.current) {
         void backend.setNsfwOptIn(profileIdRef.current, on);
       }
@@ -1913,21 +1980,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
    * backend is configured. Godmode callers should pass amount 0.
    */
   const spendCredits = useCallback(
-    async (amount: number, reason?: string): Promise<boolean> => {
-      if (amount <= 0) return true;
-      if (typeof navigator !== "undefined" && !navigator.onLine) {
-        showToast("Find internet to make purchases.");
-        return false;
-      }
-      if (creditsRef.current < amount) {
-        showToast(`Not enough V¢ — you need ${amount}.`);
-        return false;
-      }
-      setCredits((c) => Math.max(0, c - amount));
-      void backend.spendCredits(amount, reason);
+    async (_amount: number, _reason?: string): Promise<boolean> => {
+      // The V¢ economy has been retired — everything is free now.
       return true;
     },
-    [showToast]
+    []
   );
 
   /** Refresh the V¢ balance from the server. */
@@ -1976,14 +2033,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
    * the Godmode discount is applied here.
    */
   const unlock = useCallback(
-    async (itemId: string, basePrice: number): Promise<boolean> => {
-      if (ownedUnlocksRef.current.includes(itemId)) return true;
-      const price = priceFor(basePrice, premiumRef.current);
-      const paid = await spendCredits(price, `unlock:${itemId}`);
-      if (paid) setOwnedUnlocks((prev) => (prev.includes(itemId) ? prev : [...prev, itemId]));
-      return paid;
+    async (itemId: string, _basePrice: number): Promise<boolean> => {
+      // Everything is free now — selecting an item simply marks it owned.
+      setOwnedUnlocks((prev) => (prev.includes(itemId) ? prev : [...prev, itemId]));
+      return true;
     },
-    [spendCredits]
+    []
   );
 
   /**
@@ -2084,7 +2139,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
    * records 18+ consent, and enables the opt-in. Returns false if not verified.
    */
   const unlockNsfw = useCallback((): boolean => {
+    // Verified email + adult age on file is the whole requirement now.
     if (BACKEND_ENABLED && !contactVerifiedRef.current) return false;
+    if ((identityRef.current.age ?? 0) < 18) return false;
     setNsfwConsentState(true);
     setNsfwOptInState(true);
     if (BACKEND_ENABLED && profileIdRef.current) {
@@ -2245,11 +2302,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
           let mediaPath: string | undefined = undefined;
           let displayUrl: string | undefined = input.photo;
           if (input.photo) {
+            if (uploadHideTimer.current) {
+              clearTimeout(uploadHideTimer.current);
+              uploadHideTimer.current = null;
+            }
+            setUploadProgress(0);
             const { path: uploaded, error: uploadErr } =
               await backend.uploadConfessionMedia(
                 input.photo,
-                profileIdRef.current
+                profileIdRef.current,
+                (frac) => setUploadProgress(frac)
               );
+            // Snap to complete, then fade the global indicator out.
+            setUploadProgress(1);
+            uploadHideTimer.current = setTimeout(
+              () => setUploadProgress(null),
+              700
+            );
             if (uploaded) {
               mediaPath = uploaded;
               displayUrl =
@@ -2312,11 +2381,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
             setBackendConfessions((prev) => [backendConf, ...prev]);
             setMyBackendIds((prev) => [...prev, newId]);
             celebrate("Your secret is out there");
-            // Award feedback for identity accounts (server trigger grants +10).
-            if (!accountRef.current?.anonymous) {
-              setCredits((c) => c + 10);
-              showToast("You've earned 10 V¢ for posting!");
-            }
             return backendConf;
           }
         } catch {
@@ -2336,7 +2400,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   // NSFW can be enabled only with a verified contact AND recorded 18+ consent.
-  const nsfwEligible = contactVerified && nsfwConsent;
+  // Single universal NSFW eligibility: a verified email + a permanent adult
+  // (18+) age & sex on file. Once true, the one toggle in Settings unlocks every
+  // NSFW surface (feed, Live, random chat) at once.
+  const nsfwEligible =
+    contactVerified &&
+    identity.age != null &&
+    identity.age >= 18 &&
+    identity.gender != null;
   // Anonymous ("Enter anonymously") accounts have no V¢ wallet.
   const hasWallet = !!account && !account.anonymous;
 
@@ -2346,6 +2417,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       signIn,
       enterAnonymously,
       findYours,
+      registerQuick,
       authLoading,
       changeUsername,
       usernameLocked,
@@ -2376,9 +2448,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast,
       userConfessions,
       composeOpen,
+      uploadProgress,
       identity,
       identityPublic,
       updateIdentity,
+      profileDetails,
+      updateProfileDetails,
       isPremium: effectivePremium,
       isUnveiled,
       unveilCounts,
@@ -2506,6 +2581,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       signIn,
       enterAnonymously,
       findYours,
+      registerQuick,
       authLoading,
       changeUsername,
       usernameLocked,
@@ -2535,9 +2611,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toast,
       userConfessions,
       composeOpen,
+      uploadProgress,
       identity,
       identityPublic,
       updateIdentity,
+      profileDetails,
+      updateProfileDetails,
       effectivePremium,
       isUnveiled,
       unveilCounts,

@@ -1,18 +1,15 @@
-// V¢ pricing model.
+// Pricing model.
 //
-// Design principle: Godmode never makes purchasables *free* (that would gut the
-// V¢ economy and kill engagement). Instead Godmode grants:
-//   1. a standing **discount** on anything purchasable, and
-//   2. access to a few **exclusive** items that aren't for sale at all.
-// Everything else is buyable by everyone with earned V¢.
+// The in-app V¢ currency has been retired: every item is now free to use.
+// Godmode (a one-time real-money purchase) is the only paid upgrade and is
+// gated separately as a membership — it no longer changes item prices.
 
-export const GODMODE_DISCOUNT = 0.3; // 30% off for Godmode members.
+export const GODMODE_DISCOUNT = 0;
 
-/** The V¢ price of a `base`-priced item for this user (Godmode = discounted). */
-export function priceFor(base: number, godmode: boolean): number {
-  if (base <= 0) return 0;
-  return godmode ? Math.max(1, Math.round(base * (1 - GODMODE_DISCOUNT))) : base;
+/** Every item is free now, so the price is always 0. */
+export function priceFor(_base: number, _godmode: boolean): number {
+  return 0;
 }
 
-/** Human label for the discount, e.g. "Godmode −30%". */
-export const GODMODE_DISCOUNT_LABEL = `Godmode −${Math.round(GODMODE_DISCOUNT * 100)}%`;
+/** Retained for back-compat; no longer surfaced in the UI. */
+export const GODMODE_DISCOUNT_LABEL = "Godmode";

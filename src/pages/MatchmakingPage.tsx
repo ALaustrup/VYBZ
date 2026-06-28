@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Loader2, Sparkles, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, ArrowRight, Flame, Heart, Loader2, Sparkles, UserPlus, Users } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import { EmptyState } from "@/components/EmptyState";
 import {
@@ -49,6 +49,23 @@ export function MatchmakingPage() {
       </div>
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-2">
+        {/* Spark — the dating deck. The premium, action-first entry point. */}
+        <button
+          onClick={() => navigate("/spark")}
+          className="mb-4 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-veil-400/30 bg-gradient-to-br from-veil-500/25 to-wild/10 p-4 text-left transition active:scale-[0.99]"
+        >
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-900/60">
+            <Flame className="h-6 w-6 text-veil-100" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-base font-bold text-white">Spark</p>
+            <p className="truncate text-xs text-white/55">
+              Swipe to match by vibe — interests &amp; locality
+            </p>
+          </div>
+          <ArrowRight className="h-5 w-5 shrink-0 text-white/60" />
+        </button>
+
         {/* Your individual, curated voting metrics. */}
         <div className="mb-4 grid grid-cols-3 gap-2">
           <Metric icon={Heart} label="Vybs" value={stats?.feelsGiven ?? 0} tone="text-feel" />
@@ -58,7 +75,7 @@ export function MatchmakingPage() {
 
         <p className="mb-2 flex items-center gap-1.5 text-[11px] text-white/40">
           <Sparkles className="h-3.5 w-3.5 text-veil-300" />
-          People who Vyb what you Vyb — ranked by shared taste
+          Ranked by shared taste, interests &amp; intent
         </p>
 
         {loading ? (
@@ -69,7 +86,7 @@ export function MatchmakingPage() {
           <EmptyState
             icon={Users}
             title="No matches yet"
-            body="Vyb more confessions you connect with. As your taste takes shape, we'll surface the people you're most likely to vibe with."
+            body="Add interests to your profile and Vyb what you connect with. As your taste takes shape, we'll surface the people you're most likely to vibe with."
           />
         ) : (
           <div className="space-y-2">
@@ -87,10 +104,17 @@ export function MatchmakingPage() {
                     {m.username || m.alias}
                   </p>
                   <p className="truncate text-xs text-white/45">
-                    {Math.round(m.affinity * 100)}% taste match · {m.shared} shared{" "}
-                    {m.shared === 1 ? "Vyb" : "Vybs"}
-                    {m.sharedDislikes > 0 && ` · ${m.sharedDislikes} shared Fails`}
+                    {Math.round(m.affinity * 100)}% match
+                    {m.shared > 0 &&
+                      ` · ${m.shared} shared ${m.shared === 1 ? "Vyb" : "Vybs"}`}
+                    {m.sharedInterests > 0 &&
+                      ` · ${m.sharedInterests} shared ${m.sharedInterests === 1 ? "interest" : "interests"}`}
                   </p>
+                  {m.sharedInterestNames.length > 0 && (
+                    <p className="mt-0.5 truncate text-[11px] text-veil-200/80">
+                      {m.sharedInterestNames.slice(0, 4).join(" · ")}
+                    </p>
+                  )}
                 </div>
                 <span className="flex items-center gap-1.5 rounded-full bg-veil-500/15 px-3 py-1.5 text-xs font-semibold text-veil-100">
                   <UserPlus className="h-3.5 w-3.5" /> View

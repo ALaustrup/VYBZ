@@ -280,14 +280,25 @@ create policy "passkeys update own" on public.passkeys for update
 -- Challenges are only ever touched by the service role.
 alter table public.webauthn_challenges enable row level security;
 
--- Storage: a public 'confessions' bucket for veiled photos -------------------
+-- Storage: a PRIVATE 'confessions' bucket for post media --------------------
+-- Private (no public CDN). Media is served only via short-lived signed URLs.
+-- Reads are shared across signed-in users (the feed is shared) but never
+-- anonymous; writes/deletes are strictly scoped to the uploader's own
+-- `{uid}/…` folder. (See migration 20260627_0004_storage_rls_hardening.sql.)
 insert into storage.buckets (id, name, public)
-values ('confessions', 'confessions', true)
-on conflict (id) do update set public = true;
-create policy "confession photos insert" on storage.objects
-  for insert to authenticated with check (bucket_id = 'confessions');
+values ('confessions', 'confessions', false)
+on conflict (id) do update set public = false;
 create policy "confession photos read" on storage.objects
-  for select using (bucket_id = 'confessions');
+  for select to authenticated using (bucket_id = 'confessions');
+create policy "confession photos insert" on storage.objects
+  for insert to authenticated with check (
+    bucket_id = 'confessions'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+create policy "confession photos delete" on storage.objects
+  for delete to authenticated using (
+    bucket_id = 'confessions' and owner = auth.uid()
+  );
 
 -- Realtime: broadcast inserts on the social tables.
 alter publication supabase_realtime add table

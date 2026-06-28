@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Flag, Loader2, Send, Shuffle, SkipForward, X } from "lucide-react";
+import { Flag, Flame, Loader2, Send, Shuffle, SkipForward, X } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import * as backend from "@/lib/backend";
 import { VerifyGate } from "@/components/VerifyGate";
@@ -7,6 +7,10 @@ import { cx, haptic } from "@/lib/utils";
 import { playSound } from "@/lib/sound";
 
 type Phase = "intro" | "ineligible" | "searching" | "chatting";
+
+/** Adult-lane conversation intents. Purely a vibe the user signals up front. */
+const NSFW_INTENTS = ["Sext", "Role Play", "Show-n-Tell"] as const;
+type NsfwIntent = (typeof NSFW_INTENTS)[number];
 
 interface Line {
   mine: boolean;
@@ -27,7 +31,7 @@ const URL_RE = /\b(?:https?:\/\/|www\.)\S+/gi;
  * stored); links are stripped; report/skip are always one tap away.
  */
 export function Roulette() {
-  const { profileId, isPremium, showToast } = useApp();
+  const { profileId, isPremium, showToast, nsfwEligible } = useApp();
   const [phase, setPhase] = useState<Phase>("intro");
   const [lines, setLines] = useState<Line[]>([]);
   const [draft, setDraft] = useState("");
@@ -36,6 +40,12 @@ export function Roulette() {
   const [skipIn, setSkipIn] = useState(0);
   const [online, setOnline] = useState(0);
   const [gateOpen, setGateOpen] = useState(false);
+  // Adult lane: separate, opt-in pool matched only with other verified adults.
+  const [nsfw, setNsfw] = useState(false);
+  const [intent, setIntent] = useState<NsfwIntent>("Sext");
+  const [nsfwGateOpen, setNsfwGateOpen] = useState(false);
+  const nsfwRef = useRef(false);
+  nsfwRef.current = nsfw;
 
   const room = useRef<{ send: (t: string) => void; leave: (announce?: boolean) => void } | null>(null);
   const sessionRef = useRef<string | null>(null);
@@ -101,7 +111,7 @@ export function Roulette() {
 
   const begin = useCallback(async () => {
     setPhase("searching");
-    const r = await backend.rouletteEnqueue();
+    const r = await backend.rouletteEnqueue(nsfwRef.current);
     if (!r.eligible) {
       stopSearching();
       setPhase("ineligible");
@@ -122,7 +132,7 @@ export function Roulette() {
           void enterChat(active);
           return;
         }
-        const again = await backend.rouletteEnqueue();
+        const again = await backend.rouletteEnqueue(nsfwRef.current);
         if (again.match) void enterChat(again.match);
       }, POLL_MS);
     }
@@ -242,11 +252,67 @@ export function Roulette() {
           Get matched with a random person online for a one-on-one chat. Skip
           anytime to meet someone new. Text only — be kind, stay anonymous.
         </p>
-        <ul className="mt-4 space-y-1.5 text-left text-xs text-white/45">
-          <li>• You're only matched within your age layer.</li>
-          <li>• Messages are never saved.</li>
-          <li>• Report or skip instantly if anything feels off.</li>
-        </ul>
+
+        {/* Lane selector: friendly vs the adults-only 18+ pool. */}
+        <div className="mt-5 flex w-full max-w-xs gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1">
+          <button
+            onClick={() => setNsfw(false)}
+            className={cx(
+              "flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-sm font-semibold transition",
+              !nsfw ? "bg-veil-500 text-white shadow-glow" : "text-white/55"
+            )}
+          >
+            <Shuffle className="h-4 w-4" /> Friendly
+          </button>
+          <button
+            onClick={() => {
+              if (nsfwEligible) setNsfw(true);
+              else setNsfwGateOpen(true);
+            }}
+            className={cx(
+              "flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-sm font-semibold transition",
+              nsfw ? "bg-wild text-white shadow-glow-wild" : "text-white/55"
+            )}
+          >
+            <Flame className="h-4 w-4" /> 18+
+          </button>
+        </div>
+
+        {nsfw ? (
+          <>
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-wild/80">
+              What are you here for?
+            </p>
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {NSFW_INTENTS.map((it) => (
+                <button
+                  key={it}
+                  onClick={() => setIntent(it)}
+                  className={cx(
+                    "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition active:scale-95",
+                    intent === it
+                      ? "border-wild/60 bg-wild/15 text-white"
+                      : "border-white/10 bg-white/[0.03] text-white/55"
+                  )}
+                >
+                  {it}
+                </button>
+              ))}
+            </div>
+            <ul className="mt-4 space-y-1.5 text-left text-xs text-white/45">
+              <li>• Verified adults only (18+), matched in a separate pool.</li>
+              <li>• Messages are never saved. Keep it consensual.</li>
+              <li>• Report or skip instantly if anything feels off.</li>
+            </ul>
+          </>
+        ) : (
+          <ul className="mt-4 space-y-1.5 text-left text-xs text-white/45">
+            <li>• You're only matched within your age layer.</li>
+            <li>• Messages are never saved.</li>
+            <li>• Report or skip instantly if anything feels off.</li>
+          </ul>
+        )}
+
         {online > 1 && (
           <p className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-feel">
             <span className="h-1.5 w-1.5 rounded-full bg-feel" />
@@ -256,12 +322,27 @@ export function Roulette() {
         <button
           onClick={() => {
             haptic(10);
+            if (nsfw) setDraft(`Hey — up for some ${intent.toLowerCase()}?`);
             void begin();
           }}
-          className="mt-6 flex items-center gap-2 rounded-full bg-veil-500 px-7 py-3.5 font-semibold text-white shadow-glow active:scale-95"
+          className={cx(
+            "btn mt-6 rounded-full px-7 py-3.5",
+            nsfw ? "btn-danger" : "btn-primary"
+          )}
         >
-          <Shuffle className="h-5 w-5" /> Start matching
+          {nsfw ? <Flame className="h-5 w-5" /> : <Shuffle className="h-5 w-5" />}
+          {nsfw ? "Start 18+ matching" : "Start matching"}
         </button>
+
+        <VerifyGate
+          mode="nsfw"
+          open={nsfwGateOpen}
+          onClose={() => setNsfwGateOpen(false)}
+          onComplete={() => {
+            setNsfwGateOpen(false);
+            setNsfw(true);
+          }}
+        />
       </div>
     );
   }
@@ -296,6 +377,11 @@ export function Roulette() {
         <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white/85">
           {partnerHandle || "Stranger"}
         </span>
+        {nsfw && (
+          <span className="flex items-center gap-1 rounded-full bg-wild/20 px-2 py-0.5 text-[10px] font-bold text-wild">
+            <Flame className="h-3 w-3" /> 18+
+          </span>
+        )}
         <button
           onClick={report}
           className="flex items-center gap-1 rounded-full bg-white/[0.05] px-2.5 py-1 text-[11px] font-semibold text-wild active:scale-95"

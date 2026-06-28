@@ -14,18 +14,20 @@ export default {
           700: "#1f2430",
           600: "#2a3040",
         },
-        // Signature violet glow used across the brand.
+        // Brand accent — refined to a professional indigo (was vivid purple).
+        // Reads elegant and corporate-clean for buttons/accents while staying in
+        // the brand's violet-adjacent family.
         veil: {
-          50: "#f4effe",
-          100: "#e7dcfd",
-          200: "#cbb2fb",
-          300: "#a87cf8",
-          400: "#8b4ff2",
-          500: "#7129e6",
-          600: "#5d18c4",
-          700: "#4a149b",
-          800: "#371472",
-          900: "#26104d",
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          200: "#c7d2fe",
+          300: "#a5b4fc",
+          400: "#818cf8",
+          500: "#6366f1",
+          600: "#4f46e5",
+          700: "#4338ca",
+          800: "#3730a3",
+          900: "#312e81",
         },
         // Reaction accents.
         feel: "#34f5a0", // Unveil — green (reveal)
@@ -38,6 +40,17 @@ export default {
           300: "#5eead4",
           400: "#2dd4bf",
           500: "#14b8a6",
+        },
+        // Industrial neutral — brushed-steel tones for solid buttons, hairlines,
+        // and the "edgy/industrial" chrome that frames the violet brand glow.
+        steel: {
+          100: "#e8ebf2",
+          200: "#c6ccda",
+          300: "#9aa3b8",
+          400: "#6c7488",
+          500: "#4a5163",
+          600: "#343a49",
+          700: "#262b36",
         },
       },
       fontFamily: {
@@ -70,11 +83,17 @@ export default {
       },
       boxShadow: {
         // Softer, restrained glow — reserved for focal elements only.
-        glow: "0 0 28px -12px rgba(139, 79, 242, 0.45)",
+        glow: "0 0 28px -12px rgba(99, 102, 241, 0.5)",
         "glow-feel": "0 0 34px -12px rgba(52, 245, 160, 0.4)",
         "glow-wild": "0 0 34px -12px rgba(255, 59, 92, 0.4)",
         "glow-shroud": "0 0 34px -12px rgba(99, 102, 241, 0.4)",
         card: "0 20px 50px -24px rgba(0, 0, 0, 0.8)",
+        // Solid, tactile button depth — a crisp top highlight + grounded drop so
+        // primary actions read as physical, pressable hardware (industrial feel).
+        "btn-primary":
+          "inset 0 1px 0 0 rgba(255,255,255,0.22), inset 0 -1px 0 0 rgba(0,0,0,0.28), 0 10px 22px -12px rgba(67,56,202,0.85)",
+        "btn-solid":
+          "inset 0 1px 0 0 rgba(255,255,255,0.10), inset 0 -1px 0 0 rgba(0,0,0,0.35), 0 8px 18px -12px rgba(0,0,0,0.9)",
       },
       backgroundImage: {
         "veil-radial":

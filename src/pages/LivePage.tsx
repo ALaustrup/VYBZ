@@ -7,7 +7,8 @@ import {
   type PanInfo,
 } from "framer-motion";
 import {
-  Coins,
+  Camera,
+  CameraOff,
   Flag,
   Loader2,
   MessageCircle,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import { VerifyGate } from "@/components/VerifyGate";
+import { BrandMark } from "@/components/Brand";
 import { Handle } from "@/components/Handle";
 import {
   fetchLiveCarousel,
@@ -30,7 +32,6 @@ import {
   liveReact,
   liveReport,
   liveStart,
-  tipStreamer,
   type LiveChatMsg,
   type LiveStream,
 } from "@/lib/backend";
@@ -75,7 +76,7 @@ export function LivePage() {
           {mode === "viewer" && (
             <button
               onClick={() => setMode("streamer-setup")}
-              className="flex items-center gap-1.5 rounded-full bg-veil-500 px-4 py-1.5 text-sm font-semibold text-white shadow-glow active:scale-95"
+              className="btn btn-primary rounded-full px-4 py-1.5 text-sm"
             >
               <Video className="h-4 w-4" /> Go live
             </button>
@@ -165,21 +166,28 @@ function ViewerCarousel() {
 
   if (!current) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-8 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-veil-500/15 ring-1 ring-veil-400/30">
-          <Radio className="h-7 w-7 text-veil-200" />
+      <div className="relative flex h-full flex-col items-center justify-center overflow-hidden px-8 text-center">
+        {/* Ambient industrial glow behind the landing. */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-veil-600/15 blur-[120px]" />
+          <div className="absolute bottom-10 right-6 h-40 w-40 rounded-full bg-aqua-500/10 blur-[90px]" />
         </div>
-        <h2 className="font-display text-xl font-bold text-white">Nobody's live right now</h2>
-        <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
-          Be the first — tap <span className="font-semibold text-white">Go live</span> at
-          the top to start a stream. Or check back in a minute.
-        </p>
-        <button
-          onClick={load}
-          className="mt-5 rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white/70 active:scale-95"
-        >
-          Refresh
-        </button>
+        <div className="relative flex flex-col items-center">
+          <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-ink-800/70 shadow-card">
+            <BrandMark className="h-11 w-11 text-veil-200" />
+          </div>
+          <h2 className="font-display text-2xl font-bold text-gradient">
+            The stage is yours
+          </h2>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
+            No one's live right now. Tap{" "}
+            <span className="font-semibold text-white">Go live</span> to start a
+            stream — the community swipes to keep the best ones up.
+          </p>
+          <button onClick={load} className="btn btn-ghost mt-6 px-5 py-2.5 text-xs">
+            Refresh
+          </button>
+        </div>
       </div>
     );
   }
@@ -206,8 +214,7 @@ function ViewerStreamCard({
   onFail: () => void;
   onReport: () => void;
 }) {
-  const { account, hasWallet, credits, refreshCredits, openAccountGate, showToast } =
-    useApp();
+  const { account } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const connRef = useRef<LiveConnect | null>(null);
@@ -330,19 +337,6 @@ function ViewerStreamCard({
           meUsername={account?.username ?? "Someone"}
         />
 
-        {/* Tip button (left edge, opens picker with a debounced coin burst). */}
-        <TipFab
-          streamUserId={stream.userId}
-          streamId={stream.id}
-          hasWallet={hasWallet}
-          credits={credits}
-          onOpenGate={openAccountGate}
-          afterTip={() => {
-            refreshCredits();
-            showToast("Tip sent ✨");
-          }}
-        />
-
         {/* Swipe affordances. */}
         <motion.div
           style={{ opacity: vybOpacity }}
@@ -431,6 +425,11 @@ function StreamerSetup({
           community decides — enough Fails and your stream rotates out.
         </p>
 
+        {/* Live camera self-preview: confirm framing + that the camera works
+            before going live (uses getUserMedia locally; nothing is published
+            until you tap Go live). */}
+        <CameraPreview className="mt-4" />
+
         <label className="mt-4 block text-[11px] font-semibold uppercase tracking-wider text-white/40">
           Title (optional)
         </label>
@@ -457,17 +456,10 @@ function StreamerSetup({
         />
 
         <div className="mt-5 flex gap-2">
-          <button
-            onClick={onCancel}
-            className="flex-1 rounded-2xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-white/70 active:scale-[0.98]"
-          >
+          <button onClick={onCancel} className="btn btn-ghost flex-1">
             Cancel
           </button>
-          <button
-            onClick={go}
-            disabled={busy}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-veil-500 py-3 font-display font-bold text-white shadow-glow active:scale-[0.98] disabled:opacity-60"
-          >
+          <button onClick={go} disabled={busy} className="btn btn-primary flex-1">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
             Go live
           </button>
@@ -529,6 +521,103 @@ function Toggle({
         />
       </span>
     </button>
+  );
+}
+
+// ── Camera self-preview (pre-flight before publishing) ─────────────────────
+
+type PreviewState = "loading" | "ready" | "denied" | "unsupported";
+
+/**
+ * Local camera preview for the "Go live" setup. Acquires the front camera with
+ * getUserMedia purely on-device so the streamer can check lighting + framing
+ * before anything is published. Fully torn down (tracks stopped) on unmount so
+ * the camera light never lingers.
+ */
+function CameraPreview({ className }: { className?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [state, setState] = useState<PreviewState>("loading");
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const md = navigator.mediaDevices;
+    if (!md?.getUserMedia) {
+      setState("unsupported");
+      return;
+    }
+    setState("loading");
+    md.getUserMedia({ video: { facingMode: "user" }, audio: false })
+      .then((stream) => {
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+        setState("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setState("denied");
+      });
+    return () => {
+      cancelled = true;
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, [attempt]);
+
+  return (
+    <div
+      className={cx(
+        "relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-white/10 bg-black",
+        className
+      )}
+    >
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        className="absolute inset-0 h-full w-full -scale-x-100 object-cover"
+      />
+
+      {state === "ready" && (
+        <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-semibold text-white/90 backdrop-blur">
+          <Camera className="h-3.5 w-3.5 text-feel" /> Preview
+        </div>
+      )}
+
+      {state === "loading" && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/60">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="text-xs">Starting camera…</span>
+        </div>
+      )}
+
+      {(state === "denied" || state === "unsupported") && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center text-white/70">
+          <CameraOff className="h-7 w-7 text-wild" />
+          <p className="text-sm font-semibold text-white">
+            {state === "denied" ? "Camera blocked" : "Camera unavailable"}
+          </p>
+          <p className="text-[11px] leading-relaxed text-white/50">
+            {state === "denied"
+              ? "Allow camera access in your browser to preview and go live."
+              : "This device or browser can't open a camera here."}
+          </p>
+          {state === "denied" && (
+            <button
+              onClick={() => setAttempt((n) => n + 1)}
+              className="btn btn-ghost mt-1 px-4 py-2 text-xs"
+            >
+              Try again
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -768,104 +857,3 @@ function LiveChatOverlay({
   );
 }
 
-// ── Tip floating action button ─────────────────────────────────────────────
-
-function TipFab({
-  streamUserId,
-  streamId,
-  hasWallet,
-  credits,
-  onOpenGate,
-  afterTip,
-}: {
-  streamUserId: string;
-  streamId: string;
-  hasWallet: boolean;
-  credits: number;
-  onOpenGate: () => void;
-  afterTip: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [bursts, setBursts] = useState<{ id: number; amount: number }[]>([]);
-  const lastTipRef = useRef(0);
-  const nextBurstId = useRef(0);
-
-  async function tip(amount: number) {
-    if (!hasWallet) {
-      setOpen(false);
-      onOpenGate();
-      return;
-    }
-    if (credits < amount) return;
-    // Server-side rate-limit too, but client-side throttle keeps the UI calm.
-    const now = Date.now();
-    if (now - lastTipRef.current < 600) return;
-    lastTipRef.current = now;
-    setOpen(false);
-    const id = ++nextBurstId.current;
-    setBursts((b) => [...b, { id, amount }]);
-    setTimeout(() => setBursts((b) => b.filter((x) => x.id !== id)), 1600);
-    const ok = await tipStreamer(streamId, streamUserId, amount);
-    if (ok) afterTip();
-  }
-
-  return (
-    <div
-      className="pointer-events-none absolute bottom-32 left-3 flex flex-col items-start gap-2"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <AnimatePresence>
-        {bursts.map((b) => (
-          <motion.div
-            key={b.id}
-            initial={{ y: 0, opacity: 0.95, scale: 0.9 }}
-            animate={{ y: -110, opacity: 0, scale: 1.2 }}
-            transition={{ duration: 1.6, ease: "easeOut" }}
-            className="pointer-events-none absolute left-1 bottom-12 flex items-center gap-1 rounded-full bg-amber-400/90 px-2.5 py-1 text-xs font-bold text-black shadow"
-          >
-            <Coins className="h-3 w-3" /> +{b.amount}
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      <div
-        className="pointer-events-auto flex flex-col items-start gap-1.5"
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="flex flex-col gap-1.5 rounded-2xl border border-white/10 bg-black/70 p-1.5 backdrop-blur"
-            >
-              {[1, 5, 25].map((a) => (
-                <button
-                  key={a}
-                  onClick={() => void tip(a)}
-                  disabled={hasWallet && credits < a}
-                  className={cx(
-                    "flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition active:scale-95",
-                    hasWallet && credits >= a
-                      ? "bg-amber-400 text-black shadow-glow"
-                      : "bg-white/10 text-white/40"
-                  )}
-                >
-                  <Coins className="h-3.5 w-3.5" /> {a} V¢
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-400 text-black shadow-lg active:scale-90"
-          aria-label="Tip the streamer"
-        >
-          <Coins className="h-5 w-5" />
-        </button>
-      </div>
-    </div>
-  );
-}

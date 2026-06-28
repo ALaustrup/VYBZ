@@ -272,12 +272,58 @@ const guidelines: LegalDoc = {
   ],
 };
 
+const transparency: LegalDoc = {
+  slug: "transparency",
+  title: "Transparency",
+  short: "Transparency",
+  description: "Plainly, what MYVYB collects, why, and what we never do.",
+  intro: `We think you deserve to know exactly how ${APP_NAME} works before you tap "agree". This page is the plain-language version of our practices — the same commitments expressed in the Terms and Privacy Policy, with nothing buried.`,
+  sections: [
+    {
+      heading: "What we ask for at sign-up",
+      bullets: [
+        "Age, sex, and location — and nothing else is required. Age and sex anchor the safety rules that keep minors and adults in separate spaces; location powers nearby discovery.",
+        "No email, phone number, or real name is required to start. An email is optional and only unlocks account recovery and (with 18+) sensitive content.",
+      ],
+    },
+    {
+      heading: "How your data is used",
+      bullets: [
+        "To run the core experience: your feed, matchmaking, chat, and Live.",
+        "To keep the community safe: detecting abuse, enforcing the age layer, and acting on reports.",
+        "Matchmaking can read details you mark private to improve YOUR matches, but it only ever outputs an aggregate match score — never your raw private values to anyone else.",
+      ],
+    },
+    {
+      heading: "What we never do",
+      bullets: [
+        "We do not sell your personal data.",
+        "We do not show your private profile sections to other users.",
+        "We do not enable sensitive content for anyone by default — it is strictly opt-in, verified, and 18+.",
+      ],
+    },
+    {
+      heading: "Your control",
+      paragraphs: [
+        "Every profile section can be made private with one tap. You can turn sensitive content off at any time, request your data, or delete your account. Reach us any time through the in-app Support sheet or at the addresses in our Privacy Policy.",
+      ],
+    },
+  ],
+};
+
 export const LEGAL_DOCS: Record<string, LegalDoc> = {
   terms,
   privacy,
+  transparency,
   refunds,
   guidelines,
 };
 
 // Order used for the footer / legal hub links.
-export const LEGAL_ORDER = ["terms", "privacy", "refunds", "guidelines"] as const;
+export const LEGAL_ORDER = [
+  "terms",
+  "privacy",
+  "transparency",
+  "refunds",
+  "guidelines",
+] as const;

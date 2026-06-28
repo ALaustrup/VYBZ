@@ -1,23 +1,22 @@
 import { Link } from "react-router-dom";
-import { Coins, Crown, Glasses, Radio, Sparkles } from "lucide-react";
+import { Crown, Glasses, Radio, Sparkles } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 
 /**
  * Desktop right-hand context rail — fills the wide layout with a tasteful
- * identity/wallet card and quick links, so large displays feel full and
- * intentional rather than a stretched phone. Shown only on xl+ screens.
+ * identity card and quick links, so large displays feel full and intentional
+ * rather than a stretched phone. Shown only on xl+ screens.
  */
 export function ContextRail() {
-  const { account, credits, hasWallet, isPremium, openPremium, godmodePrice } =
-    useApp();
+  const { account, isPremium, openPremium, godmodePrice } = useApp();
 
   return (
     <aside className="z-30 hidden h-full w-80 shrink-0 flex-col gap-3 overflow-y-auto border-l border-white/10 px-4 py-5 xl:flex">
-      {/* Wallet / identity. */}
+      {/* Identity. */}
       <div className="glass-panel p-4">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-white/45">
-            {account?.anonymous ? "Anonymous" : "Your wallet"}
+            {account?.anonymous ? "Anonymous" : "Signed in"}
           </span>
           {isPremium && (
             <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[11px] font-bold text-amber-300">
@@ -25,17 +24,11 @@ export function ContextRail() {
             </span>
           )}
         </div>
-        <div className="mt-2 flex items-end gap-1.5">
-          <Coins className="mb-1 h-5 w-5 text-amber-300" />
-          <span className="font-display text-3xl font-bold text-white">
-            {hasWallet ? credits : "—"}
-          </span>
-          <span className="mb-1 text-sm text-white/45">V¢</span>
-        </div>
+        <p className="mt-2 font-display text-xl font-bold text-white">
+          {account?.username ?? (account?.anonymous ? "Guest" : "You")}
+        </p>
         <p className="mt-1 text-[11px] text-white/45">
-          {hasWallet
-            ? "Earn V¢ by posting and playing. Spend on customization."
-            : "Create an identity to earn and spend V¢."}
+          Everything's free — express, swipe, and meet by vibe.
         </p>
       </div>
 
@@ -79,7 +72,7 @@ export function ContextRail() {
 
       <div className="glass-panel flex items-start gap-2 p-4 text-[11px] leading-relaxed text-white/45">
         <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-veil-300" />
-        Tip: customize your dock and background in your profile — earned with V¢.
+        Tip: customize your dock and background for free in your profile.
       </div>
     </aside>
   );

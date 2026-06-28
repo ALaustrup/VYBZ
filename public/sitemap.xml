@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://getveiled.vercel.app/</loc>
+    <loc>https://astramatrix.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://getveiled.vercel.app/legal/terms</loc>
+    <loc>https://astramatrix.com/legal/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://getveiled.vercel.app/legal/privacy</loc>
+    <loc>https://astramatrix.com/legal/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://getveiled.vercel.app/legal/refunds</loc>
+    <loc>https://astramatrix.com/legal/transparency</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://astramatrix.com/legal/refunds</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://getveiled.vercel.app/legal/guidelines</loc>
+    <loc>https://astramatrix.com/legal/guidelines</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>

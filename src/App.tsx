@@ -30,9 +30,11 @@ import { PremiumSheet } from "@/components/PremiumSheet";
 import { AccountGate } from "@/components/AccountGate";
 import { Toast } from "@/components/Toast";
 import { NotificationPopup } from "@/components/NotificationPopup";
+import { UploadIndicator } from "@/components/UploadIndicator";
 import { FeedsPage } from "@/pages/FeedsPage";
 import { ForYouPage } from "@/pages/ForYouPage";
 import { MatchmakingPage } from "@/pages/MatchmakingPage";
+import { SparkPage } from "@/pages/SparkPage";
 import { RoomsPage } from "@/pages/RoomsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { NotificationsPage } from "@/pages/NotificationsPage";
@@ -176,6 +178,7 @@ export function App() {
           <Route path="/trending" element={<Page transition={pageTransition}><FeedsPage /></Page>} />
           <Route path="/foryou" element={<Page transition={pageTransition}><ForYouPage /></Page>} />
           <Route path="/connect" element={<Page transition={pageTransition}><MatchmakingPage /></Page>} />
+          <Route path="/spark" element={<Page transition={pageTransition}><SparkPage /></Page>} />
           <Route path="/rooms" element={<Page transition={pageTransition}><RoomsPage /></Page>} />
           <Route path="/profile" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
           <Route
@@ -226,6 +229,7 @@ export function App() {
       <AccountGate />
       <InstallPrompt />
       <Tutorial />
+      <UploadIndicator />
       <Toast />
       <NotificationPopup />
       <Confetti />

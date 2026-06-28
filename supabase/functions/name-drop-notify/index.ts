@@ -102,7 +102,7 @@ async function sendEmail(to: string, name: string): Promise<boolean> {
       <p style="font-size:15px;line-height:1.5;color:#a1a1aa">
         The moment it frees, the first person to claim it wins. Open Veiled and be ready.
       </p>
-      <a href="${APP_URL}/profile" style="display:inline-block;margin-top:12px;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 20px;border-radius:999px;font-weight:600">
+      <a href="${APP_URL}/profile" style="display:inline-block;margin-top:12px;background:#4f46e5;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600">
         Open Veiled
       </a>
       <p style="font-size:12px;color:#52525b;margin-top:24px">

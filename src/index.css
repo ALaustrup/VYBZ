@@ -81,16 +81,74 @@
       0 24px 60px -34px rgba(0, 0, 0, 0.9);
   }
 
-  /* Subtle gradient text for headlines. */
+  /* Headline gradient — refined platinum drifting into a cool violet-steel tail.
+     Higher luminance + a tighter hue range reads as elegant and stays legible on
+     the dark glass, instead of the older muddy all-purple wash. */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(120deg, #e7dcfd 0%, #a87cf8 50%, #c77dff 100%);
+    background-image: linear-gradient(118deg, #ffffff 0%, #dcd6ff 48%, #a9b6ff 100%);
   }
 
-  /* Consistent eyebrow / section label — editorial, quiet, uniform across pages. */
+  /* Consistent eyebrow / section label — editorial, quiet, uniform across pages.
+     A wider track gives it the precise, industrial cadence. */
   .eyebrow {
     @apply text-[11px] font-semibold uppercase text-white/45;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.2em;
+  }
+
+  /* ---- Solid, tactile buttons (industrial chrome) ----------------------------
+     A single shared button system so every CTA feels like real, pressable
+     hardware: a crisp top highlight, a grounded base, and a firm press. */
+  .btn {
+    @apply relative inline-flex select-none items-center justify-center gap-2
+      rounded-lg px-4 py-3 font-display text-sm font-semibold
+      transition-all duration-150 ease-out
+      hover:-translate-y-px active:translate-y-0 active:scale-[0.97]
+      disabled:cursor-not-allowed disabled:opacity-50
+      disabled:hover:translate-y-0;
+  }
+  /* Primary — professional indigo brand action, solid with a vertical sheen. */
+  .btn-primary {
+    @apply text-white shadow-btn-primary;
+    background-image: linear-gradient(180deg, #6366f1 0%, #4f46e5 52%, #4338ca 100%);
+  }
+  .btn-primary:hover {
+    background-image: linear-gradient(180deg, #7c80f6 0%, #6258ec 52%, #4f46e5 100%);
+    /* Lift + an indigo glow halo so primary actions feel alive on hover. */
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.28),
+      0 12px 26px -10px rgba(67, 56, 202, 0.95),
+      0 0 24px -4px rgba(99, 102, 241, 0.7);
+  }
+  /* Solid neutral — brushed-steel secondary action. */
+  .btn-steel {
+    @apply text-white shadow-btn-solid;
+    background-image: linear-gradient(180deg, #3a4151 0%, #262b36 100%);
+  }
+  .btn-steel:hover {
+    background-image: linear-gradient(180deg, #464e61 0%, #2f3543 100%);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+      0 10px 22px -12px rgba(0, 0, 0, 0.9),
+      0 0 18px -6px rgba(154, 163, 184, 0.35);
+  }
+  /* Ghost — quiet hairline action that still feels deliberate. */
+  .btn-ghost {
+    @apply border border-white/10 bg-white/[0.04] text-white/85;
+  }
+  .btn-ghost:hover {
+    @apply border-white/20 bg-white/[0.08];
+    box-shadow: 0 0 18px -8px rgba(99, 102, 241, 0.5);
+  }
+  /* Danger — destructive / NSFW confirmations. */
+  .btn-danger {
+    @apply text-white shadow-glow-wild;
+    background-image: linear-gradient(180deg, #ff4d6a 0%, #e11d48 100%);
+  }
+  .btn-danger:hover {
+    background-image: linear-gradient(180deg, #ff5e79 0%, #ec1f4f 100%);
+    box-shadow: 0 10px 24px -10px rgba(225, 29, 72, 0.85), 0 0 22px -6px rgba(255, 77, 106, 0.7);
   }
 
   /* Shimmering skeleton / accent line. */

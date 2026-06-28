@@ -12,6 +12,7 @@ import type {
   Identity,
   Message,
   NotificationKind,
+  ProfileDetails,
   Reaction,
   Room,
   RoomMessage,
@@ -438,6 +439,20 @@ export interface ProfileRow {
   music_url: string | null;
   /** Personalization that follows the account (dock/bg/transition + unlocks). */
   prefs: Record<string, unknown>;
+  /** Rich profile data points (interests, prompts, traits, …). Owner-private. */
+  profile?: ProfileDetails;
+}
+
+/**
+ * Persist the current user's rich profile data points (RLS: self). The raw
+ * column is owner-private; it is served sanitized to others via public_profile.
+ */
+export async function saveProfileDetails(
+  userId: string,
+  details: ProfileDetails
+): Promise<void> {
+  if (!supabase) return;
+  await supabase.from("profiles").update({ profile: details }).eq("id", userId);
 }
 
 /** Account-synced personalization (cross-device). */
@@ -551,9 +566,29 @@ export async function requestEmailCode(
   const { data, error } = await supabase.functions.invoke("email-code", {
     body: { action: "request", email, username },
   });
-  if (error) return { ok: false, error: error.message };
+  if (error) return { ok: false, error: await edgeErrorDetail(error) };
   const d = data as { ok?: boolean; error?: string };
   return d?.ok ? { ok: true } : { ok: false, error: d?.error ?? "failed" };
+}
+
+/**
+ * supabase.functions.invoke surfaces non-2xx responses as a FunctionsHttpError
+ * and hides the JSON body. This digs the real reason out of the carried Response
+ * (e.g. Resend "domain not verified") so failures are diagnosable, not silent.
+ */
+async function edgeErrorDetail(error: unknown): Promise<string> {
+  const base = (error as { message?: string })?.message ?? "request failed";
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ctx = (error as any)?.context;
+    if (ctx && typeof ctx.json === "function") {
+      const body = await ctx.json();
+      return body?.detail || body?.error || base;
+    }
+  } catch {
+    /* ignore — fall back to the generic message */
+  }
+  return base;
 }
 
 /**
@@ -774,9 +809,44 @@ function describeUploadError(err: unknown, sizeBytes: number): string {
  * (never a public URL) plus a surfaced error string on failure. Retries once on
  * transient network errors. Callers mint short-lived signed URLs to display.
  */
+/**
+ * PUT a blob to a Supabase signed upload URL via XHR so we can report real
+ * byte-level upload progress (the JS client's `.upload()` exposes none).
+ * Resolves { ok } — callers fall back to the standard upload on failure.
+ */
+function putWithProgress(
+  url: string,
+  blob: Blob,
+  type: string,
+  onProgress: (frac: number) => void
+): Promise<{ ok: boolean }> {
+  return new Promise((resolve) => {
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", url, true);
+      xhr.setRequestHeader("content-type", type);
+      xhr.setRequestHeader("x-upsert", "false");
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(Math.min(0.99, e.loaded / e.total));
+      };
+      xhr.onload = () => {
+        const ok = xhr.status >= 200 && xhr.status < 300;
+        if (ok) onProgress(1);
+        resolve({ ok });
+      };
+      xhr.onerror = () => resolve({ ok: false });
+      xhr.onabort = () => resolve({ ok: false });
+      xhr.send(blob);
+    } catch {
+      resolve({ ok: false });
+    }
+  });
+}
+
 export async function uploadConfessionMedia(
   source: Blob | string,
-  userId: string
+  userId: string,
+  onProgress?: (frac: number) => void
 ): Promise<MediaUploadResult> {
   if (!supabase) return { path: null, error: "Storage is unavailable right now." };
   let blob: Blob;
@@ -786,6 +856,23 @@ export async function uploadConfessionMedia(
     return { path: null, error: "Couldn't read that file to upload." };
   }
   const type = blob.type || "image/jpeg";
+
+  // Preferred path: a signed upload URL + XHR so we can stream real progress.
+  if (onProgress) {
+    try {
+      const path = `${userId}/${crypto.randomUUID()}.${extForType(type)}`;
+      const { data, error } = await supabase.storage
+        .from(POST_BUCKET)
+        .createSignedUploadUrl(path);
+      if (!error && data?.signedUrl) {
+        const { ok } = await putWithProgress(data.signedUrl, blob, type, onProgress);
+        if (ok) return { path, error: null };
+      }
+    } catch {
+      /* fall through to the standard upload below */
+    }
+  }
+
   let lastErr: unknown = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     const path = `${userId}/${crypto.randomUUID()}.${extForType(type)}`;
@@ -797,7 +884,10 @@ export async function uploadConfessionMedia(
           upsert: false,
           cacheControl: "3600",
         });
-      if (!error) return { path, error: null };
+      if (!error) {
+        onProgress?.(1);
+        return { path, error: null };
+      }
       lastErr = error;
       // Size / type / auth errors won't pass on retry — fail fast.
       if (!/network|fetch|timeout|temporarily/i.test(String((error as { message?: string })?.message ?? ""))) {
@@ -971,7 +1061,13 @@ export interface UserMatch {
   sharedDislikes: number;
   /** Times your reactions opposed (one Vyb, one Fail). */
   disagreements: number;
-  /** Blended 0..1 taste match. */
+  /** Count of overlapping declared interests. */
+  sharedInterests: number;
+  /** Count of overlapping intent ("looking for"). */
+  sharedIntent: number;
+  /** The actual overlapping interest labels (for "you both love …"). */
+  sharedInterestNames: string[];
+  /** Blended 0..1 compatibility (behaviour + declared signals). */
   affinity: number;
 }
 
@@ -992,7 +1088,86 @@ export async function fetchUserMatches(limit = 12): Promise<UserMatch[]> {
     shared: r.shared ?? 0,
     sharedDislikes: r.shared_dislikes ?? 0,
     disagreements: r.disagreements ?? 0,
+    sharedInterests: r.shared_interests ?? 0,
+    sharedIntent: r.shared_intent ?? 0,
+    sharedInterestNames: (r.shared_interest_names as string[] | null) ?? [],
     affinity: Number(r.affinity ?? 0),
+  }));
+}
+
+// --- Spark (dating) --------------------------------------------------------
+
+export interface SparkCandidate {
+  userId: string;
+  username: string | null;
+  alias: string;
+  gender: string | null;
+  age: number | null;
+  location: string | null;
+  details: ProfileDetails;
+  sharedInterests: number;
+  sharedInterestNames: string[];
+  sameArea: boolean;
+}
+
+export interface SparkMatch {
+  userId: string;
+  username: string | null;
+  alias: string;
+  gender: string | null;
+  age: number | null;
+  location: string | null;
+  details: ProfileDetails;
+  matchedAt: number;
+}
+
+/** Swipe deck: discoverable people in your age layer, ranked by area + interests. */
+export async function fetchDatingDeck(limit = 20): Promise<SparkCandidate[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("dating_deck", { p_limit: limit });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    userId: r.user_id,
+    username: r.username ?? null,
+    alias: r.alias,
+    gender: r.gender ?? null,
+    age: r.age ?? null,
+    location: r.location ?? null,
+    details: (r.profile as ProfileDetails) ?? {},
+    sharedInterests: r.shared_interests ?? 0,
+    sharedInterestNames: (r.shared_interest_names as string[] | null) ?? [],
+    sameArea: !!r.same_area,
+  }));
+}
+
+/** Record a like/pass. Returns true when it created a mutual match. */
+export async function sparkLike(targetId: string, like: boolean): Promise<boolean> {
+  if (!supabase) return false;
+  const { data, error } = await supabase.rpc("spark_like", {
+    p_target: targetId,
+    p_like: like,
+  });
+  if (error || !data) return false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return !!(data as any[])?.[0]?.matched;
+}
+
+/** Your mutual Spark matches. */
+export async function fetchMySparks(limit = 50): Promise<SparkMatch[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("my_sparks", { p_limit: limit });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    userId: r.user_id,
+    username: r.username ?? null,
+    alias: r.alias,
+    gender: r.gender ?? null,
+    age: r.age ?? null,
+    location: r.location ?? null,
+    details: (r.profile as ProfileDetails) ?? {},
+    matchedAt: r.matched_at ? new Date(r.matched_at).getTime() : Date.now(),
   }));
 }
 
@@ -1225,6 +1400,8 @@ export interface PublicProfile {
   /** Personalized profile imagery (from prefs). */
   avatarUrl: string | null;
   bannerUrl: string | null;
+  /** Public (privacy-sanitized) rich profile data points. */
+  details: ProfileDetails;
   createdAt: number;
   /** Aggregate stats. */
   posts: number;
@@ -1262,6 +1439,8 @@ export async function fetchPublicProfile(id: string): Promise<PublicProfile | nu
     musicUrl: p.music_url ?? null,
     avatarUrl: (p.prefs?.avatarUrl as string | null) ?? null,
     bannerUrl: (p.prefs?.bannerUrl as string | null) ?? null,
+    // Already privacy-sanitized server-side (public_profile strips hidden keys).
+    details: (p.profile as ProfileDetails | null) ?? {},
     createdAt: p.created_at ? new Date(p.created_at).getTime() : Date.now(),
     posts: list.length,
     feels: list.reduce((s, r) => s + (r.feels ?? 0), 0),
@@ -1326,13 +1505,13 @@ export interface RouletteMatch {
 }
 
 /** Join the pool or pair with a waiting partner (server enforces age-layer). */
-export async function rouletteEnqueue(): Promise<{
+export async function rouletteEnqueue(nsfw = false): Promise<{
   match: RouletteMatch | null;
   waiting: boolean;
   eligible: boolean;
 }> {
   if (!supabase) return { match: null, waiting: false, eligible: false };
-  const { data, error } = await supabase.rpc("roulette_enqueue");
+  const { data, error } = await supabase.rpc("roulette_enqueue", { p_nsfw: nsfw });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const row = (data as any[] | null)?.[0];
   if (error || !row) return { match: null, waiting: false, eligible: false };
