@@ -7,8 +7,10 @@ import {
   type PanInfo,
 } from "framer-motion";
 import {
+  Bookmark,
   Camera,
   CameraOff,
+  ChevronLeft,
   Flag,
   Loader2,
   MessageCircle,
@@ -26,6 +28,7 @@ import { BrandMark } from "@/components/Brand";
 import { Handle } from "@/components/Handle";
 import {
   fetchLiveCarousel,
+  fetchMyVybedStreams,
   joinLiveChat,
   liveEnd,
   liveMintToken,
@@ -92,6 +95,12 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
   const [queue, setQueue] = useState<LiveStream[]>([]);
   const [idx, setIdx] = useState(0);
   const [loading, setLoading] = useState(true);
+  // The viewer's personal shelf of Vyb'd-and-still-live streams, plus the panel
+  // and the re-entry target ("rewatch"). Vyb'ing rotates a stream out of the
+  // swipe queue but keeps it reachable here for one-tap re-entry.
+  const [saved, setSaved] = useState<LiveStream[]>([]);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [rewatch, setRewatch] = useState<LiveStream | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -101,9 +110,14 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
     setLoading(false);
   }, []);
 
+  const loadSaved = useCallback(async () => {
+    setSaved(await fetchMyVybedStreams(30));
+  }, []);
+
   useEffect(() => {
     load();
-  }, [load]);
+    loadSaved();
+  }, [load, loadSaved]);
 
   const current = queue[idx];
 
@@ -123,8 +137,10 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
     if (!current) return;
     haptic(15);
     await liveReact(current.id, "vyb");
+    void loadSaved();
+    showToast("Vyb'd — saved to your live shelf.");
     advance();
-  }, [current, advance]);
+  }, [current, advance, loadSaved, showToast]);
 
   const onFail = useCallback(async () => {
     if (!current) return;
@@ -140,6 +156,57 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
     advance();
   }, [current, advance, showToast]);
 
+  const openSaved = useCallback(() => {
+    void loadSaved();
+    setSavedOpen(true);
+  }, [loadSaved]);
+
+  // ── Re-entry: watch a saved stream directly (outside the swipe queue) ──────
+  const startRewatch = useCallback((s: LiveStream) => {
+    setSavedOpen(false);
+    setRewatch(s);
+  }, []);
+
+  const rewatchVyb = useCallback(async () => {
+    if (!rewatch) return;
+    haptic(15);
+    await liveReact(rewatch.id, "vyb");
+    void loadSaved();
+    setRewatch(null);
+  }, [rewatch, loadSaved]);
+
+  const rewatchFail = useCallback(async () => {
+    if (!rewatch) return;
+    haptic([8, 12]);
+    await liveReact(rewatch.id, "fail");
+    void loadSaved();
+    showToast("Removed from your live shelf.");
+    setRewatch(null);
+  }, [rewatch, loadSaved, showToast]);
+
+  const rewatchReport = useCallback(async () => {
+    if (!rewatch) return;
+    await liveReport(rewatch.id);
+    void loadSaved();
+    showToast("Reported — thanks for keeping MYVYB safe.");
+    setRewatch(null);
+  }, [rewatch, loadSaved, showToast]);
+
+  // Re-entry view takes over the whole stage until the user backs out.
+  if (rewatch) {
+    return (
+      <ViewerStreamCard
+        key={`rewatch-${rewatch.id}`}
+        stream={rewatch}
+        onVyb={rewatchVyb}
+        onFail={rewatchFail}
+        onReport={rewatchReport}
+        onGoLive={onGoLive}
+        onBack={() => setRewatch(null)}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -150,43 +217,68 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
 
   if (!current) {
     return (
-      <div className="relative flex h-full flex-col items-center justify-center overflow-hidden px-8 text-center">
-        {/* Ambient industrial glow behind the landing. */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-veil-600/15 blur-[120px]" />
-          <div className="absolute bottom-10 right-6 h-40 w-40 rounded-full bg-aqua-500/10 blur-[90px]" />
-        </div>
-        <div className="relative flex flex-col items-center">
-          <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-ink-800/70 shadow-card">
-            <BrandMark className="h-11 w-11 text-veil-200" />
+      <>
+        <div className="relative flex h-full flex-col items-center justify-center overflow-hidden px-8 text-center">
+          {/* Ambient industrial glow behind the landing. */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/2 top-1/3 h-64 w-64 -translate-x-1/2 rounded-full bg-veil-600/15 blur-[120px]" />
+            <div className="absolute bottom-10 right-6 h-40 w-40 rounded-full bg-aqua-500/10 blur-[90px]" />
           </div>
-          <h2 className="font-display text-2xl font-bold text-gradient">
-            The stage is yours
-          </h2>
-          <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
-            No one's live right now. Be the first — the community swipes to keep
-            the best streams up.
-          </p>
-          <button onClick={onGoLive} className="btn btn-primary mt-6 px-6 py-2.5 text-sm">
-            <Video className="h-4 w-4" /> Go live
-          </button>
-          <button onClick={load} className="btn btn-ghost mt-2 px-5 py-2 text-xs">
-            Refresh
-          </button>
+          <div className="relative flex flex-col items-center">
+            <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-ink-800/70 shadow-card">
+              <BrandMark className="h-11 w-11 text-veil-200" />
+            </div>
+            <h2 className="font-display text-2xl font-bold text-gradient">
+              The stage is yours
+            </h2>
+            <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/60">
+              No one's live right now. Be the first — the community swipes to keep
+              the best streams up.
+            </p>
+            <button onClick={onGoLive} className="btn btn-primary mt-6 px-6 py-2.5 text-sm">
+              <Video className="h-4 w-4" /> Go live
+            </button>
+            <div className="mt-2 flex items-center gap-2">
+              <button onClick={load} className="btn btn-ghost px-5 py-2 text-xs">
+                Refresh
+              </button>
+              {saved.length > 0 && (
+                <button onClick={openSaved} className="btn btn-ghost px-5 py-2 text-xs">
+                  <Bookmark className="h-3.5 w-3.5" /> Saved ({saved.length})
+                </button>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+        <SavedStreamsSheet
+          open={savedOpen}
+          streams={saved}
+          onClose={() => setSavedOpen(false)}
+          onWatch={startRewatch}
+        />
+      </>
     );
   }
 
   return (
-    <ViewerStreamCard
-      key={current.id}
-      stream={current}
-      onVyb={onVyb}
-      onFail={onFail}
-      onReport={onReport}
-      onGoLive={onGoLive}
-    />
+    <>
+      <ViewerStreamCard
+        key={current.id}
+        stream={current}
+        onVyb={onVyb}
+        onFail={onFail}
+        onReport={onReport}
+        onGoLive={onGoLive}
+        onOpenSaved={openSaved}
+        savedCount={saved.length}
+      />
+      <SavedStreamsSheet
+        open={savedOpen}
+        streams={saved}
+        onClose={() => setSavedOpen(false)}
+        onWatch={startRewatch}
+      />
+    </>
   );
 }
 
@@ -196,12 +288,20 @@ function ViewerStreamCard({
   onFail,
   onReport,
   onGoLive,
+  onBack,
+  onOpenSaved,
+  savedCount = 0,
 }: {
   stream: LiveStream;
   onVyb: () => void;
   onFail: () => void;
   onReport: () => void;
   onGoLive: () => void;
+  /** Present in re-entry ("rewatch") mode: shows a back chevron, hides Go live. */
+  onBack?: () => void;
+  /** Open the saved-streams shelf (carousel mode only). */
+  onOpenSaved?: () => void;
+  savedCount?: number;
 }) {
   const { account } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -304,6 +404,18 @@ function ViewerStreamCard({
         <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent p-4">
           <div className="pointer-events-auto flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
+              {onBack && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onBack();
+                  }}
+                  aria-label="Back"
+                  className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
               <span className="flex items-center gap-1 rounded-full bg-wild/90 px-2 py-0.5 text-[10px] font-bold text-white">
                 ● LIVE
               </span>
@@ -315,16 +427,35 @@ function ViewerStreamCard({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onGoLive();
-                }}
-                aria-label="Go live"
-                className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500/90 px-3 text-xs font-semibold text-white shadow-glow active:scale-90"
-              >
-                <Video className="h-4 w-4" /> Go live
-              </button>
+              {onOpenSaved && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenSaved();
+                  }}
+                  aria-label="Saved live streams"
+                  className="relative flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
+                >
+                  <Bookmark className="h-4 w-4" />
+                  {savedCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-feel px-1 text-[9px] font-bold text-black">
+                      {savedCount > 9 ? "9+" : savedCount}
+                    </span>
+                  )}
+                </button>
+              )}
+              {!onBack && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onGoLive();
+                  }}
+                  aria-label="Go live"
+                  className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500/90 px-3 text-xs font-semibold text-white shadow-glow active:scale-90"
+                >
+                  <Video className="h-4 w-4" /> Go live
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -387,6 +518,99 @@ function ViewerStreamCard({
         </div>
       </motion.div>
     </div>
+  );
+}
+
+// ── Saved live shelf (Vyb'd streams, quick re-entry) ───────────────────────
+
+/**
+ * The viewer's saved shelf: every stream they've Vyb'd that is still live.
+ * Vyb'ing rotates a stream out of the swipe queue (you've already engaged), but
+ * keeps it one tap away here so it can be re-entered anytime it's on air.
+ */
+function SavedStreamsSheet({
+  open,
+  streams,
+  onClose,
+  onWatch,
+}: {
+  open: boolean;
+  streams: LiveStream[];
+  onClose: () => void;
+  onWatch: (s: LiveStream) => void;
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 z-30 flex flex-col bg-black/85 backdrop-blur-md"
+        >
+          <div className="flex items-center justify-between px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
+            <h3 className="flex items-center gap-2 font-display text-lg font-bold text-white">
+              <Bookmark className="h-5 w-5 text-feel" /> Saved live
+            </h3>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="no-scrollbar flex-1 space-y-2 overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            {streams.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center px-8 text-center text-white/55">
+                <Radio className="mb-3 h-8 w-8 text-veil-300" />
+                <p className="text-sm">
+                  No saved streams yet. Vyb a live stream to keep it here for
+                  quick re-entry.
+                </p>
+              </div>
+            ) : (
+              streams.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => onWatch(s)}
+                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-left transition active:scale-[0.99] hover:border-feel/40"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-veil-500/20 text-veil-100">
+                    <Radio className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-1 rounded-full bg-wild/90 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                        ● LIVE
+                      </span>
+                      <Handle
+                        username={s.username}
+                        emoji={s.username ?? "Live"}
+                        size={13}
+                        className="text-white"
+                      />
+                      {s.nsfw && (
+                        <span className="rounded-full bg-wild/80 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                          NSFW
+                        </span>
+                      )}
+                    </div>
+                    {s.title && (
+                      <p className="mt-0.5 truncate text-xs text-white/60">{s.title}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded-full bg-feel px-3 py-1.5 text-xs font-bold text-black">
+                    Watch
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

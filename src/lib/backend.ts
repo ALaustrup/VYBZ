@@ -51,13 +51,10 @@ export interface LiveStream {
   fails: number;
 }
 
-/** The community-curated carousel of open streams in the caller's age layer. */
-export async function fetchLiveCarousel(limit = 12): Promise<LiveStream[]> {
-  if (!supabase) return [];
-  const { data, error } = await supabase.rpc("live_carousel", { p_limit: limit });
-  if (error || !data) return [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data as any[]).map((r) => ({
+/** Map a live_carousel / live_my_vybs SQL row to a LiveStream. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function rowToLiveStream(r: any): LiveStream {
+  return {
     id: r.stream_id,
     userId: r.user_id,
     username: r.username ?? null,
@@ -68,7 +65,29 @@ export async function fetchLiveCarousel(limit = 12): Promise<LiveStream[]> {
     startedAt: r.started_at ? new Date(r.started_at).getTime() : Date.now(),
     vybs: r.vybs ?? 0,
     fails: r.fails ?? 0,
-  }));
+  };
+}
+
+/** The community-curated carousel of open streams in the caller's age layer. */
+export async function fetchLiveCarousel(limit = 12): Promise<LiveStream[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("live_carousel", { p_limit: limit });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map(rowToLiveStream);
+}
+
+/**
+ * The caller's personal list of Vyb'd streams that are still live — the "saved"
+ * shelf for one-tap re-entry. Carousel excludes streams you've already reacted
+ * to, so this is where Vyb'd streams remain reachable.
+ */
+export async function fetchMyVybedStreams(limit = 30): Promise<LiveStream[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("live_my_vybs", { p_limit: limit });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map(rowToLiveStream);
 }
 
 /** Start a new stream for the current user. Returns the stream id + age layer. */

@@ -62,12 +62,12 @@ export function VoteBar({ confession, size = "md", className }: VoteBarProps) {
     return (
       <div className={cx("flex items-center", s.gap, s.text, "text-white/50", className)}>
         <span className="flex items-center gap-1">
-          <Heart className={cx(s.icon, "text-feel-400")} />
-          {formatCount(feels)}
-        </span>
-        <span className="flex items-center gap-1">
           <EyeOff className={cx(s.icon, "text-shroud")} />
           {formatCount(wilds)}
+        </span>
+        <span className="flex items-center gap-1">
+          <Heart className={cx(s.icon, "text-feel-400")} />
+          {formatCount(feels)}
         </span>
       </div>
     );
@@ -75,23 +75,6 @@ export function VoteBar({ confession, size = "md", className }: VoteBarProps) {
 
   return (
     <div className={cx("flex items-center", s.gap, className)}>
-      <button
-        type="button"
-        aria-label="Vyb"
-        aria-pressed={active === "feel"}
-        onClick={(e) => cast("feel", e)}
-        className={cx(
-          "flex items-center rounded-full border font-semibold transition active:scale-90",
-          s.btn,
-          s.text,
-          active === "feel"
-            ? "border-feel/60 bg-feel/20 text-feel shadow-glow-feel"
-            : "border-white/10 bg-white/[0.04] text-white/65 hover:border-feel/40 hover:text-feel"
-        )}
-      >
-        <Heart className={cx(s.icon, active === "feel" && "fill-feel")} />
-        {formatCount(feels)}
-      </button>
       <button
         type="button"
         aria-label="Fail"
@@ -108,6 +91,23 @@ export function VoteBar({ confession, size = "md", className }: VoteBarProps) {
       >
         <EyeOff className={s.icon} />
         {formatCount(wilds)}
+      </button>
+      <button
+        type="button"
+        aria-label="Vyb"
+        aria-pressed={active === "feel"}
+        onClick={(e) => cast("feel", e)}
+        className={cx(
+          "flex items-center rounded-full border font-semibold transition active:scale-90",
+          s.btn,
+          s.text,
+          active === "feel"
+            ? "border-feel/60 bg-feel/20 text-feel shadow-glow-feel"
+            : "border-white/10 bg-white/[0.04] text-white/65 hover:border-feel/40 hover:text-feel"
+        )}
+      >
+        <Heart className={cx(s.icon, active === "feel" && "fill-feel")} />
+        {formatCount(feels)}
       </button>
     </div>
   );
