@@ -10,10 +10,11 @@ import { VeiledVideo } from "@/components/VeiledVideo";
 import { Handle } from "@/components/Handle";
 import { IdentityMeta } from "@/components/IdentityMeta";
 import { SafetyMenu } from "@/components/SafetyMenu";
+import { VoteBar } from "@/components/VoteBar";
 import { Gyro3D } from "@/components/Gyro3D";
 import { fontClassFor, textFxClassFor } from "@/lib/expression";
 import { proximityLabel } from "@/lib/geo";
-import { cx, distanceMiles, formatCount } from "@/lib/utils";
+import { cx, distanceMiles } from "@/lib/utils";
 import type { Confession } from "@/types";
 
 /**
@@ -190,13 +191,13 @@ export function PostSheet() {
                 className="mt-2"
               />
 
-              <p className="mt-2 text-xs text-white/40">
-                {formatCount(confession.feels)} feels ·{" "}
-                {formatCount(confession.wilds)} veils
-              </p>
+              {/* Core mechanic — Vyb / Fail, front and center on the post. */}
+              <div className="mt-4">
+                <VoteBar confession={confession} size="lg" />
+              </div>
 
               {/* Action — comment publicly (DMing posters from the feed is off). */}
-              <div className="mt-5">
+              <div className="mt-4">
                 <button onClick={comment} className="btn btn-primary w-full py-3.5">
                   <MessagesSquare className="h-4 w-4" />
                   Comment

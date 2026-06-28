@@ -1,10 +1,10 @@
-import { Heart } from "lucide-react";
 import type { Confession } from "@/types";
 import { VeiledPhoto } from "@/components/VeiledPhoto";
 import { VeiledVideo } from "@/components/VeiledVideo";
 import { VeiledArt } from "@/components/VeiledArt";
 import { Handle } from "@/components/Handle";
 import { IdentityMeta } from "@/components/IdentityMeta";
+import { VoteBar } from "@/components/VoteBar";
 import { Gyro3D } from "@/components/Gyro3D";
 import { fontClassFor, textFxClassFor } from "@/lib/expression";
 import { proximityLabel } from "@/lib/geo";
@@ -49,10 +49,18 @@ export function WhisperCard({
   const textClass = cx(fontClassFor(confession.fontStyle), textFxClassFor(confession.textFx));
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
       className={cx(
-        "group relative block w-full overflow-hidden text-left",
+        "group relative block w-full cursor-pointer overflow-hidden text-left outline-none focus-visible:ring-2 focus-visible:ring-veil-400/60",
         tile ? "rounded-2xl" : "rounded-3xl",
         "border border-white/8 active:scale-[0.99] transition",
         className
@@ -147,10 +155,7 @@ export function WhisperCard({
               />
             )}
           </div>
-          <span className="flex items-center gap-1 text-white/50">
-            <Heart className="h-3.5 w-3.5 text-feel-400" />
-            {confession.feels}
-          </span>
+          <VoteBar confession={confession} size={tile ? "sm" : "md"} />
         </div>
 
         {!tile && (
@@ -159,6 +164,6 @@ export function WhisperCard({
           </span>
         )}
       </div>
-    </button>
+    </div>
   );
 }
