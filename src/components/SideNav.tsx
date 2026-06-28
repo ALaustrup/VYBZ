@@ -8,6 +8,7 @@ import {
   MessagesSquare,
   Plus,
   User,
+  Users,
 } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import { BrandLockup } from "@/components/Brand";
@@ -26,9 +27,12 @@ const NAV = [
  * the mobile bottom dock on large displays.
  */
 export function SideNav() {
-  const { openCompose, openFeedback, unreadCount, account } = useApp();
+  const { openCompose, openFeedback, unreadCount, account, ambientPresence, openConnectNow } =
+    useApp();
   const { pathname } = useLocation();
   const alias = account?.alias ?? "";
+  const around = ambientPresence?.online ?? 0;
+  const lively = around > 0 || (ambientPresence?.live ?? 0) > 0;
 
   return (
     <aside className="glass z-40 flex h-full w-64 shrink-0 flex-col border-r border-white/10 px-3 py-5">
@@ -95,6 +99,24 @@ export function SideNav() {
           </span>
           <span className="relative">Activity</span>
         </NavLink>
+
+        <button
+          onClick={openConnectNow}
+          className="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold text-white/55 transition hover:bg-black/20 hover:text-white/85"
+        >
+          <span className="relative flex h-5 w-5 items-center justify-center">
+            <Users className="h-5 w-5" />
+            <span
+              className={cx(
+                "absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full ring-2 ring-ink-950",
+                lively ? "bg-emerald-400" : "bg-white/25"
+              )}
+            />
+          </span>
+          <span className="relative">
+            {lively ? `${around} around` : "Find people"}
+          </span>
+        </button>
 
         <button
           onClick={openFeedback}

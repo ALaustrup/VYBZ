@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Compass,
   Hash,
@@ -32,7 +32,22 @@ type CircleTab = "mine" | "discover";
 export function ChatHubPage() {
   const { profileId, isPremium, showToast, openInbox } = useApp();
   const navigate = useNavigate();
-  const [section, setSection] = useState<Section>("rooms");
+  const location = useLocation();
+  // Deep-link target (e.g. Smart Routing sends lonely users to "#random").
+  const initialSection: Section =
+    location.hash === "#random"
+      ? "random"
+      : location.hash === "#circles"
+        ? "circles"
+        : "rooms";
+  const [section, setSection] = useState<Section>(initialSection);
+
+  // Honor hash changes while the hub is already mounted.
+  useEffect(() => {
+    if (location.hash === "#random") setSection("random");
+    else if (location.hash === "#circles") setSection("circles");
+    else if (location.hash === "#rooms") setSection("rooms");
+  }, [location.hash]);
 
   // Circles state.
   const [circleTab, setCircleTab] = useState<CircleTab>("mine");

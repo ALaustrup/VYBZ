@@ -31,6 +31,7 @@ import { AccountGate } from "@/components/AccountGate";
 import { Toast } from "@/components/Toast";
 import { NotificationPopup } from "@/components/NotificationPopup";
 import { UploadIndicator } from "@/components/UploadIndicator";
+import { ConnectNowSheet } from "@/components/Presence";
 import { FeedsPage } from "@/pages/FeedsPage";
 import { ForYouPage } from "@/pages/ForYouPage";
 import { MatchmakingPage } from "@/pages/MatchmakingPage";
@@ -225,6 +226,7 @@ export function App() {
       <PushPrompt />
       <LifelineSheet />
       <FeedbackSheet />
+      <ConnectNowSheet />
       <PremiumSheet />
       <AccountGate />
       <InstallPrompt />

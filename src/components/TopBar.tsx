@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Bell, LifeBuoy, Plus } from "lucide-react";
 import { useApp } from "@/store/AppStore";
 import { BrandLockup, BrandMark } from "@/components/Brand";
+import { PresencePill } from "@/components/Presence";
 import { cx } from "@/lib/utils";
 
 const TITLES: Record<string, string> = {
@@ -42,6 +43,7 @@ export function TopBar() {
       )}
 
       <div className="flex items-center gap-2.5">
+        <PresencePill />
         <button
           onClick={openFeedback}
           aria-label="Help & support"

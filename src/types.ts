@@ -65,6 +65,23 @@ export interface ProfileDetails {
   hidden?: string[];
 }
 
+/**
+ * Never Alone — ambient presence snapshot for the current user's age layer.
+ * Powers the "people around you" indicator and Smart Routing so a user never
+ * lands on a dead, empty app.
+ */
+export interface AmbientPresence {
+  /** People active in the last few minutes (same age layer). */
+  online: number;
+  /** Open live streams the user is allowed to see. */
+  live: number;
+  /** People waiting in the random-chat queue. */
+  roulette: number;
+  /** Lifelines (peer supporters) available right now. */
+  lifelines: number;
+  layer: "teen" | "adult";
+}
+
 export interface Confession {
   id: string;
   /** Ephemeral anonymous alias (e.g. "Velvet Ghost"). */

@@ -3,6 +3,7 @@ import { supabase, BACKEND_ENABLED } from "@/lib/supabase";
 // Re-export so callers don't need to also import @/lib/supabase.
 export { supabase, BACKEND_ENABLED };
 import type {
+  AmbientPresence,
   AppNotification,
   Circle,
   CircleMember,
@@ -1093,6 +1094,30 @@ export async function fetchUserMatches(limit = 12): Promise<UserMatch[]> {
     sharedInterestNames: (r.shared_interest_names as string[] | null) ?? [],
     affinity: Number(r.affinity ?? 0),
   }));
+}
+
+// --- Never Alone: ambient presence -----------------------------------------
+
+/**
+ * One cheap round-trip the client polls to learn how alive MYVYB is for the
+ * current user right now. Also stamps the caller's last_active_at server-side,
+ * so simply polling keeps them in the "online" set. Returns null when the
+ * backend is off (the client then shows a calm, neutral state).
+ */
+export async function fetchAmbientPresence(): Promise<AmbientPresence | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("ambient_presence");
+  if (error || !data) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const r = (Array.isArray(data) ? data[0] : data) as any;
+  if (!r) return null;
+  return {
+    online: Number(r.online ?? 0),
+    live: Number(r.live ?? 0),
+    roulette: Number(r.roulette ?? 0),
+    lifelines: Number(r.lifelines ?? 0),
+    layer: r.layer === "teen" ? "teen" : "adult",
+  };
 }
 
 // --- Spark (dating) --------------------------------------------------------

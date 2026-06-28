@@ -10,6 +10,7 @@ import {
 } from "react";
 import type {
   Account,
+  AmbientPresence,
   AppNotification,
   Comment,
   Confession,
@@ -443,6 +444,12 @@ interface AppState {
   feedbackOpen: boolean;
   openFeedback: () => void;
   closeFeedback: () => void;
+  /** Never Alone — live presence snapshot for the user's age layer (or null). */
+  ambientPresence: AmbientPresence | null;
+  /** Smart Routing sheet — "find someone to connect with right now". */
+  connectNowOpen: boolean;
+  openConnectNow: () => void;
+  closeConnectNow: () => void;
   enablePushNotifications: () => Promise<boolean>;
   // Single-post viewer (opened from a "fully unveiled" notification).
   activePostId: string | null;
@@ -1649,6 +1656,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [watched, pushNotification, showToast]);
 
+  // Never Alone — poll ambient presence so the UI can always show "people are
+  // around" and route a lonely user to the liveliest place right now. The poll
+  // is self-reinforcing: it also stamps the caller's presence server-side.
+  // Pauses while the tab is hidden or the device is offline to save quota.
+  useEffect(() => {
+    if (!BACKEND_ENABLED || !profileId) {
+      setAmbientPresence(null);
+      return;
+    }
+    let cancelled = false;
+
+    async function tick() {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (typeof navigator !== "undefined" && !navigator.onLine) return;
+      const snap = await backend.fetchAmbientPresence();
+      if (!cancelled && snap) setAmbientPresence(snap);
+    }
+
+    void tick();
+    const timer = window.setInterval(tick, 30_000);
+    const onVisible = () => {
+      if (typeof document === "undefined" || !document.hidden) void tick();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [profileId]);
+
   // Live friendships: refetch when a request/accept involving you lands.
   useEffect(() => {
     if (!BACKEND_ENABLED || !profileId) return;
@@ -2160,6 +2200,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const openFeedback = useCallback(() => setFeedbackOpen(true), []);
   const closeFeedback = useCallback(() => setFeedbackOpen(false), []);
+  const [ambientPresence, setAmbientPresence] = useState<AmbientPresence | null>(null);
+  const [connectNowOpen, setConnectNowOpen] = useState(false);
+  const openConnectNow = useCallback(() => setConnectNowOpen(true), []);
+  const closeConnectNow = useCallback(() => setConnectNowOpen(false), []);
   const maybeAskPush = useCallback(() => {
     if (typeof window === "undefined") return;
     try {
@@ -2560,6 +2604,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       feedbackOpen,
       openFeedback,
       closeFeedback,
+      ambientPresence,
+      connectNowOpen,
+      openConnectNow,
+      closeConnectNow,
       enablePushNotifications,
       activePostId,
       openPost,
@@ -2721,6 +2769,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       feedbackOpen,
       openFeedback,
       closeFeedback,
+      ambientPresence,
+      connectNowOpen,
+      openConnectNow,
+      closeConnectNow,
       enablePushNotifications,
       activePostId,
       openPost,

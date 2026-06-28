@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Crown, Glasses, Radio, Sparkles } from "lucide-react";
 import { useApp } from "@/store/AppStore";
+import { PresencePill } from "@/components/Presence";
 
 /**
  * Desktop right-hand context rail — fills the wide layout with a tasteful
@@ -31,6 +32,9 @@ export function ContextRail() {
           Everything's free — express, swipe, and meet by vibe.
         </p>
       </div>
+
+      {/* Never Alone — who's around right now + Smart Routing. */}
+      <PresencePill variant="card" />
 
       {/* Quick links. */}
       <div className="grid grid-cols-2 gap-3">
