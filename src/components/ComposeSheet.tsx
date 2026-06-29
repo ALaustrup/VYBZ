@@ -11,6 +11,7 @@ import {
   Send,
   ShieldAlert,
   Sparkles,
+  Trash2,
   Type,
   X,
 } from "lucide-react";
@@ -183,9 +184,9 @@ export function ComposeSheet() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[92%] max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900"
+            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
           >
-            <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-white/20" />
+            <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
 
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>
@@ -206,8 +207,10 @@ export function ComposeSheet() {
             </div>
 
             <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4">
-              {/* Live preview. */}
-              <div className="relative mb-4 block h-56 w-full overflow-hidden rounded-2xl border border-white/10">
+              {/* Live preview — scales with the viewport so it fits short and
+                  tall devices alike (never crowds the controls on small phones,
+                  never wastes space on large ones). */}
+              <div className="relative mb-4 block h-[32dvh] max-h-64 min-h-[11rem] w-full overflow-hidden rounded-2xl border border-white/10">
                 {gyroPreview ? (
                   <Gyro3D className="absolute inset-0" enabled>
                     {media?.kind === "video" ? (
@@ -290,7 +293,7 @@ export function ComposeSheet() {
                       type="button"
                       onClick={() => setFontStyle(f.id)}
                       className={cx(
-                        "shrink-0 rounded-full px-3 py-1 text-xs transition active:scale-95",
+                        "shrink-0 rounded-full px-3.5 py-1.5 text-xs transition active:scale-95",
                         f.className,
                         fontStyle === f.id
                           ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
@@ -322,7 +325,7 @@ export function ComposeSheet() {
                         onClick={() => setTextFx(fx.id)}
                         title={fx.hint}
                         className={cx(
-                          "flex shrink-0 items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95",
+                          "flex shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95",
                           active
                             ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
                             : "bg-white/[0.04] text-white/55"
@@ -395,14 +398,14 @@ export function ComposeSheet() {
                   <button
                     type="button"
                     onClick={() => cameraRef.current?.click()}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-sm font-semibold text-white/75 transition active:scale-[0.98]"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-white/75 transition active:scale-[0.98]"
                   >
                     <Camera className="h-4 w-4" /> Camera
                   </button>
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-sm font-semibold text-white/75 transition active:scale-[0.98]"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-white/75 transition active:scale-[0.98]"
                   >
                     <ImagePlus className="h-4 w-4" />
                     {media ? "Replace" : "Library"}
@@ -411,9 +414,10 @@ export function ComposeSheet() {
                     <button
                       type="button"
                       onClick={removeMedia}
-                      className="rounded-xl border border-white/10 px-3 text-sm text-white/50"
+                      aria-label="Remove media"
+                      className="flex w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-[0.95] hover:text-wild"
                     >
-                      Remove
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   )}
                 </div>

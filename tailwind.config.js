@@ -82,6 +82,11 @@ export default {
       letterSpacing: {
         tightish: "-0.01em",
       },
+      // Bare `border` (no color class) falls back to the frosted glass hairline
+      // instead of currentColor — keeps stray borders on-theme automatically.
+      borderColor: {
+        DEFAULT: "var(--hairline)",
+      },
       boxShadow: {
         // Restrained accent glow — follows the per-page accent.
         glow: "0 0 28px -12px rgb(var(--accent-rgb) / 0.5)",

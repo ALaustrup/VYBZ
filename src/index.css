@@ -9,6 +9,11 @@
        taskbar-icon color; this brand-violet is the calm default for non-nav
        surfaces (onboarding, legal, connect). */
     --accent-rgb: 168 124 248;
+    /* The one frosted hairline. Every translucent-white outline collapses to
+       this so panels read as glass (depth comes from blur + shadow + the inset
+       top sheen), never as white-outlined boxes. Tuned faint on purpose. */
+    --hairline: rgba(255, 255, 255, 0.055);
+    --hairline-strong: rgba(255, 255, 255, 0.1);
   }
 
   /* Opt-in smooth cross-fade for persistent accent-driven chrome (page tint,
@@ -81,22 +86,24 @@
   /* Frosted dark-glass panel used by nav and overlays. A faint top highlight +
      saturation sell the "Smoked Glass" look over the living background. */
   .glass {
-    @apply border border-white/10 bg-white/[0.055];
-    backdrop-filter: blur(20px) saturate(1.4);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    @apply bg-white/[0.05];
+    border: 1px solid var(--hairline);
+    backdrop-filter: blur(22px) saturate(1.5);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
-      0 18px 40px -28px rgba(0, 0, 0, 0.85);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+      0 18px 40px -28px rgba(0, 0, 0, 0.9);
   }
 
   /* A heavier panel for cards/sheets that hold dense content. */
   .glass-panel {
-    @apply rounded-3xl border border-white/10 bg-ink-900/55;
-    backdrop-filter: blur(24px) saturate(1.5);
-    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    @apply rounded-3xl bg-ink-900/55;
+    border: 1px solid var(--hairline);
+    backdrop-filter: blur(26px) saturate(1.6);
+    -webkit-backdrop-filter: blur(26px) saturate(1.6);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
-      0 24px 60px -34px rgba(0, 0, 0, 0.9);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
+      0 24px 60px -34px rgba(0, 0, 0, 0.92);
   }
 
   /* Headline treatment — crisp white text that quietly glows the current page's
@@ -163,18 +170,21 @@
   }
   /* Neutral glass — secondary action (kept as .btn-steel for back-compat). */
   .btn-steel {
-    @apply border border-white/10 bg-white/[0.06] text-white shadow-btn-solid;
+    @apply bg-white/[0.06] text-white shadow-btn-solid;
+    border: 1px solid var(--hairline);
   }
   .btn-steel:hover {
-    @apply border-white/20 bg-white/[0.1];
+    @apply bg-white/[0.1];
+    border-color: var(--hairline-strong);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
       0 10px 22px -12px rgba(0, 0, 0, 0.85),
-      0 0 18px -6px rgba(255, 122, 24, 0.3);
+      0 0 18px -6px rgb(var(--accent-rgb) / 0.3);
   }
   /* Ghost — quiet hairline glass that still feels deliberate. */
   .btn-ghost {
-    @apply border border-white/10 bg-white/[0.05] text-white/85;
+    @apply bg-white/[0.05] text-white/85;
+    border: 1px solid var(--hairline);
   }
   .btn-ghost:hover {
     @apply bg-white/[0.09];
@@ -292,6 +302,27 @@
   .fx-rise {
     animation: none;
   }
+}
+
+/* ── Premium glass hairlines ────────────────────────────────────────────────
+ * App-wide: collapse every translucent-white outline into one faint frosted
+ * line so surfaces read as glass — depth carried by backdrop blur, soft drop
+ * shadows, and the inset top sheen rather than visible white boxes. Accent
+ * (veil/feel/wild/shroud) and other semantic borders are deliberately untouched
+ * so meaning still shows through. Hover variants keep their own stronger lines.
+ * Placed after @tailwind utilities so it wins the cascade without !important.
+ * ------------------------------------------------------------------------- */
+.border-white\/5,
+.border-white\/8,
+.border-white\/10,
+.border-white\/12,
+.border-white\/15 {
+  border-color: var(--hairline);
+}
+.divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+.divide-white\/8 > :not([hidden]) ~ :not([hidden]),
+.divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--hairline);
 }
 
 /* The app lives inside a phone-sized frame; lock it to the viewport. */
