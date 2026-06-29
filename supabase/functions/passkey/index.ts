@@ -34,14 +34,14 @@ const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
 // project aliases) is also accepted so passkey registration never 403s on the
 // device the user is actually on. The RP ID is bound to the request hostname.
 const ALLOWED_HOSTS = [
-  "myvyb.astramatrix.com",
-  "astramatrix.com",
+  "myvyb.astramatrix.xyz",
+  "astramatrix.xyz",
   "localhost",
 ];
 function hostAllowed(hostname: string): boolean {
   return (
     ALLOWED_HOSTS.includes(hostname) ||
-    hostname.endsWith(".astramatrix.com") ||
+    hostname.endsWith(".astramatrix.xyz") ||
     hostname.endsWith(".vercel.app")
   );
 }

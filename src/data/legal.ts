@@ -8,9 +8,9 @@
 export const COMPANY = "Astra Matrix, Inc.";
 export const APP_NAME = "MYVYB";
 export const LAST_UPDATED = "June 16, 2026";
-export const CONTACT_EMAIL = "support@astramatrix.com";
-export const PRIVACY_EMAIL = "privacy@astramatrix.com";
-export const LEGAL_EMAIL = "legal@astramatrix.com";
+export const CONTACT_EMAIL = "support@astramatrix.xyz";
+export const PRIVACY_EMAIL = "privacy@astramatrix.xyz";
+export const LEGAL_EMAIL = "legal@astramatrix.xyz";
 export const GODMODE_PRICE = "$3.69";
 
 export interface LegalSection {

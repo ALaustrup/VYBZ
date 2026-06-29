@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://myvyb.astramatrix.com/sitemap.xml
+Sitemap: https://myvyb.astramatrix.xyz/sitemap.xml

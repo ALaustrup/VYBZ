@@ -103,7 +103,7 @@ async function llmReply(messages: LLMMsg[], teen: boolean): Promise<string | nul
         "google/gemini-2.0-flash-exp:free",
         "mistralai/mistral-small-3.2-24b-instruct:free",
       ],
-      headers: { "X-Title": "MYVYB", "HTTP-Referer": "https://myvyb.astramatrix.com" },
+      headers: { "X-Title": "MYVYB", "HTTP-Referer": "https://myvyb.astramatrix.xyz" },
     },
     {
       key: Deno.env.get("OPENAI_API_KEY"),

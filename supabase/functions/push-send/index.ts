@@ -8,7 +8,7 @@
 // / trusted callers can invoke it; never exposed to clients).
 //
 // Required secrets (set with `supabase secrets set ...`):
-//   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (e.g. mailto:ops@astramatrix.com)
+//   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (e.g. mailto:ops@astramatrix.xyz)
 //   PUSH_SEND_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 //
 // Deploy: supabase functions deploy push-send --no-verify-jwt
@@ -26,7 +26,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY")!;
 const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY")!;
-const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "mailto:ops@astramatrix.com";
+const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "mailto:ops@astramatrix.xyz";
 const PUSH_SECRET = Deno.env.get("PUSH_SEND_SECRET")!;
 
 webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);

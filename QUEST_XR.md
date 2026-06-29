@@ -5,7 +5,7 @@ Device API. It runs in any WebXR browser and is tuned for **Quest 2 / Quest 3**
 (aggressive foveation, reduced framebuffer scale, capped pixel ratio, unlit
 materials, low draw calls, fog culling — targeting 72 fps).
 
-- **Try it now in a headset:** open `https://myvyb.astramatrix.com/xr` in the
+- **Try it now in a headset:** open `https://myvyb.astramatrix.xyz/xr` in the
   Meta Quest Browser and tap **Enter MYVYB XR**. (The Quest Browser and a
   packaged Quest PWA use the same rendering engine, so this is a faithful
   preview of the store build.)
@@ -34,7 +34,7 @@ npm install -g @meta-quest/bubblewrap-cli   # or: github.com/meta-quest/bubblewr
 
 # 2. Initialise from the Quest manifest (served live)
 bubblewrap init \
-  --manifest=https://myvyb.astramatrix.com/manifest.quest.webmanifest \
+  --manifest=https://myvyb.astramatrix.xyz/manifest.quest.webmanifest \
   --metaquest
 
 #    In the wizard:

@@ -142,7 +142,7 @@ async function llmReply(messages: LLMMsg[]): Promise<string | null> {
         "google/gemini-2.0-flash-exp:free",
         "mistralai/mistral-small-3.2-24b-instruct:free",
       ],
-      headers: { "X-Title": "MYVYB", "HTTP-Referer": "https://myvyb.astramatrix.com" },
+      headers: { "X-Title": "MYVYB", "HTTP-Referer": "https://myvyb.astramatrix.xyz" },
     },
     { key: Deno.env.get("OPENAI_API_KEY"), url: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" },
     { key: Deno.env.get("XAI_API_KEY"), url: "https://api.x.ai/v1/chat/completions", model: "grok-3-mini" },

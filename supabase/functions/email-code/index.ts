@@ -15,12 +15,12 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY =
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
-// Sender. Default points at the production domain (astramatrix.com); once that
+// Sender. Default points at the production domain (astramatrix.xyz); once that
 // domain is verified in Resend (SPF/DKIM/DMARC DNS records added), delivery is
 // authenticated. Override per-environment via the RESEND_FROM secret. NOTE: a
 // *.vercel.app address can never be verified by Resend — always use a real
 // domain you control.
-const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MYVYB <noreply@astramatrix.com>";
+const RESEND_FROM = Deno.env.get("RESEND_FROM") ?? "MYVYB <noreply@astramatrix.xyz>";
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });

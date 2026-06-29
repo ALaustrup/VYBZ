@@ -39,7 +39,7 @@ require SUPABASE_ACCESS_TOKEN
 require VERCEL_TOKEN
 require SUPABASE_PROJECT_REF
 : "${VERCEL_PROJECT_NAME:=myvybsocial}"
-: "${VERCEL_PROD_DOMAIN:=myvyb.astramatrix.com}"
+: "${VERCEL_PROD_DOMAIN:=myvyb.astramatrix.xyz}"
 
 command -v node >/dev/null      || die "node not installed"
 command -v npm  >/dev/null      || die "npm not installed"

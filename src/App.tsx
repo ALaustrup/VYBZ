@@ -192,7 +192,7 @@ export function App() {
           <Route path="/rooms" element={<Page transition={pageTransition}><RoomsPage /></Page>} />
           <Route path="/profile" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
           {/* Vanity URL for the signed-in member's own profile (case-insensitive
-              match, so /You and /you both resolve): myvyb.astramatrix.com/You */}
+              match, so /You and /you both resolve): myvyb.astramatrix.xyz/You */}
           <Route path="/you" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
           <Route
             path="/notifications"

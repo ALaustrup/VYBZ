@@ -4,7 +4,7 @@
  *
  * Supabase only allows custom email templates when a custom SMTP sender is set
  * (or on a paid plan). This script wires both in one shot via the Management API:
- *   1. custom SMTP (so auth mail is sent from your own astramatrix.com address), and
+ *   1. custom SMTP (so auth mail is sent from your own astramatrix.xyz address), and
  *   2. the branded welcome/confirmation template (supabase/email-templates/confirm.html).
  *
  * It also sets the Site URL + redirect allow-list so confirmation links re-open
@@ -12,11 +12,11 @@
  *
  * IMPORTANT — root cause of the "demiurge.cloud" bounce: Supabase Auth was set to
  * send from an UNVERIFIED domain, so Resend rejected it (550). The sender domain
- * MUST be verified in Resend first (astramatrix.com → Resend → Domains → Verify
- * the SPF + DKIM DNS records). Once verified, run this with the astramatrix.com
+ * MUST be verified in Resend first (astramatrix.xyz → Resend → Domains → Verify
+ * the SPF + DKIM DNS records). Once verified, run this with the astramatrix.xyz
  * sender below to repoint Auth.
  *
- * Sender: Resend (https://resend.com). After verifying astramatrix.com, create an
+ * Sender: Resend (https://resend.com). After verifying astramatrix.xyz, create an
  * SMTP credential and use host smtp.resend.com, port 465, user "resend",
  * pass = API key.
  *
@@ -25,8 +25,8 @@
  *   $env:SUPABASE_PROJECT_REF="xhgmpodfpcxfshaqspgh"
  *   $env:SMTP_HOST="smtp.resend.com"; $env:SMTP_PORT="465"
  *   $env:SMTP_USER="resend"; $env:SMTP_PASS="<resend-api-key>"
- *   $env:SMTP_SENDER_EMAIL="noreply@astramatrix.com"; $env:SMTP_SENDER_NAME="MYVYB"
- *   $env:APP_URL="https://myvyb.astramatrix.com"
+ *   $env:SMTP_SENDER_EMAIL="noreply@astramatrix.xyz"; $env:SMTP_SENDER_NAME="MYVYB"
+ *   $env:APP_URL="https://myvyb.astramatrix.xyz"
  *   node supabase/configure-email.mjs
  */
 import { readFileSync } from "node:fs";
@@ -44,7 +44,7 @@ const need = (k) => {
 
 const token = need("SUPABASE_ACCESS_TOKEN");
 const ref = need("SUPABASE_PROJECT_REF");
-const APP = process.env.APP_URL ?? "https://myvyb.astramatrix.com";
+const APP = process.env.APP_URL ?? "https://myvyb.astramatrix.xyz";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(here, "email-templates", "confirm.html"), "utf8");
