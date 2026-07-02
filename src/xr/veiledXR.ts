@@ -8,6 +8,10 @@
 
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { XRPerfManager } from "./perf";
+import { createEnvironment } from "./environment";
+import { createLocomotion } from "./locomotion";
+import { createXRAudio } from "./audio";
 
 export interface XRConfession {
   id: string;
@@ -163,7 +167,7 @@ function makeHelpTexture(accent: string): THREE.CanvasTexture {
   ctx.font = "500 24px system-ui, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.7)";
   ctx.fillText("Grip = Fail  ·  Trigger = Vyb", canvas.width / 2, 104);
-  ctx.fillText("Thumbstick = turn the gallery", canvas.width / 2, 144);
+  ctx.fillText("Stick: push = teleport · flick = turn", canvas.width / 2, 144);
   const tex = new THREE.CanvasTexture(canvas);
   tex.anisotropy = 4;
   return tex;
@@ -196,14 +200,15 @@ export function mountVeiledXR(
     antialias: true,
     powerPreference: "high-performance",
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.xr.enabled = true;
-  // Quest: aggressive foveation + slightly reduced framebuffer for headroom.
-  renderer.xr.setFoveation(1);
-  renderer.xr.setFramebufferScaleFactor(0.9);
   renderer.setClearColor(BASE_HEX, 1);
   container.appendChild(renderer.domElement);
+
+  // Per-device budget: foveation, framebuffer scale, pixel ratio + refresh rate,
+  // with a runtime watchdog that trims resolution before frames ever drop.
+  const perf = new XRPerfManager(renderer);
+  perf.applyBaseline();
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(BASE_HEX);
@@ -225,6 +230,15 @@ export function mountVeiledXR(
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.5;
   controls.update();
+
+  // Player rig — holds the camera (and controllers) so comfort locomotion can
+  // move/turn the user without ever moving the world around them.
+  const rig = new THREE.Group();
+  rig.add(camera);
+  scene.add(rig);
+
+  // Spatial audio: ambient drone + HRTF-positioned reaction blips.
+  const audio = createXRAudio(camera);
 
   // Soft ambient light (cards are unlit, but the floor/title catch a little).
   scene.add(new THREE.AmbientLight(accentColor, 0.6));
@@ -258,6 +272,14 @@ export function mountVeiledXR(
     })
   );
   scene.add(stars);
+
+  // Cinematic environment — sky dome, depth grid, aurora ribbons, nebula.
+  const env = createEnvironment(
+    `#${BASE_HEX.toString(16).padStart(6, "0")}`,
+    accent,
+    accent2
+  );
+  scene.add(env.group);
 
   // Floor glow.
   const floor = new THREE.Mesh(
@@ -321,7 +343,7 @@ export function mountVeiledXR(
     angle: number;
   }
   const cards: CardEntry[] = [];
-  const list = opts.confessions.slice(0, 16);
+  const list = opts.confessions.slice(0, perf.profile.contentBudget);
   const n = Math.max(list.length, 1);
   list.forEach((c, i) => {
     const angle = (i / n) * Math.PI * 2;
@@ -387,6 +409,7 @@ export function mountVeiledXR(
     const pos = new THREE.Vector3();
     entry.group.getWorldPosition(pos);
     burst(pos, reaction === "feel" ? FEEL : VEIL);
+    audio.blip(pos, reaction);
     opts.onReact?.(entry.data.id, reaction);
   }
 
@@ -433,7 +456,7 @@ export function mountVeiledXR(
         pulse(0.4, 60);
       }
     });
-    scene.add(controller);
+    rig.add(controller);
     return controller;
   }
   const controllers = [makeController(0), makeController(1)];
@@ -447,25 +470,6 @@ export function mountVeiledXR(
     return cards.find((c) => c.mesh === hits[0].object) ?? null;
   }
 
-  // Comfort snap-turn: flick the thumbstick to rotate the gallery 30° at a time
-  // (no continuous vection), with a debounce so one flick = one turn.
-  let snapReady = true;
-  function applySnap() {
-    let x = 0;
-    for (const controller of controllers) {
-      const gp = controllerGamepad(controller);
-      if (gp && gp.axes.length >= 4) {
-        const ax = gp.axes[2] || gp.axes[0];
-        if (Math.abs(ax) > Math.abs(x)) x = ax;
-      }
-    }
-    if (Math.abs(x) > 0.7 && snapReady) {
-      gallery.rotation.y -= Math.sign(x) * (Math.PI / 6);
-      snapReady = false;
-    } else if (Math.abs(x) < 0.3) {
-      snapReady = true;
-    }
-  }
   function controllerGamepad(controller: THREE.Object3D): Gamepad | undefined {
     // three stores the input source on the controller after connection.
     const c = controller as unknown as {
@@ -478,6 +482,17 @@ export function mountVeiledXR(
       (controller as unknown as { userData: { inputSource: unknown } }).userData.inputSource =
         (e as unknown as { data: unknown }).data;
     });
+  });
+
+  // Comfort locomotion: arc teleport + head-anchored snap turn + blink vignette.
+  const loco = createLocomotion({
+    scene,
+    rig,
+    camera,
+    controllers,
+    getGamepad: controllerGamepad,
+    accent,
+    floorY: 0,
   });
 
   // Resize.
@@ -505,6 +520,8 @@ export function mountVeiledXR(
   const onPointerDown = (e: PointerEvent) => {
     downX = e.clientX;
     downY = e.clientY;
+    // First gesture unlocks the audio context (desktop ambient drone).
+    audio.resume();
   };
   const onPointerUp = (e: PointerEvent) => {
     if (renderer.xr.isPresenting) return;
@@ -528,9 +545,13 @@ export function mountVeiledXR(
     const t = clock.elapsedTime;
     const presenting = renderer.xr.isPresenting;
 
-    // Gentle ambient drift always; comfort snap-turn while presenting.
+    // Adaptive perf watchdog, living environment, and comfort locomotion.
+    perf.update(dt, t);
+    env.update(dt, t);
+    loco.update(dt, presenting);
+
+    // Gentle ambient drift of the gallery.
     gallery.rotation.y += dt * 0.04;
-    if (presenting) applySnap();
     stars.rotation.y += dt * 0.01;
     title.position.y = 2.7 + Math.sin(t * 0.6) * 0.05;
 
@@ -595,6 +616,8 @@ export function mountVeiledXR(
     });
     renderer.xr.setReferenceSpaceType("local-floor");
     await renderer.xr.setSession(session);
+    perf.onSessionStart(session);
+    audio.resume();
     opts.onSessionChange?.(true);
     session.addEventListener("end", () => opts.onSessionChange?.(false));
   }
@@ -606,6 +629,9 @@ export function mountVeiledXR(
     renderer.domElement.removeEventListener("pointerdown", onPointerDown);
     renderer.domElement.removeEventListener("pointerup", onPointerUp);
     controls.dispose();
+    env.dispose();
+    loco.dispose();
+    audio.dispose();
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (mesh.geometry) mesh.geometry.dispose();
