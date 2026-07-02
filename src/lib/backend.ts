@@ -123,6 +123,76 @@ export async function liveReport(streamId: string, reason?: string): Promise<voi
   await supabase?.rpc("live_report", { p_stream: streamId, p_reason: reason ?? null });
 }
 
+/** Owner-only live tally so a streamer can watch their Vybs climb in real time. */
+export async function liveStreamTally(
+  streamId: string
+): Promise<{ vybs: number; fails: number; peakViewers: number } | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("live_stream_tally", { p_stream: streamId });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const r = (data as any[] | null)?.[0];
+  if (error || !r) return null;
+  return { vybs: r.vybs ?? 0, fails: r.fails ?? 0, peakViewers: r.peak_viewers ?? 0 };
+}
+
+/** Streamer reports the current concurrent-viewer count; server keeps the max. */
+export async function liveSetViewers(streamId: string, count: number): Promise<void> {
+  await supabase?.rpc("live_set_viewers", {
+    p_stream: streamId,
+    p_count: Math.max(0, Math.round(count)),
+  });
+}
+
+/** Lifetime performance for a streamer's exclusive profile analytics section. */
+export interface StreamStats {
+  totalStreams: number;
+  totalVybs: number;
+  totalFails: number;
+  bestVybs: number;
+  peakViewers: number;
+  totalSeconds: number;
+  lastStreamedAt: number | null;
+  recent: {
+    id: string;
+    title: string | null;
+    startedAt: number;
+    endedAt: number | null;
+    vybs: number;
+    fails: number;
+    peakViewers: number;
+    seconds: number;
+  }[];
+}
+
+/** Aggregate live analytics for the current user (null when unavailable). */
+export async function fetchMyStreamStats(): Promise<StreamStats | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("live_my_stream_stats");
+  if (error || !data) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const d = data as any;
+  return {
+    totalStreams: d.total_streams ?? 0,
+    totalVybs: d.total_vybs ?? 0,
+    totalFails: d.total_fails ?? 0,
+    bestVybs: d.best_vybs ?? 0,
+    peakViewers: d.peak_viewers ?? 0,
+    totalSeconds: d.total_seconds ?? 0,
+    lastStreamedAt: d.last_streamed_at ? new Date(d.last_streamed_at).getTime() : null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recent: ((d.recent ?? []) as any[]).map((r) => ({
+      id: r.id,
+      title: r.title ?? null,
+      startedAt: r.started_at ? new Date(r.started_at).getTime() : 0,
+      endedAt: r.ended_at ? new Date(r.ended_at).getTime() : null,
+      vybs: r.vybs ?? 0,
+      fails: r.fails ?? 0,
+      peakViewers: r.peak_viewers ?? 0,
+      seconds: r.seconds ?? 0,
+    })),
+  };
+}
+
 /** Exchange a Supabase session for a short-lived LiveKit access token. */
 export async function liveMintToken(
   streamId: string,

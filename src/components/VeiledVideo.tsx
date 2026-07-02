@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface VeiledVideoProps {
   src: string;
@@ -32,6 +32,10 @@ export function VeiledVideo({
   className,
 }: VeiledVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  // Visibility-gated playback: only clips actually on screen play, so a scrolling
+  // landing feed stays smooth (and battery-friendly) yet resumes instantly.
+  const [onScreen, setOnScreen] = useState(true);
   const lvl = level != null ? Math.max(0, Math.min(1, level)) : 0;
   const maxBlur = nsfw ? 64 : 48;
   // Crisp at full clarity (0 blur), veils progressively as the community Veils it.
@@ -65,14 +69,26 @@ export function VeiledVideo({
   }, [clipStart, clipEnd]);
 
   useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting && entry.intersectionRatio > 0.3),
+      { threshold: [0, 0.3, 0.6] }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    if (paused) v.pause();
+    if (paused || !onScreen) v.pause();
     else void v.play().catch(() => {});
-  }, [paused]);
+  }, [paused, onScreen]);
 
   return (
     <div
+      ref={wrapRef}
       className={className}
       data-protect-media
       onContextMenu={(e) => e.preventDefault()}

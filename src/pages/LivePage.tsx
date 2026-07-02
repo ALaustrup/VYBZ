@@ -11,6 +11,7 @@ import {
   Camera,
   CameraOff,
   ChevronLeft,
+  Eye,
   Flag,
   Loader2,
   MessageCircle,
@@ -34,7 +35,9 @@ import {
   liveMintToken,
   liveReact,
   liveReport,
+  liveSetViewers,
   liveStart,
+  liveStreamTally,
   type LiveChatMsg,
   type LiveStream,
 } from "@/lib/backend";
@@ -195,15 +198,25 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
   // Re-entry view takes over the whole stage until the user backs out.
   if (rewatch) {
     return (
-      <ViewerStreamCard
-        key={`rewatch-${rewatch.id}`}
-        stream={rewatch}
-        onVyb={rewatchVyb}
-        onFail={rewatchFail}
-        onReport={rewatchReport}
-        onGoLive={onGoLive}
-        onBack={() => setRewatch(null)}
-      />
+      <>
+        <ViewerStreamCard
+          key={`rewatch-${rewatch.id}`}
+          stream={rewatch}
+          onVyb={rewatchVyb}
+          onFail={rewatchFail}
+          onReport={rewatchReport}
+          onGoLive={onGoLive}
+          onBack={() => setRewatch(null)}
+          onOpenSaved={openSaved}
+          savedCount={saved.length}
+        />
+        <SavedStreamsSheet
+          open={savedOpen}
+          streams={saved}
+          onClose={() => setSavedOpen(false)}
+          onWatch={startRewatch}
+        />
+      </>
     );
   }
 
@@ -309,6 +322,7 @@ function ViewerStreamCard({
   const audioRef = useRef<HTMLAudioElement>(null);
   const connRef = useRef<LiveConnect | null>(null);
   const [status, setStatus] = useState<LiveStatus>("connecting");
+  const [viewers, setViewers] = useState(0);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 0, 200], [-8, 0, 8]);
   const vybOpacity = useTransform(x, [40, 140], [0, 1]);
@@ -331,6 +345,7 @@ function ViewerStreamCard({
           bgVideoEl: bgVideoRef.current ?? undefined,
           audioEl: audioRef.current ?? undefined,
           onStatus: (s) => !cancelled && setStatus(s),
+          onCount: (n) => !cancelled && setViewers(n),
         });
         if (cancelled) {
           await c.disconnect();
@@ -419,6 +434,11 @@ function ViewerStreamCard({
               <span className="flex items-center gap-1 rounded-full bg-wild/90 px-2 py-0.5 text-[10px] font-bold text-white">
                 ● LIVE
               </span>
+              {/* Public concurrent-viewer count — updates live as people join. */}
+              <span className="flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
+                <Eye className="h-3 w-3" />
+                {viewers}
+              </span>
               <Handle username={stream.username} emoji={stream.username ?? "Live"} size={14} className="text-white" />
               {stream.nsfw && (
                 <span className="rounded-full bg-wild/80 px-2 py-0.5 text-[10px] font-bold text-white">
@@ -427,23 +447,6 @@ function ViewerStreamCard({
               )}
             </div>
             <div className="flex items-center gap-2">
-              {onOpenSaved && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenSaved();
-                  }}
-                  aria-label="Saved live streams"
-                  className="relative flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
-                >
-                  <Bookmark className="h-4 w-4" />
-                  {savedCount > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-feel px-1 text-[9px] font-bold text-black">
-                      {savedCount > 9 ? "9+" : savedCount}
-                    </span>
-                  )}
-                </button>
-              )}
               {!onBack && (
                 <button
                   onClick={(e) => {
@@ -496,25 +499,44 @@ function ViewerStreamCard({
           FAIL
         </motion.div>
 
-        {/* Bottom action bar: explicit buttons for users who prefer not to swipe. */}
-        <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-3 bg-gradient-to-t from-black/70 to-transparent p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <button
-            onClick={onFail}
-            aria-label="Fail"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-wild/80 text-white shadow-lg active:scale-90"
-          >
-            <X className="h-6 w-6" />
-          </button>
-          <span className="text-[11px] text-white/70">
-            ← Swipe to Fail · Swipe to Vyb →
+        {/* Floating options bar — a single transparent overlay that follows the
+            carousel: Fail (rotate) on the left, Vyb (save + boost) on the right,
+            and a middle key to the Vyb'd shelf. Tied to the current stream. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-2.5 p-4 pb-[max(1.1rem,env(safe-area-inset-bottom))]">
+          <span className="pointer-events-none rounded-full bg-black/30 px-2.5 py-0.5 text-[10px] font-medium text-white/70 backdrop-blur-sm">
+            ← Fail · swipe · Vyb →
           </span>
-          <button
-            onClick={onVyb}
-            aria-label="Vyb"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-feel text-black shadow-lg active:scale-90"
-          >
-            <Radio className="h-6 w-6" />
-          </button>
+          <div className="pointer-events-auto flex items-center gap-5 rounded-full border border-white/12 bg-black/35 px-5 py-2.5 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+            <button
+              onClick={onFail}
+              aria-label="Fail"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-wild/85 text-white shadow-lg transition active:scale-90"
+            >
+              <X className="h-6 w-6" strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenSaved?.();
+              }}
+              aria-label="Vyb'd streams"
+              className="relative flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white/90 transition active:scale-90"
+            >
+              <Bookmark className="h-5 w-5" />
+              {savedCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-feel px-1 text-[9px] font-bold text-black">
+                  {savedCount > 9 ? "9+" : savedCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={onVyb}
+              aria-label="Vyb"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-feel text-black shadow-lg transition active:scale-90"
+            >
+              <Radio className="h-6 w-6" strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
       </motion.div>
     </div>
@@ -873,6 +895,11 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const connRef = useRef<LiveConnect | null>(null);
   const [status, setStatus] = useState<LiveStatus>("connecting");
+  const [viewers, setViewers] = useState(0);
+  const [tally, setTally] = useState<{ vybs: number; fails: number }>({ vybs: 0, fails: 0 });
+  // Latest viewer count, read by the polling loop that persists the peak.
+  const viewersRef = useRef(0);
+  const pollRef = useRef<number | null>(null);
 
   // Connect + start publishing.
   useEffect(() => {
@@ -892,6 +919,11 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
           url: t.url,
           token: t.token,
           onStatus: (s) => !cancelled && setStatus(s),
+          onCount: (n) => {
+            if (cancelled) return;
+            viewersRef.current = n;
+            setViewers(n);
+          },
         });
         if (cancelled) {
           await c.disconnect();
@@ -908,12 +940,25 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
           t2.attach(videoRef.current);
           if (bgVideoRef.current) t2.attach(bgVideoRef.current);
         }
+        // Live HUD loop: pull the Vyb/Fail tally and persist the viewer peak so
+        // it survives into the streamer's lifetime analytics.
+        const poll = async () => {
+          const st = await liveStreamTally(streamId);
+          if (!cancelled && st) setTally({ vybs: st.vybs, fails: st.fails });
+          void liveSetViewers(streamId, viewersRef.current);
+        };
+        void poll();
+        pollRef.current = window.setInterval(poll, 5000);
       } catch {
         setStatus("error");
       }
     })();
     return () => {
       cancelled = true;
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
     };
   }, [streamId, onEnded]);
 
@@ -956,6 +1001,21 @@ function StreamerLive({ onEnded }: { onEnded: () => void }) {
             {status === "connecting" ? "Connecting…" : status === "live" ? "You're on air" : "Issue with your stream"}
           </span>
         </div>
+        {/* Live performance HUD — real-time viewers + Vybs, at a glance. */}
+        {status === "live" && (
+          <div className="mt-2.5 flex items-center gap-2">
+            <span className="flex items-center gap-1.5 rounded-full bg-black/45 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-sm">
+              <Eye className="h-3.5 w-3.5 text-white/80" />
+              {viewers}
+              <span className="font-medium text-white/50">watching</span>
+            </span>
+            <span className="flex items-center gap-1.5 rounded-full bg-feel/20 px-2.5 py-1 text-xs font-bold text-feel backdrop-blur-sm ring-1 ring-feel/30">
+              <Radio className="h-3.5 w-3.5" />
+              {tally.vybs}
+              <span className="font-medium text-feel/70">Vybs</span>
+            </span>
+          </div>
+        )}
       </div>
       <div className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-black/70 to-transparent p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <button

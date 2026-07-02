@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -19,12 +19,14 @@ import {
   Megaphone,
   MessageCircle,
   Music,
+  Radio,
   Send,
   Settings,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   Star,
+  Clock,
   HardDrive,
   Trash2,
   Upload,
@@ -41,7 +43,12 @@ import { BG_VARIANTS } from "@/lib/backgrounds";
 import { PAGE_TRANSITIONS } from "@/lib/transitions";
 import { DOCK_COLORS, DOCK_FX } from "@/lib/dock";
 import { processImage } from "@/lib/media";
-import { uploadPublicMedia, usernameAvailable } from "@/lib/backend";
+import {
+  fetchMyStreamStats,
+  uploadPublicMedia,
+  usernameAvailable,
+  type StreamStats,
+} from "@/lib/backend";
 import { isValidUsername, normalizeUsername } from "@/lib/username";
 import { VeiledArt } from "@/components/VeiledArt";
 import { Handle } from "@/components/Handle";
@@ -1037,6 +1044,9 @@ export function ProfilePage() {
         />
       </div>
 
+      {/* Streamer analytics — exclusive; renders only for users who've gone live. */}
+      <StreamerAnalytics />
+
       </>
       )}
 
@@ -1915,6 +1925,165 @@ function AnalyticsCard({
         />
       </div>
       <p className="mt-1.5 text-[11px] text-white/40">{hint}</p>
+    </div>
+  );
+}
+
+/** Human-readable airtime from seconds (e.g. "3h 12m", "44m", "0m"). */
+function formatAirtime(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+/**
+ * Streamer analytics — an exclusive profile section that appears ONLY for users
+ * who have gone live at least once. Surfaces lifetime performance (Vybs, peak
+ * viewers, airtime, Vyb rate) plus a breakdown of recent streams. Non-streamers
+ * never see it: fetchMyStreamStats returns total_streams = 0 and we render null.
+ */
+function StreamerAnalytics() {
+  const [stats, setStats] = useState<StreamStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    void fetchMyStreamStats().then((s) => {
+      if (!alive) return;
+      setStats(s);
+      setLoading(false);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  if (loading || !stats || stats.totalStreams === 0) return null;
+
+  const totalReacts = stats.totalVybs + stats.totalFails;
+  const vybRate = totalReacts ? Math.round((stats.totalVybs / totalReacts) * 100) : 0;
+
+  return (
+    <div className="mb-6 overflow-hidden rounded-2xl border border-wild/25 bg-gradient-to-b from-wild/[0.09] to-transparent p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="flex items-center gap-2 font-display text-sm font-bold text-white">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-wild/20 text-wild">
+            <Radio className="h-4 w-4" />
+          </span>
+          Streamer
+        </span>
+        <span className="rounded-full bg-wild/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-wild">
+          Live analytics
+        </span>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <StreamStat label="Streams" value={String(stats.totalStreams)} icon={<Radio className="h-3.5 w-3.5" />} />
+        <StreamStat
+          label="Total Vybs"
+          value={formatCount(stats.totalVybs)}
+          icon={<Radio className="h-3.5 w-3.5" />}
+          accent="#34f5a0"
+        />
+        <StreamStat
+          label="Peak viewers"
+          value={formatCount(stats.peakViewers)}
+          icon={<Eye className="h-3.5 w-3.5" />}
+          accent="#7cc5ff"
+        />
+        <StreamStat
+          label="Airtime"
+          value={formatAirtime(stats.totalSeconds)}
+          icon={<Clock className="h-3.5 w-3.5" />}
+        />
+        <StreamStat
+          label="Best stream"
+          value={formatCount(stats.bestVybs)}
+          icon={<Star className="h-3.5 w-3.5" />}
+          accent="#ffd166"
+        />
+        <StreamStat label="Vyb rate" value={`${vybRate}%`} icon={<Radio className="h-3.5 w-3.5" />} accent="#c77dff" />
+      </div>
+
+      {/* Vyb-vs-Fail health bar. */}
+      <div className="mt-3">
+        <div className="mb-1 flex items-center justify-between text-[10px] text-white/45">
+          <span>Vyb rate</span>
+          <span>
+            {formatCount(stats.totalVybs)} Vybs · {formatCount(stats.totalFails)} Fails
+          </span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${vybRate}%` }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="h-full rounded-full bg-feel"
+            style={{ boxShadow: "0 0 12px #34f5a0" }}
+          />
+        </div>
+      </div>
+
+      {/* Recent streams breakdown. */}
+      {stats.recent.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Recent streams</p>
+          <div className="space-y-1.5">
+            {stats.recent.map((s) => (
+              <div
+                key={s.id}
+                className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-white/85">
+                    {s.title || "Untitled stream"}
+                  </p>
+                  <p className="text-[11px] text-white/40">
+                    {timeAgo(s.startedAt)} · {formatAirtime(s.seconds)}
+                    {s.endedAt == null && (
+                      <span className="ml-1.5 font-bold text-wild">● live</span>
+                    )}
+                  </p>
+                </div>
+                <span className="flex items-center gap-1 text-xs font-bold text-feel">
+                  <Radio className="h-3.5 w-3.5" />
+                  {formatCount(s.vybs)}
+                </span>
+                <span className="flex items-center gap-1 text-xs font-bold text-white/60">
+                  <Eye className="h-3.5 w-3.5" />
+                  {formatCount(s.peakViewers)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Compact stat cell used inside the streamer analytics grid. */
+function StreamStat({
+  label,
+  value,
+  icon,
+  accent = "#ffffff",
+}: {
+  label: string;
+  value: string;
+  icon: ReactNode;
+  accent?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-2.5 text-center">
+      <span className="mb-0.5 flex items-center justify-center" style={{ color: accent }}>
+        {icon}
+      </span>
+      <p className="font-display text-base font-bold" style={{ color: accent }}>
+        {value}
+      </p>
+      <p className="text-[9px] uppercase tracking-wider text-white/45">{label}</p>
     </div>
   );
 }

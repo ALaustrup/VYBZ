@@ -35,10 +35,27 @@ export type LiveStatus =
  * Publisher: connect, enable camera + mic, signal "live" once tracks publish.
  * Returns a handle the caller uses to disconnect when the streamer ends.
  */
+/**
+ * Live concurrent-viewer count for a single-streamer room. With exactly one
+ * publisher, the number of viewers equals the remote-participant count on both
+ * the publisher's client (all remotes are viewers) and any viewer's client
+ * (remotes = the streamer + every other viewer = the total viewer count).
+ */
+function wireViewerCount(room: Room, onCount?: (viewers: number) => void): void {
+  if (!onCount) return;
+  const emit = () => onCount(room.remoteParticipants.size);
+  room.on(RoomEvent.ParticipantConnected, emit);
+  room.on(RoomEvent.ParticipantDisconnected, emit);
+  room.on(RoomEvent.Connected, emit);
+  emit();
+}
+
 export async function publish(opts: {
   url: string;
   token: string;
   onStatus?: (s: LiveStatus) => void;
+  /** Live count of concurrent viewers (updates as they join/leave). */
+  onCount?: (viewers: number) => void;
 }): Promise<LiveConnect> {
   const room = new Room({
     adaptiveStream: true,
@@ -54,6 +71,7 @@ export async function publish(opts: {
   });
   room.on(RoomEvent.Disconnected, () => opts.onStatus?.("ended"));
   room.on(RoomEvent.MediaDevicesError, () => opts.onStatus?.("error"));
+  wireViewerCount(room, opts.onCount);
   opts.onStatus?.("connecting");
   await room.connect(opts.url, opts.token);
   await room.localParticipant.enableCameraAndMicrophone();
@@ -135,6 +153,8 @@ export async function watch(opts: {
   bgVideoEl?: HTMLVideoElement;
   audioEl?: HTMLAudioElement;
   onStatus?: (s: LiveStatus) => void;
+  /** Live count of concurrent viewers (updates as they join/leave). */
+  onCount?: (viewers: number) => void;
 }): Promise<LiveConnect> {
   const room = new Room({ adaptiveStream: true });
 
@@ -164,6 +184,7 @@ export async function watch(opts: {
     // If the streamer leaves, the stream is over for viewers.
     if (p.permissions?.canPublish) opts.onStatus?.("ended");
   });
+  wireViewerCount(room, opts.onCount);
 
   opts.onStatus?.("connecting");
   await room.connect(opts.url, opts.token);

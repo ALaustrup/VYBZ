@@ -10,6 +10,7 @@ import {
   Phone,
   Send,
   ShieldAlert,
+  Shuffle,
   Sparkles,
   Trash2,
   Type,
@@ -260,6 +261,16 @@ export function ComposeSheet() {
                     </span>
                   )}
                 </div>
+                {/* Reshuffle the generative backdrop for text-only posts. */}
+                {!media && (
+                  <button
+                    type="button"
+                    onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}
+                    className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur transition active:scale-95"
+                  >
+                    <Shuffle className="h-3.5 w-3.5" /> Shuffle art
+                  </button>
+                )}
               </div>
 
               {/* 1) Confession text — the words come first. */}
