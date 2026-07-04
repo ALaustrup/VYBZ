@@ -13,6 +13,24 @@ import type { Confession } from "@/types";
 
 type Support = "checking" | "supported" | "unsupported";
 
+/** Stable per-device fallback id when there's no signed-in identity. */
+function guestId(): string {
+  const k = "veiled.xrId";
+  let v = localStorage.getItem(k);
+  if (!v) {
+    v = "guest-" + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem(k, v);
+  }
+  return v;
+}
+
+/** Deterministic avatar color from a name, so a person looks the same to all. */
+function hashColor(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return `hsl(${h % 360}, 70%, 62%)`;
+}
+
 /**
  * MYVYB XR — the immersive WebXR entry. Mounts an imperative Three.js scene and
  * offers an "Enter VR" gateway (Quest 2/3). Falls back to a draggable 3D preview
@@ -20,11 +38,20 @@ type Support = "checking" | "supported" | "unsupported";
  */
 export function XRPage() {
   const navigate = useNavigate();
-  const { backendConfessions, recordSwipe, bgVariant: bgVariantId } = useApp();
+  const {
+    backendConfessions,
+    recordSwipe,
+    bgVariant: bgVariantId,
+    nsfwOptIn,
+    profileId,
+    account,
+  } = useApp();
   const containerRef = useRef<HTMLDivElement>(null);
   const handleRef = useRef<VeiledXRHandle | null>(null);
   const [support, setSupport] = useState<Support>("checking");
   const [entering, setEntering] = useState(false);
+  const [layout, setLayout] = useState("Ring");
+  const [present, setPresent] = useState(1);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -43,16 +70,33 @@ export function XRPage() {
         alias: c.alias,
         feels: c.feels ?? 0,
         wilds: c.wilds ?? 0,
+        photo: c.photo,
+        mediaKind: c.mediaKind,
+        clipStart: c.clipStart,
+        clipEnd: c.clipEnd,
+        nsfw: c.nsfw,
+        seed: c.seed,
       });
-      if (xrData.length >= 16) break;
+      if (xrData.length >= 32) break;
     }
 
     const byId = new Map(pool.map((c) => [c.id, c]));
     const variant = bgVariant(bgVariantId);
+
+    // Stable identity for multiplayer presence (real id when signed in).
+    const meName = account?.username || account?.alias || "Anon";
     const handle = mountVeiledXR(el, {
       confessions: xrData,
       accent: variant.colors[0],
       accent2: variant.colors[1],
+      revealNsfw: nsfwOptIn,
+      onLayoutChange: (label) => setLayout(label),
+      me: {
+        id: profileId || account?.username || guestId(),
+        name: meName,
+        color: hashColor(meName),
+      },
+      onPresenceCount: (n) => setPresent(n),
       onReact: (id, reaction) => {
         const conf = byId.get(id);
         if (conf) recordSwipe(conf, reaction);
@@ -102,6 +146,12 @@ export function XRPage() {
           </h1>
           <p className="mt-1 text-xs text-white/45">
             Step inside the veil — confessions, all around you.
+          </p>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-white/40">
+            {layout} view
+            {present > 1 && (
+              <span className="text-white/60"> · {present} here now</span>
+            )}
           </p>
         </div>
 

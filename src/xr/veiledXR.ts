@@ -12,6 +12,14 @@ import { XRPerfManager } from "./perf";
 import { createEnvironment } from "./environment";
 import { createLocomotion } from "./locomotion";
 import { createXRAudio } from "./audio";
+import { loadCardMedia, type CardMedia } from "./media";
+import {
+  computeLayout,
+  LAYOUT_MODES,
+  LAYOUT_LABEL,
+  type LayoutMode,
+} from "./layouts";
+import { createPresence, type XRIdentity } from "./presence";
 
 export interface XRConfession {
   id: string;
@@ -19,6 +27,17 @@ export interface XRConfession {
   alias: string;
   feels: number;
   wilds: number;
+  /** Uploaded photo/video URL (or AI image). Renders as the panel visual. */
+  photo?: string;
+  /** 'image' (default) or 'video'. */
+  mediaKind?: "image" | "video";
+  /** Non-destructive video trim window (seconds). */
+  clipStart?: number;
+  clipEnd?: number;
+  /** Sensitive content — veiled until the user looks at it (or opts in). */
+  nsfw?: boolean;
+  /** Deterministic seed for stable procedural art on text-only posts. */
+  seed?: number;
 }
 
 export interface VeiledXRHandle {
@@ -35,9 +54,16 @@ interface Options {
   accent?: string;
   /** Secondary iridescent accent. */
   accent2?: string;
+  /** When true, NSFW panels are shown unveiled (global opt-in). */
+  revealNsfw?: boolean;
+  /** Optional callback whenever the spatial layout changes. */
+  onLayoutChange?: (label: string) => void;
+  /** Local identity for multiplayer presence (omit for solo). */
+  me?: XRIdentity;
+  /** Fires with the number of people present (self + remotes). */
+  onPresenceCount?: (n: number) => void;
 }
 
-const RING_RADIUS = 3.1;
 const EYE = 1.55;
 const FEEL = "#34f5a0";
 const VEIL = "#7c8cff";
@@ -78,23 +104,32 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number): string
   return lines.slice(0, 7);
 }
 
-/** Draw a confession panel onto a canvas (re-used as a texture). */
-function paintCard(canvas: HTMLCanvasElement, c: XRConfession) {
+/** Draw a text-only confession panel onto a canvas (re-used as a texture). */
+function paintCard(canvas: HTMLCanvasElement, c: XRConfession, accent = "#8b4ff2") {
   const ctx = canvas.getContext("2d")!;
   const W = canvas.width;
   const H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
-  // Panel.
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, "rgba(20,12,32,0.96)");
-  grad.addColorStop(1, "rgba(10,7,16,0.96)");
+  // Panel base.
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, "rgba(16,17,24,0.96)");
+  grad.addColorStop(1, "rgba(9,10,15,0.96)");
   ctx.fillStyle = grad;
   roundRect(ctx, 14, 14, W - 28, H - 28, 28);
   ctx.fill();
+
+  // Seed-tinted accent wash so text posts feel alive + on-brand.
+  const wash = ctx.createRadialGradient(W * 0.22, 60, 0, W * 0.22, 60, W);
+  wash.addColorStop(0, rgba(accent, 0.18));
+  wash.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = wash;
+  roundRect(ctx, 14, 14, W - 28, H - 28, 28);
+  ctx.fill();
+
   ctx.lineWidth = 3;
-  ctx.strokeStyle = "rgba(168,124,248,0.55)";
-  ctx.shadowColor = "rgba(124,58,237,0.8)";
+  ctx.strokeStyle = rgba(accent, 0.55);
+  ctx.shadowColor = rgba(accent, 0.8);
   ctx.shadowBlur = 26;
   ctx.stroke();
   ctx.shadowBlur = 0;
@@ -117,6 +152,61 @@ function paintCard(canvas: HTMLCanvasElement, c: XRConfession) {
   ctx.fillStyle = VEIL;
   ctx.fillText(`◐ ${c.wilds}`, W - 46, H - 70);
   ctx.textAlign = "left";
+}
+
+/** Draw the caption strip shown under a media (photo/video) panel. */
+function paintCaption(canvas: HTMLCanvasElement, c: XRConfession) {
+  const ctx = canvas.getContext("2d")!;
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(8,9,14,0.74)";
+  roundRect(ctx, 8, 8, W - 16, H - 16, 20);
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(255,255,255,0.14)";
+  ctx.stroke();
+
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#f3eefe";
+  ctx.font = "600 30px 'Space Grotesk', system-ui, sans-serif";
+  ctx.fillText(c.alias, 30, 22);
+
+  ctx.fillStyle = "rgba(255,255,255,0.72)";
+  ctx.font = "500 24px Inter, system-ui, sans-serif";
+  const line = wrap(ctx, c.text, W - 340)[0] ?? "";
+  ctx.fillText(line, 30, 64);
+
+  ctx.textAlign = "right";
+  ctx.font = "600 26px Inter, system-ui, sans-serif";
+  ctx.fillStyle = FEEL;
+  ctx.fillText(`♥ ${c.feels}`, W - 160, 40);
+  ctx.fillStyle = VEIL;
+  ctx.fillText(`◐ ${c.wilds}`, W - 30, 40);
+  ctx.textAlign = "left";
+}
+
+/** Frosted veil drawn over sensitive media until the user looks at it. */
+function makeNsfwTexture(accent: string): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 512;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "rgba(6,7,11,0.9)";
+  ctx.fillRect(0, 0, 512, 512);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = accent;
+  ctx.shadowColor = accent;
+  ctx.shadowBlur = 30;
+  ctx.font = "700 76px 'Space Grotesk', system-ui, sans-serif";
+  ctx.fillText("NSFW", 256, 224);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.font = "500 30px Inter, system-ui, sans-serif";
+  ctx.fillText("look to reveal", 256, 300);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.anisotropy = 4;
+  return tex;
 }
 
 function makeTitleTexture(accent: string, accent2: string): THREE.CanvasTexture {
@@ -166,8 +256,11 @@ function makeHelpTexture(accent: string): THREE.CanvasTexture {
   ctx.fillText("Point at a confession", canvas.width / 2, 56);
   ctx.font = "500 24px system-ui, sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.7)";
-  ctx.fillText("Grip = Fail  ·  Trigger = Vyb", canvas.width / 2, 104);
-  ctx.fillText("Stick: push = teleport · flick = turn", canvas.width / 2, 144);
+  ctx.fillText("Grip = Fail  ·  Trigger = Vyb", canvas.width / 2, 100);
+  ctx.fillText("Stick: push = teleport · flick = turn", canvas.width / 2, 136);
+  ctx.font = "500 22px system-ui, sans-serif";
+  ctx.fillStyle = rgba(accent, 0.85);
+  ctx.fillText("A button = change layout", canvas.width / 2, 172);
   const tex = new THREE.CanvasTexture(canvas);
   tex.anisotropy = 4;
   return tex;
@@ -239,6 +332,12 @@ export function mountVeiledXR(
 
   // Spatial audio: ambient drone + HRTF-positioned reaction blips.
   const audio = createXRAudio(camera);
+
+  // Multiplayer presence — other people appear as glowing avatars around you.
+  const presence = opts.me
+    ? createPresence(opts.me, { onCount: opts.onPresenceCount })
+    : null;
+  if (presence) scene.add(presence.group);
 
   // Soft ambient light (cards are unlit, but the floor/title catch a little).
   scene.add(new THREE.AmbientLight(accentColor, 0.6));
@@ -318,9 +417,9 @@ export function mountVeiledXR(
   help.position.set(0, 0.9, -2.2);
   scene.add(help);
 
-  // Hover highlight ring that sits behind the focused card.
+  // Hover highlight ring that sits behind the focused card (scaled to fit it).
   const highlight = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.45, 0.95),
+    new THREE.PlaneGeometry(1, 1),
     new THREE.MeshBasicMaterial({
       color: accentColor,
       transparent: true,
@@ -332,42 +431,137 @@ export function mountVeiledXR(
   highlight.visible = false;
   gallery.add(highlight);
 
-  // Confession cards.
+  // Confession cards — text posts render procedural panels; media posts render
+  // their real photo/video with a caption strip (and an NSFW veil if flagged).
   interface CardEntry {
     group: THREE.Group;
     mesh: THREE.Mesh;
-    canvas: HTMLCanvasElement;
-    texture: THREE.CanvasTexture;
     data: XRConfession;
-    baseY: number;
-    angle: number;
+    index: number;
+    w: number;
+    h: number;
+    repaint: () => void;
+    media: CardMedia | null;
+    captionMesh: THREE.Mesh | null;
+    overlay: THREE.Mesh | null;
+    nsfwRevealed: boolean;
+    cur: THREE.Vector3;
+    targetPos: THREE.Vector3;
+    targetQuat: THREE.Quaternion;
+    dist: number;
   }
   const cards: CardEntry[] = [];
   const list = opts.confessions.slice(0, perf.profile.contentBudget);
   const n = Math.max(list.length, 1);
+  const revealNsfw = !!opts.revealNsfw;
+  const maxVideos = Math.min(8, Math.max(3, Math.floor(perf.profile.contentBudget / 3)));
+  const nsfwTex = makeNsfwTexture(accent);
+
+  function sizeCard(entry: CardEntry, aspect: number) {
+    const h = 0.92;
+    const w = Math.min(1.7, Math.max(0.55, h * aspect));
+    entry.w = w;
+    entry.h = h;
+    entry.mesh.scale.set(w, h, 1);
+    if (entry.overlay) entry.overlay.scale.set(w, h, 1);
+    if (entry.captionMesh) {
+      entry.captionMesh.scale.set(w * 0.98, 0.24, 1);
+      entry.captionMesh.position.set(0, -h / 2 + 0.14, 0.004);
+    }
+  }
+
   list.forEach((c, i) => {
-    const angle = (i / n) * Math.PI * 2;
-    const canvas = document.createElement("canvas");
-    canvas.width = 640;
-    canvas.height = 384;
-    paintCard(canvas, c);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.anisotropy = 4;
-    const mesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.25, 0.75),
-      new THREE.MeshBasicMaterial({ map: texture, transparent: true })
-    );
     const group = new THREE.Group();
-    group.position.set(
-      Math.sin(angle) * RING_RADIUS,
-      EYE,
-      -Math.cos(angle) * RING_RADIUS
-    );
-    group.lookAt(0, EYE, 0);
-    group.add(mesh);
+
+    // Base text texture — the panel for text posts, and the fallback for media.
+    const textCanvas = document.createElement("canvas");
+    textCanvas.width = 640;
+    textCanvas.height = 384;
+    paintCard(textCanvas, c, accent);
+    const textTex = new THREE.CanvasTexture(textCanvas);
+    textTex.anisotropy = 4;
+    textTex.colorSpace = THREE.SRGBColorSpace;
+
+    const mat = new THREE.MeshBasicMaterial({ map: textTex, transparent: true });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), mat);
     mesh.userData.card = true;
+    group.add(mesh);
+
+    const entry: CardEntry = {
+      group,
+      mesh,
+      data: c,
+      index: i,
+      w: 1.25,
+      h: 0.92,
+      repaint: () => {},
+      media: null,
+      captionMesh: null,
+      overlay: null,
+      nsfwRevealed: revealNsfw,
+      cur: new THREE.Vector3(),
+      targetPos: new THREE.Vector3(),
+      targetQuat: new THREE.Quaternion(),
+      dist: 0,
+    };
+
+    if (c.photo) {
+      // Caption strip under the media.
+      const capCanvas = document.createElement("canvas");
+      capCanvas.width = 640;
+      capCanvas.height = 160;
+      paintCaption(capCanvas, c);
+      const capTex = new THREE.CanvasTexture(capCanvas);
+      capTex.anisotropy = 4;
+      capTex.colorSpace = THREE.SRGBColorSpace;
+      const capMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicMaterial({ map: capTex, transparent: true, depthWrite: false })
+      );
+      capMesh.renderOrder = 2;
+      group.add(capMesh);
+      entry.captionMesh = capMesh;
+      entry.repaint = () => {
+        paintCaption(capCanvas, c);
+        capTex.needsUpdate = true;
+      };
+
+      entry.media = loadCardMedia(c, textTex, 4, (m) => {
+        mat.map = m.texture;
+        mat.needsUpdate = true;
+        sizeCard(entry, m.aspect);
+      });
+      if (entry.media.texture !== textTex) {
+        mat.map = entry.media.texture;
+        mat.needsUpdate = true;
+      }
+    } else {
+      entry.repaint = () => {
+        paintCard(textCanvas, c, accent);
+        textTex.needsUpdate = true;
+      };
+    }
+
+    // Sensitive content veil (look-to-reveal), unless globally opted in.
+    if (c.nsfw && !revealNsfw) {
+      const ov = new THREE.Mesh(
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicMaterial({
+          map: nsfwTex,
+          transparent: true,
+          opacity: 0.92,
+          depthWrite: false,
+        })
+      );
+      ov.position.z = 0.006;
+      ov.renderOrder = 3;
+      group.add(ov);
+      entry.overlay = ov;
+    }
+
     gallery.add(group);
-    cards.push({ group, mesh, canvas, texture, data: c, baseY: EYE, angle });
+    cards.push(entry);
+    sizeCard(entry, 4 / 3);
   });
   const cardMeshes = cards.map((c) => c.mesh);
 
@@ -404,12 +598,12 @@ export function mountVeiledXR(
   function react(entry: CardEntry, reaction: "feel" | "wild") {
     if (reaction === "feel") entry.data.feels += 1;
     else entry.data.wilds += 1;
-    paintCard(entry.canvas, entry.data);
-    entry.texture.needsUpdate = true;
+    entry.repaint();
     const pos = new THREE.Vector3();
     entry.group.getWorldPosition(pos);
     burst(pos, reaction === "feel" ? FEEL : VEIL);
     audio.blip(pos, reaction);
+    presence?.broadcastReaction(pos, reaction);
     opts.onReact?.(entry.data.id, reaction);
   }
 
@@ -495,6 +689,67 @@ export function mountVeiledXR(
     floorY: 0,
   });
 
+  // ---- Spatial layouts (Ring / Wall / Sphere / Helix) --------------------
+  let layoutIndex = 0;
+  let currentLayout: LayoutMode = LAYOUT_MODES[0];
+
+  function applyLayout(instant: boolean) {
+    cards.forEach((e) => {
+      const tgt = computeLayout(currentLayout, e.index, n, EYE);
+      e.targetPos.copy(tgt.pos);
+      e.targetQuat.copy(tgt.quat);
+      if (instant) {
+        e.cur.copy(tgt.pos);
+        e.group.position.copy(tgt.pos);
+        e.group.quaternion.copy(tgt.quat);
+      }
+    });
+  }
+  applyLayout(true);
+
+  let layoutBtnReady = true;
+  function cycleLayout() {
+    layoutIndex = (layoutIndex + 1) % LAYOUT_MODES.length;
+    currentLayout = LAYOUT_MODES[layoutIndex];
+    applyLayout(false);
+    opts.onLayoutChange?.(LAYOUT_LABEL[currentLayout]);
+    controllers.forEach((c) => {
+      const gp = controllerGamepad(c) as
+        | (Gamepad & { hapticActuators?: Array<{ pulse?: (i: number, d: number) => void }> })
+        | undefined;
+      gp?.hapticActuators?.[0]?.pulse?.(0.4, 40);
+    });
+  }
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key.toLowerCase() === "l") cycleLayout();
+  };
+  window.addEventListener("keydown", onKey);
+
+  // Only the nearest media videos play (battery + decoder budget).
+  const _camPos = new THREE.Vector3();
+  const _cardPos = new THREE.Vector3();
+  function manageVideos() {
+    const vids = cards.filter((c) => c.media?.isVideo);
+    if (!vids.length) return;
+    camera.getWorldPosition(_camPos);
+    vids.forEach((c) => {
+      c.group.getWorldPosition(_cardPos);
+      c.dist = _cardPos.distanceTo(_camPos);
+    });
+    vids.sort((a, b) => a.dist - b.dist);
+    vids.forEach((c, idx) => {
+      if (idx < maxVideos) c.media?.play();
+      else c.media?.pause();
+    });
+  }
+
+  function resumeMedia() {
+    cards.forEach((c) => {
+      if (c.media?.isVideo) c.media.play();
+    });
+  }
+
   // Resize.
   function onResize() {
     const w = container.clientWidth;
@@ -520,8 +775,9 @@ export function mountVeiledXR(
   const onPointerDown = (e: PointerEvent) => {
     downX = e.clientX;
     downY = e.clientY;
-    // First gesture unlocks the audio context (desktop ambient drone).
+    // First gesture unlocks the audio context + video playback.
     audio.resume();
+    resumeMedia();
   };
   const onPointerUp = (e: PointerEvent) => {
     if (renderer.xr.isPresenting) return;
@@ -540,6 +796,9 @@ export function mountVeiledXR(
 
   // Render loop.
   const clock = new THREE.Clock();
+  let videoTick = 0;
+  const _headPos = new THREE.Vector3();
+  const _headQuat = new THREE.Quaternion();
   renderer.setAnimationLoop(() => {
     const dt = clock.getDelta();
     const t = clock.elapsedTime;
@@ -550,10 +809,41 @@ export function mountVeiledXR(
     env.update(dt, t);
     loco.update(dt, presenting);
 
-    // Gentle ambient drift of the gallery.
-    gallery.rotation.y += dt * 0.04;
+    // Multiplayer presence: share our head pose, interpolate everyone else.
+    if (presence) {
+      camera.getWorldPosition(_headPos);
+      camera.getWorldQuaternion(_headQuat);
+      presence.setLocalPose(_headPos, _headQuat);
+      presence.update(dt);
+    }
+
+    // Ring gently spins; every other layout settles upright.
+    if (currentLayout === "ring") gallery.rotation.y += dt * 0.04;
+    else gallery.rotation.y += (0 - gallery.rotation.y) * Math.min(1, dt * 2);
     stars.rotation.y += dt * 0.01;
     title.position.y = 2.7 + Math.sin(t * 0.6) * 0.05;
+
+    // A / X button cycles the spatial layout (debounced).
+    if (presenting) {
+      let aPressed = false;
+      for (const c of controllers) {
+        const gp = controllerGamepad(c);
+        if (gp?.buttons?.[4]?.pressed) aPressed = true;
+      }
+      if (aPressed && layoutBtnReady) {
+        cycleLayout();
+        layoutBtnReady = false;
+      } else if (!aPressed) {
+        layoutBtnReady = true;
+      }
+    }
+
+    // Throttled nearest-video playback management.
+    videoTick += dt;
+    if (videoTick > 0.5) {
+      videoTick = 0;
+      manageVideos();
+    }
 
     // Bob + hover scaling.
     const activeHover = new Set<CardEntry>();
@@ -573,20 +863,36 @@ export function mountVeiledXR(
       if (entry) activeHover.add(entry);
     }
 
+    const k = Math.min(1, dt * 4);
     cards.forEach((c) => {
-      c.group.position.y = c.baseY + Math.sin(t * 0.8 + c.angle * 3) * 0.04;
-      const target = activeHover.has(c) ? 1.14 : 1;
+      // Morph toward the current layout target, plus a gentle bob.
+      c.cur.lerp(c.targetPos, k);
+      c.group.position.copy(c.cur);
+      c.group.position.y += Math.sin(t * 0.8 + c.index) * 0.03;
+      c.group.quaternion.slerp(c.targetQuat, k);
+
+      const target = activeHover.has(c) ? 1.12 : 1;
       const s = c.group.scale.x + (target - c.group.scale.x) * 0.18;
       c.group.scale.set(s, s, s);
+
+      // NSFW veil: look at a card to reveal it (sticky), unless globally opted in.
+      if (c.overlay) {
+        if (activeHover.has(c)) c.nsfwRevealed = true;
+        const ovMat = c.overlay.material as THREE.MeshBasicMaterial;
+        const tgt = c.nsfwRevealed ? 0 : 0.92;
+        ovMat.opacity += (tgt - ovMat.opacity) * Math.min(1, dt * 6);
+        c.overlay.visible = ovMat.opacity > 0.02;
+      }
     });
 
-    // Glowing highlight behind the focused card.
+    // Glowing highlight behind the focused card (scaled to fit it).
     const focused = activeHover.values().next().value as CardEntry | undefined;
     const hlMat = highlight.material as THREE.MeshBasicMaterial;
     if (focused) {
       highlight.visible = true;
       highlight.position.copy(focused.group.position);
       highlight.quaternion.copy(focused.group.quaternion);
+      highlight.scale.set(focused.w * 1.12, focused.h * 1.12, 1);
       highlight.translateZ(-0.03);
       hlMat.opacity = Math.min(0.4, hlMat.opacity + 0.08);
     } else {
@@ -618,6 +924,7 @@ export function mountVeiledXR(
     await renderer.xr.setSession(session);
     perf.onSessionStart(session);
     audio.resume();
+    resumeMedia();
     opts.onSessionChange?.(true);
     session.addEventListener("end", () => opts.onSessionChange?.(false));
   }
@@ -628,10 +935,14 @@ export function mountVeiledXR(
     renderer.domElement.removeEventListener("pointermove", onPointerMove);
     renderer.domElement.removeEventListener("pointerdown", onPointerDown);
     renderer.domElement.removeEventListener("pointerup", onPointerUp);
+    window.removeEventListener("keydown", onKey);
     controls.dispose();
     env.dispose();
     loco.dispose();
     audio.dispose();
+    presence?.dispose();
+    cards.forEach((c) => c.media?.dispose());
+    nsfwTex.dispose();
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (mesh.geometry) mesh.geometry.dispose();
