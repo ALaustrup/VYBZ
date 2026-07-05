@@ -1,28 +1,24 @@
 #!/usr/bin/env bash
-# MYVYB — one-command deploy from a local machine.
+# VYBZ — one-command deploy from a local machine.
 #
-# Use this when the Cursor cloud agent can't reach Vercel/Supabase secrets.
-# It performs the full production deploy: applies pending Supabase migrations,
-# deploys all Edge Functions, builds the web app, deploys to Vercel, and aliases
-# the canonical domains.
+# Applies pending Supabase migrations, deploys Edge Functions, builds the web
+# app, deploys to Vercel, and aliases the canonical domain.
 #
-# USAGE (from your laptop, in any directory):
-#   git clone https://github.com/ALaustrup/vyb && cd vyb/apps/veiled
-#   git checkout cursor/fresh-reset-media-overhaul-8c67   # or main, after merge
-#   export SUPABASE_ACCESS_TOKEN="sbp_..."   # from https://supabase.com/dashboard/account/tokens
-#   export VERCEL_TOKEN="..."                 # from https://vercel.com/account/tokens
-#   export SUPABASE_PROJECT_REF="xhgmpodfpcxfshaqspgh"   # the MYVYB Supabase project
-#   export VERCEL_PROJECT_NAME="myvybsocial"  # or myvybapp — whatever you picked
+# USAGE (from repo root):
+#   export SUPABASE_ACCESS_TOKEN="sbp_..."   # https://supabase.com/dashboard/account/tokens
+#   export VERCEL_TOKEN="..."              # https://vercel.com/account/tokens
 #   bash scripts/deploy.sh
 #
-# Requires: node 22+, supabase CLI (`brew install supabase/tap/supabase`), npm.
-# Optional: LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, VAPID_PUBLIC_KEY,
-#           VAPID_PRIVATE_KEY (only needed the FIRST time, to seed Edge Function
-#           secrets — subsequent runs skip if not set).
+# Optional overrides:
+#   SUPABASE_PROJECT_REF=xixmneooyufbeftdfpcm
+#   VERCEL_PROJECT_NAME=vyb-audio
+#   VERCEL_PROD_DOMAIN=vybz.astramatrix.xyz
+#   NO_SUPABASE=1          # web-only deploy (skip migrations + functions)
+#
+# Requires: node 20+, npm. Supabase CLI via npx (no global install needed).
 
 set -euo pipefail
 
-# ── Helpers ────────────────────────────────────────────────────────────────
 say() { printf "\n\033[1;36m▶ %s\033[0m\n" "$*"; }
 ok()  { printf "\033[1;32m  ✓ %s\033[0m\n" "$*"; }
 warn(){ printf "\033[1;33m  ! %s\033[0m\n" "$*"; }
@@ -33,54 +29,65 @@ require() {
   if [ -z "${!var:-}" ]; then die "Missing required env var: $var"; fi
 }
 
-# ── Preflight ──────────────────────────────────────────────────────────────
 say "Preflight checks"
 require SUPABASE_ACCESS_TOKEN
 require VERCEL_TOKEN
-require SUPABASE_PROJECT_REF
-: "${VERCEL_PROJECT_NAME:=myvybsocial}"
-: "${VERCEL_PROD_DOMAIN:=myvyb.astramatrix.xyz}"
+: "${SUPABASE_PROJECT_REF:=xixmneooyufbeftdfpcm}"
+: "${VERCEL_PROJECT_NAME:=vyb-audio}"
+: "${VERCEL_PROD_DOMAIN:=vybz.astramatrix.xyz}"
 
-command -v node >/dev/null      || die "node not installed"
-command -v npm  >/dev/null      || die "npm not installed"
-command -v npx  >/dev/null      || die "npx not installed"
-if ! command -v supabase >/dev/null; then
-  warn "supabase CLI not found — install via \`brew install supabase/tap/supabase\` (or skip with NO_SUPABASE=1 to deploy web only)"
-  if [ -z "${NO_SUPABASE:-}" ]; then exit 1; fi
-fi
+command -v node >/dev/null || die "node not installed"
+command -v npm  >/dev/null || die "npm not installed"
+command -v npx  >/dev/null || die "npx not installed"
 ok "tools present"
 
 # ── Supabase ───────────────────────────────────────────────────────────────
 if [ -z "${NO_SUPABASE:-}" ]; then
   say "Linking Supabase project ($SUPABASE_PROJECT_REF)"
-  supabase link --project-ref "$SUPABASE_PROJECT_REF" >/dev/null
+  npx supabase link --project-ref "$SUPABASE_PROJECT_REF" >/dev/null
   ok "linked"
 
-  say "Applying pending migrations (supabase/migrations/*)"
-  supabase db push --linked
+  say "Applying pending migrations"
+  npx supabase db push --linked
   ok "migrations applied"
 
   say "Deploying Edge Functions"
+  # Functions with custom auth / webhooks — no JWT gate at the edge.
+  NO_JWT="email-code passkey push-send room-mod stripe-webhook name-drop-notify"
   for fn in supabase/functions/*/; do
     name="$(basename "$fn")"
     [ "$name" = "_shared" ] && continue
     printf "    deploying %s ... " "$name"
-    supabase functions deploy "$name" --no-verify-jwt >/dev/null 2>&1 \
-      && printf "\033[32mok\033[0m\n" || printf "\033[33mskip (already deployed or invalid)\033[0m\n"
+    extra=""
+    echo " $NO_JWT " | grep -q " $name " && extra="--no-verify-jwt"
+    if npx supabase functions deploy "$name" $extra >/dev/null 2>&1; then
+      printf "\033[32mok\033[0m\n"
+    else
+      printf "\033[33mfail (check logs)\033[0m\n"
+    fi
   done
 
-  # Seed function secrets ONLY if the env vars are present this run.
   SECRETS_TO_SET=""
-  for v in LIVEKIT_URL LIVEKIT_API_KEY LIVEKIT_API_SECRET VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY VAPID_SUBJECT PUSH_SEND_SECRET; do
+  for v in OPENAI_API_KEY RESEND_API_KEY RESEND_FROM LIVEKIT_URL LIVEKIT_API_KEY LIVEKIT_API_SECRET VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY VAPID_SUBJECT PUSH_SEND_SECRET MOD_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET; do
     if [ -n "${!v:-}" ]; then SECRETS_TO_SET="$SECRETS_TO_SET $v=${!v}"; fi
   done
   if [ -n "$SECRETS_TO_SET" ]; then
     say "Setting Edge Function secrets"
     # shellcheck disable=SC2086
-    supabase secrets set $SECRETS_TO_SET >/dev/null
+    npx supabase secrets set $SECRETS_TO_SET >/dev/null
     ok "secrets set"
   else
-    warn "Skipping Edge Function secrets (no LIVEKIT_* / VAPID_* env vars set this run)"
+    warn "Skipping Edge Function secrets (set OPENAI_API_KEY, RESEND_API_KEY, etc. to seed)"
+  fi
+
+  if [ -n "${SMTP_PASS:-}" ]; then
+    say "Configuring VYBZ auth emails (Resend + redirect URLs)"
+    export SUPABASE_PROJECT_REF APP_URL="${APP_URL:-https://$VERCEL_PROD_DOMAIN}"
+    export SMTP_HOST="${SMTP_HOST:-smtp.resend.com}" SMTP_PORT="${SMTP_PORT:-465}"
+    export SMTP_USER="${SMTP_USER:-resend}" SMTP_SENDER_EMAIL="${SMTP_SENDER_EMAIL:-noreply@astramatrix.xyz}"
+    export SMTP_SENDER_NAME="${SMTP_SENDER_NAME:-VYBZ}"
+    node supabase/configure-email.mjs
+    ok "auth emails configured"
   fi
 fi
 
@@ -95,7 +102,6 @@ ok "build complete (dist/)"
 
 # ── Vercel ─────────────────────────────────────────────────────────────────
 say "Linking Vercel project ($VERCEL_PROJECT_NAME)"
-# `vercel link --yes` creates the project if it doesn't exist (asks for nothing).
 npx vercel link --yes --project "$VERCEL_PROJECT_NAME" --token "$VERCEL_TOKEN"
 ok "linked"
 
@@ -111,19 +117,19 @@ for d in "$VERCEL_PROD_DOMAIN"; do
   if npx vercel alias set "$DEPLOY_URL" "$d" --token "$VERCEL_TOKEN" >/dev/null 2>&1; then
     printf "\033[32mok\033[0m\n"
   else
-    printf "\033[33mskipped (domain may already point elsewhere)\033[0m\n"
+    printf "\033[33mskipped (assign domain in Vercel dashboard first)\033[0m\n"
   fi
 done
 
-# ── Smoke ──────────────────────────────────────────────────────────────────
 say "Smoke check"
-for url in "https://$VERCEL_PROD_DOMAIN/" "$DEPLOY_URL/"; do
-  code="$(curl -sI -o /dev/null -w "%{http_code}" "$url")"
+for url in "https://$VERCEL_PROD_DOMAIN/" "https://vyb-audio.vercel.app/" "$DEPLOY_URL/"; do
+  code="$(curl -sI -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")"
   printf "    HTTP %s  %s\n" "$code" "$url"
 done
 
 printf "\n\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n"
-printf "\033[1;32m  MYVYB is live.\033[0m\n"
+printf "\033[1;32m  VYBZ deployed.\033[0m\n"
 printf "  Production: https://%s\n" "$VERCEL_PROD_DOMAIN"
+printf "  Fallback:   https://vyb-audio.vercel.app\n"
 printf "  Build URL:  %s\n" "$DEPLOY_URL"
 printf "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n\n"

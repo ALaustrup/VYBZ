@@ -1,0 +1,14 @@
+# VYBZ Supabase project — separate from MYVYB (xhgmpodfpcxfshaqspgh).
+# Used by `npx supabase link` and local CLI workflows.
+project_id = "xixmneooyufbeftdfpcm"
+
+[api]
+enabled = true
+
+[db]
+major_version = 17
+
+[functions]
+# Functions that implement their own auth (webhooks, passkeys, SMTP relay).
+# Deploy with: npx supabase functions deploy <name> --no-verify-jwt
+# See scripts/setup-vybz-infra.ps1 for the full deploy matrix.
