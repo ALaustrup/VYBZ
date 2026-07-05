@@ -1,9 +1,9 @@
 {
-  "name": "vyb",
+  "name": "vyb-audio",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "MYVYB — a premium, mobile-first app for anonymous veiled confessions.",
+  "description": "VYB Audio — a collaboration + sample/project-file exchange network that matches musicians and producers with precisely what they're looking for.",
   "engines": {
     "node": ">=20"
   },
