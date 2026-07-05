@@ -1253,6 +1253,54 @@ export async function fetchUserMatches(limit = 12): Promise<UserMatch[]> {
   }));
 }
 
+// --- Collab matchmaking (VYBZ Phase 2) — complementary-role engine ----------
+
+export interface CollabMatch {
+  userId: string;
+  username: string | null;
+  alias: string;
+  /** Role labels THEY offer that YOU seek (forward complement). */
+  offersYouSeek: string[];
+  /** Role labels THEY seek that YOU offer (backward complement). */
+  seeksYouOffer: string[];
+  /** True when both directions are present — a two-way fit (the gold standard). */
+  mutual: boolean;
+  shared_genres: string[];
+  shared_daws: string[];
+  shared_plugins: string[];
+  openToWork: boolean;
+  /** 0..1 semantic resonance. */
+  resonance: number;
+  /** 0..1 blended fit. */
+  fit: number;
+}
+
+/**
+ * Complementary-collaborator matches: candidates who offer what you seek and/or
+ * seek what you offer, blended with genre/DAW/plugin/tempo overlap + semantic
+ * resonance. Returns the "why" so the UI can explain every match.
+ */
+export async function fetchCollabMatches(limit = 24): Promise<CollabMatch[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("collab_matches", { p_limit: limit });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    userId: r.user_id,
+    username: r.username ?? null,
+    alias: r.alias,
+    offersYouSeek: (r.offers_you_seek as string[] | null) ?? [],
+    seeksYouOffer: (r.seeks_you_offer as string[] | null) ?? [],
+    mutual: !!r.mutual,
+    shared_genres: (r.shared_genres as string[] | null) ?? [],
+    shared_daws: (r.shared_daws as string[] | null) ?? [],
+    shared_plugins: (r.shared_plugins as string[] | null) ?? [],
+    openToWork: !!r.open_to_work,
+    resonance: Number(r.resonance ?? 0),
+    fit: Number(r.fit ?? 0),
+  }));
+}
+
 /**
  * Recompute the caller's semantic profile vector server-side (fire-and-forget).
  * Powers the "resonance" term in user_matches + Companion memory. No-ops cleanly
