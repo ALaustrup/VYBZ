@@ -48,30 +48,34 @@ const APP = process.env.APP_URL ?? "https://myvyb.astramatrix.xyz";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(here, "email-templates", "confirm.html"), "utf8");
-const subject = "Welcome to MYVYB — confirm your email";
 
 const body = {
-  // Where confirmation links land after verifying.
+  // Where confirmation / magic links land after verifying.
   site_url: APP,
   uri_allow_list: [APP, `${APP}/**`, "http://localhost:5173", "http://localhost:5173/**"].join(","),
   mailer_secure_email_change_enabled: false,
 
-  // Custom SMTP — required to send branded mail from your own address.
-  smtp_host: need("SMTP_HOST"),
-  smtp_port: String(need("SMTP_PORT")),
-  smtp_user: need("SMTP_USER"),
-  smtp_pass: need("SMTP_PASS"),
-  smtp_admin_email: need("SMTP_SENDER_EMAIL"),
-  smtp_sender_name: process.env.SMTP_SENDER_NAME ?? "MYVYB",
-
-  // Branded templates (welcome + confirm). Magic link reuses the same.
-  mailer_subjects_confirmation: subject,
+  // Branded templates. The login flow (signInWithOtp) uses the MAGIC LINK slot,
+  // so all three are set to the same branded, code-free template.
+  mailer_subjects_confirmation: "Welcome to MYVYB — confirm your email",
   mailer_templates_confirmation_content: html,
-  mailer_subjects_email_change: subject,
+  mailer_subjects_email_change: "Confirm your new email — MYVYB",
   mailer_templates_email_change_content: html,
-  mailer_subjects_magic_link: subject,
+  mailer_subjects_magic_link: "Sign in to MYVYB",
   mailer_templates_magic_link_content: html,
 };
+
+// Custom SMTP is OPTIONAL here. If already configured on the project (it is once
+// mail is sending), omit the SMTP_* vars and this only updates templates + URLs.
+// Provide all five SMTP_* vars together to (re)point the sender in the same run.
+if (process.env.SMTP_HOST) {
+  body.smtp_host = need("SMTP_HOST");
+  body.smtp_port = String(need("SMTP_PORT"));
+  body.smtp_user = need("SMTP_USER");
+  body.smtp_pass = need("SMTP_PASS");
+  body.smtp_admin_email = need("SMTP_SENDER_EMAIL");
+  body.smtp_sender_name = process.env.SMTP_SENDER_NAME ?? "MYVYB";
+}
 
 const res = await fetch(`https://api.supabase.com/v1/projects/${ref}/config/auth`, {
   method: "PATCH",

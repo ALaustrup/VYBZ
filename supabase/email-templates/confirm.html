@@ -1,29 +1,55 @@
 <!--
-  MYVYB — branded auth confirmation / welcome email.
+  MYVYB — branded auth email.
 
-  Used for the "Confirm signup", "Confirm email change", and "Magic link"
-  templates so a user who links an email to their anonymous account receives a
-  warm, on-brand welcome with a single button that confirms and re-opens the app.
+  One template for the "Magic Link" (sign-in), "Confirm signup", and "Confirm
+  email change" messages. {{ .ConfirmationURL }} is the single one-tap action —
+  NO code is shown, so users never have to copy anything.
 
-  NOTE: Supabase only allows custom email templates when a custom SMTP provider
-  is configured (or on a paid plan). Apply this with supabase/configure-email.mjs
-  after setting SMTP credentials. {{ .ConfirmationURL }} is substituted by GoTrue
-  and, once clicked, redirects to the app (Site URL = https://myvyb.astramatrix.xyz).
+  Apply to the live project either by pasting into
+  Authentication -> Emails -> Templates (Magic Link / Confirm signup / Change
+  Email Address), or via supabase/configure-email.mjs.
+
+  The animated logo glow uses a <style> block: it animates in clients that keep
+  <style> (Apple Mail, iOS Mail) and falls back to a clean static badge
+  everywhere else (Gmail, Outlook).
 -->
-<div style="background:#16181d;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <div style="max-width:480px;margin:0 auto;background:#1c1f26;border:1px solid #30353f;border-radius:20px;padding:36px 32px;">
-    <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;color:#ff7a18;">MYVYB</div>
-    <div style="font-size:13px;font-weight:600;letter-spacing:0.5px;color:#ff9d4d;margin-top:2px;">Social Evolved.</div>
-    <h1 style="font-size:22px;margin:24px 0 10px;color:#ffffff;">Welcome to MYVYB</h1>
-    <p style="font-size:15px;line-height:1.6;color:#c9ccd4;margin:0 0 26px;">
-      Confirm this email to secure your account. You stay anonymous &mdash; this
-      just lets you recover your profile on any device. Tap below to confirm and
-      jump straight back into the app.
+<style>
+  @keyframes myvybGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,122,24,0.35), 0 0 20px 4px rgba(255,122,24,0.30); }
+    50%      { box-shadow: 0 0 0 6px rgba(255,122,24,0.00), 0 0 34px 10px rgba(255,122,24,0.55); }
+  }
+  @keyframes myvybFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+  }
+  .myvyb-badge { animation: myvybGlow 2.4s ease-in-out infinite, myvybFloat 3.6s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .myvyb-badge { animation: none; }
+  }
+</style>
+<div style="background:#0f1115;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <div style="max-width:480px;margin:0 auto;background:#1c1f26;border:1px solid #30353f;border-radius:20px;padding:38px 32px;text-align:center;">
+    <!-- Logo badge (animated glow where supported, static otherwise). -->
+    <div class="myvyb-badge" style="display:inline-block;width:74px;height:74px;border-radius:20px;background:#14161c;border:1px solid rgba(255,122,24,0.45);box-shadow:0 0 22px rgba(255,122,24,0.35);">
+      <img src="https://myvyb.astramatrix.xyz/icons/icon-192.png" width="44" height="44" alt="MYVYB" style="margin-top:15px;border:0;display:inline-block;" />
+    </div>
+
+    <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px;color:#ff7a18;margin-top:20px;">MYVYB</div>
+    <div style="font-size:12px;font-weight:600;letter-spacing:1.5px;color:#ff9d4d;margin-top:3px;text-transform:uppercase;">Social Evolved.</div>
+
+    <h1 style="font-size:22px;margin:24px 0 10px;color:#ffffff;">Confirm it&rsquo;s you</h1>
+    <p style="font-size:15px;line-height:1.6;color:#c9ccd4;margin:0 0 28px;">
+      Tap the button below to securely continue to MYVYB. You stay anonymous
+      &mdash; this simply verifies it&rsquo;s you and keeps your profile
+      recoverable on any device.
     </p>
-    <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#ff7a18;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:14px 30px;border-radius:14px;">Confirm &amp; open MYVYB</a>
+
+    <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:linear-gradient(135deg,#ff7a18,#b3263f);color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:15px 34px;border-radius:14px;box-shadow:0 6px 18px rgba(255,122,24,0.35);">Confirm &amp; open MYVYB</a>
+
     <p style="font-size:12px;line-height:1.6;color:#8b8f99;margin:30px 0 0;">
-      If you didn&rsquo;t request this, simply ignore this email &mdash; nothing
-      will change and your account stays as it is.
+      This link expires shortly and can be used once. If you didn&rsquo;t request
+      it, just ignore this email &mdash; nothing changes and your account stays
+      exactly as it is.
     </p>
     <p style="font-size:12px;color:#6b6f78;margin:22px 0 0;">&copy; MYVYB by Astra Matrix, Inc.</p>
   </div>
