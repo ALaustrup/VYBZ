@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
+  Briefcase,
   Disc3,
   Flame,
   Heart,
@@ -77,22 +78,33 @@ export function MatchmakingPage() {
       </div>
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-2">
-        {/* Spark — swipe on complementary creators. */}
-        <button
-          onClick={() => navigate("/spark")}
-          className="mb-4 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-veil-400/30 bg-gradient-to-br from-veil-500/25 to-wild/10 p-4 text-left transition active:scale-[0.99]"
-        >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-ink-900/60">
-            <Flame className="h-6 w-6 text-veil-100" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-display text-base font-bold text-white">Spark</p>
-            <p className="truncate text-xs text-white/55">
-              Swipe to find your next collaborator
+        {/* Two entry points: swipe collaborators (Spark) + the opportunity board. */}
+        <div className="mb-4 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => navigate("/spark")}
+            className="flex flex-col gap-1.5 overflow-hidden rounded-2xl border border-veil-400/30 bg-gradient-to-br from-veil-500/25 to-wild/10 p-3.5 text-left transition active:scale-[0.98]"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900/60">
+              <Flame className="h-5 w-5 text-veil-100" />
+            </span>
+            <p className="font-display text-sm font-bold text-white">Spark</p>
+            <p className="text-[11px] leading-tight text-white/55">
+              Swipe to match by vibe
             </p>
-          </div>
-          <ArrowRight className="h-5 w-5 shrink-0 text-white/60" />
-        </button>
+          </button>
+          <button
+            onClick={() => navigate("/opportunities")}
+            className="flex flex-col gap-1.5 overflow-hidden rounded-2xl border border-aqua-400/30 bg-gradient-to-br from-aqua-400/20 to-glow/10 p-3.5 text-left transition active:scale-[0.98]"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900/60">
+              <Briefcase className="h-5 w-5 text-aqua-200" />
+            </span>
+            <p className="font-display text-sm font-bold text-white">Opportunities</p>
+            <p className="text-[11px] leading-tight text-white/55">
+              Post &amp; find open roles
+            </p>
+          </button>
+        </div>
 
         {/* Nudge to complete the creator identity when it's empty. */}
         {backendEnabled && !hasIdentity && !loading && (

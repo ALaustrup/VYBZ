@@ -1301,6 +1301,182 @@ export async function fetchCollabMatches(limit = 24): Promise<CollabMatch[]> {
   }));
 }
 
+// --- Opportunity board (VYBZ Phase 2, §7.4) ---------------------------------
+
+export type Commitment = "one-off" | "ongoing" | "session" | "band-member";
+
+export interface Opportunity {
+  id: string;
+  authorId: string;
+  authorAlias: string;
+  authorUsername: string | null;
+  roleNeeded: string;
+  roleLabel: string;
+  title: string;
+  body: string | null;
+  genres: string[];
+  daws: string[];
+  remoteOk: boolean;
+  location: string | null;
+  commitment: Commitment | null;
+  createdAt: number;
+  sharedGenres: string[];
+  sharedDaws: string[];
+  applied: boolean;
+  fit: number;
+}
+
+export interface OpportunityApplicant {
+  applicantId: string;
+  alias: string;
+  username: string | null;
+  message: string | null;
+  createdAt: number;
+  skill: number;
+  sharedGenres: string[];
+  sharedDaws: string[];
+  fit: number;
+}
+
+/** A creator's own posted opportunity, with a live applicant count. */
+export interface MyOpportunity {
+  id: string;
+  roleNeeded: string;
+  title: string;
+  status: "open" | "filled" | "closed";
+  createdAt: number;
+  applicants: number;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapOpportunity(r: any): Opportunity {
+  return {
+    id: r.id,
+    authorId: r.author_id,
+    authorAlias: r.author_alias,
+    authorUsername: r.author_username ?? null,
+    roleNeeded: r.role_needed,
+    roleLabel: r.role_label,
+    title: r.title,
+    body: r.body ?? null,
+    genres: (r.genres as string[] | null) ?? [],
+    daws: (r.daws as string[] | null) ?? [],
+    remoteOk: !!r.remote_ok,
+    location: r.location ?? null,
+    commitment: (r.commitment as Commitment | null) ?? null,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    sharedGenres: (r.shared_genres as string[] | null) ?? [],
+    sharedDaws: (r.shared_daws as string[] | null) ?? [],
+    applied: !!r.applied,
+    fit: Number(r.fit ?? 0),
+  };
+}
+
+/** Open opportunities whose needed role is one I offer, best-fit first. */
+export async function fetchMyOpportunities(limit = 40): Promise<Opportunity[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("my_opportunities", { p_limit: limit });
+  if (error || !data) return [];
+  return (data as unknown[]).map(mapOpportunity);
+}
+
+/** Post a new opportunity (RLS: author = caller). Returns the new id. */
+export async function createOpportunity(p: {
+  roleNeeded: string;
+  title: string;
+  body?: string;
+  genres?: string[];
+  daws?: string[];
+  remoteOk?: boolean;
+  location?: string | null;
+  commitment?: Commitment | null;
+}): Promise<string | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("collab_posts")
+    .insert({
+      role_needed: p.roleNeeded,
+      title: p.title,
+      body: p.body ?? null,
+      genres: p.genres ?? [],
+      daws: p.daws ?? [],
+      remote_ok: p.remoteOk ?? true,
+      location: p.location ?? null,
+      commitment: p.commitment ?? null,
+    })
+    .select("id")
+    .single();
+  if (error || !data) return null;
+  return (data as { id: string }).id;
+}
+
+/** Update the status of one of my posts (open / filled / closed). */
+export async function setOpportunityStatus(
+  id: string,
+  status: "open" | "filled" | "closed"
+): Promise<void> {
+  if (!supabase) return;
+  await supabase.from("collab_posts").update({ status }).eq("id", id);
+}
+
+/** My own posted opportunities with applicant counts. */
+export async function fetchMyPostedOpportunities(): Promise<MyOpportunity[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("collab_posts")
+    .select("id, role_needed, title, status, created_at, collab_applications(count)")
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    id: r.id,
+    roleNeeded: r.role_needed,
+    title: r.title,
+    status: r.status,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    applicants: r.collab_applications?.[0]?.count ?? 0,
+  }));
+}
+
+/** Apply to an opportunity (optionally with a message). */
+export async function applyToOpportunity(
+  postId: string,
+  message?: string
+): Promise<boolean> {
+  if (!supabase) return false;
+  const { error } = await supabase
+    .from("collab_applications")
+    .insert({ post_id: postId, message: message ?? null });
+  return !error;
+}
+
+/** Withdraw my application from an opportunity. */
+export async function withdrawApplication(postId: string): Promise<void> {
+  if (!supabase) return;
+  await supabase.from("collab_applications").delete().eq("post_id", postId);
+}
+
+/** Ranked applicants for a post I authored (SECURITY DEFINER). */
+export async function fetchPostApplicants(
+  postId: string
+): Promise<OpportunityApplicant[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("post_applicants", { p_post: postId });
+  if (error || !data) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map((r) => ({
+    applicantId: r.applicant_id,
+    alias: r.alias,
+    username: r.username ?? null,
+    message: r.message ?? null,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    skill: Number(r.skill ?? 3),
+    sharedGenres: (r.shared_genres as string[] | null) ?? [],
+    sharedDaws: (r.shared_daws as string[] | null) ?? [],
+    fit: Number(r.fit ?? 0),
+  }));
+}
+
 /**
  * Recompute the caller's semantic profile vector server-side (fire-and-forget).
  * Powers the "resonance" term in user_matches + Companion memory. No-ops cleanly

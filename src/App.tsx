@@ -38,6 +38,7 @@ import { EchoSheet } from "@/components/EchoSheet";
 import { FeedsPage } from "@/pages/FeedsPage";
 import { ForYouPage } from "@/pages/ForYouPage";
 import { MatchmakingPage } from "@/pages/MatchmakingPage";
+import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
 import { SparkPage } from "@/pages/SparkPage";
 import { RoomsPage } from "@/pages/RoomsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
@@ -189,6 +190,7 @@ export function App() {
           <Route path="/foryou" element={<Page transition={pageTransition}><ForYouPage /></Page>} />
           <Route path="/connect" element={<Page transition={pageTransition}><MatchmakingPage /></Page>} />
           <Route path="/spark" element={<Page transition={pageTransition}><SparkPage /></Page>} />
+          <Route path="/opportunities" element={<Page transition={pageTransition}><OpportunitiesPage /></Page>} />
           <Route path="/rooms" element={<Page transition={pageTransition}><RoomsPage /></Page>} />
           <Route path="/profile" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
           {/* Vanity URL for the signed-in member's own profile (case-insensitive
