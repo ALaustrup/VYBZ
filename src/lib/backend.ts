@@ -550,6 +550,66 @@ export async function saveProfileDetails(
   await supabase.from("profiles").update({ profile: details }).eq("id", userId);
 }
 
+// --- Creator roles (VYBZ Phase 1) — the bipartite OFFER/SEEK core ------------
+export interface RoleOffer {
+  roleId: string;
+  /** Self-rated skill 1..5. */
+  skill: number;
+}
+export interface RoleSeek {
+  roleId: string;
+  /** Priority 1 (nice-to-have) .. 3 (must-have). */
+  priority: number;
+}
+
+/** The caller's own offered + sought roles (raw ids), for the editor. */
+export async function fetchMyCreatorRoles(): Promise<{
+  offers: RoleOffer[];
+  seeks: RoleSeek[];
+}> {
+  if (!supabase) return { offers: [], seeks: [] };
+  const { data } = await supabase.rpc("my_creator_roles");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const row = ((data as any[] | null) ?? [])[0];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const offers = ((row?.offers as any[]) ?? []).map((o) => ({
+    roleId: String(o.role_id),
+    skill: Number(o.skill) || 3,
+  }));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const seeks = ((row?.seeks as any[]) ?? []).map((s) => ({
+    roleId: String(s.role_id),
+    priority: Number(s.priority) || 1,
+  }));
+  return { offers, seeks };
+}
+
+/** Replace the caller's offered + sought roles atomically (SECURITY DEFINER). */
+export async function saveCreatorRoles(
+  offers: RoleOffer[],
+  seeks: RoleSeek[]
+): Promise<void> {
+  if (!supabase) return;
+  await supabase.rpc("set_creator_roles", {
+    p_offers: offers.map((o) => ({ role_id: o.roleId, skill: o.skill })),
+    p_seeks: seeks.map((s) => ({ role_id: s.roleId, priority: s.priority })),
+  });
+}
+
+/** A user's offered + sought role LABELS for public display. World-readable. */
+export async function fetchCreatorRolesFor(
+  id: string
+): Promise<{ offers: string[]; seeks: string[] }> {
+  if (!supabase) return { offers: [], seeks: [] };
+  const { data } = await supabase.rpc("creator_roles_for", { p_id: id });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const row = ((data as any[] | null) ?? [])[0];
+  return {
+    offers: (row?.offers as string[] | null) ?? [],
+    seeks: (row?.seeks as string[] | null) ?? [],
+  };
+}
+
 /** Account-synced personalization (cross-device). */
 export interface UserPrefs {
   dockColor?: string;
@@ -1745,6 +1805,10 @@ export interface PublicProfile {
   bannerUrl: string | null;
   /** Public (privacy-sanitized) rich profile data points. */
   details: ProfileDetails;
+  /** Offered role labels (VYBZ) — public by design. */
+  offers: string[];
+  /** Sought role labels (VYBZ) — public by design. */
+  seeks: string[];
   createdAt: number;
   /** Aggregate stats. */
   posts: number;
@@ -1767,6 +1831,7 @@ export async function fetchPublicProfile(id: string): Promise<PublicProfile | nu
     .eq("hidden", false)
     .eq("archived", false);
   const list = (posts as { feels: number }[] | null) ?? [];
+  const roles = await fetchCreatorRolesFor(id);
   return {
     id: p.id,
     alias: p.alias,
@@ -1784,6 +1849,8 @@ export async function fetchPublicProfile(id: string): Promise<PublicProfile | nu
     bannerUrl: (p.prefs?.bannerUrl as string | null) ?? null,
     // Already privacy-sanitized server-side (public_profile strips hidden keys).
     details: (p.profile as ProfileDetails | null) ?? {},
+    offers: roles.offers,
+    seeks: roles.seeks,
     createdAt: p.created_at ? new Date(p.created_at).getTime() : Date.now(),
     posts: list.length,
     feels: list.reduce((s, r) => s + (r.feels ?? 0), 0),

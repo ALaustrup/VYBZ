@@ -77,11 +77,20 @@ import {
 import { avatarGradient, cx, formatCount, timeAgo } from "@/lib/utils";
 import {
   CHOICE_FIELDS,
+  DAWS,
+  GENRES,
   INTERESTS,
   MAX_BIO,
+  MAX_GENRES,
+  MAX_INFLUENCES,
   MAX_INTERESTS,
+  MAX_PLUGINS,
   MAX_PROMPTS,
+  MUSICAL_KEYS,
+  PLUGINS,
   PROMPTS,
+  ROLES,
+  ROLE_FAMILIES,
   TRAITS,
   completeness,
   isHidden,
@@ -1608,15 +1617,74 @@ function AboutYou({
  * These power both profile personalization and the v3 matchmaking engine.
  */
 function ProfileDetailsEditor() {
-  const { profileDetails, updateProfileDetails } = useApp();
+  const { profileDetails, updateProfileDetails, creatorRoles, updateCreatorRoles } =
+    useApp();
   const [draft, setDraft] = useState<ProfileDetails>(profileDetails);
+  // Offered/sought roles are relational — edited as local maps, saved alongside.
+  const [offers, setOffers] = useState<Record<string, number>>({});
+  const [seeks, setSeeks] = useState<Record<string, number>>({});
+  const [pluginFilter, setPluginFilter] = useState("");
 
   // Re-sync when the backend profile hydrates/changes.
   useEffect(() => {
     setDraft(profileDetails);
   }, [profileDetails]);
+  useEffect(() => {
+    setOffers(Object.fromEntries(creatorRoles.offers.map((o) => [o.roleId, o.skill])));
+    setSeeks(Object.fromEntries(creatorRoles.seeks.map((s) => [s.roleId, s.priority])));
+  }, [creatorRoles]);
 
-  const pct = completeness(draft);
+  const pct = completeness(draft, {
+    offers: Object.keys(offers).length,
+    seeks: Object.keys(seeks).length,
+  });
+
+  function toggleOffer(roleId: string) {
+    setOffers((o) => {
+      const next = { ...o };
+      if (roleId in next) delete next[roleId];
+      else next[roleId] = 3;
+      return next;
+    });
+  }
+  function toggleSeek(roleId: string) {
+    setSeeks((s) => {
+      const next = { ...s };
+      if (roleId in next) delete next[roleId];
+      else next[roleId] = 1;
+      return next;
+    });
+  }
+  function setSkill(roleId: string, skill: number) {
+    setOffers((o) => ({ ...o, [roleId]: skill }));
+  }
+  function toggleMustHave(roleId: string) {
+    setSeeks((s) => ({ ...s, [roleId]: s[roleId] === 3 ? 1 : 3 }));
+  }
+
+  function toggleFacet(
+    key: "genres" | "daws" | "plugins" | "keys",
+    value: string,
+    max?: number
+  ) {
+    setDraft((d) => {
+      const cur = new Set((d[key] as string[] | undefined) ?? []);
+      if (cur.has(value)) cur.delete(value);
+      else {
+        if (max && cur.size >= max) return d;
+        cur.add(value);
+      }
+      return { ...d, [key]: [...cur] };
+    });
+  }
+
+  function save() {
+    updateProfileDetails(draft);
+    updateCreatorRoles(
+      Object.entries(offers).map(([roleId, skill]) => ({ roleId, skill })),
+      Object.entries(seeks).map(([roleId, priority]) => ({ roleId, priority }))
+    );
+  }
 
   function toggleArray(key: "interests" | "lookingFor" | "languages", value: string) {
     setDraft((d) => {
@@ -1679,6 +1747,313 @@ function ProfileDetailsEditor() {
           className="h-full rounded-full bg-veil-400 transition-all"
           style={{ width: `${pct}%`, boxShadow: "0 0 10px #c77dff" }}
         />
+      </div>
+
+      {/* Roles you offer — the core of complementary matching. */}
+      <div className="mb-5 rounded-xl border border-feel/20 bg-feel/[0.04] p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/85">I bring</span>
+          <span className="text-[10px] text-white/40">
+            {Object.keys(offers).length} selected
+          </span>
+        </div>
+        <p className="mb-2.5 text-[11px] text-white/45">
+          What you contribute to a collab. Tap the dots to rate your level.
+        </p>
+        {ROLE_FAMILIES.map((fam) => (
+          <div key={fam.id} className="mb-2.5">
+            <p className="mb-1 text-[10px] uppercase tracking-wider text-white/35">
+              {fam.label}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {ROLES.filter((r) => r.family === fam.id).map((role) => {
+                const on = role.id in offers;
+                return (
+                  <div key={role.id} className="flex flex-col items-start">
+                    <button
+                      onClick={() => toggleOffer(role.id)}
+                      className={cx(
+                        "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                        on
+                          ? "bg-feel/25 text-white ring-1 ring-feel/50"
+                          : "bg-white/[0.04] text-white/55"
+                      )}
+                    >
+                      {role.label}
+                    </button>
+                    {on && (
+                      <div className="mt-1 flex gap-0.5 pl-1">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <button
+                            key={n}
+                            aria-label={`Skill ${n}`}
+                            onClick={() => setSkill(role.id, n)}
+                            className={cx(
+                              "h-1.5 w-1.5 rounded-full transition",
+                              n <= (offers[role.id] ?? 3)
+                                ? "bg-feel"
+                                : "bg-white/15"
+                            )}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Roles you're looking for. */}
+      <div className="mb-5 rounded-xl border border-aqua-400/20 bg-aqua-400/[0.04] p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/85">I'm looking for</span>
+          <span className="text-[10px] text-white/40">
+            {Object.keys(seeks).length} selected
+          </span>
+        </div>
+        <p className="mb-2.5 text-[11px] text-white/45">
+          The roles you want on your next track. Tap again to mark a must-have.
+        </p>
+        {ROLE_FAMILIES.map((fam) => (
+          <div key={fam.id} className="mb-2.5">
+            <p className="mb-1 text-[10px] uppercase tracking-wider text-white/35">
+              {fam.label}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {ROLES.filter((r) => r.family === fam.id).map((role) => {
+                const on = role.id in seeks;
+                const must = seeks[role.id] === 3;
+                return (
+                  <button
+                    key={role.id}
+                    onClick={() => (on ? toggleMustHave(role.id) : toggleSeek(role.id))}
+                    onDoubleClick={() => toggleSeek(role.id)}
+                    className={cx(
+                      "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                      must
+                        ? "bg-aqua-400/40 text-white ring-1 ring-aqua-300"
+                        : on
+                        ? "bg-aqua-400/20 text-white ring-1 ring-aqua-400/50"
+                        : "bg-white/[0.04] text-white/55"
+                    )}
+                  >
+                    {must ? "★ " : ""}
+                    {role.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Genres */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">
+            Genres{" "}
+            <span className="text-white/35">
+              ({(draft.genres ?? []).length}/{MAX_GENRES})
+            </span>
+          </span>
+          <Privacy section="genres" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {GENRES.map((g) => {
+            const on = (draft.genres ?? []).includes(g);
+            return (
+              <button
+                key={g}
+                onClick={() => toggleFacet("genres", g, MAX_GENRES)}
+                className={cx(
+                  "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                  on
+                    ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {g}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* DAWs */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">DAWs</span>
+          <Privacy section="daws" />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {DAWS.map((d) => {
+            const on = (draft.daws ?? []).includes(d.id);
+            return (
+              <button
+                key={d.id}
+                onClick={() => toggleFacet("daws", d.id)}
+                className={cx(
+                  "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                  on
+                    ? "bg-glow/25 text-white ring-1 ring-glow/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {d.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Plugins */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">
+            Plugins{" "}
+            <span className="text-white/35">
+              ({(draft.plugins ?? []).length}/{MAX_PLUGINS})
+            </span>
+          </span>
+          <Privacy section="plugins" />
+        </div>
+        <input
+          value={pluginFilter}
+          onChange={(e) => setPluginFilter(e.target.value)}
+          placeholder="Search plugins…"
+          className="mb-2 w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+        />
+        <div className="flex max-h-44 flex-wrap gap-1.5 overflow-y-auto">
+          {PLUGINS.filter(
+            (p) =>
+              !pluginFilter ||
+              p.label.toLowerCase().includes(pluginFilter.toLowerCase()) ||
+              p.vendor.toLowerCase().includes(pluginFilter.toLowerCase())
+          ).map((p) => {
+            const on = (draft.plugins ?? []).includes(p.id);
+            return (
+              <button
+                key={p.id}
+                onClick={() => toggleFacet("plugins", p.id, MAX_PLUGINS)}
+                className={cx(
+                  "rounded-full px-2.5 py-1 text-xs font-medium transition active:scale-95",
+                  on
+                    ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Influences (free text → semantic resonance) */}
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">Influences</span>
+          <Privacy section="influences" />
+        </div>
+        <textarea
+          value={draft.influences ?? ""}
+          maxLength={MAX_INFLUENCES}
+          onChange={(e) => setDraft((d) => ({ ...d, influences: e.target.value }))}
+          placeholder="Artists, producers, records that shape your sound…"
+          rows={2}
+          className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-veil-400/60 focus:outline-none"
+        />
+        <p className="mt-1 text-right text-[10px] text-white/30">
+          {(draft.influences ?? "").length}/{MAX_INFLUENCES}
+        </p>
+      </div>
+
+      {/* Studio — tempo, keys, availability */}
+      <div className="mb-4 rounded-xl border border-white/8 bg-white/[0.02] p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-semibold text-white/80">Studio</span>
+          <Privacy section="studio" />
+        </div>
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-[11px] text-white/45">Tempo</span>
+          <input
+            type="number"
+            min={40}
+            max={300}
+            value={draft.tempoMin ?? ""}
+            onChange={(e) =>
+              setDraft((d) => ({
+                ...d,
+                tempoMin: e.target.value ? Number(e.target.value) : undefined,
+              }))
+            }
+            placeholder="min"
+            className="w-16 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-sm text-white placeholder:text-white/30 focus:outline-none"
+          />
+          <span className="text-white/30">–</span>
+          <input
+            type="number"
+            min={40}
+            max={300}
+            value={draft.tempoMax ?? ""}
+            onChange={(e) =>
+              setDraft((d) => ({
+                ...d,
+                tempoMax: e.target.value ? Number(e.target.value) : undefined,
+              }))
+            }
+            placeholder="max"
+            className="w-16 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-sm text-white placeholder:text-white/30 focus:outline-none"
+          />
+          <span className="text-[11px] text-white/40">BPM</span>
+        </div>
+        <p className="mb-1 text-[10px] uppercase tracking-wider text-white/35">Keys</p>
+        <div className="mb-3 flex max-h-28 flex-wrap gap-1.5 overflow-y-auto">
+          {MUSICAL_KEYS.map((k) => {
+            const on = (draft.keys ?? []).includes(k);
+            return (
+              <button
+                key={k}
+                onClick={() => toggleFacet("keys", k)}
+                className={cx(
+                  "rounded-full px-2 py-0.5 text-[11px] font-medium transition active:scale-95",
+                  on
+                    ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {k}
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              ["openToWork", "Open to collab"],
+              ["remoteOk", "Remote OK"],
+            ] as const
+          ).map(([key, label]) => {
+            const on = !!draft[key];
+            return (
+              <button
+                key={key}
+                onClick={() => setDraft((d) => ({ ...d, [key]: !d[key] }))}
+                className={cx(
+                  "rounded-full px-3 py-1 text-xs font-semibold transition active:scale-95",
+                  on
+                    ? "bg-feel/25 text-white ring-1 ring-feel/50"
+                    : "bg-white/[0.04] text-white/55"
+                )}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Bio */}
@@ -1853,7 +2228,7 @@ function ProfileDetailsEditor() {
       </div>
 
       <button
-        onClick={() => updateProfileDetails(draft)}
+        onClick={save}
         className="w-full rounded-xl bg-veil-500 py-2.5 text-sm font-semibold text-white shadow-glow transition active:scale-[0.98]"
       >
         Save profile

@@ -49,7 +49,7 @@ export interface ProfileDetails {
   /** Long-form, expressive bio (distinct from the legacy one-liner). */
   bio?: string;
   pronouns?: string;
-  /** Declared interest tags — the strongest compatibility signal. */
+  /** Declared interest tags — a lightweight compatibility signal. */
   interests?: string[];
   /** What the user is here for (drives who they're shown). */
   lookingFor?: string[];
@@ -61,6 +61,30 @@ export interface ProfileDetails {
   prompts?: ProfilePrompt[];
   /** External links (socials, portfolio, etc.). */
   links?: ProfileLink[];
+
+  // ── Music facets (VYBZ) — overlap signals for collab matching (§5.3). ──────
+  /** Genres the creator works in (labels, e.g. "Hip-Hop"). */
+  genres?: string[];
+  /** DAWs the creator uses (ids, e.g. "ableton"). File-exchange compatibility. */
+  daws?: string[];
+  /** VST/AU plugins the creator uses (ids, e.g. "serum"). Workflow compatibility. */
+  plugins?: string[];
+  /** Free-text influences → embedded for semantic resonance. */
+  influences?: string;
+  /** Typical tempo range (BPM). */
+  tempoMin?: number;
+  tempoMax?: number;
+  /** Musical keys the creator gravitates to. */
+  keys?: string[];
+  /** Open to remote collaboration. */
+  remoteOk?: boolean;
+  /** Actively open to work / collaboration (a matchmaking boost). */
+  openToWork?: boolean;
+  /** Gear / hardware the creator owns. */
+  gear?: string[];
+  /** Free-text credits / notable work. */
+  credits?: string;
+
   /** Top-level keys the user has marked private. */
   hidden?: string[];
 }

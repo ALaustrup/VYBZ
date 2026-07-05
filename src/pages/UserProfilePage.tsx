@@ -24,7 +24,7 @@ import {
 } from "@/lib/cosmetics";
 import { musicEmbed } from "@/lib/music";
 import { cx, formatCount, timeAgo } from "@/lib/utils";
-import { TRAITS } from "@/lib/profileFields";
+import { DAW_LABEL, PLUGIN_LABEL, TRAITS } from "@/lib/profileFields";
 import type { Confession, EchoPublic } from "@/types";
 
 export function UserProfilePage() {
@@ -182,7 +182,7 @@ export function UserProfilePage() {
       </div>
 
       {/* Rich public profile (privacy-sanitized server-side). */}
-      <ProfileDetailsView details={profile.details} />
+      <ProfileDetailsView profile={profile} />
 
       {/* Music. */}
       {(() => {
@@ -230,13 +230,25 @@ export function UserProfilePage() {
 }
 
 /** Public, privacy-sanitized rendering of a user's rich profile data points. */
-function ProfileDetailsView({ details }: { details: backend.PublicProfile["details"] }) {
+function ProfileDetailsView({ profile }: { profile: backend.PublicProfile }) {
+  const details = profile.details;
+  const offers = profile.offers ?? [];
+  const seeks = profile.seeks ?? [];
   const traitLabel = (key: string) => TRAITS.find((t) => t.key === key)?.label ?? key;
   const hasTraits = details.traits && Object.keys(details.traits).length > 0;
   const prompts = (details.prompts ?? []).filter((p) => p.q && p.a);
+  const genres = details.genres ?? [];
+  const daws = (details.daws ?? []).map((id) => DAW_LABEL[id] ?? id);
+  const plugins = (details.plugins ?? []).map((id) => PLUGIN_LABEL[id] ?? id);
   const nothing =
+    !offers.length &&
+    !seeks.length &&
     !details.bio &&
     !details.pronouns &&
+    !genres.length &&
+    !daws.length &&
+    !plugins.length &&
+    !details.influences &&
     !(details.interests ?? []).length &&
     !(details.lookingFor ?? []).length &&
     !(details.languages ?? []).length &&
@@ -256,12 +268,59 @@ function ProfileDetailsView({ details }: { details: backend.PublicProfile["detai
 
   return (
     <div className="mt-3 space-y-3">
+      {(offers.length > 0 || seeks.length > 0) && (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {offers.length > 0 && (
+            <div className="rounded-2xl border border-feel/25 bg-feel/[0.05] p-4">
+              <p className="mb-2 text-[11px] uppercase tracking-wider text-feel/90">Brings</p>
+              <Chips items={offers} tone="bg-feel/20 text-white" />
+            </div>
+          )}
+          {seeks.length > 0 && (
+            <div className="rounded-2xl border border-aqua-400/25 bg-aqua-400/[0.05] p-4">
+              <p className="mb-2 text-[11px] uppercase tracking-wider text-aqua-200">
+                Looking for
+              </p>
+              <Chips items={seeks} tone="bg-aqua-400/20 text-white" />
+            </div>
+          )}
+        </div>
+      )}
+
       {details.bio && (
         <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
           <p className="text-sm leading-relaxed text-white/85">{details.bio}</p>
           {details.pronouns && (
             <p className="mt-1.5 text-[11px] text-white/40">{details.pronouns}</p>
           )}
+        </div>
+      )}
+
+      {genres.length > 0 && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Genres</p>
+          <Chips items={genres} tone="bg-veil-500/20 text-veil-100" />
+        </div>
+      )}
+
+      {daws.length > 0 && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">DAWs</p>
+          <Chips items={daws} tone="bg-glow/20 text-white" />
+        </div>
+      )}
+
+      {plugins.length > 0 && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Plugins</p>
+          <Chips items={plugins} tone="bg-white/10 text-white/80" />
+        </div>
+      )}
+
+      {details.influences && (
+        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Influences</p>
+          <p className="text-sm leading-relaxed text-white/85">{details.influences}</p>
         </div>
       )}
 

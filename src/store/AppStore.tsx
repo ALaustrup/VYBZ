@@ -287,6 +287,14 @@ interface AppState {
   profileDetails: ProfileDetails;
   updateProfileDetails: (details: ProfileDetails) => void;
 
+  // Creator identity (VYBZ) — offered/sought roles powering complementary
+  // matchmaking. Stored relationally; roles are public by design.
+  creatorRoles: { offers: backend.RoleOffer[]; seeks: backend.RoleSeek[] };
+  updateCreatorRoles: (
+    offers: backend.RoleOffer[],
+    seeks: backend.RoleSeek[]
+  ) => void;
+
   isPremium: boolean;
   isUnveiled: (confessionId: string) => boolean;
   unveilCounts: Record<string, number>;
@@ -523,6 +531,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [profileDetails, setProfileDetails] = useState<ProfileDetails>(() =>
     load<ProfileDetails>(KEYS.profileDetails, {})
   );
+  const [creatorRoles, setCreatorRoles] = useState<{
+    offers: backend.RoleOffer[];
+    seeks: backend.RoleSeek[];
+  }>({ offers: [], seeks: [] });
   const [isPremium, setIsPremium] = useState<boolean>(() =>
     load<boolean>(KEYS.premium, false)
   );
@@ -841,6 +853,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setIdentityPublic(prof.identity_public ?? true);
         if (prof.profile && typeof prof.profile === "object")
           setProfileDetails(prof.profile);
+        void backend.fetchMyCreatorRoles().then(setCreatorRoles);
         setUsernameLocked(!!prof.username_changed);
         // NSFW is gated by a verified contact + 18+ consent, so the server
         // profile is the source of truth for the opt-in and consent flags.
@@ -1016,6 +1029,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
       }
       showToast("Profile updated.");
+    },
+    [showToast]
+  );
+
+  // Persist offered/sought roles (VYBZ). Replaces the caller's rows atomically
+  // and refreshes the semantic vector so complementary matches sharpen.
+  const updateCreatorRoles = useCallback(
+    (offers: backend.RoleOffer[], seeks: backend.RoleSeek[]) => {
+      setCreatorRoles({ offers, seeks });
+      if (BACKEND_ENABLED && profileIdRef.current) {
+        void backend.saveCreatorRoles(offers, seeks).then(() => {
+          void backend.refreshProfileEmbedding();
+        });
+      }
+      showToast("Roles updated.");
     },
     [showToast]
   );
@@ -1571,6 +1599,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBackendConfessions([]);
     setBlocks([]);
     setBackendFriends({});
+    setCreatorRoles({ offers: [], seeks: [] });
   }, []);
 
   const isMine = useCallback(
@@ -2538,6 +2567,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateIdentity,
       profileDetails,
       updateProfileDetails,
+      creatorRoles,
+      updateCreatorRoles,
       isPremium: effectivePremium,
       isUnveiled,
       unveilCounts,
@@ -2713,6 +2744,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateIdentity,
       profileDetails,
       updateProfileDetails,
+      creatorRoles,
+      updateCreatorRoles,
       effectivePremium,
       isUnveiled,
       unveilCounts,
