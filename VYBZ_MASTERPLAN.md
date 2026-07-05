@@ -1,19 +1,30 @@
-# VYB Audio — Master Build Bible
+# VYBZ — Master Build Bible
 
-**Audience:** the LLM/engineer bootstrapping the `vyb-audio` project by forking `myvybsocial`.
+> ## **VYBZ: Find Yours.**
+
+**Audience:** the LLM/engineer building **VYBZ** in the `vyb-audio` repository (forked from `myvybsocial`; the repo keeps its technical name — the *brand* is **VYBZ**).
 **Author:** technical lead for GitHub user `Alaustrup`.
+**Domain:** everything for this project lives at **`vybz.astramatrix.xyz`** — hosting, auth redirect URLs, email links, SEO canonical, sitemap. No other subdomain.
 **Status:** authoritative. If this document conflicts with an assumption you hold, this document wins. When something is genuinely ambiguous, prefer the option that is (a) secure by default, (b) additive/non-breaking, and (c) consistent with the inherited conventions described in §3.
+
+**Ambition check (read twice):** VYBZ must be the **next-generation, elite platform** for finding and seeking production collaborations. Two promises define every decision: (1) **matchmaking precision no other platform can touch**, and (2) **the creative-expression unlock every creator has dreamed of** — delivered professionally, never childishly. If a feature doesn't serve one of those two promises, it doesn't ship.
 
 ---
 
-## 0. What VYB Audio IS (and is NOT)
+## 0. What VYBZ IS (and is NOT)
 
-**VYB Audio is a next-generation social + collaboration network for musicians and producers.** Its single reason to exist is **precision matchmaking between creators and whatever they are looking for**, plus a **frictionless exchange of raw creative materials** (samples, stems, one-shots, presets, MIDI, and full DAW project files).
+**VYBZ is a next-generation social + collaboration network for musicians and producers.** Its single reason to exist is **precision matchmaking between creators and whatever they are looking for**, plus a **frictionless exchange of raw creative materials** (samples, stems, one-shots, presets, MIDI, and full DAW project files).
 
 **It IS:**
-- A **complementary-role matching engine.** A drummer seeking a pianist is matched to pianists seeking drummers; a vocalist seeking a band is matched to bands seeking a vocalist; a guitarist seeking a beatmaker is matched to beatmakers seeking a guitarist. Every direction of every pairing that can exist, matched with high precision.
+- A **complementary-role matching engine.** A drummer seeking a pianist is matched to pianists seeking drummers; a vocalist seeking a band is matched to bands seeking a vocalist; a guitarist seeking a beatmaker is matched to beatmakers seeking a guitarist. Every direction of every pairing that can exist, matched with high precision. Matchmaking is **always the first-class citizen** — every new data point, upload, or interaction should feed the algorithm.
 - A **workbench exchange.** Trade samples and **project files for DAWs** (Ableton `.als`, FL Studio `.flp`, Logic `.logicx`, Pro Tools `.ptx`, Reaper `.rpp`, Studio One `.song`, Bitwig `.bwproject`, Cubase `.cpr`), stems, and MIDI — to *build together*, not to sell.
 - A **collaboration graph:** opportunities boards, collab rooms, split sheets, credits, versioned project handoffs.
+- A **sound-first social feed.** Unlimited sample/clip uploads per profile, public review + comments + an embedded rating mechanism on every track (§6), delivered through a hybrid cloud + **P2P distribution layer** (§8.6) so scale never caps creativity.
+- A **protected exchange.** Every audio file on the platform is cryptographically safeguarded against theft and piracy (§8.7) — creators share fearlessly because the platform has their back.
+- A **living, audio-reactive canvas.** The entire platform reacts in real time to whatever the user is playing (§6.5) — a subtle neon pulse that makes VYBZ instantly unforgettable, plus per-track generative visualizers that make every posted track visually unique (§6.6).
+- A **VST-aware network.** Plugins are a first-class profile facet and matchmaking/search signal (§5.5) — the tools creators actually use become the vocabulary they connect through.
+
+**Brand voice (memorize):** copy is **minimal**. The platform speaks in as few words as possible, always geared toward *finding collabs and sharing samples with the creators seeking them*. The tagline is **"VYBZ: Find Yours."** — that economy of language is the standard for every string in the product. No paragraph where a phrase will do; no phrase where a word will do.
 
 **It is NOT:**
 - **Not "the next SoundCloud."** It is not a streaming/showcase/consumption platform, and it is not a store. Nothing here is about selling songs to listeners or racking up plays. Discovery exists **only** in service of *making a connection or a collaboration happen*.
@@ -61,7 +72,7 @@ You are forking **MYVYB** (`myvybsocial`), a mature, production social platform.
 > Source of truth: `supabase/migrations/*.sql`. All migrations are **idempotent** (`create ... if not exists`, `create or replace`) and timestamp-named.
 
 - **`profiles`** — the central identity row. Columns include: `id` (uuid, = auth user), `username` (unique, case-insensitive), `alias`, `emoji_key`, `aura`, `gender`, `age`, `location` (free text), `identity_public` (bool), `godmode` (bool, premium), `is_admin` (bool), `banned` (bool), `anonymous` (bool, guest), `cosmetic_loadout` (jsonb), `music_url`, `prefs` (jsonb), `created_at`, `last_active_at`, and — critically — **`profile jsonb`**: an owner-private "data points" blob (interests, lookingFor, languages, prompts, traits, bio, pronouns, plus a `_hidden` array marking private keys). Indexed with a GIN index (`profiles_profile_gin`).
-- **`confessions`** — the "post" table (body, `photo_url`, `media_kind`, `nsfw`, `seed`, `author_id`, `alias`, `publish_at`). *In VYB Audio this becomes the generic content/drop table — see §6.*
+- **`confessions`** — the "post" table (body, `photo_url`, `media_kind`, `nsfw`, `seed`, `author_id`, `alias`, `publish_at`). *In VYBZ this becomes the generic content/drop table — see §6.*
 - **`reactions`** — per-user reaction to a post: `reaction in ('feel','wild')` (Vyb/Fail). Powers behavioural matchmaking.
 - **`friendships`** — `requester_id`, `addressee_id`, `status` ('friends', etc.). Symmetric connection graph.
 - **`dating_likes` / `dating_matches`** — swipe layer ("Spark"): like/pass, symmetric match on reciprocation.
@@ -89,7 +100,7 @@ Key patterns to imitate:
 - Helpers `jsonb_overlap_count(a,b)` and `jsonb_overlap_names(a,b)` compute array intersections.
 - Swipe deck: `dating_deck()`, `spark_like(target, like)`, `my_sparks()` — same definer discipline; raw like history is never client-readable.
 
-**This architecture is exactly what VYB Audio needs.** You will add a *role-complementarity* term and *music-domain* signals on top of it (§7).
+**This architecture is exactly what VYBZ needs.** You will add a *role-complementarity* term and *music-domain* signals on top of it (§7).
 
 ### 3.4 Profile data-point catalog (the pattern to rewrite for music)
 `src/lib/profileFields.ts` is the **single source of truth for BOTH the profile editor UI and the matching engine.** It declares `INTERESTS[]`, `CHOICE_FIELDS[]` (lookingFor, languages), `PROMPTS[]`, `TRAITS[]`, plus `completeness()` and `interestMatch()`. Every field marked `matchable: true` automatically feeds compatibility. **You will replace its *contents* with a music catalog (§9) while keeping its *shape*.**
@@ -108,7 +119,7 @@ Auth (anonymous→durable email/passkey), the branded email pipeline (`supabase/
 
 ## 4. Freeze & Fork protocol (do this first, exactly)
 
-**Goal:** `myvybsocial` must stay *exactly as it is*. VYB Audio is a **separate repository with separate infrastructure**. There is **zero shared runtime** — never point VYB Audio at MYVYB's Supabase project (schema divergence would corrupt MYVYB).
+**Goal:** `myvybsocial` must stay *exactly as it is*. VYBZ is a **separate repository with separate infrastructure**. There is **zero shared runtime** — never point VYBZ at MYVYB's Supabase project (schema divergence would corrupt MYVYB).
 
 ### 4.1 Protect the source (already partially done)
 - An immutable freeze tag exists: **`v1.0.0-myvyb`**. This is the canonical restore point.
@@ -132,21 +143,21 @@ git checkout v1.0.0-myvyb        # start from the frozen, known-good release
 git checkout -b main
 gh repo create ALaustrup/vyb-audio --private --source=. --remote=origin --push
 ```
-> Cloning with `--origin upstream` keeps a read-only link so you can cherry-pick *bug fixes* from MYVYB later, but VYB Audio's `origin` is its own repo. Never `git push upstream`.
+> Cloning with `--origin upstream` keeps a read-only link so you can cherry-pick *bug fixes* from MYVYB later, but VYBZ's `origin` is its own repo. Never `git push upstream`.
 
 ### 4.3 Stand up separate infrastructure
-| Concern | MYVYB (do not touch) | VYB Audio (new) |
+| Concern | MYVYB (do not touch) | VYBZ (new) |
 |---|---|---|
-| Supabase project | `xhgmpodfpcxfshaqspgh` | **new project** |
-| Vercel project | myvyb | **new project** |
-| Domain | `myvyb.astramatrix.xyz` | e.g. `vyb.astramatrix.xyz` or `vybaudio.astramatrix.xyz` |
-| Email sender (Resend) | `noreply@astramatrix.xyz` (MYVYB) | reuse verified `astramatrix.xyz` domain, sender name "VYB Audio" |
+| Supabase project | `xhgmpodfpcxfshaqspgh` | `xixmneooyufbeftdfpcm` (**already created**, us-west-1, all migrations applied) |
+| Vercel project | myvyb | `astramatrix/vyb-audio` (**already created & deployed**) |
+| Domain | `myvyb.astramatrix.xyz` | **`vybz.astramatrix.xyz`** — the one and only domain; configure hosting, Supabase Auth Site URL + redirect URLs, email links, SEO/sitemap against it |
+| Email sender (Resend) | `noreply@astramatrix.xyz` (MYVYB) | reuse verified `astramatrix.xyz` domain, sender name "VYBZ" |
 | Stripe | MYVYB account/products | new product(s) if monetized later |
 | LiveKit / OpenAI keys | MYVYB keys | new keys (or scoped) |
 
 - Copy `.env.local` → fill with **new** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, etc. `.env.local` is git-ignored — never commit secrets.
 - Apply the **entire** inherited migration set to the new Supabase project first (so you inherit profiles, matchmaking, storage, etc.), then layer the new music migrations (§5–§8) on top.
-- Re-run `supabase/configure-email.mjs` against the new project with the VYB Audio template (§10.4).
+- Re-run `supabase/configure-email.mjs` against the new project with the VYBZ template (§10.4).
 
 ### 4.4 Definition of Done (Phase 0)
 The forked app **builds and runs identically to MYVYB** against the new Supabase project (sign up, post, react, match, chat all work) — before any rebrand or music feature. This proves the foundation is intact.
@@ -221,14 +232,43 @@ Store in `profiles.profile` (the existing owner-private blob), so it inherits pr
 ### 5.4 Definition of Done (Phase 1)
 Taxonomy seeded; a user can set roles they offer (with skill), roles they seek, genres, DAWs, and influences from the profile editor; data persists and is visible on public profiles (respecting privacy).
 
+### 5.5 VST plugin taxonomy — plugins as a matchmaking & search signal
+VST/AU plugins are as central to a producer's identity as their DAW. VYBZ treats the **entire known plugin universe as a controlled vocabulary** users attach to their profiles — feeding search, matchmaking, and (later) deeper integrations.
+
+```sql
+-- Plugin taxonomy: seeded from public plugin databases, extended by users.
+create table if not exists public.plugins (
+  id         text primary key,          -- slug: 'serum', 'omnisphere', 'fabfilter_pro_q3'
+  label      text not null,             -- 'Serum', 'Omnisphere', 'FabFilter Pro-Q 3'
+  vendor     text,                      -- 'Xfer Records', 'Spectrasonics', 'FabFilter'
+  category   text,                      -- 'synth' | 'sampler' | 'eq' | 'compressor' | 'reverb' | 'delay' | 'saturation' | 'mastering' | 'drum_machine' | 'orchestral' | 'fx' | 'utility'
+  formats    text[] default '{}',       -- 'VST3','AU','AAX','CLAP'
+  verified   boolean not null default false,  -- true = seeded/admin-curated; false = user-submitted pending review
+  created_at timestamptz not null default now()
+);
+create index if not exists plugins_category_idx on public.plugins(category);
+create index if not exists plugins_label_trgm on public.plugins using gin (label gin_trgm_ops); -- requires pg_trgm; fuzzy search
+```
+
+- **Seeding:** bootstrap from public plugin datasets (KVR Audio's database is the canonical index of known VST/AU/AAX plugins; an initial curated seed of the top ~2,000 plugins covers the overwhelming majority of real-world usage). Users can submit missing plugins (`verified=false`, admin-approved into the canon) so the vocabulary grows with the community without fragmenting into typo-duplicates.
+- **Profile facet:** store selections in `profiles.profile` jsonb as `"plugins": ["serum", "fabfilter_pro_q3", ...]` — inherits privacy (`_hidden`) and the GIN index automatically, exactly like genres/DAWs.
+- **Matchmaking:** add a `shared_plugins` overlap term to `collab_matches` (§7.3) at **×0.9 per shared plugin, capped** (e.g. at 5) so plugin-hoarders don't distort fit. Shared plugins are a *workflow-compatibility* signal ("we can literally open each other's project files and every channel loads") — surface them in the match "why": *"Both on Ableton · both use Serum + Pro-Q 3."*
+- **Search:** `/connect` filters must include plugin facets ("find producers who use Omnisphere"). Trigram index makes typeahead fast.
+- **Future sync (push the boundary):** a later phase may add an optional **local plugin scanner** (desktop helper / Capacitor native module) that reads the user's installed VST3/AU directories and offers one-click profile sync of their real plugin arsenal. Design the schema now (this table) so that feature is purely additive.
+
+**Monetization note — gear & plugin affiliate layer (Astra Matrix revenue):** because VYBZ knows what every creator uses and covets, it can *tastefully* link plugins/instruments/gear on profiles and in search results to partner retailers via affiliate programs (Plugin Boutique, Thomann, Sweetwater, Amazon affiliates). Rules: (1) links are contextual and unobtrusive — never banner ads; (2) always disclosed ("partner link"); (3) never influence matchmaking scores. Build as an Edge-Function-resolved link layer (`plugin_id`/`gear` → affiliate URL) so partners can be added/changed server-side with zero client updates. This is a Phase 8+ concern; schema above already supports it.
+
 ---
 
-## 6. Content model — "drops" & the feed (repurpose `confessions`)
+## 6. Content model — the sound-first feed (repurpose everything you inherited)
 
-The inherited `confessions` table + `reactions` (Vyb/Fail) is a working feed with voting and matchmaking hooks. **Repurpose it as the generic "drop" feed** rather than schema-churning early:
+**Guiding principle:** the inherited platform is *structurally perfect* for VYBZ — keep every page's structure and change its **use-case** to creator connections. Where MYVYB users uploaded videos with quotes, VYBZ users upload **sound clips, audio clips, samples, and stems**. The feed, the reactions, the profiles, the chat, the live layer — all of it stays, re-aimed at audio.
 
-- Introduce a UI concept **"Drop"** (a post that showcases a work-in-progress clip, a loop, a "seeking" callout, or a finished-idea for feedback). Back it with `confessions` initially; add an `asset_id` FK (nullable) to link a drop to an uploaded asset (§8).
-- Keep `reactions` — a **Vyb on a sample-drop is a taste signal** that feeds matchmaking (co-Vyb on samples ⇒ shared sonic taste). This is a *huge* free win: your inherited behavioural matching now means "people who love the same sounds."
+### 6.1 Drops (repurpose `confessions`)
+The inherited `confessions` table + `reactions` (Vyb/Fail) is a working feed with voting and matchmaking hooks. **Repurpose it as the "drop" feed** rather than schema-churning early:
+
+- A **"Drop"** showcases a work-in-progress clip, a loop, a "seeking" callout, or a finished idea for feedback. Back it with `confessions` initially; add an `asset_id` FK (nullable) to link a drop to an uploaded asset (§8).
+- Keep `reactions` — a **Vyb on a sample-drop is a taste signal** that feeds matchmaking (co-Vyb on samples ⇒ shared sonic taste). This is a *huge* free win: the inherited behavioural matching now means "people who love the same sounds."
 - Later (optional, Phase 6+) you may migrate to a purpose-named `drops` table; if so, write a view or rename migration carefully and update `backend.ts`. Not required for launch.
 
 ```sql
@@ -236,9 +276,63 @@ alter table public.confessions
   add column if not exists asset_id uuid references public.assets(id) on delete set null;
 ```
 
+### 6.2 The track card (the feed's atomic unit — get this beautiful)
+Every drop renders as a **track card** in the feed, replacing the photo/video post. Anatomy (top to bottom):
+
+| Zone | Content |
+|---|---|
+| **Header** | Creator username + avatar (top-left), their primary role badge (e.g. "Producer"), post age |
+| **Stage** (the media area) | The track's **visualizer** (§6.6) fills the card like the photo/video used to; a large **play button dead-center**, waveform scrubber along the bottom edge of the stage |
+| **Title row** | Song/clip title (beneath the stage), version tag (`v3`), duration |
+| **Tech strip** (subtle, mono font) | BPM · key · bitrate/sample-rate (`320kbps` / `24-bit 48k`) · format badge (`WAV`) — quiet metadata that says "made by someone serious" |
+| **Action row** | Vyb/Fail, comment count, **star rating** (§6.3), share-to-collab, save |
+
+**Post customization (creative expression, kept professional):** users personalize their track cards from a *curated* option set — play-button accent color (from the theme palette), a font choice for the title (from a short, professional list), and visualizer style (§6.6). Constraints keep the feed cohesive: no arbitrary colors, no imported fonts, no layout breaking. The same customization philosophy applies platform-wide — **users can express creativity everywhere, inside rails that guarantee everything fits the overall aesthetic.**
+
+**Formats & quality:** accept **all common audio formats** for upload (`wav`, `aiff`, `flac`, `mp3`, `ogg`, `m4a/aac`, plus `midi` and zipped stems/projects) at **any quality/bitrate** — the platform transcodes a normalized streaming preview (§8.4) and preserves the original losslessly for exchange. Never reject a format a DAW can export; never degrade the stored original.
+
+### 6.3 Embedded rating mechanism
+On top of the binary Vyb/Fail (kept — it feeds matchmaking), each track carries an **embedded rating** (1–5 stars, one per user, revisable) directly on the card, SoundCloud-style but rating-first rather than play-count-first:
+
+```sql
+create table if not exists public.track_ratings (
+  asset_id   uuid not null references public.assets(id) on delete cascade,
+  user_id    uuid not null references public.profiles(id) on delete cascade,
+  rating     smallint not null check (rating between 1 and 5),
+  created_at timestamptz not null default now(),
+  primary key (asset_id, user_id)
+);
+alter table public.track_ratings enable row level security;
+-- Aggregate (avg + count) cached on assets via trigger, mirroring the inherited tally pattern.
+```
+Ratings are public and aggregate-only in the UI (avg + count); who-rated-what is never exposed. High-rated tracks in a genre feed matchmaking's taste layer and (later) a "top-rated in Hip-Hop this week" discovery surface — always in service of collab-finding, not vanity charts.
+
+### 6.4 Unlimited uploads
+Every profile supports **unlimited samples/clips** for public review and comment. Economically this is only honest with the **hybrid P2P distribution layer (§8.6)** — cloud storage guarantees availability of previews and fresh uploads; the peer swarm absorbs the long tail. Plan quotas as *soft* thresholds that shift assets between tiers (hot = cloud-cached, warm = swarm + cloud cold copy), never as hard caps in the UI.
+
+### 6.5 Platform-wide audio-reactive borders (the signature — PRIORITY)
+**This is the feature that captures attention the moment someone arrives.** Whenever ANY audio plays — from the feed, a profile, a project room, anywhere — the **borders of the entire viewport react in real time** to the playback.
+
+**Default behavior ("Neon Pulse"):** on each audio event (default trigger: **bass / low-end energy**, roughly the 20–150 Hz band), a **subtle neon pulse wave is born at the center of every borderline of the current page** and calmly radiates outward along the border in both directions — a colorful, vibration-style wave of radiance flowing around the full perimeter. Calm, elegant, hypnotic; **never** strobing or distracting.
+
+**Architecture (build it right the first time):**
+- A single global `AudioBus` singleton: every player on the platform routes through one shared `AudioContext` → `AnalyserNode` chain. No component ever creates its own context; they register with the bus. (This also future-proofs §6.6 visualizers and any later audio tooling.)
+- A `BorderFX` layer mounted once at the app shell (above routing, below modals): a full-viewport, pointer-events-none `<canvas>` (or four edge canvases) rendering the perimeter wave at 60fps from the analyser's frequency data. GPU-friendly: one rAF loop, no React re-renders (refs only), degrade gracefully on weak devices (drop to 30fps, simplify glow).
+- **Frequency mapping:** default drives the wave from low-end energy (bass hits birth pulses; sub-bass sustains a gentle baseline glow). The mapping is a pure function `(fftData) → waveParams` so alternate mappings are pluggable.
+- **User settings (Settings → Reactivity):** trigger band (bass / mids / highs / full spectrum), intensity (off / subtle / standard / bold), palette (theme-derived by default), wave speed. **Respect `prefers-reduced-motion`** — auto-off with a static accent border instead.
+- Performance budget: the effect must cost <3ms/frame on a mid-range phone; feature-detect and tier down before ever degrading scrolling.
+
+### 6.6 Track visualizers (unique media behind every post)
+The visual "stage" of each track card (§6.2) is a **generative, audio-reactive visualizer** — not a static image. Two rules make this a differentiator:
+
+1. **Style choice:** creators pick from a growing library of visualizer styles (launch set: *Waveform Bloom* — blooming radial waveform; *Spectrum Terrain* — scrolling frequency landscape; *Particle Drift* — bass-driven particle field; *Neon Grid* — retro grid that warps to the beat; *Ink Flow* — fluid simulation stirred by mids).
+2. **Guaranteed uniqueness:** every rendered visualizer is **seeded** from `hash(creator_id + asset_id)` — palette phase, geometry offsets, motion character all derive from the seed. Two creators using the same style still get *visibly distinct* results: **no two tracks on VYBZ ever look the same.** (The inherited `confessions.seed` column pattern shows the way.)
+
+Implementation: visualizer = pure function `(seed, styleId, analyserData, t) → frame`, rendered to canvas/WebGL in the card, fed by the same `AudioBus`. When a card is off-screen or audio is paused, render a beautiful static frame from the seed (zero idle cost). Visualizer choice + accent customization are stored per-drop (jsonb on the drop row), like the inherited `font_style`/`text_fx` pattern.
+
 ---
 
-## 7. THE MATCHMAKING ENGINE (the core of VYB Audio)
+## 7. THE MATCHMAKING ENGINE (the core of VYBZ)
 
 Every possible creator-to-creator connection must match with precision. Achieve this with a **generic role-complementarity model** (so you never hardcode pairs) layered on the inherited multi-signal engine.
 
@@ -268,6 +362,7 @@ Add a new definer function (leave `user_matches` intact for any generic social u
 | Skill-tier proximity on complemented roles | `creator_roles.skill` | up to ×1.0 (closer = better) |
 | Genre overlap | `profile->'genres'` | ×1.4 per genre |
 | DAW/format compatibility (can they exchange files) | `profile->'daws'` | ×1.2 per shared DAW |
+| **VST plugin overlap** (workflow compatibility, §5.5) | `profile->'plugins'` | ×0.9 per shared plugin (cap 5) |
 | Tempo/key affinity | `profile->'tempo*'/'keys'` | ×0.6 |
 | Sample-taste (co-Vyb on drops) | `reactions` | ×1.0 / ×0.8 co-fail |
 | Semantic resonance (influences/bio) | `profile_embeddings` | ×3.0 (cosine) |
@@ -500,8 +595,42 @@ create table if not exists public.split_sheets (          -- credits & ownership
 ```
 RLS: only project members can read a project, its versions, and its split sheet. This is the "exchange project files for DAWs" core: a private room where collaborators hand off versioned bundles and agree splits/credits.
 
-### 8.6 Definition of Done (Phases 3–4)
-Upload a sample → waveform preview plays in-feed; Vyb feeds taste-matching; download recorded. Create a project, add a collaborator, upload a versioned project bundle only they can access, and fill a split sheet.
+### 8.6 Hybrid P2P distribution layer ("the swarm") — unlimited by design
+**Goal:** unlimited uploads (§6.4) without unlimited storage bills, and a genuinely interconnected network where the community itself carries the community's sound. Think **torrent mechanics, but smaller, invisible, and locked down** — peers never get raw file access on the front end.
+
+**Architecture (WebRTC swarm over encrypted chunks):**
+1. **Chunking:** on upload, the original file is split into fixed-size chunks (256 KB–1 MB). Each chunk is **encrypted (AES-GCM, per-asset content key)** and content-addressed by the hash of its *ciphertext*. Peers therefore store and forward **opaque encrypted blobs** — a peer hosting chunks can never listen to, reassemble, or even identify the audio they carry. This is the security property that makes P2P acceptable here.
+2. **Manifest:** an asset's manifest (chunk hashes, order, key envelope) lives in Postgres. The **content key is delivered only via a `SECURITY DEFINER` RPC / Edge Function after a permission check** (same gate as §8.1 downloads) — so swarm distribution and access control are fully decoupled. Possessing every chunk without the key yields nothing.
+3. **Transport:** WebRTC DataChannels between browsers (the proven WebTorrent path — `bittorrent-protocol` over `RTCDataChannel`); Supabase Realtime doubles as the signaling/tracker layer (peer announce/discover per asset). Native (Capacitor) peers can additionally seed in the background.
+4. **Cloud anchor (hybrid, always):** Supabase Storage keeps (a) every preview/stream render — **playback never depends on peers** — and (b) a cold copy of every original, so a track with zero seeders is still always retrievable. The swarm accelerates and absorbs cost for the hot path of *full-quality exchange*; it is never a single point of failure.
+5. **Incentives:** seeding is rewarded through the inherited credits system (seed-time/bytes-served → V¢-style credits), making generosity visible on profiles ("Node" badge). Off by default on metered connections; per-user toggle + bandwidth caps in Settings.
+6. **Phasing:** ship cloud-only first (Phase 3), introduce the swarm as a transparent accelerator (Phase 6+) behind a feature flag. The chunk/manifest schema is designed in from day one so no re-upload migration is ever needed.
+
+> **Non-negotiable:** peers exchange *encrypted chunks* only; keys flow only through the permission-checked server path; the browser UI never exposes chunk/file internals. "P2P" must never mean "public."
+
+### 8.7 Audio safeguarding — anti-theft & anti-piracy (innovate here)
+Theft is *the* reason creators hesitate to share raw materials. VYBZ's defense is **layered** — no single silver bullet, but a stack that makes misuse detectable, attributable, and legally actionable. This must feel like a feature creators brag about, not a wall.
+
+**Layer 1 — Transport & access (never raw):**
+- Originals live in private buckets (§8.2) / encrypted swarm chunks (§8.6); **no public URL to an original ever exists.** Full-quality access flows only through short-lived signed URLs minted by a definer RPC after a permission + license check, with every grant recorded in `asset_downloads` (who, what, when).
+- In-feed playback streams the **preview render only** (normalized, capped quality) — ripping the stream never yields the exchange-grade file.
+
+**Layer 2 — Forensic watermarking (attribution):**
+- Every full-quality download is **individually watermarked per recipient**: an inaudible payload (recipient id + asset id + timestamp) embedded via spread-spectrum/echo-modulation in the audio itself, robust to transcoding, trimming, and pitch/tempo edits. Implemented in an Edge Function/worker at download time (watermark-on-delivery, so each copy is unique).
+- If a sample leaks to a marketplace or another platform, the watermark answers **"which recipient leaked it"** — transforming piracy from anonymous to attributable. This changes behavior more than any lock.
+
+**Layer 3 — Fingerprint registry (proof of provenance):**
+- On upload, compute a **perceptual audio fingerprint** (chromaprint-class) + cryptographic hash, stored with a trusted timestamp: a tamper-evident **"first seen on VYBZ"** provenance record creators can cite in disputes. Also attach **C2PA-style provenance manifests** to delivered files where format allows.
+- The same registry powers **internal originality checks** (flag a re-upload of someone else's protected sample before it publishes) and can later scan external sources.
+
+**Layer 4 — License + legal rails:**
+- Every asset carries its license (`collab-only` / `credit-required` / `free`, §8.1); every download grant records the license accepted at that moment (an auditable license chain).
+- DMCA/takedown tooling (§13) with the fingerprint registry as evidence; repeat-infringer policy enforced via the inherited moderation/admin stack.
+
+**Honesty rule:** market this as **protection and provenance, not unbreakable DRM** (analog re-recording always exists). VYBZ's promise: *your work is encrypted in transit and at rest, every copy is traceable to its recipient, and your authorship is provably timestamped.* That is more than any mainstream platform offers creators today — and yes, if the watermark+provenance registry works at scale, it's a model the wider industry can adopt. Aim for that.
+
+### 8.8 Definition of Done (Phases 3–4)
+Upload a sample → waveform preview plays in-feed; Vyb + star rating feed taste-matching; download recorded, watermarked, and license-logged. Create a project, add a collaborator, upload a versioned project bundle only they can access, and fill a split sheet. Fingerprint + provenance row exists for every published asset.
 
 ---
 
@@ -529,35 +658,55 @@ export const DAWS = [
 // TRAITS: workflow (Fast/Meticulous), session style (In-person/Remote/Both),
 //   role-in-room (Leader/Supporter/Flexible).
 ```
-Roles offered/sought get their **own editor UI** backed by `creator_roles`/`creator_seeks` (not jsonb). Update `completeness()` to weight roles, genres, DAWs, influences.
+Roles offered/sought get their **own editor UI** backed by `creator_roles`/`creator_seeks` (not jsonb). Update `completeness()` to weight roles, genres, DAWs, influences, **and plugins (§5.5)**.
+
+### 9.1 Profiles — maximum creative expression, professional edge
+A VYBZ profile is a creator's storefront-of-self, and it must nail a dual mandate:
+- **Maximum creative expression:** accent palettes, a featured track with its visualizer as the profile hero, pinned drops, customized track cards (§6.2), taste badges (genres/plugins/DAWs rendered beautifully), the audio-reactive treatment on their own page.
+- **Professional edge, always:** every expressive option comes from a curated set that cannot produce a childish or broken result. If a customization option could make a profile look unserious to an A&R or a seasoned engineer, it doesn't ship. Think "artist EPK energy," not "MySpace glitter."
+- **Matchmaking first (the tiebreaker rule):** whenever profile design choices compete, the one that **feeds or showcases matchmaking wins** — roles offered/sought, fit-relevant facets, and the "why we match" surfaces always get the prime real estate. A gorgeous profile that doesn't drive connections is a failure; every profile is an input to the algorithm first, a canvas second.
 
 ---
 
-## 10. Rebrand map (MYVYB → VYB Audio)
+## 9.5 Extensibility — add-ons & custom production tools (plan for it now)
+VYBZ will grow **first-party add-ons and production integrations** over time (e.g., a stem-splitter, a key/BPM analyzer bot, a mastering-preview tool, DAW companion plugins, the §5.5 plugin scanner). Don't build them yet — but architect so they bolt on cleanly:
+
+- **Tool registry pattern:** a `tools` table (id, label, kind, entry URL/function, min plan, active) + per-user enablement, so new tools appear in a "Tools" surface without client releases.
+- **Contract:** every tool consumes/produces `assets` (§8.1) through the same permission-checked RPCs as the rest of the platform — tools get no privileged data paths.
+- **Isolation:** heavy processing lives in Edge Functions/workers, never the client bundle; UI panels lazy-load (the inherited Three.js/LiveKit pattern).
+- **Third-party later:** if an external developer surface ever opens, it rides the same registry + OAuth scopes; nothing about today's schema should preclude that.
+
+---
+
+## 10. Rebrand map (MYVYB → VYBZ)
 
 > ~500 brand references exist. Work **file-family by file-family**; verify with `npm run build` after each. **Do NOT blindly rename DB tables or `localStorage` keys** — those cause data loss / churn. Follow the notes.
 
 ### 10.1 Brand assets & components
-- `src/components/Brand.tsx` — text fallbacks `"MYVYB"` → `"VYB Audio"`; drop new artwork in `public/brand/` (`icon.svg`, `wordmark.svg`).
-- `src/components/Copyright.tsx` — `"MYVYB"` wordmark stays a brand token → `"VYB Audio"`; keep `© <year> Astra Matrix, Inc. All rights reserved.` (owner is still Astra Matrix, Inc. — see §13).
+- `src/components/Brand.tsx` — text fallbacks `"MYVYB"` → `"VYBZ"`; drop new artwork in `public/brand/` (`icon.svg`, `wordmark.svg`).
+- `src/components/Copyright.tsx` — `"MYVYB"` wordmark stays a brand token → `"VYBZ"`; keep `© <year> Astra Matrix, Inc. All rights reserved.` (owner is still Astra Matrix, Inc. — see §13).
 - `public/brand/`, `public/icons/*`, `favicon.svg`, `favicon-64.png`, `manifest.*.webmanifest` — replace icons and names.
 
 ### 10.2 Metadata / SEO
-- `index.html` — `<title>`, meta description, `og:*`, `twitter:*`, `canonical`, JSON-LD `logo`/`name`, subtitle. Set tagline for VYB Audio (e.g. *"Where creators connect."*).
-- `public/robots.txt`, `public/sitemap.xml` — new domain.
-- `package.json` — `name` (`vyb-audio`), `description`.
+- `index.html` — `<title>`, meta description, `og:*`, `twitter:*`, `canonical`, JSON-LD `logo`/`name`, subtitle. The tagline is exactly **"VYBZ: Find Yours."**
+- `public/robots.txt`, `public/sitemap.xml` — domain is **`vybz.astramatrix.xyz`**.
+- `package.json` — `name` (`vyb-audio` stays as the technical package name), `description` mentions VYBZ.
 
-### 10.3 Copy & terminology
+### 10.3 Copy & terminology — MINIMAL, always
+- **Copy discipline:** all product copy is minimal and geared to one idea — *finding collabs and sharing samples with the creators seeking them*. "VYBZ: Find Yours." is the model sentence: short, confident, zero fluff. Audit every string against it; cut anything ornamental.
 - User-facing strings in `src/store/AppStore.tsx`, `src/pages/*`, `src/components/*` (toasts like `"Welcome to MYVYB ✨"`, tutorial, onboarding). Reframe "confessions/posts" → **"drops"**, "vibe" language → creator/collab language.
 - Legal copy: `src/data/legal.ts` (28 refs) — update service name, add audio/UGC and collaboration/splits clauses (§13).
 
+### 10.3a Visual identity — keep the MYVYB energy
+The MYVYB look **works**: enough creative energy to invoke and intrigue, while staying easy to comprehend. **Keep it essentially the same** — the glass/industrial aesthetic, per-page accent theming, dark canvas, neon accents all carry over. The single refinement: **make the borders a bit more professional** — cleaner corner radii, more consistent border weights/contrast, tighter edge treatments. (This dovetails with §6.5: those same borders become the audio-reactive canvas, so they must look immaculate at rest.) Do not redesign; refine.
+
 ### 10.4 Email
-- `supabase/email-templates/confirm.html` — wordmark `MYVYB` → `VYB Audio`, keep the animated badge pattern, logo → new hosted icon URL, copyright. Re-apply via `supabase/configure-email.mjs` against the **new** project.
+- `supabase/email-templates/confirm.html` — wordmark `MYVYB` → `VYBZ`, keep the animated badge pattern, logo → new hosted icon URL, copyright. Re-apply via `supabase/configure-email.mjs` against the **new** project.
 
 ### 10.5 Careful — do NOT auto-rename
 - **DB tables** (`confessions`, `reactions`, etc.): keep names in early phases (renaming breaks every query + RLS). Repurpose semantically; rename later only via deliberate migration + `backend.ts` update.
 - **`localStorage` keys** prefixed `veiled.` / `myvyb.`: keep or write a one-time migration that copies old→new on boot. A blind rename silently logs users out / drops local prefs.
-- **Owner admin email** `andrewiguess@gmail.com` in `20260624_0001_...sql` (`grant_admin_for_owner`): keep, or change to the intended VYB Audio owner in a **new** migration — don't edit the historical file on the live DB without care.
+- **Owner admin email** `andrewiguess@gmail.com` in `20260624_0001_...sql` (`grant_admin_for_owner`): keep, or change to the intended VYBZ owner in a **new** migration — don't edit the historical file on the live DB without care.
 - `--origin upstream` cherry-picks: don't drag MYVYB-specific copy back in.
 
 ---
@@ -591,33 +740,39 @@ Roles offered/sought get their **own editor UI** backed by `creator_roles`/`crea
 
 | Phase | Deliverable | DoD |
 |---|---|---|
-| **0. Fork & infra** | New repo from `v1.0.0-myvyb`, new Supabase/Vercel/domain, all inherited migrations applied, env wired | App runs identically under new infra (§4.4) |
-| **1. Creator identity** | `roles`/`genres`/`daws` taxonomy, `creator_roles`/`creator_seeks`, music jsonb facets, profile editor rewrite (§5, §9) | User sets offers/seeks/genres/DAWs/influences; persists + shows (§5.4) |
-| **2. Matchmaking** | `collab_matches` + `my_opportunities` + rebuilt `/connect` + collab swipe (§7) | Complementary pairs surface each other precisely, with "why" (§7.5) |
-| **3. Sample/stem exchange** | `assets` + buckets + waveform preview + Vyb-taste feed + download gating (§8.1–8.4) | Upload → preview plays → download recorded (§8.6) |
-| **4. Projects & collab rooms** | `projects`/`collaborators`/`versions`/`split_sheets` + private handoff (§8.5) | Versioned private project handoff + split sheet (§8.6) |
-| **5. Opportunities board** | `collab_posts`/`collab_applications` UI + matching (§7.4) | "Band seeking guitarist" reaches guitarists; applications with audition clips |
-| **6. Tracks & credits** | song/track metadata, discography, verified credits | Users list works + credited collaborators |
-| **7. Live & rooms** | Reuse LiveKit for listening/rehearsal/feedback sessions; optional XR listening room | Live collab session works |
-| **8. Rebrand polish & launch** | Full §10 rebrand, SEO, legal, email, mobile QA | Clean brand, green Lighthouse, legal complete |
+| **0. Fork & infra** | New repo from `v1.0.0-myvyb`, new Supabase/Vercel, **domain `vybz.astramatrix.xyz`**, all inherited migrations applied, env wired | App runs identically under new infra (§4.4) |
+| **1. Creator identity** | `roles`/`genres`/`daws`/**`plugins`** taxonomy, `creator_roles`/`creator_seeks`, music jsonb facets, profile editor rewrite (§5, §9), profile expression rails (§9.1) | User sets offers/seeks/genres/DAWs/**plugins**/influences; persists + shows (§5.4) |
+| **2. Matchmaking** | `collab_matches` (incl. plugin overlap) + `my_opportunities` + rebuilt `/connect` with plugin/genre filters + collab swipe (§7) | Complementary pairs surface each other precisely, with "why" (§7.5) |
+| **3. Sound-first feed** | `assets` + buckets + track cards (§6.2) + star ratings (§6.3) + waveform preview + all-format upload + Vyb-taste feed + download gating (§8.1–8.4) | Upload → track card plays in-feed → rating + download recorded (§8.8) |
+| **4. Signature reactivity** | Global `AudioBus` + **audio-reactive border FX** (§6.5) + **track visualizer library with seeded uniqueness** (§6.6) + reactivity settings | Bass-driven neon pulse live on every page during playback; every track visually unique; reduced-motion respected |
+| **5. Projects & collab rooms** | `projects`/`collaborators`/`versions`/`split_sheets` + private handoff (§8.5) | Versioned private project handoff + split sheet (§8.8) |
+| **6. Opportunities board** | `collab_posts`/`collab_applications` UI + matching (§7.4) | "Band seeking guitarist" reaches guitarists; applications with audition clips |
+| **7. Protection layer** | Forensic watermark-on-delivery, fingerprint/provenance registry, license chain (§8.7) | Every delivered file watermarked + provenance recorded (§8.8) |
+| **8. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag, seeding credits (§8.6) | Full-quality exchange accelerates via peers; cloud fallback seamless; keys server-gated |
+| **9. Tracks & credits** | song/track metadata, discography, verified credits | Users list works + credited collaborators |
+| **10. Live & rooms** | Reuse LiveKit for listening/rehearsal/feedback sessions; optional XR listening room | Live collab session works |
+| **11. Rebrand polish & launch** | Full §10 rebrand ("VYBZ: Find Yours."), SEO on `vybz.astramatrix.xyz`, legal, email, mobile QA, border refinement (§10.3a) | Clean brand, green Lighthouse, legal complete |
+| **12+. Add-ons & commerce** | Tools registry (§9.5), plugin scanner sync (§5.5), affiliate gear/plugin links (§5.5 note) | Tools bolt on with zero client releases; affiliate links disclosed + non-intrusive |
 
 ---
 
 ## 13. Legal & copyright
 
-- Product/service name in all copy → **VYB Audio**. Corporate owner remains **Astra Matrix, Inc.** unless instructed otherwise: `© <current year> Astra Matrix, Inc. All rights reserved.`
-- Update `src/data/legal.ts` (Terms, Privacy, Community, and any DMCA/UGC pages) to reflect: user-uploaded audio and **project files**, an **exchange/collaboration** model (not sales), **license tiers** per asset (`collab-only` / `credit-required` / `free`), **split-sheet/credit** agreements, and a **DMCA/takedown** process for infringing uploads. Add an audio-content acceptable-use clause.
-- Keep the frozen MYVYB legal docs untouched in that repo; VYB Audio maintains its own.
+- Product/service name in all copy → **VYBZ**. Tagline: **"VYBZ: Find Yours."** Corporate owner remains **Astra Matrix, Inc.**: `© <current year> Astra Matrix, Inc. All rights reserved.`
+- **Copy stays minimal even here:** legal pages are complete and rigorous, but every user-facing summary of them follows the brand voice — VYBZ exists for finding collabs and sharing samples with the creators seeking them; say that plainly and stop.
+- Update `src/data/legal.ts` (Terms, Privacy, Community, and any DMCA/UGC pages) to reflect: user-uploaded audio and **project files**, an **exchange/collaboration** model (not sales), **license tiers** per asset (`collab-only` / `credit-required` / `free`), **split-sheet/credit** agreements, the **forensic watermarking + provenance registry** (§8.7 — users must be informed downloads are watermarked and uploads fingerprinted), P2P seeding disclosure (§8.6), affiliate-link disclosure (§5.5), and a **DMCA/takedown** process for infringing uploads. Add an audio-content acceptable-use clause.
+- Keep the frozen MYVYB legal docs untouched in that repo; VYBZ maintains its own.
 
 ---
 
 ## 14. Quick-start checklist for the new session
 
-1. Confirm you're on the **VYB Audio** repo, forked from `v1.0.0-myvyb`, with its **own** Supabase project + env. (Never the MYVYB project.)
-2. Apply inherited migrations → verify app runs (Phase 0 DoD).
-3. Add music taxonomy + `creator_roles`/`creator_seeks` (Phase 1).
+1. Confirm you're in the `vyb-audio` repo (brand: **VYBZ**), forked from `v1.0.0-myvyb`, with its **own** Supabase project (`xixmneooyufbeftdfpcm`) + env. (Never the MYVYB project.)
+2. Phase 0 infra already exists (Supabase created + migrated, Vercel deployed). Configure/verify the domain **`vybz.astramatrix.xyz`** end-to-end: Vercel domain, Supabase Auth Site URL + redirect URLs, email links, SEO.
+3. Add music taxonomy (`roles`/`genres`/`daws`/`plugins`) + `creator_roles`/`creator_seeks` (Phase 1).
 4. Ship `collab_matches` and prove drummer⇄pianist / vocalist⇄band / guitarist⇄beatmaker surface each other (Phase 2).
-5. Then assets → projects → opportunities → credits → live → rebrand polish.
-6. After every phase: `npm run build` green, smoke test, commit (when asked).
+5. Build the sound-first feed: track cards, ratings, all-format uploads (Phase 3), then the signature audio-reactive borders + seeded visualizers (Phase 4).
+6. Then projects → opportunities → protection layer → swarm → credits → live → rebrand polish ("VYBZ: Find Yours.").
+7. After every phase: `npm run build` green, smoke test, commit (when asked).
 
-**North star:** the most professional, most precise platform for connecting artists and producers with *exactly* what they're looking for — and for exchanging the raw materials to build it together.
+**North star:** the **next-generation, elite** platform for finding and seeking production collabs — matchmaking with a precision no other platform can touch, and the creative-expression unlock every creator has dreamed of, protected and professional, on one platform. **VYBZ: Find Yours.**
