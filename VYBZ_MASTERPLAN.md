@@ -678,6 +678,28 @@ VYBZ will grow **first-party add-ons and production integrations** over time (e.
 
 ---
 
+## 9.6 Categorized collab chat — production-typed rooms (future phase)
+
+The inherited chat hub (Rooms + Circles, §3.6) is re-aimed at **gear- and craft-centric collaboration talk**, organized by the same controlled vocabularies that power matchmaking (§5, §7.2). This turns every taxonomy entry into a living conversation space — and every conversation into fresh matchmaking signal.
+
+**Concept (conceptual examples, to be elaborated later):**
+- A **category taskbar** across the top of the chat page selects a *production domain*. Launch categories:
+  - **DAWs** → rooms per DAW: Ableton Live, FL Studio, Reason, Cubase, Logic, Pro Tools, Reaper, Studio One, Bitwig, …
+  - **Plug-Ins** → rooms per vendor/plugin: Xfer (Serum), Native Instruments, Tone2, FabFilter, Spectrasonics, …
+  - **Instruments** → rooms per instrument: Acoustic Guitar, Bass Guitar, Drums, Electronic Drums, Flute, Piano, Synth, Turntables, …
+- Selecting a category **swaps the room listing** to show the rooms defined for items in that category. Selecting an item opens its room.
+- Later categories can extend to **Genres**, **Roles/Craft** (Mixing, Mastering, Songwriting), and **Regions/Scenes** — anything already modeled as a taxonomy.
+
+**Architecture (additive, reuses inherited rooms):**
+- Rooms remain the inherited `rooms`/`room_messages` tables. Add a nullable **`category`** (`'daw' | 'plugin' | 'instrument' | …`) and **`taxonomy_id`** (FK-by-convention to `daws.id` / `plugins.id` / `roles.id`) so a room binds to a taxonomy entry. No new chat engine — only categorization metadata + a grouped listing UI.
+- **Auto-provision** a canonical room per seeded taxonomy entry (idempotent seed migration), so the DAWs/Plug-Ins/Instruments tabs are populated from day one and stay in sync as the vocabulary grows.
+- **Matchmaking feedback loop:** presence/activity in a taxonomy room is a soft affinity signal — *"active in the Ableton + Serum rooms"* quietly reinforces DAW/plugin overlap in `collab_matches` (§7.3). Keep it a gentle signal, never a hard filter.
+- The category taskbar reuses the existing per-page accent theming and the glass/industrial aesthetic; on mobile the taskbar scrolls horizontally, listings stack.
+
+**Copy discipline:** category and room labels are the taxonomy labels themselves — minimal, no ornamental copy. This is a **future phase** (see §12); Phase 1 only needs to seed the taxonomies that will later back these rooms.
+
+---
+
 ## 10. Rebrand map (MYVYB → VYBZ)
 
 > ~500 brand references exist. Work **file-family by file-family**; verify with `npm run build` after each. **Do NOT blindly rename DB tables or `localStorage` keys** — those cause data loss / churn. Follow the notes.
@@ -751,6 +773,7 @@ The MYVYB look **works**: enough creative energy to invoke and intrigue, while s
 | **8. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag, seeding credits (§8.6) | Full-quality exchange accelerates via peers; cloud fallback seamless; keys server-gated |
 | **9. Tracks & credits** | song/track metadata, discography, verified credits | Users list works + credited collaborators |
 | **10. Live & rooms** | Reuse LiveKit for listening/rehearsal/feedback sessions; optional XR listening room | Live collab session works |
+| **10.5 Categorized collab chat** | Production-typed chat rooms (§9.6): category taskbar (DAWs / Plug-Ins / Instruments), taxonomy-bound rooms, auto-provisioned from seeds, presence feeds matchmaking | Selecting a category swaps room listings; each taxonomy item has a room; activity nudges DAW/plugin overlap |
 | **11. Rebrand polish & launch** | Full §10 rebrand ("VYBZ: Find Yours."), SEO on `vybz.astramatrix.xyz`, legal, email, mobile QA, border refinement (§10.3a) | Clean brand, green Lighthouse, legal complete |
 | **12+. Add-ons & commerce** | Tools registry (§9.5), plugin scanner sync (§5.5), affiliate gear/plugin links (§5.5 note) | Tools bolt on with zero client releases; affiliate links disclosed + non-intrusive |
 
