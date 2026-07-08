@@ -1,472 +1,125 @@
 // ---------------------------------------------------------------------------
-// Domain types for MYVYB.
-// Everything is anonymous by design — confessions never carry a real identity,
-// only an ephemeral, generated alias.
+// VYBZ domain types. Identity-first: every account is a real creator.
 // ---------------------------------------------------------------------------
 
-/**
- * The two community reactions.
- * - "feel"  = Feel  (right swipe): a positive signal that boosts the post.
- * - "wild"  = Veil  (left swipe): the crowd burying a post; enough Veils
- *   progressively blur it for everyone (15 / 30 / 75 / 150 / 300 thresholds).
- * (The wire names stay feel/wild to keep the DB + reactions table unchanged.)
- */
 export type Reaction = "feel" | "wild";
 
-/** Binary gender, only ever present when a user explicitly opts in. */
-export type Gender = "M" | "F";
-
-/**
- * The kinds of raw creative material a creator drops on VYBZ (§8.1). Previews
- * (samples/loops/stems/tracks) stream in-feed; project/preset bundles are the
- * exchange-grade artifacts gated behind a permission check.
- */
 export type AssetKind =
-  | "sample"
-  | "loop"
-  | "oneshot"
-  | "stem"
-  | "acapella"
-  | "midi"
-  | "preset"
-  | "project"
-  | "track";
+  | "sample" | "loop" | "oneshot" | "stem" | "acapella"
+  | "midi" | "preset" | "project" | "track";
 
-/**
- * An uploaded audio/project asset — mirrors the `assets` row (§8.1). Kept
- * lightweight on the client; previews render from `url`, full-quality exchange
- * flows through a permission-checked signed URL.
- */
-export interface Asset {
-  id: string;
-  ownerId?: string;
-  kind: AssetKind;
-  title: string;
-  /** Playable preview source: object/data URL, signed URL, or storage path. */
-  url: string;
-  /** Normalized waveform peaks (0..1) for instant scrub previews. */
-  waveform?: number[];
-  durationSec?: number;
-  bpm?: number;
-  musicalKey?: string;
-  /** Container/codec label for the tech strip ('WAV','MP3','FLAC',…). */
-  format?: string;
-  /** Decoded sample rate (Hz). */
-  sampleRate?: number;
-  /** True when delivered at lossless quality (WAV/FLAC/AIFF/ALAC). */
-  lossless?: boolean;
-  genres?: string[];
-  createdAt?: number;
-}
-
-/**
- * Permanent, publicly-visible account attributes. Once a field here is set it
- * can never be changed or removed — opting in is a one-way, public commitment.
- */
-export interface Identity {
-  gender?: Gender;
-  age?: number;
-  location?: string;
-}
-
-/** A self-authored personality prompt + answer shown on the profile. */
-export interface ProfilePrompt {
-  q: string;
-  a: string;
-}
-
-/** An external link a user chooses to surface on their profile. */
-export interface ProfileLink {
-  label: string;
-  url: string;
-}
-
-/**
- * Rich, optional profile data points — the "many bits of info" a user can
- * share to personalize their profile and power superior matchmaking. Public by
- * default; any top-level key listed in `hidden` is stripped from the public
- * profile server-side (but still improves the owner's own matches). Stored as a
- * single jsonb blob on profiles.profile (owner-private column).
- */
+/** Owner-editable music facets + privacy (stored in profiles.profile jsonb). */
 export interface ProfileDetails {
-  /** Long-form, expressive bio (distinct from the legacy one-liner). */
   bio?: string;
-  pronouns?: string;
-  /** Declared interest tags — a lightweight compatibility signal. */
-  interests?: string[];
-  /** What the user is here for (drives who they're shown). */
-  lookingFor?: string[];
-  /** Languages spoken. */
-  languages?: string[];
-  /** Single-select lifestyle/personality traits, keyed by trait id. */
-  traits?: Record<string, string>;
-  /** Free-text personality prompts. */
-  prompts?: ProfilePrompt[];
-  /** External links (socials, portfolio, etc.). */
-  links?: ProfileLink[];
-
-  // ── Music facets (VYBZ) — overlap signals for collab matching (§5.3). ──────
-  /** Genres the creator works in (labels, e.g. "Hip-Hop"). */
   genres?: string[];
-  /** DAWs the creator uses (ids, e.g. "ableton"). File-exchange compatibility. */
   daws?: string[];
-  /** VST/AU plugins the creator uses (ids, e.g. "serum"). Workflow compatibility. */
   plugins?: string[];
-  /** Free-text influences → embedded for semantic resonance. */
   influences?: string;
-  /** Typical tempo range (BPM). */
   tempoMin?: number;
   tempoMax?: number;
-  /** Musical keys the creator gravitates to. */
   keys?: string[];
-  /** Open to remote collaboration. */
   remoteOk?: boolean;
-  /** Actively open to work / collaboration (a matchmaking boost). */
   openToWork?: boolean;
-  /** Gear / hardware the creator owns. */
-  gear?: string[];
-  /** Free-text credits / notable work. */
-  credits?: string;
-
-  /** Top-level keys the user has marked private. */
+  lookingFor?: string[];
+  languages?: string[];
+  prompts?: { q: string; a: string }[];
+  traits?: Record<string, string>;
+  /** Top-level keys the creator has marked private. */
   hidden?: string[];
 }
 
-/**
- * Never Alone — ambient presence snapshot for the current user's age layer.
- * Powers the "people around you" indicator and Smart Routing so a user never
- * lands on a dead, empty app.
- */
-export interface AmbientPresence {
-  /** People active in the last few minutes (same age layer). */
-  online: number;
-  /** Open live streams the user is allowed to see. */
-  live: number;
-  /** People waiting in the random-chat queue. */
-  roulette: number;
-  /** Lifelines (peer supporters) available right now. */
-  lifelines: number;
-  layer: "teen" | "adult";
-}
-
-/**
- * Never Alone — a platform-owned, clearly-labelled AI companion the user can
- * always talk to. Never an impersonation of a real person.
- */
-export interface Companion {
+export interface Profile {
   id: string;
-  slug: string;
-  name: string;
-  tagline: string;
-  emoji: string;
-  /** Accent hex used to theme the chat bubble + header. */
-  accent: string;
-  nsfw: boolean;
-}
-
-/** One turn in a companion (or Echo) conversation. */
-export interface CompanionMessage {
-  role: "user" | "assistant";
-  content: string;
-  /** Epoch ms; client-stamped for optimistic turns, else from created_at. */
-  t: number;
-}
-
-/**
- * Echoes — an opt-in AI persona of a REAL user, created and controlled only by
- * that user. Always disclosed as AI; never an impersonation built without consent.
- */
-export interface EchoConfig {
-  enabled: boolean;
-  displayName: string;
-  tone: "warm" | "playful" | "direct" | "thoughtful";
-  greeting: string;
-  /** The owner's own note on how their Echo should come across. */
-  bioSeed: string;
-  consentAt: string | null;
-}
-
-/** A target member's Echo, as visible to a visitor (only when available). */
-export interface EchoPublic {
-  owner: string;
-  displayName: string;
-  tone: string;
-  greeting: string;
-  enabled: boolean;
-}
-
-/** A person who has talked to the owner's Echo (for transcript review). */
-export interface EchoVisitor {
-  visitorId: string;
   username: string | null;
-  alias: string;
-  lastAt: number;
-  msgs: number;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  location: string | null;
+  musicUrl: string | null;
+  identityPublic: boolean;
+  isAdmin: boolean;
+  banned: boolean;
+  profile: ProfileDetails;
+  createdAt: number;
 }
 
-export interface Confession {
+/** A drop = an audio post carrying the creator's identity. */
+export interface Drop {
   id: string;
-  /** Ephemeral anonymous alias (e.g. "Velvet Ghost"). */
-  alias: string;
-  /** Canonical username identity of the author (preferred over emoji handle). */
-  username?: string;
-  /** The confession body — the emotional core of the card. */
-  text: string;
-  /** Distance hint to reinforce the geo-first, "near you" mystery. */
-  distance: string;
-  createdAt: number;
-  /**
-   * Optional self-disclosure. Everything below is opt-in — a confession is
-   * 100% anonymous unless the author chooses to attach any of these.
-   */
-  gender?: Gender;
-  age?: number;
-  /** A named area / neighborhood the author chose to share. */
-  location?: string;
-  /** Positive "Feel" tally (boosts the post). */
-  feels: number;
-  /** "Veil" tally — community burying; drives the stepped blur. */
-  wilds: number;
-  /** Whether the editorial team has featured this confession. */
-  featured?: boolean;
-  /** Deterministic seed so the procedural artwork is stable per card. */
+  authorId: string;
+  authorUsername: string | null;
+  title: string | null;
+  body: string | null;
   seed: number;
-  /** "What happened next?" follow-up shown once you connect. */
-  aftermath?: string;
-  /** Backend author's profile id (for routing 1:1 DMs to the poster). */
-  authorId?: string;
-  /**
-   * Optional background media — an uploaded photo/video or an AI-generated
-   * image (data URL or Storage URL). Clear by default. (Field name is legacy;
-   * it now carries images and videos.)
-   */
-  photo?: string;
-  /** 'image' (default, incl. AI-generated), 'video', or 'audio' (a VYBZ drop). */
-  mediaKind?: "image" | "video" | "audio";
-  /** Non-destructive trim window (seconds) for video — play only this slice. */
-  clipStart?: number;
-  clipEnd?: number;
-  /**
-   * Sensitive (NSFW) flag. Never enforced: shows an "NSFW" badge + soft blur that a
-   * user can personally Unveil, or auto-clear via the global opt-in.
-   */
-  nsfw?: boolean;
-  /** Typography choice for the confession text (free). See lib/expression. */
-  fontStyle?: string;
-  /** Premium text effect id (shimmer/glow/…). Free for Godmode, else V¢. */
-  textFx?: string;
-  /** Premium 3D "gyroscopic" media view (parallax tilt). Free for Godmode, else V¢. */
-  view3d?: boolean;
-
-  // ── Audio drop (VYBZ Phase 3 — the sound-first feed, §6) ──────────────────
-  /** Linked asset id (the `confessions.asset_id` FK, §6.1) when backed by one. */
-  assetId?: string;
-  /** Playable audio source: object/data URL, signed URL, or storage path. */
+  feels: number;
+  wilds: number;
+  createdAt: number;
+  // Linked audio asset facets (nullable for a text-only drop).
+  assetId?: string | null;
   audioUrl?: string;
-  /** Normalized waveform peaks (0..1) for instant scrub previews. */
   waveform?: number[];
-  /** Clip duration in seconds. */
   durationSec?: number;
-  /** What kind of audio drop this is (sample / loop / stem / track / …). */
   assetKind?: AssetKind;
-  /** Tempo (BPM) — optional creator-declared metadata. */
-  bpm?: number;
-  /** Musical key — optional creator-declared metadata. */
-  musicalKey?: string;
-  /** Container/codec label for the tech strip ('WAV','MP3','FLAC',…). */
-  audioFormat?: string;
-  /** Decoded sample rate (Hz). */
-  sampleRate?: number;
-  /** True when delivered at lossless quality (WAV/FLAC/AIFF/ALAC). */
+  bpm?: number | null;
+  musicalKey?: string | null;
+  audioFormat?: string | null;
+  sampleRate?: number | null;
   lossless?: boolean;
-  /** Seeded visualizer style id (see lib/visualizers). */
-  visualizer?: string;
-  /** Community star rating — aggregate only (avg 0..5 + count). */
   rating?: number;
   ratingCount?: number;
 }
 
-/** A lightweight, passwordless local account. */
-export interface Account {
-  alias: string;
-  /** Canonical username identity (generated for guests, chosen by members). */
-  username?: string | null;
-  aura: string;
-  anonymous: boolean;
-  createdAt: number;
-}
+export interface RoleOffer { roleId: string; skill: number }
+export interface RoleSeek { roleId: string; priority: number }
 
-export interface OwnConfession extends Confession {
-  /** The current user's own posts carry richer analytics. */
-  views: number;
-  reveals: number;
-  /** Reaction trend over the last 7 days, for the profile sparkline. */
-  trend: number[];
-}
-
-// ---------------------------------------------------------------------------
-// Social layer — only reachable after a confession has been "unveiled".
-// ---------------------------------------------------------------------------
-
-export interface Comment {
-  id: string;
-  confessionId: string;
-  /** Anonymous alias of the commenter, or "You" for the current user. */
-  author: string;
-  /** Canonical username of the commenter (preferred over emoji handle). */
-  username?: string;
-  text: string;
-  createdAt: number;
-  /** True when authored by the current user. */
-  mine: boolean;
-}
-
-export interface Message {
-  id: string;
-  confessionId: string;
-  /** "me" = current user, "them" = the confession's poster. */
-  from: "me" | "them";
-  text: string;
-  createdAt: number;
-}
-
-// ---------------------------------------------------------------------------
-// Public chat rooms — open to everyone, including anonymous accounts.
-// ---------------------------------------------------------------------------
-
-export type RoomKind = "public" | "local";
-
-export interface Room {
-  id: string;
-  name: string;
-  topic?: string;
-  kind: RoomKind;
-  sort: number;
-}
-
-/** Who authored a room message: a person, the disclosed mod agent, or system. */
-export type SenderKind = "user" | "mod" | "system";
-
-export interface RoomMessage {
-  id: string;
-  roomId: string;
-  /** Sender profile id, or null for mod/system messages. */
-  senderId: string | null;
-  senderKind: SenderKind;
-  alias: string;
-  aura: string;
-  body?: string;
-  /** Shared image. Clear by default; NSFW-suggested images blur per-user. */
-  imageUrl?: string;
-  /** AI-suggested NSFW for a shared image. */
-  nsfw?: boolean;
-  unveils: number;
-  veils: number;
-  createdAt: number;
-  /** True when authored by the current user. */
-  mine: boolean;
-}
-
-// Social Circles — user-created chat communities.
-export type CircleVisibility = "public" | "unlisted" | "private" | "secret";
-export type CircleRole = "owner" | "mod" | "member";
-export type CircleMemberStatus = "active" | "pending" | "banned" | "muted";
-
-export interface Circle {
-  id: string;
-  slug: string | null;
-  name: string;
-  description?: string;
-  icon?: string;
-  ownerId: string;
-  visibility: CircleVisibility;
-  joinPolicy: "open" | "request" | "invite" | "code";
-  allowAnonymous: boolean;
-  nsfw: boolean;
-  rules?: string;
-  /** Optional daily V¢ dues members can opt into supporting. 0 = off. */
-  dues: number;
-  /** Premium theme descriptor, e.g. { id: "aurora" }. */
-  theme: Record<string, string>;
-  memberCount: number;
-  nameChangesRemaining: number;
-  lastActiveAt: number;
-  createdAt: number;
-}
-
-export interface CircleMember {
+export interface CollabMatch {
   userId: string;
-  alias: string;
-  /** Canonical username identity (null until set), shown by the Handle component. */
-  username?: string | null;
-  role: CircleRole;
-  status: CircleMemberStatus;
+  username: string | null;
+  offersYouSeek: string[];
+  seeksYouOffer: string[];
+  mutual: boolean;
+  sharedGenres: string[];
+  sharedDaws: string[];
+  sharedPlugins: string[];
+  openToWork: boolean;
+  resonance: number;
+  fit: number;
 }
 
-export interface CircleMessage {
+export type Commitment = "one-off" | "ongoing" | "session" | "band-member";
+
+export interface Opportunity {
   id: string;
-  circleId: string;
-  senderId: string | null;
-  senderKind: SenderKind;
-  alias: string;
-  aura: string;
-  body?: string;
-  imageUrl?: string;
-  nsfw?: boolean;
-  createdAt: number;
-  mine: boolean;
-}
-
-/** A soul currently present in a room (via Realtime Presence). */
-export interface RoomPresence {
-  id: string;
-  alias: string;
-  aura: string;
-  /** Optional public details (only broadcast when the user is public). */
-  gender?: Gender;
-  age?: number;
-  location?: string;
-}
-
-// ---------------------------------------------------------------------------
-// Friendships — connections between the user and posters they've met.
-// ---------------------------------------------------------------------------
-
-export type FriendStatus = "none" | "requested" | "incoming" | "friends";
-
-export interface Friend {
-  /** The confession through which the connection was made. */
-  confessionId: string;
-  alias: string;
-  seed: number;
-  gender?: Gender;
-  age?: number;
-  location?: string;
-  status: FriendStatus;
-  since: number;
-}
-
-export type NotificationKind =
-  | "vote"
-  | "featured"
-  | "milestone"
-  | "reveal"
-  | "comment"
-  | "message"
-  | "friend"
-  | "name";
-
-export interface AppNotification {
-  id: string;
-  kind: NotificationKind;
+  authorId: string;
+  authorUsername: string | null;
+  roleNeeded: string;
+  roleLabel: string;
   title: string;
+  body: string | null;
+  genres: string[];
+  daws: string[];
+  remoteOk: boolean;
+  location: string | null;
+  commitment: Commitment | null;
+  createdAt: number;
+  sharedGenres: string[];
+  sharedDaws: string[];
+  applied: boolean;
+  fit: number;
+}
+
+export interface DmThread {
+  id: string;
+  peerId: string;
+  peerUsername: string | null;
+  lastAt: number;
+}
+
+export interface DmMessage {
+  id: string;
+  threadId: string;
+  senderId: string;
   body: string;
   createdAt: number;
-  read: boolean;
-  /** Links back to a confession when relevant. */
-  confessionId?: string;
-  /** For direct-message notifications: who to open a chat with. */
-  peerId?: string;
-  peerAlias?: string;
-  peerAura?: string;
+  mine: boolean;
 }

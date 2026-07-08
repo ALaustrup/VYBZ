@@ -1,15 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 // ---------------------------------------------------------------------------
-// Optional Supabase backend.
-//
-// MYVYB ships fully functional in "local mode" (state persisted in the browser
-// with seeded demo data). When the two env vars below are provided, this module
-// exposes a configured client so the app can be upgraded to a real multi-user
-// backend (auth, Postgres, realtime, storage) — see `supabase/schema.sql`.
-//
-// Keeping the backend optional means the app never breaks if it isn't set up,
-// and the migration can happen feature-by-feature.
+// Supabase client. VYBZ is identity-first and backend-backed: the app requires a
+// configured project (auth, Postgres, storage). The two env vars below wire it
+// up; `App` shows a clear misconfiguration notice when they're absent.
 // ---------------------------------------------------------------------------
 
 const url = import.meta.env.VITE_SUPABASE_URL;

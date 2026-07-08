@@ -1,158 +1,53 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  AudioLines,
-  Box,
-  Camera,
-  Eye,
-  HeartHandshake,
-  ImagePlus,
-  Pause,
-  Phone,
-  Play,
-  Send,
-  ShieldAlert,
-  Shuffle,
-  Sparkles,
-  Trash2,
-  Type,
-  X,
-} from "lucide-react";
-import { useApp } from "@/store/AppStore";
+import { AudioLines, Loader2, Pause, Play, Send, Trash2, X } from "lucide-react";
+import { useSession } from "@/store/session";
+import * as api from "@/lib/api";
 import { Waveform } from "@/components/Waveform";
 import {
-  AUDIO_ACCEPT,
-  audioMeta,
-  computeWaveform,
-  placeholderWaveform,
-  qualityLabel,
+  AUDIO_ACCEPT, audioMeta, computeWaveform, placeholderWaveform, qualityLabel,
 } from "@/lib/waveform";
 import { playTrack, usePlayer, seekFraction } from "@/lib/audioBus";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
-import type { AssetKind } from "@/types";
-import { VeiledArt } from "@/components/VeiledArt";
-import { VeiledPhoto } from "@/components/VeiledPhoto";
-import { VeiledVideo } from "@/components/VeiledVideo";
-import { VideoTrimmer } from "@/components/VideoTrimmer";
-import { Gyro3D } from "@/components/Gyro3D";
-import {
-  MAX_VIDEO_BYTES,
-  maxClipSeconds,
-  isVideoFile,
-  probeVideo,
-  processImage,
-} from "@/lib/media";
-import {
-  DEFAULT_FONT,
-  DEFAULT_FX,
-  FONT_STYLES,
-  TEXT_FX,
-  fontClassFor,
-  textFxClassFor,
-} from "@/lib/expression";
-import { CRISIS_RESOURCES, detectsCrisis } from "@/lib/safety";
 import { cx } from "@/lib/utils";
-import { playSound } from "@/lib/sound";
+import type { AssetKind } from "@/types";
 
-const MAX_LENGTH = 280;
-const MIN_LENGTH = 12;
-
-interface Media {
-  url: string;
-  kind: "image" | "video";
-}
-
-interface AudioDropState {
-  url: string;
-  peaks: number[];
-  duration: number;
-  format: string;
-  lossless: boolean;
-  sampleRate: number;
-}
-
-const ASSET_KINDS: { id: AssetKind; label: string }[] = [
-  { id: "track", label: "Track" },
-  { id: "loop", label: "Loop" },
-  { id: "sample", label: "Sample" },
-  { id: "oneshot", label: "One-shot" },
-  { id: "stem", label: "Stem" },
-  { id: "acapella", label: "Acapella" },
-  { id: "midi", label: "MIDI" },
-  { id: "preset", label: "Preset" },
-  { id: "project", label: "Project" },
+const KINDS: { id: AssetKind; label: string }[] = [
+  { id: "track", label: "Track" }, { id: "loop", label: "Loop" }, { id: "sample", label: "Sample" },
+  { id: "oneshot", label: "One-shot" }, { id: "stem", label: "Stem" }, { id: "acapella", label: "Acapella" },
+  { id: "midi", label: "MIDI" }, { id: "preset", label: "Preset" }, { id: "project", label: "Project" },
 ];
+const PREVIEW_ID = "compose-preview";
 
-const COMPOSE_PREVIEW_ID = "compose-preview";
+interface AudioState {
+  file: File; url: string; ext: string; peaks: number[];
+  duration: number; format: string; lossless: boolean; sampleRate: number;
+}
 
-/**
- * Compose flow (top → bottom): the confession words first, then typography, then
- * premium expression (V¢-paid text effects + a 3D media view), then a Media
- * section for genuine uploads — captured live from the camera or chosen from the
- * device's storage. The background veils with the community while the words stay
- * legible — Whisper's soul, MYVYB's twist.
- */
-export function ComposeSheet() {
-  const {
-    composeOpen,
-    closeCompose,
-    addConfession,
-    showToast,
-    isPremium,
-    openLifeline,
-  } = useApp();
-  const navigate = useNavigate();
-
-  const [text, setText] = useState("");
-  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
-  const [media, setMedia] = useState<Media | null>(null);
-  const [videoDuration, setVideoDuration] = useState(0);
-  const [clipStart, setClipStart] = useState(0);
-  const [nsfw, setNsfw] = useState(false);
-  const [posting, setPosting] = useState(false);
-  // Expression.
-  const [fontStyle, setFontStyle] = useState<string>(DEFAULT_FONT);
-  const [textFx, setTextFx] = useState<string>(DEFAULT_FX);
-  const [view3d, setView3d] = useState(false);
-  // Audio drop (VYBZ Phase 3 — the sound-first feed).
-  const [audio, setAudio] = useState<AudioDropState | null>(null);
-  const [assetKind, setAssetKind] = useState<AssetKind>("track");
+export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClose: () => void; onPosted: () => void }) {
+  const { showToast, celebrate } = useSession();
+  const [title, setTitle] = useState("");
+  const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e6));
+  const [audio, setAudio] = useState<AudioState | null>(null);
+  const [kind, setKind] = useState<AssetKind>("track");
   const [bpm, setBpm] = useState("");
   const [musicalKey, setMusicalKey] = useState("");
   const [decoding, setDecoding] = useState(false);
-  const player = usePlayer();
-  const previewPlaying = player.track?.id === COMPOSE_PREVIEW_ID && player.playing;
-  const previewProgress =
-    player.track?.id === COMPOSE_PREVIEW_ID && (player.duration || audio?.duration)
-      ? player.currentTime / (player.duration || audio!.duration)
-      : 0;
-  // Two inputs: one opens the camera (capture), one opens device storage.
-  const cameraRef = useRef<HTMLInputElement>(null);
+  const [posting, setPosting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const audioRef = useRef<HTMLInputElement>(null);
+  const player = usePlayer();
+  const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
+  const previewProgress = player.track?.id === PREVIEW_ID && (player.duration || audio?.duration)
+    ? player.currentTime / (player.duration || audio!.duration) : 0;
 
   useEffect(() => {
-    if (composeOpen) {
-      setText("");
-      setSeed(Math.floor(Math.random() * 1_000_000));
-      setMedia(null);
-      setVideoDuration(0);
-      setClipStart(0);
-      setNsfw(false);
-      setPosting(false);
-      setFontStyle(DEFAULT_FONT);
-      setTextFx(DEFAULT_FX);
-      setView3d(false);
-      setAudio(null);
-      setAssetKind("track");
-      setBpm("");
-      setMusicalKey("");
-      setDecoding(false);
+    if (open) {
+      setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
+      setKind("track"); setBpm(""); setMusicalKey(""); setDecoding(false); setPosting(false);
     }
-  }, [composeOpen]);
+  }, [open]);
 
-  async function handleAudioFile(e: ChangeEvent<HTMLInputElement>) {
+  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -161,622 +56,113 @@ export function ComposeSheet() {
       const meta = audioMeta(file);
       const url = URL.createObjectURL(file);
       const wf = await computeWaveform(file);
-      setMedia(null);
-      setAudio({
-        url,
-        peaks: wf?.peaks ?? placeholderWaveform(seed),
-        duration: wf?.duration ?? 0,
-        format: meta.format,
-        lossless: meta.lossless,
-        sampleRate: wf?.sampleRate ?? 0,
-      });
-    } catch {
-      showToast("Couldn't read that audio. Try another file.");
-    } finally {
-      setDecoding(false);
-    }
+      const ext = (file.name.split(".").pop() || "audio").toLowerCase();
+      setAudio({ file, url, ext, peaks: wf?.peaks ?? placeholderWaveform(seed),
+        duration: wf?.duration ?? 0, format: meta.format, lossless: meta.lossless, sampleRate: wf?.sampleRate ?? 0 });
+    } catch { showToast("Couldn't read that audio."); }
+    finally { setDecoding(false); }
   }
 
-  function removeAudio() {
-    setAudio(null);
-    setBpm("");
-    setMusicalKey("");
-    setAssetKind("track");
-  }
-
-  function togglePreview() {
+  function preview() {
     if (!audio) return;
-    playTrack({
-      id: COMPOSE_PREVIEW_ID,
-      url: audio.url,
-      title: text.trim() || "Preview",
-      artist: "You",
-      waveform: audio.peaks,
-      durationSec: audio.duration,
-      quality: qualityLabel(audio.format, audio.sampleRate, audio.lossless),
-      lossless: audio.lossless,
-      seed,
-    });
+    playTrack({ id: PREVIEW_ID, url: audio.url, title: title || "Preview", artist: "You",
+      waveform: audio.peaks, durationSec: audio.duration,
+      quality: qualityLabel(audio.format, audio.sampleRate, audio.lossless), lossless: audio.lossless, seed });
   }
 
-  async function handleFile(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    try {
-      if (isVideoFile(file)) {
-        // Storage cap: reject oversized clips up front instead of failing the
-        // upload silently later (which would leave a broken post).
-        if (file.size > MAX_VIDEO_BYTES) {
-          showToast(
-            `That video is too large (max ${Math.round(
-              MAX_VIDEO_BYTES / (1024 * 1024)
-            )} MB). Try a shorter or lower-res clip.`
-          );
-          return;
-        }
-        const meta = await probeVideo(file);
-        const url = URL.createObjectURL(file);
-        setVideoDuration(meta.duration);
-        setClipStart(0);
-        setMedia({ url, kind: "video" });
-      } else {
-        const out = await processImage(file);
-        setMedia({ url: out.dataUrl, kind: "image" });
-      }
-    } catch {
-      showToast("Couldn't read that file. Try another.");
-    }
-  }
-
-  function removeMedia() {
-    setMedia(null);
-    setVideoDuration(0);
-    setClipStart(0);
-    setNsfw(false);
-  }
-
-  const canPost = (audio ? !decoding : text.trim().length >= MIN_LENGTH) && !posting;
-  const showCrisisHelp = detectsCrisis(text);
-  // Clip length scales with tier: standard up to 1:20, Godmode longer.
-  const maxClip = maxClipSeconds(isPremium);
-  const needsTrim = media?.kind === "video" && videoDuration > maxClip;
-  const clipEnd =
-    media?.kind === "video"
-      ? Math.min(videoDuration, clipStart + maxClip)
-      : undefined;
-  const previewLevel = nsfw ? 0.06 : media ? 1 : 0.9;
-  const previewTextClass = cx(fontClassFor(fontStyle), textFxClassFor(textFx));
-  const gyroPreview = view3d && !!media;
-
-  async function handlePost() {
-    if (!canPost) return;
+  async function post() {
+    if (!audio || posting) return;
     setPosting(true);
-    // Fire-and-forget: the store owns the media upload plus a global progress
-    // indicator, so it keeps running even after the sheet closes and the user
-    // navigates away. We close immediately for a snappy, premium feel.
-    if (audio) {
-      void addConfession({
-        text,
-        mediaKind: "audio",
-        audioUrl: audio.url,
-        waveform: audio.peaks,
-        durationSec: audio.duration,
-        assetKind,
-        bpm: bpm ? Number(bpm) : undefined,
-        musicalKey: musicalKey || undefined,
-        audioFormat: audio.format,
-        sampleRate: audio.sampleRate || undefined,
-        lossless: audio.lossless,
-      });
-    } else {
-      void addConfession({
-        text,
-        photo: media?.url,
-        mediaKind: media?.kind,
-        clipStart: media?.kind === "video" ? clipStart : undefined,
-        clipEnd: media?.kind === "video" ? clipEnd : undefined,
-        nsfw: nsfw || undefined,
-        fontStyle: fontStyle !== DEFAULT_FONT ? fontStyle : undefined,
-        textFx: textFx !== DEFAULT_FX ? textFx : undefined,
-        view3d: view3d || undefined,
-      });
-    }
-    playSound("post");
-    closeCompose();
-    navigate("/local");
+    const path = await api.uploadAudio(audio.file, audio.ext);
+    if (!path) { setPosting(false); showToast("Upload failed — check your connection."); return; }
+    const drop = await api.createDrop({
+      title: title.trim() || undefined, seed, assetKind: kind, audioUrl: path,
+      waveform: audio.peaks, durationSec: audio.duration, bpm: bpm ? Number(bpm) : undefined,
+      musicalKey: musicalKey || undefined, audioFormat: audio.format, sampleRate: audio.sampleRate || undefined,
+      lossless: audio.lossless,
+    });
+    setPosting(false);
+    if (!drop) { showToast("Couldn't post that drop."); return; }
+    celebrate("Your drop is live");
+    onClose();
+    onPosted();
   }
 
   return (
     <AnimatePresence>
-      {composeOpen && (
+      {open && (
         <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeCompose}
-            className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm"
-          />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose} className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm" />
+          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
-          >
+            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl">
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
-
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>
-                <h2 className="font-display text-xl font-bold text-gradient">
-                  New drop
-                </h2>
-                <p className="text-[11px] text-white/40">
-                  Share a sound. Find the creators seeking it.
-                </p>
+                <h2 className="font-display text-xl font-bold text-gradient">New drop</h2>
+                <p className="text-[11px] text-white/40">Share a sound. Find the creators seeking it.</p>
               </div>
-              <button
-                onClick={closeCompose}
-                aria-label="Close"
-                className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <button onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
             </div>
 
             <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4">
-              {/* Live preview — scales with the viewport so it fits short and
-                  tall devices alike (never crowds the controls on small phones,
-                  never wastes space on large ones). */}
-              <div className="relative mb-4 block h-[32dvh] max-h-64 min-h-[11rem] w-full overflow-hidden rounded-2xl border border-white/10">
+              <div className="relative mb-4 block h-[26dvh] max-h-56 min-h-[10rem] w-full overflow-hidden rounded-2xl border border-white/10">
                 {audio ? (
                   <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-br from-veil-500/20 via-ink-900 to-ink-950 p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white/85 backdrop-blur">
-                        <AudioLines className="h-3.5 w-3.5 text-veil-200" />
-                        {qualityLabel(audio.format, audio.sampleRate, audio.lossless) || "Audio"}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={togglePreview}
-                      aria-label={previewPlaying ? "Pause preview" : "Play preview"}
-                      className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white shadow-glow backdrop-blur transition active:scale-90"
-                    >
+                    <span className="flex items-center gap-1.5 self-start rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white/85 backdrop-blur">
+                      <AudioLines className="h-3.5 w-3.5 text-veil-200" />{qualityLabel(audio.format, audio.sampleRate, audio.lossless) || "Audio"}
+                    </span>
+                    <button type="button" onClick={preview} aria-label={previewPlaying ? "Pause" : "Play"}
+                      className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur transition active:scale-90">
                       {previewPlaying ? <Pause className="h-6 w-6" /> : <Play className="ml-0.5 h-6 w-6" />}
                     </button>
-                    <Waveform
-                      peaks={audio.peaks}
-                      progress={previewProgress}
-                      accent="#a87cf8"
-                      height={40}
-                      onSeek={player.track?.id === COMPOSE_PREVIEW_ID ? (f) => seekFraction(f) : undefined}
-                    />
+                    <Waveform peaks={audio.peaks} progress={previewProgress} accent="#a87cf8" height={40}
+                      onSeek={player.track?.id === PREVIEW_ID ? (f) => seekFraction(f) : undefined} />
                   </div>
-                ) : gyroPreview ? (
-                  <Gyro3D className="absolute inset-0" enabled>
-                    {media?.kind === "video" ? (
-                      <VeiledVideo
-                        src={media.url}
-                        level={previewLevel}
-                        nsfw={nsfw}
-                        clipStart={clipStart}
-                        clipEnd={clipEnd}
-                      />
-                    ) : (
-                      <VeiledPhoto src={media!.url} level={previewLevel} nsfw={nsfw} />
-                    )}
-                  </Gyro3D>
-                ) : media?.kind === "video" ? (
-                  <VeiledVideo
-                    src={media.url}
-                    level={previewLevel}
-                    nsfw={nsfw}
-                    clipStart={clipStart}
-                    clipEnd={clipEnd}
-                  />
-                ) : media?.kind === "image" ? (
-                  <VeiledPhoto src={media.url} level={previewLevel} nsfw={nsfw} />
                 ) : (
-                  <VeiledArt seed={seed} level={0.9} />
-                )}
-                {!audio && (
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
-                    <p
-                      className={cx(
-                        previewTextClass,
-                        "line-clamp-3 text-base font-semibold leading-snug text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
-                      )}
-                    >
-                      {text.trim() || "Your drop will glow here…"}
-                    </p>
-                  </div>
-                )}
-                <div className="absolute left-3 top-3 flex gap-1.5">
-                  {view3d && (
-                    <span className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white backdrop-blur">
-                      <Box className="h-3 w-3" /> 3D
-                    </span>
-                  )}
-                  {nsfw && (
-                    <span className="rounded-full bg-wild/80 px-2 py-0.5 text-[10px] font-bold text-white">
-                      NSFW
-                    </span>
-                  )}
-                </div>
-                {/* Reshuffle the generative backdrop for text-only posts. */}
-                {!media && !audio && (
-                  <button
-                    type="button"
-                    onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}
-                    className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur transition active:scale-95"
-                  >
-                    <Shuffle className="h-3.5 w-3.5" /> Shuffle art
-                  </button>
-                )}
-              </div>
-
-              {/* Sound — the heart of a VYBZ drop. */}
-              <div className="mb-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.07] p-3">
-                <span className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-veil-100">
-                  <AudioLines className="h-3.5 w-3.5" /> Add a sound
-                </span>
-                <input
-                  ref={audioRef}
-                  type="file"
-                  accept={AUDIO_ACCEPT}
-                  onChange={handleAudioFile}
-                  className="hidden"
-                />
-                {!audio ? (
-                  <button
-                    type="button"
-                    onClick={() => audioRef.current?.click()}
-                    disabled={decoding}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-white/75 transition active:scale-[0.98] disabled:opacity-60"
-                  >
-                    <AudioLines className="h-4 w-4" />
-                    {decoding ? "Reading…" : "Upload audio — any format, full quality"}
-                  </button>
-                ) : (
-                  <div className="space-y-2.5">
-                    {/* Kind. */}
-                    <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
-                      {ASSET_KINDS.map((k) => (
-                        <button
-                          key={k.id}
-                          type="button"
-                          onClick={() => setAssetKind(k.id)}
-                          className={cx(
-                            "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
-                            assetKind === k.id
-                              ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
-                              : "bg-white/[0.04] text-white/55"
-                          )}
-                        >
-                          {k.label}
-                        </button>
-                      ))}
-                    </div>
-                    {/* BPM + key. */}
-                    <div className="flex gap-2">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        value={bpm}
-                        onChange={(e) => setBpm(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                        placeholder="BPM"
-                        className="w-24 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-                      />
-                      <select
-                        value={musicalKey}
-                        onChange={(e) => setMusicalKey(e.target.value)}
-                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/85 focus:border-veil-400/60 focus:outline-none"
-                      >
-                        <option value="">Key (optional)</option>
-                        {MUSICAL_KEYS.map((k) => (
-                          <option key={k} value={k} className="bg-ink-900">
-                            {k}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={removeAudio}
-                        aria-label="Remove audio"
-                        className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-[0.95] hover:text-wild"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-veil-500/10 to-ink-950">
+                    <AudioLines className="h-10 w-10 text-white/20" />
                   </div>
                 )}
               </div>
 
-              {/* Caption / title — words support the sound. */}
-              <div className="relative mb-3">
-                <textarea
-                  value={text}
-                  onChange={(e) => setText(e.target.value.slice(0, MAX_LENGTH))}
-                  placeholder={audio ? "Name your drop…" : "Say something…"}
-                  rows={audio ? 2 : 4}
-                  className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-[15px] leading-relaxed text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none focus:ring-1 focus:ring-veil-400/40"
-                />
-                <span
-                  className={cx(
-                    "absolute bottom-3 right-3 text-[11px]",
-                    text.length >= MAX_LENGTH ? "text-wild" : "text-white/35"
-                  )}
-                >
-                  {text.length}/{MAX_LENGTH}
-                </span>
-              </div>
-
-              {/* 2) Font style — directly under the text input (free). */}
-              <div className="mb-3">
-                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-white/70">
-                  <Type className="h-3.5 w-3.5 text-veil-200" /> Font style
-                </span>
-                <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
-                  {FONT_STYLES.map((f) => (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => setFontStyle(f.id)}
-                      className={cx(
-                        "shrink-0 rounded-full px-3.5 py-1.5 text-xs transition active:scale-95",
-                        f.className,
-                        fontStyle === f.id
-                          ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
-                          : "bg-white/[0.04] text-white/55"
-                      )}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 3) Expression — text effects + 3D view, free for everyone. */}
-              <div className="mb-3 rounded-2xl border border-veil-400/15 bg-veil-500/[0.05] p-3">
-                <div className="mb-2 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold text-veil-100/90">
-                    <Sparkles className="h-3.5 w-3.5" /> Effects
-                  </span>
-                </div>
-
-                {/* Text effects. */}
-                <div className="no-scrollbar mb-2 flex gap-1.5 overflow-x-auto">
-                  {TEXT_FX.map((fx) => {
-                    const active = textFx === fx.id;
-                    return (
-                      <button
-                        key={fx.id}
-                        type="button"
-                        onClick={() => setTextFx(fx.id)}
-                        title={fx.hint}
-                        className={cx(
-                          "flex shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-semibold transition active:scale-95",
-                          active
-                            ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
-                            : "bg-white/[0.04] text-white/55"
-                        )}
-                      >
-                        {fx.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* 3D gyroscopic media view. */}
-                <button
-                  type="button"
-                  onClick={() => setView3d((v) => !v)}
-                  className="flex w-full items-center justify-between rounded-xl bg-white/[0.03] px-3 py-2 text-left"
-                >
-                  <span className="flex items-center gap-1.5 text-sm text-white/80">
-                    <Box
-                      className={cx(
-                        "h-4 w-4",
-                        view3d ? "text-veil-200" : "text-white/40"
-                      )}
-                    />
-                    3D gyroscopic view
-                  </span>
-                  <span
-                    className={cx(
-                      "relative h-6 w-11 rounded-full transition-colors",
-                      view3d ? "bg-veil-500" : "bg-white/15"
-                    )}
-                  >
-                    <motion.span
-                      layout
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className={cx(
-                        "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow",
-                        view3d ? "left-[22px]" : "left-0.5"
-                      )}
-                    />
-                  </span>
+              <input ref={fileRef} type="file" accept={AUDIO_ACCEPT} onChange={handleFile} className="hidden" />
+              {!audio ? (
+                <button type="button" onClick={() => fileRef.current?.click()} disabled={decoding}
+                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-veil-400/25 bg-veil-500/[0.07] py-3.5 text-sm font-semibold text-white/85 transition active:scale-[0.98] disabled:opacity-60">
+                  <AudioLines className="h-4 w-4" />{decoding ? "Reading…" : "Upload audio — any format, full quality"}
                 </button>
-              </div>
-
-              {/* 4) Media — your own photo or video, captured or from storage.
-                  Hidden while a sound is attached — a drop is audio-first. */}
-              {!audio && (
-              <div className="mb-4 rounded-2xl border border-veil-400/20 bg-veil-500/[0.06] p-3">
-                <span className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-veil-100">
-                  <ImagePlus className="h-3.5 w-3.5" /> Add a photo or video
-                </span>
-
-                {/* Camera capture (mobile opens the camera directly). */}
-                <input
-                  ref={cameraRef}
-                  type="file"
-                  accept="image/*,video/*"
-                  capture="environment"
-                  onChange={handleFile}
-                  className="hidden"
-                />
-                {/* Device storage / gallery picker. */}
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={handleFile}
-                  className="hidden"
-                />
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => cameraRef.current?.click()}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-white/75 transition active:scale-[0.98]"
-                  >
-                    <Camera className="h-4 w-4" /> Camera
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fileRef.current?.click()}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-sm font-semibold text-white/75 transition active:scale-[0.98]"
-                  >
-                    <ImagePlus className="h-4 w-4" />
-                    {media ? "Replace" : "Library"}
-                  </button>
-                  {media && (
-                    <button
-                      type="button"
-                      onClick={removeMedia}
-                      aria-label="Remove media"
-                      className="flex w-12 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-[0.95] hover:text-wild"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
+              ) : (
+                <div className="mb-3 space-y-2.5">
+                  <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
+                    {KINDS.map((k) => (
+                      <button key={k.id} type="button" onClick={() => setKind(k.id)}
+                        className={cx("shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
+                          kind === k.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55")}>{k.label}</button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="number" inputMode="numeric" value={bpm} onChange={(e) => setBpm(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                      placeholder="BPM" className="w-24 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                    <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)}
+                      className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/85 focus:border-veil-400/60 focus:outline-none">
+                      <option value="">Key (optional)</option>
+                      {MUSICAL_KEYS.map((k) => <option key={k} value={k} className="bg-ink-900">{k}</option>)}
+                    </select>
+                    <button type="button" onClick={() => setAudio(null)} aria-label="Remove"
+                      className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
+                  </div>
                 </div>
-                <p className="mt-2 text-[11px] text-white/40">
-                  Genuine moments only — captured live or from your device.
-                </p>
-              </div>
               )}
 
-              {/* Trimmer for long videos. */}
-              {needsTrim && media && (
-                <VideoTrimmer
-                  src={media.url}
-                  duration={videoDuration}
-                  start={clipStart}
-                  maxSeconds={maxClip}
-                  onChange={setClipStart}
-                />
-              )}
-
-              {/* Optional self-mark sensitive (uploaded media only). */}
-              {media && (
-                <button
-                  type="button"
-                  onClick={() => setNsfw((v) => !v)}
-                  className="mb-4 flex w-full items-center justify-between rounded-xl border border-white/8 bg-white/[0.02] p-3"
-                >
-                  <span className="flex items-center gap-1.5 text-sm text-white/80">
-                    <ShieldAlert
-                      className={cx("h-4 w-4", nsfw ? "text-wild" : "text-white/40")}
-                    />
-                    Mark media as sensitive (NSFW)
-                  </span>
-                  <span
-                    className={cx(
-                      "relative h-6 w-11 rounded-full transition-colors",
-                      nsfw ? "bg-veil-500" : "bg-white/15"
-                    )}
-                  >
-                    <motion.span
-                      layout
-                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                      className={cx(
-                        "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow",
-                        nsfw ? "left-[22px]" : "left-0.5"
-                      )}
-                    />
-                  </span>
-                </button>
-              )}
-
-              {/* Supportive, non-blocking crisis help. */}
-              <AnimatePresence>
-                {showCrisisHelp && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="mb-4 rounded-2xl border border-feel/30 bg-feel/10 p-4"
-                  >
-                    <div className="flex items-start gap-2.5">
-                      <HeartHandshake className="mt-0.5 h-5 w-5 shrink-0 text-feel" />
-                      <div>
-                        <p className="text-sm font-semibold text-white">
-                          You're not alone.
-                        </p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-white/65">
-                          If you're going through something heavy, support is
-                          available right now — free and confidential.
-                        </p>
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              closeCompose();
-                              openLifeline();
-                            }}
-                            className="flex items-center gap-1.5 rounded-full bg-feel px-3 py-1.5 text-xs font-semibold text-black shadow-glow active:scale-95"
-                          >
-                            <HeartHandshake className="h-3.5 w-3.5" /> Talk to someone now
-                          </button>
-                          <a
-                            href={CRISIS_RESOURCES.callHref}
-                            className="flex items-center gap-1.5 rounded-full bg-feel/20 px-3 py-1.5 text-xs font-semibold text-feel"
-                          >
-                            <Phone className="h-3.5 w-3.5" /> Call or text 988
-                          </a>
-                          <a
-                            href={CRISIS_RESOURCES.findHelpHref}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/70"
-                          >
-                            Find a helpline
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="flex items-start gap-1.5 text-xs text-white/45">
-                <Eye className="mt-0.5 h-3.5 w-3.5 shrink-0 text-veil-300" />
-                Posted anonymously. Your profile details (if public) appear with
-                your expression.
-              </div>
+              <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))} placeholder="Name your drop…"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-[15px] text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
             </div>
 
-            {/* Sticky action footer — keeps the primary CTA in reach while the
-                body scrolls, mirroring the create/edit layout pattern. */}
             <div className="shrink-0 border-t border-white/10 bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-              <button
-                onClick={handlePost}
-                disabled={!canPost}
-                className="btn btn-primary w-full py-3.5"
-              >
-                <Send className="h-4 w-4" />
-                {posting
-                  ? "Releasing…"
-                  : audio
-                    ? "Release your drop"
-                    : text.trim().length >= MIN_LENGTH
-                      ? "Release it to your area"
-                      : `Write ${Math.max(0, MIN_LENGTH - text.trim().length)} more characters`}
+              <button onClick={post} disabled={!audio || posting} className="btn btn-primary w-full py-3.5">
+                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Release your drop</>}
               </button>
             </div>
           </motion.div>
