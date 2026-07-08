@@ -17,6 +17,49 @@ export type Reaction = "feel" | "wild";
 export type Gender = "M" | "F";
 
 /**
+ * The kinds of raw creative material a creator drops on VYBZ (§8.1). Previews
+ * (samples/loops/stems/tracks) stream in-feed; project/preset bundles are the
+ * exchange-grade artifacts gated behind a permission check.
+ */
+export type AssetKind =
+  | "sample"
+  | "loop"
+  | "oneshot"
+  | "stem"
+  | "acapella"
+  | "midi"
+  | "preset"
+  | "project"
+  | "track";
+
+/**
+ * An uploaded audio/project asset — mirrors the `assets` row (§8.1). Kept
+ * lightweight on the client; previews render from `url`, full-quality exchange
+ * flows through a permission-checked signed URL.
+ */
+export interface Asset {
+  id: string;
+  ownerId?: string;
+  kind: AssetKind;
+  title: string;
+  /** Playable preview source: object/data URL, signed URL, or storage path. */
+  url: string;
+  /** Normalized waveform peaks (0..1) for instant scrub previews. */
+  waveform?: number[];
+  durationSec?: number;
+  bpm?: number;
+  musicalKey?: string;
+  /** Container/codec label for the tech strip ('WAV','MP3','FLAC',…). */
+  format?: string;
+  /** Decoded sample rate (Hz). */
+  sampleRate?: number;
+  /** True when delivered at lossless quality (WAV/FLAC/AIFF/ALAC). */
+  lossless?: boolean;
+  genres?: string[];
+  createdAt?: number;
+}
+
+/**
  * Permanent, publicly-visible account attributes. Once a field here is set it
  * can never be changed or removed — opting in is a one-way, public commitment.
  */
@@ -198,8 +241,8 @@ export interface Confession {
    * it now carries images and videos.)
    */
   photo?: string;
-  /** 'image' (default, incl. AI-generated) or 'video'. */
-  mediaKind?: "image" | "video";
+  /** 'image' (default, incl. AI-generated), 'video', or 'audio' (a VYBZ drop). */
+  mediaKind?: "image" | "video" | "audio";
   /** Non-destructive trim window (seconds) for video — play only this slice. */
   clipStart?: number;
   clipEnd?: number;
@@ -214,6 +257,33 @@ export interface Confession {
   textFx?: string;
   /** Premium 3D "gyroscopic" media view (parallax tilt). Free for Godmode, else V¢. */
   view3d?: boolean;
+
+  // ── Audio drop (VYBZ Phase 3 — the sound-first feed, §6) ──────────────────
+  /** Linked asset id (the `confessions.asset_id` FK, §6.1) when backed by one. */
+  assetId?: string;
+  /** Playable audio source: object/data URL, signed URL, or storage path. */
+  audioUrl?: string;
+  /** Normalized waveform peaks (0..1) for instant scrub previews. */
+  waveform?: number[];
+  /** Clip duration in seconds. */
+  durationSec?: number;
+  /** What kind of audio drop this is (sample / loop / stem / track / …). */
+  assetKind?: AssetKind;
+  /** Tempo (BPM) — optional creator-declared metadata. */
+  bpm?: number;
+  /** Musical key — optional creator-declared metadata. */
+  musicalKey?: string;
+  /** Container/codec label for the tech strip ('WAV','MP3','FLAC',…). */
+  audioFormat?: string;
+  /** Decoded sample rate (Hz). */
+  sampleRate?: number;
+  /** True when delivered at lossless quality (WAV/FLAC/AIFF/ALAC). */
+  lossless?: boolean;
+  /** Seeded visualizer style id (see lib/visualizers). */
+  visualizer?: string;
+  /** Community star rating — aggregate only (avg 0..5 + count). */
+  rating?: number;
+  ratingCount?: number;
 }
 
 /** A lightweight, passwordless local account. */

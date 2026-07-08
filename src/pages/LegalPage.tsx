@@ -46,7 +46,7 @@ export function LegalPage() {
           </button>
           <div className="min-w-0">
             <p className="font-display text-lg font-bold leading-none text-gradient">
-              MYVYB
+              VYBZ
             </p>
             <p className="mt-0.5 text-[11px] text-white/40">Legal</p>
           </div>
@@ -123,7 +123,7 @@ export function LegalPage() {
             </a>
           </p>
           <p className="mt-3 text-center text-[11px] text-white/30">
-            © {new Date().getFullYear()} {COMPANY} · MYVYB
+            © {new Date().getFullYear()} {COMPANY} · VYBZ
           </p>
           <LegalLinks className="mt-4" exclude={slug} />
         </main>

@@ -98,7 +98,7 @@ function ClaimAdmin({
       <input
         value={code}
         onChange={(e) => setCode(e.target.value)}
-        placeholder="MYVYB-ADMIN-…"
+        placeholder="VYBZ-ADMIN-…"
         className="mt-5 w-full max-w-xs rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm text-white placeholder:text-white/30 focus:outline-none"
       />
       <button

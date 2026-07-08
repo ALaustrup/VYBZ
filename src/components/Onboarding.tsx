@@ -146,7 +146,7 @@ export function Onboarding() {
                   aria-label={
                     returning
                       ? `Sign in${last?.name ? ` as ${last.name}` : ""}`
-                      : "Sign in to MYVYB"
+                      : "Sign in to VYBZ"
                   }
                   className="group relative mt-9 flex flex-col items-center outline-none"
                 >
@@ -188,7 +188,7 @@ export function Onboarding() {
                   <span className="mt-1 text-[12px] leading-relaxed text-white/45">
                     {returning
                       ? "Tap your photo to continue"
-                      : "Sign in to your MYVYB account"}
+                      : "Sign in to your VYBZ account"}
                   </span>
                 </button>
 
@@ -200,7 +200,7 @@ export function Onboarding() {
                   >
                     {returning ? "Use a different account · " : "New here? "}
                     <span className="font-semibold text-veil-200 underline-offset-2 hover:underline">
-                      Join MYVYB
+                      Join VYBZ
                     </span>
                   </button>
 
@@ -250,7 +250,7 @@ export function Onboarding() {
               >
                 <BackButton onClick={() => setStep("welcome")} />
                 <h1 className="font-display text-2xl font-bold text-white">Welcome back</h1>
-                <p className="mt-1.5 text-sm text-white/55">Sign in to your MYVYB account.</p>
+                <p className="mt-1.5 text-sm text-white/55">Sign in to your VYBZ account.</p>
 
                 {passkeysSupported() && (
                   <button
@@ -285,9 +285,9 @@ export function Onboarding() {
                   onClick={() => setStep("register")}
                   className="mt-6 text-[13px] font-medium text-white/50 transition hover:text-white/80"
                 >
-                  New to MYVYB?{" "}
+                  New to VYBZ?{" "}
                   <span className="font-semibold text-veil-200 underline-offset-2 hover:underline">
-                    Join MYVYB
+                    Join VYBZ
                   </span>
                 </button>
               </motion.div>
@@ -437,7 +437,7 @@ function RegisterStep({
         disabled={!ready}
         className="btn btn-primary mt-6 w-full py-4 text-base"
       >
-        Enter MYVYB <ArrowRight className="h-5 w-5" />
+        Enter VYBZ <ArrowRight className="h-5 w-5" />
       </button>
       <p className="mt-3 text-center text-[11px] leading-relaxed text-white/40">
         Add an email later in Settings to secure your account and unlock your

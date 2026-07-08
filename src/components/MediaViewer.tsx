@@ -153,7 +153,7 @@ export function MediaViewer() {
                         style={{ marginLeft: row % 2 ? "-3rem" : "0" }}
                       >
                         {Array.from({ length: 6 }).map((__, col) => (
-                          <span key={col}>MYVYB · {account.username}</span>
+                          <span key={col}>VYBZ · {account.username}</span>
                         ))}
                       </div>
                     ))}

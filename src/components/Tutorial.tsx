@@ -24,7 +24,7 @@ const STEPS: Step[] = [
   {
     icon: Sparkles,
     accent: "#ff8c3d",
-    title: "Welcome to MYVYB",
+    title: "Welcome to VYBZ",
     body: "Anonymous by default. Express freely.",
   },
   {
@@ -179,7 +179,7 @@ export function Tutorial() {
               ))}
             </div>
             <button onClick={next} className="btn btn-primary w-full py-4 text-base">
-              {last ? "Enter MYVYB" : "Next"}
+              {last ? "Enter VYBZ" : "Next"}
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

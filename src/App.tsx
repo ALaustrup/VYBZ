@@ -35,6 +35,7 @@ import { UploadIndicator } from "@/components/UploadIndicator";
 import { ConnectNowSheet } from "@/components/Presence";
 import { CompanionSheet } from "@/components/CompanionSheet";
 import { EchoSheet } from "@/components/EchoSheet";
+import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { FeedsPage } from "@/pages/FeedsPage";
 import { ForYouPage } from "@/pages/ForYouPage";
 import { MatchmakingPage } from "@/pages/MatchmakingPage";
@@ -100,7 +101,7 @@ export function App() {
     try {
       if (localStorage.getItem("veiled.justJoined")) {
         localStorage.removeItem("veiled.justJoined");
-        celebrate("Welcome to MYVYB ✨");
+        celebrate("Welcome to VYBZ ✨");
       }
     } catch {
       /* ignore */
@@ -279,9 +280,10 @@ export function App() {
                   "radial-gradient(90% 70% at 50% 0%, rgb(var(--accent-rgb) / 0.10), transparent 70%)",
               }}
             />
-            <div className={cx("relative z-10 mx-auto h-full w-full px-6", desktopMax)}>
+            <div className={cx("relative z-10 mx-auto min-h-0 w-full flex-1 px-6", desktopMax)}>
               {routes}
             </div>
+            <GlobalPlayer className="relative z-10 pb-3" />
           </main>
           <ContextRail />
         </div>
@@ -313,6 +315,7 @@ export function App() {
         />
         <TopBar />
         <main className="relative z-10 flex-1 overflow-hidden">{routes}</main>
+        <GlobalPlayer />
         <BottomNav />
         {overlays}
       </div>

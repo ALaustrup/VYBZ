@@ -75,7 +75,7 @@ export interface NewConfessionInput {
   text: string;
   /** Background media: a data URL, blob/object URL, or AI image URL. */
   photo?: string;
-  mediaKind?: "image" | "video";
+  mediaKind?: "image" | "video" | "audio";
   /** Virtual-trim window (seconds) for video. */
   clipStart?: number;
   clipEnd?: number;
@@ -87,6 +87,18 @@ export interface NewConfessionInput {
   textFx?: string;
   /** Premium 3D gyroscopic media view (V¢ / Godmode). */
   view3d?: boolean;
+
+  // ── Audio drop (VYBZ Phase 3) — set together when posting a sound. ─────────
+  /** Playable audio source (object/data URL locally; storage path in backend). */
+  audioUrl?: string;
+  waveform?: number[];
+  durationSec?: number;
+  assetKind?: import("@/types").AssetKind;
+  bpm?: number;
+  musicalKey?: string;
+  audioFormat?: string;
+  sampleRate?: number;
+  lossless?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -124,6 +136,8 @@ const KEYS = {
   notifyActivity: "veiled.notifyActivity",
   avatarUrl: "veiled.avatarUrl",
   bannerUrl: "veiled.bannerUrl",
+  // Per-track star ratings this user has given (drop id → 1..5). VYBZ Phase 3.
+  trackRatings: "vybz.trackRatings",
   // Durable marker for a user who completed "Unveil Yourself" (an identified,
   // non-anonymous account). Its presence resumes them on this device — even
   // offline — so the sign-on screen isn't shown again until logout/reset.
@@ -490,6 +504,10 @@ interface AppState {
   addConfession: (input: NewConfessionInput) => Promise<Confession>;
   openCompose: () => void;
   closeCompose: () => void;
+  /** Rate a track/drop 1..5 stars (embedded rating, §6.3). */
+  rateTrack: (confessionId: string, stars: number) => void;
+  /** The current user's own star rating for a track (0 = unrated). */
+  myTrackRating: (confessionId: string) => number;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -515,6 +533,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [swiped, setSwiped] = useState<SwipeResult[]>([]);
   const [celebration, setCelebration] = useState<CelebrationState | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [trackRatings, setTrackRatings] = useState<Record<string, number>>(() =>
+    load<Record<string, number>>(KEYS.trackRatings, {})
+  );
   const [userConfessions, setUserConfessions] = useState<Confession[]>(() =>
     load<Confession[]>(KEYS.userConfessions, [])
   );
@@ -724,9 +745,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   backendConfessionsRef.current = backendConfessions;
   const userConfessionsRef = useRef(userConfessions);
   userConfessionsRef.current = userConfessions;
+  const trackRatingsRef = useRef(trackRatings);
+  trackRatingsRef.current = trackRatings;
 
   // Persist everything that should survive a refresh.
   useEffect(() => save(KEYS.userConfessions, userConfessions), [userConfessions]);
+  useEffect(() => save(KEYS.trackRatings, trackRatings), [trackRatings]);
   useEffect(() => save(KEYS.unveiled, unveiled), [unveiled]);
   useEffect(() => save(KEYS.premium, isPremium), [isPremium]);
   useEffect(() => save(KEYS.comments, comments), [comments]);
@@ -928,7 +952,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
               void backend.markIdentified(profileIdRef.current).catch(() => {});
             setAccount((a) => (a ? { ...a, anonymous: false } : a));
             refreshCredits();
-            celebrate("Account verified — welcome to MYVYB ✨");
+            celebrate("Account verified — welcome to VYBZ ✨");
           }
         });
       }
@@ -1560,7 +1584,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const watchName = useCallback(
     async (name: string): Promise<boolean> => {
       if (!premiumRef.current) {
-        showToast("Watching names is a MYVYB Plus perk.");
+        showToast("Watching names is a VYBZ Plus perk.");
         setPremiumOpen(true);
         return false;
       }
@@ -1893,7 +1917,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     celebrate("Godmode unlocked");
     pushNotification({
       kind: "featured",
-      title: "Welcome to MYVYB Plus",
+      title: "Welcome to VYBZ Plus",
       body: "Godmode is active for life. Message without limits, 5× votes, and more.",
     });
   }, [celebrate, pushNotification]);
@@ -2224,7 +2248,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       setAccount((a) => (a ? { ...a, anonymous: false } : a));
       refreshCredits();
-      celebrate("Account verified — welcome to MYVYB ✨");
+      celebrate("Account verified — welcome to VYBZ ✨");
     }
     return ok;
   }, [refreshCredits, celebrate]);
@@ -2404,7 +2428,58 @@ export function AppProvider({ children }: { children: ReactNode }) {
         fontStyle: input.fontStyle,
         textFx: input.textFx,
         view3d: input.view3d,
+        // Audio drop facets (VYBZ Phase 3 — the sound-first feed).
+        audioUrl: input.audioUrl,
+        waveform: input.waveform,
+        durationSec: input.durationSec,
+        assetKind: input.assetKind,
+        bpm: input.bpm,
+        musicalKey: input.musicalKey,
+        audioFormat: input.audioFormat,
+        sampleRate: input.sampleRate,
+        lossless: input.lossless,
       };
+
+      // Audio drops: persist the sound-first way. In backend mode we upload the
+      // original to the audio bucket + create an asset-linked drop; on any
+      // failure (or local mode) we keep the drop on-device so it always posts.
+      if (input.mediaKind === "audio") {
+        if (BACKEND_ENABLED && profileIdRef.current && input.audioUrl) {
+          try {
+            const created = await backend.createAudioDrop(profileIdRef.current, {
+              text: base.text,
+              seed,
+              alias: ephemeralAlias,
+              identity: id,
+              audioUrl: input.audioUrl,
+              waveform: input.waveform,
+              durationSec: input.durationSec,
+              assetKind: input.assetKind ?? "track",
+              bpm: input.bpm,
+              musicalKey: input.musicalKey,
+              audioFormat: input.audioFormat,
+              sampleRate: input.sampleRate,
+              lossless: input.lossless,
+              onProgress: (frac) => setUploadProgress(frac),
+            });
+            setUploadProgress(1);
+            uploadHideTimer.current = setTimeout(() => setUploadProgress(null), 700);
+            if (created) {
+              const backendDrop: Confession = { ...base, ...created };
+              setBackendConfessions((prev) => [backendDrop, ...prev]);
+              setMyBackendIds((prev) => [...prev, backendDrop.id]);
+              celebrate("Your drop is live");
+              return backendDrop;
+            }
+          } catch {
+            setUploadProgress(null);
+            // Fall through to local persist below.
+          }
+        }
+        setUserConfessions((prev) => [base, ...prev]);
+        celebrate("Your drop is live");
+        return base;
+      }
 
       // Backend mode: persist so real users can see and message it.
       if (BACKEND_ENABLED && profileIdRef.current) {
@@ -2505,6 +2580,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return base;
     },
     [celebrate, showToast]
+  );
+
+  // Embedded star rating on a track (§6.3): one per user, revisable. Persisted
+  // locally and (when wired) recorded server-side to feed taste discovery.
+  const rateTrack = useCallback((confessionId: string, stars: number) => {
+    const n = Math.min(5, Math.max(1, Math.round(stars)));
+    haptic(10);
+    setTrackRatings((prev) => ({ ...prev, [confessionId]: n }));
+    if (BACKEND_ENABLED && profileIdRef.current) {
+      void backend.rateTrack(confessionId, profileIdRef.current, n);
+    }
+  }, []);
+  const myTrackRating = useCallback(
+    (confessionId: string) => trackRatingsRef.current[confessionId] ?? 0,
+    []
   );
 
   const unreadCount = useMemo(
@@ -2702,6 +2792,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addConfession,
       openCompose,
       closeCompose,
+      rateTrack,
+      myTrackRating,
     }),
     [
       account,
@@ -2877,6 +2969,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addConfession,
       openCompose,
       closeCompose,
+      rateTrack,
+      myTrackRating,
+      trackRatings,
     ]
   );
 

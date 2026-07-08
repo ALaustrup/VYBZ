@@ -155,7 +155,7 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
   const onReport = useCallback(async () => {
     if (!current) return;
     await liveReport(current.id);
-    showToast("Reported — thanks for keeping MYVYB safe.");
+    showToast("Reported — thanks for keeping VYBZ safe.");
     advance();
   }, [current, advance, showToast]);
 
@@ -191,7 +191,7 @@ function ViewerCarousel({ onGoLive }: { onGoLive: () => void }) {
     if (!rewatch) return;
     await liveReport(rewatch.id);
     void loadSaved();
-    showToast("Reported — thanks for keeping MYVYB safe.");
+    showToast("Reported — thanks for keeping VYBZ safe.");
     setRewatch(null);
   }, [rewatch, loadSaved, showToast]);
 

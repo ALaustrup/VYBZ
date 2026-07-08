@@ -199,7 +199,7 @@ export function CreateCircle({
         <p className="mb-4 text-xs text-white/45">{owned}/{cap} circles used.</p>
         {atCap ? (
           <p className="rounded-xl border border-wild/30 bg-wild/10 p-3 text-sm text-wild">
-            You've reached your circle limit ({cap}). {cap === 5 && "MYVYB Plus unlocks 15."}
+            You've reached your circle limit ({cap}). {cap === 5 && "VYBZ Plus unlocks 15."}
           </p>
         ) : (
           <div className="space-y-3">

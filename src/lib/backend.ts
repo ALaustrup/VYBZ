@@ -920,6 +920,8 @@ function extForType(type: string): string {
 
 /** Storage bucket for sensitive, user-uploaded POST media — private. */
 const POST_BUCKET = "confessions";
+/** Private bucket for full-quality audio drops (VYBZ Phase 3, §8.2). */
+const AUDIO_BUCKET = "audio-assets";
 /** Public bucket for cosmetic media (avatars/banners) + ephemeral chat images. */
 const PUBLIC_BUCKET = "media-public";
 /** Signed-URL lifetime for post media (seconds). Re-signed on every fetch. */
@@ -1087,8 +1089,30 @@ async function signMediaList(list: Confession[]): Promise<Confession[]> {
   (data ?? []).forEach((d) => {
     if (d.path && d.signedUrl) map.set(d.path, d.signedUrl);
   });
-  return list.map((c) =>
+  const withPhotos = list.map((c) =>
     c.photo && map.has(c.photo) ? { ...c, photo: map.get(c.photo) as string } : c
+  );
+  return signAudioList(withPhotos);
+}
+
+/** Replace private audio-asset paths with fresh signed URLs (batched). */
+async function signAudioList(list: Confession[]): Promise<Confession[]> {
+  if (!supabase) return list;
+  const paths = Array.from(
+    new Set(list.map((c) => c.audioUrl).filter((p): p is string => isStoragePath(p)))
+  );
+  if (paths.length === 0) return list;
+  const { data } = await supabase.storage
+    .from(AUDIO_BUCKET)
+    .createSignedUrls(paths, SIGN_TTL);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((d) => {
+    if (d.path && d.signedUrl) map.set(d.path, d.signedUrl);
+  });
+  return list.map((c) =>
+    c.audioUrl && map.has(c.audioUrl)
+      ? { ...c, audioUrl: map.get(c.audioUrl) as string }
+      : c
   );
 }
 
@@ -1157,6 +1181,25 @@ function rowToConfession(r: any): Confession {
     fontStyle: r.font_style ?? undefined,
     textFx: r.text_fx ?? undefined,
     view3d: r.view_3d ?? undefined,
+    // Audio drop facets from the linked asset (VYBZ Phase 3, §6.1). Present only
+    // for audio drops; the media path is signed by signMediaList like photos.
+    ...(r.asset
+      ? {
+          mediaKind: "audio" as const,
+          assetId: r.asset.id,
+          audioUrl: r.asset.url ?? undefined,
+          waveform: (r.asset.waveform as number[] | null) ?? undefined,
+          durationSec: r.asset.duration_sec ?? undefined,
+          assetKind: r.asset.kind ?? undefined,
+          bpm: r.asset.bpm ?? undefined,
+          musicalKey: r.asset.musical_key ?? undefined,
+          audioFormat: r.asset.format ?? undefined,
+          sampleRate: r.asset.sample_rate ?? undefined,
+          lossless: r.asset.lossless ?? undefined,
+          rating: r.asset.rating_avg ?? undefined,
+          ratingCount: r.asset.rating_count ?? undefined,
+        }
+      : {}),
   };
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -1167,7 +1210,7 @@ export async function fetchRecentConfessions(limit = 40): Promise<Confession[]> 
   const { data, error } = await supabase
     .from("confessions")
     .select(
-      "id,author_id,alias,body,photo_url,media_kind,clip_start,clip_end,feels,wilds,featured,seed,aftermath,nsfw,author_gender,author_age,author_location,font_style,text_fx,view_3d,created_at,author:profiles!confessions_author_id_fkey(emoji_key,alias,username)"
+      "id,author_id,alias,body,photo_url,media_kind,clip_start,clip_end,feels,wilds,featured,seed,aftermath,nsfw,author_gender,author_age,author_location,font_style,text_fx,view_3d,created_at,asset_id,author:profiles!confessions_author_id_fkey(emoji_key,alias,username),asset:assets!confessions_asset_id_fkey(id,kind,url,waveform,duration_sec,bpm,musical_key,format,sample_rate,lossless,rating_avg,rating_count)"
     )
     .eq("hidden", false)
     .eq("archived", false)
@@ -1192,7 +1235,7 @@ export async function fetchForYou(limit = 40): Promise<Confession[]> {
   const { data } = await supabase
     .from("confessions")
     .select(
-      "id,author_id,alias,body,photo_url,media_kind,clip_start,clip_end,feels,wilds,featured,seed,aftermath,nsfw,author_gender,author_age,author_location,font_style,text_fx,view_3d,created_at,author:profiles!confessions_author_id_fkey(emoji_key,alias,username)"
+      "id,author_id,alias,body,photo_url,media_kind,clip_start,clip_end,feels,wilds,featured,seed,aftermath,nsfw,author_gender,author_age,author_location,font_style,text_fx,view_3d,created_at,asset_id,author:profiles!confessions_author_id_fkey(emoji_key,alias,username),asset:assets!confessions_asset_id_fkey(id,kind,url,waveform,duration_sec,bpm,musical_key,format,sample_rate,lossless,rating_avg,rating_count)"
     )
     .in("id", ids);
   if (!data) return [];
@@ -2266,7 +2309,7 @@ export async function fetchUserConfessions(authorId: string, limit = 40): Promis
   const { data } = await supabase
     .from("confessions")
     .select(
-      "id,author_id,alias,body,photo_url,media_kind,clip_start,clip_end,feels,wilds,featured,seed,aftermath,nsfw,author_gender,author_age,author_location,font_style,text_fx,view_3d,created_at,author:profiles!confessions_author_id_fkey(emoji_key,alias,username)"
+      "id,author_id,alias,body,photo_url,media_kind,clip_start,clip_end,feels,wilds,featured,seed,aftermath,nsfw,author_gender,author_age,author_location,font_style,text_fx,view_3d,created_at,asset_id,author:profiles!confessions_author_id_fkey(emoji_key,alias,username),asset:assets!confessions_asset_id_fkey(id,kind,url,waveform,duration_sec,bpm,musical_key,format,sample_rate,lossless,rating_avg,rating_count)"
     )
     .eq("author_id", authorId)
     .eq("hidden", false)
@@ -2502,6 +2545,177 @@ export async function createConfession(
     .single();
   if (error || !data) return null;
   return (data as { id: string }).id;
+}
+
+/** Map an audio MIME/extension to a storage extension. */
+function audioExt(type: string, format?: string): string {
+  const f = (format ?? "").toLowerCase();
+  if (f) return f.replace("aiff", "aif");
+  if (type.includes("wav")) return "wav";
+  if (type.includes("flac")) return "flac";
+  if (type.includes("aiff") || type.includes("x-aiff")) return "aif";
+  if (type.includes("ogg")) return "ogg";
+  if (type.includes("mp4") || type.includes("m4a") || type.includes("aac")) return "m4a";
+  if (type.includes("mpeg") || type.includes("mp3")) return "mp3";
+  return "audio";
+}
+
+/**
+ * Upload a full-quality audio original to the PRIVATE audio bucket (§8.2).
+ * Returns the storage path (never a public URL); playback flows through a
+ * short-lived signed URL, so the exchange-grade file is never publicly exposed.
+ */
+export async function uploadAudioAsset(
+  source: Blob | string,
+  userId: string,
+  format: string | undefined,
+  onProgress?: (frac: number) => void
+): Promise<MediaUploadResult> {
+  if (!supabase) return { path: null, error: "Storage is unavailable right now." };
+  let blob: Blob;
+  try {
+    blob = await toBlob(source);
+  } catch {
+    return { path: null, error: "Couldn't read that audio to upload." };
+  }
+  const type = blob.type || "audio/mpeg";
+  const path = `${userId}/${crypto.randomUUID()}.${audioExt(type, format)}`;
+  if (onProgress) {
+    try {
+      const { data, error } = await supabase.storage
+        .from(AUDIO_BUCKET)
+        .createSignedUploadUrl(path);
+      if (!error && data?.signedUrl) {
+        const { ok } = await putWithProgress(data.signedUrl, blob, type, onProgress);
+        if (ok) return { path, error: null };
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  try {
+    const { error } = await supabase.storage
+      .from(AUDIO_BUCKET)
+      .upload(path, blob, { contentType: type, upsert: false, cacheControl: "3600" });
+    if (!error) {
+      onProgress?.(1);
+      return { path, error: null };
+    }
+    return { path: null, error: describeUploadError(error, blob.size) };
+  } catch (e) {
+    return { path: null, error: describeUploadError(e, blob.size) };
+  }
+}
+
+export interface NewAudioDrop {
+  text: string;
+  seed: number;
+  alias: string;
+  identity?: Identity;
+  /** Local playable source (object/data URL) uploaded to the audio bucket. */
+  audioUrl: string;
+  waveform?: number[];
+  durationSec?: number;
+  assetKind: import("@/types").AssetKind;
+  bpm?: number;
+  musicalKey?: string;
+  audioFormat?: string;
+  sampleRate?: number;
+  lossless?: boolean;
+  onProgress?: (frac: number) => void;
+}
+
+/**
+ * Persist a sound-first drop (§6.1): upload the original to the audio bucket,
+ * create the `assets` row, then a `confessions` row linked via `asset_id`. Media
+ * kind is 'audio'. Returns the fields to merge into the optimistic client drop
+ * (id + a freshly-signed playback URL); null on failure so the caller can keep
+ * the drop on-device.
+ */
+export async function createAudioDrop(
+  authorId: string,
+  input: NewAudioDrop
+): Promise<Partial<Confession> | null> {
+  if (!supabase) return null;
+  const { path } = await uploadAudioAsset(
+    input.audioUrl,
+    authorId,
+    input.audioFormat,
+    input.onProgress
+  );
+  if (!path) return null;
+
+  const { data: assetRow, error: assetErr } = await supabase
+    .from("assets")
+    .insert({
+      owner_id: authorId,
+      kind: input.assetKind,
+      title: input.text.trim() || "Untitled",
+      url: path,
+      waveform: input.waveform ?? null,
+      duration_sec: input.durationSec ?? null,
+      bpm: input.bpm ?? null,
+      musical_key: input.musicalKey ?? null,
+      format: input.audioFormat ?? null,
+      sample_rate: input.sampleRate ?? null,
+      lossless: input.lossless ?? false,
+    })
+    .select("id")
+    .single();
+  if (assetErr || !assetRow) return null;
+  const assetId = (assetRow as { id: string }).id;
+
+  const idn = input.identity;
+  const { data: dropRow, error: dropErr } = await supabase
+    .from("confessions")
+    .insert({
+      author_id: authorId,
+      alias: input.alias,
+      body: input.text,
+      media_kind: "audio",
+      asset_id: assetId,
+      seed: input.seed,
+      author_gender: idn?.gender ?? null,
+      author_age: idn?.age ?? null,
+      author_location: idn?.location ?? null,
+    })
+    .select("id")
+    .single();
+  if (dropErr || !dropRow) return null;
+
+  const signed = (await signedAudioUrl(path)) ?? input.audioUrl;
+  return {
+    id: (dropRow as { id: string }).id,
+    assetId,
+    audioUrl: signed,
+    mediaKind: "audio",
+  };
+}
+
+/** Mint a short-lived signed URL for a private audio-asset path. */
+export async function signedAudioUrl(path: string): Promise<string | null> {
+  if (!supabase || !isStoragePath(path)) return path ?? null;
+  const { data } = await supabase.storage
+    .from(AUDIO_BUCKET)
+    .createSignedUrl(path, SIGN_TTL);
+  return data?.signedUrl ?? null;
+}
+
+/**
+ * Record a 1..5 star rating on a drop's linked asset (§6.3). Server-side the
+ * definer RPC resolves the asset from the confession, upserts the rating, and
+ * refreshes the cached aggregate. No-op when unlinked.
+ */
+export async function rateTrack(
+  confessionId: string,
+  _userId: string,
+  stars: number
+): Promise<void> {
+  if (!supabase) return;
+  await supabase.rpc("rate_track", {
+    p_confession: confessionId,
+    p_rating: Math.min(5, Math.max(1, Math.round(stars))),
+  });
 }
 
 /** Ask the moderation function whether an image is likely NSFW (suggestion only). */

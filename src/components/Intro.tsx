@@ -14,7 +14,7 @@ function prefersReducedMotion(): boolean {
 }
 
 /**
- * Brand intro: the MYVYB logo glitches onto a black stage, glows, then dissolves
+ * Brand intro: the VYBZ logo glitches onto a black stage, glows, then dissolves
  * away to reveal the app. Shown once per session; tap to skip. Reduced-motion
  * collapses to a clean fade.
  */
@@ -78,7 +78,7 @@ export function Intro() {
             {reduced ? (
               <motion.img
                 src={LOGO}
-                alt="MYVYB"
+                alt="VYBZ"
                 draggable={false}
                 className="w-full select-none"
                 initial={{ opacity: 0 }}
@@ -113,7 +113,7 @@ export function Intro() {
                 {/* The logo: glitch in → settle → glow pulse. */}
                 <motion.img
                   src={LOGO}
-                  alt="MYVYB"
+                  alt="VYBZ"
                   draggable={false}
                   className="relative w-full select-none"
                   initial={{ opacity: 0, x: -10, filter: "blur(8px)" }}

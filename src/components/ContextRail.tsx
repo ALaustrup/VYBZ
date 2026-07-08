@@ -50,7 +50,7 @@ export function ContextRail() {
           className="glass-panel flex flex-col items-center gap-2 p-4 text-white/75 transition hover:bg-black/25"
         >
           <Glasses className="h-6 w-6" />
-          <span className="text-xs font-semibold">MYVYB VR</span>
+          <span className="text-xs font-semibold">VYBZ VR</span>
         </Link>
       </div>
 

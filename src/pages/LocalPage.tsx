@@ -15,6 +15,7 @@ import { useApp } from "@/store/AppStore";
 import { VeiledArt } from "@/components/VeiledArt";
 import { VeiledPhoto } from "@/components/VeiledPhoto";
 import { VeiledVideo } from "@/components/VeiledVideo";
+import { TrackCard } from "@/components/TrackCard";
 import { IdentityMeta } from "@/components/IdentityMeta";
 import { useGeolocation } from "@/lib/useGeolocation";
 import { anchorFrom, haversineMiles, proximityLabel, type Coords } from "@/lib/geo";
@@ -178,9 +179,17 @@ export function LocalPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {nearby.map(({ confession, miles }) => (
-            <LocalRow key={confession.id} confession={confession} miles={miles} />
-          ))}
+          {nearby.map(({ confession, miles }) =>
+            confession.mediaKind === "audio" ? (
+              <TrackCard
+                key={confession.id}
+                confession={confession}
+                queue={nearby.map((n) => n.confession)}
+              />
+            ) : (
+              <LocalRow key={confession.id} confession={confession} miles={miles} />
+            )
+          )}
         </div>
       )}
     </div>

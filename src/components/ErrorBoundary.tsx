@@ -57,7 +57,7 @@ export class ErrorBoundary extends Component<Props, State> {
           onClick={() => window.location.reload()}
           className="rounded-2xl bg-veil-500 px-6 py-3 font-display font-semibold text-white shadow-glow transition active:scale-95"
         >
-          Reload MYVYB
+          Reload VYBZ
         </button>
       </div>
     );

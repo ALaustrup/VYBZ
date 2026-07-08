@@ -194,7 +194,7 @@ export function AccountGate() {
                   Choose your username
                 </h2>
                 <p className="mt-1 text-sm text-white/55">
-                  Up to 3 words, letters only. This is your identity across MYVYB.
+                  Up to 3 words, letters only. This is your identity across VYBZ.
                 </p>
                 <input
                   value={username}

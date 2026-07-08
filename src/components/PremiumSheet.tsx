@@ -93,7 +93,7 @@ export function PremiumSheet() {
                   </span>
                 </h2>
                 <p className="mt-0.5 text-xs uppercase tracking-[0.3em] text-amber-200/70">
-                  MYVYB Plus
+                  VYBZ Plus
                 </p>
               </div>
 
@@ -189,7 +189,7 @@ export function PremiumSheet() {
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-400/15 text-amber-300">
                     <Crown className="h-8 w-8 animate-pulse" />
                   </div>
-                  <p className="font-display text-xl font-bold text-white">MYVYB · Godmode</p>
+                  <p className="font-display text-xl font-bold text-white">VYBZ · Godmode</p>
                   <p className="max-w-xs text-sm text-white/55">
                     Your free 24-hour pass unlocks in {adLeft}s…
                   </p>

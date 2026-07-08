@@ -1,4 +1,4 @@
-// Public-facing legal & policy documents for MYVYB.
+// Public-facing legal & policy documents for VYBZ.
 //
 // These are operator-facing templates rendered verbatim to users. They are
 // written to be clear and reasonable, but they are not legal advice.
@@ -6,7 +6,7 @@
 // jurisdiction, the registered entity address, and the contact addresses below.
 
 export const COMPANY = "Astra Matrix, Inc.";
-export const APP_NAME = "MYVYB";
+export const APP_NAME = "VYBZ";
 export const LAST_UPDATED = "June 16, 2026";
 export const CONTACT_EMAIL = "support@astramatrix.xyz";
 export const PRIVACY_EMAIL = "privacy@astramatrix.xyz";
@@ -32,13 +32,13 @@ const terms: LegalDoc = {
   slug: "terms",
   title: "Terms of Service",
   short: "Terms",
-  description: "The agreement that governs your use of MYVYB.",
+  description: "The agreement that governs your use of VYBZ.",
   intro: `These Terms of Service ("Terms") are a binding agreement between you and ${COMPANY} ("we", "us"), the operator of ${APP_NAME} (the "Service"). By creating an account or using the Service, you agree to these Terms. If you do not agree, do not use the Service.`,
   sections: [
     {
       heading: "1. Eligibility & age",
       paragraphs: [
-        "You must be at least 13 years old to use the Service. By using MYVYB you represent that you are 13 or older.",
+        "You must be at least 13 years old to use the Service. By using VYBZ you represent that you are 13 or older.",
         "Sensitive (NSFW) content and adult-only spaces are gated: they are off by default and unlock only for users who verify their account and confirm they are 18 or older. You must not attempt to access adult content or 18+ circles if you are under 18.",
         "If we learn that an account belongs to someone under 13, or that someone under 18 has accessed adult content, we will take appropriate action, including termination.",
       ],
@@ -46,7 +46,7 @@ const terms: LegalDoc = {
     {
       heading: "2. Your account",
       paragraphs: [
-        "MYVYB is anonymous by default. You are responsible for all activity that occurs under your account. You may optionally attach an email to make your account recoverable; keep your access credentials secure.",
+        "VYBZ is anonymous by default. You are responsible for all activity that occurs under your account. You may optionally attach an email to make your account recoverable; keep your access credentials secure.",
         "You may not impersonate others, create accounts to evade a ban, or share an account in a way that violates these Terms.",
       ],
     },
@@ -60,13 +60,13 @@ const terms: LegalDoc = {
     {
       heading: "4. Acceptable use",
       paragraphs: [
-        "You agree to follow our Community Guidelines, which are incorporated into these Terms. In short, you may not use MYVYB to harass, threaten, exploit, or harm others, to post illegal content, or to violate anyone's rights.",
+        "You agree to follow our Community Guidelines, which are incorporated into these Terms. In short, you may not use VYBZ to harass, threaten, exploit, or harm others, to post illegal content, or to violate anyone's rights.",
       ],
     },
     {
-      heading: "5. MYVYB Plus (Godmode)",
+      heading: "5. VYBZ Plus (Godmode)",
       paragraphs: [
-        `MYVYB Plus, also called "Godmode", is an optional one-time purchase of ${GODMODE_PRICE} (USD) per account that unlocks premium features. Payment is processed by our payment provider (Stripe); we do not store your card details.`,
+        `VYBZ Plus, also called "Godmode", is an optional one-time purchase of ${GODMODE_PRICE} (USD) per account that unlocks premium features. Payment is processed by our payment provider (Stripe); we do not store your card details.`,
         "ALL SALES ARE FINAL. Refunds are not provided under any circumstances. See our Refund Policy for details.",
         "Premium features may change over time. We may modify, add, or remove premium features at our discretion.",
       ],
@@ -112,7 +112,7 @@ const privacy: LegalDoc = {
   title: "Privacy Policy",
   short: "Privacy",
   description: "What we collect, why, and your choices.",
-  intro: `This Privacy Policy explains how ${COMPANY} collects, uses, and protects information when you use ${APP_NAME}. We built MYVYB to be anonymous by default and we collect as little as possible.`,
+  intro: `This Privacy Policy explains how ${COMPANY} collects, uses, and protects information when you use ${APP_NAME}. We built VYBZ to be anonymous by default and we collect as little as possible.`,
   sections: [
     {
       heading: "Information we collect",
@@ -129,7 +129,7 @@ const privacy: LegalDoc = {
       bullets: [
         "To provide and operate the Service (showing confessions, enabling chat, reveals, and notifications).",
         "To keep the community safe (moderation, reports, blocking, and abuse prevention).",
-        "To process purchases of MYVYB Plus through our payment provider.",
+        "To process purchases of VYBZ Plus through our payment provider.",
         "To maintain, debug, and improve the Service.",
       ],
     },
@@ -168,7 +168,7 @@ const privacy: LegalDoc = {
     {
       heading: "Children",
       paragraphs: [
-        "MYVYB is an 18+ service and is not directed to children. We do not knowingly collect data from anyone under 18.",
+        "VYBZ is an 18+ service and is not directed to children. We do not knowingly collect data from anyone under 18.",
       ],
     },
     {
@@ -185,7 +185,7 @@ const refunds: LegalDoc = {
   title: "Refund Policy",
   short: "Refunds",
   description: "All sales are final — no refunds.",
-  intro: `This Refund Policy applies to all purchases on ${APP_NAME}, including the one-time MYVYB Plus ("Godmode") upgrade of ${GODMODE_PRICE} (USD).`,
+  intro: `This Refund Policy applies to all purchases on ${APP_NAME}, including the one-time VYBZ Plus ("Godmode") upgrade of ${GODMODE_PRICE} (USD).`,
   sections: [
     {
       heading: "All sales are final",
@@ -197,7 +197,7 @@ const refunds: LegalDoc = {
     {
       heading: "What you are buying",
       paragraphs: [
-        "MYVYB Plus is a one-time, per-account purchase that unlocks premium features for that account. By completing checkout you acknowledge that you receive immediate access to digital content and that you waive any right to a refund or cancellation period to the extent permitted by law.",
+        "VYBZ Plus is a one-time, per-account purchase that unlocks premium features for that account. By completing checkout you acknowledge that you receive immediate access to digital content and that you waive any right to a refund or cancellation period to the extent permitted by law.",
       ],
     },
     {
@@ -220,8 +220,8 @@ const guidelines: LegalDoc = {
   slug: "guidelines",
   title: "Community Guidelines",
   short: "Guidelines",
-  description: "The rules that keep MYVYB safe, and how we enforce them.",
-  intro: `MYVYB is a space for honest, anonymous expression. To keep it safe, everyone must follow these Community Guidelines. Breaking them can result in content removal, suspension, or a permanent ban.`,
+  description: "The rules that keep VYBZ safe, and how we enforce them.",
+  intro: `VYBZ is a space for honest, anonymous expression. To keep it safe, everyone must follow these Community Guidelines. Breaking them can result in content removal, suspension, or a permanent ban.`,
   sections: [
     {
       heading: "Zero tolerance",
@@ -276,7 +276,7 @@ const transparency: LegalDoc = {
   slug: "transparency",
   title: "Transparency",
   short: "Transparency",
-  description: "Plainly, what MYVYB collects, why, and what we never do.",
+  description: "Plainly, what VYBZ collects, why, and what we never do.",
   intro: `We think you deserve to know exactly how ${APP_NAME} works before you tap "agree". This page is the plain-language version of our practices — the same commitments expressed in the Terms and Privacy Policy, with nothing buried.`,
   sections: [
     {
@@ -295,13 +295,13 @@ const transparency: LegalDoc = {
       ],
     },
     {
-      heading: "AI on MYVYB (Companions & Echoes)",
+      heading: "AI on VYBZ (Companions & Echoes)",
       bullets: [
-        "AI is always labelled. Companions are clearly-marked AI personas owned by MYVYB — they are never real people and never pretend to be.",
+        "AI is always labelled. Companions are clearly-marked AI personas owned by VYBZ — they are never real people and never pretend to be.",
         "An Echo is an optional AI version of YOU. It can only be created and switched on from your own account, by you, with explicit consent — we never build an AI of someone from observed or scraped data.",
         "Your Echo speaks only from the profile details you choose to share, never your private (hidden) sections, and it is always disclosed as an AI Echo — it will never claim to be the real you or make promises on your behalf.",
         "You are always in control: pause or delete your Echo at any time (deleting also removes its conversations), and review every conversation it has had.",
-        "Echoes are 18+ only and stay within your age layer. All AI chats run the same crisis-safety checks as the rest of MYVYB and hand off to real help (988 / findahelpline.com) when needed.",
+        "Echoes are 18+ only and stay within your age layer. All AI chats run the same crisis-safety checks as the rest of VYBZ and hand off to real help (988 / findahelpline.com) when needed.",
       ],
     },
     {

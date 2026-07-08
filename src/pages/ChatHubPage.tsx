@@ -159,7 +159,7 @@ export function ChatHubPage() {
               <EmptyState
                 icon={Users}
                 title="No circles yet"
-                body="Circles are your private corners of MYVYB. Discover one that fits, or start your own."
+                body="Circles are your private corners of VYBZ. Discover one that fits, or start your own."
                 action={
                   <div className="mt-1 flex gap-2">
                     <button

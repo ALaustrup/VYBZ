@@ -2,14 +2,14 @@ import { useState } from "react";
 import { cx } from "@/lib/utils";
 
 /**
- * The MYVYB icon. Uses the official artwork at `/brand/icon.svg` (preferred) or
+ * The VYBZ icon. Uses the official artwork at `/brand/icon.svg` (preferred) or
  * `/brand/icon.png` once dropped into `public/brand/`; until then it renders a
  * hand-built fallback mark so nothing looks broken. The official icon is
  * full-color, so it renders as an image (size classes still apply).
  */
 export function BrandMark({
   className,
-  title = "MYVYB",
+  title = "VYBZ",
 }: {
   className?: string;
   title?: string;
@@ -61,7 +61,7 @@ export function BrandMark({
 }
 
 /**
- * The MYVYB wordmark. Uses the official artwork at `/brand/wordmark.svg`
+ * The VYBZ wordmark. Uses the official artwork at `/brand/wordmark.svg`
  * (preferred) or `/brand/wordmark.png` once it's dropped into `public/brand/`.
  * Until then it falls back to a styled text lockup so the app always looks
  * intentional — never broken.
@@ -85,7 +85,7 @@ export function Wordmark({
           textClassName
         )}
       >
-        MYVYB
+        VYBZ
       </span>
     );
   }
@@ -103,7 +103,7 @@ export function Wordmark({
           setFailed(true);
         }
       }}
-      alt="MYVYB"
+      alt="VYBZ"
       className={cx("select-none", imgClassName, className)}
       draggable={false}
     />

@@ -548,7 +548,7 @@ export function ProfilePage() {
               </div>
               <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] pt-2">
                 <div className="space-y-3">
-                {/* MYVYB XR + operator console live here. (Wallet / Messages /
+                {/* VYBZ XR + operator console live here. (Wallet / Messages /
                     Friends / Settings are the dashboard tiles above.) */}
                 <div className="grid grid-cols-2 gap-3">
                   <Link
@@ -558,7 +558,7 @@ export function ProfilePage() {
                       !isAdmin && "col-span-2"
                     )}
                   >
-                    <Glasses className="h-4 w-4" /> MYVYB XR
+                    <Glasses className="h-4 w-4" /> VYBZ XR
                   </Link>
                   {isAdmin && (
                     <Link
@@ -783,7 +783,7 @@ export function ProfilePage() {
         )}
       </AnimatePresence>
 
-      {/* Membership — MYVYB Plus status or upgrade CTA. */}
+      {/* Membership — VYBZ Plus status or upgrade CTA. */}
       {isPremium ? (
         <div className="mb-3 flex items-center gap-3 rounded-2xl border border-amber-300/30 bg-amber-400/10 p-4">
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300">
@@ -791,7 +791,7 @@ export function ProfilePage() {
           </div>
           <div>
             <p className="font-display font-semibold text-white">
-              MYVYB Plus · Godmode
+              VYBZ Plus · Godmode
             </p>
             <p className="text-xs text-amber-200/70">
               Unlimited messaging &amp; Power Ups, active for life.

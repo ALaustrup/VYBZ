@@ -11,7 +11,7 @@ export function Copyright({ className }: { className?: string }) {
       )}
     >
       <span className="font-display font-semibold tracking-[0.2em] text-white/45">
-        MYVYB
+        VYBZ
       </span>
       <br />
       &copy; {year} Astra Matrix, Inc. All rights reserved.

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlignLeft, EyeOff, Heart, LayoutGrid, Layers, RotateCcw } from "lucide-react";
 import { SwipeCard } from "@/components/SwipeCard";
 import { WhisperCard } from "@/components/WhisperCard";
+import { TrackCard } from "@/components/TrackCard";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { CONFESSIONS } from "@/data/confessions";
 import { useApp } from "@/store/AppStore";
@@ -141,17 +142,21 @@ export function FeedPage() {
         {switcher}
         <PullToRefresh onRefresh={refreshConfessions} className="flex-1 px-4 pb-6 pt-3">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
-            {browseDeck.map((c) => (
-              <WhisperCard
-                key={c.id}
-                confession={c}
-                level={displayLevel(c)}
-                nsfwHidden={isNsfwHidden(c)}
-                variant="tile"
-                paused
-                onClick={() => openPost(c.id)}
-              />
-            ))}
+            {browseDeck.map((c) =>
+              c.mediaKind === "audio" ? (
+                <TrackCard key={c.id} confession={c} queue={browseDeck} compact />
+              ) : (
+                <WhisperCard
+                  key={c.id}
+                  confession={c}
+                  level={displayLevel(c)}
+                  nsfwHidden={isNsfwHidden(c)}
+                  variant="tile"
+                  paused
+                  onClick={() => openPost(c.id)}
+                />
+              )
+            )}
           </div>
         </PullToRefresh>
       </div>
@@ -167,16 +172,20 @@ export function FeedPage() {
           className="mx-auto w-full max-w-2xl flex-1 px-4 pb-6 pt-3"
         >
           <div className="space-y-3">
-            {browseDeck.map((c) => (
-              <WhisperCard
-                key={c.id}
-                confession={c}
-                level={displayLevel(c)}
-                nsfwHidden={isNsfwHidden(c)}
-                variant="reader"
-                onClick={() => openPost(c.id)}
-              />
-            ))}
+            {browseDeck.map((c) =>
+              c.mediaKind === "audio" ? (
+                <TrackCard key={c.id} confession={c} queue={browseDeck} />
+              ) : (
+                <WhisperCard
+                  key={c.id}
+                  confession={c}
+                  level={displayLevel(c)}
+                  nsfwHidden={isNsfwHidden(c)}
+                  variant="reader"
+                  onClick={() => openPost(c.id)}
+                />
+              )
+            )}
           </div>
         </PullToRefresh>
       </div>

@@ -280,7 +280,7 @@ export function VerifyGate({ open, onClose, mode, onComplete }: VerifyGateProps)
                     {mode === "nsfw" ? "at least 18 years old" : "the age I entered above"}
                   </span>
                   . I understand I should not share private or personal
-                  information, and that MYVYB is{" "}
+                  information, and that VYBZ is{" "}
                   <span className="font-semibold text-white">not liable</span> for
                   anything I provide or share through the platform.
                 </span>

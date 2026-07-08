@@ -32,7 +32,7 @@ function hashColor(s: string): string {
 }
 
 /**
- * MYVYB XR — the immersive WebXR entry. Mounts an imperative Three.js scene and
+ * VYBZ XR — the immersive WebXR entry. Mounts an imperative Three.js scene and
  * offers an "Enter VR" gateway (Quest 2/3). Falls back to a draggable 3D preview
  * on desktop/phones.
  */
@@ -71,7 +71,8 @@ export function XRPage() {
         feels: c.feels ?? 0,
         wilds: c.wilds ?? 0,
         photo: c.photo,
-        mediaKind: c.mediaKind,
+        // XR renders photo/video only; an audio drop falls back to procedural art.
+        mediaKind: c.mediaKind === "audio" ? "image" : c.mediaKind,
         clipStart: c.clipStart,
         clipEnd: c.clipEnd,
         nsfw: c.nsfw,
@@ -142,7 +143,7 @@ export function XRPage() {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-3 px-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
         <div className="text-center">
           <h1 className="font-display text-2xl font-bold tracking-[0.3em] text-gradient">
-            MYVYB XR
+            VYBZ XR
           </h1>
           <p className="mt-1 text-xs text-white/45">
             Step inside the veil — confessions, all around you.

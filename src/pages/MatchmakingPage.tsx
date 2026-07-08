@@ -89,7 +89,7 @@ export function MatchmakingPage() {
             </span>
             <p className="font-display text-sm font-bold text-white">Spark</p>
             <p className="text-[11px] leading-tight text-white/55">
-              Swipe to match by vibe
+              Swipe complementary creators
             </p>
           </button>
           <button

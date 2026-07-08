@@ -7,7 +7,7 @@ import { PresencePill } from "@/components/Presence";
 import { cx } from "@/lib/utils";
 
 const TITLES: Record<string, string> = {
-  "/": "MYVYB",
+  "/": "VYBZ",
   "/local": "Near you",
   "/rooms": "Rooms",
   "/trending": "Trending",
@@ -20,7 +20,7 @@ export function TopBar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { unreadCount, openCompose, openFeedback } = useApp();
-  const title = TITLES[pathname] ?? "MYVYB";
+  const title = TITLES[pathname] ?? "VYBZ";
   const isHome = pathname === "/";
   const onNotifications = pathname === "/notifications";
 
@@ -32,7 +32,7 @@ export function TopBar() {
         <BrandLockup markClassName="h-6 w-6 text-veil-300" wordClassName="text-2xl" />
       ) : (
         <div className="flex min-w-0 items-center gap-2.5">
-          <Link to="/" aria-label="MYVYB home" className="shrink-0 active:scale-90">
+          <Link to="/" aria-label="VYBZ home" className="shrink-0 active:scale-90">
             <BrandMark className="h-7 w-7 text-veil-300" />
           </Link>
           <span className="h-5 w-px shrink-0 bg-white/15" />

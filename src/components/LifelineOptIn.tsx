@@ -147,7 +147,7 @@ export function LifelineOptIn() {
         <h3 className="font-display text-sm font-semibold text-white">Become a Lifeline</h3>
       </div>
       <p className="text-xs leading-relaxed text-white/55">
-        Volunteer to listen to MYVYB members reaching out for support. Anonymous
+        Volunteer to listen to VYBZ members reaching out for support. Anonymous
         on both sides, ephemeral (nothing recorded). You decide when you're on
         shift.
       </p>
