@@ -72,41 +72,26 @@ export function Wordmark({
   textClassName,
 }: {
   className?: string;
+  // Kept for API compatibility with existing call sites; unused now that the
+  // wordmark renders as text.
   imgClassName?: string;
   textClassName?: string;
 }) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return (
-      <span
-        className={cx(
-          "font-display font-bold tracking-tightish text-gradient",
-          textClassName
-        )}
-      >
-        VYBZ
-      </span>
-    );
-  }
-
+  // Rendered as a styled gradient text lockup rather than an image: the legacy
+  // artwork spelled the old brand, and this guarantees the "VYBZ" wordmark reads
+  // correctly everywhere until official VYBZ artwork is dropped into
+  // `public/brand/`. Economical, professional, on-brand ("VYBZ: Find Yours.").
+  void imgClassName;
   return (
-    <img
-      src="/brand/wordmark.svg"
-      onError={(e) => {
-        // Try the PNG once before falling back to text.
-        const el = e.currentTarget;
-        if (!el.dataset.triedPng) {
-          el.dataset.triedPng = "1";
-          el.src = "/brand/wordmark.png";
-        } else {
-          setFailed(true);
-        }
-      }}
-      alt="VYBZ"
-      className={cx("select-none", imgClassName, className)}
-      draggable={false}
-    />
+    <span
+      className={cx(
+        "select-none font-display font-black tracking-tight text-gradient",
+        textClassName,
+        className
+      )}
+    >
+      VYBZ
+    </span>
   );
 }
 

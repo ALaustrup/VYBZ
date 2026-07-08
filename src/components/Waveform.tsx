@@ -44,21 +44,30 @@ export function Waveform({
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, width, height);
 
-    const n = peaks.length || 1;
-    const gap = 1;
-    const barW = Math.max(1, width / n - gap);
+    // Resample the raw peaks down to the number of bars that actually fit the
+    // canvas, so the waveform reads cleanly and consistently regardless of the
+    // clip length (800 raw buckets into a narrow bar would otherwise speckle).
+    const STEP = 3; // px per bar (bar + gap)
+    const bars = Math.max(8, Math.floor(width / STEP));
+    const src = peaks.length || 1;
+    const per = src / bars;
+    const barW = Math.max(1.5, width / bars - 1);
     const mid = height / 2;
     const playedX = progress * width;
 
-    for (let i = 0; i < n; i++) {
-      const x = (i / n) * width;
-      const h = Math.max(2, peaks[i] * (height - 4));
+    for (let b = 0; b < bars; b++) {
+      // Peak of the raw bucket range this bar represents.
+      let p = 0;
+      const start = Math.floor(b * per);
+      const end = Math.max(start + 1, Math.floor((b + 1) * per));
+      for (let i = start; i < end && i < peaks.length; i++) {
+        if (peaks[i] > p) p = peaks[i];
+      }
+      const x = (b / bars) * width;
+      const h = Math.max(2, p * (height - 4));
       ctx.fillStyle = x <= playedX ? accent : "rgba(255,255,255,0.18)";
       ctx.beginPath();
-      const r = Math.min(barW / 2, 1.5);
-      const y = mid - h / 2;
-      // Rounded bar.
-      ctx.roundRect(x, y, barW, h, r);
+      ctx.roundRect(x, mid - h / 2, barW, h, Math.min(barW / 2, 1.5));
       ctx.fill();
     }
   }, [peaks, progress, accent, height]);

@@ -66,7 +66,10 @@ export function TrackVisualizer({
 
     let t = 0;
     function frame() {
-      t += 0.016;
+      // Animate only while THIS track is the active playback; paused/off cards
+      // render a single calm seeded frame for zero idle cost (§6.6).
+      const animate = active && !reduce;
+      t += animate ? 0.016 : 0;
       // Live low-end energy (bass) when this track is the active playback.
       let energy = 0;
       if (active && readFrequencies(freqRef.current)) {
@@ -110,8 +113,8 @@ export function TrackVisualizer({
       }
       ctx!.globalCompositeOperation = "source-over";
 
-      // Reduced-motion or idle: render one frame and stop the loop.
-      if (reduce) return;
+      // Idle (not the active track) or reduced-motion: draw one frame and stop.
+      if (!active || reduce) return;
       rafRef.current = requestAnimationFrame(frame);
     }
     frame();
