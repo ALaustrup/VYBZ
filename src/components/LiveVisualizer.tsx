@@ -21,6 +21,12 @@ export function LiveVisualizer({ stream, accent = "#a87cf8", className }: { stre
     const analyser = ac.createAnalyser();
     analyser.fftSize = 512;
     srcNode.connect(analyser);
+    // Chrome won't process a MediaStreamSource→Analyser graph unless it reaches a
+    // destination; route through a muted gain so the analyser gets data (no echo).
+    const sink = ac.createGain();
+    sink.gain.value = 0;
+    analyser.connect(sink);
+    sink.connect(ac.destination);
     const bins = analyser.frequencyBinCount;
     const data = new Uint8Array(bins);
 

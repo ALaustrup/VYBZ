@@ -12,6 +12,13 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
   const [clipUrl, setClipUrl] = useState<string | null>(null);
   const recRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Listener: pipe the incoming remote stream to an <audio> element so it's audible.
+  useEffect(() => {
+    const el = audioRef.current;
+    if (el && !isHost && remoteStream) { el.srcObject = remoteStream; void el.play().catch(() => {}); }
+  }, [isHost, remoteStream]);
 
   // Tear down any object URL + recorder when the session ends.
   useEffect(() => {
@@ -71,6 +78,7 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
       <div className="h-14 overflow-hidden rounded-xl bg-black/25">
         {stream ? <LiveVisualizer stream={stream} /> : <div className="flex h-full items-center justify-center text-white/30"><Loader2 className="h-4 w-4 animate-spin" /></div>}
       </div>
+      {!isHost && <audio ref={audioRef} autoPlay className="hidden" />}
 
       <div className="mt-2 flex items-center gap-2">
         {isHost ? (
