@@ -292,9 +292,12 @@ trust and act on matches.
     transcode-surviving upgrade is the frequency-domain segmented variant (2–6 kHz PN
     per ~100 ms segment) + MP3/FLAC support via decode.
   - **C2PA Content Credentials** attached to delivered files (industry-standard signed
-    provenance; audio WAV/MP3 is supported by Adobe/CAI's `c2patool`). Requires the
-    Rust `c2patool` binary + an X.509 signing cert, so it runs in a **container/Node
-    worker**, not a Deno edge function. *Next* (worker-based).
+    provenance; audio WAV/MP3 supported by Adobe/CAI's `c2patool`). The signing worker
+    (`worker/c2pa/`) is *built and locally verified* — a signed WAV validates
+    (`validation_state: "Valid"`) with VYBZ assertions (creator, asset id, watermark
+    id, license). It runs in **Node/a container** (not the Deno edge), so the live
+    download path chains **watermark → C2PA** once the worker is hosted (any Node host;
+    self-signed cert for alpha, CA-issued for production).
   - **Optional public anchoring** — periodically publish the ledger's Merkle root to a
     public timestamping service (RFC-3161 / OpenTimestamps) for independent,
     third-party-verifiable proof-of-existence-at-time, without running a chain.
