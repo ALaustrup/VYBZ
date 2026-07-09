@@ -293,11 +293,15 @@ trust and act on matches.
     per ~100 ms segment) + MP3/FLAC support via decode.
   - **C2PA Content Credentials** attached to delivered files (industry-standard signed
     provenance; audio WAV/MP3 supported by Adobe/CAI's `c2patool`). The signing worker
-    (`worker/c2pa/`) is *built and locally verified* — a signed WAV validates
-    (`validation_state: "Valid"`) with VYBZ assertions (creator, asset id, watermark
-    id, license). It runs in **Node/a container** (not the Deno edge), so the live
-    download path chains **watermark → C2PA** once the worker is hosted (any Node host;
-    self-signed cert for alpha, CA-issued for production).
+    (`worker/c2pa/`) is *containerized and verified end-to-end locally*: the `watermark`
+    edge fn watermarks a WAV → forwards it to the worker's `POST /sign` → the delivered
+    file validates (`validation_state: "Valid"`) with the VYBZ assertions (creator,
+    asset id, watermark id, license) **and the forensic watermark survives byte-for-byte**
+    (C2PA writes a metadata chunk, not PCM). It runs in **Node/a container** (not the Deno
+    edge). Alpha activation = `docker compose up` on the VYBZ server + set the
+    `C2PA_WORKER_URL`/`C2PA_WORKER_TOKEN` edge secrets; until then downloads deliver the
+    watermarked-only file (safe fallback). Self-signed ES256 cert for alpha; CA-issued
+    for production.
   - **Optional public anchoring** — periodically publish the ledger's Merkle root to a
     public timestamping service (RFC-3161 / OpenTimestamps) for independent,
     third-party-verifiable proof-of-existence-at-time, without running a chain.
