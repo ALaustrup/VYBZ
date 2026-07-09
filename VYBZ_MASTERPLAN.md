@@ -280,10 +280,21 @@ trust and act on matches.
     download, and license grant is chained by hash to the previous row, so tampering is
     detectable (`verify_ledger()`), and `asset_provenance()` reports first-seen +
     download count. Deny-all to clients; append via definer only. *Shipped.*
-  - **Per-recipient forensic watermarking** on delivery — the real anti-piracy teeth
-    (a leak is attributable to who leaked it). *Next.*
+  - **Per-recipient forensic watermarking** on delivery — the real anti-piracy teeth.
+    A **direct-sequence spread-spectrum** watermark (current DSSS approach per
+    oximedia-watermark / VoiceSign, 2026), keyed by `HMAC(WM_SECRET, recipient|asset|
+    wm_id)`, is embedded server-side (the `watermark` Edge Function) into each
+    delivered WAV at ~34 dB SNR (inaudible) and logged as a `watermark` ledger event;
+    a blind correlation detector (`watermark-detect`, admin-only) traces a leaked file
+    to the recipient who received it. *Shipped* (WAV; verified ~35× attribution
+    separation, robust to requantization/gain/noise). Known limits: it's PROVENANCE +
+    ATTRIBUTION, not DRM (defeatable by a determined adversary); the desync-robust,
+    transcode-surviving upgrade is the frequency-domain segmented variant (2–6 kHz PN
+    per ~100 ms segment) + MP3/FLAC support via decode.
   - **C2PA Content Credentials** attached to delivered files (industry-standard signed
-    provenance). *Next.*
+    provenance; audio WAV/MP3 is supported by Adobe/CAI's `c2patool`). Requires the
+    Rust `c2patool` binary + an X.509 signing cert, so it runs in a **container/Node
+    worker**, not a Deno edge function. *Next* (worker-based).
   - **Optional public anchoring** — periodically publish the ledger's Merkle root to a
     public timestamping service (RFC-3161 / OpenTimestamps) for independent,
     third-party-verifiable proof-of-existence-at-time, without running a chain.

@@ -4,7 +4,7 @@
 // every call assumes a real, signed-in creator.
 // ---------------------------------------------------------------------------
 
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
 import type {
   Profile, ProfileDetails, Drop, Reaction, RoleOffer, RoleSeek,
   CollabMatch, Opportunity, AssetKind, DmThread, DmMessage,
@@ -394,12 +394,39 @@ export async function rateTrack(dropId: string, stars: number) {
  * mint a short-lived signed URL with a download disposition. Returns null when
  * not permitted (e.g. an owner-only project bundle).
  */
-export async function downloadAsset(assetId: string): Promise<string | null> {
+export interface DownloadResult { url: string; watermarked: boolean; revoke: boolean }
+export async function downloadAsset(assetId: string): Promise<DownloadResult | null> {
+  // Preferred: per-recipient forensic watermark on delivery. Direct fetch (not
+  // functions.invoke) so the binary WAV response is read reliably as a Blob.
+  try {
+    const { data: { session } } = await db().auth.getSession();
+    if (session?.access_token) {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/watermark`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ assetId }),
+      });
+      if (res.ok) {
+        const ct = res.headers.get("content-type") ?? "";
+        if (ct.includes("audio")) {
+          const blob = await res.blob();
+          return { url: URL.createObjectURL(blob), watermarked: true, revoke: true };
+        }
+        const j = await res.json().catch(() => ({}));
+        if (j.url) return { url: j.url, watermarked: false, revoke: false };
+      }
+    }
+  } catch { /* fall back to the plain gate */ }
+  // Fallback: permission-checked signed URL (still recorded in the license chain).
   const { data: path, error } = await db().rpc("request_asset_download", { p_asset: assetId });
   if (error || !path) return null;
-  if (/^(https?:|data:|blob:)/i.test(path as string)) return path as string;
+  if (/^(https?:|data:|blob:)/i.test(path as string)) return { url: path as string, watermarked: false, revoke: false };
   const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrl(path as string, SIGN_TTL, { download: true });
-  return data?.signedUrl ?? null;
+  return data?.signedUrl ? { url: data.signedUrl, watermarked: false, revoke: false } : null;
 }
 
 // ── Connections + DMs ────────────────────────────────────────────────────────

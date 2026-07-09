@@ -56,12 +56,14 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
     e.stopPropagation();
     if (!d.assetId || downloading) return;
     setDownloading(true);
-    const url = await api.downloadAsset(d.assetId);
+    const res = await api.downloadAsset(d.assetId);
     setDownloading(false);
-    if (url) {
+    if (res) {
       const a = document.createElement("a");
-      a.href = url; a.rel = "noopener";
+      a.href = res.url; a.rel = "noopener";
+      a.download = `${(d.title || "drop").replace(/[^\w.-]+/g, "_")}.wav`;
       document.body.appendChild(a); a.click(); a.remove();
+      if (res.revoke) setTimeout(() => URL.revokeObjectURL(res.url), 10_000);
     }
   }
 
