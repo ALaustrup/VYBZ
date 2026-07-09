@@ -182,14 +182,16 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
 | **I. Mobile + packaging** | Capacitor Android/iOS, PWA polish, native plugin-scanner sync. |
 | **J. Monetization** | Pro tier; tasteful, disclosed affiliate gear/plugin links (never influencing match scores). |
-| **K. DM real-time collaboration** ◑ | **H1 shipped**: live 1:1 audio in DMs (WebRTC P2P, mic/desktop audio, in-chat player + record). Next: **H3** audio→MIDI (Basic Pitch: melody/harmony/rhythm), **H4** Web-MIDI→DAW bridge (virtual port), **H5** native "VYBZ Bridge" for deep plugin/audio integration + TURN for NAT reliability. |
+| **K. DM real-time collaboration** ◑ | **H1** live 1:1 audio in DMs (WebRTC P2P, mic/desktop audio, in-chat player + record) ✅ · **H3** audio→MIDI (Basic Pitch, client-side) ✅ · **H4** Web-MIDI→DAW bridge (stream notes to a virtual port) ✅. Next: **H5** native "VYBZ Bridge" for deep plugin/audio integration + TURN for NAT reliability. |
 | **L. Codex (public doc library)** | Free, public, professionally-drafted music-industry document library (contracts→demand letters) with plain-English explainers, jurisdiction tags, and disclaimers. US-first. ~90 document types catalogued. |
 | **M. Brand system** | Official VYBZ logo set (mark/wordmark/mono), favicons/PWA icons, OG image, intro animation, email + Codex-doc headers. Drops into `public/brand/`. |
 
 ### 4.1 Development findings & environment constraints
 - **DM live audio (H1) is implemented and correct**, but cannot be fully exercised in the CI/VM test environment: there is **no microphone**, and `getDisplayMedia` tab-audio capture is **silent** (no real audio output device to capture), so the visualizer/audible path has no signal to show here. Verified in-sandbox: the go-live control + source menu, graceful no-device error handling, `getDisplayMedia` capture → offer → "Calling…" panel + controls, clean build, no console errors. Two real bugs found + fixed during testing: (a) a `MediaStreamSource→Analyser` graph needs a destination sink or Chrome won't process it; (b) the listener needs an `<audio>` element to actually hear the remote stream. **Full 1:1 live audio (audible + visualizer + two-peer connect) should be validated on real devices.**
 - **Infra-gated backlog** (all blocked only on hosting/cost, code is ready): C2PA worker live hosting (needs a reachable container host — LAN box unreachable, free Docker hosts now require payment/PRO); **TURN** server for strict-NAT WebRTC reliability; **LiveKit** SFU for group live rehearsal/XR. These flip on the moment infra exists.
-- **Testing note:** file-playback visuals (feed/reactive border) work in-VM because they tap the in-graph analyser directly; capture-based audio (mic/tab) does not, due to the VM lacking audio hardware.
+- **audio→MIDI (H3) is verified in-VM** (converting a track produced a valid 426-note MIDI, parsed back with `@tonejs/midi`) — it runs on files, so no capture hardware is needed. TensorFlow.js falls back to CPU where WebGL is unavailable.
+- **Web MIDI → DAW (H4) is implemented + degrades gracefully**, but the headless VM has no MIDI subsystem (`requestMIDIAccess` → `InvalidStateError`), so live streaming into a DAW must be validated on a real desktop with a virtual MIDI port (IAC/loopMIDI) in Chrome/Edge. Verified in-VM: support detection, permission flow, and the graceful "MIDI unavailable / set up a virtual port" messaging.
+- **Testing note:** file-playback visuals + audio→MIDI work in-VM (they tap in-graph/file audio); capture-based audio (mic/tab) and Web MIDI do not, because the VM lacks audio + MIDI hardware.
 
 ---
 

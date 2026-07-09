@@ -36,7 +36,13 @@ export function useMidiOutputs() {
       a.onstatechange = () => list(a);
       setReady(true);
     } catch (e) {
-      setError((e as Error)?.message || "MIDI access was denied.");
+      const name = (e as Error)?.name;
+      if (name === "SecurityError" || name === "NotAllowedError") {
+        setError("MIDI permission was denied — allow MIDI access and retry.");
+      } else {
+        // e.g. InvalidStateError when the OS has no MIDI subsystem/ports.
+        setError("MIDI is unavailable here. Use desktop Chrome/Edge with a virtual MIDI port (IAC Driver / loopMIDI) routed into your DAW.");
+      }
     }
   }, [supported, list]);
 
