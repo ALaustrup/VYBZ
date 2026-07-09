@@ -44,6 +44,13 @@ as a `c2pa` event in the provenance ledger, and the response carries `X-VYBZ-C2P
 - `entrypoint.sh` — generates the cert if absent, then starts the server.
 - `Dockerfile` / `docker-compose.yml` — bundles `c2patool` + runs the worker.
 
+## Hosting requirement (glibc)
+Use a **container host** (Fly.io / Render free tiers, or any VPS with Docker). The
+`c2patool` linux-gnu binary links **GLIBC_2.39**, so glibc-2.36 environments fail at
+runtime with `GLIBC_2.39 not found`. The image is therefore based on **Ubuntu 24.04**
+(glibc 2.39). For the same reason **Vercel serverless is NOT viable** — its Amazon
+Linux 2023 runtime ships glibc ~2.34, so the binary can't load there.
+
 ## Notes
 - C2PA is **provenance/attribution**, complementary to the forensic watermark: the
   watermark survives stripping (attribution even after the manifest is removed),
