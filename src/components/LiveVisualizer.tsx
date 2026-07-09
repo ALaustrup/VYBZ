@@ -16,6 +16,7 @@ export function LiveVisualizer({ stream, accent = "#a87cf8", className }: { stre
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return;
     const ac = new AC();
+    void ac.resume(); // may start suspended under autoplay policy; needed to pull data
     const srcNode = ac.createMediaStreamSource(stream);
     const analyser = ac.createAnalyser();
     analyser.fftSize = 512;
