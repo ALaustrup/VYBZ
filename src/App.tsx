@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
-import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell } from "lucide-react";
+import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { DynamicBackground } from "@/components/DynamicBackground";
@@ -21,12 +21,15 @@ import { UserProfilePage } from "@/pages/UserProfilePage";
 import { MessagesPage } from "@/pages/MessagesPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { NotificationsPage } from "@/pages/NotificationsPage";
+import { ProjectsPage } from "@/pages/ProjectsPage";
+import { ProjectRoomPage } from "@/pages/ProjectRoomPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
   { to: "/", label: "Drops", icon: AudioLines, end: true },
   { to: "/discover", label: "Discover", icon: Search },
   { to: "/connect", label: "Connect", icon: Users, match: ["/spark", "/opportunities"] },
+  { to: "/projects", label: "Studio", icon: FolderGit2 },
   { to: "/messages", label: "Messages", icon: MessageSquare },
   { to: "/profile", label: "You", icon: User, match: ["/u/"] },
 ];
@@ -54,6 +57,8 @@ export function App() {
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/spark" element={<SparkPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id" element={<ProjectRoomPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/messages/:id" element={<MessagesPage />} />
         <Route path="/profile" element={<ProfilePage />} />

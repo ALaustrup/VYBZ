@@ -501,6 +501,95 @@ export async function searchCreators(query?: string, role?: string, genre?: stri
   }));
 }
 
+// ── Projects (Phase D: rooms → versions → split sheets → credits) ────────────
+const PROJECT_BUCKET = "project-files";
+
+export async function myProjects(): Promise<import("@/types").ProjectSummary[]> {
+  const { data } = await db().rpc("my_projects");
+  return (data ?? []).map((r: any) => ({
+    id: r.id, title: r.title, status: r.status, ownerId: r.owner_id,
+    isOwner: !!r.is_owner, members: Number(r.members ?? 0), versions: Number(r.versions ?? 0),
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+  }));
+}
+
+export async function createProject(input: {
+  title: string; description?: string; bpm?: number; musicalKey?: string; genres?: string[];
+}): Promise<string | null> {
+  const { data, error } = await db().rpc("create_project", {
+    p_title: input.title, p_description: input.description ?? null,
+    p_bpm: input.bpm ?? null, p_key: input.musicalKey ?? null, p_genres: input.genres ?? [],
+  });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+export async function projectDetail(id: string): Promise<import("@/types").ProjectDetail | null> {
+  const { data, error } = await db().rpc("project_detail", { p_project: id });
+  if (error || !data) return null;
+  const p = data.project ?? {};
+  return {
+    id: p.id, title: p.title, description: p.description ?? null,
+    bpm: p.bpm ?? null, musicalKey: p.musical_key ?? null, genres: p.genres ?? [],
+    status: p.status, ownerId: p.owner_id, isOwner: !!data.is_owner,
+    releasedAt: p.released_at ? new Date(p.released_at).getTime() : null,
+    createdAt: p.created_at ? new Date(p.created_at).getTime() : Date.now(),
+    collaborators: (data.collaborators ?? []).map((c: any) => ({
+      userId: c.user_id, username: c.username ?? null, role: c.role ?? null,
+      canUpload: !!c.can_upload, split: Number(c.split ?? 0), agreed: !!c.agreed,
+    })),
+    versions: (data.versions ?? []).map((v: any) => ({
+      id: v.id, version: v.version, note: v.note ?? null, uploader: v.uploader ?? null,
+      assetId: v.asset_id ?? null, kind: v.kind ?? null, format: v.format ?? null,
+      createdAt: v.created_at ? new Date(v.created_at).getTime() : Date.now(),
+    })),
+  };
+}
+
+export async function addCollaborator(projectId: string, userId: string, roleId?: string) {
+  const { error } = await db().rpc("add_collaborator", { p_project: projectId, p_user: userId, p_role: roleId ?? null });
+  if (error) throw error;
+}
+export async function setSplit(projectId: string, userId: string, split: number, roleId?: string) {
+  const { error } = await db().rpc("set_split", { p_project: projectId, p_user: userId, p_role: roleId ?? null, p_split: split });
+  if (error) throw error;
+}
+export async function agreeSplit(projectId: string) {
+  const { error } = await db().rpc("agree_split", { p_project: projectId });
+  if (error) throw error;
+}
+export async function releaseProject(projectId: string) {
+  const { error } = await db().rpc("release_project", { p_project: projectId });
+  if (error) throw error;
+}
+
+/** Upload a project bundle to private storage, register an asset, and attach it as a new version. */
+export async function addVersion(projectId: string, file: Blob, filename: string, note?: string): Promise<boolean> {
+  const uid = await currentUserId();
+  if (!uid) return false;
+  const ext = (filename.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+  const path = `${uid}/${projectId}/${crypto.randomUUID()}.${ext}`;
+  const { error: upErr } = await db().storage.from(PROJECT_BUCKET).upload(path, file, {
+    contentType: file.type || "application/octet-stream", upsert: false,
+  });
+  if (upErr) return false;
+  const { data: asset, error: aErr } = await db().from("assets").insert({
+    owner_id: uid, kind: "project", title: filename, url: path, format: ext, license: "collab-only",
+  }).select("id").single();
+  if (aErr || !asset) return false;
+  const { error } = await db().rpc("add_version", { p_project: projectId, p_asset: (asset as any).id, p_note: note ?? null });
+  return !error;
+}
+
+export async function creatorCredits(id: string): Promise<import("@/types").Credit[]> {
+  const { data } = await db().rpc("creator_credits", { p_id: id });
+  return (data ?? []).map((r: any) => ({
+    projectId: r.project_id, title: r.title, role: r.role ?? null,
+    releasedAt: r.released_at ? new Date(r.released_at).getTime() : null,
+    split: r.split != null ? Number(r.split) : null,
+  }));
+}
+
 // ── Realtime ──────────────────────────────────────────────────────────────────
 /** Subscribe to inserts on a table (optionally filtered). Returns the channel. */
 export function subscribeInserts(table: string, filter: string | undefined, cb: () => void): RealtimeChannel {

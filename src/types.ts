@@ -157,3 +157,61 @@ export interface CreatorSearchResult {
   seeks: string[];
   genres: string[];
 }
+
+// ── Phase D: projects, versioned handoff, split sheets, verified credits ──────
+export type ProjectStatus = "open" | "in-progress" | "released" | "archived";
+
+export interface ProjectSummary {
+  id: string;
+  title: string;
+  status: ProjectStatus;
+  ownerId: string;
+  isOwner: boolean;
+  members: number;
+  versions: number;
+  createdAt: number;
+}
+
+export interface ProjectCollaborator {
+  userId: string;
+  username: string | null;
+  role: string | null;
+  canUpload: boolean;
+  split: number;
+  agreed: boolean;
+}
+
+export interface ProjectVersion {
+  id: string;
+  version: number;
+  note: string | null;
+  uploader: string | null;
+  assetId: string | null;
+  kind: string | null;
+  format: string | null;
+  createdAt: number;
+}
+
+export interface ProjectDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  bpm: number | null;
+  musicalKey: string | null;
+  genres: string[];
+  status: ProjectStatus;
+  ownerId: string;
+  isOwner: boolean;
+  releasedAt: number | null;
+  createdAt: number;
+  collaborators: ProjectCollaborator[];
+  versions: ProjectVersion[];
+}
+
+export interface Credit {
+  projectId: string;
+  title: string;
+  role: string | null;
+  releasedAt: number | null;
+  split: number | null;
+}

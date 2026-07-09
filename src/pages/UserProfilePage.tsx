@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck } from "lucide-react";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { useSession } from "@/store/session";
 import { avatarGradient } from "@/lib/utils";
-import type { Drop, CreatorStats } from "@/types";
+import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function UserProfilePage() {
   const { id = "" } = useParams();
@@ -14,11 +14,12 @@ export function UserProfilePage() {
   const [p, setP] = useState<api.PublicProfile | null>(null);
   const [drops, setDrops] = useState<Drop[]>([]);
   const [stats, setStats] = useState<CreatorStats | null>(null);
+  const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20), api.getCreatorStats(id)]).then(([prof, d, s]) => {
-      setP(prof); setDrops(d); setStats(s); setLoading(false);
+    Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20), api.getCreatorStats(id), api.creatorCredits(id)]).then(([prof, d, s, c]) => {
+      setP(prof); setDrops(d); setStats(s); setCredits(c); setLoading(false);
     });
   }, [id]);
 
@@ -58,6 +59,21 @@ export function UserProfilePage() {
         {p.seeks.length > 0 && <Row icon={<Target className="h-3.5 w-3.5 text-aqua-300" />} label="Seeks" items={p.seeks} tone="bg-aqua-400/15 text-aqua-200" />}
         {f.genres?.length ? <Row label="Genres" items={f.genres} tone="bg-veil-500/20 text-veil-100" /> : null}
       </div>
+      {credits.length > 0 && (
+        <div className="mb-4">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><BadgeCheck className="h-3.5 w-3.5 text-feel" /> Verified credits</p>
+          <div className="space-y-1.5">
+            {credits.map((c) => (
+              <div key={c.projectId} className="flex items-center gap-2 rounded-xl border border-feel/15 bg-feel/[0.05] px-3 py-2">
+                <BadgeCheck className="h-4 w-4 shrink-0 text-feel" />
+                <span className="min-w-0 flex-1 truncate text-sm text-white/85">{c.title}</span>
+                {c.role && <span className="shrink-0 text-[11px] text-white/50">{c.role}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Drops</p>
       <div className="grid gap-4 sm:grid-cols-2">{drops.map((d) => <TrackCard key={d.id} drop={{ ...d, authorUsername: p.username }} queue={drops} />)}</div>
     </div>

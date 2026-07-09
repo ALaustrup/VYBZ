@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { EmptyState } from "@/components/EmptyState";
 import { AudioLines } from "lucide-react";
 import { avatarGradient } from "@/lib/utils";
-import type { Drop, CreatorStats } from "@/types";
+import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function ProfilePage() {
   const { profile, userId, signOut } = useSession();
@@ -15,12 +15,13 @@ export function ProfilePage() {
   const [roles, setRoles] = useState<{ offers: string[]; seeks: string[] }>({ offers: [], seeks: [] });
   const [drops, setDrops] = useState<Drop[]>([]);
   const [stats, setStats] = useState<CreatorStats | null>(null);
+  const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
-    Promise.all([api.rolesFor(userId), api.dropsBy(userId, 20), api.getCreatorStats(userId)]).then(([r, d, s]) => {
-      setRoles(r); setDrops(d); setStats(s); setLoading(false);
+    Promise.all([api.rolesFor(userId), api.dropsBy(userId, 20), api.getCreatorStats(userId), api.creatorCredits(userId)]).then(([r, d, s, c]) => {
+      setRoles(r); setDrops(d); setStats(s); setCredits(c); setLoading(false);
     });
   }, [userId]);
 
@@ -64,6 +65,22 @@ export function ProfilePage() {
           <Target className="h-5 w-5 shrink-0 text-aqua-300" />
           <p className="text-xs text-white/70">Add the roles you <span className="font-semibold text-white">bring</span> and <span className="font-semibold text-white">seek</span> — that's what powers precise collaborator matches.</p>
         </button>
+      )}
+
+      {credits.length > 0 && (
+        <div className="mb-4">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><BadgeCheck className="h-3.5 w-3.5 text-feel" /> Verified credits</p>
+          <div className="space-y-1.5">
+            {credits.map((c) => (
+              <div key={c.projectId} className="flex items-center gap-2 rounded-xl border border-feel/15 bg-feel/[0.05] px-3 py-2">
+                <BadgeCheck className="h-4 w-4 shrink-0 text-feel" />
+                <span className="min-w-0 flex-1 truncate text-sm text-white/85">{c.title}</span>
+                {c.role && <span className="shrink-0 text-[11px] text-white/50">{c.role}</span>}
+                {c.split != null && <span className="shrink-0 text-[11px] font-semibold text-feel">{c.split}%</span>}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Your drops</p>
