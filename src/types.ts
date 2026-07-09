@@ -215,3 +215,30 @@ export interface Credit {
   releasedAt: number | null;
   split: number | null;
 }
+
+// ── Phase F: categorized collab chat (taxonomy-bound rooms + presence) ────────
+export type RoomKind = "role" | "genre" | "daw";
+
+export interface Room {
+  id: string;
+  kind: RoomKind;
+  refId: string;
+  title: string;
+  messages: number;
+  lastAt: number | null;
+}
+
+export interface RoomMessage {
+  id: string;
+  roomId: string;
+  senderId: string;
+  senderName: string | null;
+  body: string;
+  createdAt: number;
+  mine: boolean;
+}
+
+export interface RoomPresence {
+  userId: string;
+  username: string | null;
+}

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2, MessageSquare, Send } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
+import { ChatTabs } from "@/components/ChatTabs";
 import { cx, timeAgo } from "@/lib/utils";
 import type { DmMessage, DmThread } from "@/types";
 
@@ -19,10 +20,11 @@ function ThreadList() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 pb-1 pt-3"><h1 className="font-display text-xl font-bold text-gradient">Messages</h1></div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-2">
+      <div className="px-4 pb-2 pt-3"><h1 className="font-display text-xl font-bold text-gradient">Messages</h1></div>
+      <ChatTabs active="direct" />
+      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-1">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
-          : threads.length === 0 ? <EmptyState icon={MessageSquare} title="No messages yet" body="Connect with a collaborator from Connect or their profile to start a conversation." />
+          : threads.length === 0 ? <EmptyState icon={MessageSquare} title="No direct messages yet" body="Connect with a collaborator, or jump into a community Room to meet people." />
           : <div className="space-y-1.5">{threads.map((t) => (
               <button key={t.id} onClick={() => navigate(`/messages/${t.id}`)} className="flex w-full items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-veil-500/20 font-display font-bold text-veil-100">{(t.peerUsername || "?").charAt(0).toUpperCase()}</span>

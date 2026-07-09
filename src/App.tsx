@@ -24,6 +24,8 @@ import { DiscoverPage } from "@/pages/DiscoverPage";
 import { NotificationsPage } from "@/pages/NotificationsPage";
 import { ProjectsPage } from "@/pages/ProjectsPage";
 import { ProjectRoomPage } from "@/pages/ProjectRoomPage";
+import { RoomsPage } from "@/pages/RoomsPage";
+import { RoomPage } from "@/pages/RoomPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
@@ -31,7 +33,7 @@ const NAV = [
   { to: "/discover", label: "Discover", icon: Search },
   { to: "/connect", label: "Connect", icon: Users, match: ["/spark", "/opportunities"] },
   { to: "/projects", label: "Studio", icon: FolderGit2 },
-  { to: "/messages", label: "Messages", icon: MessageSquare },
+  { to: "/messages", label: "Messages", icon: MessageSquare, match: ["/rooms"] },
   { to: "/profile", label: "You", icon: User, match: ["/u/"] },
 ];
 
@@ -62,6 +64,8 @@ export function App() {
         <Route path="/projects/:id" element={<ProjectRoomPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/messages/:id" element={<MessagesPage />} />
+        <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/rooms/:id" element={<RoomPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />

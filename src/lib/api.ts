@@ -590,6 +590,60 @@ export async function creatorCredits(id: string): Promise<import("@/types").Cred
   }));
 }
 
+// ── Rooms (Phase F: categorized collab chat + presence) ─────────────────────
+export async function listRooms(): Promise<import("@/types").Room[]> {
+  const { data } = await db().rpc("list_rooms");
+  return (data ?? []).map((r: any) => ({
+    id: r.id, kind: r.kind, refId: r.ref_id, title: r.title,
+    messages: Number(r.messages ?? 0), lastAt: r.last_at ? new Date(r.last_at).getTime() : null,
+  }));
+}
+
+export async function getRoom(id: string): Promise<import("@/types").Room | null> {
+  const { data } = await db().from("rooms").select("id,kind,ref_id,title").eq("id", id).maybeSingle();
+  if (!data) return null;
+  const r = data as any;
+  return { id: r.id, kind: r.kind, refId: r.ref_id, title: r.title, messages: 0, lastAt: null };
+}
+
+export async function listRoomMessages(roomId: string, limit = 100): Promise<import("@/types").RoomMessage[]> {
+  const uid = await currentUserId();
+  const { data } = await db().from("room_messages")
+    .select("id,room_id,sender_id,body,created_at").eq("room_id", roomId)
+    .order("created_at", { ascending: true }).limit(limit);
+  if (!data) return [];
+  const names = await usernamesFor(data.map((m: any) => m.sender_id));
+  return data.map((m: any) => ({
+    id: m.id, roomId: m.room_id, senderId: m.sender_id, senderName: names.get(m.sender_id) ?? null,
+    body: m.body, createdAt: new Date(m.created_at).getTime(), mine: m.sender_id === uid,
+  }));
+}
+
+export async function sendRoomMessage(roomId: string, body: string) {
+  const uid = await currentUserId();
+  if (!uid) return;
+  const clean = body.trim().slice(0, 2000);
+  if (!clean) return;
+  await db().from("room_messages").insert({ room_id: roomId, sender_id: uid, body: clean });
+}
+
+/** Join a room's live presence channel; `onSync` receives the current occupants. */
+export function joinRoomPresence(
+  roomId: string,
+  me: { id: string; username: string | null },
+  onSync: (users: import("@/types").RoomPresence[]) => void,
+): RealtimeChannel {
+  const ch = db().channel(`room-presence:${roomId}`, { config: { presence: { key: me.id } } });
+  ch.on("presence", { event: "sync" }, () => {
+    const state = ch.presenceState() as Record<string, { user_id: string; username: string | null }[]>;
+    const seen = new Map<string, import("@/types").RoomPresence>();
+    Object.values(state).flat().forEach((p) => seen.set(p.user_id, { userId: p.user_id, username: p.username ?? null }));
+    onSync(Array.from(seen.values()));
+  });
+  ch.subscribe((status) => { if (status === "SUBSCRIBED") void ch.track({ user_id: me.id, username: me.username }); });
+  return ch;
+}
+
 // ── Realtime ──────────────────────────────────────────────────────────────────
 /** Subscribe to inserts on a table (optionally filtered). Returns the channel. */
 export function subscribeInserts(table: string, filter: string | undefined, cb: () => void): RealtimeChannel {
