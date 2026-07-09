@@ -379,6 +379,31 @@ export async function dropsBy(authorId: string, limit = 40) {
   return assembleDrops(data ?? [], myId);
 }
 
+// ── Discovery (anti-popularity feed) ─────────────────────────────────────────
+export interface DiscoveryDrop extends Drop { visibility: number; popularity: number; plays: number; myReaction?: Reaction; myRating?: number }
+
+const _played = new Set<string>();
+/** Count a distinct-listener play (once per drop per session; server de-dupes + ignores self-plays). */
+export async function recordPlay(dropId: string) {
+  if (!dropId || _played.has(dropId)) return;
+  _played.add(dropId);
+  try { await db().rpc("record_play", { p_drop: dropId }); } catch { /* non-fatal */ }
+}
+
+/**
+ * The anti-popularity discovery feed: under-exposed artists first, overexposed last.
+ * `seed` rotates the fair-exposure jitter (pass a fresh value to reshuffle unknowns).
+ */
+export async function listDiscovery(seed: number, limit = 40): Promise<DiscoveryDrop[]> {
+  const myId = await currentUserId();
+  const { data } = await db().rpc("discovery_feed", { p_limit: limit, p_seed: Math.floor(seed) & 0x7fffffff });
+  if (!data) return [];
+  const drops = await assembleDrops(data, myId);
+  const meta = new Map<string, { visibility: number; popularity: number; plays: number }>();
+  (data as any[]).forEach((r) => meta.set(r.id, { visibility: Number(r.visibility ?? 0), popularity: Number(r.popularity ?? 0), plays: Number(r.plays ?? 0) }));
+  return drops.map((d) => ({ ...d, ...(meta.get(d.id) ?? { visibility: 0, popularity: 0, plays: 0 }) })) as DiscoveryDrop[];
+}
+
 export async function react(dropId: string, reaction: Reaction) {
   const uid = await currentUserId();
   if (!uid) return;

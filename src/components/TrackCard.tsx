@@ -82,6 +82,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   function togglePlay(e: React.MouseEvent) {
     e.stopPropagation();
     if (!d.audioUrl) return;
+    if (!isCurrent) void api.recordPlay(d.id); // count a distinct-listener play on start
     playTrack(toPlayerTrack(d), (queue ?? []).filter((x) => x.audioUrl).map(toPlayerTrack));
   }
 
