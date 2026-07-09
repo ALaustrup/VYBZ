@@ -453,6 +453,16 @@ export async function listThreads(): Promise<DmThread[]> {
     return { id: t.id, peerId, peerUsername: names.get(peerId) ?? null, lastAt: new Date(t.last_at).getTime() };
   });
 }
+export async function getThreadPeer(threadId: string): Promise<{ id: string; username: string | null } | null> {
+  const uid = await currentUserId();
+  const { data: t } = await db().from("dm_threads").select("user_a,user_b").eq("id", threadId).maybeSingle();
+  if (!t) return null;
+  const row = t as { user_a: string; user_b: string };
+  const peerId = row.user_a === uid ? row.user_b : row.user_a;
+  const { data } = await db().from("public_profiles").select("username").eq("id", peerId).maybeSingle();
+  return { id: peerId, username: (data as { username?: string } | null)?.username ?? null };
+}
+
 export async function listMessages(threadId: string): Promise<DmMessage[]> {
   const uid = await currentUserId();
   const { data } = await db().from("dm_messages")
