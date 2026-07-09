@@ -1,0 +1,20 @@
+# VYBZ C2PA worker — deploy on 51.210.209.112 (alpha).
+#   WORKER_TOKEN=<secret> docker compose up -d --build
+# The signing cert is auto-generated (self-signed, alpha) into the c2pa-certs volume
+# on first boot. Replace with a CA-issued cert for production.
+services:
+  c2pa:
+    build: .
+    image: vybz-c2pa-worker
+    container_name: vybz-c2pa
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      WORKER_TOKEN: ${WORKER_TOKEN:?set WORKER_TOKEN}
+      PORT: "8787"
+      CERT_DIR: /certs
+    volumes:
+      - c2pa-certs:/certs
+volumes:
+  c2pa-certs:

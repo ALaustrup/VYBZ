@@ -2,45 +2,51 @@
 
 Attaches **C2PA Content Credentials** (signed provenance manifests) to delivered
 audio — the industry-standard, cross-platform provenance layer (§8.7). It wraps
-Adobe/CAI's **`c2patool`** (the current maintained tool; audio WAV/MP3 supported),
-so it must run in **Node/a container — not a Deno edge function**.
+Adobe/CAI's **`c2patool`**, so it runs in **Node/a container — not the Deno edge**.
 
 ## Status
-- ✅ **Verified locally**: signing a WAV with `sign.mjs`'s manifest and reading it
-  back yields `"validation_state": "Valid"` with the VYBZ assertions
+- ✅ **Verified end-to-end (locally)**: the `watermark` edge function watermarks a
+  WAV → forwards it to this worker's `POST /sign` → the delivered file validates
+  (`validation_state: "Valid"`) with the VYBZ assertions
   (`stds.schema-org.CreativeWork` + `com.vybz.provenance`: asset id, recipient,
-  watermark id, license) intact.
-- ⏳ **Not yet in the live download path** — it needs a Node host and a signing
-  cert. The watermark step runs in a Supabase (Deno) edge function, which can't
-  execute `c2patool`; this worker is the C2PA half.
+  watermark id, license) **and the forensic watermark survives byte-for-byte**
+  (C2PA writes a metadata chunk without touching PCM samples).
+- Signing uses a **self-signed ES256 cert** for alpha (auto-generated on first boot);
+  production should swap in a CA-issued cert.
 
-## Where it fits
-Delivery pipeline: **permission gate → per-recipient watermark (`watermark` edge fn)
-→ C2PA sign (this worker) → deliver**. Point the download flow at this worker (or
-have the edge function forward the watermarked bytes here) once it's hosted.
-
-## Run
+## Deploy (alpha, on the VYBZ server)
 ```bash
-# 1. Get c2patool (once):
-#    https://github.com/contentauth/c2pa-rs/releases  (c2patool-*-x86_64-unknown-linux-gnu.tar.gz)
-export C2PATOOL_BIN=/path/to/c2patool
-
-# 2. Provide an ES256 signing identity:
-#    - alpha: a self-signed cert (c2patool ships sample certs for testing)
-#    - production: a certificate from a trusted CA (e.g. DigiCert), per C2PA
-export C2PA_SIGN_CERT="$(cat certs/es256_certs.pem)"
-export C2PA_PRIVATE_KEY="$(cat certs/es256_private.key)"
-
-export WORKER_TOKEN=<shared-secret>
-npm start   # POST /sign  (Bearer WORKER_TOKEN, x-vybz-meta base64 header, WAV body)
+# On 51.210.209.112 (Docker + Docker Compose installed):
+git clone <repo> && cd worker/c2pa
+WORKER_TOKEN="$(openssl rand -hex 24)" docker compose up -d --build
+# A self-signed signing cert is generated into the c2pa-certs volume on first boot.
+# Verify:  curl -sf -X POST localhost:8787/sign -H "Authorization: Bearer $WORKER_TOKEN" ...
 ```
+Put it behind the existing Nginx (or expose `:8787` directly for alpha). Keep
+`WORKER_TOKEN` and the signing key server-side only.
 
-## Hosting (no paid infra required)
-Any Node host works — a small container on a free tier, or a Node serverless
-function that bundles the `c2patool` binary. Keep the signing key server-side only.
+## Activate the chain (watermark → C2PA)
+Set two Supabase edge secrets, then downloads are watermarked **and** C2PA-signed:
+```bash
+supabase secrets set C2PA_WORKER_URL="http://51.210.209.112:8787" \
+                     C2PA_WORKER_TOKEN="<the WORKER_TOKEN>" \
+                     --project-ref xixmneooyufbeftdfpcm
+```
+The `watermark` edge function forwards the watermarked WAV to `POST /sign`; if the
+worker is unset/unreachable it delivers the **watermarked-only** file (safe
+fallback) and never blocks a download (15s timeout). A successful sign is recorded
+as a `c2pa` event in the provenance ledger, and the response carries `X-VYBZ-C2PA: 1`.
+
+## Files
+- `sign.mjs` — manifest builder + `signAudio` / `readManifest` (wraps `c2patool`).
+- `server.mjs` — `POST /sign` (Bearer `WORKER_TOKEN`, `x-vybz-meta` base64 header, WAV body).
+- `gen-cert.sh` — self-signed ES256 alpha cert (EKU emailProtection, KU digitalSignature).
+- `entrypoint.sh` — generates the cert if absent, then starts the server.
+- `Dockerfile` / `docker-compose.yml` — bundles `c2patool` + runs the worker.
 
 ## Notes
 - C2PA is **provenance/attribution**, complementary to the forensic watermark: the
-  watermark survives stripping (attribution), while C2PA gives verifiable,
-  tamper-evident, industry-recognized credentials while the manifest is intact.
+  watermark survives stripping (attribution even after the manifest is removed),
+  while C2PA gives verifiable, tamper-evident, industry-recognized credentials.
 - Production requires a CA-issued cert so validators trust the signature chain.
+- Never commit signing material — `certs/`, `*.key`, `*.pem` are git-ignored.

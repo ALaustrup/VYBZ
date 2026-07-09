@@ -14,7 +14,17 @@ import { deriveKey, embedChannel, parseWav, encodeWav } from "../_shared/waterma
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const WM_SECRET = Deno.env.get("WM_SECRET") ?? "";
+// Optional C2PA worker (Node/container; can't run in this Deno edge). When both are
+// set, the watermarked WAV is forwarded for Content-Credentials signing before
+// delivery. If unset or unreachable, we deliver the watermarked-only file (safe).
+const C2PA_WORKER_URL = Deno.env.get("C2PA_WORKER_URL") ?? "";
+const C2PA_WORKER_TOKEN = Deno.env.get("C2PA_WORKER_TOKEN") ?? "";
 const BUCKET = "audio-assets";
+
+/** UTF-8-safe base64 (btoa is Latin1-only). */
+function b64(s: string): string {
+  return btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+}
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
@@ -76,13 +86,45 @@ Deno.serve(async (req: Request) => {
     p_payload: { wm_id: wmId, license: asset.license, delivered_sha256: outHash },
   });
 
-  return new Response(out, {
+  // Optional: attach C2PA Content Credentials via the Node worker. Best-effort —
+  // the watermark alone is already a complete provenance/attribution artifact.
+  let delivered = out;
+  let c2pa = false;
+  if (C2PA_WORKER_URL && C2PA_WORKER_TOKEN) {
+    try {
+      const { data: names } = await admin.from("public_profiles").select("id,username").in("id", [uid, asset.owner_id]);
+      const nameOf = (id: string) => names?.find((n: { id: string }) => n.id === id)?.username ?? null;
+      const meta = {
+        assetId, recipient: nameOf(uid) ?? uid, watermarkId: wmId,
+        license: asset.license, title: asset.title ?? "VYBZ drop", author: nameOf(asset.owner_id),
+      };
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 15000);
+      const r = await fetch(`${C2PA_WORKER_URL.replace(/\/+$/, "")}/sign`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${C2PA_WORKER_TOKEN}`, "x-vybz-meta": b64(JSON.stringify(meta)), "Content-Type": "audio/wav" },
+        body: out, signal: ac.signal,
+      });
+      clearTimeout(timer);
+      if (r.ok && (r.headers.get("content-type") ?? "").includes("audio")) {
+        delivered = new Uint8Array(await r.arrayBuffer());
+        c2pa = true;
+        await admin.rpc("ledger_append", {
+          p_event: "c2pa", p_asset: assetId, p_actor: uid,
+          p_payload: { wm_id: wmId, delivered_sha256: await sha256Hex(delivered), signer: "vybz-alpha" },
+        });
+      }
+    } catch (_e) { /* worker down/slow → deliver watermarked-only */ }
+  }
+
+  return new Response(delivered, {
     status: 200,
     headers: {
       ...CORS,
       "Content-Type": "audio/wav",
       "Content-Disposition": `attachment; filename="${(asset.title || "drop").replace(/[^\w.-]+/g, "_")}.wav"`,
       "X-VYBZ-Watermark": wmId,
+      "X-VYBZ-C2PA": c2pa ? "1" : "0",
     },
   });
 });
