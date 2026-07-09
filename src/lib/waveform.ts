@@ -146,6 +146,35 @@ export async function computeWaveform(
   };
 }
 
+async function digestHex(data: ArrayBuffer | Uint8Array): Promise<string> {
+  const h = await crypto.subtle.digest("SHA-256", data as ArrayBuffer);
+  return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Cryptographic SHA-256 of the original file bytes (provenance identity). */
+export async function sha256Hex(blob: Blob): Promise<string> {
+  return digestHex(await blob.arrayBuffer());
+}
+
+/**
+ * A lightweight acoustic signature: peaks downsampled to 64 coarse buckets and
+ * quantized, then hashed. A cheap perceptual-ish fingerprint for duplicate/theft
+ * hints today (a robust chromaprint-class fingerprint is a later upgrade).
+ */
+export async function acousticSignature(peaks: number[]): Promise<string> {
+  const N = 64;
+  const out = new Array(N).fill(0);
+  const per = (peaks.length || 1) / N;
+  for (let i = 0; i < N; i++) {
+    let m = 0;
+    for (let j = Math.floor(i * per); j < Math.floor((i + 1) * per) && j < peaks.length; j++) {
+      if (peaks[j] > m) m = peaks[j];
+    }
+    out[i] = Math.round(m * 15);
+  }
+  return digestHex(new TextEncoder().encode(out.join(",")));
+}
+
 /** A deterministic, seeded placeholder waveform (for undecodable files/MIDI). */
 export function placeholderWaveform(seed: number, buckets = 800): number[] {
   let s = seed >>> 0;

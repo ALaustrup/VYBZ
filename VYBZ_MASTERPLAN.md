@@ -158,8 +158,10 @@ facets):** `collab_matches`, `my_opportunities`, `set_creator_roles`,
   verification before public launch). Storage buckets: `media-public` (avatars,
   public), `audio-assets` + `project-files` (private, signed-URL access).
 - **Domain:** `vybz.astramatrix.xyz` (Vercel). SEO/canonical/manifest target it.
-- **Edge Functions:** keep `embed` (resonance embeddings) and `passkey` (WebAuthn,
-  wiring pending). All MYVYB functions were removed.
+- **Edge Functions:** `embed` computes semantic-resonance vectors using Supabase's
+  **built-in Edge inference** (`Supabase.ai`, model `gte-small`, 384-d) — free,
+  server-side, no external provider or API key. `passkey` (WebAuthn) wiring pending.
+  All MYVYB functions were removed.
 
 ---
 
@@ -229,9 +231,12 @@ edges, not just symmetric overlap.
 seasoned engineer isn't buried in beginners (and newcomers still find peers). Skill is
 already captured per offered role.
 
-**(e) Sonic embeddings (not just text).** Compute audio embeddings from uploaded drops
-(a worker/Edge Function) and add a "your sounds actually fit" signal, plus
-"find creators who sound like this." Complements the existing text-influence resonance.
+**(e) Semantic + sonic embeddings.** Text resonance is **live and free**: the `embed`
+Edge Function embeds each creator's identity (influences, genres, DAWs, plugins, intent)
+with Supabase's built-in `gte-small` model (384-d, no external key/cost) into
+`profile_embeddings`, and the resonance term in `collab_matches` uses it. Next upgrade:
+*audio* embeddings from uploaded drops for a true "your sounds actually fit" / "find
+creators who sound like this" signal.
 
 **(f) Reputation & reliability.** A trust layer built from completed collaborations,
 post-collab ratings, response rate, and on-time delivery. Boosts high-signal creators
@@ -263,10 +268,27 @@ trust and act on matches.
   ratings feed taste matching.
 - **Exchange** (Phase C): download gating through `request_asset_download` (records the
   license accepted); previews stream at capped quality, originals never get a public URL.
-- **Protection** (Phase C): per-recipient inaudible **forensic watermarking** at
-  delivery (traceable leaks), a **perceptual-fingerprint provenance registry** ("first
-  seen on VYBZ"), and an auditable **license chain**. Market it as protection +
-  provenance, not unbreakable DRM.
+- **Protection & provenance (§8.7)** — deliberately **not a blockchain**. VYBZ is the
+  trusted operator, so a self-run chain would be a slow, complex database with none of
+  the decentralization benefits, immutable-PII/GDPR liabilities, and no added
+  anti-piracy power. Instead:
+  - **Content hashing + acoustic signature on upload** (SHA-256 of the original +
+    a lightweight peaks-derived signature; chromaprint-class fingerprint is a later
+    upgrade) → the "first seen on VYBZ" provenance record (`assets.sha256`/`fingerprint`).
+    *Shipped.*
+  - **Hash-chained, append-only audit ledger** (`provenance_ledger`): every mint,
+    download, and license grant is chained by hash to the previous row, so tampering is
+    detectable (`verify_ledger()`), and `asset_provenance()` reports first-seen +
+    download count. Deny-all to clients; append via definer only. *Shipped.*
+  - **Per-recipient forensic watermarking** on delivery — the real anti-piracy teeth
+    (a leak is attributable to who leaked it). *Next.*
+  - **C2PA Content Credentials** attached to delivered files (industry-standard signed
+    provenance). *Next.*
+  - **Optional public anchoring** — periodically publish the ledger's Merkle root to a
+    public timestamping service (RFC-3161 / OpenTimestamps) for independent,
+    third-party-verifiable proof-of-existence-at-time, without running a chain.
+  - Market it as **protection + provenance, not unbreakable DRM** (the analog hole
+    always exists) — still more than any mainstream platform offers creators.
 - **Projects** (Phase D): `projects`/`collaborators`/`versions`/`split_sheets` for
   private, versioned handoffs and agreed credits.
 - **Swarm** (Phase H): encrypted-chunk WebRTC distribution; the `assets` table already

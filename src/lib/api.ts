@@ -284,6 +284,7 @@ export interface NewDrop {
   audioUrl?: string; waveform?: number[]; durationSec?: number;
   bpm?: number; musicalKey?: string; audioFormat?: string; sampleRate?: number; lossless?: boolean;
   license?: string;
+  sha256?: string; fingerprint?: string;
 }
 export async function createDrop(input: NewDrop): Promise<Drop | null> {
   const uid = await currentUserId();
@@ -296,6 +297,7 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
       bpm: input.bpm ?? null, musical_key: input.musicalKey ?? null, format: input.audioFormat ?? null,
       sample_rate: input.sampleRate ?? null, lossless: input.lossless ?? false,
       license: input.license ?? "collab-only",
+      sha256: input.sha256 ?? null, fingerprint: input.fingerprint ?? null,
     }).select("id").single();
     if (aerr || !asset) return null;
     assetId = (asset as any).id;

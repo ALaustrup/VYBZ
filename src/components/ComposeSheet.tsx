@@ -6,6 +6,7 @@ import * as api from "@/lib/api";
 import { Waveform } from "@/components/Waveform";
 import {
   AUDIO_ACCEPT, audioMeta, computeWaveform, placeholderWaveform, qualityLabel,
+  sha256Hex, acousticSignature,
 } from "@/lib/waveform";
 import { playTrack, usePlayer, seekFraction } from "@/lib/audioBus";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
@@ -76,11 +77,16 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     setPosting(true);
     const path = await api.uploadAudio(audio.file, audio.ext);
     if (!path) { setPosting(false); showToast("Upload failed — check your connection."); return; }
+    // Provenance: hash the original bytes + a lightweight acoustic signature.
+    const [sha256, fingerprint] = await Promise.all([
+      sha256Hex(audio.file).catch(() => undefined),
+      acousticSignature(audio.peaks).catch(() => undefined),
+    ]);
     const drop = await api.createDrop({
       title: title.trim() || undefined, seed, assetKind: kind, audioUrl: path,
       waveform: audio.peaks, durationSec: audio.duration, bpm: bpm ? Number(bpm) : undefined,
       musicalKey: musicalKey || undefined, audioFormat: audio.format, sampleRate: audio.sampleRate || undefined,
-      lossless: audio.lossless, license,
+      lossless: audio.lossless, license, sha256, fingerprint,
     });
     setPosting(false);
     if (!drop) { showToast("Couldn't post that drop."); return; }
