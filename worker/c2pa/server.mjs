@@ -33,6 +33,12 @@ function readBody(req) {
 }
 
 createServer(async (req, res) => {
+  // Health check (GET / or /healthz) — lets hosts detect the service is up.
+  if (req.method === "GET" && (req.url === "/" || req.url?.startsWith("/healthz"))) {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ service: "vybz-c2pa", ok: true, signer: certPem && keyPem ? "configured" : "missing" }));
+    return;
+  }
   if (req.method !== "POST" || !req.url?.startsWith("/sign")) {
     res.writeHead(404).end("not found");
     return;
