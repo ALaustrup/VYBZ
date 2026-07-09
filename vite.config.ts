@@ -12,6 +12,9 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;
+          // Heavy audio→MIDI ML deps: isolated so they load ONLY on demand
+          // (dynamic import in lib/audioToMidi), never in the main app shell.
+          if (id.includes("@tensorflow") || id.includes("@spotify/basic-pitch") || id.includes("@tonejs/midi")) return "audio-midi";
           if (id.includes("framer-motion")) return "motion";
           if (id.includes("@supabase")) return "supabase";
           if (id.includes("react-router") || id.includes("/react/") || id.includes("react-dom")) return "react";
@@ -31,6 +34,9 @@ export default defineConfig({
       workbox: {
         navigateFallback: "/index.html",
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+        // Don't precache the heavy on-demand audio→MIDI (TensorFlow.js) chunk or model.
+        globIgnores: ["**/audio-midi-*.js", "**/models/**"],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         // Layer Web Push + notificationclick handlers onto the generated SW.
         importScripts: ["push-sw.js"],
         // Apply new deploys immediately for returning users (no stale shell).

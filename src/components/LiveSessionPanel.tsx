@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Radio, PhoneOff, Mic, MicOff, Check, X, Circle, Disc, Download, Loader2 } from "lucide-react";
 import { LiveVisualizer } from "@/components/LiveVisualizer";
+import { ExtractMidiButton } from "@/components/ExtractMidiButton";
 import type { LiveSession } from "@/lib/liveSession";
 
 /** In-chat live-session surface: incoming call, connecting, and the active
@@ -91,11 +92,13 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
           </button>
         )}
         {clipUrl && (
-          <a href={clipUrl} download={`vybz-live-${peerName}.webm`} className="flex items-center gap-1.5 rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95">
-            <Download className="h-3.5 w-3.5" /> Save clip
-          </a>
+          <>
+            <a href={clipUrl} download={`vybz-live-${peerName}.webm`} className="flex items-center gap-1.5 rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95">
+              <Download className="h-3.5 w-3.5" /> Save clip
+            </a>
+            <ExtractMidiButton source={clipUrl} title={`live-${peerName}`} />
+          </>
         )}
-        {!isHost && <span className="ml-auto text-[11px] text-white/40">MIDI extraction coming next</span>}
       </div>
     </div>
   );

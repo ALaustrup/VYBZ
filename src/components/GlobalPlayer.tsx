@@ -22,6 +22,7 @@ import {
 } from "@/lib/audioBus";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
+import { ExtractMidiButton } from "@/components/ExtractMidiButton";
 import { cx } from "@/lib/utils";
 
 function fmt(s: number): string {
@@ -236,6 +237,13 @@ export function GlobalPlayer({ className }: { className?: string }) {
                   style={{ accentColor: accent }}
                 />
               </div>
+
+              {/* Audio → MIDI: pull a MIDI clip from this track for your DAW. */}
+              {p.track.url && (
+                <div className="flex items-center justify-center">
+                  <ExtractMidiButton source={p.track.url} title={p.track.title} />
+                </div>
+              )}
             </div>
           </motion.div>
         )}
