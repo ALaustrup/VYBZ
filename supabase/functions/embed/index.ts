@@ -49,10 +49,15 @@ function profileText(username: string, profile: Record<string, unknown>): string
   if (username) parts.push(username);
   const bio = profile.bio;
   if (typeof bio === "string" && bio.trim()) parts.push(bio.trim());
-  const pronouns = profile.pronouns;
-  if (typeof pronouns === "string" && pronouns.trim()) parts.push(`pronouns: ${pronouns}`);
-  const interests = arr(profile.interests);
-  if (interests.length) parts.push(`Interests: ${interests.join(", ")}`);
+  // VYBZ resonance: influences + genres + tools are the sonic-identity signal.
+  const influences = profile.influences;
+  if (typeof influences === "string" && influences.trim()) parts.push(`Influences: ${influences.trim()}`);
+  const genres = arr(profile.genres);
+  if (genres.length) parts.push(`Genres: ${genres.join(", ")}`);
+  const daws = arr(profile.daws);
+  if (daws.length) parts.push(`DAWs: ${daws.join(", ")}`);
+  const plugins = arr(profile.plugins);
+  if (plugins.length) parts.push(`Plugins: ${plugins.join(", ")}`);
   const lookingFor = arr(profile.lookingFor);
   if (lookingFor.length) parts.push(`Looking for: ${lookingFor.join(", ")}`);
   const languages = arr(profile.languages);

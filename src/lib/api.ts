@@ -141,6 +141,15 @@ export async function rolesFor(id: string): Promise<{ offers: string[]; seeks: s
   return { offers: row?.offers ?? [], seeks: row?.seeks ?? [] };
 }
 
+/**
+ * Fire-and-forget: refresh the caller's semantic embedding (influences/genres/
+ * bio → pgvector) so the resonance term in matchmaking reflects their sound.
+ * The server function no-ops gracefully if the embedding provider is unavailable.
+ */
+export async function refreshEmbedding(): Promise<void> {
+  try { await db().functions.invoke("embed", { body: {} }); } catch { /* non-fatal */ }
+}
+
 // ── Matchmaking ──────────────────────────────────────────────────────────────
 export async function collabMatches(limit = 30): Promise<CollabMatch[]> {
   const { data, error } = await db().rpc("collab_matches", { p_limit: limit });

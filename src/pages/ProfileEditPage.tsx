@@ -42,6 +42,7 @@ export function ProfileEditPage() {
     };
     await api.updateMyProfile({ bio: bio.trim(), location: location.trim(), profile: details });
     await api.setMyRoles(offers.map((r) => ({ roleId: r, skill: 3 })), seeks.map((r) => ({ roleId: r, priority: 1 })));
+    void api.refreshEmbedding(); // update semantic resonance vector (async, non-blocking)
     await refreshProfile();
     setBusy(false);
     showToast("Profile saved");
