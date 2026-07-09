@@ -8,10 +8,18 @@
 const MODEL_URL = "/models/basic-pitch/model.json";
 const TARGET_RATE = 22050; // Basic Pitch expects 22.05 kHz mono
 
+export interface MidiNote {
+  midi: number;
+  time: number;
+  duration: number;
+  velocity: number;
+}
+
 export interface MidiResult {
   blob: Blob;
   noteCount: number;
   durationSec: number;
+  notes: MidiNote[];
 }
 
 async function toMonoResampled(buf: ArrayBuffer): Promise<AudioBuffer> {
@@ -56,19 +64,19 @@ export async function audioToMidi(input: string | Blob, onProgress?: (p: number)
 
   const notes = noteFramesToTime(addPitchBendsToNoteEvents(contours, outputToNotesPoly(frames, onsets, 0.5, 0.3, 5)));
 
+  const events: MidiNote[] = notes.map((n) => ({
+    midi: n.pitchMidi,
+    time: n.startTimeSeconds,
+    duration: Math.max(0.03, n.durationSeconds),
+    velocity: Math.max(0.1, Math.min(1, n.amplitude)),
+  }));
+
   const midi = new Midi();
   midi.header.setTempo(120);
   const track = midi.addTrack();
   track.name = "VYBZ audio-to-MIDI";
-  for (const n of notes) {
-    track.addNote({
-      midi: n.pitchMidi,
-      time: n.startTimeSeconds,
-      duration: Math.max(0.03, n.durationSeconds),
-      velocity: Math.max(0.1, Math.min(1, n.amplitude)),
-    });
-  }
+  for (const e of events) track.addNote(e);
 
   const blob = new Blob([Uint8Array.from(midi.toArray())], { type: "audio/midi" });
-  return { blob, noteCount: notes.length, durationSec: audio.duration };
+  return { blob, noteCount: events.length, durationSec: audio.duration, notes: events };
 }

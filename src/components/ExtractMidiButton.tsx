@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Piano, Loader2, Download } from "lucide-react";
-import { audioToMidi } from "@/lib/audioToMidi";
+import { audioToMidi, type MidiNote } from "@/lib/audioToMidi";
+import { SendToDaw } from "@/components/SendToDaw";
 import { cx } from "@/lib/utils";
 
 type Status = "idle" | "running" | "done" | "error";
@@ -9,7 +10,8 @@ type Status = "idle" | "running" | "done" | "error";
 export function ExtractMidiButton({ source, title = "clip", className }: { source: string | Blob | null; title?: string; className?: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [pct, setPct] = useState(0);
-  const [notes, setNotes] = useState(0);
+  const [noteCount, setNoteCount] = useState(0);
+  const [noteEvents, setNoteEvents] = useState<MidiNote[]>([]);
   const [url, setUrl] = useState<string | null>(null);
   const urlRef = useRef<string | null>(null);
 
@@ -23,7 +25,7 @@ export function ExtractMidiButton({ source, title = "clip", className }: { sourc
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
       const u = URL.createObjectURL(res.blob);
       urlRef.current = u;
-      setUrl(u); setNotes(res.noteCount); setStatus("done");
+      setUrl(u); setNoteCount(res.noteCount); setNoteEvents(res.notes); setStatus("done");
     } catch {
       setStatus("error");
     }
@@ -33,9 +35,14 @@ export function ExtractMidiButton({ source, title = "clip", className }: { sourc
 
   if (status === "done" && url) {
     return (
-      <a href={url} download={`vybz-${safe}.mid`} className={cx("flex items-center gap-1.5 rounded-full bg-feel/20 px-3 py-1.5 text-xs font-semibold text-feel active:scale-95", className)}>
-        <Download className="h-3.5 w-3.5" /> Save MIDI · {notes} notes
-      </a>
+      <div className={cx("flex flex-col gap-1.5", className)}>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <a href={url} download={`vybz-${safe}.mid`} className="flex items-center gap-1.5 rounded-full bg-feel/20 px-3 py-1.5 text-xs font-semibold text-feel active:scale-95">
+            <Download className="h-3.5 w-3.5" /> Save MIDI · {noteCount} notes
+          </a>
+          <SendToDaw notes={noteEvents} />
+        </div>
+      </div>
     );
   }
   return (
