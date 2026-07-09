@@ -644,6 +644,28 @@ export function joinRoomPresence(
   return ch;
 }
 
+// ── Live: synchronized listening (Phase G v1) ───────────────────────────────
+// Host broadcasts their player state to everyone in the room over a Realtime
+// broadcast channel; followers' AudioBus mirrors it. No media server needed.
+export interface ListenState {
+  hostId: string;
+  hostName: string | null;
+  track: import("@/lib/audioBus").PlayerTrack | null;
+  positionSec: number;
+  playing: boolean;
+  at: number; // sender clock (ms) for drift compensation
+  ended?: boolean;
+}
+export function joinRoomListen(roomId: string, onSync: (s: ListenState) => void): RealtimeChannel {
+  const ch = db().channel(`room-listen:${roomId}`, { config: { broadcast: { self: false } } });
+  ch.on("broadcast", { event: "sync" }, (msg: { payload: ListenState }) => onSync(msg.payload));
+  ch.subscribe();
+  return ch;
+}
+export function sendListen(ch: RealtimeChannel, state: ListenState) {
+  void ch.send({ type: "broadcast", event: "sync", payload: state });
+}
+
 // ── Realtime ──────────────────────────────────────────────────────────────────
 /** Subscribe to inserts on a table (optionally filtered). Returns the channel. */
 export function subscribeInserts(table: string, filter: string | undefined, cb: () => void): RealtimeChannel {
