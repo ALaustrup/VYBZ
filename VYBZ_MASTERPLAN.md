@@ -174,8 +174,8 @@ manually verified, and it strengthens matchmaking or the exchange.
 |---|---|
 | **A. Reliability & polish** | Realtime updates (feed/DMs), notifications (new match, application, message), search & discovery (by role/genre/DAW/plugin/location), profile hero (featured drop), onboarding role-setup nudge. |
 | **B. Matchmaking depth** | The §5.4 enhancements: role-affinity graph, skill-tier proximity, reputation, sonic embeddings, learning-to-rank, production/agency-specific matching. |
-| **C. Exchange + protection** | Download gating end-to-end, per-recipient forensic watermarking, perceptual-fingerprint provenance registry, license chain, DMCA tooling. |
-| **D. Projects & collab rooms** | Private project handoff: versioned bundles, collaborators, split sheets, verified credits + discography. |
+| **C. Exchange + protection** ✅ | Download gating end-to-end, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + locally verified (hosting pending). |
+| **D. Projects & collab rooms** ✅ | *Shipped.* Private project rooms with versioned bundle handoffs, collaborators, split sheets (per-member agreement), release gate, and **verified credits** that feed reputation. Next: discography surface + threaded per-project chat. |
 | **E. Signature reactivity** | Platform-wide audio-reactive borders + the seeded per-track visualizer library (the `AudioBus` analyser already exists as the foundation). |
 | **F. Categorized collab chat** | Taxonomy-bound rooms (per DAW / plugin / instrument); presence feeds matchmaking. |
 | **G. Live** | LiveKit listening/rehearsal/feedback sessions; optional XR "listening room." |
@@ -303,8 +303,10 @@ trust and act on matches.
     third-party-verifiable proof-of-existence-at-time, without running a chain.
   - Market it as **protection + provenance, not unbreakable DRM** (the analog hole
     always exists) — still more than any mainstream platform offers creators.
-- **Projects** (Phase D): `projects`/`collaborators`/`versions`/`split_sheets` for
-  private, versioned handoffs and agreed credits.
+- **Projects** (Phase D, *shipped*): `projects`/`project_collaborators`/`project_versions`/
+  `split_sheets` power private, versioned handoffs, per-member split agreement, a release
+  gate, and verified credits (`creator_credits`) that feed `creator_reputation`. Access is
+  through member-gated `SECURITY DEFINER` RPCs (tables are deny-all to clients).
 - **Swarm** (Phase H): encrypted-chunk WebRTC distribution; the `assets` table already
   carries the manifest columns (`cipher_algo`, `chunk_size`, `chunk_hashes`,
   `content_key_envelope`) so it's purely additive — keys flow only through the
