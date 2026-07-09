@@ -68,7 +68,9 @@ Deno.serve(async (req: Request) => {
   // Attribution: the top score, if well above the rest, identifies the leaker.
   const top = results[0];
   const second = results[1]?.score ?? 0;
-  const attributed = top && top.score > 0.004 && top.score > second * 4 ? top : null;
+  // Peak/fold-energy statistic: true recipient ~0.3–0.5, others ~0.04 noise floor.
+  // Attribute when the top is well above the floor AND clearly beats the runner-up.
+  const attributed = top && top.score > 0.15 && top.score > second * 2.5 ? top : null;
 
   return json({ ok: true, attributed, matches: results });
 });

@@ -23,6 +23,10 @@ export async function deriveKey(secret, payload) {
   return new Uint8Array(sig);
 }
 
+/** Watermark period (samples). The PN repeats every PERIOD, which makes the mark
+ *  alignment-tolerant: trimming just shifts the fold offset, recovered by xcorr. */
+export const PERIOD = 8192;
+
 /** Seed a xorshift128+ PRNG from key bytes; yields ±1 chips deterministically. */
 function pnGenerator(key) {
   let s0 = 0n, s1 = 0n;
@@ -39,6 +43,41 @@ function pnGenerator(key) {
     s1 = x & MASK;
     return ((s0 + s1) & MASK) & 1n ? 1 : -1; // low bit → ±1
   };
+}
+
+/** One period of the PN sequence (±1), as Float64Array of length PERIOD. */
+function pnPeriod(key) {
+  const g = pnGenerator(key);
+  const p = new Float64Array(PERIOD);
+  for (let i = 0; i < PERIOD; i++) p[i] = g();
+  return p;
+}
+
+/** In-place iterative radix-2 FFT (complex). len must be a power of 2. */
+function fft(re, im, inverse = false) {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) { [re[i], re[j]] = [re[j], re[i]]; [im[i], im[j]] = [im[j], im[i]]; }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = (inverse ? 2 : -2) * Math.PI / len;
+    const wr = Math.cos(ang), wi = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let cr = 1, ci = 0;
+      for (let k = 0; k < len / 2; k++) {
+        const ur = re[i + k], ui = im[i + k];
+        const vr = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci;
+        const vi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr;
+        re[i + k] = ur + vr; im[i + k] = ui + vi;
+        re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi;
+        const ncr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = ncr;
+      }
+    }
+  }
+  if (inverse) for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; }
 }
 
 /** Local energy envelope (moving RMS) for perceptual masking. */
@@ -58,17 +97,17 @@ function envelope(x, win = 1024) {
 }
 
 /**
- * Embed the watermark in-place into a channel (Float64 [-1,1]).
- * alpha ≈ 0.02 keeps it well below perception (~34–40 dB SNR) yet the blind
- * correlation detector still separates the true recipient by ~30–40×.
+ * Embed the watermark in-place into a channel (Float64 [-1,1]) as a PERIOD-length
+ * PN repeated across the signal, at low amplitude scaled by a local energy
+ * envelope. alpha ≈ 0.02 keeps it ~34–40 dB below the signal (inaudible).
  */
 export function embedChannel(x, key, alpha = 0.02) {
-  const pn = pnGenerator(key);
+  const p = pnPeriod(key);
   const env = envelope(x);
-  const floor = 0.0015; // ensures a faint carrier even in near-silence
+  const floor = 0.0015;
   for (let i = 0; i < x.length; i++) {
     const g = alpha * Math.max(env[i], floor);
-    let v = x[i] + g * pn();
+    let v = x[i] + g * p[i % PERIOD];
     if (v > 1) v = 1; else if (v < -1) v = -1;
     x[i] = v;
   }
@@ -76,19 +115,34 @@ export function embedChannel(x, key, alpha = 0.02) {
 }
 
 /**
- * Blind detection statistic: normalized correlation between the signal and a
- * candidate PN. Near 0 for the wrong key; clearly positive for the true one.
+ * Blind, desync-tolerant detection. The signal is folded modulo PERIOD (so the
+ * repeated watermark adds constructively while unrelated audio averages toward
+ * zero), then circularly cross-correlated with the candidate PN via FFT. The
+ * peak (over all alignments) is the detection statistic — trimming/cropping only
+ * shifts where the peak lands, so attribution survives it. ~0 for the wrong key.
  */
 export function detectChannel(x, key) {
-  const pn = pnGenerator(key);
-  let dot = 0, energy = 0;
-  for (let i = 0; i < x.length; i++) {
-    const p = pn();
-    dot += x[i] * p;
-    energy += x[i] * x[i];
+  const p = pnPeriod(key);
+  // Fold into PERIOD bins.
+  const acc = new Float64Array(PERIOD);
+  for (let i = 0; i < x.length; i++) acc[i % PERIOD] += x[i];
+  // Circular cross-correlation acc ⋆ p via FFT: IFFT( FFT(acc) * conj(FFT(p)) ).
+  const ar = Float64Array.from(acc), ai = new Float64Array(PERIOD);
+  const pr = Float64Array.from(p), pi = new Float64Array(PERIOD);
+  fft(ar, ai); fft(pr, pi);
+  const cr = new Float64Array(PERIOD), ci = new Float64Array(PERIOD);
+  for (let k = 0; k < PERIOD; k++) {
+    cr[k] = ar[k] * pr[k] + ai[k] * pi[k];   // multiply by conjugate of P
+    ci[k] = ai[k] * pr[k] - ar[k] * pi[k];
   }
-  const norm = Math.sqrt(energy) * Math.sqrt(x.length) || 1;
-  return dot / norm;
+  fft(cr, ci, true);
+  let peak = 0;
+  for (let k = 0; k < PERIOD; k++) if (Math.abs(cr[k]) > peak) peak = Math.abs(cr[k]);
+  // Normalize by fold energy so the statistic is scale-invariant (~0..1).
+  let accEnergy = 0;
+  for (let k = 0; k < PERIOD; k++) accEnergy += acc[k] * acc[k];
+  const norm = Math.sqrt(accEnergy) * Math.sqrt(PERIOD) || 1;
+  return peak / norm;
 }
 
 // ── Minimal WAV (PCM 16/24/32-bit int + 32-bit float) codec ──────────────────
