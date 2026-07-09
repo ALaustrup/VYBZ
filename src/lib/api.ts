@@ -283,6 +283,7 @@ export interface NewDrop {
   title?: string; body?: string; seed: number; assetKind: AssetKind;
   audioUrl?: string; waveform?: number[]; durationSec?: number;
   bpm?: number; musicalKey?: string; audioFormat?: string; sampleRate?: number; lossless?: boolean;
+  license?: string;
 }
 export async function createDrop(input: NewDrop): Promise<Drop | null> {
   const uid = await currentUserId();
@@ -294,6 +295,7 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
       url: input.audioUrl, waveform: input.waveform ?? null, duration_sec: input.durationSec ?? null,
       bpm: input.bpm ?? null, musical_key: input.musicalKey ?? null, format: input.audioFormat ?? null,
       sample_rate: input.sampleRate ?? null, lossless: input.lossless ?? false,
+      license: input.license ?? "collab-only",
     }).select("id").single();
     if (aerr || !asset) return null;
     assetId = (asset as any).id;
@@ -311,6 +313,7 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     audioUrl: signed ?? input.audioUrl, waveform: input.waveform, durationSec: input.durationSec,
     assetKind: input.assetKind, bpm: input.bpm ?? null, musicalKey: input.musicalKey ?? null,
     audioFormat: input.audioFormat ?? null, sampleRate: input.sampleRate ?? null, lossless: input.lossless,
+    license: input.license ?? "collab-only",
   };
 }
 
@@ -321,7 +324,7 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
   const assetMap = new Map<string, any>();
   if (assetIds.length) {
     const { data } = await db().from("assets")
-      .select("id,kind,url,waveform,duration_sec,bpm,musical_key,format,sample_rate,lossless,rating_avg,rating_count")
+      .select("id,kind,url,waveform,duration_sec,bpm,musical_key,format,sample_rate,lossless,license,rating_avg,rating_count")
       .in("id", assetIds);
     (data ?? []).forEach((a: any) => assetMap.set(a.id, a));
   }
@@ -351,6 +354,7 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
       waveform: a?.waveform ?? undefined, durationSec: a?.duration_sec ?? undefined,
       assetKind: a?.kind ?? undefined, bpm: a?.bpm ?? null, musicalKey: a?.musical_key ?? null,
       audioFormat: a?.format ?? null, sampleRate: a?.sample_rate ?? null, lossless: a?.lossless ?? false,
+      license: a?.license ?? null,
       rating: a ? Number(a.rating_avg ?? 0) : undefined,
       ratingCount: a ? Number(a.rating_count ?? 0) : undefined,
       myReaction: myReactions.get(r.id), myRating: r.asset_id ? myRatings.get(r.asset_id) : undefined,
@@ -380,6 +384,20 @@ export async function react(dropId: string, reaction: Reaction) {
 }
 export async function rateTrack(dropId: string, stars: number) {
   await db().rpc("rate_track", { p_drop: dropId, p_rating: stars });
+}
+
+/**
+ * Request a full-quality download of an asset (§8). The definer RPC enforces the
+ * permission + license gate and records the grant (the license chain); we then
+ * mint a short-lived signed URL with a download disposition. Returns null when
+ * not permitted (e.g. an owner-only project bundle).
+ */
+export async function downloadAsset(assetId: string): Promise<string | null> {
+  const { data: path, error } = await db().rpc("request_asset_download", { p_asset: assetId });
+  if (error || !path) return null;
+  if (/^(https?:|data:|blob:)/i.test(path as string)) return path as string;
+  const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrl(path as string, SIGN_TTL, { download: true });
+  return data?.signedUrl ?? null;
 }
 
 // ── Connections + DMs ────────────────────────────────────────────────────────

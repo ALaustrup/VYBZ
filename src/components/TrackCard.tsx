@@ -1,12 +1,18 @@
 import { useMemo } from "react";
-import { Pause, Play, Star, Heart, EyeOff, MessageCircle, Music2, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Pause, Play, Star, Heart, EyeOff, MessageCircle, Music2, Loader2, Download } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
 import { Handle } from "@/components/Handle";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { usePlayer, playTrack, seekFraction, type PlayerTrack } from "@/lib/audioBus";
 import { qualityLabel } from "@/lib/waveform";
+import * as api from "@/lib/api";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
+
+const LICENSE_LABEL: Record<string, string> = {
+  "collab-only": "Collab", "credit-required": "Credit", free: "Free",
+};
 
 const KIND_LABEL: Record<string, string> = {
   sample: "Sample", loop: "Loop", oneshot: "One-shot", stem: "Stem",
@@ -44,6 +50,20 @@ interface TrackCardProps {
 export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, onOpenAuthor, className }: TrackCardProps) {
   const player = usePlayer();
   const accent = useMemo(() => paletteFor(d.seed)[0], [d.seed]);
+  const [downloading, setDownloading] = useState(false);
+
+  async function download(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!d.assetId || downloading) return;
+    setDownloading(true);
+    const url = await api.downloadAsset(d.assetId);
+    setDownloading(false);
+    if (url) {
+      const a = document.createElement("a");
+      a.href = url; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  }
 
   const isCurrent = player.track?.id === d.id;
   const playing = isCurrent && player.playing;
@@ -89,9 +109,16 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
           <button onClick={onOpenAuthor} className="flex min-w-0 items-center gap-1.5 text-white/60">
             <Handle username={d.authorUsername} size={compact ? 15 : 17} />
           </button>
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold text-white/70">
-            <Music2 className="h-3 w-3" style={{ color: accent }} />{KIND_LABEL[d.assetKind ?? "track"]}
-          </span>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {d.license && (
+              <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/55">
+                {LICENSE_LABEL[d.license] ?? d.license}
+              </span>
+            )}
+            <span className="flex items-center gap-1 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold text-white/70">
+              <Music2 className="h-3 w-3" style={{ color: accent }} />{KIND_LABEL[d.assetKind ?? "track"]}
+            </span>
+          </div>
         </div>
 
         <p className={cx("font-display font-semibold text-white", compact ? "line-clamp-1 text-sm" : "line-clamp-2 text-base")}>
@@ -118,6 +145,12 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
             <span className="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold text-white/40">
               <MessageCircle className="h-4 w-4" />
             </span>
+            {d.assetId && (
+              <button onClick={download} aria-label="Download"
+                className="flex items-center rounded-full px-2 py-1 text-white/55 transition active:scale-90 hover:bg-white/10 hover:text-white">
+                {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              </button>
+            )}
           </div>
           <div className="flex items-center gap-0.5" role="group" aria-label="Rate this track">
             {[1, 2, 3, 4, 5].map((n) => {

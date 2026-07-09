@@ -3,9 +3,24 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
 
-// MYVYB is a client-side SPA. We keep the config intentionally minimal so the
-// build stays fast and predictable for mobile-first deployment.
+// VYBZ is a client-side SPA. Kept intentionally minimal so the build stays fast
+// and predictable for mobile-first deployment; vendors are split into cacheable
+// chunks (see build.rollupOptions) so app updates don't re-download dependencies.
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (id.includes("framer-motion")) return "motion";
+          if (id.includes("@supabase")) return "supabase";
+          if (id.includes("react-router") || id.includes("/react/") || id.includes("react-dom")) return "react";
+          if (id.includes("lucide-react")) return "icons";
+          return "vendor";
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     // Installable PWA: Workbox precaches the hashed app shell (offline-capable)
@@ -51,10 +66,10 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "MYVYB — Social Evolved",
-        short_name: "MYVYB",
+        name: "VYBZ — Find Yours.",
+        short_name: "VYBZ",
         description:
-          "Social Evolved. Express anonymously, swipe a feed you control, go live, and match by vibe.",
+          "Find Yours. Match with complementary music creators and exchange samples, stems, and project files.",
         id: "/",
         start_url: "/",
         scope: "/",
@@ -62,7 +77,7 @@ export default defineConfig({
         orientation: "portrait",
         background_color: "#191c22",
         theme_color: "#191c22",
-        categories: ["social", "lifestyle"],
+        categories: ["music", "social"],
         icons: [
           {
             src: "/icons/icon-192.png",

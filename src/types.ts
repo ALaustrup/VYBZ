@@ -65,6 +65,8 @@ export interface Drop {
   audioFormat?: string | null;
   sampleRate?: number | null;
   lossless?: boolean;
+  /** Exchange license for the asset: 'collab-only' | 'credit-required' | 'free'. */
+  license?: string | null;
   rating?: number;
   ratingCount?: number;
 }

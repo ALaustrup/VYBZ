@@ -32,6 +32,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [kind, setKind] = useState<AssetKind>("track");
   const [bpm, setBpm] = useState("");
   const [musicalKey, setMusicalKey] = useState("");
+  const [license, setLicense] = useState("collab-only");
   const [decoding, setDecoding] = useState(false);
   const [posting, setPosting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -43,7 +44,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   useEffect(() => {
     if (open) {
       setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
-      setKind("track"); setBpm(""); setMusicalKey(""); setDecoding(false); setPosting(false);
+      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only"); setDecoding(false); setPosting(false);
     }
   }, [open]);
 
@@ -79,7 +80,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       title: title.trim() || undefined, seed, assetKind: kind, audioUrl: path,
       waveform: audio.peaks, durationSec: audio.duration, bpm: bpm ? Number(bpm) : undefined,
       musicalKey: musicalKey || undefined, audioFormat: audio.format, sampleRate: audio.sampleRate || undefined,
-      lossless: audio.lossless,
+      lossless: audio.lossless, license,
     });
     setPosting(false);
     if (!drop) { showToast("Couldn't post that drop."); return; }
@@ -152,6 +153,16 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     </select>
                     <button type="button" onClick={() => setAudio(null)} aria-label="Remove"
                       className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">Exchange license</p>
+                    <div className="flex gap-1.5">
+                      {[["collab-only","Collab only"],["credit-required","Credit required"],["free","Free"]].map(([id,label]) => (
+                        <button key={id} type="button" onClick={() => setLicense(id)}
+                          className={cx("flex-1 rounded-full px-2 py-1.5 text-[11px] font-semibold transition active:scale-95",
+                            license === id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55")}>{label}</button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
