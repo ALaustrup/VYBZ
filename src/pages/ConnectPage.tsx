@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, Flame, Loader2, MessageCircle, Music2, Repeat, Sparkles, Target, UserPlus, Users } from "lucide-react";
+import { Briefcase, Flame, Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, UserPlus, Users } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
@@ -58,6 +58,7 @@ export function ConnectPage() {
                     <div className="flex items-center gap-2">
                       <button onClick={() => navigate(`/u/${m.userId}`)} className="truncate font-display font-semibold text-white">{m.username || "Creator"}</button>
                       {m.mutual && <span className="flex shrink-0 items-center gap-1 rounded-full bg-feel/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Repeat className="h-2.5 w-2.5" /> Mutual</span>}
+                      {m.reputation >= 0.5 && <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300"><Star className="h-2.5 w-2.5" fill="currentColor" /> Proven</span>}
                     </div>
                     <p className="text-xs text-white/45">{Math.round(m.fit * 100)}% fit</p>
                   </div>

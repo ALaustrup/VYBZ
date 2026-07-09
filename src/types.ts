@@ -83,7 +83,17 @@ export interface CollabMatch {
   sharedPlugins: string[];
   openToWork: boolean;
   resonance: number;
+  /** 0..1 reputation (rating-weighted + social proof). */
+  reputation: number;
   fit: number;
+}
+
+export interface CreatorStats {
+  avgRating: number;
+  ratings: number;
+  drops: number;
+  connections: number;
+  reputation: number;
 }
 
 export type Commitment = "one-off" | "ongoing" | "session" | "band-member";

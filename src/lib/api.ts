@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import type {
   Profile, ProfileDetails, Drop, Reaction, RoleOffer, RoleSeek,
   CollabMatch, Opportunity, AssetKind, DmThread, DmMessage,
-  AppNotification, CreatorSearchResult,
+  AppNotification, CreatorSearchResult, CreatorStats,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -150,8 +150,19 @@ export async function collabMatches(limit = 30): Promise<CollabMatch[]> {
     offersYouSeek: r.offers_you_seek ?? [], seeksYouOffer: r.seeks_you_offer ?? [],
     mutual: !!r.mutual, sharedGenres: r.shared_genres ?? [], sharedDaws: r.shared_daws ?? [],
     sharedPlugins: r.shared_plugins ?? [], openToWork: !!r.open_to_work,
-    resonance: Number(r.resonance ?? 0), fit: Number(r.fit ?? 0),
+    resonance: Number(r.resonance ?? 0), reputation: Number(r.reputation ?? 0), fit: Number(r.fit ?? 0),
   }));
+}
+
+export async function getCreatorStats(id: string): Promise<CreatorStats | null> {
+  const { data } = await db().rpc("creator_profile_stats", { p_id: id });
+  const r = data?.[0];
+  if (!r) return null;
+  return {
+    avgRating: Number(r.avg_rating ?? 0), ratings: Number(r.ratings ?? 0),
+    drops: Number(r.drops ?? 0), connections: Number(r.connections ?? 0),
+    reputation: Number(r.reputation ?? 0),
+  };
 }
 
 export async function myOpportunities(limit = 40): Promise<Opportunity[]> {

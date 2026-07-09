@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MessageCircle, Sparkles, Target, UserPlus } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users } from "lucide-react";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { useSession } from "@/store/session";
 import { avatarGradient } from "@/lib/utils";
-import type { Drop } from "@/types";
+import type { Drop, CreatorStats } from "@/types";
 
 export function UserProfilePage() {
   const { id = "" } = useParams();
@@ -13,11 +13,12 @@ export function UserProfilePage() {
   const { userId, showToast } = useSession();
   const [p, setP] = useState<api.PublicProfile | null>(null);
   const [drops, setDrops] = useState<Drop[]>([]);
+  const [stats, setStats] = useState<CreatorStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20)]).then(([prof, d]) => {
-      setP(prof); setDrops(d); setLoading(false);
+    Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20), api.getCreatorStats(id)]).then(([prof, d, s]) => {
+      setP(prof); setDrops(d); setStats(s); setLoading(false);
     });
   }, [id]);
 
@@ -37,6 +38,14 @@ export function UserProfilePage() {
           {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>
       </div>
+      {stats && (stats.ratings > 0 || stats.drops > 0 || stats.connections > 0) && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-white/60">
+          {stats.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
+          {stats.ratings > 0 && <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" />{stats.avgRating.toFixed(1)} · {stats.ratings} {stats.ratings === 1 ? "rating" : "ratings"}</span>}
+          <span>{stats.drops} {stats.drops === 1 ? "drop" : "drops"}</span>
+          {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{stats.connections}</span>}
+        </div>
+      )}
       {p.bio && <p className="mb-4 text-sm leading-relaxed text-white/75">{p.bio}</p>}
       {!isMe && (
         <div className="mb-4 flex gap-2">

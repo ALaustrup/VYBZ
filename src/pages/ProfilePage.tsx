@@ -1,25 +1,26 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Target } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { EmptyState } from "@/components/EmptyState";
 import { AudioLines } from "lucide-react";
 import { avatarGradient } from "@/lib/utils";
-import type { Drop } from "@/types";
+import type { Drop, CreatorStats } from "@/types";
 
 export function ProfilePage() {
   const { profile, userId, signOut } = useSession();
   const navigate = useNavigate();
   const [roles, setRoles] = useState<{ offers: string[]; seeks: string[] }>({ offers: [], seeks: [] });
   const [drops, setDrops] = useState<Drop[]>([]);
+  const [stats, setStats] = useState<CreatorStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
-    Promise.all([api.rolesFor(userId), api.dropsBy(userId, 20)]).then(([r, d]) => {
-      setRoles(r); setDrops(d); setLoading(false);
+    Promise.all([api.rolesFor(userId), api.dropsBy(userId, 20), api.getCreatorStats(userId)]).then(([r, d, s]) => {
+      setRoles(r); setDrops(d); setStats(s); setLoading(false);
     });
   }, [userId]);
 
@@ -41,6 +42,14 @@ export function ProfilePage() {
         <button onClick={signOut} aria-label="Sign out" className="flex h-10 w-10 items-center justify-center rounded-full glass active:scale-90"><LogOut className="h-4 w-4" /></button>
       </div>
 
+      {stats && (stats.ratings > 0 || stats.drops > 0 || stats.connections > 0) && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-white/60">
+          {stats.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
+          {stats.ratings > 0 && <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" />{stats.avgRating.toFixed(1)} · {stats.ratings} {stats.ratings === 1 ? "rating" : "ratings"}</span>}
+          <span>{stats.drops} {stats.drops === 1 ? "drop" : "drops"}</span>
+          {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{stats.connections}</span>}
+        </div>
+      )}
       {profile.bio && <p className="mb-4 text-sm leading-relaxed text-white/75">{profile.bio}</p>}
 
       <div className="mb-4 space-y-2">

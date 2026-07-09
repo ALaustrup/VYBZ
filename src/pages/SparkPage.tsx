@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
-import { ArrowLeft, Disc3, Flame, Loader2, Music2, Repeat, Sparkles, Target, UserPlus, X } from "lucide-react";
+import { ArrowLeft, Disc3, Flame, Loader2, Music2, Repeat, Sparkles, Star, Target, UserPlus, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { haptic } from "@/lib/utils";
@@ -90,6 +90,7 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
             <div className="flex flex-col items-end gap-1">
               <span className="text-sm font-semibold text-white/70">{Math.round(c.fit * 100)}% fit</span>
               {c.mutual && <span className="flex items-center gap-1 rounded-full bg-feel/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Repeat className="h-3 w-3" /> Mutual</span>}
+              {c.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
             </div>
           </div>
           {c.offersYouSeek.length > 0 && <p className="flex flex-wrap items-center gap-1 text-xs"><Music2 className="h-3.5 w-3.5 text-feel" /><span className="text-white/45">Has what you want:</span><span className="font-semibold text-feel">{c.offersYouSeek.join(" · ")}</span></p>}
