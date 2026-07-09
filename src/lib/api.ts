@@ -8,7 +8,9 @@ import { supabase } from "@/lib/supabase";
 import type {
   Profile, ProfileDetails, Drop, Reaction, RoleOffer, RoleSeek,
   CollabMatch, Opportunity, AssetKind, DmThread, DmMessage,
+  AppNotification, CreatorSearchResult,
 } from "@/types";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const AUDIO_BUCKET = "audio-assets";
 const AVATAR_BUCKET = "media-public";
@@ -399,5 +401,47 @@ export async function sendMessage(threadId: string, body: string) {
   if (!uid) return;
   await db().from("dm_messages").insert({ thread_id: threadId, sender_id: uid, body });
   await db().from("dm_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+export async function listNotifications(): Promise<AppNotification[]> {
+  const { data } = await db().from("notifications")
+    .select("id,kind,actor_id,title,body,ref_id,read,created_at")
+    .order("created_at", { ascending: false }).limit(50);
+  return (data ?? []).map((n: any) => ({
+    id: n.id, kind: n.kind, actorId: n.actor_id ?? null, title: n.title,
+    body: n.body ?? null, refId: n.ref_id ?? null, read: !!n.read,
+    createdAt: new Date(n.created_at).getTime(),
+  }));
+}
+export async function unreadNotificationCount(): Promise<number> {
+  const { count } = await db().from("notifications")
+    .select("id", { count: "exact", head: true }).eq("read", false);
+  return count ?? 0;
+}
+export async function markNotificationsRead() {
+  await db().rpc("mark_notifications_read");
+}
+
+// ── Search / discovery ────────────────────────────────────────────────────────
+export async function searchCreators(query?: string, role?: string, genre?: string): Promise<CreatorSearchResult[]> {
+  const { data } = await db().rpc("search_creators", {
+    p_query: query || null, p_role: role || null, p_genre: genre || null, p_limit: 40,
+  });
+  return (data ?? []).map((r: any) => ({
+    userId: r.user_id, username: r.username ?? null, location: r.location ?? null,
+    offers: r.offers ?? [], seeks: r.seeks ?? [], genres: r.genres ?? [],
+  }));
+}
+
+// ── Realtime ──────────────────────────────────────────────────────────────────
+/** Subscribe to inserts on a table (optionally filtered). Returns the channel. */
+export function subscribeInserts(table: string, filter: string | undefined, cb: () => void): RealtimeChannel {
+  const ch = db().channel(`rt-${table}-${filter ?? "all"}-${Math.random().toString(36).slice(2)}`);
+  ch.on("postgres_changes", { event: "INSERT", schema: "public", table, filter }, () => cb()).subscribe();
+  return ch;
+}
+export function unsubscribe(ch: RealtimeChannel | null) {
+  if (ch && supabase) supabase.removeChannel(ch);
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */

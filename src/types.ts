@@ -123,3 +123,25 @@ export interface DmMessage {
   createdAt: number;
   mine: boolean;
 }
+
+export type NotificationKind = "connection" | "application" | "message" | "match";
+
+export interface AppNotification {
+  id: string;
+  kind: NotificationKind;
+  actorId: string | null;
+  title: string;
+  body: string | null;
+  refId: string | null;
+  read: boolean;
+  createdAt: number;
+}
+
+export interface CreatorSearchResult {
+  userId: string;
+  username: string | null;
+  location: string | null;
+  offers: string[];
+  seeks: string[];
+  genres: string[];
+}

@@ -63,7 +63,13 @@ export function ProfilePage() {
       ) : drops.length === 0 ? (
         <EmptyState icon={AudioLines} title="No drops yet" body="Share your first sound from the feed." />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">{drops.map((d) => <TrackCard key={d.id} drop={d} queue={drops} />)}</div>
+        <div className="space-y-4">
+          {/* Featured drop hero (most recent), then the rest. */}
+          <TrackCard drop={drops[0]} queue={drops} />
+          {drops.length > 1 && (
+            <div className="grid gap-4 sm:grid-cols-2">{drops.slice(1).map((d) => <TrackCard key={d.id} drop={d} queue={drops} compact />)}</div>
+          )}
+        </div>
       )}
     </div>
   );

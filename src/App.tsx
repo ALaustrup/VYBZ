@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
-import { Loader2, AudioLines, Users, MessageSquare, User, Plus } from "lucide-react";
+import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { DynamicBackground } from "@/components/DynamicBackground";
@@ -19,10 +19,13 @@ import { ProfilePage } from "@/pages/ProfilePage";
 import { ProfileEditPage } from "@/pages/ProfileEditPage";
 import { UserProfilePage } from "@/pages/UserProfilePage";
 import { MessagesPage } from "@/pages/MessagesPage";
+import { DiscoverPage } from "@/pages/DiscoverPage";
+import { NotificationsPage } from "@/pages/NotificationsPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
   { to: "/", label: "Drops", icon: AudioLines, end: true },
+  { to: "/discover", label: "Discover", icon: Search },
   { to: "/connect", label: "Connect", icon: Users, match: ["/spark", "/opportunities"] },
   { to: "/messages", label: "Messages", icon: MessageSquare },
   { to: "/profile", label: "You", icon: User, match: ["/u/"] },
@@ -46,6 +49,8 @@ export function App() {
     <ErrorBoundary key={location.pathname}>
       <Routes location={location}>
         <Route path="/" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
+        <Route path="/discover" element={<DiscoverPage />} />
+        <Route path="/activity" element={<NotificationsPage />} />
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/spark" element={<SparkPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
@@ -91,6 +96,7 @@ export function App() {
     <>
       <DynamicBackground variant="default" />
       <div className="relative mx-auto flex h-[100dvh] max-w-md flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl">
+        <MobileBell />
         <main className="relative z-10 flex-1 overflow-hidden">{routes}</main>
         <GlobalPlayer />
         <BottomNav />
@@ -102,17 +108,33 @@ export function App() {
 
 function SideNav() {
   const { pathname } = useLocation();
+  const { unread } = useSession();
+  const item = (to: string, label: string, Icon: typeof Bell, active: boolean, badge?: number) => (
+    <NavLink key={to} to={to} className={cx("relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition", active ? "bg-veil-500/15 text-white ring-1 ring-veil-400/40" : "text-white/55 hover:bg-black/20 hover:text-white/85")}>
+      <span className="relative"><Icon className="h-5 w-5" />{badge ? <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{badge > 9 ? "9+" : badge}</span> : null}</span> {label}
+    </NavLink>
+  );
   return (
     <nav className="flex flex-col gap-1">
       {NAV.map(({ to, label, icon: Icon, end, match }) => {
         const active = (end ? pathname === to : pathname.startsWith(to)) || (match ?? []).some((m) => pathname.startsWith(m));
-        return (
-          <NavLink key={to} to={to} className={cx("flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition", active ? "bg-veil-500/15 text-white ring-1 ring-veil-400/40" : "text-white/55 hover:bg-black/20 hover:text-white/85")}>
-            <Icon className="h-5 w-5" /> {label}
-          </NavLink>
-        );
+        return item(to, label, Icon, active);
       })}
+      {item("/activity", "Activity", Bell, pathname === "/activity", unread)}
     </nav>
+  );
+}
+
+function MobileBell() {
+  const { unread } = useSession();
+  const { pathname } = useLocation();
+  if (pathname === "/activity") return null;
+  return (
+    <NavLink to="/activity" aria-label="Activity"
+      className="absolute right-3 top-3 z-40 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+      <Bell className="h-4 w-4 text-white/75" />
+      {unread > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{unread > 9 ? "9+" : unread}</span>}
+    </NavLink>
   );
 }
 

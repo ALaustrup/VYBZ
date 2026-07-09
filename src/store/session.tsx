@@ -26,6 +26,10 @@ interface SessionState {
   celebration: CelebrationState | null;
   celebrate: (label: string) => void;
   clearCelebration: () => void;
+  /** Unread notification count (live). */
+  unread: number;
+  refreshUnread: () => Promise<void>;
+  markNotificationsRead: () => Promise<void>;
 }
 
 const Ctx = createContext<SessionState | null>(null);
@@ -37,6 +41,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [celebration, setCelebration] = useState<CelebrationState | null>(null);
+  const [unread, setUnread] = useState(0);
   const tokenRef = useRef(0);
 
   const backendEnabled = !!supabase;
@@ -85,6 +90,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
   const signOut = useCallback(async () => { await api.signOut(); setProfile(null); }, []);
   const refreshProfile = useCallback(async () => { if (userId) await loadProfile(userId); }, [userId, loadProfile]);
+  const refreshUnread = useCallback(async () => {
+    if (!userId) { setUnread(0); return; }
+    try { setUnread(await api.unreadNotificationCount()); } catch { /* ignore */ }
+  }, [userId]);
+  const markNotificationsRead = useCallback(async () => {
+    await api.markNotificationsRead();
+    setUnread(0);
+  }, []);
+
+  // Live unread badge: fetch + subscribe to the user's notification inserts.
+  useEffect(() => {
+    if (!userId) { setUnread(0); return; }
+    void refreshUnread();
+    const ch = api.subscribeInserts("notifications", `user_id=eq.${userId}`, () => void refreshUnread());
+    return () => api.unsubscribe(ch);
+  }, [userId, refreshUnread]);
 
   const value = useMemo<SessionState>(() => ({
     ready, userId, email, profile,
@@ -92,7 +113,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     backendEnabled,
     signUp, signIn, signOut, refreshProfile,
     toast, showToast, celebration, celebrate, clearCelebration,
-  }), [ready, userId, email, profile, backendEnabled, signUp, signIn, signOut, refreshProfile, toast, showToast, celebration, celebrate, clearCelebration]);
+    unread, refreshUnread, markNotificationsRead,
+  }), [ready, userId, email, profile, backendEnabled, signUp, signIn, signOut, refreshProfile, toast, showToast, celebration, celebrate, clearCelebration, unread, refreshUnread, markNotificationsRead]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -42,7 +42,12 @@ function Thread({ threadId }: { threadId: string }) {
   const endRef = useRef<HTMLDivElement>(null);
 
   async function load() { setMsgs(await api.listMessages(threadId)); setLoading(false); }
-  useEffect(() => { void load(); const t = setInterval(load, 5000); return () => clearInterval(t); }, [threadId]);
+  useEffect(() => {
+    void load();
+    const ch = api.subscribeInserts("dm_messages", `thread_id=eq.${threadId}`, () => void load());
+    return () => api.unsubscribe(ch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threadId]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.length]);
 
   async function send(e: React.FormEvent) {
