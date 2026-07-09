@@ -7,6 +7,7 @@ import { DynamicBackground } from "@/components/DynamicBackground";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
+import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -72,6 +73,7 @@ export function App() {
   const overlays = (
     <>
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+      <ReactiveFrame />
       <Toast /><Confetti />
     </>
   );

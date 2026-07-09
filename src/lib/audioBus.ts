@@ -173,6 +173,27 @@ export function frequencyBinCount(): number {
   return analyser?.frequencyBinCount ?? 512;
 }
 
+const _bandBuf = new Uint8Array(1024);
+export interface Bands { bass: number; mid: number; high: number; level: number }
+/**
+ * Live, normalized (0..1) energy split into bass/mid/high plus an overall level.
+ * The single source of truth for all audio-reactive visuals (track visualizers +
+ * the platform-wide reactive frame), so everything pulses to the same signal.
+ */
+export function readBands(): Bands {
+  if (!analyser) return { bass: 0, mid: 0, high: 0, level: 0 };
+  const n = analyser.frequencyBinCount;
+  analyser.getByteFrequencyData(_bandBuf as unknown as Uint8Array<ArrayBuffer>);
+  const avg = (lo: number, hi: number) => {
+    let s = 0, c = 0;
+    for (let i = Math.floor(lo * n); i < Math.floor(hi * n) && i < n; i++) { s += _bandBuf[i]; c++; }
+    return c ? s / (c * 255) : 0;
+  };
+  const bass = avg(0, 0.08), mid = avg(0.08, 0.35), high = avg(0.35, 0.8);
+  const level = Math.min(1, (bass * 1.3 + mid + high * 0.7) / 3);
+  return { bass, mid, high, level };
+}
+
 export function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => listeners.delete(listener);
