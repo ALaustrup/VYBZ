@@ -6,7 +6,8 @@ import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { EmptyState } from "@/components/EmptyState";
 import { AudioLines } from "lucide-react";
-import { avatarGradient } from "@/lib/utils";
+import { avatarGradient, cx } from "@/lib/utils";
+import { useReduceFxOverride, setReduceFx } from "@/lib/display";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function ProfilePage() {
@@ -83,6 +84,8 @@ export function ProfilePage() {
         </div>
       )}
 
+      <DisplaySetting />
+
       <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Your drops</p>
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
@@ -97,6 +100,33 @@ export function ProfilePage() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function DisplaySetting() {
+  const override = useReduceFxOverride();
+  const current = override === null ? "auto" : override ? "reduced" : "full";
+  const opts: { id: string; label: string; val: boolean | null }[] = [
+    { id: "auto", label: "Auto", val: null },
+    { id: "full", label: "Full", val: false },
+    { id: "reduced", label: "Reduced", val: true },
+  ];
+  return (
+    <div className="mb-4">
+      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Visual effects</p>
+      <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1">
+        {opts.map((o) => (
+          <button key={o.id} onClick={() => setReduceFx(o.val)}
+            className={cx("flex-1 rounded-xl py-2 text-sm font-semibold transition",
+              current === o.id ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "text-white/50 hover:text-white/80")}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1.5 px-1 text-[11px] text-white/40">
+        Auto follows your device. Reduced calms the animated background, reactive border, and visualizers for better battery and performance.
+      </p>
     </div>
   );
 }

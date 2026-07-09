@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { usePlayer, readBands } from "@/lib/audioBus";
 import { paletteFor } from "@/lib/utils";
+import { useReduceFx } from "@/lib/display";
 
 /**
  * Platform-wide audio-reactive border (Phase E — the visual hook). A full-viewport,
@@ -13,6 +14,7 @@ import { paletteFor } from "@/lib/utils";
  */
 export function ReactiveFrame() {
   const { track, playing } = usePlayer();
+  const reduce = useReduceFx();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const seed = track?.seed ?? 1;
   const accent = track?.accent ?? "#a87cf8";
@@ -22,7 +24,6 @@ export function ReactiveFrame() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     const [c0, c1, c2] = paletteFor(seed);
 
     let w = 0, h = 0, dpr = 1;
@@ -117,7 +118,7 @@ export function ReactiveFrame() {
     else raf = requestAnimationFrame(tick);
 
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
-  }, [playing, seed, accent]);
+  }, [playing, seed, accent, reduce]);
 
   return (
     <canvas

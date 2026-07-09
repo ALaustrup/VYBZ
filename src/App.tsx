@@ -108,7 +108,7 @@ export function App() {
       <DynamicBackground variant="default" />
       <div className="relative mx-auto flex h-[100dvh] max-w-md flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl">
         <MobileBell />
-        <main className="relative z-10 flex-1 overflow-hidden">{routes}</main>
+        <main className="relative z-10 flex-1 overflow-hidden pt-[env(safe-area-inset-top)]">{routes}</main>
         <GlobalPlayer />
         <BottomNav />
       </div>
@@ -142,7 +142,7 @@ function MobileBell() {
   if (pathname === "/activity") return null;
   return (
     <NavLink to="/activity" aria-label="Activity"
-      className="absolute right-3 top-3 z-40 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+      className="absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
       <Bell className="h-4 w-4 text-white/75" />
       {unread > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{unread > 9 ? "9+" : unread}</span>}
     </NavLink>

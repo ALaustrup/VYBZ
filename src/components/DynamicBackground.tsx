@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { bgVariant } from "@/lib/backgrounds";
+import { useReduceFx } from "@/lib/display";
 
 interface DynamicBackgroundProps {
   /** Variant id (aurora/ember/…). Godmode-customizable. */
@@ -26,6 +27,7 @@ const BASE = "#191c22";
  */
 export function DynamicBackground({ variant }: DynamicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const reduce = useReduceFx();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,9 +36,6 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
     if (!ctx) return;
 
     const colors = bgVariant(variant).colors;
-    const reduce =
-      typeof window !== "undefined" &&
-      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
     // Render at ~55% resolution; the CSS upscale keeps it buttery and soft.
     const SCALE = 0.55;
@@ -151,7 +150,7 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [variant]);
+  }, [variant, reduce]);
 
   return (
     <canvas

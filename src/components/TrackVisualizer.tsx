@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { frequencyBinCount, readFrequencies, readBands } from "@/lib/audioBus";
 import { paletteFor, cx } from "@/lib/utils";
+import { useReduceFx } from "@/lib/display";
 
 interface TrackVisualizerProps {
   /** Deterministic seed → each track gets a unique style + palette + motion. */
@@ -27,13 +28,13 @@ export function TrackVisualizer({ seed, accent = "#a87cf8", active = false, clas
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
   const freqRef = useRef<Uint8Array>(new Uint8Array(frequencyBinCount()));
+  const reduce = useReduceFx();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 
     const palette = paletteFor(seed);
     const p0 = accent || palette[0];
@@ -92,7 +93,7 @@ export function TrackVisualizer({ seed, accent = "#a87cf8", active = false, clas
     frame();
 
     return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener("resize", resize); };
-  }, [seed, accent, active]);
+  }, [seed, accent, active, reduce]);
 
   return <canvas ref={canvasRef} className={cx("h-full w-full", className)} aria-hidden />;
 }
