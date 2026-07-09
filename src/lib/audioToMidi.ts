@@ -59,7 +59,7 @@ export async function audioToMidi(input: string | Blob, onProgress?: (p: number)
   const midi = new Midi();
   midi.header.setTempo(120);
   const track = midi.addTrack();
-  track.name = "VYBZ audio→MIDI";
+  track.name = "VYBZ audio-to-MIDI";
   for (const n of notes) {
     track.addNote({
       midi: n.pitchMidi,
