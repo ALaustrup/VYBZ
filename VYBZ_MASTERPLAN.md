@@ -172,16 +172,24 @@ manually verified, and it strengthens matchmaking or the exchange.
 
 | Phase | Deliverable |
 |---|---|
-| **A. Reliability & polish** | Realtime updates (feed/DMs), notifications (new match, application, message), search & discovery (by role/genre/DAW/plugin/location), profile hero (featured drop), onboarding role-setup nudge. |
-| **B. Matchmaking depth** | The §5.4 enhancements: role-affinity graph, skill-tier proximity, reputation, sonic embeddings, learning-to-rank, production/agency-specific matching. |
-| **C. Exchange + protection** ✅ | Download gating end-to-end, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + locally verified (hosting pending). |
-| **D. Projects & collab rooms** ✅ | *Shipped.* Private project rooms with versioned bundle handoffs, collaborators, split sheets (per-member agreement), release gate, and **verified credits** that feed reputation. Next: discography surface + threaded per-project chat. |
-| **E. Signature reactivity** | Platform-wide audio-reactive borders + the seeded per-track visualizer library (the `AudioBus` analyser already exists as the foundation). |
-| **F. Categorized collab chat** | Taxonomy-bound rooms (per DAW / plugin / instrument); presence feeds matchmaking. |
-| **G. Live** | LiveKit listening/rehearsal/feedback sessions; optional XR "listening room." |
+| **A. Reliability & polish** ✅ | Realtime feed/DMs, notifications, search & discovery, profile hero, onboarding role-setup. |
+| **B. Matchmaking depth** ✅ | Role-affinity graph, skill-tier proximity, reputation, free `gte-small` resonance, production/agency matching. |
+| **C. Exchange + protection** ✅ | Download gating, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + verified; live hosting pending a reachable container host. |
+| **D. Projects & collab rooms** ✅ | Private project rooms, versioned handoffs, split sheets, release gate, **verified credits**. Next: discography surface + threaded per-project chat. |
+| **E. Signature reactivity** ✅ | Platform-wide audio-reactive border + seeded per-track visualizer library; user Auto/Full/Reduced effects control. |
+| **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
+| **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
 | **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
 | **I. Mobile + packaging** | Capacitor Android/iOS, PWA polish, native plugin-scanner sync. |
 | **J. Monetization** | Pro tier; tasteful, disclosed affiliate gear/plugin links (never influencing match scores). |
+| **K. DM real-time collaboration** ◑ | **H1 shipped**: live 1:1 audio in DMs (WebRTC P2P, mic/desktop audio, in-chat player + record). Next: **H3** audio→MIDI (Basic Pitch: melody/harmony/rhythm), **H4** Web-MIDI→DAW bridge (virtual port), **H5** native "VYBZ Bridge" for deep plugin/audio integration + TURN for NAT reliability. |
+| **L. Codex (public doc library)** | Free, public, professionally-drafted music-industry document library (contracts→demand letters) with plain-English explainers, jurisdiction tags, and disclaimers. US-first. ~90 document types catalogued. |
+| **M. Brand system** | Official VYBZ logo set (mark/wordmark/mono), favicons/PWA icons, OG image, intro animation, email + Codex-doc headers. Drops into `public/brand/`. |
+
+### 4.1 Development findings & environment constraints
+- **DM live audio (H1) is implemented and correct**, but cannot be fully exercised in the CI/VM test environment: there is **no microphone**, and `getDisplayMedia` tab-audio capture is **silent** (no real audio output device to capture), so the visualizer/audible path has no signal to show here. Verified in-sandbox: the go-live control + source menu, graceful no-device error handling, `getDisplayMedia` capture → offer → "Calling…" panel + controls, clean build, no console errors. Two real bugs found + fixed during testing: (a) a `MediaStreamSource→Analyser` graph needs a destination sink or Chrome won't process it; (b) the listener needs an `<audio>` element to actually hear the remote stream. **Full 1:1 live audio (audible + visualizer + two-peer connect) should be validated on real devices.**
+- **Infra-gated backlog** (all blocked only on hosting/cost, code is ready): C2PA worker live hosting (needs a reachable container host — LAN box unreachable, free Docker hosts now require payment/PRO); **TURN** server for strict-NAT WebRTC reliability; **LiveKit** SFU for group live rehearsal/XR. These flip on the moment infra exists.
+- **Testing note:** file-playback visuals (feed/reactive border) work in-VM because they tap the in-graph analyser directly; capture-based audio (mic/tab) does not, due to the VM lacking audio hardware.
 
 ---
 
