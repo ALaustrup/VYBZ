@@ -32,7 +32,7 @@ export function ProfilePage() {
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6 pt-3">
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-4 flex items-center gap-4 max-lg:pr-14">
         <span className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>
           {(profile.username || "Y").charAt(0).toUpperCase()}
         </span>

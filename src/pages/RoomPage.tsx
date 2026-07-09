@@ -50,7 +50,7 @@ export function RoomPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-4 pb-2 pt-3">
+      <div className="flex items-center gap-3 px-4 pb-2 pt-3 max-lg:pr-14">
         <button onClick={() => navigate("/rooms")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-veil-500/15 text-veil-100"><Hash className="h-4 w-4" /></span>
         <div className="min-w-0 flex-1">

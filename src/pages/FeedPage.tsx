@@ -40,7 +40,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-4 pb-1 pt-3">
+      <div className="flex items-center justify-between px-4 pb-1 pt-3 max-lg:pr-14">
         <h1 className="font-display text-xl font-bold text-gradient">Drops</h1>
         <button onClick={onCompose} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95">
           <Plus className="h-4 w-4" /> Drop

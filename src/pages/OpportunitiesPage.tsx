@@ -25,9 +25,9 @@ export function OpportunitiesPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-4 pb-1 pt-3">
+      <div className="flex items-center gap-3 px-4 pb-1 pt-3 max-lg:pr-14">
         <button onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <h1 className="flex-1 font-display text-xl font-bold text-gradient">Opportunities</h1>
+        <h1 className="flex-1 truncate font-display text-xl font-bold text-gradient">Opportunities</h1>
         <button onClick={() => setComposing(true)} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95"><Plus className="h-4 w-4" /> Post</button>
       </div>
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-2">
