@@ -76,26 +76,34 @@ export function ReactiveFrame() {
       pop = Math.max(pop * 0.9, hit * 2.2);
       t += 0.016;
 
-      const energy = Math.min(1, level * 0.9 + pop * 0.5);
-      const breathe = reduce ? 0 : 0.5 + 0.5 * Math.sin(t * 1.1);
-      const master = intensity * (0.35 + energy * 0.8 + breathe * 0.08);
+      const energy = Math.min(1, level * 1.1 + pop * 0.6);
+      const breathe = reduce ? 0 : 0.5 + 0.5 * Math.sin(t * 1.3);
+      // Master stays clearly visible while playing (≈1.2 at rest) and swells with
+      // energy/beats — the border is always felt, never just decoration.
+      const master = intensity * (1.2 + energy * 1.2 + breathe * 0.3);
 
       const minSide = Math.min(w, h);
-      const depth = minSide * (0.06 + energy * 0.12 + pop * 0.05);
+      const depth = minSide * (0.1 + energy * 0.15 + pop * 0.06);
 
       ctx.globalCompositeOperation = "lighter";
-      // Edges: warmer accent on top/bottom, palette variety on the sides.
-      glowEdge("top", accent, 0.10 * master + 0.05 * pop, depth);
-      glowEdge("bottom", accent, 0.12 * master + 0.06 * pop, depth * (1 + bass * 0.4));
-      glowEdge("left", c1, 0.09 * master + high * 0.05, depth * (0.8 + mid * 0.5));
-      glowEdge("right", c2, 0.09 * master + high * 0.05, depth * (0.8 + mid * 0.5));
+      // Soft edge glow: accent top/bottom (bottom swells with bass), palette sides.
+      glowEdge("top", accent, 0.30 * master + 0.18 * pop, depth);
+      glowEdge("bottom", accent, 0.38 * master + 0.20 * pop, depth * (1 + bass * 0.5));
+      glowEdge("left", c1, 0.28 * master + high * 0.16, depth * (0.85 + mid * 0.5));
+      glowEdge("right", c2, 0.28 * master + high * 0.16, depth * (0.85 + mid * 0.5));
       // Corner blooms cycle through the palette for colour movement.
-      const cr = minSide * (0.18 + energy * 0.14);
-      cornerBloom(0, 0, cr, c1, 0.10 * master);
-      cornerBloom(w, 0, cr, c2, 0.10 * master);
-      cornerBloom(0, h, cr, accent, 0.12 * master);
-      cornerBloom(w, h, cr, c0, 0.12 * master);
+      const cr = minSide * (0.24 + energy * 0.18);
+      cornerBloom(0, 0, cr, c1, 0.26 * master);
+      cornerBloom(w, 0, cr, c2, 0.26 * master);
+      cornerBloom(0, h, cr, accent, 0.30 * master);
+      cornerBloom(w, h, cr, c0, 0.30 * master);
+      // Crisp luminous rim — the primary, compression-robust border element. Solid
+      // (source-over) so it survives video encoding; width + brightness pulse on beats.
       ctx.globalCompositeOperation = "source-over";
+      const rimW = 3 + energy * 5 + pop * 8;
+      ctx.lineWidth = rimW;
+      ctx.strokeStyle = hexA(accent, Math.min(0.95, 0.6 * master + 0.35 * pop));
+      ctx.strokeRect(rimW / 2, rimW / 2, Math.max(0, w - rimW), Math.max(0, h - rimW));
     };
 
     const tick = () => {
