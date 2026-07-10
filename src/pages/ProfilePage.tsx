@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, Layers } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
@@ -83,6 +83,14 @@ export function ProfilePage() {
           </div>
         </div>
       )}
+
+      <button onClick={() => navigate("/profile/disciplines")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-3.5 text-left active:scale-[0.99]">
+        <Layers className="h-5 w-5 shrink-0 text-veil-200" />
+        <span className="min-w-0 flex-1">
+          <span className="block text-sm font-semibold text-white">Discipline modules</span>
+          <span className="block text-[11px] text-white/55">Add every creative hat you wear — each one sharpens your matches.</span>
+        </span>
+      </button>
 
       <DisplaySetting />
 
