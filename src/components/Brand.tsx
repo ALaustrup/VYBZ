@@ -1,24 +1,78 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cx } from "@/lib/utils";
+import { readBands, usePlayer } from "@/lib/audioBus";
+import { useReduceFx } from "@/lib/display";
+
+/**
+ * Drives an audio-reactive "neochrome" neon glow on the brand mark. Reads the
+ * shared AudioBus level while anything is playing and writes a layered
+ * drop-shadow (green→blue) that pulses with the audio; keeps a soft resting glow
+ * when idle. No-op (or a single static glow) when reactivity/motion is disabled.
+ */
+function useReactiveGlow(enabled: boolean) {
+  const ref = useRef<HTMLElement | null>(null);
+  const { playing } = usePlayer();
+  const reduce = useReduceFx();
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !enabled) {
+      if (el) el.style.filter = "";
+      return;
+    }
+    const glow = (g: number) => {
+      // g: 0 (resting) .. ~1.2 (loud). Two stacked shadows read as neon.
+      const inner = 4 + g * 11;
+      const outer = 9 + g * 26;
+      el.style.filter =
+        `drop-shadow(0 0 ${inner}px rgba(0,255,143,${0.28 + g * 0.5})) ` +
+        `drop-shadow(0 0 ${outer}px rgba(0,161,255,${0.18 + g * 0.42}))`;
+    };
+    if (reduce) { glow(0.15); return; }
+
+    let raf = 0;
+    let eased = 0.12;
+    const tick = () => {
+      const lvl = playing ? readBands().level : 0;
+      const target = playing ? 0.12 + lvl * 1.05 : 0.12;
+      // Fast attack, slow release so pulses pop then settle.
+      const k = target > eased ? 0.5 : 0.12;
+      eased += (target - eased) * k;
+      glow(eased);
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [enabled, playing, reduce]);
+
+  return ref;
+}
 
 /**
  * The VYBZ icon. Uses the official artwork at `/brand/icon.svg` (preferred) or
  * `/brand/icon.png` once dropped into `public/brand/`; until then it renders a
  * hand-built fallback mark so nothing looks broken. The official icon is
  * full-color, so it renders as an image (size classes still apply).
+ *
+ * When `reactive` is set, the mark glows with an audio-reactive neon pulse tied
+ * to whatever is playing through the shared AudioBus.
  */
 export function BrandMark({
   className,
   title = "VYBZ",
+  reactive = false,
 }: {
   className?: string;
   title?: string;
+  reactive?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
+  const glowRef = useReactiveGlow(reactive);
 
   if (!failed) {
     return (
       <img
+        ref={glowRef as React.RefObject<HTMLImageElement>}
         src="/brand/icon.svg"
         onError={(e) => {
           const el = e.currentTarget;
@@ -39,6 +93,7 @@ export function BrandMark({
   // Fallback: hand-built linked-nodes mark (currentColor-themeable).
   return (
     <svg
+      ref={glowRef as React.RefObject<SVGSVGElement>}
       viewBox="0 0 64 64"
       role="img"
       aria-label={title}
@@ -104,14 +159,16 @@ export function BrandLockup({
   className,
   markClassName = "h-6 w-6 text-veil-300",
   wordClassName,
+  reactive = true,
 }: {
   className?: string;
   markClassName?: string;
   wordClassName?: string;
+  reactive?: boolean;
 }) {
   return (
     <span className={cx("flex items-center gap-2", className)}>
-      <BrandMark className={markClassName} />
+      <BrandMark className={markClassName} reactive={reactive} />
       <Wordmark imgClassName="h-5 w-auto" textClassName={cx("text-2xl", wordClassName)} />
     </span>
   );

@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "@/App";
+import { IntroSplash } from "@/components/IntroSplash";
 import { SessionProvider } from "@/store/session";
 import { primeAudio } from "@/lib/sound";
 import "@/index.css";
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <SessionProvider>
         <App />
+        <IntroSplash />
       </SessionProvider>
     </BrowserRouter>
   </StrictMode>
