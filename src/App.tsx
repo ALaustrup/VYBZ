@@ -26,6 +26,8 @@ import { ProjectsPage } from "@/pages/ProjectsPage";
 import { ProjectRoomPage } from "@/pages/ProjectRoomPage";
 import { RoomsPage } from "@/pages/RoomsPage";
 import { RoomPage } from "@/pages/RoomPage";
+import { CodexPage } from "@/pages/CodexPage";
+import { CodexDocPage } from "@/pages/CodexDocPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
@@ -48,8 +50,14 @@ export function App() {
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
   }
   if (!ready) return <><DynamicBackground variant="default" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
-  if (!userId) return <><DynamicBackground variant="default" /><Onboarding /></>;
-  if (!profile?.username) return <><DynamicBackground variant="default" /><UsernameSetup /></>;
+
+  // The Codex + platform legal pages are PUBLIC (no sign-in) — a free resource + SEO.
+  const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
+  if (!userId || !profile?.username) {
+    if (isPublicDoc) return <PublicDocShell />;
+    if (!userId) return <><DynamicBackground variant="default" /><Onboarding /></>;
+    return <><DynamicBackground variant="default" /><UsernameSetup /></>;
+  }
 
   const routes = (
     <ErrorBoundary key={location.pathname}>
@@ -69,6 +77,9 @@ export function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
+        <Route path="/codex" element={<CodexPage />} />
+        <Route path="/codex/:slug" element={<CodexDocPage />} />
+        <Route path="/legal/:slug" element={<CodexDocPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ErrorBoundary>
@@ -113,6 +124,34 @@ export function App() {
         <BottomNav />
       </div>
       {overlays}
+    </>
+  );
+}
+
+/** Minimal public layout for the Codex + legal pages (no sign-in required). */
+function PublicDocShell() {
+  const location = useLocation();
+  return (
+    <>
+      <DynamicBackground variant="default" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
+      <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
+        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-white/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <NavLink to="/codex"><BrandLockup markClassName="h-6 w-6 text-veil-300" wordClassName="text-xl" /></NavLink>
+          <span className="ml-auto hidden text-xs text-white/45 sm:block">Codex · Astra Matrix, Inc.</span>
+          <NavLink to="/" className="rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95">Enter VYBZ</NavLink>
+        </header>
+        <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">
+          <ErrorBoundary key={location.pathname}>
+            <Routes location={location}>
+              <Route path="/codex" element={<CodexPage />} />
+              <Route path="/codex/:slug" element={<CodexDocPage />} />
+              <Route path="/legal/:slug" element={<CodexDocPage />} />
+              <Route path="*" element={<Navigate to="/codex" replace />} />
+            </Routes>
+          </ErrorBoundary>
+        </main>
+      </div>
     </>
   );
 }

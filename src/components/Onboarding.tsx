@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Loader2, Mail, Lock, AtSign } from "lucide-react";
 import { useSession } from "@/store/session";
@@ -58,6 +59,13 @@ export function Onboarding() {
           {mode === "join" ? "Already on VYBZ? Sign in" : "New to VYBZ? Create an account"}
         </button>
       </motion.div>
+      <p className="mt-5 text-center text-[11px] text-white/40">
+        <Link to="/codex" className="hover:text-white/70">Codex</Link>
+        <span className="px-1.5">·</span>
+        <Link to="/legal/terms" className="hover:text-white/70">Terms</Link>
+        <span className="px-1.5">·</span>
+        <Link to="/legal/privacy" className="hover:text-white/70">Privacy</Link>
+      </p>
     </div>
   );
 }

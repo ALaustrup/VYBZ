@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
@@ -85,6 +85,11 @@ export function ProfilePage() {
       )}
 
       <DisplaySetting />
+
+      <button onClick={() => navigate("/codex")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
+        <ScrollText className="h-4 w-4 shrink-0 text-veil-300" />
+        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">VYBZ Codex & Legal</span><span className="block text-[11px] text-white/45">Free contracts, licenses & templates · Terms, Privacy, DMCA</span></span>
+      </button>
 
       <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Your drops</p>
       {loading ? (
