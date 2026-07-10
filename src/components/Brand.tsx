@@ -3,49 +3,72 @@ import { cx } from "@/lib/utils";
 import { readBands, usePlayer } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
 
+type IconEl = HTMLImageElement | SVGSVGElement | null;
+
 /**
- * Drives an audio-reactive "neochrome" neon glow on the brand mark. Reads the
- * shared AudioBus level while anything is playing and writes a layered
- * drop-shadow (green→blue) that pulses with the audio; keeps a soft resting glow
- * when idle. No-op (or a single static glow) when reactivity/motion is disabled.
+ * Drives an audio-reactive "neochrome" neon pulse on the brand mark. While
+ * anything plays through the shared AudioBus it (a) fades + scales a painted
+ * radial halo element behind the icon and (b) flashes the icon's brightness and
+ * size — a beat-style pulse auto-scaled to the track. Everything rests fully off
+ * when silent, and honors the reduced-motion preference.
  */
-function useReactiveGlow(enabled: boolean) {
-  const ref = useRef<HTMLElement | null>(null);
+function useReactiveGlow(
+  enabled: boolean,
+  iconRef: React.RefObject<IconEl>,
+  haloRef: React.RefObject<HTMLSpanElement | null>,
+) {
   const { playing } = usePlayer();
   const reduce = useReduceFx();
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el || !enabled) {
-      if (el) el.style.filter = "";
-      return;
-    }
-    const glow = (g: number) => {
-      // g: 0 (resting) .. ~1.2 (loud). Two stacked shadows read as neon.
-      const inner = 4 + g * 11;
-      const outer = 9 + g * 26;
-      el.style.filter =
-        `drop-shadow(0 0 ${inner}px rgba(0,255,143,${0.28 + g * 0.5})) ` +
-        `drop-shadow(0 0 ${outer}px rgba(0,161,255,${0.18 + g * 0.42}))`;
+    const icon = iconRef.current;
+    const halo = haloRef.current;
+    const reset = () => {
+      if (icon) { icon.style.filter = ""; icon.style.transform = ""; }
+      if (halo) { halo.style.opacity = "0"; halo.style.transform = "scale(0.6)"; }
     };
-    if (reduce) { glow(0.15); return; }
+    if (!enabled || (!icon && !halo)) { reset(); return; }
+
+    const apply = (g: number) => {
+      // g: ~0 (silent) .. ~1.6 (loud transient).
+      if (icon) {
+        icon.style.filter = `brightness(${(1 + g * 0.55).toFixed(3)}) saturate(${(1 + g * 0.6).toFixed(3)})`;
+        icon.style.transform = `scale(${(1 + Math.min(0.24, g * 0.2)).toFixed(3)})`;
+        icon.style.willChange = "filter, transform";
+      }
+      if (halo) {
+        halo.style.opacity = Math.min(0.95, 0.16 + g * 0.72).toFixed(3);
+        halo.style.transform = `scale(${(0.85 + Math.min(1.7, g * 1.25)).toFixed(3)})`;
+      }
+    };
+
+    if (reduce) { if (playing) apply(0.5); else reset(); return; }
 
     let raf = 0;
-    let eased = 0.12;
+    let eased = 0;
+    // React to how much the current energy exceeds its own moving baseline
+    // (beat-style), auto-scaled by the track's typical deviation, so it keeps
+    // pulsing on any track instead of ramping up once and saturating.
+    let base = 0;
+    let sc = 0.02;
     const tick = () => {
-      const lvl = playing ? readBands().level : 0;
-      const target = playing ? 0.12 + lvl * 1.05 : 0.12;
-      // Fast attack, slow release so pulses pop then settle.
-      const k = target > eased ? 0.5 : 0.12;
+      if (!playing) { reset(); eased = 0; base = 0; sc = 0.02; return; }
+      const b = readBands();
+      const v = b.bass * 0.7 + b.level * 0.3; // bass carries the beat
+      base += (v - base) * (base ? 0.03 : 1); // slow baseline → larger swings
+      const dev = v - base;
+      sc += (Math.abs(dev) - sc) * 0.05; // adaptive typical deviation
+      const norm = dev / Math.max(sc * 1.3, 0.006);
+      const pulse = Math.max(-1, Math.min(1.6, norm));
+      const target = Math.max(0.06, 0.4 + pulse * 0.78);
+      const k = target > eased ? 0.6 : 0.2; // fast attack, slower release
       eased += (target - eased) * k;
-      glow(eased);
+      apply(eased);
       raf = requestAnimationFrame(tick);
     };
     tick();
     return () => cancelAnimationFrame(raf);
-  }, [enabled, playing, reduce]);
-
-  return ref;
+  }, [enabled, playing, reduce, iconRef, haloRef]);
 }
 
 /**
@@ -67,33 +90,31 @@ export function BrandMark({
   reactive?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const glowRef = useReactiveGlow(reactive);
+  const iconRef = useRef<IconEl>(null);
+  const haloRef = useRef<HTMLSpanElement | null>(null);
+  useReactiveGlow(reactive, iconRef, haloRef);
 
-  if (!failed) {
-    return (
-      <img
-        ref={glowRef as React.RefObject<HTMLImageElement>}
-        src="/brand/icon.svg"
-        onError={(e) => {
-          const el = e.currentTarget;
-          if (!el.dataset.triedPng) {
-            el.dataset.triedPng = "1";
-            el.src = "/brand/icon.png";
-          } else {
-            setFailed(true);
-          }
-        }}
-        alt={title}
-        className={cx("select-none object-contain", className)}
-        draggable={false}
-      />
-    );
-  }
-
-  // Fallback: hand-built linked-nodes mark (currentColor-themeable).
-  return (
+  const mark = !failed ? (
+    <img
+      ref={iconRef as React.RefObject<HTMLImageElement>}
+      src="/brand/icon.svg"
+      onError={(e) => {
+        const el = e.currentTarget;
+        if (!el.dataset.triedPng) {
+          el.dataset.triedPng = "1";
+          el.src = "/brand/icon.png";
+        } else {
+          setFailed(true);
+        }
+      }}
+      alt={title}
+      className={cx("select-none object-contain", className)}
+      draggable={false}
+    />
+  ) : (
+    // Fallback: hand-built linked-nodes mark (currentColor-themeable).
     <svg
-      ref={glowRef as React.RefObject<SVGSVGElement>}
+      ref={iconRef as React.RefObject<SVGSVGElement>}
       viewBox="0 0 64 64"
       role="img"
       aria-label={title}
@@ -112,6 +133,17 @@ export function BrandMark({
         <circle cx="33" cy="46" r="6.5" />
       </g>
     </svg>
+  );
+
+  if (!reactive) return mark;
+
+  // Reactive: wrap with a painted radial halo behind the icon that fades and
+  // scales with the audio (a real element, so it reads clearly and captures).
+  return (
+    <span className="relative inline-flex shrink-0 items-center justify-center">
+      <span ref={haloRef} aria-hidden className="vybz-mark-halo pointer-events-none absolute inset-0" />
+      <span className="relative z-10 inline-flex">{mark}</span>
+    </span>
   );
 }
 
