@@ -9,6 +9,8 @@ import type {
   Profile, ProfileDetails, Drop, Reaction, RoleOffer, RoleSeek,
   CollabMatch, Opportunity, AssetKind, DmThread, DmMessage,
   AppNotification, CreatorSearchResult, CreatorStats,
+  DisciplineModule, DisciplineCategory, DisciplineSchema, ModuleInput,
+  SeekingIntent, PortfolioItem,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -139,6 +141,80 @@ export async function rolesFor(id: string): Promise<{ offers: string[]; seeks: s
   const { data } = await db().rpc("creator_roles_for", { p_id: id });
   const row = data?.[0];
   return { offers: row?.offers ?? [], seeks: row?.seeks ?? [] };
+}
+
+// ── Discipline modules (tabbed, multi-discipline profiles) ──────────────────
+function mapModule(m: any): DisciplineModule {
+  return {
+    id: m.id, roleId: m.roleId, category: m.category ?? null, label: m.label,
+    headline: m.headline ?? null, yearsExp: m.yearsExp ?? null,
+    collabStyle: m.collabStyle ?? null, availability: m.availability ?? null,
+    seeking: (m.seeking ?? []) as SeekingIntent[], skill: m.skill ?? null,
+    attrs: (m.attrs ?? {}) as Record<string, unknown>,
+    portfolio: (m.portfolio ?? []) as PortfolioItem[],
+    sort: m.sort ?? 0,
+  };
+}
+
+/** The signed-in creator's active discipline modules (ordered). */
+export async function myModules(): Promise<DisciplineModule[]> {
+  const { data, error } = await db().rpc("my_modules");
+  if (error || !data) return [];
+  return (data as any[]).map(mapModule);
+}
+
+/** The full discipline catalog (categories → disciplines) for the picker. */
+export async function listDisciplines(): Promise<DisciplineCategory[]> {
+  const { data, error } = await db().rpc("list_disciplines");
+  if (error || !data) return [];
+  return (data as any[]).map((c) => ({
+    id: c.id, label: c.label, icon: c.icon ?? null, sort: c.sort ?? 0,
+    disciplines: (c.disciplines ?? []).map((d: any) => ({
+      id: d.id, label: d.label, family: d.family, hasSchema: !!d.hasSchema,
+    })),
+  }));
+}
+
+/** The discipline-specific field schema for a role (or null if none). */
+export async function disciplineSchema(roleId: string): Promise<DisciplineSchema | null> {
+  const { data, error } = await db().rpc("discipline_schema", { p_role: roleId });
+  if (error || !data) return null;
+  return data as DisciplineSchema;
+}
+
+/** Create or update a module; returns its id. Also syncs the matchmaking graph. */
+export async function upsertModule(input: ModuleInput): Promise<string> {
+  const { data, error } = await db().rpc("upsert_module", {
+    p: {
+      id: input.id,
+      roleId: input.roleId,
+      headline: input.headline ?? null,
+      yearsExp: input.yearsExp ?? null,
+      collabStyle: input.collabStyle ?? null,
+      availability: input.availability ?? null,
+      seeking: input.seeking ?? [],
+      skill: input.skill ?? null,
+      attrs: input.attrs ?? {},
+      portfolio: input.portfolio ?? [],
+    },
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function archiveModule(id: string): Promise<void> {
+  const { error } = await db().rpc("archive_module", { p_id: id });
+  if (error) throw error;
+}
+
+export async function restoreModule(id: string): Promise<void> {
+  const { error } = await db().rpc("restore_module", { p_id: id });
+  if (error) throw error;
+}
+
+export async function reorderModules(ids: string[]): Promise<void> {
+  const { error } = await db().rpc("reorder_modules", { p_ids: ids });
+  if (error) throw error;
 }
 
 /**

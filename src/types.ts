@@ -242,3 +242,81 @@ export interface RoomPresence {
   userId: string;
   username: string | null;
 }
+
+// ── Dynamic discipline modules (tabbed, multi-discipline profiles) ───────────
+export type FieldType =
+  | "text" | "textarea" | "number" | "select" | "multiselect"
+  | "proficiency_list" | "role_multiselect" | "repeater";
+
+/** A discipline-specific field, described by the server-side schema registry. */
+export interface FieldDef {
+  key: string;
+  label: string;
+  type: FieldType;
+  /** Inline option list, or a named catalog: "genres" | "daws" | "roles:<category>". */
+  options?: string | string[];
+  hint?: string;
+  /** Relative weight this field contributes to matchmaking (server-side). */
+  matchWeight?: number;
+}
+
+export interface DisciplineSchema {
+  fields: FieldDef[];
+}
+
+/** One selectable discipline within a category (a role in the catalog). */
+export interface DisciplineOption {
+  id: string;
+  label: string;
+  family: string;
+  hasSchema: boolean;
+}
+
+/** A top-level creative vertical, with its selectable disciplines. */
+export interface DisciplineCategory {
+  id: string;
+  label: string;
+  icon: string | null;
+  sort: number;
+  disciplines: DisciplineOption[];
+}
+
+/** "What are you seeking?" intents, shared across every discipline module. */
+export type SeekingIntent = "paid" | "collab" | "mentorship" | "cofounding" | "spark";
+
+export interface PortfolioItem {
+  title?: string;
+  url: string;
+  kind?: string;
+}
+
+/** A creator's instance of a discipline on their profile — one tab. */
+export interface DisciplineModule {
+  id: string;
+  roleId: string;
+  category: string | null;
+  label: string;
+  headline: string | null;
+  yearsExp: number | null;
+  collabStyle: string | null;
+  availability: string | null;
+  seeking: SeekingIntent[];
+  skill: number | null;
+  attrs: Record<string, unknown>;
+  portfolio: PortfolioItem[];
+  sort: number;
+}
+
+/** Payload for creating/updating a module (id omitted → create). */
+export interface ModuleInput {
+  id?: string;
+  roleId: string;
+  headline?: string | null;
+  yearsExp?: number | null;
+  collabStyle?: string | null;
+  availability?: string | null;
+  seeking?: SeekingIntent[];
+  skill?: number | null;
+  attrs?: Record<string, unknown>;
+  portfolio?: PortfolioItem[];
+}
