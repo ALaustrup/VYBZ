@@ -84,13 +84,17 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
+const SKILL_LEVELS = ["Beginner", "Intermediate", "Advanced", "Pro", "Expert"];
+
 function Dots({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   return (
-    <div className="flex items-center gap-1.5 pt-1.5">
+    <div className="flex items-center gap-1.5 pt-1">
       {[1, 2, 3, 4, 5].map((n) => (
         <button key={n} type="button" aria-label={`Level ${n}`} onClick={() => onChange(n)}
-          className={cx("h-3 w-7 rounded-full transition active:scale-95", n <= value ? "bg-veil-400" : "bg-white/12 hover:bg-white/20")} />
+          className={cx("h-3.5 w-8 rounded-full ring-1 ring-inset transition active:scale-95",
+            n <= value ? "bg-veil-400 ring-veil-300/50" : "bg-white/[0.07] ring-white/20 hover:bg-white/20")} />
       ))}
+      <span className="ml-1.5 text-[11px] text-white/45">{value ? SKILL_LEVELS[value - 1] : "Tap to set"}</span>
     </div>
   );
 }

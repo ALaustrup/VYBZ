@@ -88,14 +88,17 @@ function ProficiencyList({ opts, value, onChange }: { opts: Opt[]; value: Record
               {active && <Check className="h-3 w-3" />}
             </button>
             <span className="min-w-0 flex-1 truncate text-sm text-white/80">{o.label}</span>
-            {active && (
+            {active ? (
               <div className="flex items-center gap-1" title={LEVELS[(value[o.id] ?? 3) - 1]}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button key={n} type="button" onClick={() => set(o.id, n)}
                     aria-label={`${o.label} level ${n}`}
-                    className={cx("h-2 w-4 rounded-full transition", n <= (value[o.id] ?? 3) ? "bg-veil-400" : "bg-white/15")} />
+                    className={cx("h-2.5 w-5 rounded-full ring-1 ring-inset transition active:scale-95",
+                      n <= (value[o.id] ?? 3) ? "bg-veil-400 ring-veil-300/50" : "bg-white/[0.08] ring-white/20 hover:bg-white/20")} />
                 ))}
               </div>
+            ) : (
+              <span className="text-[11px] text-white/35">Tap to add</span>
             )}
           </div>
         );
