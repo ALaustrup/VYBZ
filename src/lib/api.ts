@@ -10,7 +10,7 @@ import type {
   CollabMatch, Opportunity, AssetKind, DmThread, DmMessage,
   AppNotification, CreatorSearchResult, CreatorStats,
   DisciplineModule, DisciplineCategory, DisciplineSchema, ModuleInput,
-  SeekingIntent, PortfolioItem,
+  DisciplineOption, SeekingIntent, PortfolioItem,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -217,6 +217,22 @@ export async function reorderModules(ids: string[]): Promise<void> {
   if (error) throw error;
 }
 
+/** Fuzzy discipline suggestions for the picker's search box. */
+export async function suggestDisciplines(query: string): Promise<DisciplineOption[]> {
+  const { data, error } = await db().rpc("suggest_disciplines", { p_query: query });
+  if (error || !data) return [];
+  return (data as any[]).map((d) => ({ id: d.id, label: d.label, family: d.category ?? "", hasSchema: false }));
+}
+
+export interface CustomDisciplineResult { status: "auto_mapped" | "pending"; mappedRoleId: string | null; mappedLabel: string | null }
+
+/** Request a discipline not in the catalog; auto-maps a confident match, else queues it. */
+export async function requestCustomDiscipline(label: string): Promise<CustomDisciplineResult> {
+  const { data, error } = await db().rpc("request_custom_discipline", { p_label: label });
+  if (error) throw error;
+  return data as CustomDisciplineResult;
+}
+
 /**
  * Fire-and-forget: refresh the caller's semantic embedding (influences/genres/
  * bio → pgvector) so the resonance term in matchmaking reflects their sound.
@@ -227,8 +243,8 @@ export async function refreshEmbedding(): Promise<void> {
 }
 
 // ── Matchmaking ──────────────────────────────────────────────────────────────
-export async function collabMatches(limit = 30): Promise<CollabMatch[]> {
-  const { data, error } = await db().rpc("collab_matches", { p_limit: limit });
+export async function collabMatches(limit = 30, category: string | null = null): Promise<CollabMatch[]> {
+  const { data, error } = await db().rpc("collab_matches", { p_limit: limit, p_category: category });
   if (error || !data) return [];
   return data.map((r: any) => ({
     userId: r.user_id, username: r.username ?? null,
@@ -236,6 +252,7 @@ export async function collabMatches(limit = 30): Promise<CollabMatch[]> {
     mutual: !!r.mutual, sharedGenres: r.shared_genres ?? [], sharedDaws: r.shared_daws ?? [],
     sharedPlugins: r.shared_plugins ?? [], openToWork: !!r.open_to_work,
     resonance: Number(r.resonance ?? 0), reputation: Number(r.reputation ?? 0), fit: Number(r.fit ?? 0),
+    sharedDisciplines: r.shared_disciplines ?? [],
   }));
 }
 

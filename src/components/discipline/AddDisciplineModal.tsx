@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Search, Sparkles, X } from "lucide-react";
+import { Check, Loader2, Plus, Search, Sparkles, X } from "lucide-react";
 import { cx } from "@/lib/utils";
+import * as api from "@/lib/api";
 import type { DisciplineCategory } from "@/types";
 
 /**
@@ -20,6 +21,23 @@ export function AddDisciplineModal({
   onClose: () => void;
 }) {
   const [q, setQ] = useState("");
+  const [requesting, setRequesting] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  async function requestCustom() {
+    const label = q.trim();
+    if (label.length < 2 || requesting) return;
+    setRequesting(true); setNote(null);
+    try {
+      const res = await api.requestCustomDiscipline(label);
+      if (res.status === "auto_mapped" && res.mappedRoleId) {
+        onPick(res.mappedRoleId);
+      } else {
+        setNote(`Thanks — “${label}” is queued for review. We're expanding disciplines across every field.`);
+      }
+    } catch { setNote("Couldn't submit that just now."); }
+    finally { setRequesting(false); }
+  }
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -95,10 +113,20 @@ export function AddDisciplineModal({
                 </div>
               ))}
 
-              {filtered.length === 0 && (
-                <div className="py-8 text-center text-sm text-white/45">
-                  No match for “{q}”.<br />
-                  <span className="text-[12px] text-white/35">More disciplines are being added across every creative field.</span>
+              {q.trim().length >= 2 && (
+                <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-3">
+                  {note ? (
+                    <p className="text-[12px] text-white/60">{note}</p>
+                  ) : (
+                    <button onClick={requestCustom} disabled={requesting}
+                      className="flex w-full items-center gap-2 text-left text-[13px] font-medium text-white/75 hover:text-white">
+                      {requesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 text-veil-300" />}
+                      Add “{q.trim()}” as a discipline
+                    </button>
+                  )}
+                  {filtered.length === 0 && !note && (
+                    <p className="mt-1.5 text-[11px] text-white/35">No exact match — we’ll map it to the closest discipline or add it soon.</p>
+                  )}
                 </div>
               )}
             </div>

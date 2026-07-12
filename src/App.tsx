@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
 import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
+import * as api from "@/lib/api";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
+import { DisciplineOnboarding } from "@/components/discipline/DisciplineOnboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
@@ -47,6 +49,21 @@ export function App() {
   const desktop = useMediaQuery("(min-width: 1024px)");
   const location = useLocation();
 
+  // Post-signup discipline onboarding: shown once to creators with no modules.
+  const [discState, setDiscState] = useState<"unknown" | "needed" | "done">("unknown");
+  const authed = !!userId && !!profile?.username;
+  useEffect(() => {
+    if (!authed) { setDiscState("unknown"); return; }
+    if (localStorage.getItem("vybz.discOnboarded")) { setDiscState("done"); return; }
+    let cancelled = false;
+    api.myModules().then((m) => {
+      if (cancelled) return;
+      if (m.length > 0) { localStorage.setItem("vybz.discOnboarded", "1"); setDiscState("done"); }
+      else setDiscState("needed");
+    }).catch(() => { if (!cancelled) setDiscState("done"); });
+    return () => { cancelled = true; };
+  }, [authed]);
+
   if (!backendEnabled) {
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
   }
@@ -58,6 +75,16 @@ export function App() {
     if (isPublicDoc) return <PublicDocShell />;
     if (!userId) return <><DynamicBackground variant="default" /><Onboarding /></>;
     return <><DynamicBackground variant="default" /><UsernameSetup /></>;
+  }
+
+  // New creator, no disciplines yet → gentle "what hats do you wear?" step.
+  if (!isPublicDoc && discState === "needed") {
+    return (
+      <>
+        <DynamicBackground variant="default" />
+        <DisciplineOnboarding onComplete={() => { localStorage.setItem("vybz.discOnboarded", "1"); setDiscState("done"); }} />
+      </>
+    );
   }
 
   const routes = (

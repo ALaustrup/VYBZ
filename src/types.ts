@@ -88,6 +88,8 @@ export interface CollabMatch {
   /** 0..1 reputation (rating-weighted + social proof). */
   reputation: number;
   fit: number;
+  /** Disciplines you both actively practice (strong "you both do X" signal). */
+  sharedDisciplines: string[];
 }
 
 export interface CreatorStats {

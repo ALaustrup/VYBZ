@@ -80,6 +80,27 @@ function profileText(username: string, profile: Record<string, unknown>): string
   return parts.join(". ").slice(0, 6000);
 }
 
+/** Flatten discipline modules into descriptive text for the embedding. */
+function modulesText(modules: unknown[]): string {
+  const parts: string[] = [];
+  for (const raw of modules) {
+    const m = raw as Record<string, unknown>;
+    const role = m.roles as Record<string, unknown> | null;
+    const label = role?.label as string | undefined;
+    const category = (role?.categories as Record<string, unknown> | null)?.label as string | undefined;
+    const seg: string[] = [];
+    if (label) seg.push(category ? `${label} (${category})` : label);
+    if (typeof m.headline === "string" && m.headline.trim()) seg.push(m.headline.trim());
+    const attrs = (m.attrs ?? {}) as Record<string, unknown>;
+    for (const [key, val] of Object.entries(attrs)) {
+      if (Array.isArray(val) && val.length) seg.push(`${key}: ${val.map(String).join(", ")}`);
+      else if (val && typeof val === "object") seg.push(`${key}: ${Object.keys(val as object).join(", ")}`);
+    }
+    if (seg.length) parts.push(seg.join(" — "));
+  }
+  return parts.join(". ");
+}
+
 async function embedText(text: string): Promise<number[] | null> {
   try {
     const out = await session.run(text, { mean_pool: true, normalize: true });
@@ -106,10 +127,19 @@ Deno.serve(async (req: Request) => {
     .single();
   if (!profile) return json({ error: "no profile" }, 403);
 
-  const text = profileText(
-    (profile.username as string) ?? "",
-    (profile.profile ?? {}) as Record<string, unknown>
-  );
+  // Fold the creator's discipline modules (headlines + structured attrs) into
+  // the embedding text so semantic resonance spans every discipline they work in.
+  const { data: modules } = await admin
+    .from("profile_modules")
+    .select("headline, attrs, roles(label, categories(label))")
+    .eq("user_id", uid)
+    .is("archived_at", null);
+
+  const text = [
+    profileText((profile.username as string) ?? "", (profile.profile ?? {}) as Record<string, unknown>),
+    modulesText((modules ?? []) as unknown[]),
+  ].filter(Boolean).join(". ").slice(0, 6000);
+
   if (text.replace(/\s/g, "").length < 8) {
     return json({ ok: false, skipped: "empty_profile" });
   }
