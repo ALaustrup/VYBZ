@@ -143,7 +143,7 @@ function DisciplinesTab() {
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <select value={pick[r.id] ?? cats[0]?.id ?? ""} onChange={(e) => setPick((p) => ({ ...p, [r.id]: e.target.value }))}
               className="rounded-xl border border-white/10 bg-ink-900 px-3 py-1.5 text-[12px] text-white focus:outline-none">
-              {cats.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              {cats.map((c) => <option key={c.id} value={c.id} style={{ background: "#0f1420", color: "#fff" }}>{c.label}</option>)}
             </select>
             <button onClick={() => promote(r)} className="rounded-full bg-veil-500/25 px-3 py-1.5 text-[12px] font-semibold text-veil-100 active:scale-95">Promote as discipline</button>
             <button onClick={() => reject(r)} className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold text-white/70 active:scale-95">Reject</button>
