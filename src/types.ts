@@ -309,6 +309,46 @@ export interface DisciplineModule {
   sort: number;
 }
 
+// ── Admin console ────────────────────────────────────────────────────────────
+export interface AdminMember {
+  userId: string;
+  username: string | null;
+  location: string | null;
+  isAdmin: boolean;
+  banned: boolean;
+  createdAt: string;
+  modules: number;
+  drops: number;
+}
+
+export interface PendingDiscipline {
+  id: string;
+  rawLabel: string;
+  status: string;
+  requestedBy: string | null;
+  userId: string;
+  createdAt: string;
+}
+
+export type BugStatus = "open" | "reviewing" | "resolved" | "wontfix";
+
+export interface BugReport {
+  id: string;
+  title: string;
+  body: string | null;
+  context: Record<string, unknown>;
+  status: BugStatus;
+  reportedBy: string | null;
+  userId: string | null;
+  createdAt: string;
+}
+
+/** Tunable matchmaking weights (all optional; missing keys use defaults). */
+export type MatchWeights = Record<string, number>;
+
+/** A tunable weight's metadata for the admin UI. */
+export interface WeightDef { key: string; label: string; def: number }
+
 /** Payload for creating/updating a module (id omitted → create). */
 export interface ModuleInput {
   id?: string;

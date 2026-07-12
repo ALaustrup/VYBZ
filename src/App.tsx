@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
-import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2 } from "lucide-react";
+import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import * as api from "@/lib/api";
@@ -31,6 +31,7 @@ import { RoomsPage } from "@/pages/RoomsPage";
 import { RoomPage } from "@/pages/RoomPage";
 import { CodexPage } from "@/pages/CodexPage";
 import { CodexDocPage } from "@/pages/CodexDocPage";
+import { AdminPage } from "@/pages/AdminPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
@@ -105,6 +106,7 @@ export function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/profile/disciplines" element={<DisciplinesPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/codex" element={<CodexPage />} />
         <Route path="/codex/:slug" element={<CodexDocPage />} />
@@ -187,7 +189,7 @@ function PublicDocShell() {
 
 function SideNav() {
   const { pathname } = useLocation();
-  const { unread } = useSession();
+  const { unread, profile } = useSession();
   const item = (to: string, label: string, Icon: typeof Bell, active: boolean, badge?: number) => (
     <NavLink key={to} to={to} className={cx("relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition", active ? "bg-veil-500/15 text-white ring-1 ring-veil-400/40" : "text-white/55 hover:bg-black/20 hover:text-white/85")}>
       <span className="relative"><Icon className="h-5 w-5" />{badge ? <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{badge > 9 ? "9+" : badge}</span> : null}</span> {label}
@@ -200,6 +202,7 @@ function SideNav() {
         return item(to, label, Icon, active);
       })}
       {item("/activity", "Activity", Bell, pathname === "/activity", unread)}
+      {profile?.isAdmin && item("/admin", "Admin", ShieldCheck, pathname.startsWith("/admin"))}
     </nav>
   );
 }

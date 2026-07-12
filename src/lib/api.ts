@@ -11,6 +11,7 @@ import type {
   AppNotification, CreatorSearchResult, CreatorStats,
   DisciplineModule, DisciplineCategory, DisciplineSchema, ModuleInput,
   DisciplineOption, SeekingIntent, PortfolioItem,
+  AdminMember, PendingDiscipline, BugReport, BugStatus, MatchWeights,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -215,6 +216,70 @@ export async function restoreModule(id: string): Promise<void> {
 export async function reorderModules(ids: string[]): Promise<void> {
   const { error } = await db().rpc("reorder_modules", { p_ids: ids });
   if (error) throw error;
+}
+
+// ── Admin console ────────────────────────────────────────────────────────────
+export async function adminListMembers(q = "", limit = 50): Promise<AdminMember[]> {
+  const { data, error } = await db().rpc("admin_list_members", { p_q: q, p_limit: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((m) => ({
+    userId: m.userId, username: m.username ?? null, location: m.location ?? null,
+    isAdmin: !!m.isAdmin, banned: !!m.banned, createdAt: m.createdAt,
+    modules: Number(m.modules ?? 0), drops: Number(m.drops ?? 0),
+  }));
+}
+export async function adminSetBanned(userId: string, banned: boolean): Promise<void> {
+  const { error } = await db().rpc("admin_set_banned", { p_user: userId, p_banned: banned });
+  if (error) throw error;
+}
+export async function adminSetAdmin(userId: string, isAdmin: boolean): Promise<void> {
+  const { error } = await db().rpc("admin_set_admin", { p_user: userId, p_is_admin: isAdmin });
+  if (error) throw error;
+}
+export async function adminPendingDisciplines(): Promise<PendingDiscipline[]> {
+  const { data, error } = await db().rpc("admin_pending_disciplines");
+  if (error || !data) return [];
+  return (data as any[]).map((d) => ({
+    id: d.id, rawLabel: d.rawLabel, status: d.status,
+    requestedBy: d.requestedBy ?? null, userId: d.userId, createdAt: d.createdAt,
+  }));
+}
+export async function adminPromoteDiscipline(requestId: string, opts: { category?: string | null; roleId?: string | null; label?: string | null } = {}): Promise<string> {
+  const { data, error } = await db().rpc("admin_promote_discipline", {
+    p_request: requestId, p_category: opts.category ?? null, p_role: opts.roleId ?? null, p_label: opts.label ?? null,
+  });
+  if (error) throw error;
+  return (data as any)?.roleId ?? "";
+}
+export async function adminRejectDiscipline(requestId: string): Promise<void> {
+  const { error } = await db().rpc("admin_reject_discipline", { p_request: requestId });
+  if (error) throw error;
+}
+export async function getMatchmakingConfig(): Promise<MatchWeights> {
+  const { data, error } = await db().rpc("get_matchmaking_config");
+  if (error || !data) return {};
+  return data as MatchWeights;
+}
+export async function setMatchmakingConfig(config: MatchWeights): Promise<void> {
+  const { error } = await db().rpc("set_matchmaking_config", { p: config });
+  if (error) throw error;
+}
+export async function adminListBugReports(status: string | null = null): Promise<BugReport[]> {
+  const { data, error } = await db().rpc("admin_list_bug_reports", { p_status: status });
+  if (error || !data) return [];
+  return (data as any[]).map((b) => ({
+    id: b.id, title: b.title, body: b.body ?? null, context: b.context ?? {},
+    status: b.status, reportedBy: b.reportedBy ?? null, userId: b.userId ?? null, createdAt: b.createdAt,
+  }));
+}
+export async function adminSetBugStatus(id: string, status: BugStatus): Promise<void> {
+  const { error } = await db().rpc("admin_set_bug_status", { p_id: id, p_status: status });
+  if (error) throw error;
+}
+export async function submitBugReport(title: string, body: string, context: Record<string, unknown> = {}): Promise<string> {
+  const { data, error } = await db().rpc("submit_bug_report", { p_title: title, p_body: body, p_context: context });
+  if (error) throw error;
+  return data as string;
 }
 
 /** Fuzzy discipline suggestions for the picker's search box. */

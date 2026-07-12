@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, Layers } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, Layers, ShieldCheck, Bug } from "lucide-react";
+import { ReportBugModal } from "@/components/ReportBugModal";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
@@ -18,6 +19,7 @@ export function ProfilePage() {
   const [stats, setStats] = useState<CreatorStats | null>(null);
   const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bugOpen, setBugOpen] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -98,6 +100,19 @@ export function ProfilePage() {
         <ScrollText className="h-4 w-4 shrink-0 text-veil-300" />
         <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">VYBZ Codex & Legal</span><span className="block text-[11px] text-white/45">Free contracts, licenses & templates · Terms, Privacy, DMCA</span></span>
       </button>
+
+      {profile.isAdmin && (
+        <button onClick={() => navigate("/admin")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-3 text-left active:scale-[0.99]">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-veil-200" />
+          <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Admin console</span><span className="block text-[11px] text-white/55">Members, matchmaking weights, discipline requests & bug reports</span></span>
+        </button>
+      )}
+
+      <button onClick={() => setBugOpen(true)} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
+        <Bug className="h-4 w-4 shrink-0 text-white/60" />
+        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Report a bug</span><span className="block text-[11px] text-white/45">Something off? Tell us — it goes straight to the team.</span></span>
+      </button>
+      <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
 
       <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Your drops</p>
       {loading ? (
