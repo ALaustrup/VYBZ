@@ -140,11 +140,20 @@ function DisciplinesTab() {
         <div key={r.id} className="rounded-2xl border border-white/8 bg-white/[0.03] p-3">
           <p className="font-display font-semibold text-white">{r.rawLabel}</p>
           <p className="mt-0.5 text-[11px] text-white/40">Requested by {r.requestedBy ?? "—"} · {new Date(r.createdAt).toLocaleDateString()}</p>
+          <p className="mt-2 mb-1 text-[10px] uppercase tracking-wide text-white/35">Promote into category</p>
+          <div className="flex flex-wrap gap-1.5">
+            {cats.map((c) => {
+              const sel = (pick[r.id] ?? cats[0]?.id) === c.id;
+              return (
+                <button key={c.id} onClick={() => setPick((p) => ({ ...p, [r.id]: c.id }))}
+                  className={cx("rounded-full px-2.5 py-1 text-[11px] font-medium transition active:scale-95",
+                    sel ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/85")}>
+                  {c.label}
+                </button>
+              );
+            })}
+          </div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <select value={pick[r.id] ?? cats[0]?.id ?? ""} onChange={(e) => setPick((p) => ({ ...p, [r.id]: e.target.value }))}
-              className="rounded-xl border border-white/10 bg-ink-900 px-3 py-1.5 text-[12px] text-white focus:outline-none">
-              {cats.map((c) => <option key={c.id} value={c.id} style={{ background: "#0f1420", color: "#fff" }}>{c.label}</option>)}
-            </select>
             <button onClick={() => promote(r)} className="rounded-full bg-veil-500/25 px-3 py-1.5 text-[12px] font-semibold text-veil-100 active:scale-95">Promote as discipline</button>
             <button onClick={() => reject(r)} className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold text-white/70 active:scale-95">Reject</button>
           </div>
