@@ -2,13 +2,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "@/App";
-import { AppProvider } from "@/store/AppStore";
-import { Intro } from "@/components/Intro";
+import { IntroSplash } from "@/components/IntroSplash";
+import { SessionProvider } from "@/store/session";
 import { primeAudio } from "@/lib/sound";
 import "@/index.css";
 
-// Unlock the audio context on the first user gesture (a browser requirement),
-// then stop listening — sound plays on demand from there.
+// Unlock the audio context on the first user gesture (a browser requirement).
 if (typeof window !== "undefined") {
   const unlock = () => {
     primeAudio();
@@ -19,8 +18,6 @@ if (typeof window !== "undefined") {
   window.addEventListener("keydown", unlock, { once: true });
 }
 
-// When a new service worker takes control (after an autoUpdate deploy), reload
-// once so users always get the latest build instead of a stale cached version.
 if ("serviceWorker" in navigator) {
   let reloaded = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
@@ -33,10 +30,10 @@ if ("serviceWorker" in navigator) {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <AppProvider>
+      <SessionProvider>
         <App />
-        <Intro />
-      </AppProvider>
+        <IntroSplash />
+      </SessionProvider>
     </BrowserRouter>
   </StrictMode>
 );

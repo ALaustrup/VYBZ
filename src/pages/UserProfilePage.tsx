@@ -1,379 +1,85 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Crown,
-  Heart,
-  Loader2,
-  MessageCircle,
-  Music,
-  Sparkles,
-  UserRound,
-} from "lucide-react";
-import { useApp } from "@/store/AppStore";
-import * as backend from "@/lib/backend";
-import { Handle } from "@/components/Handle";
-import { IdentityMeta } from "@/components/IdentityMeta";
-import { WhisperCard } from "@/components/WhisperCard";
-import {
-  borderClass,
-  fontClass,
-  hasSparkle,
-  nameShimmer,
-  themeGradient,
-} from "@/lib/cosmetics";
-import { musicEmbed } from "@/lib/music";
-import { cx, formatCount, timeAgo } from "@/lib/utils";
-import { DAW_LABEL, PLUGIN_LABEL, TRAITS } from "@/lib/profileFields";
-import type { Confession, EchoPublic } from "@/types";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck } from "lucide-react";
+import * as api from "@/lib/api";
+import { TrackCard } from "@/components/TrackCard";
+import { useSession } from "@/store/session";
+import { avatarGradient } from "@/lib/utils";
+import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function UserProfilePage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
-  const { displayLevel, isNsfwHidden, openEcho } = useApp();
-  const [profile, setProfile] = useState<backend.PublicProfile | null>(null);
-  const [posts, setPosts] = useState<Confession[]>([]);
+  const { userId, showToast } = useSession();
+  const [p, setP] = useState<api.PublicProfile | null>(null);
+  const [drops, setDrops] = useState<Drop[]>([]);
+  const [stats, setStats] = useState<CreatorStats | null>(null);
+  const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [echo, setEcho] = useState<EchoPublic | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setEcho(null);
-    (async () => {
-      const [p, c] = await Promise.all([
-        backend.fetchPublicProfile(id),
-        backend.fetchUserConfessions(id),
-      ]);
-      if (cancelled) return;
-      setProfile(p);
-      setPosts(c);
-      setLoading(false);
-      // Echo availability is gated server-side (enabled, both adults, not blocked).
-      backend.fetchEchoPublic(id).then((e) => {
-        if (!cancelled) setEcho(e);
-      });
-    })();
-    return () => {
-      cancelled = true;
-    };
+    Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20), api.getCreatorStats(id), api.creatorCredits(id)]).then(([prof, d, s, c]) => {
+      setP(prof); setDrops(d); setStats(s); setCredits(c); setLoading(false);
+    });
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-veil-300" />
-      </div>
-    );
-  }
-  if (!profile) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 px-8 text-center">
-        <p className="text-sm text-white/55">This veil has faded.</p>
-        <button onClick={() => navigate(-1)} className="text-sm font-semibold text-veil-300">
-          Go back
-        </button>
-      </div>
-    );
-  }
-
-  const loadout = profile.loadout ?? {};
-  const grad = themeGradient(loadout);
+  if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
+  if (!p) return <div className="flex h-full items-center justify-center text-white/50">Profile not found.</div>;
+  const isMe = userId === id;
+  const [c0, c1] = avatarGradient(p.username || id);
+  const f = p.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-4 pb-10">
-      <div className="flex items-center gap-3 pt-3">
-        <button
-          onClick={() => navigate(-1)}
-          aria-label="Back"
-          className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
-        <span className="text-xs uppercase tracking-wider text-white/40">Profile</span>
-      </div>
-
-      {/* Identity header (themed by equipped cosmetics). */}
-      <div
-        className="relative mt-3 overflow-hidden rounded-3xl border border-white/10 p-6"
-        style={!profile.bannerUrl && grad ? { background: grad } : undefined}
-      >
-        {profile.bannerUrl ? (
-          <div className="absolute inset-0 -z-10">
-            <img src={profile.bannerUrl} alt="" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/40 to-ink-950/20" />
-          </div>
-        ) : (
-          !grad && <div className="absolute inset-0 -z-10 bg-veil-radial opacity-70" />
-        )}
-        {hasSparkle(loadout) && (
-          <Sparkles className="absolute right-4 top-4 h-5 w-5 text-amber-300/70" />
-        )}
-        <div className="flex items-center gap-4">
-          <div
-            className={cx(
-              "flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-black/30",
-              borderClass(loadout)
-            )}
-          >
-            {profile.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <UserRound className="h-8 w-8 text-veil-100" strokeWidth={2.25} />
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className={cx("flex items-center gap-2", nameShimmer(loadout) && "text-gradient")}>
-              <span className={cx("text-base font-bold text-white", fontClass(loadout))}>
-                <Handle
-                  username={profile.username}
-                  emoji={profile.alias}
-                  size={18}
-                />
-              </span>
-              {profile.godmode && (
-                <span className="flex items-center gap-1 rounded-full bg-amber-300/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                  <Crown className="h-3 w-3" /> Godmode
-                </span>
-              )}
-            </div>
-            <IdentityMeta
-              gender={profile.gender ?? undefined}
-              age={profile.age ?? undefined}
-              location={profile.location ?? undefined}
-              size="sm"
-              className="mt-1"
-            />
-            <p className="mt-1 text-[11px] text-white/40">
-              Joined {timeAgo(profile.createdAt)}
-            </p>
-          </div>
+    <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6 pt-3">
+      <button onClick={() => navigate(-1)} aria-label="Back" className="mb-3 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
+      <div className="mb-4 flex items-center gap-4">
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>{(p.username || "?").charAt(0).toUpperCase()}</span>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-display text-2xl font-bold text-white">{p.username}</h1>
+          {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>
-
-        {/* Stats portfolio. */}
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <Stat label="Resonance" value={formatCount(profile.feels)} icon={<Heart className="h-3.5 w-3.5 text-feel-400" />} />
-          <Stat label="Posts" value={String(profile.posts)} />
-        </div>
-
-        {/* Echo — chat with this member's opt-in AI while they're away. */}
-        {echo && (
-          <button
-            onClick={() => openEcho(profile.id)}
-            className="group mt-3 flex w-full items-center gap-3 rounded-2xl border border-aqua-400/25 bg-aqua-500/10 px-4 py-3 text-left transition active:scale-[0.98]"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-aqua-500/20 text-aqua-300">
-              <MessageCircle className="h-4.5 w-4.5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-white">
-                Chat with {echo.displayName || "their"} Echo
-                <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white/55">
-                  AI
-                </span>
-              </span>
-              <span className="mt-0.5 block text-[11px] text-white/45">
-                An AI of this member, switched on by them
-              </span>
-            </span>
-            <Sparkles className="h-4 w-4 shrink-0 text-aqua-300/70" />
-          </button>
-        )}
       </div>
-
-      {/* Rich public profile (privacy-sanitized server-side). */}
-      <ProfileDetailsView profile={profile} />
-
-      {/* Music. */}
-      {(() => {
-        const embed = musicEmbed(profile.musicUrl);
-        if (!embed) return null;
-        return (
-          <div className="mt-3">
-            <p className="mb-1.5 flex items-center gap-1.5 px-1 text-[11px] uppercase tracking-wider text-white/35">
-              <Music className="h-3 w-3" /> On repeat
-            </p>
-            <iframe
-              title="profile music"
-              src={embed.src}
-              height={embed.height}
-              className="w-full rounded-2xl border border-white/10"
-              allow="encrypted-media; clipboard-write; autoplay; fullscreen"
-              loading="lazy"
-            />
-          </div>
-        );
-      })()}
-
-      {/* Public posts. */}
-      <p className="mb-2 mt-5 px-1 text-[11px] uppercase tracking-wider text-white/35">
-        Posts
-      </p>
-      {posts.length === 0 ? (
-        <p className="py-8 text-center text-sm text-white/40">Nothing public yet.</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          {posts.map((c) => (
-            <WhisperCard
-              key={c.id}
-              confession={c}
-              level={displayLevel(c)}
-              nsfwHidden={isNsfwHidden(c)}
-              variant="tile"
-              paused
-            />
-          ))}
+      {stats && (stats.ratings > 0 || stats.drops > 0 || stats.connections > 0) && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-white/60">
+          {stats.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
+          {stats.ratings > 0 && <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" />{stats.avgRating.toFixed(1)} · {stats.ratings} {stats.ratings === 1 ? "rating" : "ratings"}</span>}
+          <span>{stats.drops} {stats.drops === 1 ? "drop" : "drops"}</span>
+          {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{stats.connections}</span>}
         </div>
       )}
+      {p.bio && <p className="mb-4 text-sm leading-relaxed text-white/75">{p.bio}</p>}
+      {!isMe && (
+        <div className="mb-4 flex gap-2">
+          <button onClick={async () => { await api.connect(id); showToast("Connection sent"); }} className="btn btn-ghost flex-1"><UserPlus className="h-4 w-4" /> Connect</button>
+          <button onClick={async () => { const t = await api.startDm(id); if (t) navigate(`/messages/${t}`); }} className="btn btn-primary flex-1"><MessageCircle className="h-4 w-4" /> Message</button>
+        </div>
+      )}
+      <div className="mb-4 space-y-2">
+        {p.offers.length > 0 && <Row icon={<Sparkles className="h-3.5 w-3.5 text-feel" />} label="Brings" items={p.offers} tone="bg-feel/15 text-feel" />}
+        {p.seeks.length > 0 && <Row icon={<Target className="h-3.5 w-3.5 text-aqua-300" />} label="Seeks" items={p.seeks} tone="bg-aqua-400/15 text-aqua-200" />}
+        {f.genres?.length ? <Row label="Genres" items={f.genres} tone="bg-veil-500/20 text-veil-100" /> : null}
+      </div>
+      {credits.length > 0 && (
+        <div className="mb-4">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><BadgeCheck className="h-3.5 w-3.5 text-feel" /> Verified credits</p>
+          <div className="space-y-1.5">
+            {credits.map((c) => (
+              <div key={c.projectId} className="flex items-center gap-2 rounded-xl border border-feel/15 bg-feel/[0.05] px-3 py-2">
+                <BadgeCheck className="h-4 w-4 shrink-0 text-feel" />
+                <span className="min-w-0 flex-1 truncate text-sm text-white/85">{c.title}</span>
+                {c.role && <span className="shrink-0 text-[11px] text-white/50">{c.role}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Drops</p>
+      <div className="grid gap-4 sm:grid-cols-2">{drops.map((d) => <TrackCard key={d.id} drop={{ ...d, authorUsername: p.username }} queue={drops} />)}</div>
     </div>
   );
 }
 
-/** Public, privacy-sanitized rendering of a user's rich profile data points. */
-function ProfileDetailsView({ profile }: { profile: backend.PublicProfile }) {
-  const details = profile.details;
-  const offers = profile.offers ?? [];
-  const seeks = profile.seeks ?? [];
-  const traitLabel = (key: string) => TRAITS.find((t) => t.key === key)?.label ?? key;
-  const hasTraits = details.traits && Object.keys(details.traits).length > 0;
-  const prompts = (details.prompts ?? []).filter((p) => p.q && p.a);
-  const genres = details.genres ?? [];
-  const daws = (details.daws ?? []).map((id) => DAW_LABEL[id] ?? id);
-  const plugins = (details.plugins ?? []).map((id) => PLUGIN_LABEL[id] ?? id);
-  const nothing =
-    !offers.length &&
-    !seeks.length &&
-    !details.bio &&
-    !details.pronouns &&
-    !genres.length &&
-    !daws.length &&
-    !plugins.length &&
-    !details.influences &&
-    !(details.interests ?? []).length &&
-    !(details.lookingFor ?? []).length &&
-    !(details.languages ?? []).length &&
-    !hasTraits &&
-    !prompts.length;
-  if (nothing) return null;
-
-  const Chips = ({ items, tone }: { items: string[]; tone: string }) => (
-    <div className="flex flex-wrap gap-1.5">
-      {items.map((x) => (
-        <span key={x} className={cx("rounded-full px-2.5 py-1 text-xs font-medium", tone)}>
-          {x}
-        </span>
-      ))}
-    </div>
-  );
-
-  return (
-    <div className="mt-3 space-y-3">
-      {(offers.length > 0 || seeks.length > 0) && (
-        <div className="grid gap-2 sm:grid-cols-2">
-          {offers.length > 0 && (
-            <div className="rounded-2xl border border-feel/25 bg-feel/[0.05] p-4">
-              <p className="mb-2 text-[11px] uppercase tracking-wider text-feel/90">Brings</p>
-              <Chips items={offers} tone="bg-feel/20 text-white" />
-            </div>
-          )}
-          {seeks.length > 0 && (
-            <div className="rounded-2xl border border-aqua-400/25 bg-aqua-400/[0.05] p-4">
-              <p className="mb-2 text-[11px] uppercase tracking-wider text-aqua-200">
-                Looking for
-              </p>
-              <Chips items={seeks} tone="bg-aqua-400/20 text-white" />
-            </div>
-          )}
-        </div>
-      )}
-
-      {details.bio && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="text-sm leading-relaxed text-white/85">{details.bio}</p>
-          {details.pronouns && (
-            <p className="mt-1.5 text-[11px] text-white/40">{details.pronouns}</p>
-          )}
-        </div>
-      )}
-
-      {genres.length > 0 && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Genres</p>
-          <Chips items={genres} tone="bg-veil-500/20 text-veil-100" />
-        </div>
-      )}
-
-      {daws.length > 0 && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">DAWs</p>
-          <Chips items={daws} tone="bg-glow/20 text-white" />
-        </div>
-      )}
-
-      {plugins.length > 0 && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Plugins</p>
-          <Chips items={plugins} tone="bg-white/10 text-white/80" />
-        </div>
-      )}
-
-      {details.influences && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Influences</p>
-          <p className="text-sm leading-relaxed text-white/85">{details.influences}</p>
-        </div>
-      )}
-
-      {(details.interests ?? []).length > 0 && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Interests</p>
-          <Chips items={details.interests ?? []} tone="bg-veil-500/20 text-veil-100" />
-        </div>
-      )}
-
-      {(details.lookingFor ?? []).length > 0 && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Looking for</p>
-          <Chips items={details.lookingFor ?? []} tone="bg-aqua-400/20 text-aqua-100" />
-        </div>
-      )}
-
-      {(details.languages ?? []).length > 0 && (
-        <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/35">Languages</p>
-          <Chips items={details.languages ?? []} tone="bg-white/10 text-white/80" />
-        </div>
-      )}
-
-      {hasTraits && (
-        <div className="grid grid-cols-2 gap-2">
-          {Object.entries(details.traits ?? {}).map(([k, v]) => (
-            <div key={k} className="rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-              <p className="text-[10px] uppercase tracking-wider text-white/40">{traitLabel(k)}</p>
-              <p className="mt-0.5 text-sm font-semibold text-white">{v}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {prompts.map((p, i) => (
-        <div key={i} className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-          <p className="text-[11px] font-semibold text-veil-200">{p.q}</p>
-          <p className="mt-1 text-sm text-white/85">{p.a}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Stat({ label, value, icon }: { label: string; value: string; icon?: ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-white/8 bg-black/20 p-3 text-center">
-      <div className="flex items-center justify-center gap-1 font-display text-lg font-bold text-white">
-        {icon}
-        {value}
-      </div>
-      <p className="mt-0.5 text-[10px] uppercase tracking-wider text-white/40">{label}</p>
-    </div>
-  );
+function Row({ icon, label, items, tone }: { icon?: React.ReactNode; label: string; items: string[]; tone: string }) {
+  return <div className="flex flex-wrap items-center gap-1.5"><span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">{icon}{label}</span>{items.map((i) => <span key={i} className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${tone}`}>{i}</span>)}</div>;
 }

@@ -1,0 +1,56 @@
+# VYBZ Terms of Service
+
+**Operator:** Astra Matrix, Inc. ("Astra Matrix," "we," "us")
+**Service:** VYBZ (the "Service") — vybz.astramatrix.xyz
+**Effective Date:** [EFFECTIVE DATE]   **Version:** 1.0
+
+These Terms of Service (the "Terms") are a binding agreement between you and Astra Matrix, Inc. governing your access to and use of VYBZ. By creating an account or using the Service, you agree to these Terms. If you do not agree, do not use the Service.
+
+## 1. Eligibility & Accounts
+You must be at least 18 years old, or the age of majority in your jurisdiction, to use VYBZ. VYBZ is an **identity-first** platform: you agree to provide accurate information and to maintain the security of your account credentials. You are responsible for all activity under your account. You may not impersonate others or misrepresent your identity or affiliation.
+
+## 2. The Service
+VYBZ helps music creators find collaborators, share sounds ("drops"), exchange samples/stems/project files, message and collaborate in real time, and manage projects and credits. Features may change, and we may add, modify, or discontinue features at our discretion.
+
+## 3. Your Content & Ownership
+"User Content" means anything you upload or create on VYBZ, including audio, images, text, and metadata.
+- **You retain ownership** of your User Content and all intellectual property rights in it.
+- **License to operate the Service.** You grant Astra Matrix a worldwide, non-exclusive, royalty-free license to host, store, reproduce, transmit, display, and process your User Content **solely to operate, secure, and improve the Service** and to provide features you use (e.g., streaming your drops to listeners, generating waveforms, delivering downloads you authorize). This license ends when you delete the User Content, except for reasonable backup copies and where retention is required by law or to resolve disputes.
+- **You are responsible** for your User Content and represent that you own it or have all rights necessary to upload and share it, and that it does not infringe any third party's rights.
+
+## 4. Rights, Exchange & Provenance
+Downloads and asset exchange are governed by the license you select for each asset. To protect creators, the Service may apply **per-recipient forensic watermarking** and record asset events in a tamper-evident **provenance ledger**. These measures support attribution and provenance; they are not a guarantee against misuse, and you remain responsible for your own rights management.
+
+## 5. Acceptable Use
+Your use of VYBZ is subject to our **Acceptable Use Policy** and **Copyright & DMCA Policy**, incorporated by reference. Do not upload infringing, unlawful, or harmful content, and do not misuse, disrupt, or attempt to gain unauthorized access to the Service.
+
+## 6. Intellectual Property of the Service
+The Service, including its software, design, trademarks, and the "VYBZ" and "Astra Matrix" names and logos, is owned by Astra Matrix or its licensors and is protected by law. These Terms grant you no rights in our intellectual property except to use the Service as permitted.
+
+## 7. Third-Party Services
+The Service relies on third-party providers (e.g., cloud hosting, database, and delivery providers). Your use may be subject to their terms, and we are not responsible for third-party services.
+
+## 8. Disclaimers
+THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. We do not warrant that the Service will be uninterrupted, secure, or error-free. **Documents in the VYBZ Codex are informational templates, not legal advice.**
+
+## 9. Limitation of Liability
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, ASTRA MATRIX WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS, DATA, OR GOODWILL. OUR TOTAL LIABILITY FOR ANY CLAIM RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER OF (A) THE AMOUNTS YOU PAID US IN THE 12 MONTHS BEFORE THE CLAIM OR (B) USD $100.
+
+## 10. Indemnification
+You agree to indemnify and hold harmless Astra Matrix from claims arising out of your User Content, your use of the Service, or your breach of these Terms.
+
+## 11. Termination
+You may stop using the Service and delete your account at any time. We may suspend or terminate access if you violate these Terms or to protect the Service or others. Sections that by their nature should survive (e.g., ownership, disclaimers, liability, indemnity) survive termination.
+
+## 12. Changes to These Terms
+We may update these Terms. Material changes will be notified through the Service or by email. Continued use after changes take effect constitutes acceptance.
+
+## 13. Governing Law & Disputes
+These Terms are governed by the laws of [STATE/COUNTRY], without regard to conflict-of-laws rules. Disputes will be resolved in the courts located in [VENUE], or, where elected, by binding arbitration, and you and Astra Matrix consent to that jurisdiction.
+
+## 14. Contact
+Astra Matrix, Inc. — [COMPANY ADDRESS] — [legal@astramatrix.xyz]
+
+---
+
+*This document is provided by Astra Matrix, Inc. and should be reviewed by qualified counsel and finalized with company-specific details before public reliance.*

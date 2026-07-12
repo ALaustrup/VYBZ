@@ -1,321 +1,240 @@
-import { lazy, Suspense, useEffect } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
-import { TopBar } from "@/components/TopBar";
-import { BottomNav } from "@/components/BottomNav";
-import { SideNav } from "@/components/SideNav";
-import { ContextRail } from "@/components/ContextRail";
-import { DynamicBackground } from "@/components/DynamicBackground";
-import { Confetti } from "@/components/Confetti";
-import { Onboarding } from "@/components/Onboarding";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Tutorial } from "@/components/Tutorial";
-import { InstallPrompt } from "@/components/InstallPrompt";
-import { useApp } from "@/store/AppStore";
+import { useEffect, useState } from "react";
+import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
+import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck } from "lucide-react";
+import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
-import { cx } from "@/lib/utils";
-import { pageAccentRgb } from "@/lib/accent";
-import { pageTransition as pageTransitionMeta } from "@/lib/transitions";
+import * as api from "@/lib/api";
+import { DynamicBackground } from "@/components/DynamicBackground";
+import { Onboarding, UsernameSetup } from "@/components/Onboarding";
+import { DisciplineOnboarding } from "@/components/discipline/DisciplineOnboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
-import { ConnectionSheet } from "@/components/ConnectionSheet";
-import { InboxSheet } from "@/components/InboxSheet";
-import { FriendChatSheet } from "@/components/FriendChatSheet";
-import { PostSheet } from "@/components/PostSheet";
-import { MediaViewer } from "@/components/MediaViewer";
-import { PushPrompt } from "@/components/PushPrompt";
-import { LifelineSheet } from "@/components/LifelineSheet";
-import { FeedbackSheet } from "@/components/FeedbackSheet";
-import { installMediaGuard } from "@/lib/mediaGuard";
-import { PremiumSheet } from "@/components/PremiumSheet";
-import { AccountGate } from "@/components/AccountGate";
+import { GlobalPlayer } from "@/components/GlobalPlayer";
+import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { Toast } from "@/components/Toast";
-import { NotificationPopup } from "@/components/NotificationPopup";
-import { UploadIndicator } from "@/components/UploadIndicator";
-import { ConnectNowSheet } from "@/components/Presence";
-import { CompanionSheet } from "@/components/CompanionSheet";
-import { EchoSheet } from "@/components/EchoSheet";
-import { FeedsPage } from "@/pages/FeedsPage";
-import { ForYouPage } from "@/pages/ForYouPage";
-import { MatchmakingPage } from "@/pages/MatchmakingPage";
-import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
+import { Confetti } from "@/components/Confetti";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { BrandLockup } from "@/components/Brand";
+import { FeedPage } from "@/pages/FeedPage";
+import { ConnectPage } from "@/pages/ConnectPage";
 import { SparkPage } from "@/pages/SparkPage";
-import { RoomsPage } from "@/pages/RoomsPage";
+import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
 import { ProfilePage } from "@/pages/ProfilePage";
-import { NotificationsPage } from "@/pages/NotificationsPage";
-import { AdminPage } from "@/pages/AdminPage";
+import { ProfileEditPage } from "@/pages/ProfileEditPage";
+import { DisciplinesPage } from "@/pages/DisciplinesPage";
 import { UserProfilePage } from "@/pages/UserProfilePage";
-import { ChatHubPage } from "@/pages/ChatHubPage";
-import { CircleChatPage } from "@/pages/CircleChatPage";
-import { LegalPage } from "@/pages/LegalPage";
+import { MessagesPage } from "@/pages/MessagesPage";
+import { DiscoverPage } from "@/pages/DiscoverPage";
+import { NotificationsPage } from "@/pages/NotificationsPage";
+import { ProjectsPage } from "@/pages/ProjectsPage";
+import { ProjectRoomPage } from "@/pages/ProjectRoomPage";
+import { RoomsPage } from "@/pages/RoomsPage";
+import { RoomPage } from "@/pages/RoomPage";
+import { CodexPage } from "@/pages/CodexPage";
+import { CodexDocPage } from "@/pages/CodexDocPage";
+import { AdminPage } from "@/pages/AdminPage";
+import { cx } from "@/lib/utils";
 
-// Heavy Three.js scene — code-split so it only loads when entering MYVYB XR.
-const XRPage = lazy(() =>
-  import("@/pages/XRPage").then((m) => ({ default: m.XRPage }))
-);
-// LiveKit SDK is heavy; only load it when entering /live.
-const LivePage = lazy(() =>
-  import("@/pages/LivePage").then((m) => ({ default: m.LivePage }))
-);
-
-// Wraps each routed page in the chosen enter/exit motion (Godmode-customizable).
-function Page({
-  children,
-  transition,
-}: {
-  children: React.ReactNode;
-  transition: string;
-}) {
-  const t = pageTransitionMeta(transition);
-  return (
-    <motion.div
-      initial={t.initial}
-      animate={t.animate}
-      exit={t.exit}
-      transition={t.transition}
-      className="h-full"
-    >
-      {children}
-    </motion.div>
-  );
-}
+const NAV = [
+  { to: "/", label: "Drops", icon: AudioLines, end: true },
+  { to: "/discover", label: "Discover", icon: Search },
+  { to: "/connect", label: "Connect", icon: Users, match: ["/spark", "/opportunities"] },
+  { to: "/projects", label: "Studio", icon: FolderGit2 },
+  { to: "/messages", label: "Messages", icon: MessageSquare, match: ["/rooms"] },
+  { to: "/profile", label: "You", icon: User, match: ["/u/"] },
+];
 
 export function App() {
-  const location = useLocation();
-  const { account, authLoading, bgVariant, pageTransition, isOnline, celebrate, showToast, dockColor } =
-    useApp();
-
-  // Per-page accent: each destination borrows the hue of its taskbar icon, so the
-  // neutral-gray base picks up a hint of the page's own color. Exposed as a CSS
-  // variable (--accent-rgb) that every veil-* utility + glow resolves against.
-  const accentRgb = pageAccentRgb(location.pathname, dockColor);
-  const accentStyle = { "--accent-rgb": accentRgb } as React.CSSProperties;
-
-  // Block right-click / drag / save on user-uploaded media platform-wide.
-  useEffect(() => installMediaGuard(), []);
-
-  // Welcome animation right after a new member finishes signup.
-  useEffect(() => {
-    if (!account) return;
-    try {
-      if (localStorage.getItem("veiled.justJoined")) {
-        localStorage.removeItem("veiled.justJoined");
-        celebrate("Welcome to MYVYB ✨");
-      }
-    } catch {
-      /* ignore */
-    }
-  }, [account, celebrate]);
-
-  // One-time nudge for a brand-new guest: point them to make their auto-issued
-  // username their own (and, implicitly, to create an account later). Keyed on a
-  // stable boolean so hydration re-renders don't cancel the pending timer.
-  const isGuest = !!account && account.anonymous;
-  useEffect(() => {
-    if (!isGuest) return;
-    try {
-      if (localStorage.getItem("veiled.usernameNudge")) return;
-      localStorage.setItem("veiled.usernameNudge", "1");
-    } catch {
-      return;
-    }
-    const t = window.setTimeout(() => {
-      showToast("Make it yours — rename your username in Settings → Customize Username");
-    }, 2200);
-    return () => window.clearTimeout(t);
-  }, [isGuest, showToast]);
-  // Device-class adaptive layout: phone column on mobile, a full-screen
-  // sidebar + content + context-rail shell on desktop/laptop. (VR is /xr.)
+  const { ready, userId, profile, backendEnabled } = useSession();
+  const [feedKey, setFeedKey] = useState(0);
+  const [composeOpen, setComposeOpen] = useState(false);
   const desktop = useMediaQuery("(min-width: 1024px)");
-  const wide = useMediaQuery("(min-width: 768px)");
-  const isConversation =
-    location.pathname.startsWith("/rooms") ||
-    /^\/circles\/.+/.test(location.pathname);
-  const columnMax = wide && isConversation ? "max-w-3xl" : "max-w-md";
-  // Desktop content width: conversations get the most room (two-column chat),
-  // the feed widens for a multi-column Wall, everything else stays a calm column.
-  const desktopMax = isConversation
-    ? "max-w-5xl"
-    : location.pathname === "/"
-      ? "max-w-4xl"
-      : "max-w-2xl";
+  const location = useLocation();
 
-  // Public policy pages — always reachable, with or without an account, so
-  // legally required links work pre-sign-in and from external/checkout links.
-  if (location.pathname.startsWith("/legal")) {
-    return (
-      <Routes location={location} key={location.pathname}>
-        <Route path="/legal/:doc" element={<LegalPage />} />
-        <Route path="/legal" element={<LegalPage />} />
-      </Routes>
-    );
+  // Post-signup discipline onboarding: shown once to creators with no modules.
+  const [discState, setDiscState] = useState<"unknown" | "needed" | "done">("unknown");
+  const authed = !!userId && !!profile?.username;
+  useEffect(() => {
+    if (!authed) { setDiscState("unknown"); return; }
+    if (localStorage.getItem("vybz.discOnboarded")) { setDiscState("done"); return; }
+    let cancelled = false;
+    api.myModules().then((m) => {
+      if (cancelled) return;
+      if (m.length > 0) { localStorage.setItem("vybz.discOnboarded", "1"); setDiscState("done"); }
+      else setDiscState("needed");
+    }).catch(() => { if (!cancelled) setDiscState("done"); });
+    return () => { cancelled = true; };
+  }, [authed]);
+
+  if (!backendEnabled) {
+    return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
+  }
+  if (!ready) return <><DynamicBackground variant="default" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
+
+  // The Codex + platform legal pages are PUBLIC (no sign-in) — a free resource + SEO.
+  const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
+  if (!userId || !profile?.username) {
+    if (isPublicDoc) return <PublicDocShell />;
+    if (!userId) return <><DynamicBackground variant="default" /><Onboarding /></>;
+    return <><DynamicBackground variant="default" /><UsernameSetup /></>;
   }
 
-  // MYVYB XR — immersive WebXR. Reachable with or without an account so a Quest
-  // headset (or the packaged Quest app) can launch straight into it.
-  if (location.pathname.startsWith("/xr")) {
-    return (
-      <Suspense
-        fallback={
-          <div className="flex h-[100dvh] items-center justify-center bg-ink-950">
-            <Loader2 className="h-6 w-6 animate-spin text-veil-300" />
-          </div>
-        }
-      >
-        <XRPage />
-      </Suspense>
-    );
-  }
-
-  // Gate the experience behind a frictionless, passwordless onboarding. While the
-  // initial session restore runs, show only the backdrop so returning users are
-  // auto-logged-in without flashing the landing.
-  if (!account) {
-    if (authLoading) return <DynamicBackground variant={bgVariant} />;
+  // New creator, no disciplines yet → gentle "what hats do you wear?" step.
+  if (!isPublicDoc && discState === "needed") {
     return (
       <>
-        <DynamicBackground variant={bgVariant} />
-        <Onboarding />
+        <DynamicBackground variant="default" />
+        <DisciplineOnboarding onComplete={() => { localStorage.setItem("vybz.discOnboarded", "1"); setDiscState("done"); }} />
       </>
     );
   }
 
   const routes = (
     <ErrorBoundary key={location.pathname}>
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Page transition={pageTransition}><FeedsPage /></Page>} />
-          <Route path="/local" element={<Page transition={pageTransition}><FeedsPage /></Page>} />
-          <Route path="/trending" element={<Page transition={pageTransition}><FeedsPage /></Page>} />
-          <Route path="/foryou" element={<Page transition={pageTransition}><ForYouPage /></Page>} />
-          <Route path="/connect" element={<Page transition={pageTransition}><MatchmakingPage /></Page>} />
-          <Route path="/spark" element={<Page transition={pageTransition}><SparkPage /></Page>} />
-          <Route path="/opportunities" element={<Page transition={pageTransition}><OpportunitiesPage /></Page>} />
-          <Route path="/rooms" element={<Page transition={pageTransition}><RoomsPage /></Page>} />
-          <Route path="/profile" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
-          {/* Vanity URL for the signed-in member's own profile (case-insensitive
-              match, so /You and /you both resolve): myvyb.astramatrix.xyz/You */}
-          <Route path="/you" element={<Page transition={pageTransition}><ProfilePage /></Page>} />
-          <Route
-            path="/notifications"
-            element={<Page transition={pageTransition}><NotificationsPage /></Page>}
-          />
-          <Route path="/admin" element={<Page transition={pageTransition}><AdminPage /></Page>} />
-          <Route path="/u/:id" element={<Page transition={pageTransition}><UserProfilePage /></Page>} />
-          <Route
-            path="/live"
-            element={
-              <Page transition={pageTransition}>
-                <Suspense
-                  fallback={
-                    <div className="flex h-full items-center justify-center text-white/40">
-                      Loading Live…
-                    </div>
-                  }
-                >
-                  <LivePage />
-                </Suspense>
-              </Page>
-            }
-          />
-          <Route path="/play" element={<Navigate to="/live" replace />} />
-          <Route path="/chat" element={<Page transition={pageTransition}><ChatHubPage /></Page>} />
-          <Route path="/circles" element={<Navigate to="/chat" replace />} />
-          <Route path="/circles/:id" element={<Page transition={pageTransition}><CircleChatPage /></Page>} />
-          {/* Stale/removed paths (e.g. old /arena, /categories) → home. */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AnimatePresence>
+      <Routes location={location}>
+        <Route path="/" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
+        <Route path="/discover" element={<DiscoverPage />} />
+        <Route path="/activity" element={<NotificationsPage />} />
+        <Route path="/connect" element={<ConnectPage />} />
+        <Route path="/spark" element={<SparkPage />} />
+        <Route path="/opportunities" element={<OpportunitiesPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects/:id" element={<ProjectRoomPage />} />
+        <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/messages/:id" element={<MessagesPage />} />
+        <Route path="/rooms" element={<RoomsPage />} />
+        <Route path="/rooms/:id" element={<RoomPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/edit" element={<ProfileEditPage />} />
+        <Route path="/profile/disciplines" element={<DisciplinesPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/u/:id" element={<UserProfilePage />} />
+        <Route path="/codex" element={<CodexPage />} />
+        <Route path="/codex/:slug" element={<CodexDocPage />} />
+        <Route path="/legal/:slug" element={<CodexDocPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </ErrorBoundary>
   );
 
   const overlays = (
     <>
-      <ComposeSheet />
-      <ConnectionSheet />
-      <InboxSheet />
-      <FriendChatSheet />
-      <PostSheet />
-      <MediaViewer />
-      <PushPrompt />
-      <LifelineSheet />
-      <FeedbackSheet />
-      <ConnectNowSheet />
-      <CompanionSheet />
-      <EchoSheet />
-      <PremiumSheet />
-      <AccountGate />
-      <InstallPrompt />
-      <Tutorial />
-      <UploadIndicator />
-      <Toast />
-      <NotificationPopup />
-      <Confetti />
-      {!isOnline && (
-        <div className="pointer-events-none fixed left-1/2 top-2 z-[70] -translate-x-1/2 rounded-full bg-amber-500/90 px-3 py-1 text-[11px] font-semibold text-black shadow-card">
-          Offline — you can still play; changes sync when you reconnect
-        </div>
-      )}
+      <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+      <ReactiveFrame />
+      <Toast /><Confetti />
     </>
   );
 
-  // Desktop / laptop: full-screen sidebar + content + context-rail shell.
   if (desktop) {
     return (
       <>
-        <DynamicBackground variant={bgVariant} />
-        {/* Darken the living backdrop on large displays so content/text stays
-            legible (mobile gets this via its frosted column instead). */}
+        <DynamicBackground variant="default" />
         <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
-        <div style={accentStyle} className="flex h-[100dvh] w-full overflow-hidden">
-          <SideNav />
+        <div className="flex h-[100dvh] w-full overflow-hidden">
+          <aside className="glass z-40 flex h-full w-60 shrink-0 flex-col border-r border-white/10 px-3 py-5">
+            <div className="mb-5 px-3"><BrandLockup markClassName="h-7 w-7 text-veil-300" wordClassName="text-2xl" /></div>
+            <button onClick={() => setComposeOpen(true)} className="mb-4 flex items-center justify-center gap-2 rounded-2xl bg-veil-500 py-3 font-display text-sm font-semibold text-white shadow-glow active:scale-[0.98]"><Plus className="h-5 w-5" /> New drop</button>
+            <SideNav />
+          </aside>
           <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-            {/* Hint of the page accent from the top edge. */}
-            <div
-              aria-hidden
-              className="accent-fade pointer-events-none absolute inset-x-0 top-0 z-0 h-64"
-              style={{
-                background:
-                  "radial-gradient(90% 70% at 50% 0%, rgb(var(--accent-rgb) / 0.10), transparent 70%)",
-              }}
-            />
-            <div className={cx("relative z-10 mx-auto h-full w-full px-6", desktopMax)}>
-              {routes}
-            </div>
+            <div className="mx-auto min-h-0 w-full max-w-2xl flex-1 overflow-hidden px-6">{routes}</div>
+            <GlobalPlayer className="relative z-10 pb-3" />
           </main>
-          <ContextRail />
         </div>
         {overlays}
       </>
     );
   }
 
-  // Mobile / tablet: a phone-sized column centered over the living background.
-  // Conversations widen to use landscape space.
   return (
     <>
-      <DynamicBackground variant={bgVariant} />
-      <div
-        style={accentStyle}
-        className={cx(
-          "relative mx-auto flex h-[100dvh] flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl transition-[max-width]",
-          columnMax
-        )}
-      >
-        {/* Hint of the page's accent — a faint glow from the top edge, never loud. */}
-        <div
-          aria-hidden
-          className="accent-fade pointer-events-none absolute inset-x-0 top-0 z-0 h-56"
-          style={{
-            background:
-              "radial-gradient(120% 80% at 50% 0%, rgb(var(--accent-rgb) / 0.12), transparent 70%)",
-          }}
-        />
-        <TopBar />
-        <main className="relative z-10 flex-1 overflow-hidden">{routes}</main>
+      <DynamicBackground variant="default" />
+      <div className="relative mx-auto flex h-[100dvh] max-w-md flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl">
+        <MobileBell />
+        <main className="relative z-10 flex-1 overflow-hidden pt-[env(safe-area-inset-top)]">{routes}</main>
+        <GlobalPlayer />
         <BottomNav />
-        {overlays}
+      </div>
+      {overlays}
+    </>
+  );
+}
+
+/** Minimal public layout for the Codex + legal pages (no sign-in required). */
+function PublicDocShell() {
+  const location = useLocation();
+  return (
+    <>
+      <DynamicBackground variant="default" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
+      <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
+        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-white/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <NavLink to="/codex"><BrandLockup markClassName="h-6 w-6 text-veil-300" wordClassName="text-xl" /></NavLink>
+          <span className="ml-auto hidden text-xs text-white/45 sm:block">Codex · Astra Matrix, Inc.</span>
+          <NavLink to="/" className="rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95">Enter VYBZ</NavLink>
+        </header>
+        <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">
+          <ErrorBoundary key={location.pathname}>
+            <Routes location={location}>
+              <Route path="/codex" element={<CodexPage />} />
+              <Route path="/codex/:slug" element={<CodexDocPage />} />
+              <Route path="/legal/:slug" element={<CodexDocPage />} />
+              <Route path="*" element={<Navigate to="/codex" replace />} />
+            </Routes>
+          </ErrorBoundary>
+        </main>
       </div>
     </>
+  );
+}
+
+function SideNav() {
+  const { pathname } = useLocation();
+  const { unread, profile } = useSession();
+  const item = (to: string, label: string, Icon: typeof Bell, active: boolean, badge?: number) => (
+    <NavLink key={to} to={to} className={cx("relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition", active ? "bg-veil-500/15 text-white ring-1 ring-veil-400/40" : "text-white/55 hover:bg-black/20 hover:text-white/85")}>
+      <span className="relative"><Icon className="h-5 w-5" />{badge ? <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{badge > 9 ? "9+" : badge}</span> : null}</span> {label}
+    </NavLink>
+  );
+  return (
+    <nav className="flex flex-col gap-1">
+      {NAV.map(({ to, label, icon: Icon, end, match }) => {
+        const active = (end ? pathname === to : pathname.startsWith(to)) || (match ?? []).some((m) => pathname.startsWith(m));
+        return item(to, label, Icon, active);
+      })}
+      {item("/activity", "Activity", Bell, pathname === "/activity", unread)}
+      {profile?.isAdmin && item("/admin", "Admin", ShieldCheck, pathname.startsWith("/admin"))}
+    </nav>
+  );
+}
+
+function MobileBell() {
+  const { unread } = useSession();
+  const { pathname } = useLocation();
+  if (pathname === "/activity") return null;
+  return (
+    <NavLink to="/activity" aria-label="Activity"
+      className="absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+      <Bell className="h-4 w-4 text-white/75" />
+      {unread > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{unread > 9 ? "9+" : unread}</span>}
+    </NavLink>
+  );
+}
+
+function BottomNav() {
+  const { pathname } = useLocation();
+  return (
+    <nav className="relative z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+      <div className="glass mx-auto flex h-[60px] max-w-md items-center justify-around rounded-2xl border border-white/10 px-2">
+        {NAV.map(({ to, label, icon: Icon, end, match }) => {
+          const active = (end ? pathname === to : pathname.startsWith(to)) || (match ?? []).some((m) => pathname.startsWith(m));
+          return (
+            <NavLink key={to} to={to} aria-label={label} className="flex flex-1 flex-col items-center gap-1">
+              <Icon className={cx("h-5 w-5 transition", active ? "text-veil-200" : "text-white/45")} style={active ? { filter: "drop-shadow(0 0 8px rgb(var(--accent-rgb)/0.7))" } : undefined} />
+              <span className={cx("text-[10px] font-semibold", active ? "text-white/90" : "text-white/45")}>{label}</span>
+            </NavLink>
+          );
+        })}
+      </div>
+    </nav>
   );
 }

@@ -1,26 +1,27 @@
-// Supabase Edge Function: embed — semantic profile vectors (Phase 3).
+// Supabase Edge Function: embed — semantic profile vectors for VYBZ resonance.
 //
-// Computes a single 1536-d embedding that summarizes the caller's profile
-// free-text (bio, interests, intent, languages, traits, prompts) and upserts it
-// into public.profile_embeddings. The matcher (user_matches) then adds a
-// "resonance" term so people who simply vibe semantically surface — not just
-// keyword overlap. The OpenAI key stays server-side; the client only triggers a
-// refresh (fire-and-forget) after saving their profile.
+// Computes a 384-d embedding summarizing the caller's creator identity (bio,
+// influences, genres, DAWs, plugins, intent, languages, traits, prompts) and
+// upserts it into public.profile_embeddings. collab_matches then adds a
+// "resonance" term so creators whose sound + intent align surface, beyond mere
+// keyword overlap.
 //
-// Deploy with --verify-jwt. Secret: OPENAI_API_KEY (embeddings are OpenAI-only).
-// Gracefully no-ops (200, skipped) when no key is set or there's nothing to embed.
+// Uses Supabase's BUILT-IN Edge inference (Supabase.ai, model `gte-small`) — no
+// external provider, no API key, no cost. Deploy with --verify-jwt (default).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY =
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
-const OPENAI_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
-const EMBED_MODEL = "text-embedding-3-small";
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
+
+// Built-in embedding model (384-d). Provided by the Supabase Edge Runtime.
+// deno-lint-ignore no-explicit-any
+const session = new (globalThis as any).Supabase.ai.Session("gte-small");
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -49,10 +50,14 @@ function profileText(username: string, profile: Record<string, unknown>): string
   if (username) parts.push(username);
   const bio = profile.bio;
   if (typeof bio === "string" && bio.trim()) parts.push(bio.trim());
-  const pronouns = profile.pronouns;
-  if (typeof pronouns === "string" && pronouns.trim()) parts.push(`pronouns: ${pronouns}`);
-  const interests = arr(profile.interests);
-  if (interests.length) parts.push(`Interests: ${interests.join(", ")}`);
+  const influences = profile.influences;
+  if (typeof influences === "string" && influences.trim()) parts.push(`Influences: ${influences.trim()}`);
+  const genres = arr(profile.genres);
+  if (genres.length) parts.push(`Genres: ${genres.join(", ")}`);
+  const daws = arr(profile.daws);
+  if (daws.length) parts.push(`DAWs: ${daws.join(", ")}`);
+  const plugins = arr(profile.plugins);
+  if (plugins.length) parts.push(`Plugins: ${plugins.join(", ")}`);
   const lookingFor = arr(profile.lookingFor);
   if (lookingFor.length) parts.push(`Looking for: ${lookingFor.join(", ")}`);
   const languages = arr(profile.languages);
@@ -67,25 +72,39 @@ function profileText(username: string, profile: Record<string, unknown>): string
   const prompts = profile.prompts;
   if (Array.isArray(prompts)) {
     for (const p of prompts as Record<string, unknown>[]) {
-      const q = p?.question ?? p?.prompt;
-      const a = p?.answer ?? p?.response;
+      const q = p?.question ?? p?.q ?? p?.prompt;
+      const a = p?.answer ?? p?.a ?? p?.response;
       if (a) parts.push(`${q ? `${q} ` : ""}${a}`);
     }
   }
   return parts.join(". ").slice(0, 6000);
 }
 
+/** Flatten discipline modules into descriptive text for the embedding. */
+function modulesText(modules: unknown[]): string {
+  const parts: string[] = [];
+  for (const raw of modules) {
+    const m = raw as Record<string, unknown>;
+    const role = m.roles as Record<string, unknown> | null;
+    const label = role?.label as string | undefined;
+    const category = (role?.categories as Record<string, unknown> | null)?.label as string | undefined;
+    const seg: string[] = [];
+    if (label) seg.push(category ? `${label} (${category})` : label);
+    if (typeof m.headline === "string" && m.headline.trim()) seg.push(m.headline.trim());
+    const attrs = (m.attrs ?? {}) as Record<string, unknown>;
+    for (const [key, val] of Object.entries(attrs)) {
+      if (Array.isArray(val) && val.length) seg.push(`${key}: ${val.map(String).join(", ")}`);
+      else if (val && typeof val === "object") seg.push(`${key}: ${Object.keys(val as object).join(", ")}`);
+    }
+    if (seg.length) parts.push(seg.join(" — "));
+  }
+  return parts.join(". ");
+}
+
 async function embedText(text: string): Promise<number[] | null> {
   try {
-    const res = await fetch("https://api.openai.com/v1/embeddings", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${OPENAI_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: EMBED_MODEL, input: text }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const vec = data?.data?.[0]?.embedding;
-    return Array.isArray(vec) ? vec : null;
+    const out = await session.run(text, { mean_pool: true, normalize: true });
+    return Array.isArray(out) ? (out as number[]) : null;
   } catch {
     return null;
   }
@@ -94,7 +113,6 @@ async function embedText(text: string): Promise<number[] | null> {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "method" }, 405);
-  if (!OPENAI_KEY) return json({ ok: false, skipped: "no_openai_key" });
 
   const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   if (!jwt) return json({ error: "unauthorized" }, 401);
@@ -109,15 +127,24 @@ Deno.serve(async (req: Request) => {
     .single();
   if (!profile) return json({ error: "no profile" }, 403);
 
-  const text = profileText(
-    (profile.username as string) ?? "",
-    (profile.profile ?? {}) as Record<string, unknown>
-  );
+  // Fold the creator's discipline modules (headlines + structured attrs) into
+  // the embedding text so semantic resonance spans every discipline they work in.
+  const { data: modules } = await admin
+    .from("profile_modules")
+    .select("headline, attrs, roles(label, categories(label))")
+    .eq("user_id", uid)
+    .is("archived_at", null);
+
+  const text = [
+    profileText((profile.username as string) ?? "", (profile.profile ?? {}) as Record<string, unknown>),
+    modulesText((modules ?? []) as unknown[]),
+  ].filter(Boolean).join(". ").slice(0, 6000);
+
   if (text.replace(/\s/g, "").length < 8) {
     return json({ ok: false, skipped: "empty_profile" });
   }
 
-  const hash = await sha256(`${EMBED_MODEL}:${text}`);
+  const hash = await sha256(`gte-small:${text}`);
   const { data: existing } = await admin
     .from("profile_embeddings")
     .select("content_hash")
@@ -133,5 +160,5 @@ Deno.serve(async (req: Request) => {
     .upsert({ user_id: uid, embedding: vec, content_hash: hash, updated_at: new Date().toISOString() });
   if (upErr) return json({ ok: false, error: upErr.message });
 
-  return json({ ok: true });
+  return json({ ok: true, dims: vec.length });
 });

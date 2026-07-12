@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useApp } from "@/store/AppStore";
+import { useSession } from "@/store/session";
 
 /** Transient, non-blocking status message anchored above the bottom nav. */
 export function Toast() {
-  const { toast } = useApp();
+  const { toast } = useSession();
   return (
     <AnimatePresence>
       {toast && (

@@ -1,402 +1,364 @@
 // ---------------------------------------------------------------------------
-// Domain types for MYVYB.
-// Everything is anonymous by design — confessions never carry a real identity,
-// only an ephemeral, generated alias.
+// VYBZ domain types. Identity-first: every account is a real creator.
 // ---------------------------------------------------------------------------
 
-/**
- * The two community reactions.
- * - "feel"  = Feel  (right swipe): a positive signal that boosts the post.
- * - "wild"  = Veil  (left swipe): the crowd burying a post; enough Veils
- *   progressively blur it for everyone (15 / 30 / 75 / 150 / 300 thresholds).
- * (The wire names stay feel/wild to keep the DB + reactions table unchanged.)
- */
 export type Reaction = "feel" | "wild";
 
-/** Binary gender, only ever present when a user explicitly opts in. */
-export type Gender = "M" | "F";
+export type AssetKind =
+  | "sample" | "loop" | "oneshot" | "stem" | "acapella"
+  | "midi" | "preset" | "project" | "track";
 
-/**
- * Permanent, publicly-visible account attributes. Once a field here is set it
- * can never be changed or removed — opting in is a one-way, public commitment.
- */
-export interface Identity {
-  gender?: Gender;
-  age?: number;
-  location?: string;
-}
-
-/** A self-authored personality prompt + answer shown on the profile. */
-export interface ProfilePrompt {
-  q: string;
-  a: string;
-}
-
-/** An external link a user chooses to surface on their profile. */
-export interface ProfileLink {
-  label: string;
-  url: string;
-}
-
-/**
- * Rich, optional profile data points — the "many bits of info" a user can
- * share to personalize their profile and power superior matchmaking. Public by
- * default; any top-level key listed in `hidden` is stripped from the public
- * profile server-side (but still improves the owner's own matches). Stored as a
- * single jsonb blob on profiles.profile (owner-private column).
- */
+/** Owner-editable music facets + privacy (stored in profiles.profile jsonb). */
 export interface ProfileDetails {
-  /** Long-form, expressive bio (distinct from the legacy one-liner). */
   bio?: string;
-  pronouns?: string;
-  /** Declared interest tags — a lightweight compatibility signal. */
-  interests?: string[];
-  /** What the user is here for (drives who they're shown). */
-  lookingFor?: string[];
-  /** Languages spoken. */
-  languages?: string[];
-  /** Single-select lifestyle/personality traits, keyed by trait id. */
-  traits?: Record<string, string>;
-  /** Free-text personality prompts. */
-  prompts?: ProfilePrompt[];
-  /** External links (socials, portfolio, etc.). */
-  links?: ProfileLink[];
-
-  // ── Music facets (VYBZ) — overlap signals for collab matching (§5.3). ──────
-  /** Genres the creator works in (labels, e.g. "Hip-Hop"). */
   genres?: string[];
-  /** DAWs the creator uses (ids, e.g. "ableton"). File-exchange compatibility. */
   daws?: string[];
-  /** VST/AU plugins the creator uses (ids, e.g. "serum"). Workflow compatibility. */
   plugins?: string[];
-  /** Free-text influences → embedded for semantic resonance. */
   influences?: string;
-  /** Typical tempo range (BPM). */
   tempoMin?: number;
   tempoMax?: number;
-  /** Musical keys the creator gravitates to. */
   keys?: string[];
-  /** Open to remote collaboration. */
   remoteOk?: boolean;
-  /** Actively open to work / collaboration (a matchmaking boost). */
   openToWork?: boolean;
-  /** Gear / hardware the creator owns. */
-  gear?: string[];
-  /** Free-text credits / notable work. */
-  credits?: string;
-
-  /** Top-level keys the user has marked private. */
+  lookingFor?: string[];
+  languages?: string[];
+  prompts?: { q: string; a: string }[];
+  traits?: Record<string, string>;
+  /** Top-level keys the creator has marked private. */
   hidden?: string[];
 }
 
-/**
- * Never Alone — ambient presence snapshot for the current user's age layer.
- * Powers the "people around you" indicator and Smart Routing so a user never
- * lands on a dead, empty app.
- */
-export interface AmbientPresence {
-  /** People active in the last few minutes (same age layer). */
-  online: number;
-  /** Open live streams the user is allowed to see. */
-  live: number;
-  /** People waiting in the random-chat queue. */
-  roulette: number;
-  /** Lifelines (peer supporters) available right now. */
-  lifelines: number;
-  layer: "teen" | "adult";
-}
-
-/**
- * Never Alone — a platform-owned, clearly-labelled AI companion the user can
- * always talk to. Never an impersonation of a real person.
- */
-export interface Companion {
+export interface Profile {
   id: string;
-  slug: string;
-  name: string;
-  tagline: string;
-  emoji: string;
-  /** Accent hex used to theme the chat bubble + header. */
-  accent: string;
-  nsfw: boolean;
-}
-
-/** One turn in a companion (or Echo) conversation. */
-export interface CompanionMessage {
-  role: "user" | "assistant";
-  content: string;
-  /** Epoch ms; client-stamped for optimistic turns, else from created_at. */
-  t: number;
-}
-
-/**
- * Echoes — an opt-in AI persona of a REAL user, created and controlled only by
- * that user. Always disclosed as AI; never an impersonation built without consent.
- */
-export interface EchoConfig {
-  enabled: boolean;
-  displayName: string;
-  tone: "warm" | "playful" | "direct" | "thoughtful";
-  greeting: string;
-  /** The owner's own note on how their Echo should come across. */
-  bioSeed: string;
-  consentAt: string | null;
-}
-
-/** A target member's Echo, as visible to a visitor (only when available). */
-export interface EchoPublic {
-  owner: string;
-  displayName: string;
-  tone: string;
-  greeting: string;
-  enabled: boolean;
-}
-
-/** A person who has talked to the owner's Echo (for transcript review). */
-export interface EchoVisitor {
-  visitorId: string;
   username: string | null;
-  alias: string;
-  lastAt: number;
-  msgs: number;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  location: string | null;
+  musicUrl: string | null;
+  identityPublic: boolean;
+  isAdmin: boolean;
+  banned: boolean;
+  profile: ProfileDetails;
+  createdAt: number;
 }
 
-export interface Confession {
+/** A drop = an audio post carrying the creator's identity. */
+export interface Drop {
   id: string;
-  /** Ephemeral anonymous alias (e.g. "Velvet Ghost"). */
-  alias: string;
-  /** Canonical username identity of the author (preferred over emoji handle). */
-  username?: string;
-  /** The confession body — the emotional core of the card. */
-  text: string;
-  /** Distance hint to reinforce the geo-first, "near you" mystery. */
-  distance: string;
-  createdAt: number;
-  /**
-   * Optional self-disclosure. Everything below is opt-in — a confession is
-   * 100% anonymous unless the author chooses to attach any of these.
-   */
-  gender?: Gender;
-  age?: number;
-  /** A named area / neighborhood the author chose to share. */
-  location?: string;
-  /** Positive "Feel" tally (boosts the post). */
+  authorId: string;
+  authorUsername: string | null;
+  title: string | null;
+  body: string | null;
+  seed: number;
   feels: number;
-  /** "Veil" tally — community burying; drives the stepped blur. */
   wilds: number;
-  /** Whether the editorial team has featured this confession. */
-  featured?: boolean;
-  /** Deterministic seed so the procedural artwork is stable per card. */
-  seed: number;
-  /** "What happened next?" follow-up shown once you connect. */
-  aftermath?: string;
-  /** Backend author's profile id (for routing 1:1 DMs to the poster). */
-  authorId?: string;
-  /**
-   * Optional background media — an uploaded photo/video or an AI-generated
-   * image (data URL or Storage URL). Clear by default. (Field name is legacy;
-   * it now carries images and videos.)
-   */
-  photo?: string;
-  /** 'image' (default, incl. AI-generated) or 'video'. */
-  mediaKind?: "image" | "video";
-  /** Non-destructive trim window (seconds) for video — play only this slice. */
-  clipStart?: number;
-  clipEnd?: number;
-  /**
-   * Sensitive (NSFW) flag. Never enforced: shows an "NSFW" badge + soft blur that a
-   * user can personally Unveil, or auto-clear via the global opt-in.
-   */
-  nsfw?: boolean;
-  /** Typography choice for the confession text (free). See lib/expression. */
-  fontStyle?: string;
-  /** Premium text effect id (shimmer/glow/…). Free for Godmode, else V¢. */
-  textFx?: string;
-  /** Premium 3D "gyroscopic" media view (parallax tilt). Free for Godmode, else V¢. */
-  view3d?: boolean;
-}
-
-/** A lightweight, passwordless local account. */
-export interface Account {
-  alias: string;
-  /** Canonical username identity (generated for guests, chosen by members). */
-  username?: string | null;
-  aura: string;
-  anonymous: boolean;
   createdAt: number;
+  // Linked audio asset facets (nullable for a text-only drop).
+  assetId?: string | null;
+  audioUrl?: string;
+  waveform?: number[];
+  durationSec?: number;
+  assetKind?: AssetKind;
+  bpm?: number | null;
+  musicalKey?: string | null;
+  audioFormat?: string | null;
+  sampleRate?: number | null;
+  lossless?: boolean;
+  /** Exchange license for the asset: 'collab-only' | 'credit-required' | 'free'. */
+  license?: string | null;
+  rating?: number;
+  ratingCount?: number;
 }
 
-export interface OwnConfession extends Confession {
-  /** The current user's own posts carry richer analytics. */
-  views: number;
-  reveals: number;
-  /** Reaction trend over the last 7 days, for the profile sparkline. */
-  trend: number[];
-}
+export interface RoleOffer { roleId: string; skill: number }
+export interface RoleSeek { roleId: string; priority: number }
 
-// ---------------------------------------------------------------------------
-// Social layer — only reachable after a confession has been "unveiled".
-// ---------------------------------------------------------------------------
-
-export interface Comment {
-  id: string;
-  confessionId: string;
-  /** Anonymous alias of the commenter, or "You" for the current user. */
-  author: string;
-  /** Canonical username of the commenter (preferred over emoji handle). */
-  username?: string;
-  text: string;
-  createdAt: number;
-  /** True when authored by the current user. */
-  mine: boolean;
-}
-
-export interface Message {
-  id: string;
-  confessionId: string;
-  /** "me" = current user, "them" = the confession's poster. */
-  from: "me" | "them";
-  text: string;
-  createdAt: number;
-}
-
-// ---------------------------------------------------------------------------
-// Public chat rooms — open to everyone, including anonymous accounts.
-// ---------------------------------------------------------------------------
-
-export type RoomKind = "public" | "local";
-
-export interface Room {
-  id: string;
-  name: string;
-  topic?: string;
-  kind: RoomKind;
-  sort: number;
-}
-
-/** Who authored a room message: a person, the disclosed mod agent, or system. */
-export type SenderKind = "user" | "mod" | "system";
-
-export interface RoomMessage {
-  id: string;
-  roomId: string;
-  /** Sender profile id, or null for mod/system messages. */
-  senderId: string | null;
-  senderKind: SenderKind;
-  alias: string;
-  aura: string;
-  body?: string;
-  /** Shared image. Clear by default; NSFW-suggested images blur per-user. */
-  imageUrl?: string;
-  /** AI-suggested NSFW for a shared image. */
-  nsfw?: boolean;
-  unveils: number;
-  veils: number;
-  createdAt: number;
-  /** True when authored by the current user. */
-  mine: boolean;
-}
-
-// Social Circles — user-created chat communities.
-export type CircleVisibility = "public" | "unlisted" | "private" | "secret";
-export type CircleRole = "owner" | "mod" | "member";
-export type CircleMemberStatus = "active" | "pending" | "banned" | "muted";
-
-export interface Circle {
-  id: string;
-  slug: string | null;
-  name: string;
-  description?: string;
-  icon?: string;
-  ownerId: string;
-  visibility: CircleVisibility;
-  joinPolicy: "open" | "request" | "invite" | "code";
-  allowAnonymous: boolean;
-  nsfw: boolean;
-  rules?: string;
-  /** Optional daily V¢ dues members can opt into supporting. 0 = off. */
-  dues: number;
-  /** Premium theme descriptor, e.g. { id: "aurora" }. */
-  theme: Record<string, string>;
-  memberCount: number;
-  nameChangesRemaining: number;
-  lastActiveAt: number;
-  createdAt: number;
-}
-
-export interface CircleMember {
+export interface CollabMatch {
   userId: string;
-  alias: string;
-  /** Canonical username identity (null until set), shown by the Handle component. */
-  username?: string | null;
-  role: CircleRole;
-  status: CircleMemberStatus;
+  username: string | null;
+  offersYouSeek: string[];
+  seeksYouOffer: string[];
+  mutual: boolean;
+  sharedGenres: string[];
+  sharedDaws: string[];
+  sharedPlugins: string[];
+  openToWork: boolean;
+  resonance: number;
+  /** 0..1 reputation (rating-weighted + social proof). */
+  reputation: number;
+  fit: number;
+  /** Disciplines you both actively practice (strong "you both do X" signal). */
+  sharedDisciplines: string[];
 }
 
-export interface CircleMessage {
+export interface CreatorStats {
+  avgRating: number;
+  ratings: number;
+  drops: number;
+  connections: number;
+  reputation: number;
+}
+
+export type Commitment = "one-off" | "ongoing" | "session" | "band-member";
+
+export interface Opportunity {
   id: string;
-  circleId: string;
-  senderId: string | null;
-  senderKind: SenderKind;
-  alias: string;
-  aura: string;
-  body?: string;
-  imageUrl?: string;
-  nsfw?: boolean;
+  authorId: string;
+  authorUsername: string | null;
+  roleNeeded: string;
+  roleLabel: string;
+  title: string;
+  body: string | null;
+  genres: string[];
+  daws: string[];
+  remoteOk: boolean;
+  location: string | null;
+  commitment: Commitment | null;
+  createdAt: number;
+  sharedGenres: string[];
+  sharedDaws: string[];
+  applied: boolean;
+  fit: number;
+}
+
+export interface DmThread {
+  id: string;
+  peerId: string;
+  peerUsername: string | null;
+  lastAt: number;
+}
+
+export interface DmMessage {
+  id: string;
+  threadId: string;
+  senderId: string;
+  body: string;
   createdAt: number;
   mine: boolean;
 }
 
-/** A soul currently present in a room (via Realtime Presence). */
-export interface RoomPresence {
-  id: string;
-  alias: string;
-  aura: string;
-  /** Optional public details (only broadcast when the user is public). */
-  gender?: Gender;
-  age?: number;
-  location?: string;
-}
-
-// ---------------------------------------------------------------------------
-// Friendships — connections between the user and posters they've met.
-// ---------------------------------------------------------------------------
-
-export type FriendStatus = "none" | "requested" | "incoming" | "friends";
-
-export interface Friend {
-  /** The confession through which the connection was made. */
-  confessionId: string;
-  alias: string;
-  seed: number;
-  gender?: Gender;
-  age?: number;
-  location?: string;
-  status: FriendStatus;
-  since: number;
-}
-
-export type NotificationKind =
-  | "vote"
-  | "featured"
-  | "milestone"
-  | "reveal"
-  | "comment"
-  | "message"
-  | "friend"
-  | "name";
+export type NotificationKind = "connection" | "application" | "message" | "match";
 
 export interface AppNotification {
   id: string;
   kind: NotificationKind;
+  actorId: string | null;
   title: string;
+  body: string | null;
+  refId: string | null;
+  read: boolean;
+  createdAt: number;
+}
+
+export interface CreatorSearchResult {
+  userId: string;
+  username: string | null;
+  location: string | null;
+  offers: string[];
+  seeks: string[];
+  genres: string[];
+}
+
+// ── Phase D: projects, versioned handoff, split sheets, verified credits ──────
+export type ProjectStatus = "open" | "in-progress" | "released" | "archived";
+
+export interface ProjectSummary {
+  id: string;
+  title: string;
+  status: ProjectStatus;
+  ownerId: string;
+  isOwner: boolean;
+  members: number;
+  versions: number;
+  createdAt: number;
+}
+
+export interface ProjectCollaborator {
+  userId: string;
+  username: string | null;
+  role: string | null;
+  canUpload: boolean;
+  split: number;
+  agreed: boolean;
+}
+
+export interface ProjectVersion {
+  id: string;
+  version: number;
+  note: string | null;
+  uploader: string | null;
+  assetId: string | null;
+  kind: string | null;
+  format: string | null;
+  createdAt: number;
+}
+
+export interface ProjectDetail {
+  id: string;
+  title: string;
+  description: string | null;
+  bpm: number | null;
+  musicalKey: string | null;
+  genres: string[];
+  status: ProjectStatus;
+  ownerId: string;
+  isOwner: boolean;
+  releasedAt: number | null;
+  createdAt: number;
+  collaborators: ProjectCollaborator[];
+  versions: ProjectVersion[];
+}
+
+export interface Credit {
+  projectId: string;
+  title: string;
+  role: string | null;
+  releasedAt: number | null;
+  split: number | null;
+}
+
+// ── Phase F: categorized collab chat (taxonomy-bound rooms + presence) ────────
+export type RoomKind = "role" | "genre" | "daw";
+
+export interface Room {
+  id: string;
+  kind: RoomKind;
+  refId: string;
+  title: string;
+  messages: number;
+  lastAt: number | null;
+}
+
+export interface RoomMessage {
+  id: string;
+  roomId: string;
+  senderId: string;
+  senderName: string | null;
   body: string;
   createdAt: number;
-  read: boolean;
-  /** Links back to a confession when relevant. */
-  confessionId?: string;
-  /** For direct-message notifications: who to open a chat with. */
-  peerId?: string;
-  peerAlias?: string;
-  peerAura?: string;
+  mine: boolean;
+}
+
+export interface RoomPresence {
+  userId: string;
+  username: string | null;
+}
+
+// ── Dynamic discipline modules (tabbed, multi-discipline profiles) ───────────
+export type FieldType =
+  | "text" | "textarea" | "number" | "select" | "multiselect"
+  | "proficiency_list" | "role_multiselect" | "repeater";
+
+/** A discipline-specific field, described by the server-side schema registry. */
+export interface FieldDef {
+  key: string;
+  label: string;
+  type: FieldType;
+  /** Inline option list, or a named catalog: "genres" | "daws" | "roles:<category>". */
+  options?: string | string[];
+  hint?: string;
+  /** Relative weight this field contributes to matchmaking (server-side). */
+  matchWeight?: number;
+}
+
+export interface DisciplineSchema {
+  fields: FieldDef[];
+}
+
+/** One selectable discipline within a category (a role in the catalog). */
+export interface DisciplineOption {
+  id: string;
+  label: string;
+  family: string;
+  hasSchema: boolean;
+}
+
+/** A top-level creative vertical, with its selectable disciplines. */
+export interface DisciplineCategory {
+  id: string;
+  label: string;
+  icon: string | null;
+  sort: number;
+  disciplines: DisciplineOption[];
+}
+
+/** "What are you seeking?" intents, shared across every discipline module. */
+export type SeekingIntent = "paid" | "collab" | "mentorship" | "cofounding" | "spark";
+
+export interface PortfolioItem {
+  title?: string;
+  url: string;
+  kind?: string;
+}
+
+/** A creator's instance of a discipline on their profile — one tab. */
+export interface DisciplineModule {
+  id: string;
+  roleId: string;
+  category: string | null;
+  label: string;
+  headline: string | null;
+  yearsExp: number | null;
+  collabStyle: string | null;
+  availability: string | null;
+  seeking: SeekingIntent[];
+  skill: number | null;
+  attrs: Record<string, unknown>;
+  portfolio: PortfolioItem[];
+  sort: number;
+}
+
+// ── Admin console ────────────────────────────────────────────────────────────
+export interface AdminMember {
+  userId: string;
+  username: string | null;
+  location: string | null;
+  isAdmin: boolean;
+  banned: boolean;
+  createdAt: string;
+  modules: number;
+  drops: number;
+}
+
+export interface PendingDiscipline {
+  id: string;
+  rawLabel: string;
+  status: string;
+  requestedBy: string | null;
+  userId: string;
+  createdAt: string;
+}
+
+export type BugStatus = "open" | "reviewing" | "resolved" | "wontfix";
+
+export interface BugReport {
+  id: string;
+  title: string;
+  body: string | null;
+  context: Record<string, unknown>;
+  status: BugStatus;
+  reportedBy: string | null;
+  userId: string | null;
+  createdAt: string;
+}
+
+/** Tunable matchmaking weights (all optional; missing keys use defaults). */
+export type MatchWeights = Record<string, number>;
+
+/** A tunable weight's metadata for the admin UI. */
+export interface WeightDef { key: string; label: string; def: number }
+
+/** Payload for creating/updating a module (id omitted → create). */
+export interface ModuleInput {
+  id?: string;
+  roleId: string;
+  headline?: string | null;
+  yearsExp?: number | null;
+  collabStyle?: string | null;
+  availability?: string | null;
+  seeking?: SeekingIntent[];
+  skill?: number | null;
+  attrs?: Record<string, unknown>;
+  portfolio?: PortfolioItem[];
 }

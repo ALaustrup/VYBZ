@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useApp } from "@/store/AppStore";
+import { useSession } from "@/store/session";
 
 interface Particle {
   x: number;
@@ -22,9 +22,9 @@ const COLORS = ["#c77dff", "#8b4ff2", "#34f5a0", "#ff5d8f", "#ffd166", "#5b8cff"
  * mid-range phones. A short banner announces the milestone alongside it.
  */
 export function Confetti() {
-  const { celebration, clearCelebration } = useApp();
+  const { celebration, clearCelebration } = useSession();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (!celebration) return;

@@ -87,7 +87,7 @@ export function InstallPrompt() {
             />
             <div className="min-w-0 flex-1">
               <p className="font-display text-sm font-semibold text-white">
-                Install MYVYB
+                Install VYBZ
               </p>
               {isIOS ? (
                 <p className="flex items-center gap-1 text-xs text-white/55">

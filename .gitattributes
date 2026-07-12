@@ -1,0 +1,6 @@
+# Keep shell scripts and container files LF so they run in Linux containers.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+entrypoint.sh text eol=lf
+gen-cert.sh text eol=lf
