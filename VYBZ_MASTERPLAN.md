@@ -414,3 +414,73 @@ Beyond the phased roadmap, high-value additions that serve the two promises:
 production collabs — matchmaking with a precision no other platform can touch, and the
 protected creative-exchange every creator has dreamed of, on one identity-first
 platform. **VYBZ: Find Yours.**
+
+---
+
+## 12. Active redesign & product direction (2026-07)
+
+### 12.1 Shipped (redesign slice)
+- Onboarding simplified to **role** ("Choose your role" — typed → closest-match confirm →
+  or custom via trigram canonicalization) + **intent** ("What are you here for?").
+- **Disciplines removed** from the UX; a single **role** is the creative identity.
+- Home feed is the curated landing (intent heading, comfortable/grid layout toggle, roomier).
+- Audio-reactive frame toned to a **subtle, colourful** glow that only shows during playback.
+
+### 12.2 Next: Projects-as-microblogs (replaces the old discipline modules)
+One solid profile; users add unlimited **Projects** (aliases, bands, works) as profile
+tabs. Each Project is an in-profile **micro-blog**: the creator posts content + updates
+(music, artwork, ebooks, voice clips, links). Viewers open a Project tab to see its posts,
+and can **like/follow individual Projects** — those follows feed matchmaking and track the
+viewer's interests. The home feed becomes truly multi-content, curated by intent
+(music→music, art→artwork, connect→mixed) with content-type + layout filters.
+- **Data model:** `profile_projects` (tabs), `project_posts` (kinded posts), `project_follows`,
+  `project_post_likes`. RPCs for create/list/post/follow/like + a unified content feed.
+
+### 12.3 Passkey-first unified auth (research complete — build later)
+**Goal:** one seamless, secure entry that unifies sign-up & sign-in via **passkeys**, with
+email/password as a fallback, and a **tap-your-avatar** entry (default avatar if new).
+
+**What already exists (reusable):** `src/lib/passkey.ts` + `supabase/functions/passkey`
+using `@simplewebauthn` v13 — discoverable/resident credentials, **usernameless** auth
+(`allowCredentials: []`), session minted via `admin.generateLink` → `verifyOtp`, plus a
+`passkeys` table with RLS and passkey management (list/rename/revoke). This is a strong base.
+
+**Gaps to close for the vision:**
+1. **Passkey-first *sign-up*.** Today a passkey can only be *added* to an already
+   email-anchored, signed-in account. Recommended unified flow: capture an email (for
+   recovery), create the account, and register the passkey in the *same* step so the passkey
+   is the primary credential from day one.
+2. **Conditional UI (autofill).** Fire a `mediation: 'conditional'` `get()` on load and mark
+   the email field `autocomplete="username webauthn"` so passkeys surface in autofill — the
+   "tap your avatar / one-tap sign-in" experience. Gate with `getClientCapabilities()`.
+3. **Conditional Create.** After a successful password login, silently offer a passkey
+   (`mediation: 'conditional'`) to upgrade password users. Treat `InvalidStateError`/
+   `NotAllowedError` as benign (already-exists / dismissed) — don't surface as errors.
+4. **RP ID strategy.** Bind RP ID to the **registrable domain** (`astramatrix.xyz`) so a
+   passkey works across `vybz.astramatrix.xyz` and any subdomain (today it's bound to the
+   request hostname, so a passkey doesn't roam across subdomains). For distinct domains,
+   publish `/.well-known/webauthn` **related origins**.
+5. **De-MYVYB the RP.** `RP_NAME` is still `"MYVYB"` and `ALLOWED_HOSTS` lists
+   `myvyb.astramatrix.xyz` — update to VYBZ / `vybz.astramatrix.xyz`.
+6. **Graceful fallback** to email/password (and magic link) whenever a passkey ceremony is
+   cancelled/unsupported.
+
+**Conflict check with current plans:** none structural. Auth is a layer *below* the
+role+intent onboarding and the Projects/feed work — those run post-auth regardless of method.
+The only touch-point is the entry screen (`Onboarding`), which becomes passkey-first with the
+avatar-tap affordance and email/password fallback. Safe to build independently.
+
+### 12.4 Premium feel, mobile-first, modular & customizable UI
+Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
+- **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
+  home built from rearrangeable **modules** (cards/tabs) the user can reorder/show-hide to
+  taste; per-user layout + accent preferences (persisted).
+- **Intricate, subtle ambience:** cohesive motion language (spring easing, staggered reveals),
+  soft depth (layered glass, grain/noise, gradient meshes), and micro-interactions on every
+  control — nothing static, nothing loud.
+- **Alive icons:** nav/action icons gain a soft hover/active glow and gentle activity pulses
+  (unread, live, new match) that are **obvious but never overwhelming** — an accent halo, not
+  a klaxon.
+- **Signature, not template:** a distinct type/space rhythm, a custom icon treatment, and
+  brand-specific empty states/loaders so the app reads as VYBZ, not a starter kit.
+- **Accessibility & performance:** honour reduced-motion, keep 60fps, respect safe areas.
