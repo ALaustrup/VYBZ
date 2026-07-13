@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, Layers, ShieldCheck, Bug } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, ShieldCheck, Bug } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -40,6 +40,7 @@ export function ProfilePage() {
         </span>
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-display text-2xl font-bold text-white">{profile.username}</h1>
+          {facets.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{facets.roleLabel}</p>}
           {profile.location && <p className="text-sm text-white/50">{profile.location}</p>}
         </div>
         <button onClick={() => navigate("/profile/edit")} aria-label="Edit" className="flex h-10 w-10 items-center justify-center rounded-full glass active:scale-90"><Pencil className="h-4 w-4" /></button>
@@ -86,14 +87,6 @@ export function ProfilePage() {
         </div>
       )}
 
-      <button onClick={() => navigate("/profile/disciplines")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-3.5 text-left active:scale-[0.99]">
-        <Layers className="h-5 w-5 shrink-0 text-veil-200" />
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold text-white">Discipline modules</span>
-          <span className="block text-[11px] text-white/55">Add every creative hat you wear — each one sharpens your matches.</span>
-        </span>
-      </button>
-
       <DisplaySetting />
 
       <button onClick={() => navigate("/codex")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
@@ -102,9 +95,9 @@ export function ProfilePage() {
       </button>
 
       {profile.isAdmin && (
-        <button onClick={() => navigate("/admin")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-3 text-left active:scale-[0.99]">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-veil-200" />
-          <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Admin console</span><span className="block text-[11px] text-white/55">Members, matchmaking weights, discipline requests & bug reports</span></span>
+        <button onClick={() => navigate("/admin")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-4 text-left active:scale-[0.99]">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-veil-200" />
+          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-white">Admin console</span><span className="block text-xs text-white/55">Members, matchmaking weights, role requests & bug reports</span></span>
         </button>
       )}
 

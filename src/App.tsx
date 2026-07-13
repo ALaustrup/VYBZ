@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
 import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
-import * as api from "@/lib/api";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
-import { DisciplineOnboarding } from "@/components/discipline/DisciplineOnboarding";
+import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
@@ -20,7 +19,6 @@ import { SparkPage } from "@/pages/SparkPage";
 import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { ProfileEditPage } from "@/pages/ProfileEditPage";
-import { DisciplinesPage } from "@/pages/DisciplinesPage";
 import { UserProfilePage } from "@/pages/UserProfilePage";
 import { MessagesPage } from "@/pages/MessagesPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
@@ -50,20 +48,10 @@ export function App() {
   const desktop = useMediaQuery("(min-width: 1024px)");
   const location = useLocation();
 
-  // Post-signup discipline onboarding: shown once to creators with no modules.
-  const [discState, setDiscState] = useState<"unknown" | "needed" | "done">("unknown");
+  // Post-signup onboarding: ask role + intent until the creator has a role.
+  const [onboarded, setOnboarded] = useState(false);
   const authed = !!userId && !!profile?.username;
-  useEffect(() => {
-    if (!authed) { setDiscState("unknown"); return; }
-    if (localStorage.getItem("vybz.discOnboarded")) { setDiscState("done"); return; }
-    let cancelled = false;
-    api.myModules().then((m) => {
-      if (cancelled) return;
-      if (m.length > 0) { localStorage.setItem("vybz.discOnboarded", "1"); setDiscState("done"); }
-      else setDiscState("needed");
-    }).catch(() => { if (!cancelled) setDiscState("done"); });
-    return () => { cancelled = true; };
-  }, [authed]);
+  const hasRole = !!(profile?.profile?.role || profile?.profile?.roleLabel);
 
   if (!backendEnabled) {
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
@@ -78,12 +66,12 @@ export function App() {
     return <><DynamicBackground variant="default" /><UsernameSetup /></>;
   }
 
-  // New creator, no disciplines yet → gentle "what hats do you wear?" step.
-  if (!isPublicDoc && discState === "needed") {
+  // New creator without a role yet → the streamlined role + intent onboarding.
+  if (!isPublicDoc && authed && !hasRole && !onboarded) {
     return (
       <>
         <DynamicBackground variant="default" />
-        <DisciplineOnboarding onComplete={() => { localStorage.setItem("vybz.discOnboarded", "1"); setDiscState("done"); }} />
+        <RoleIntentOnboarding onComplete={() => setOnboarded(true)} />
       </>
     );
   }
@@ -105,7 +93,6 @@ export function App() {
         <Route path="/rooms/:id" element={<RoomPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
-        <Route path="/profile/disciplines" element={<DisciplinesPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/codex" element={<CodexPage />} />
@@ -223,14 +210,14 @@ function MobileBell() {
 function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <nav className="relative z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
-      <div className="glass mx-auto flex h-[60px] max-w-md items-center justify-around rounded-2xl border border-white/10 px-2">
+    <nav className="relative z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2">
+      <div className="glass mx-auto flex h-[68px] max-w-md items-center justify-around rounded-2xl border border-white/10 px-1.5">
         {NAV.map(({ to, label, icon: Icon, end, match }) => {
           const active = (end ? pathname === to : pathname.startsWith(to)) || (match ?? []).some((m) => pathname.startsWith(m));
           return (
-            <NavLink key={to} to={to} aria-label={label} className="flex flex-1 flex-col items-center gap-1">
-              <Icon className={cx("h-5 w-5 transition", active ? "text-veil-200" : "text-white/45")} style={active ? { filter: "drop-shadow(0 0 8px rgb(var(--accent-rgb)/0.7))" } : undefined} />
-              <span className={cx("text-[10px] font-semibold", active ? "text-white/90" : "text-white/45")}>{label}</span>
+            <NavLink key={to} to={to} aria-label={label} className={cx("flex flex-1 flex-col items-center gap-1 rounded-xl py-1.5 transition", active && "bg-white/[0.04]")}>
+              <Icon className={cx("h-[22px] w-[22px] transition", active ? "text-veil-200" : "text-white/45")} style={active ? { filter: "drop-shadow(0 0 8px rgb(var(--accent-rgb)/0.7))" } : undefined} />
+              <span className={cx("text-[11px] font-semibold", active ? "text-white/90" : "text-white/50")}>{label}</span>
             </NavLink>
           );
         })}

@@ -66,44 +66,47 @@ export function ReactiveFrame() {
     };
 
     const draw = (targetIntensity: number) => {
-      intensity += (targetIntensity - intensity) * 0.08;
+      // Smooth fade in/out; fully transparent (nothing painted) unless audio plays.
+      intensity += (targetIntensity - intensity) * 0.06;
       ctx.clearRect(0, 0, w, h);
       if (intensity < 0.01) return;
 
-      const { bass, mid, high, level } = playing ? readBands() : { bass: 0, mid: 0, high: 0, level: reduce ? 0.15 : 0 };
-      // Beat/transient detection on the low end.
-      ema += (bass - ema) * 0.15;
-      const hit = Math.max(0, bass - ema * 1.15);
-      pop = Math.max(pop * 0.9, hit * 2.2);
+      const { bass, mid, high, level } = playing ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
+      // Gentle beat/transient detection on the low end.
+      ema += (bass - ema) * 0.12;
+      const hit = Math.max(0, bass - ema * 1.2);
+      pop = Math.max(pop * 0.92, hit * 1.4);
       t += 0.016;
 
-      const energy = Math.min(1, level * 1.1 + pop * 0.6);
-      const breathe = reduce ? 0 : 0.5 + 0.5 * Math.sin(t * 1.3);
-      // Master stays clearly visible while playing (≈1.2 at rest) and swells with
-      // energy/beats — the border is always felt, never just decoration.
-      const master = intensity * (1.2 + energy * 1.2 + breathe * 0.3);
+      const energy = Math.min(1, level * 0.9 + pop * 0.4);
+      const breathe = reduce ? 0.3 : 0.5 + 0.5 * Math.sin(t * 0.8);
+      // Subtle: near-invisible at rest during playback, swelling gently with energy.
+      // A soft colourful glow, not a bright rim — a visual additive, not a grabber.
+      const master = intensity * (0.22 + energy * 0.8 + breathe * 0.12);
 
       const minSide = Math.min(w, h);
-      const depth = minSide * (0.1 + energy * 0.15 + pop * 0.06);
+      const depth = minSide * (0.08 + energy * 0.13 + pop * 0.04);
+
+      // Phase-shifted per-edge wobble → colours flow around the frame for a
+      // dynamic, living feel (each edge keeps a distinct palette colour).
+      const wob = (ph: number) => 0.72 + 0.28 * Math.sin(t * 0.7 + ph);
 
       ctx.globalCompositeOperation = "lighter";
-      // Soft edge glow: accent top/bottom (bottom swells with bass), palette sides.
-      glowEdge("top", accent, 0.30 * master + 0.18 * pop, depth);
-      glowEdge("bottom", accent, 0.38 * master + 0.20 * pop, depth * (1 + bass * 0.5));
-      glowEdge("left", c1, 0.28 * master + high * 0.16, depth * (0.85 + mid * 0.5));
-      glowEdge("right", c2, 0.28 * master + high * 0.16, depth * (0.85 + mid * 0.5));
-      // Corner blooms cycle through the palette for colour movement.
-      const cr = minSide * (0.24 + energy * 0.18);
-      cornerBloom(0, 0, cr, c1, 0.26 * master);
-      cornerBloom(w, 0, cr, c2, 0.26 * master);
-      cornerBloom(0, h, cr, accent, 0.30 * master);
-      cornerBloom(w, h, cr, c0, 0.30 * master);
-      // Crisp luminous rim — the primary, compression-robust border element. Solid
-      // (source-over) so it survives video encoding; width + brightness pulse on beats.
+      glowEdge("top", c0, 0.15 * master * wob(0), depth);
+      glowEdge("bottom", accent, (0.18 * master + 0.09 * pop) * wob(1.6), depth * (1 + bass * 0.4));
+      glowEdge("left", c1, (0.15 * master + high * 0.09) * wob(3.1), depth * (0.9 + mid * 0.4));
+      glowEdge("right", c2, (0.15 * master + high * 0.09) * wob(4.5), depth * (0.9 + mid * 0.4));
+      // Corner blooms in rotating palette colours for gentle colour movement.
+      const cr = minSide * (0.2 + energy * 0.16);
+      cornerBloom(0, 0, cr, c1, 0.13 * master * wob(0.8));
+      cornerBloom(w, 0, cr, c2, 0.13 * master * wob(2.3));
+      cornerBloom(0, h, cr, accent, 0.15 * master * wob(3.8));
+      cornerBloom(w, h, cr, c0, 0.15 * master * wob(5.2));
+      // Whisper-thin rim only — just enough to define the edge, never grabby.
       ctx.globalCompositeOperation = "source-over";
-      const rimW = 3 + energy * 5 + pop * 8;
+      const rimW = 1.5 + energy * 2 + pop * 2.5;
       ctx.lineWidth = rimW;
-      ctx.strokeStyle = hexA(accent, Math.min(0.95, 0.6 * master + 0.35 * pop));
+      ctx.strokeStyle = hexA(accent, Math.min(0.35, 0.1 * master + 0.12 * pop));
       ctx.strokeRect(rimW / 2, rimW / 2, Math.max(0, w - rimW), Math.max(0, h - rimW));
     };
 

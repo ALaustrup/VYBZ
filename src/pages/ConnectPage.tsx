@@ -5,21 +5,18 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
-import type { CollabMatch, DisciplineCategory } from "@/types";
+import type { CollabMatch } from "@/types";
 
 export function ConnectPage() {
   const navigate = useNavigate();
   const { showToast } = useSession();
   const [matches, setMatches] = useState<CollabMatch[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cats, setCats] = useState<DisciplineCategory[]>([]);
-  const [cat, setCat] = useState<string | null>(null);
 
-  useEffect(() => { api.listDisciplines().then(setCats); }, []);
   useEffect(() => {
     setLoading(true);
-    api.collabMatches(30, cat).then((m) => { setMatches(m); setLoading(false); });
-  }, [cat]);
+    api.collabMatches(30).then((m) => { setMatches(m); setLoading(false); });
+  }, []);
 
   async function connect(m: CollabMatch) {
     await api.connect(m.userId);
@@ -48,12 +45,6 @@ export function ConnectPage() {
         </div>
 
         <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><Sparkles className="h-3.5 w-3.5 text-veil-300" /> Collaborators for you</p>
-        {cats.length > 0 && (
-          <div className="no-scrollbar mb-3 flex gap-1.5 overflow-x-auto pb-0.5">
-            <FilterPill label="All" on={cat === null} onClick={() => setCat(null)} />
-            {cats.map((c) => <FilterPill key={c.id} label={c.label} on={cat === c.id} onClick={() => setCat(c.id)} />)}
-          </div>
-        )}
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : matches.length === 0 ? (
@@ -94,16 +85,6 @@ export function ConnectPage() {
         )}
       </div>
     </div>
-  );
-}
-
-function FilterPill({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
-  return (
-    <button onClick={onClick}
-      className={cx("shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-semibold transition active:scale-95",
-        on ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55 hover:text-white/85")}>
-      {label}
-    </button>
   );
 }
 

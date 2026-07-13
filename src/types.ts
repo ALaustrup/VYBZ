@@ -24,6 +24,12 @@ export interface ProfileDetails {
   languages?: string[];
   prompts?: { q: string; a: string }[];
   traits?: Record<string, string>;
+  /** Primary creative role (catalog role id), chosen at onboarding. */
+  role?: string | null;
+  /** Human-readable role label (may be a pending custom role). */
+  roleLabel?: string;
+  /** What the creator is here for — drives default feed curation. */
+  intents?: string[];
   /** Top-level keys the creator has marked private. */
   hidden?: string[];
 }
