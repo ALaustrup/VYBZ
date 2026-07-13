@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, ShieldCheck, Bug } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
+import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
@@ -86,6 +87,11 @@ export function ProfilePage() {
           </div>
         </div>
       )}
+
+      <div className="mb-5">
+        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Projects</p>
+        <ProjectsPanel userId={userId!} editable />
+      </div>
 
       <DisplaySetting />
 

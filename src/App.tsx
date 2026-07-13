@@ -6,6 +6,7 @@ import { useMediaQuery } from "@/lib/useMediaQuery";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
+import { WelcomeTutorial } from "@/components/WelcomeTutorial";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
@@ -20,6 +21,7 @@ import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { ProfileEditPage } from "@/pages/ProfileEditPage";
 import { UserProfilePage } from "@/pages/UserProfilePage";
+import { ProjectPage } from "@/pages/ProjectPage";
 import { MessagesPage } from "@/pages/MessagesPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { NotificationsPage } from "@/pages/NotificationsPage";
@@ -95,6 +97,7 @@ export function App() {
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
+        <Route path="/p/:id" element={<ProjectPage />} />
         <Route path="/codex" element={<CodexPage />} />
         <Route path="/codex/:slug" element={<CodexDocPage />} />
         <Route path="/legal/:slug" element={<CodexDocPage />} />
@@ -107,6 +110,7 @@ export function App() {
     <>
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <ReactiveFrame />
+      <WelcomeTutorial />
       <Toast /><Confetti />
     </>
   );

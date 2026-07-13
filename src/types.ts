@@ -315,6 +315,64 @@ export interface DisciplineModule {
   sort: number;
 }
 
+// ── Projects (in-profile creative spaces / micro-blogs) ──────────────────────
+export type ProjectKind = "music" | "video" | "art" | "writing" | "links" | "general";
+export type PostKind = "text" | "audio" | "image" | "video" | "link";
+
+export interface ProfileProject {
+  id: string;
+  userId: string;
+  name: string;
+  kind: ProjectKind;
+  tagline: string | null;
+  accent: string | null;
+  coverUrl: string | null;
+  sort: number;
+  posts: number;
+  links: number;
+  followers: number;
+  following: boolean;
+}
+
+export interface ProjectPost {
+  id: string;
+  kind: PostKind;
+  title: string | null;
+  body: string | null;
+  mediaUrl: string | null;
+  linkUrl: string | null;
+  createdAt: number;
+  likes: number;
+  liked: boolean;
+}
+
+export interface ProjectLink {
+  id: string;
+  label: string;
+  url: string | null;
+  thumbUrl: string | null;
+  targetProjectId: string | null;
+  sort: number;
+}
+
+export interface ProfileProjectDetail {
+  id: string;
+  userId: string;
+  name: string;
+  kind: ProjectKind;
+  tagline: string | null;
+  accent: string | null;
+  coverUrl: string | null;
+  followers: number;
+  following: boolean;
+  posts: ProjectPost[];
+  links: ProjectLink[];
+}
+
+export interface ProjectInput { name: string; kind: ProjectKind; tagline?: string | null; accent?: string | null; coverUrl?: string | null }
+export interface PostInput { projectId: string; kind: PostKind; title?: string | null; body?: string | null; mediaUrl?: string | null; linkUrl?: string | null }
+export interface LinkInput { projectId: string; label: string; url?: string | null; thumbUrl?: string | null; targetProjectId?: string | null }
+
 // ── Admin console ────────────────────────────────────────────────────────────
 export interface AdminMember {
   userId: string;

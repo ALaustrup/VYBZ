@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck } from "lucide-react";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
+import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { useSession } from "@/store/session";
 import { avatarGradient } from "@/lib/utils";
 import type { Drop, CreatorStats, Credit } from "@/types";
@@ -36,6 +37,7 @@ export function UserProfilePage() {
         <span className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>{(p.username || "?").charAt(0).toUpperCase()}</span>
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-display text-2xl font-bold text-white">{p.username}</h1>
+          {f.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{f.roleLabel}</p>}
           {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>
       </div>
@@ -74,8 +76,17 @@ export function UserProfilePage() {
         </div>
       )}
 
-      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Drops</p>
-      <div className="grid gap-4 sm:grid-cols-2">{drops.map((d) => <TrackCard key={d.id} drop={{ ...d, authorUsername: p.username }} queue={drops} />)}</div>
+      <div className="mb-5">
+        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Projects</p>
+        <ProjectsPanel userId={id} editable={isMe} />
+      </div>
+
+      {drops.length > 0 && (
+        <>
+          <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Drops</p>
+          <div className="grid gap-4 sm:grid-cols-2">{drops.map((d) => <TrackCard key={d.id} drop={{ ...d, authorUsername: p.username }} queue={drops} />)}</div>
+        </>
+      )}
     </div>
   );
 }

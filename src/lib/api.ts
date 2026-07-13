@@ -12,6 +12,7 @@ import type {
   DisciplineModule, DisciplineCategory, DisciplineSchema, ModuleInput,
   DisciplineOption, SeekingIntent, PortfolioItem,
   AdminMember, PendingDiscipline, BugReport, BugStatus, MatchWeights,
+  ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -215,6 +216,100 @@ export async function restoreModule(id: string): Promise<void> {
 
 export async function reorderModules(ids: string[]): Promise<void> {
   const { error } = await db().rpc("reorder_modules", { p_ids: ids });
+  if (error) throw error;
+}
+
+// ── Projects (in-profile creative spaces) ───────────────────────────────────
+export async function listProfileProjects(userId: string): Promise<ProfileProject[]> {
+  const { data, error } = await db().rpc("list_profile_projects", { p_uid: userId });
+  if (error || !data) return [];
+  return data as ProfileProject[];
+}
+
+export async function getProjectDetail(id: string): Promise<ProfileProjectDetail | null> {
+  const { data, error } = await db().rpc("profile_project_detail", { p_id: id });
+  if (error || !data) return null;
+  const d = data as any;
+  return {
+    ...d,
+    posts: (d.posts ?? []).map((p: any) => ({ ...p, createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now() })),
+  } as ProfileProjectDetail;
+}
+
+export async function createProfileProject(input: ProjectInput): Promise<string> {
+  const uid = await currentUserId();
+  if (!uid) throw new Error("Not signed in");
+  const { data, error } = await db().from("profile_projects").insert({
+    user_id: uid, name: input.name, kind: input.kind,
+    tagline: input.tagline ?? null, accent: input.accent ?? null, cover_url: input.coverUrl ?? null,
+    sort: Math.floor(Date.now() / 1000),
+  }).select("id").single();
+  if (error) throw error;
+  return (data as { id: string }).id;
+}
+
+export async function updateProject(id: string, patch: Partial<ProjectInput>): Promise<void> {
+  const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (patch.name !== undefined) row.name = patch.name;
+  if (patch.tagline !== undefined) row.tagline = patch.tagline;
+  if (patch.accent !== undefined) row.accent = patch.accent;
+  if (patch.coverUrl !== undefined) row.cover_url = patch.coverUrl;
+  if (patch.kind !== undefined) row.kind = patch.kind;
+  const { error } = await db().from("profile_projects").update(row).eq("id", id);
+  if (error) throw error;
+}
+
+export async function archiveProject(id: string): Promise<void> {
+  const { error } = await db().from("profile_projects").update({ archived_at: new Date().toISOString() }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function reorderProjects(ids: string[]): Promise<void> {
+  const { error } = await db().rpc("reorder_profile_projects", { p_ids: ids });
+  if (error) throw error;
+}
+
+export async function createPost(input: PostInput): Promise<string> {
+  const uid = await currentUserId();
+  if (!uid) throw new Error("Not signed in");
+  const { data, error } = await db().from("project_posts").insert({
+    project_id: input.projectId, user_id: uid, kind: input.kind,
+    title: input.title ?? null, body: input.body ?? null,
+    media_url: input.mediaUrl ?? null, link_url: input.linkUrl ?? null,
+  }).select("id").single();
+  if (error) throw error;
+  return (data as { id: string }).id;
+}
+
+export async function deletePost(id: string): Promise<void> {
+  const { error } = await db().from("project_posts").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function addProjectLink(input: LinkInput): Promise<string> {
+  const uid = await currentUserId();
+  if (!uid) throw new Error("Not signed in");
+  const { data, error } = await db().from("project_links").insert({
+    project_id: input.projectId, user_id: uid, label: input.label,
+    url: input.url ?? null, thumb_url: input.thumbUrl ?? null,
+    target_project_id: input.targetProjectId ?? null, sort: Math.floor(Date.now() / 1000),
+  }).select("id").single();
+  if (error) throw error;
+  return (data as { id: string }).id;
+}
+
+export async function deleteProjectLink(id: string): Promise<void> {
+  const { error } = await db().from("project_links").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function followProject(id: string, on: boolean): Promise<void> {
+  const { error } = await db().rpc("follow_project", { p_id: id, p_on: on });
+  if (error) throw error;
+}
+
+export async function likePost(id: string, on: boolean): Promise<void> {
+  const { error } = await db().rpc("like_post", { p_id: id, p_on: on });
   if (error) throw error;
 }
 
