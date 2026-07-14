@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
 import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck } from "lucide-react";
 import { useSession } from "@/store/session";
@@ -80,6 +81,7 @@ export function App() {
 
   const routes = (
     <ErrorBoundary key={location.pathname}>
+      <motion.div key={location.pathname} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, ease: "easeOut" }} className="h-full">
       <Routes location={location}>
         <Route path="/" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
@@ -103,6 +105,7 @@ export function App() {
         <Route path="/legal/:slug" element={<CodexDocPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </motion.div>
     </ErrorBoundary>
   );
 
@@ -182,8 +185,10 @@ function SideNav() {
   const { pathname } = useLocation();
   const { unread, profile } = useSession();
   const item = (to: string, label: string, Icon: typeof Bell, active: boolean, badge?: number) => (
-    <NavLink key={to} to={to} className={cx("relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition", active ? "bg-veil-500/15 text-white ring-1 ring-veil-400/40" : "text-white/55 hover:bg-black/20 hover:text-white/85")}>
-      <span className="relative"><Icon className="h-5 w-5" />{badge ? <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{badge > 9 ? "9+" : badge}</span> : null}</span> {label}
+    <NavLink key={to} to={to} className={cx("nav-item relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold", active ? "text-white" : "text-white/55 hover:bg-white/[0.04] hover:text-white/90")}>
+      {active && <motion.span layoutId="sidenav-active" transition={{ type: "spring", stiffness: 400, damping: 32 }} className="absolute inset-0 rounded-xl bg-veil-500/15 ring-1 ring-veil-400/40" />}
+      <span className="relative z-10"><Icon className={cx("h-5 w-5", active && "nav-icon-active text-veil-200")} />{badge ? <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{badge > 9 ? "9+" : badge}</span> : null}</span>
+      <span className="relative z-10">{label}</span>
     </NavLink>
   );
   return (
@@ -204,7 +209,7 @@ function MobileBell() {
   if (pathname === "/activity") return null;
   return (
     <NavLink to="/activity" aria-label="Activity"
-      className="absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+      className={cx("absolute right-3 top-[max(0.75rem,env(safe-area-inset-top))] z-40 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90", unread > 0 && "bell-alert")}>
       <Bell className="h-4 w-4 text-white/75" />
       {unread > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">{unread > 9 ? "9+" : unread}</span>}
     </NavLink>
@@ -219,9 +224,10 @@ function BottomNav() {
         {NAV.map(({ to, label, icon: Icon, end, match }) => {
           const active = (end ? pathname === to : pathname.startsWith(to)) || (match ?? []).some((m) => pathname.startsWith(m));
           return (
-            <NavLink key={to} to={to} aria-label={label} className={cx("flex flex-1 flex-col items-center gap-1 rounded-xl py-1.5 transition", active && "bg-white/[0.04]")}>
-              <Icon className={cx("h-[22px] w-[22px] transition", active ? "text-veil-200" : "text-white/45")} style={active ? { filter: "drop-shadow(0 0 8px rgb(var(--accent-rgb)/0.7))" } : undefined} />
-              <span className={cx("text-[11px] font-semibold", active ? "text-white/90" : "text-white/50")}>{label}</span>
+            <NavLink key={to} to={to} aria-label={label} className="relative flex flex-1 flex-col items-center gap-1 rounded-xl py-1.5">
+              {active && <motion.span layoutId="bottomnav-active" transition={{ type: "spring", stiffness: 400, damping: 32 }} className="absolute inset-0 rounded-xl bg-white/[0.05]" />}
+              <Icon className={cx("relative z-10 h-[22px] w-[22px] transition", active ? "text-veil-200 nav-icon-active" : "text-white/45")} />
+              <span className={cx("relative z-10 text-[11px] font-semibold", active ? "text-white/90" : "text-white/50")}>{label}</span>
             </NavLink>
           );
         })}

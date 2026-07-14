@@ -330,6 +330,26 @@
   overflow: hidden;
 }
 
+/* ── Premium ambience: smoother, glowing, alive interactions ───────────────── */
+.btn { transition: transform .15s ease, box-shadow .3s ease, background-color .2s ease, opacity .2s ease; }
+.btn-primary:hover { box-shadow: 0 0 0 1px rgb(var(--accent-rgb) / 0.45), 0 10px 34px -10px rgb(var(--accent-rgb) / 0.6); }
+.glass { transition: background-color .25s ease, border-color .25s ease; }
+button, a { -webkit-tap-highlight-color: transparent; }
+
+/* Nav items: gentle lift + glow on hover, luminous when active. */
+.nav-item { transition: color .2s ease, background-color .2s ease, transform .12s ease; }
+.nav-item:hover { transform: translateY(-1px); }
+.nav-icon-active { filter: drop-shadow(0 0 9px rgb(var(--accent-rgb) / 0.75)); }
+
+/* Activity bell: a calm pulse when there's something new — obvious, not loud. */
+@keyframes vybz-bell-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(var(--accent-rgb) / 0.5); }
+  70% { box-shadow: 0 0 0 8px rgb(var(--accent-rgb) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--accent-rgb) / 0); }
+}
+.bell-alert { animation: vybz-bell-pulse 2.2s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .bell-alert { animation: none; } .nav-item:hover { transform: none; } }
+
 /* ── VYBZ audio-reactive brand mark: painted radial halo behind the icon ───── */
 .vybz-mark-halo {
   border-radius: 9999px;
