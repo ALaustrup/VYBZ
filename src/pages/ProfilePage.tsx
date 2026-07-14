@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, ShieldCheck, Bug } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
+import { PasskeysCard } from "@/components/PasskeysCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -94,6 +95,8 @@ export function ProfilePage() {
       </div>
 
       <DisplaySetting />
+
+      <PasskeysCard />
 
       <button onClick={() => navigate("/codex")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
         <ScrollText className="h-4 w-4 shrink-0 text-veil-300" />

@@ -31,21 +31,50 @@ const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
 });
 
 // Canonical production hosts plus localhost; any *.vercel.app host (previews and
-// project aliases) is also accepted so passkey registration never 403s on the
-// device the user is actually on. The RP ID is bound to the request hostname.
+// project aliases) is also accepted so passkey ceremonies never 403 on the
+// device the user is actually on.
 const ALLOWED_HOSTS = [
-  "myvyb.astramatrix.xyz",
+  "vybz.cloud",
+  "vybz.work",
+  "vybz.cc",
+  "vybz.guru",
+  "vybz.world",
+  "vybz.space",
+  "vybz.astramatrix.xyz",
   "astramatrix.xyz",
   "localhost",
+];
+const ALLOWED_SUFFIXES = [
+  ".astramatrix.xyz",
+  ".vercel.app",
+  ".vybz.cloud",
+  ".vybz.work",
+  ".vybz.cc",
+  ".vybz.guru",
+  ".vybz.world",
+  ".vybz.space",
 ];
 function hostAllowed(hostname: string): boolean {
   return (
     ALLOWED_HOSTS.includes(hostname) ||
-    hostname.endsWith(".astramatrix.xyz") ||
-    hostname.endsWith(".vercel.app")
+    ALLOWED_SUFFIXES.some((s) => hostname.endsWith(s))
   );
 }
-const RP_NAME = "MYVYB";
+
+// Bind the RP ID to the *registrable domain* so a passkey created on one host
+// roams across its subdomains (e.g. vybz.astramatrix.xyz ↔ astramatrix.xyz).
+// Public-suffix hosts (*.vercel.app) must use the full hostname as the RP ID,
+// because their eTLD+1 (vercel.app) is itself a public suffix and is rejected.
+function registrableDomain(hostname: string): string {
+  if (hostname === "localhost") return "localhost";
+  if (hostname.endsWith(".vercel.app")) return hostname;
+  if (hostname === "astramatrix.xyz" || hostname.endsWith(".astramatrix.xyz"))
+    return "astramatrix.xyz";
+  const parts = hostname.split(".");
+  return parts.length <= 2 ? hostname : parts.slice(-2).join(".");
+}
+
+const RP_NAME = "VYBZ";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -82,7 +111,7 @@ function rpFromOrigin(
   try {
     const u = new URL(origin);
     if (!hostAllowed(u.hostname)) return null;
-    return { rpID: u.hostname, expectedOrigin: u.origin };
+    return { rpID: registrableDomain(u.hostname), expectedOrigin: u.origin };
   } catch {
     return null;
   }
@@ -113,6 +142,86 @@ Deno.serve(async (req: Request) => {
   const action = String(body.action ?? "");
 
   try {
+    // --- Passkey-first sign-up (public) ------------------------------------
+    // Creates a fresh, email-anchored account and returns creation options so
+    // the passkey becomes the PRIMARY credential in the same ceremony. Email is
+    // captured for recovery (magic link) — no password is required.
+    if (action === "signup-options") {
+      const email = String(body.email ?? "").trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
+        return json({ error: "enter a valid email" }, 400);
+      const created = await admin.auth.admin.createUser({
+        email,
+        email_confirm: true,
+      });
+      if (created.error || !created.data.user) {
+        const msg = created.error?.message ?? "could not create account";
+        // Already-registered email → tell the client to sign in / add a passkey.
+        if (/registered|already|exists/i.test(msg))
+          return json({ error: "account_exists" }, 409);
+        return json({ error: msg }, 400);
+      }
+      const user = created.data.user;
+      const options = await generateRegistrationOptions({
+        rpName: RP_NAME,
+        rpID: rp.rpID,
+        userID: new TextEncoder().encode(user.id),
+        userName: email,
+        userDisplayName: email,
+        attestationType: "none",
+        authenticatorSelection: {
+          residentKey: "required",
+          userVerification: "preferred",
+        },
+      });
+      const ins = await admin
+        .from("webauthn_challenges")
+        .insert({ user_id: user.id, challenge: options.challenge, kind: "signup" })
+        .select("id")
+        .single();
+      return json({ options, flowId: ins.data?.id });
+    }
+
+    if (action === "signup-verify") {
+      const flowId = String(body.flowId ?? "");
+      if (!flowId || !body.response) return json({ error: "bad request" }, 400);
+      const ch = await admin
+        .from("webauthn_challenges")
+        .select("id,challenge,user_id")
+        .eq("id", flowId)
+        .eq("kind", "signup")
+        .maybeSingle();
+      if (!ch.data || !ch.data.user_id) return json({ error: "expired" }, 400);
+      const verification = await verifyRegistrationResponse({
+        response: body.response as Parameters<typeof verifyRegistrationResponse>[0]["response"],
+        expectedChallenge: ch.data.challenge as string,
+        expectedOrigin: rp.expectedOrigin,
+        expectedRPID: rp.rpID,
+        requireUserVerification: false,
+      });
+      if (!verification.verified || !verification.registrationInfo)
+        return json({ verified: false });
+      const cred = verification.registrationInfo.credential;
+      await admin.from("passkeys").upsert({
+        credential_id: cred.id,
+        user_id: ch.data.user_id as string,
+        public_key: b64urlFromBytes(cred.publicKey),
+        counter: cred.counter ?? 0,
+        transports:
+          (body.response as { response?: { transports?: string[] } })?.response
+            ?.transports ?? null,
+        label: (body.label as string) ?? "Passkey",
+      });
+      await admin.from("webauthn_challenges").delete().eq("id", ch.data.id);
+      const u = await admin.auth.admin.getUserById(ch.data.user_id as string);
+      const email = u.data.user?.email;
+      if (!email) return json({ error: "no_email" }, 409);
+      const link = await admin.auth.admin.generateLink({ type: "magiclink", email });
+      const tokenHash = link.data.properties?.hashed_token;
+      if (!tokenHash) return json({ error: "mint_failed" }, 500);
+      return json({ verified: true, tokenHash });
+    }
+
     // --- Registration (signed-in user) -------------------------------------
     if (action === "register-options") {
       const user = await userFromReq(req);
