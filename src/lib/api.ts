@@ -287,12 +287,13 @@ export async function uploadPostMedia(file: File, onProgress?: (pct: number) => 
   const sess = (await db().auth.getSession()).data.session;
   if (!sess) throw new Error("Not signed in");
   const ext = (file.name.split(".").pop() || "bin").toLowerCase();
-  const path = `posts/${sess.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const path = `${sess.user.id}/posts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const endpoint = `${SUPABASE_URL}/storage/v1/object/${AVATAR_BUCKET}/${path}`;
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", endpoint);
     xhr.setRequestHeader("authorization", `Bearer ${sess.access_token}`);
+    xhr.setRequestHeader("apikey", SUPABASE_ANON_KEY);
     xhr.setRequestHeader("x-upsert", "true");
     if (file.type) xhr.setRequestHeader("content-type", file.type);
     xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100)); };
