@@ -67,8 +67,9 @@ export function ReactiveFrame() {
       ema += (b.bass - ema) * 0.12;
       pop = Math.max(pop * 0.92, Math.max(0, b.bass - ema * 1.2) * 1.5);
       t += 0.016;
-      const energy = Math.min(1, b.level * 0.9 + pop * 0.4);
-      const master = intensity * (0.3 + energy * 0.9);
+      const energy = Math.min(1, b.level * 1.1 + pop * 0.5);
+      // Clearly present while playing, swelling with energy — a real visual hook.
+      const master = intensity * (0.55 + energy * 1.15);
       const minSide = Math.min(w, h);
       ctx.globalCompositeOperation = "lighter";
 
@@ -76,15 +77,15 @@ export function ReactiveFrame() {
         // Drifting colour bands hugging the top & bottom — flowing, alive.
         for (let i = 0; i < 4; i++) {
           const cx = w * (0.2 + 0.2 * i) + Math.sin(t * 0.5 + i) * w * 0.15;
-          const r = minSide * (0.28 + energy * 0.2) * (0.8 + 0.2 * Math.sin(t + i));
-          bloom(cx, -r * 0.2, r, pal[i % 4], (0.16 + energy * 0.14) * master);
-          bloom(w - cx, h + r * 0.2, r, pal[(i + 2) % 4], (0.16 + energy * 0.14) * master);
+          const r = minSide * (0.34 + energy * 0.24) * (0.8 + 0.2 * Math.sin(t + i));
+          bloom(cx, -r * 0.15, r, pal[i % 4], (0.24 + energy * 0.2) * master);
+          bloom(w - cx, h + r * 0.15, r, pal[(i + 2) % 4], (0.24 + energy * 0.2) * master);
         }
       } else if (fx === "pulse") {
         // Radial pulses that swell hard on the beat, from corners + edge mids.
-        const cr = minSide * (0.22 + energy * 0.25 + pop * 0.3);
+        const cr = minSide * (0.26 + energy * 0.3 + pop * 0.35);
         const pts: [number, number][] = [[0, 0], [w, 0], [0, h], [w, h], [w / 2, 0], [w / 2, h]];
-        pts.forEach((p, i) => bloom(p[0], p[1], cr * (0.7 + 0.3 * Math.sin(t * 2 + i)), pal[i % 4], (0.2 + pop * 0.5) * master));
+        pts.forEach((p, i) => bloom(p[0], p[1], cr * (0.7 + 0.3 * Math.sin(t * 2 + i)), pal[i % 4], (0.3 + pop * 0.6) * master));
       } else if (fx === "bars") {
         // Edge spectrum: frequency bars marching along the bottom (mirrored top).
         readFrequencies(freq);
