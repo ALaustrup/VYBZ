@@ -183,25 +183,47 @@ export function Wordmark({
 }
 
 /**
- * Brand lockup for headers/nav: the icon mark next to the "myvyb" wordmark.
- * Both fall back gracefully to a hand-built mark / styled text if the official
- * artwork is missing, so the header never looks broken.
+ * Brand lockup for headers/nav/intro: the official VYBZ logo. Renders the real
+ * horizontal artwork (`/brand/logo-white.svg`), with an optional subtle
+ * audio-reactive glow that breathes while audio plays (no layout shift).
  */
 export function BrandLockup({
   className,
-  markClassName = "h-6 w-6 text-veil-300",
-  wordClassName,
+  height = "h-7",
   reactive = true,
+  variant = "white",
 }: {
   className?: string;
-  markClassName?: string;
-  wordClassName?: string;
+  /** Tailwind height class for the logo (width auto). */
+  height?: string;
   reactive?: boolean;
+  variant?: "white" | "color";
 }) {
+  const ref = useRef<HTMLImageElement | null>(null);
+  const { playing } = usePlayer();
+  const reduce = useReduceFx();
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!reactive || reduce || !playing) { el.style.filter = ""; return; }
+    let raf = 0, eased = 0;
+    const tick = () => {
+      const lvl = readBands().level;
+      eased += (lvl - eased) * 0.25;
+      const g = Math.min(1, eased * 1.4);
+      el.style.filter = `drop-shadow(0 0 ${(6 + g * 14).toFixed(1)}px rgba(0,255,150,${(0.15 + g * 0.5).toFixed(3)})) drop-shadow(0 0 ${(12 + g * 30).toFixed(1)}px rgba(0,161,255,${(0.1 + g * 0.4).toFixed(3)}))`;
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(raf);
+  }, [reactive, reduce, playing]);
+
+  const src = variant === "color" ? "/brand/logo.svg" : "/brand/logo-white.svg";
   return (
-    <span className={cx("flex items-center gap-2", className)}>
-      <BrandMark className={markClassName} reactive={reactive} />
-      <Wordmark imgClassName="h-5 w-auto" textClassName={cx("text-2xl", wordClassName)} />
+    <span className={cx("inline-flex items-center", className)}>
+      <img ref={ref} src={src} alt="VYBZ" draggable={false}
+        className={cx("w-auto select-none object-contain", height)} />
     </span>
   );
 }

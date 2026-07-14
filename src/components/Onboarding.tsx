@@ -33,7 +33,7 @@ export function Onboarding() {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
         className="glass-panel w-full max-w-sm p-7">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
-          <BrandLockup markClassName="h-9 w-9 text-veil-300" wordClassName="text-3xl" />
+          <BrandLockup height="h-10" />
           <p className="text-sm text-white/55">Find Yours. — the network for music collaboration.</p>
         </div>
 

@@ -122,7 +122,7 @@ export function App() {
         <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
         <div className="flex h-[100dvh] w-full overflow-hidden">
           <aside className="glass z-40 flex h-full w-60 shrink-0 flex-col border-r border-white/10 px-3 py-5">
-            <div className="mb-5 px-3"><BrandLockup markClassName="h-7 w-7 text-veil-300" wordClassName="text-2xl" /></div>
+            <div className="mb-5 px-3"><BrandLockup height="h-8" /></div>
             <button onClick={() => setComposeOpen(true)} className="mb-4 flex items-center justify-center gap-2 rounded-2xl bg-veil-500 py-3 font-display text-sm font-semibold text-white shadow-glow active:scale-[0.98]"><Plus className="h-5 w-5" /> New drop</button>
             <SideNav />
           </aside>
@@ -159,7 +159,7 @@ function PublicDocShell() {
       <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
       <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
         <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-white/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <NavLink to="/codex"><BrandLockup markClassName="h-6 w-6 text-veil-300" wordClassName="text-xl" /></NavLink>
+          <NavLink to="/codex"><BrandLockup height="h-7" /></NavLink>
           <span className="ml-auto hidden text-xs text-white/45 sm:block">Codex · Astra Matrix, Inc.</span>
           <NavLink to="/" className="rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95">Enter VYBZ</NavLink>
         </header>

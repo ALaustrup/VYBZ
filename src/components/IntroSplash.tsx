@@ -29,8 +29,7 @@ export function IntroSplash() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5, ease: "easeOut" } }}
         >
-          <img src="/brand/icon.svg" className="vybz-intro-icon" alt="VYBZ" draggable={false} />
-          <div className="vybz-intro-word font-display" data-text="VYBZ">VYBZ</div>
+          <img src="/brand/logo-white.svg" className="vybz-intro-logo" alt="VYBZ" draggable={false} />
           <div className="vybz-intro-tag">Find Yours.</div>
         </motion.div>
       )}
