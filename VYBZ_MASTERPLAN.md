@@ -436,9 +436,35 @@ viewer's interests. The home feed becomes truly multi-content, curated by intent
 - **Data model:** `profile_projects` (tabs), `project_posts` (kinded posts), `project_follows`,
   `project_post_likes`. RPCs for create/list/post/follow/like + a unified content feed.
 
-### 12.3 Passkey-first unified auth (research complete — build later)
+### 12.3 Passkey-first unified auth ✅ (shipped 2026-07)
 **Goal:** one seamless, secure entry that unifies sign-up & sign-in via **passkeys**, with
 email/password as a fallback, and a **tap-your-avatar** entry (default avatar if new).
+
+**Shipped:**
+- **Storage:** `20260709_0025_passkeys.sql` creates `passkeys` + `webauthn_challenges`
+  (these were referenced by the function but never existed — passkeys were dead).
+  RLS: owners read/rename/revoke their own; the challenge table is service-role only;
+  challenges auto-prune hourly.
+- **Passkey-first sign-up:** new `signup-options`/`signup-verify` actions create an
+  email-anchored account and register a passkey as the **primary** credential in one
+  ceremony, then mint a session. Duplicate email → `account_exists` (client pivots to sign-in).
+- **Usernameless sign-in + tap-your-avatar:** discoverable-credential `get()` behind a
+  round avatar affordance; **conditional UI** (`useBrowserAutofill`) armed when an
+  anchored email input is present.
+- **Profile management:** `PasskeysCard` — add (upgrades password accounts), rename, revoke.
+- **De-MYVYB + RP ID:** `RP_NAME="VYBZ"`, allow-list = `vybz.cloud` + `vybz.*` +
+  `astramatrix.xyz` + `*.vercel.app` + `localhost`; RP ID now bound to the **registrable
+  domain** so a passkey roams across subdomains.
+- **Fallback:** full email/password path with graceful WebAuthn error handling
+  (cancel/`NotAllowedError`/`InvalidStateError` treated as benign).
+- **Verified:** deployed function + migration; server paths smoke-tested; full browser
+  sign-up→sign-out→sign-in exercised against the live backend via a virtual authenticator.
+
+**Still open (non-blocking):** for distinct apex domains (e.g. `vybz.cloud`), publish
+`/.well-known/webauthn` **related origins** so one credential spans all six domains;
+optional silent **conditional create** to auto-upgrade password users post-login.
+
+_Original research notes retained below._
 
 **What already exists (reusable):** `src/lib/passkey.ts` + `supabase/functions/passkey`
 using `@simplewebauthn` v13 — discoverable/resident credentials, **usernameless** auth
