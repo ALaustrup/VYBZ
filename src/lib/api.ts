@@ -277,6 +277,7 @@ export async function createPost(input: PostInput): Promise<string> {
     title: input.title ?? null, body: input.body ?? null,
     media_url: input.mediaUrl ?? null, link_url: input.linkUrl ?? null,
     audience: input.audience ?? "public", scheduled_at: input.scheduledAt ?? null,
+    fx: input.fx ?? "glow",
   }).select("id").single();
   if (error) throw error;
   return (data as { id: string }).id;

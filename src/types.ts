@@ -318,6 +318,7 @@ export interface DisciplineModule {
 // ── Projects (in-profile creative spaces / micro-blogs) ──────────────────────
 export type ProjectKind = "music" | "video" | "art" | "writing" | "links" | "general";
 export type PostKind = "text" | "audio" | "image" | "video" | "link";
+export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
 
 export interface ProfileProject {
   id: string;
@@ -342,6 +343,7 @@ export interface ProjectPost {
   mediaUrl: string | null;
   linkUrl: string | null;
   createdAt: number;
+  fx?: PostFx | null;
   likes: number;
   liked: boolean;
 }
@@ -377,6 +379,7 @@ export interface FeedPost {
   mediaUrl: string | null;
   linkUrl: string | null;
   createdAt: number;
+  fx?: PostFx | null;
   projectId: string;
   projectName: string;
   projectKind: ProjectKind;
@@ -389,7 +392,7 @@ export interface FeedPost {
 
 export interface ProjectInput { name: string; kind: ProjectKind; tagline?: string | null; accent?: string | null; coverUrl?: string | null }
 export type PostAudience = "public" | "followers";
-export interface PostInput { projectId: string; kind: PostKind; title?: string | null; body?: string | null; mediaUrl?: string | null; linkUrl?: string | null; audience?: PostAudience; scheduledAt?: string | null }
+export interface PostInput { projectId: string; kind: PostKind; title?: string | null; body?: string | null; mediaUrl?: string | null; linkUrl?: string | null; audience?: PostAudience; scheduledAt?: string | null; fx?: PostFx }
 export interface LinkInput { projectId: string; label: string; url?: string | null; thumbUrl?: string | null; targetProjectId?: string | null }
 
 // ── Admin console ────────────────────────────────────────────────────────────

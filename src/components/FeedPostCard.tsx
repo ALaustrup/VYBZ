@@ -31,7 +31,7 @@ export function FeedPostCard({ post, onLike }: { post: FeedPost; onLike: (on: bo
 
       <div className="flex items-start gap-3">
         {isAudio && (
-          <button onClick={() => playTrack({ id: post.id, url: src, title: post.title || post.projectName, artist: post.authorUsername || "VYBZ" })}
+          <button onClick={() => playTrack({ id: post.id, url: src, title: post.title || post.projectName, artist: post.authorUsername || "VYBZ", accent, fx: post.fx ?? "glow" })}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white active:scale-95" style={{ background: accent }}>
             {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           </button>

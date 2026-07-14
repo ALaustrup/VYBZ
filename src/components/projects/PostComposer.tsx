@@ -5,9 +5,17 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { isHubKind } from "@/components/projects/ProjectView";
-import type { PostAudience, PostKind, ProfileProject } from "@/types";
+import type { PostAudience, PostFx, PostKind, ProfileProject } from "@/types";
 
 const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none";
+const FX_OPTIONS: { id: PostFx; label: string }[] = [
+  { id: "glow", label: "Glow" },
+  { id: "aurora", label: "Aurora" },
+  { id: "pulse", label: "Pulse" },
+  { id: "bars", label: "Bars" },
+  { id: "ripple", label: "Ripple" },
+  { id: "off", label: "Off" },
+];
 const MAX_WORDS = 250;
 const wordCount = (s: string) => (s.trim() ? s.trim().split(/\s+/).length : 0);
 const acceptFor = (k: PostKind) => k === "audio" ? "audio/*" : k === "image" ? "image/*" : k === "video" ? "video/*" : "*/*";
@@ -29,7 +37,7 @@ export function PostComposer({ project, onClose, onPosted }: { project: ProfileP
   const [audience, setAudience] = useState<PostAudience>("public");
   const [schedule, setSchedule] = useState(false);
   const [when, setWhen] = useState("");
-  const [fx, setFx] = useState(true);
+  const [fx, setFx] = useState<PostFx>("glow");
   const [busy, setBusy] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const hub = isHubKind(project.kind);
@@ -67,6 +75,7 @@ export function PostComposer({ project, onClose, onPosted }: { project: ProfileP
         linkUrl: kind === "link" ? (mediaUrl.trim() || null) : null,
         audience,
         scheduledAt: schedule && when ? new Date(when).toISOString() : null,
+        fx: (kind === "audio" || kind === "video") ? fx : "off",
       });
       showToast(schedule && when ? "Scheduled ✦" : "Posted ✦");
       onPosted(); onClose();
@@ -153,12 +162,21 @@ export function PostComposer({ project, onClose, onPosted }: { project: ProfileP
               {schedule && <input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} className={cx(inputCls, "mt-2")} />}
             </div>
 
-            {/* Audio-reactive effect */}
-            <button onClick={() => setFx((v) => !v)} className="flex w-full items-center gap-2.5 rounded-xl border border-white/8 bg-white/[0.02] px-3.5 py-2.5 text-left">
-              <Zap className={cx("h-4 w-4", fx ? "text-veil-200" : "text-white/40")} />
-              <span className="min-w-0 flex-1"><span className="block text-sm font-medium text-white/85">Audio-reactive glow</span><span className="block text-[11px] text-white/40">Your project accent pulses platform-wide on playback</span></span>
-              <span className={cx("relative h-5 w-9 rounded-full transition", fx ? "bg-veil-500" : "bg-white/15")}><span className={cx("absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all", fx ? "left-[18px]" : "left-0.5")} /></span>
-            </button>
+            {/* Per-post audio-reactive effect (audio/video only) */}
+            {(kind === "audio" || kind === "video") && (
+              <div>
+                <p className="mb-1.5 flex items-center gap-1.5 text-[12px] font-semibold text-white/60"><Zap className="h-3.5 w-3.5 text-veil-200" /> Audio-reactive effect</p>
+                <p className="mb-2 text-[11px] text-white/40">When someone plays this, the whole app reacts with your chosen effect.</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {FX_OPTIONS.map((o) => (
+                    <button key={o.id} onClick={() => setFx(o.id)}
+                      className={cx("rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95", fx === o.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90")}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-white/8 px-5 py-4">

@@ -1,16 +1,14 @@
 import { useEffect, useRef } from "react";
-import { usePlayer, readBands } from "@/lib/audioBus";
+import { usePlayer, readBands, readFrequencies, frequencyBinCount } from "@/lib/audioBus";
 import { paletteFor } from "@/lib/utils";
 import { useReduceFx } from "@/lib/display";
 
 /**
- * Platform-wide audio-reactive border (Phase E — the visual hook). A full-viewport,
- * click-through overlay that frames the whole app in a soft edge glow which breathes
- * with the currently-playing track: thickness/brightness track overall energy, a
- * transient "pop" fires on beats, and the colour comes from the track's seeded
- * palette. Completely dormant (no canvas work, invisible) when nothing is playing;
- * fades out on pause; respects reduced-motion. Only the edges paint, so the centre
- * stays clear and interaction is never blocked.
+ * Platform-wide audio-reactive frame. A full-viewport, click-through overlay that
+ * frames the app and reacts to whatever is playing — using the POSTER'S chosen
+ * effect (`track.fx`): glow / aurora / pulse / bars / ripple (or off). Colour comes
+ * from the post/track accent + seeded palette. Fully transparent when idle; fades
+ * on pause; honours reduced-motion. Only the edges paint, so interaction is free.
  */
 export function ReactiveFrame() {
   const { track, playing } = usePlayer();
@@ -18,6 +16,7 @@ export function ReactiveFrame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const seed = track?.seed ?? 1;
   const accent = track?.accent ?? "#a87cf8";
+  const fx = track?.fx ?? "glow";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,6 +24,7 @@ export function ReactiveFrame() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const [c0, c1, c2] = paletteFor(seed);
+    const pal = [accent, c0, c1, c2];
 
     let w = 0, h = 0, dpr = 1;
     const resize = () => {
@@ -36,100 +36,109 @@ export function ReactiveFrame() {
     resize();
     window.addEventListener("resize", resize);
 
-    let raf = 0;
-    let ema = 0;          // running average level → beat detection
-    let intensity = 0;    // eased master intensity (fades in/out)
-    let pop = 0;          // transient flash
-    let t = 0;
+    let raf = 0, ema = 0, intensity = 0, pop = 0, t = 0;
+    let ripples: { r: number; a: number }[] = [];
+    const freq = new Uint8Array(frequencyBinCount());
 
-    const glowEdge = (side: "top" | "bottom" | "left" | "right", color: string, alpha: number, depth: number) => {
+    const edge = (side: "top" | "bottom" | "left" | "right", color: string, alpha: number, depth: number) => {
       let g: CanvasGradient;
       if (side === "top") g = ctx.createLinearGradient(0, 0, 0, depth);
       else if (side === "bottom") g = ctx.createLinearGradient(0, h, 0, h - depth);
       else if (side === "left") g = ctx.createLinearGradient(0, 0, depth, 0);
       else g = ctx.createLinearGradient(w, 0, w - depth, 0);
-      g.addColorStop(0, hexA(color, alpha));
-      g.addColorStop(1, hexA(color, 0));
+      g.addColorStop(0, hexA(color, alpha)); g.addColorStop(1, hexA(color, 0));
       ctx.fillStyle = g;
       if (side === "top") ctx.fillRect(0, 0, w, depth);
       else if (side === "bottom") ctx.fillRect(0, h - depth, w, depth);
       else if (side === "left") ctx.fillRect(0, 0, depth, h);
       else ctx.fillRect(w - depth, 0, depth, h);
     };
-
-    const cornerBloom = (x: number, y: number, r: number, color: string, alpha: number) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, hexA(color, alpha));
-      g.addColorStop(1, hexA(color, 0));
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    const bloom = (x: number, y: number, r: number, color: string, alpha: number) => {
+      const g = ctx.createRadialGradient(x, y, 0, x, y, Math.max(1, r));
+      g.addColorStop(0, hexA(color, alpha)); g.addColorStop(1, hexA(color, 0));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, Math.max(1, r), 0, Math.PI * 2); ctx.fill();
     };
 
-    const draw = (targetIntensity: number) => {
-      // Smooth fade in/out; fully transparent (nothing painted) unless audio plays.
-      intensity += (targetIntensity - intensity) * 0.06;
+    const draw = (target: number) => {
+      intensity += (target - intensity) * 0.06;
       ctx.clearRect(0, 0, w, h);
-      if (intensity < 0.01) return;
-
-      const { bass, mid, high, level } = playing ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
-      // Gentle beat/transient detection on the low end.
-      ema += (bass - ema) * 0.12;
-      const hit = Math.max(0, bass - ema * 1.2);
-      pop = Math.max(pop * 0.92, hit * 1.4);
+      if (intensity < 0.01 || fx === "off") return;
+      const b = playing ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
+      ema += (b.bass - ema) * 0.12;
+      pop = Math.max(pop * 0.92, Math.max(0, b.bass - ema * 1.2) * 1.5);
       t += 0.016;
-
-      const energy = Math.min(1, level * 0.9 + pop * 0.4);
-      const breathe = reduce ? 0.3 : 0.5 + 0.5 * Math.sin(t * 0.8);
-      // Subtle: near-invisible at rest during playback, swelling gently with energy.
-      // A soft colourful glow, not a bright rim — a visual additive, not a grabber.
-      const master = intensity * (0.22 + energy * 0.8 + breathe * 0.12);
-
+      const energy = Math.min(1, b.level * 0.9 + pop * 0.4);
+      const master = intensity * (0.3 + energy * 0.9);
       const minSide = Math.min(w, h);
-      const depth = minSide * (0.08 + energy * 0.13 + pop * 0.04);
-
-      // Phase-shifted per-edge wobble → colours flow around the frame for a
-      // dynamic, living feel (each edge keeps a distinct palette colour).
-      const wob = (ph: number) => 0.72 + 0.28 * Math.sin(t * 0.7 + ph);
-
       ctx.globalCompositeOperation = "lighter";
-      glowEdge("top", c0, 0.15 * master * wob(0), depth);
-      glowEdge("bottom", accent, (0.18 * master + 0.09 * pop) * wob(1.6), depth * (1 + bass * 0.4));
-      glowEdge("left", c1, (0.15 * master + high * 0.09) * wob(3.1), depth * (0.9 + mid * 0.4));
-      glowEdge("right", c2, (0.15 * master + high * 0.09) * wob(4.5), depth * (0.9 + mid * 0.4));
-      // Corner blooms in rotating palette colours for gentle colour movement.
-      const cr = minSide * (0.2 + energy * 0.16);
-      cornerBloom(0, 0, cr, c1, 0.13 * master * wob(0.8));
-      cornerBloom(w, 0, cr, c2, 0.13 * master * wob(2.3));
-      cornerBloom(0, h, cr, accent, 0.15 * master * wob(3.8));
-      cornerBloom(w, h, cr, c0, 0.15 * master * wob(5.2));
-      // Whisper-thin rim only — just enough to define the edge, never grabby.
-      ctx.globalCompositeOperation = "source-over";
-      const rimW = 1.5 + energy * 2 + pop * 2.5;
-      ctx.lineWidth = rimW;
-      ctx.strokeStyle = hexA(accent, Math.min(0.35, 0.1 * master + 0.12 * pop));
-      ctx.strokeRect(rimW / 2, rimW / 2, Math.max(0, w - rimW), Math.max(0, h - rimW));
+
+      if (fx === "aurora") {
+        // Drifting colour bands hugging the top & bottom — flowing, alive.
+        for (let i = 0; i < 4; i++) {
+          const cx = w * (0.2 + 0.2 * i) + Math.sin(t * 0.5 + i) * w * 0.15;
+          const r = minSide * (0.28 + energy * 0.2) * (0.8 + 0.2 * Math.sin(t + i));
+          bloom(cx, -r * 0.2, r, pal[i % 4], (0.16 + energy * 0.14) * master);
+          bloom(w - cx, h + r * 0.2, r, pal[(i + 2) % 4], (0.16 + energy * 0.14) * master);
+        }
+      } else if (fx === "pulse") {
+        // Radial pulses that swell hard on the beat, from corners + edge mids.
+        const cr = minSide * (0.22 + energy * 0.25 + pop * 0.3);
+        const pts: [number, number][] = [[0, 0], [w, 0], [0, h], [w, h], [w / 2, 0], [w / 2, h]];
+        pts.forEach((p, i) => bloom(p[0], p[1], cr * (0.7 + 0.3 * Math.sin(t * 2 + i)), pal[i % 4], (0.2 + pop * 0.5) * master));
+      } else if (fx === "bars") {
+        // Edge spectrum: frequency bars marching along the bottom (mirrored top).
+        readFrequencies(freq);
+        const n = Math.min(48, freq.length);
+        const bw = w / n;
+        for (let i = 0; i < n; i++) {
+          const v = (freq[Math.floor(i * (freq.length / n))] / 255) || 0;
+          const bh = v * minSide * 0.22 * (0.5 + master);
+          const col = pal[i % 4];
+          const gb = ctx.createLinearGradient(0, h, 0, h - bh);
+          gb.addColorStop(0, hexA(col, 0.5 * master + 0.2 * v)); gb.addColorStop(1, hexA(col, 0));
+          ctx.fillStyle = gb; ctx.fillRect(i * bw, h - bh, bw + 1, bh);
+          const gt = ctx.createLinearGradient(0, 0, 0, bh);
+          gt.addColorStop(0, hexA(pal[(i + 2) % 4], 0.4 * master + 0.15 * v)); gt.addColorStop(1, hexA(pal[(i + 2) % 4], 0));
+          ctx.fillStyle = gt; ctx.fillRect(w - (i + 1) * bw, 0, bw + 1, bh);
+        }
+      } else if (fx === "ripple") {
+        // Concentric rings spawned on beats, expanding from centre.
+        if (pop > 0.12 && (ripples.length === 0 || ripples[ripples.length - 1].r > minSide * 0.12)) ripples.push({ r: 0, a: 1 });
+        ripples = ripples.filter((rp) => rp.a > 0.02);
+        ctx.globalCompositeOperation = "lighter";
+        ripples.forEach((rp, i) => {
+          rp.r += minSide * 0.012; rp.a *= 0.972;
+          ctx.beginPath(); ctx.arc(w / 2, h / 2, rp.r, 0, Math.PI * 2);
+          ctx.strokeStyle = hexA(pal[i % 4], rp.a * 0.5 * master); ctx.lineWidth = 2 + energy * 3; ctx.stroke();
+        });
+        // soft base glow so it's never empty
+        edge("top", accent, 0.06 * master, minSide * 0.06);
+        edge("bottom", accent, 0.06 * master, minSide * 0.06);
+      } else {
+        // "glow" (default): subtle, colourful, phase-shifted edge glow.
+        const wob = (ph: number) => 0.72 + 0.28 * Math.sin(t * 0.7 + ph);
+        const depth = minSide * (0.08 + energy * 0.13 + pop * 0.04);
+        edge("top", c0, 0.15 * master * wob(0), depth);
+        edge("bottom", accent, (0.18 * master + 0.09 * pop) * wob(1.6), depth * (1 + b.bass * 0.4));
+        edge("left", c1, (0.15 * master + b.high * 0.09) * wob(3.1), depth * (0.9 + b.mid * 0.4));
+        edge("right", c2, (0.15 * master + b.high * 0.09) * wob(4.5), depth * (0.9 + b.mid * 0.4));
+        const cr = minSide * (0.2 + energy * 0.16);
+        bloom(0, 0, cr, c1, 0.13 * master * wob(0.8));
+        bloom(w, h, cr, accent, 0.15 * master * wob(5.2));
+      }
     };
 
     const tick = () => {
-      const target = playing ? 1 : 0;
-      draw(target);
-      // Keep the loop alive while playing, or briefly to ease out on pause; then rest.
+      draw(playing ? 1 : 0);
       if (playing || intensity > 0.02) raf = requestAnimationFrame(tick);
     };
-
-    if (reduce) draw(playing ? 1 : 0); // one static frame, no loop
+    if (reduce) draw(playing ? 1 : 0);
     else raf = requestAnimationFrame(tick);
 
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
-  }, [playing, seed, accent, reduce]);
+  }, [playing, seed, accent, fx, reduce]);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-[60] h-full w-full"
-    />
-  );
+  return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-[60] h-full w-full" />;
 }
 
 function hexA(hex: string, a: number): string {

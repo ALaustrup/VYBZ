@@ -36,6 +36,8 @@ export interface PlayerTrack {
   seed?: number;
   /** Curated accent hex for the player chrome. */
   accent?: string;
+  /** Poster-chosen audio-reactive effect id (drives the platform-wide frame). */
+  fx?: string;
 }
 
 export interface PlayerSnapshot {

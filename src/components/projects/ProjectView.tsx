@@ -108,7 +108,7 @@ function PostCard({ post, accent, projectName, editable, onLike, onDelete }: {
     <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-3.5">
       <div className="flex items-start gap-3">
         {isAudio && (
-          <button onClick={() => playTrack({ id: post.id, url: src, title: post.title || "Untitled", artist: projectName })}
+          <button onClick={() => playTrack({ id: post.id, url: src, title: post.title || "Untitled", artist: projectName, accent, fx: post.fx ?? "glow" })}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white active:scale-95" style={{ background: accent }}>
             {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
           </button>
