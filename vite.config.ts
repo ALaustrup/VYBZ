@@ -75,15 +75,15 @@ export default defineConfig({
         name: "VYBZ — Find Yours.",
         short_name: "VYBZ",
         description:
-          "Find Yours. Match with complementary music creators and exchange samples, stems, and project files.",
+          "The creative network — showcase your projects, get matched with collaborators and opportunities, and find your people. Find Yours.",
         id: "/",
         start_url: "/",
         scope: "/",
         display: "standalone",
         orientation: "portrait",
-        background_color: "#191c22",
-        theme_color: "#191c22",
-        categories: ["music", "social"],
+        background_color: "#0a0c12",
+        theme_color: "#0a0c12",
+        categories: ["social", "productivity", "music", "photo"],
         icons: [
           {
             src: "/icons/icon-192.png",
