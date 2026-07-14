@@ -14,10 +14,19 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
+// Public zone — post media (avatars, images, public audio/video). Served openly.
 const SZONE = Deno.env.get("BUNNY_STORAGE_ZONE") ?? "";
 const SPASS = Deno.env.get("BUNNY_STORAGE_PASSWORD") ?? "";
 const SHOST = Deno.env.get("BUNNY_STORAGE_HOST") ?? "storage.bunnycdn.com";
 const CDN = Deno.env.get("BUNNY_CDN_HOST") ?? "";
+
+// Secure zone — protected drop originals (§8 exchange). Isolated storage behind a
+// token-authenticated pull zone: objects are NOT publicly reachable, and previews
+// require a short-lived signed token (minted by the `bunny-sign` function). The
+// raw original is only ever fetched server-side (watermark/download) via AccessKey.
+const SEC_ZONE = Deno.env.get("BUNNY_SECURE_STORAGE_ZONE") ?? "";
+const SEC_PASS = Deno.env.get("BUNNY_SECURE_STORAGE_PASSWORD") ?? "";
+const SEC_HOST = Deno.env.get("BUNNY_SECURE_STORAGE_HOST") ?? "storage.bunnycdn.com";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -45,14 +54,30 @@ Deno.serve(async (req: Request) => {
 
   const url = new URL(req.url);
   const name = url.searchParams.get("name") ?? "file";
+  const kind = url.searchParams.get("kind") ?? "post";
   const ct = req.headers.get("content-type") ?? "application/octet-stream";
   const ext = sanitizeExt(name);
-  const path = `${uid}/posts/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
   const bytes = new Uint8Array(await req.arrayBuffer());
   if (bytes.byteLength === 0) return json({ error: "empty" }, 400);
   if (bytes.byteLength > 200 * 1024 * 1024) return json({ error: "too large (200MB max)" }, 413);
 
+  // Protected drop/project original → isolated, token-authed secure zone. Returns
+  // ONLY the storage path (no public URL); previews are signed on demand.
+  if (kind === "drop" || kind === "project") {
+    if (!SEC_ZONE || !SEC_PASS) return json({ error: "secure bunny not configured" }, 500);
+    const path = `${kind}s/${uid}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+    const put = await fetch(`https://${SEC_HOST}/${SEC_ZONE}/${path}`, {
+      method: "PUT",
+      headers: { AccessKey: SEC_PASS, "Content-Type": ct },
+      body: bytes,
+    });
+    if (!put.ok) return json({ error: `bunny ${put.status}` }, 502);
+    return json({ path });
+  }
+
+  // Public post media → open pull zone, returns the CDN URL.
+  const path = `${uid}/posts/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
   const put = await fetch(`https://${SHOST}/${SZONE}/${path}`, {
     method: "PUT",
     headers: { AccessKey: SPASS, "Content-Type": ct },
