@@ -1,4 +1,20 @@
+# VYBZ — Find Yours.  (Astra Matrix, Inc.)
+# Public, indexable surfaces: landing, Codex library, and legal policies.
+# Authenticated app routes are excluded to focus crawl budget on public content.
+
 User-agent: *
 Allow: /
+Disallow: /activity
+Disallow: /connect
+Disallow: /spark
+Disallow: /discover
+Disallow: /opportunities
+Disallow: /projects
+Disallow: /messages
+Disallow: /rooms
+Disallow: /profile
+Disallow: /admin
+Disallow: /u/
+Disallow: /p/
 
-Sitemap: https://myvyb.astramatrix.xyz/sitemap.xml
+Sitemap: https://vybz.cloud/sitemap.xml
