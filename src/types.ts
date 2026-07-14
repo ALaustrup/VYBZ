@@ -369,6 +369,24 @@ export interface ProfileProjectDetail {
   links: ProjectLink[];
 }
 
+export interface FeedPost {
+  id: string;
+  kind: PostKind;
+  title: string | null;
+  body: string | null;
+  mediaUrl: string | null;
+  linkUrl: string | null;
+  createdAt: number;
+  projectId: string;
+  projectName: string;
+  projectKind: ProjectKind;
+  accent: string | null;
+  authorId: string;
+  authorUsername: string | null;
+  likes: number;
+  liked: boolean;
+}
+
 export interface ProjectInput { name: string; kind: ProjectKind; tagline?: string | null; accent?: string | null; coverUrl?: string | null }
 export interface PostInput { projectId: string; kind: PostKind; title?: string | null; body?: string | null; mediaUrl?: string | null; linkUrl?: string | null }
 export interface LinkInput { projectId: string; label: string; url?: string | null; thumbUrl?: string | null; targetProjectId?: string | null }

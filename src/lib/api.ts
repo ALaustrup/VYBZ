@@ -12,7 +12,7 @@ import type {
   DisciplineModule, DisciplineCategory, DisciplineSchema, ModuleInput,
   DisciplineOption, SeekingIntent, PortfolioItem,
   AdminMember, PendingDiscipline, BugReport, BugStatus, MatchWeights,
-  ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput,
+  ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput, FeedPost,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -311,6 +311,13 @@ export async function followProject(id: string, on: boolean): Promise<void> {
 export async function likePost(id: string, on: boolean): Promise<void> {
   const { error } = await db().rpc("like_post", { p_id: id, p_on: on });
   if (error) throw error;
+}
+
+/** Unified project-post feed. scope: all | following | music | art | video | writing. */
+export async function feedPosts(scope = "all", limit = 40): Promise<FeedPost[]> {
+  const { data, error } = await db().rpc("feed_posts", { p_scope: scope, p_limit: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((p) => ({ ...p, createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now() })) as FeedPost[];
 }
 
 // ── Admin console ────────────────────────────────────────────────────────────
