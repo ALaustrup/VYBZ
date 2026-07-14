@@ -6,7 +6,8 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { ProjectView, PROJECT_KINDS, isHubKind } from "@/components/projects/ProjectView";
-import type { PostKind, ProfileProject, ProfileProjectDetail, ProjectKind, ProjectLink, ProjectPost } from "@/types";
+import { PostComposer } from "@/components/projects/PostComposer";
+import type { ProfileProject, ProfileProjectDetail, ProjectKind, ProjectLink, ProjectPost } from "@/types";
 
 const ACCENTS = ["#a87cf8", "#00e0a4", "#00a1ff", "#ff5c8a", "#ffb020", "#7c5cff", "#20d0e0", "#ff7043"];
 const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none";
@@ -113,6 +114,10 @@ export function ProjectsPanel({ userId, editable }: { userId: string; editable: 
 
       <ProjectModals modal={modal} setModal={setModal} projects={projects} activeProjectId={activeId}
         onCreatedProject={async (id) => { await loadProjects(); setActiveId(id); }} onChanged={() => { if (activeId) void loadDetail(activeId); }} />
+
+      {modal === "post" && active && (
+        <PostComposer project={active} onClose={() => setModal(null)} onPosted={() => { if (activeId) void loadDetail(activeId); }} />
+      )}
     </div>
   );
 }
@@ -127,19 +132,12 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
   onChanged: () => void | Promise<void>;
 }) {
   const { showToast } = useSession();
-  const activeProject = projects.find((p) => p.id === activeProjectId) ?? null;
-  const activeIsHub = activeProject ? isHubKind(activeProject.kind) : false;
 
   // Add project
   const [name, setName] = useState("");
   const [kind, setKind] = useState<ProjectKind>("music");
   const [tagline, setTagline] = useState("");
   const [accent, setAccent] = useState(ACCENTS[0]);
-  // Add post
-  const [pKind, setPKind] = useState<PostKind>("text");
-  const [pTitle, setPTitle] = useState("");
-  const [pBody, setPBody] = useState("");
-  const [pUrl, setPUrl] = useState("");
   // Add link
   const [lLabel, setLLabel] = useState("");
   const [lMode, setLMode] = useState<"external" | "page">("external");
@@ -149,9 +147,8 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
 
   useEffect(() => {
     if (modal === "project") { setName(""); setKind("music"); setTagline(""); setAccent(ACCENTS[0]); }
-    if (modal === "post") { setPKind(activeProject?.kind === "music" ? "audio" : activeProject?.kind === "art" ? "image" : "text"); setPTitle(""); setPBody(""); setPUrl(""); }
     if (modal === "link") { setLLabel(""); setLMode("external"); setLUrl(""); setLTarget(""); }
-  }, [modal, activeProject?.kind]);
+  }, [modal]);
 
   async function submit() {
     if (busy) return;
@@ -161,11 +158,6 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
         if (name.trim().length < 1) return;
         const id = await api.createProfileProject({ name: name.trim(), kind, tagline: tagline.trim() || null, accent });
         showToast(`Created “${name.trim()}”`); await onCreatedProject(id);
-      } else if (modal === "post" && activeProjectId) {
-        await api.createPost({ projectId: activeProjectId, kind: pKind, title: pTitle.trim() || null, body: pBody.trim() || null,
-          mediaUrl: (pKind === "audio" || pKind === "image" || pKind === "video") ? (pUrl.trim() || null) : null,
-          linkUrl: pKind === "link" ? (pUrl.trim() || null) : null });
-        showToast("Posted"); await onChanged();
       } else if (modal === "link" && activeProjectId) {
         if (lLabel.trim().length < 1) return;
         await api.addProjectLink({ projectId: activeProjectId, label: lLabel.trim(),
@@ -180,7 +172,7 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
 
   return (
     <AnimatePresence>
-      {modal && (
+      {(modal === "project" || modal === "link") && (
         <motion.div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <div className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm" onClick={() => setModal(null)} />
           <motion.div initial={{ y: 24, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 24, opacity: 0, scale: 0.98 }}
@@ -188,7 +180,7 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
             className="glass-panel relative z-10 w-full max-w-md rounded-t-3xl p-5 sm:rounded-3xl">
             <div className="mb-3 flex items-center gap-2">
               <h2 className="flex-1 font-display text-lg font-bold text-white">
-                {modal === "project" ? "New project" : modal === "post" ? "New post" : "Add link"}
+                {modal === "project" ? "New project" : "Add link"}
               </h2>
               <button onClick={() => setModal(null)} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
             </div>
@@ -221,24 +213,6 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
               </div>
             )}
 
-            {modal === "post" && (
-              <div className="space-y-3">
-                {!activeIsHub && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {(["text", "audio", "image", "video", "link"] as PostKind[]).map((k) => (
-                      <button key={k} onClick={() => setPKind(k)} className={cx("rounded-full px-3 py-1.5 text-[12px] font-medium capitalize transition active:scale-95", pKind === k ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90")}>{k}</button>
-                    ))}
-                  </div>
-                )}
-                <input value={pTitle} onChange={(e) => setPTitle(e.target.value.slice(0, 120))} placeholder="Title (optional)" className={inputCls} />
-                <textarea value={pBody} onChange={(e) => setPBody(e.target.value.slice(0, 2000))} rows={3} placeholder="Say something…" className={cx(inputCls, "resize-none")} />
-                {pKind !== "text" && (
-                  <input value={pUrl} onChange={(e) => setPUrl(e.target.value)} className={inputCls}
-                    placeholder={pKind === "audio" ? "Audio URL (mp3/wav/stream)" : pKind === "image" ? "Image URL" : pKind === "video" ? "Video URL" : "Link URL"} />
-                )}
-              </div>
-            )}
-
             {modal === "link" && (
               <div className="space-y-3">
                 <input value={lLabel} onChange={(e) => setLLabel(e.target.value.slice(0, 60))} placeholder="Label (e.g. Main Channel)" className={inputCls} autoFocus />
@@ -261,7 +235,7 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
             )}
 
             <button onClick={submit} disabled={busy} className="btn btn-primary mt-4 h-11 w-full py-0 text-sm disabled:opacity-50">
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modal === "project" ? "Create project" : modal === "post" ? "Post" : "Add link"}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modal === "project" ? "Create project" : "Add link"}
             </button>
           </motion.div>
         </motion.div>

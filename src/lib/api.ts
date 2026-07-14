@@ -276,9 +276,31 @@ export async function createPost(input: PostInput): Promise<string> {
     project_id: input.projectId, user_id: uid, kind: input.kind,
     title: input.title ?? null, body: input.body ?? null,
     media_url: input.mediaUrl ?? null, link_url: input.linkUrl ?? null,
+    audience: input.audience ?? "public", scheduled_at: input.scheduledAt ?? null,
   }).select("id").single();
   if (error) throw error;
   return (data as { id: string }).id;
+}
+
+/** Upload post media (image/audio) to the public bucket with real progress. */
+export async function uploadPostMedia(file: File, onProgress?: (pct: number) => void): Promise<string> {
+  const sess = (await db().auth.getSession()).data.session;
+  if (!sess) throw new Error("Not signed in");
+  const ext = (file.name.split(".").pop() || "bin").toLowerCase();
+  const path = `posts/${sess.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const endpoint = `${SUPABASE_URL}/storage/v1/object/${AVATAR_BUCKET}/${path}`;
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", endpoint);
+    xhr.setRequestHeader("authorization", `Bearer ${sess.access_token}`);
+    xhr.setRequestHeader("x-upsert", "true");
+    if (file.type) xhr.setRequestHeader("content-type", file.type);
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100)); };
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`Upload failed (${xhr.status})`));
+    xhr.onerror = () => reject(new Error("Upload network error"));
+    xhr.send(file);
+  });
+  return db().storage.from(AVATAR_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
 export async function deletePost(id: string): Promise<void> {
