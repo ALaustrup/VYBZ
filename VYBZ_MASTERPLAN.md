@@ -522,6 +522,23 @@ demotion revokes access immediately (verified).
 - Scope guardrails: moderators can triage/act on content but **cannot** see the member
   roster, appoint staff, or permanently ban — those stay admin-only (ban power via escalate).
 
+### 12.6 Cosmetic store (Lane B) ✅ (shipped 2026-07) + desktop width
+Purely-aesthetic store — **nothing functional is ever gated**. Items are unlocked with
+**credits** (`mod_points` earned by moderating; Stripe top-ups arrive with Lane A).
+- **Catalog** (`cosmetics`) + ownership (`user_cosmetics`) + `profiles.equipped_cosmetics`;
+  RPCs `list_cosmetics` / `purchase_cosmetic` / `equip_cosmetic` / `unequip_cosmetic`
+  (server enforces price vs. balance). `public_profile` now returns equipped cosmetics.
+- **accent** = a two-stop gradient on the creator's avatar + name; **flair** = a small
+  badge by the username. Applied on own + others' profiles (`lib/cosmetics` + `Flair`).
+- **`/store`** page: buy / equip / unequip, credit balance, live previews.
+- This closes the loop with the moderator rewards: mod work → credits → cosmetics.
+- **Next (Lane A):** Stripe Connect (tips + exchange fee) and card top-ups for credits —
+  awaiting Stripe keys.
+
+**Desktop layout:** the main content shell was widened from `max-w-2xl` (672px) to
+`max-w-5xl` / `xl:max-w-6xl`, and the feed grid now spans full width (2-col → 3-col on
+xl) so wide monitors are properly used instead of a narrow centered column.
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/

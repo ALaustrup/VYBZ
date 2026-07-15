@@ -34,10 +34,10 @@ insert into public.cosmetics (id, name, category, price, data, sort) values
   ('accent_ocean',  'Ocean',         'accent',  8, '{"c0":"#4cc9f0","c1":"#4361ee"}', 3),
   ('accent_gold',   'Midnight Gold', 'accent', 12, '{"c0":"#f9d976","c1":"#c9a227"}', 4),
   ('accent_mono',   'Mono',          'accent',  5, '{"c0":"#e5e7eb","c1":"#9ca3af"}', 5),
-  ('flair_founding','Founding Creator','flair',15, '{"label":"Founding Creator","icon":"◆","color":"#a87cf8"}', 10),
-  ('flair_curator', 'Curator',       'flair',  10, '{"label":"Curator","icon":"✦","color":"#7cf5d8"}', 11),
-  ('flair_nightowl','Night Owl',     'flair',   8, '{"label":"Night Owl","icon":"☾","color":"#4cc9f0"}', 12),
-  ('flair_guardian','Guardian',      'flair',  20, '{"label":"Guardian","icon":"❖","color":"#ff8a5b"}', 13)
+  ('flair_founding','Founding Creator','flair',15, '{"label":"Founding Creator","icon":"💠","color":"#a87cf8"}', 10),
+  ('flair_curator', 'Curator',       'flair',  10, '{"label":"Curator","icon":"✨","color":"#7cf5d8"}', 11),
+  ('flair_nightowl','Night Owl',     'flair',   8, '{"label":"Night Owl","icon":"🌙","color":"#4cc9f0"}', 12),
+  ('flair_guardian','Guardian',      'flair',  20, '{"label":"Guardian","icon":"🛡️","color":"#ff8a5b"}', 13)
 on conflict (id) do update
   set name = excluded.name, category = excluded.category, price = excluded.price, data = excluded.data, sort = excluded.sort;
 
