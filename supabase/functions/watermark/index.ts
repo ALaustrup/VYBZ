@@ -10,6 +10,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // deno-lint-ignore-file
 import { deriveKey, embedChannel, parseWav, encodeWav } from "../_shared/watermark.mjs";
+import { signBunnyUrl, isSecureBunnyPath } from "../_shared/bunnyToken.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
@@ -20,6 +21,26 @@ const WM_SECRET = Deno.env.get("WM_SECRET") ?? "";
 const C2PA_WORKER_URL = Deno.env.get("C2PA_WORKER_URL") ?? "";
 const C2PA_WORKER_TOKEN = Deno.env.get("C2PA_WORKER_TOKEN") ?? "";
 const BUCKET = "audio-assets";
+// Secure Bunny zone for migrated drop originals (§8). Raw bytes fetched server-side
+// via AccessKey; non-WAV fallback delivery uses a short-lived token-signed URL.
+const SEC_ZONE = Deno.env.get("BUNNY_SECURE_STORAGE_ZONE") ?? "";
+const SEC_PASS = Deno.env.get("BUNNY_SECURE_STORAGE_PASSWORD") ?? "";
+const SEC_HOST = Deno.env.get("BUNNY_SECURE_STORAGE_HOST") ?? "storage.bunnycdn.com";
+const SEC_CDN = Deno.env.get("BUNNY_SECURE_CDN_HOST") ?? "";
+const SEC_TOKEN_KEY = Deno.env.get("BUNNY_SECURE_TOKEN_KEY") ?? "";
+
+/** Fetch the raw original — from the secure Bunny zone (migrated) or Supabase (legacy). */
+async function fetchOriginal(path: string): Promise<Uint8Array | null> {
+  if (isSecureBunnyPath(path)) {
+    if (!SEC_ZONE || !SEC_PASS) return null;
+    const r = await fetch(`https://${SEC_HOST}/${SEC_ZONE}/${path}`, { headers: { AccessKey: SEC_PASS } });
+    if (!r.ok) return null;
+    return new Uint8Array(await r.arrayBuffer());
+  }
+  const { data: blob, error } = await admin.storage.from(BUCKET).download(path);
+  if (error || !blob) return null;
+  return new Uint8Array(await blob.arrayBuffer());
+}
 
 /** UTF-8-safe base64 (btoa is Latin1-only). */
 function b64(s: string): string {
@@ -62,17 +83,22 @@ Deno.serve(async (req: Request) => {
 
   await admin.from("asset_downloads").upsert({ asset_id: assetId, user_id: uid, license: asset.license });
 
-  // Fetch the original.
-  const { data: blob, error: dlErr } = await admin.storage.from(BUCKET).download(asset.url);
-  if (dlErr || !blob) return json({ error: "fetch failed" }, 500);
-  const bytes = new Uint8Array(await blob.arrayBuffer());
+  // Fetch the original (secure Bunny zone for migrated drops, Supabase for legacy).
+  const bytes = await fetchOriginal(asset.url);
+  if (!bytes) return json({ error: "fetch failed" }, 500);
 
   const wav = parseWav(bytes);
   if (!wav) {
-    // Non-WAV: gate + log a plain download, hand back a signed URL.
+    // Non-WAV: gate + log a plain download, hand back a short-lived signed URL.
     await admin.rpc("ledger_append", { p_event: "download", p_asset: assetId, p_actor: uid, p_payload: { license: asset.license } });
-    const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(asset.url, 60 * 60 * 2, { download: true });
-    return json({ watermarked: false, url: signed?.signedUrl ?? null });
+    let url: string | null = null;
+    if (isSecureBunnyPath(asset.url) && SEC_CDN && SEC_TOKEN_KEY) {
+      url = await signBunnyUrl(SEC_CDN, SEC_TOKEN_KEY, asset.url, 60 * 60 * 2);
+    } else {
+      const { data: signed } = await admin.storage.from(BUCKET).createSignedUrl(asset.url, 60 * 60 * 2, { download: true });
+      url = signed?.signedUrl ?? null;
+    }
+    return json({ watermarked: false, url });
   }
 
   const wmId = crypto.randomUUID();

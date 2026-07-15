@@ -538,21 +538,63 @@ async function usernamesFor(ids: string[]): Promise<Map<string, string>> {
 }
 
 // ── Assets + upload ──────────────────────────────────────────────────────────
+/** Secure-zone (token-authed Bunny) paths look like `drops/…` or `projects/…`. */
+const isSecurePath = (p: string) => /^(drops|projects)\//.test(p);
+
+/**
+ * Upload a protected drop original to Bunny's isolated, token-authed secure zone
+ * (via the bunny-upload Edge Function — the write key stays server-side). Returns
+ * the storage path (e.g. `drops/<uid>/…`), which is what we persist on the asset.
+ * The raw object is never publicly reachable; previews are signed on demand and
+ * downloads are fetched server-side for watermarking.
+ */
 export async function uploadAudio(file: Blob, ext: string): Promise<string | null> {
-  const uid = await currentUserId();
-  if (!uid) return null;
-  const path = `${uid}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await db().storage.from(AUDIO_BUCKET).upload(path, file, {
-    contentType: file.type || "audio/mpeg", upsert: false,
-  });
-  return error ? null : path;
+  const sess = (await db().auth.getSession()).data.session;
+  if (!sess) return null;
+  const ct = (file as File).type || (ext === "wav" ? "audio/wav" : ext === "flac" ? "audio/flac" : "audio/mpeg");
+  const res = await fetch(
+    `${SUPABASE_URL}/functions/v1/bunny-upload?kind=drop&name=${encodeURIComponent("a." + ext)}`,
+    {
+      method: "POST",
+      headers: { authorization: `Bearer ${sess.access_token}`, apikey: SUPABASE_ANON_KEY, "content-type": ct },
+      body: file,
+    },
+  );
+  if (!res.ok) return null;
+  const j = await res.json().catch(() => null);
+  return (j?.path as string) ?? null;
 }
+
+/** Mint short-lived token URLs for secure-zone paths via the bunny-sign function. */
+async function bunnySign(paths: string[]): Promise<Map<string, string>> {
+  const m = new Map<string, string>();
+  const secure = paths.filter(isSecurePath);
+  if (!secure.length) return m;
+  const sess = (await db().auth.getSession()).data.session;
+  if (!sess) return m;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/bunny-sign`, {
+    method: "POST",
+    headers: { authorization: `Bearer ${sess.access_token}`, apikey: SUPABASE_ANON_KEY, "content-type": "application/json" },
+    body: JSON.stringify({ paths: secure }),
+  });
+  if (!res.ok) return m;
+  const j = await res.json().catch(() => null);
+  Object.entries((j?.urls as Record<string, string>) ?? {}).forEach(([k, v]) => m.set(k, v));
+  return m;
+}
+
 async function signAudio(paths: string[]): Promise<Map<string, string>> {
   const m = new Map<string, string>();
   const real = paths.filter((p) => p && !/^(https?:|data:|blob:)/i.test(p));
   if (!real.length) return m;
-  const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrls(real, SIGN_TTL);
-  (data ?? []).forEach((d) => { if (d.path && d.signedUrl) m.set(d.path, d.signedUrl); });
+  // Secure Bunny drops → token-signed CDN URLs; legacy Supabase paths → storage signing.
+  const secure = real.filter(isSecurePath);
+  const legacy = real.filter((p) => !isSecurePath(p));
+  if (secure.length) (await bunnySign(secure)).forEach((v, k) => m.set(k, v));
+  if (legacy.length) {
+    const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrls(legacy, SIGN_TTL);
+    (data ?? []).forEach((d) => { if (d.path && d.signedUrl) m.set(d.path, d.signedUrl); });
+  }
   return m;
 }
 export async function uploadAvatar(file: Blob, ext: string): Promise<string | null> {
@@ -738,6 +780,10 @@ export async function downloadAsset(assetId: string): Promise<DownloadResult | n
   const { data: path, error } = await db().rpc("request_asset_download", { p_asset: assetId });
   if (error || !path) return null;
   if (/^(https?:|data:|blob:)/i.test(path as string)) return { url: path as string, watermarked: false, revoke: false };
+  if (isSecurePath(path as string)) {
+    const u = (await bunnySign([path as string])).get(path as string);
+    return u ? { url: u, watermarked: false, revoke: false } : null;
+  }
   const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrl(path as string, SIGN_TTL, { download: true });
   return data?.signedUrl ? { url: data.signedUrl, watermarked: false, revoke: false } : null;
 }
