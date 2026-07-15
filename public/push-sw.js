@@ -1,4 +1,4 @@
-/* MYVYB Web Push handlers, imported into the Workbox-generated service worker.
+/* VYBZ Web Push handlers, imported into the Workbox-generated service worker.
    Kept intentionally minimal and calm: bundled copy only, a clean deep link, no
    heavy images. Payload shape: { title, body, url, tag }. */
 
@@ -9,12 +9,12 @@ self.addEventListener("push", (event) => {
   } catch (_e) {
     data = { body: event.data ? event.data.text() : "" };
   }
-  const title = data.title || "MYVYB";
+  const title = data.title || "VYBZ";
   const options = {
     body: data.body || "",
-    icon: "/brand/icon.png",
-    badge: "/brand/icon.png",
-    tag: data.tag || "myvyb",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    tag: data.tag || "vybz",
     renotify: false,
     data: { url: data.url || "/" },
   };
