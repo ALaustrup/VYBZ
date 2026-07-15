@@ -44,6 +44,8 @@ export interface Profile {
   musicUrl: string | null;
   identityPublic: boolean;
   isAdmin: boolean;
+  platformRole: PlatformRole;
+  modPoints: number;
   banned: boolean;
   profile: ProfileDetails;
   createdAt: number;
@@ -401,6 +403,8 @@ export interface AdminMember {
   username: string | null;
   location: string | null;
   isAdmin: boolean;
+  role: PlatformRole;
+  points: number;
   banned: boolean;
   createdAt: string;
   modules: number;
@@ -434,6 +438,78 @@ export type MatchWeights = Record<string, number>;
 
 /** A tunable weight's metadata for the admin UI. */
 export interface WeightDef { key: string; label: string; def: number }
+
+// ── Staff system (roles / moderation / rewards) ──────────────────────────────
+export type PlatformRole = "member" | "moderator" | "admin";
+export type ReportKind = "post" | "drop" | "user" | "message";
+export type ReportReason =
+  | "spam" | "harassment" | "hate" | "nsfw" | "illegal" | "impersonation" | "misinformation" | "other";
+export type ModAction = "dismiss" | "warn" | "hide" | "remove" | "escalate";
+
+export interface ContentReport {
+  id: string;
+  targetKind: ReportKind;
+  targetId: string;
+  reason: ReportReason;
+  detail: string | null;
+  status: "open" | "resolved" | "dismissed";
+  escalated: boolean;
+  reporter: string | null;
+  authorUsername: string | null;
+  snippet: string | null;
+  reportCount: number;
+  handledBy: string | null;
+  createdAt: string;
+}
+
+export interface StaffMember {
+  userId: string;
+  username: string | null;
+  role: PlatformRole;
+  points: number;
+  resolved: number;
+}
+
+export interface StaffAction {
+  id: string;
+  actor: string | null;
+  action: string;
+  targetKind: string | null;
+  targetId: string | null;
+  note: string | null;
+  points: number;
+  at: string;
+}
+
+export interface ModStats {
+  points: number;
+  resolved: number;
+  openReports: number;
+  rank: number;
+  recent: { action: string; points: number; at: string }[];
+  leaderboard: { username: string | null; points: number; role: PlatformRole }[];
+}
+
+export interface ModApplicationRow {
+  id: string;
+  userId: string;
+  username: string | null;
+  pitch: string;
+  experience: string | null;
+  hoursPerWeek: number | null;
+  timezone: string | null;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+}
+
+export interface MyModApplication {
+  id: string;
+  status: "pending" | "approved" | "rejected";
+  pitch: string;
+  reviewNote: string | null;
+  createdAt: string;
+  reviewedAt: string | null;
+}
 
 /** Payload for creating/updating a module (id omitted → create). */
 export interface ModuleInput {

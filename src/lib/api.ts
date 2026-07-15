@@ -13,6 +13,8 @@ import type {
   DisciplineOption, SeekingIntent, PortfolioItem,
   AdminMember, PendingDiscipline, BugReport, BugStatus, MatchWeights,
   ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput, FeedPost,
+  PlatformRole, ReportKind, ReportReason, ModAction, ContentReport, StaffMember,
+  StaffAction, ModStats, ModApplicationRow, MyModApplication,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -57,6 +59,8 @@ function toProfile(r: any): Profile {
     musicUrl: r.music_url ?? null,
     identityPublic: r.identity_public ?? true,
     isAdmin: r.is_admin ?? false,
+    platformRole: (r.platform_role ?? (r.is_admin ? "admin" : "member")) as Profile["platformRole"],
+    modPoints: r.mod_points ?? 0,
     banned: r.banned ?? false,
     profile: (r.profile ?? {}) as ProfileDetails,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
@@ -354,7 +358,8 @@ export async function adminListMembers(q = "", limit = 50): Promise<AdminMember[
   if (error || !data) return [];
   return (data as any[]).map((m) => ({
     userId: m.userId, username: m.username ?? null, location: m.location ?? null,
-    isAdmin: !!m.isAdmin, banned: !!m.banned, createdAt: m.createdAt,
+    isAdmin: !!m.isAdmin, role: (m.role ?? (m.isAdmin ? "admin" : "member")) as AdminMember["role"],
+    points: Number(m.points ?? 0), banned: !!m.banned, createdAt: m.createdAt,
     modules: Number(m.modules ?? 0), drops: Number(m.drops ?? 0),
   }));
 }
@@ -410,6 +415,71 @@ export async function submitBugReport(title: string, body: string, context: Reco
   const { data, error } = await db().rpc("submit_bug_report", { p_title: title, p_body: body, p_context: context });
   if (error) throw error;
   return data as string;
+}
+
+// ── Staff: roles, moderation queue, rewards, applications ────────────────────
+export async function reportContent(kind: ReportKind, targetId: string, reason: ReportReason, detail?: string): Promise<void> {
+  const { error } = await db().rpc("report_content", { p_kind: kind, p_id: targetId, p_reason: reason, p_detail: detail ?? null });
+  if (error) throw error;
+}
+export async function modReportQueue(status: string | null = "open"): Promise<ContentReport[]> {
+  const { data, error } = await db().rpc("mod_report_queue", { p_status: status });
+  if (error || !data) return [];
+  return (data as any[]).map((r) => ({
+    id: r.id, targetKind: r.targetKind, targetId: r.targetId, reason: r.reason, detail: r.detail ?? null,
+    status: r.status, escalated: !!r.escalated, reporter: r.reporter ?? null, authorUsername: r.authorUsername ?? null,
+    snippet: r.snippet ?? null, reportCount: Number(r.reportCount ?? 1), handledBy: r.handledBy ?? null, createdAt: r.createdAt,
+  }));
+}
+export async function modResolveReport(id: string, action: ModAction, note?: string): Promise<{ status: string; points: number }> {
+  const { data, error } = await db().rpc("mod_resolve_report", { p_id: id, p_action: action, p_note: note ?? null });
+  if (error) throw error;
+  return data as { status: string; points: number };
+}
+export async function modStats(): Promise<ModStats | null> {
+  const { data, error } = await db().rpc("mod_stats");
+  if (error || !data) return null;
+  return data as ModStats;
+}
+export async function submitModApplication(input: { pitch: string; experience?: string; hours?: number; timezone?: string }): Promise<string> {
+  const { data, error } = await db().rpc("submit_mod_application", {
+    p_pitch: input.pitch, p_experience: input.experience ?? null, p_hours: input.hours ?? null, p_timezone: input.timezone ?? null,
+  });
+  if (error) throw error;
+  return data as string;
+}
+export async function myModApplication(): Promise<MyModApplication | null> {
+  const { data, error } = await db().rpc("my_mod_application");
+  if (error || !data) return null;
+  return data as MyModApplication;
+}
+export async function adminListModApplications(status: string | null = "pending"): Promise<ModApplicationRow[]> {
+  const { data, error } = await db().rpc("admin_list_mod_applications", { p_status: status });
+  if (error || !data) return [];
+  return (data as any[]).map((a) => ({
+    id: a.id, userId: a.userId, username: a.username ?? null, pitch: a.pitch, experience: a.experience ?? null,
+    hoursPerWeek: a.hoursPerWeek ?? null, timezone: a.timezone ?? null, status: a.status, createdAt: a.createdAt,
+  }));
+}
+export async function adminReviewModApplication(id: string, approve: boolean, note?: string): Promise<void> {
+  const { error } = await db().rpc("admin_review_mod_application", { p_id: id, p_approve: approve, p_note: note ?? null });
+  if (error) throw error;
+}
+export async function adminSetRole(userId: string, role: PlatformRole): Promise<void> {
+  const { error } = await db().rpc("admin_set_role", { p_user: userId, p_role: role });
+  if (error) throw error;
+}
+export async function adminListStaff(): Promise<StaffMember[]> {
+  const { data, error } = await db().rpc("admin_list_staff");
+  if (error || !data) return [];
+  return (data as any[]).map((s) => ({
+    userId: s.userId, username: s.username ?? null, role: s.role, points: Number(s.points ?? 0), resolved: Number(s.resolved ?? 0),
+  }));
+}
+export async function staffAudit(limit = 60): Promise<StaffAction[]> {
+  const { data, error } = await db().rpc("staff_audit", { p_limit: limit });
+  if (error || !data) return [];
+  return data as StaffAction[];
 }
 
 /** Fuzzy discipline suggestions for the picker's search box. */

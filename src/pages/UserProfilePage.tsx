@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck, Flag } from "lucide-react";
+import { ReportModal } from "@/components/ReportModal";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
@@ -17,6 +18,7 @@ export function UserProfilePage() {
   const [stats, setStats] = useState<CreatorStats | null>(null);
   const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20), api.getCreatorStats(id), api.creatorCredits(id)]).then(([prof, d, s, c]) => {
@@ -40,7 +42,11 @@ export function UserProfilePage() {
           {f.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{f.roleLabel}</p>}
           {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>
+        {!isMe && (
+          <button onClick={() => setReportOpen(true)} aria-label="Report user" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70 active:scale-90"><Flag className="h-4 w-4" /></button>
+        )}
       </div>
+      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} targetKind="user" targetId={id} targetLabel={p.username ? `@${p.username}` : undefined} />
       {stats && (stats.ratings > 0 || stats.drops > 0 || stats.connections > 0) && (
         <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-white/60">
           {stats.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}

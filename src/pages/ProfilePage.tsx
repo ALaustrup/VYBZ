@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, ShieldCheck, Bug } from "lucide-react";
+import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, ShieldCheck, Shield, Bug } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
@@ -103,10 +103,24 @@ export function ProfilePage() {
         <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">VYBZ Codex & Legal</span><span className="block text-[11px] text-white/45">Free contracts, licenses & templates · Terms, Privacy, DMCA</span></span>
       </button>
 
+      {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
+        <button onClick={() => navigate("/mod")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-aqua-400/25 bg-aqua-400/[0.07] p-4 text-left active:scale-[0.99]">
+          <Shield className="h-5 w-5 shrink-0 text-aqua-200" />
+          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-white">Moderator console</span><span className="block text-xs text-white/55">Review the report queue & earn rewards{profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}</span></span>
+        </button>
+      )}
+
+      {profile.platformRole === "member" && !profile.isAdmin && (
+        <button onClick={() => navigate("/apply-mod")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
+          <Shield className="h-4 w-4 shrink-0 text-aqua-200" />
+          <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Become a moderator</span><span className="block text-[11px] text-white/45">Help keep VYBZ real — and earn rewards for it.</span></span>
+        </button>
+      )}
+
       {profile.isAdmin && (
         <button onClick={() => navigate("/admin")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-4 text-left active:scale-[0.99]">
           <ShieldCheck className="h-5 w-5 shrink-0 text-veil-200" />
-          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-white">Admin console</span><span className="block text-xs text-white/55">Members, matchmaking weights, role requests & bug reports</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-white">Admin console</span><span className="block text-xs text-white/55">Members, staff, applications, matchmaking & bug reports</span></span>
         </button>
       )}
 

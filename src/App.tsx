@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
-import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck } from "lucide-react";
+import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck, Shield } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import { DynamicBackground } from "@/components/DynamicBackground";
@@ -33,6 +33,8 @@ import { RoomPage } from "@/pages/RoomPage";
 import { CodexPage } from "@/pages/CodexPage";
 import { CodexDocPage } from "@/pages/CodexDocPage";
 import { AdminPage } from "@/pages/AdminPage";
+import { ModPage } from "@/pages/ModPage";
+import { ModApplyPage } from "@/pages/ModApplyPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
@@ -98,6 +100,8 @@ export function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/mod" element={<ModPage />} />
+        <Route path="/apply-mod" element={<ModApplyPage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/p/:id" element={<ProjectPage />} />
         <Route path="/codex" element={<CodexPage />} />
@@ -198,6 +202,7 @@ function SideNav() {
         return item(to, label, Icon, active);
       })}
       {item("/activity", "Activity", Bell, pathname === "/activity", unread)}
+      {profile && (profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && item("/mod", "Moderate", Shield, pathname.startsWith("/mod"))}
       {profile?.isAdmin && item("/admin", "Admin", ShieldCheck, pathname.startsWith("/admin"))}
     </nav>
   );
