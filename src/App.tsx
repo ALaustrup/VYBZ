@@ -35,6 +35,7 @@ import { CodexDocPage } from "@/pages/CodexDocPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { ModPage } from "@/pages/ModPage";
 import { ModApplyPage } from "@/pages/ModApplyPage";
+import { StorePage } from "@/pages/StorePage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
@@ -102,6 +103,7 @@ export function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />
+        <Route path="/store" element={<StorePage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/p/:id" element={<ProjectPage />} />
         <Route path="/codex" element={<CodexPage />} />
@@ -134,7 +136,7 @@ export function App() {
             <SideNav />
           </aside>
           <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="mx-auto min-h-0 w-full max-w-2xl flex-1 overflow-hidden px-6">{routes}</div>
+            <div className="mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-hidden px-6 xl:max-w-6xl lg:px-8">{routes}</div>
             <GlobalPlayer className="relative z-10 pb-3" />
           </main>
         </div>

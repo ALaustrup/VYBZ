@@ -76,7 +76,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
     void api.likePost(p.id, on);
   }
 
-  const gridCls = useMemo(() => layout === "grid" ? "grid max-w-2xl sm:grid-cols-2" : "flex max-w-xl flex-col", [layout]);
+  const gridCls = useMemo(() => layout === "grid" ? "grid w-full sm:grid-cols-2 xl:grid-cols-3" : "flex max-w-2xl flex-col", [layout]);
 
   return (
     <div className="flex h-full flex-col">

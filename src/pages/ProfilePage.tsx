@@ -11,6 +11,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { AudioLines } from "lucide-react";
 import { avatarGradient, cx } from "@/lib/utils";
 import { useReduceFxOverride, setReduceFx } from "@/lib/display";
+import { useResolvedCosmetics, accentGradient, Flair } from "@/lib/cosmetics";
+import { Sparkles as SparklesIcon } from "lucide-react";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function ProfilePage() {
@@ -30,9 +32,10 @@ export function ProfilePage() {
     });
   }, [userId]);
 
+  const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   if (!profile) return null;
   const facets = profile.profile ?? {};
-  const [c0, c1] = avatarGradient(profile.username || profile.id);
+  const [c0, c1] = accentGradient(cosmetics.accent, avatarGradient(profile.username || profile.id));
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6 pt-3">
@@ -41,7 +44,10 @@ export function ProfilePage() {
           {(profile.username || "Y").charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-2xl font-bold text-white">{profile.username}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="truncate font-display text-2xl font-bold text-white">{profile.username}</h1>
+            <Flair data={cosmetics.flair} />
+          </div>
           {facets.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{facets.roleLabel}</p>}
           {profile.location && <p className="text-sm text-white/50">{profile.location}</p>}
         </div>
@@ -97,6 +103,11 @@ export function ProfilePage() {
       <DisplaySetting />
 
       <PasskeysCard />
+
+      <button onClick={() => navigate("/store")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
+        <SparklesIcon className="h-4 w-4 shrink-0 text-veil-300" />
+        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Cosmetic store</span><span className="block text-[11px] text-white/45">Profile accents & flair{profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}</span></span>
+      </button>
 
       <button onClick={() => navigate("/codex")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
         <ScrollText className="h-4 w-4 shrink-0 text-veil-300" />

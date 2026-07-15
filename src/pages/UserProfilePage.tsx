@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
+import { useResolvedCosmetics, accentGradient, Flair } from "@/lib/cosmetics";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
@@ -26,10 +27,11 @@ export function UserProfilePage() {
     });
   }, [id]);
 
+  const cosmetics = useResolvedCosmetics(p?.equippedCosmetics);
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   if (!p) return <div className="flex h-full items-center justify-center text-white/50">Profile not found.</div>;
   const isMe = userId === id;
-  const [c0, c1] = avatarGradient(p.username || id);
+  const [c0, c1] = accentGradient(cosmetics.accent, avatarGradient(p.username || id));
   const f = p.profile ?? {};
 
   return (
@@ -38,7 +40,10 @@ export function UserProfilePage() {
       <div className="mb-4 flex items-center gap-4">
         <span className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>{(p.username || "?").charAt(0).toUpperCase()}</span>
         <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-2xl font-bold text-white">{p.username}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="truncate font-display text-2xl font-bold text-white">{p.username}</h1>
+            <Flair data={cosmetics.flair} />
+          </div>
           {f.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{f.roleLabel}</p>}
           {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>

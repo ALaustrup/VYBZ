@@ -46,6 +46,7 @@ export interface Profile {
   isAdmin: boolean;
   platformRole: PlatformRole;
   modPoints: number;
+  equippedCosmetics: Record<string, string>;
   banned: boolean;
   profile: ProfileDetails;
   createdAt: number;
@@ -509,6 +510,17 @@ export interface MyModApplication {
   reviewNote: string | null;
   createdAt: string;
   reviewedAt: string | null;
+}
+
+// ── Cosmetics (Lane B store) ─────────────────────────────────────────────────
+export type CosmeticCategory = "accent" | "flair";
+export interface CosmeticData { c0?: string; c1?: string; label?: string; icon?: string; color?: string }
+export interface Cosmetic { id: string; name: string; category: CosmeticCategory; price: number; data: CosmeticData }
+export interface CosmeticStore {
+  credits: number;
+  equipped: Record<string, string>;
+  owned: string[];
+  catalog: Cosmetic[];
 }
 
 /** Payload for creating/updating a module (id omitted → create). */

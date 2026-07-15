@@ -15,6 +15,7 @@ import type {
   ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput, FeedPost,
   PlatformRole, ReportKind, ReportReason, ModAction, ContentReport, StaffMember,
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
+  Cosmetic, CosmeticStore,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -61,6 +62,7 @@ function toProfile(r: any): Profile {
     isAdmin: r.is_admin ?? false,
     platformRole: (r.platform_role ?? (r.is_admin ? "admin" : "member")) as Profile["platformRole"],
     modPoints: r.mod_points ?? 0,
+    equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
     banned: r.banned ?? false,
     profile: (r.profile ?? {}) as ProfileDetails,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
@@ -113,6 +115,7 @@ export interface PublicProfile {
   avatarUrl: string | null; bio: string | null; location: string | null;
   musicUrl: string | null; profile: ProfileDetails;
   offers: string[]; seeks: string[];
+  equippedCosmetics: Record<string, string>;
 }
 export async function getPublicProfile(id: string): Promise<PublicProfile | null> {
   const { data, error } = await db().rpc("public_profile", { p_id: id });
@@ -124,6 +127,7 @@ export async function getPublicProfile(id: string): Promise<PublicProfile | null
     avatarUrl: r.avatar_url ?? null, bio: r.bio ?? null, location: r.location ?? null,
     musicUrl: r.music_url ?? null, profile: (r.profile ?? {}) as ProfileDetails,
     offers: roles.offers, seeks: roles.seeks,
+    equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
   };
 }
 
@@ -480,6 +484,36 @@ export async function staffAudit(limit = 60): Promise<StaffAction[]> {
   const { data, error } = await db().rpc("staff_audit", { p_limit: limit });
   if (error || !data) return [];
   return data as StaffAction[];
+}
+
+// ── Cosmetics (Lane B store) ─────────────────────────────────────────────────
+let _cosmeticCatalog: Cosmetic[] | null = null;
+export async function listCosmetics(): Promise<CosmeticStore> {
+  const { data, error } = await db().rpc("list_cosmetics");
+  const store = (error || !data) ? { credits: 0, equipped: {}, owned: [], catalog: [] } : (data as CosmeticStore);
+  _cosmeticCatalog = store.catalog;
+  return store;
+}
+/** Cached catalog for resolving equipped cosmetic ids → data on any profile. */
+export async function cosmeticCatalog(): Promise<Cosmetic[]> {
+  if (_cosmeticCatalog) return _cosmeticCatalog;
+  await listCosmetics();
+  return _cosmeticCatalog ?? [];
+}
+export async function purchaseCosmetic(id: string): Promise<{ owned: boolean; credits: number }> {
+  const { data, error } = await db().rpc("purchase_cosmetic", { p_id: id });
+  if (error) throw error;
+  return data as { owned: boolean; credits: number };
+}
+export async function equipCosmetic(id: string): Promise<Record<string, string>> {
+  const { data, error } = await db().rpc("equip_cosmetic", { p_id: id });
+  if (error) throw error;
+  return (data ?? {}) as Record<string, string>;
+}
+export async function unequipCosmetic(category: string): Promise<Record<string, string>> {
+  const { data, error } = await db().rpc("unequip_cosmetic", { p_category: category });
+  if (error) throw error;
+  return (data ?? {}) as Record<string, string>;
 }
 
 /** Fuzzy discipline suggestions for the picker's search box. */
