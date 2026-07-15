@@ -502,6 +502,26 @@ role+intent onboarding and the Projects/feed work — those run post-auth regard
 The only touch-point is the entry screen (`Onboarding`), which becomes passkey-first with the
 avatar-tap affordance and email/password fallback. Safe to build independently.
 
+### 12.5 Staff system — admin, moderators, rewards ✅ (shipped 2026-07)
+Role tiers **member < moderator < admin** (`profiles.platform_role`, `is_admin` kept in
+sync; `is_platform_admin()` / `is_platform_mod()` guards). Every privileged path is a
+SECURITY DEFINER RPC re-checking `auth.uid()` — privilege cannot self-escalate, and
+demotion revokes access immediately (verified).
+- **Admin console** (`/admin`): Members (member/mod/admin **role picker** + ban), **Staff**
+  (roster, role changes, **audit log**), **Applications** (review moderator applications),
+  plus the existing Disciplines / Matchmaking / Bug-reports tabs.
+- **Moderator console** (`/mod`): a **report queue** (dismiss / warn / hide / remove /
+  escalate — hide/remove pull the post from feeds, warn/escalate notify the author/admins)
+  and a **rewards** tab (credits, rank, leaderboard, recent actions).
+- **Rewards = cosmetic-store credits** (`mod_points`): actions pay 1–4 credits, tying mod
+  work to the Lane B cosmetic store — a no-cash-cost incentive.
+- **Application portal** (`/apply-mod`): members pitch to join; admins approve → moderator.
+- **Reporting**: `content_reports` (post/drop/user/message) with a report affordance on feed
+  posts + profiles; deduped, feeds the queue.
+- **Audit**: every staff action logged to `staff_actions` (actor, action, target, points).
+- Scope guardrails: moderators can triage/act on content but **cannot** see the member
+  roster, appoint staff, or permanently ban — those stay admin-only (ban power via escalate).
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
