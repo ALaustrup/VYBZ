@@ -1,73 +1,67 @@
 # VYBZ — Architecture
 
-The authoritative technical map of the VYBZ v1 codebase. Product context lives in
+The authoritative technical map of the VYBZ codebase. Product context lives in
 [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md).
 
 ## Overview
 
-VYBZ is an **identity-first**, Supabase-backed React PWA. Every account is a real
-creator; there is no anonymous/guest path. The client talks to Supabase with the anon
-key under Row-Level Security; all privileged reads/writes go through `SECURITY DEFINER`
-RPCs that re-check `auth.uid()` and emit only public/aggregate data.
+VYBZ is an **identity-first**, Supabase-backed React PWA with Bunny.net media.
+Every account is a real creator; there is no anonymous/guest path. The client
+talks to Supabase with the anon key under Row-Level Security; privileged paths
+use `SECURITY DEFINER` RPCs and Edge Functions.
+
+**Canonical domain:** `vybz.cloud` (also allowed: `vybz.astramatrix.xyz` for
+legacy passkey/host allow-lists during cutover).
 
 ## Frontend
 
 - **Entry:** `src/main.tsx` → `SessionProvider` → `App`.
-- **Shell & routing (`src/App.tsx`):** responsive layout — a left rail on desktop, a
-  bottom nav on mobile. Routes: `/` (Drops feed), `/connect`, `/spark`,
-  `/opportunities`, `/messages` + `/messages/:id`, `/profile`, `/profile/edit`,
-  `/u/:id`. An auth gate renders onboarding → username setup → app.
-- **State:** `src/store/session.tsx` (`useSession`) holds auth session, the current
-  profile, and transient UI (toast/celebrate). Player state is the `AudioBus`
-  singleton, consumed via `usePlayer()`.
-- **Data access:** `src/lib/api.ts` — every Supabase call, typed to `src/types.ts`.
-- **Audio:** `src/lib/audioBus.ts` (one shared `AudioContext` → `AnalyserNode` → gain),
-  `src/lib/waveform.ts` (decode peaks + quality), and the components `GlobalPlayer`,
-  `TrackCard`, `Waveform`, `TrackVisualizer`.
-- **Design system:** `src/index.css` (Smoked-Glass tokens, `.glass`, `.btn-*`, glow),
-  `tailwind.config.js`, and primitives (`Brand`, `Toast`, `Confetti`, `EmptyState`,
-  `Handle`, `DynamicBackground`). The per-page accent resolves against `--accent-rgb`.
-- **Music catalog:** `src/lib/profileFields.ts` is the single source of truth for roles,
-  genres, DAWs, plugins, keys, and the matching-facet shape.
+- **Shell & routing (`src/App.tsx`):** desktop left rail + mobile bottom nav.
+  Primary: `/` (feed), `/discover`, `/connect` (+ `/spark`, `/opportunities`),
+  `/projects` (**Studio**), `/messages` (+ `/rooms`), `/profile`.
+  Also: `/activity`, `/store`, `/admin`, `/mod`, `/apply-mod`, `/codex`,
+  `/legal/:slug`, `/u/:id`, `/p/:id` (**Space** deep link), `*` → `NotFoundPage`.
+- **Auth gate:** Onboarding (passkey-first) → username → `RoleIntentOnboarding`
+  (role + intents + optional avatar) → app + `WelcomeTutorial`.
+- **State:** `src/store/session.tsx`; player via `AudioBus` / `usePlayer()`.
+- **Data:** `src/lib/api.ts` typed to `src/types.ts`.
+- **Design:** Smoked-Glass tokens in `src/index.css`.
+
+### Naming (product vs schema)
+
+| UI | Schema / routes | Purpose |
+|----|-----------------|---------|
+| **Spaces** | `profile_projects`, `/p/:id` | Public microblogs / channels on a profile |
+| **Studio** | `projects`, `/projects` | Private collab rooms, versions, splits, credits |
 
 ## Backend (Supabase)
 
-### Schema (`supabase/migrations/20260709_*.sql`)
-- **`profiles`** — identity row keyed to `auth.users`; owner-private `profile` jsonb of
-  music facets (GIN-indexed) with a `_hidden` privacy array. A `public_profiles` view +
-  `public_profile()` RPC expose only sanitized public fields. A trigger auto-creates a
-  profile on signup.
-- **Taxonomy:** `roles`, `genres`, `daws`, `plugins` (world-readable, admin-written).
-- **Bipartite core:** `creator_roles` (offers) + `creator_seeks` (seeks).
-- **`profile_embeddings`** — pgvector, written server-side for semantic resonance.
-- **`drops` + `reactions`** — the sound-first feed and its Vyb/Fail taste signal
-  (tallied onto drops by trigger).
-- **`assets` + `track_ratings` + `asset_downloads`** — uploaded audio/project material
-  (with P2P swarm manifest columns designed in for later), embedded ratings (aggregate
-  cached by trigger), and the download/license record.
-- **`connections` + `dm_threads`/`dm_messages`** — the collaboration graph + 1:1 DMs.
-- **`collab_posts` + `collab_applications`** — the opportunity board.
+### Schema highlights (`supabase/migrations/20260709_*.sql`)
+- Profiles + taxonomy + `creator_roles` / `creator_seeks`
+- `profile_modules` (match graph source) + `apply_role_intent_onboarding`
+- `connections` + `respond_connection` + `match_feedback`
+- Drops, assets, Studio projects, Spaces + `feed_posts`
+- Rooms, notifications, staff/mod, cosmetics, passkeys, provenance ledger
 
-### RPCs (definer)
-`collab_matches`, `my_opportunities`, `set_creator_roles`, `my_creator_roles`,
-`creator_roles_for`, `public_profile`, `rate_track`, `request_asset_download`,
-`start_dm`, plus `jsonb_overlap_count`/`jsonb_overlap_names` helpers.
+### Edge Functions
+`passkey`, `bunny-upload`, `bunny-sign`, `watermark`, `watermark-detect`, `embed`
+(+ retained `push-send`, `stripe-webhook` for Lane A).
 
-### Auth & storage
-- Email + password (passkey planned). Anonymous sign-in **disabled**.
-- Buckets: `media-public` (avatars, public), `audio-assets` + `project-files` (private;
-  access via short-lived signed URLs). Owner-scoped storage RLS.
-- Edge Functions kept: `embed` (resonance embeddings), `passkey` (WebAuthn, pending).
+### Auth & media
+- **Auth:** passkey-first WebAuthn + password fallback. Anonymous disabled.
+- **Media:** Bunny public (post media) + Bunny secure (drops + Studio versions).
+  Legacy Supabase buckets (`media-public` avatars, `audio-assets`) still supported.
+- **C2PA:** `worker/c2pa` ready; gated on worker host secrets.
 
 ## Matchmaking
 
-`collab_matches` blends complementary-role overlap (both directions + mutual bonus)
-with genre/DAW/plugin/tempo/language overlap and pgvector semantic resonance, returning
-the "why" and a 0–1 fit. See `VYBZ_MASTERPLAN.md` §5 for the model and the enhancement
-roadmap.
+`collab_matches` v5 blends complementary roles, module disciplines, affinity,
+embeddings (includes `roleLabel` + `intents`), Space follows, and reputation.
+Onboarding calls `apply_role_intent_onboarding` so new creators get a module +
+implicit seeks from `role_affinities` immediately.
 
 ## Conventions
 
-Identity-first; RLS everywhere; definer RPCs for privileged paths; idempotent
-timestamped migrations; strict TypeScript with `npm run build` green before commit;
-additive, non-breaking changes. Full rules in `VYBZ_MASTERPLAN.md` §9.
+Identity-first; RLS everywhere; definer RPCs; idempotent migrations; strict
+TypeScript (`npm run build` green); additive changes. Full rules in
+`VYBZ_MASTERPLAN.md` §9.

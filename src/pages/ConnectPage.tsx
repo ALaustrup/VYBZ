@@ -20,6 +20,7 @@ export function ConnectPage() {
 
   async function connect(m: CollabMatch) {
     await api.connect(m.userId);
+    void api.logMatchFeedback(m.userId, "connect", "connect_page");
     showToast(`Connection sent to ${m.username ?? "creator"}`);
   }
   async function message(m: CollabMatch) {

@@ -147,6 +147,24 @@ export async function setMyRoles(offers: RoleOffer[], seeks: RoleSeek[]) {
   });
   if (error) throw error;
 }
+
+/**
+ * Close the onboarding → matchmaking loop: persist role/intents, upsert a
+ * profile_module, and seed complementary seeks from role_affinities.
+ */
+export async function applyRoleIntentOnboarding(
+  roleId: string | null,
+  roleLabel: string,
+  intents: string[],
+): Promise<string | null> {
+  const { data, error } = await db().rpc("apply_role_intent_onboarding", {
+    p_role_id: roleId,
+    p_role_label: roleLabel,
+    p_intents: intents,
+  });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
 export async function rolesFor(id: string): Promise<{ offers: string[]; seeks: string[] }> {
   const { data } = await db().rpc("creator_roles_for", { p_id: id });
   const row = data?.[0];
@@ -898,6 +916,29 @@ export async function connect(peerId: string) {
   if (!uid || uid === peerId) return;
   await db().from("connections").upsert({ requester_id: uid, addressee_id: peerId, status: "pending" });
 }
+
+/** Accept or decline an incoming connection request (addressee only). */
+export async function respondConnection(requesterId: string, accept: boolean): Promise<boolean> {
+  const { data, error } = await db().rpc("respond_connection", {
+    p_requester: requesterId,
+    p_accept: accept,
+  });
+  if (error) return false;
+  return !!data;
+}
+
+/** Persist Spark / connection outcomes for future LTR tuning. */
+export async function logMatchFeedback(
+  peerId: string,
+  outcome: "accepted" | "declined" | "pass" | "connect",
+  source: "spark" | "connection" | "connect_page" = "spark",
+): Promise<void> {
+  await db().rpc("log_match_feedback", {
+    p_peer: peerId,
+    p_outcome: outcome,
+    p_source: source,
+  });
+}
 export async function startDm(peerId: string): Promise<string | null> {
   const { data, error } = await db().rpc("start_dm", { p_peer: peerId });
   if (error) return null;
@@ -974,8 +1015,7 @@ export async function searchCreators(query?: string, role?: string, genre?: stri
   }));
 }
 
-// ── Projects (Phase D: rooms → versions → split sheets → credits) ────────────
-const PROJECT_BUCKET = "project-files";
+// ── Studio (Phase D: private collab rooms → versions → splits → credits) ─────
 
 export async function myProjects(): Promise<import("@/types").ProjectSummary[]> {
   const { data } = await db().rpc("my_projects");
@@ -1036,16 +1076,30 @@ export async function releaseProject(projectId: string) {
   if (error) throw error;
 }
 
-/** Upload a project bundle to private storage, register an asset, and attach it as a new version. */
+/**
+ * Upload a Studio collab bundle to Bunny's token-authed secure zone
+ * (`kind=project`), register an asset, and attach it as a new version.
+ * Legacy Supabase `project-files` paths remain readable via signAudio fallbacks.
+ */
 export async function addVersion(projectId: string, file: Blob, filename: string, note?: string): Promise<boolean> {
   const uid = await currentUserId();
   if (!uid) return false;
+  const sess = (await db().auth.getSession()).data.session;
+  if (!sess) return false;
   const ext = (filename.split(".").pop() || "bin").toLowerCase().slice(0, 8);
-  const path = `${uid}/${projectId}/${crypto.randomUUID()}.${ext}`;
-  const { error: upErr } = await db().storage.from(PROJECT_BUCKET).upload(path, file, {
-    contentType: file.type || "application/octet-stream", upsert: false,
-  });
-  if (upErr) return false;
+  const ct = (file as File).type || "application/octet-stream";
+  const up = await fetch(
+    `${SUPABASE_URL}/functions/v1/bunny-upload?kind=project&name=${encodeURIComponent(filename || `a.${ext}`)}`,
+    {
+      method: "POST",
+      headers: { authorization: `Bearer ${sess.access_token}`, apikey: SUPABASE_ANON_KEY, "content-type": ct },
+      body: file,
+    },
+  );
+  if (!up.ok) return false;
+  const j = await up.json().catch(() => null);
+  const path = (j?.path as string) ?? null;
+  if (!path) return false;
   const { data: asset, error: aErr } = await db().from("assets").insert({
     owner_id: uid, kind: "project", title: filename, url: path, format: ext, license: "collab-only",
   }).select("id").single();

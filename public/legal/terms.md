@@ -1,7 +1,7 @@
 # VYBZ Terms of Service
 
 **Operator:** Astra Matrix, Inc. ("Astra Matrix," "we," "us")
-**Service:** VYBZ (the "Service") — vybz.astramatrix.xyz
+**Service:** VYBZ (the "Service") — vybz.cloud
 **Effective Date:** [EFFECTIVE DATE]   **Version:** 1.0
 
 These Terms of Service (the "Terms") are a binding agreement between you and Astra Matrix, Inc. governing your access to and use of VYBZ. By creating an account or using the Service, you agree to these Terms. If you do not agree, do not use the Service.

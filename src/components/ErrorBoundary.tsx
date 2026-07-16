@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: unknown) {
     // Surface in the console for debugging; no PII.
-    console.error("MYVYB render error:", error);
+    console.error("Vybz System Error Boundary:", error);
   }
 
   render() {
@@ -48,10 +48,10 @@ export class ErrorBoundary extends Component<Props, State> {
           />
         </div>
         <p className="font-display text-xl font-semibold text-white">
-          This slipped behind the veil
+          Something slipped
         </p>
         <p className="max-w-xs text-sm leading-relaxed text-white/55">
-          The screen hit a snag. A quick reload usually lifts it.
+          This screen hit a snag. A quick reload usually clears it.
         </p>
         <button
           onClick={() => window.location.reload()}

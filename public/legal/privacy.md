@@ -1,7 +1,7 @@
 # VYBZ Privacy Policy
 
 **Controller:** Astra Matrix, Inc. ("Astra Matrix," "we," "us")
-**Service:** VYBZ — vybz.astramatrix.xyz
+**Service:** VYBZ — vybz.cloud
 **Effective Date:** [EFFECTIVE DATE]   **Version:** 1.0
 
 This Privacy Policy explains what personal information Astra Matrix collects through VYBZ, how we use and share it, and your rights. By using the Service you agree to this Policy.

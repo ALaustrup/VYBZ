@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
-import { useResolvedCosmetics, accentGradient, Flair } from "@/lib/cosmetics";
+import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { useSession } from "@/store/session";
-import { avatarGradient } from "@/lib/utils";
+import { Avatar } from "@/components/Avatar";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function UserProfilePage() {
@@ -31,14 +31,13 @@ export function UserProfilePage() {
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   if (!p) return <div className="flex h-full items-center justify-center text-white/50">Profile not found.</div>;
   const isMe = userId === id;
-  const [c0, c1] = accentGradient(cosmetics.accent, avatarGradient(p.username || id));
   const f = p.profile ?? {};
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6 pt-3">
       <button onClick={() => navigate(-1)} aria-label="Back" className="mb-3 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
       <div className="mb-4 flex items-center gap-4">
-        <span className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>{(p.username || "?").charAt(0).toUpperCase()}</span>
+        <Avatar url={p.avatarUrl} name={p.username} id={id} size="lg" square />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="truncate font-display text-2xl font-bold text-white">{p.username}</h1>
@@ -88,7 +87,7 @@ export function UserProfilePage() {
       )}
 
       <div className="mb-5">
-        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Projects</p>
+        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Spaces</p>
         <ProjectsPanel userId={id} editable={isMe} />
       </div>
 

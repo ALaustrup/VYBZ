@@ -48,6 +48,12 @@ function arr(v: unknown): string[] {
 function profileText(username: string, profile: Record<string, unknown>): string {
   const parts: string[] = [];
   if (username) parts.push(username);
+  const roleLabel = profile.roleLabel ?? profile.role;
+  if (typeof roleLabel === "string" && roleLabel.trim()) {
+    parts.push(`Role: ${roleLabel.trim()}`);
+  }
+  const intents = arr(profile.intents);
+  if (intents.length) parts.push(`Here for: ${intents.join(", ")}`);
   const bio = profile.bio;
   if (typeof bio === "string" && bio.trim()) parts.push(bio.trim());
   const influences = profile.influences;

@@ -29,8 +29,8 @@ export function ProjectRoomPage() {
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   if (!detail) return (
     <div className="flex h-full flex-col">
-      <Header title="Project" onBack={() => navigate("/projects")} />
-      <EmptyState icon={FileMusic} title="Not available" body="This project doesn't exist or you're not a member." />
+      <Header title="Studio" onBack={() => navigate("/projects")} />
+      <EmptyState icon={FileMusic} title="Not available" body="This Studio room doesn't exist or you're not a member." />
     </div>
   );
 

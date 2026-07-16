@@ -6,7 +6,7 @@ import { useSession } from "@/store/session";
 import { ProjectView } from "@/components/projects/ProjectView";
 import type { ProfileProjectDetail, ProjectLink, ProjectPost } from "@/types";
 
-/** Full-page view of a single Project — used for "VYBZ Project Page" links + deep links. */
+/** Full-page view of a single Space (profile_projects) — deep links + hub targets. */
 export function ProjectPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

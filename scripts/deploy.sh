@@ -34,7 +34,7 @@ require SUPABASE_ACCESS_TOKEN
 require VERCEL_TOKEN
 : "${SUPABASE_PROJECT_REF:=xixmneooyufbeftdfpcm}"
 : "${VERCEL_PROJECT_NAME:=vyb-audio}"
-: "${VERCEL_PROD_DOMAIN:=vybz.astramatrix.xyz}"
+: "${VERCEL_PROD_DOMAIN:=vybz.cloud}"
 
 command -v node >/dev/null || die "node not installed"
 command -v npm  >/dev/null || die "npm not installed"

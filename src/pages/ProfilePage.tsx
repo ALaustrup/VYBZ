@@ -9,9 +9,10 @@ import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { EmptyState } from "@/components/EmptyState";
 import { AudioLines } from "lucide-react";
-import { avatarGradient, cx } from "@/lib/utils";
+import { cx } from "@/lib/utils";
+import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx } from "@/lib/display";
-import { useResolvedCosmetics, accentGradient, Flair } from "@/lib/cosmetics";
+import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
 import { Sparkles as SparklesIcon } from "lucide-react";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
@@ -35,14 +36,11 @@ export function ProfilePage() {
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   if (!profile) return null;
   const facets = profile.profile ?? {};
-  const [c0, c1] = accentGradient(cosmetics.accent, avatarGradient(profile.username || profile.id));
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6 pt-3">
       <div className="mb-4 flex items-center gap-4 max-lg:pr-14">
-        <span className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>
-          {(profile.username || "Y").charAt(0).toUpperCase()}
-        </span>
+        <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="truncate font-display text-2xl font-bold text-white">{profile.username}</h1>
@@ -96,7 +94,7 @@ export function ProfilePage() {
       )}
 
       <div className="mb-5">
-        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Projects</p>
+        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Spaces</p>
         <ProjectsPanel userId={userId!} editable />
       </div>
 

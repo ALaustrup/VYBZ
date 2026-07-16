@@ -130,7 +130,7 @@ function RewardsTab() {
         <Stat label="Rank" value={`#${stats.rank}`} accent="text-veil-200" />
       </div>
       <p className="rounded-2xl border border-aqua-400/20 bg-aqua-400/[0.05] px-4 py-3 text-[13px] leading-relaxed text-white/70">
-        Every action earns <span className="font-semibold text-aqua-200">credits</span> — spendable in the upcoming cosmetic store (profile skins, reactive-frame packs, flair). Thank you for keeping VYBZ real.
+        Every action earns <span className="font-semibold text-aqua-200">credits</span> — spendable in the <a href="/store" className="font-semibold text-aqua-100 underline-offset-2 hover:underline">cosmetic store</a> (accents, flair, and more). Thank you for keeping VYBZ real.
       </p>
 
       <Section title="Leaderboard">

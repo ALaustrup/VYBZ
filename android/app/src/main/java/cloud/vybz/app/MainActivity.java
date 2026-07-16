@@ -1,4 +1,4 @@
-package app.myvyb;
+package cloud.vybz.app;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -318,7 +318,9 @@ export interface DisciplineModule {
   sort: number;
 }
 
-// ── Projects (in-profile creative spaces / micro-blogs) ──────────────────────
+// ── Spaces (profile_projects — public creator microblogs / channels) ─────────
+// DB table remains profile_projects; UI copy is "Spaces". Private collab rooms
+// live in `projects` and are branded "Studio" in the nav.
 export type ProjectKind = "music" | "video" | "art" | "writing" | "links" | "general";
 export type PostKind = "text" | "audio" | "image" | "video" | "link";
 export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
@@ -389,6 +391,7 @@ export interface FeedPost {
   accent: string | null;
   authorId: string;
   authorUsername: string | null;
+  authorAvatarUrl?: string | null;
   likes: number;
   liked: boolean;
 }

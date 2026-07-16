@@ -1,9 +1,9 @@
 {
-  "name": "vyb-audio",
+  "name": "vybz-app",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "VYB Audio — a collaboration + sample/project-file exchange network that matches musicians and producers with precisely what they're looking for.",
+  "description": "VYBZ — identity-first creator social, collaboration, and precision matchmaking for every creative discipline.",
   "engines": {
     "node": ">=20"
   },
@@ -29,19 +29,16 @@
     "@supabase/supabase-js": "^2.108.1",
     "@tonejs/midi": "^2.0.28",
     "framer-motion": "^11.11.17",
-    "livekit-client": "^2.20.0",
     "lucide-react": "^0.460.0",
     "marked": "^18.0.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "three": "^0.169.0"
+    "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.4.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.169.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",

@@ -27,7 +27,13 @@ export function SparkPage() {
     if (busy.current) return; busy.current = true;
     haptic(connect ? 14 : 8);
     setIdx((i) => i + 1);
-    if (connect) { void api.connect(c.userId); showToast(`Connection sent to ${c.username ?? "creator"}`); }
+    if (connect) {
+      void api.connect(c.userId);
+      void api.logMatchFeedback(c.userId, "connect", "spark");
+      showToast(`Connection sent to ${c.username ?? "creator"}`);
+    } else {
+      void api.logMatchFeedback(c.userId, "pass", "spark");
+    }
     busy.current = false;
   }, [showToast]);
 

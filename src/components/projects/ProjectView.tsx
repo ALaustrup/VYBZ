@@ -63,7 +63,7 @@ export function ProjectView({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-white">{l.label}</span>
-                    <span className="block truncate text-[11px] text-white/45">{l.targetProjectId ? "VYBZ Project Page" : (l.url || "")}</span>
+                    <span className="block truncate text-[11px] text-white/45">{l.targetProjectId ? "VYBZ Space" : (l.url || "")}</span>
                   </span>
                 </button>
                 {editable && (
@@ -102,6 +102,7 @@ function PostCard({ post, accent, projectName, editable, onLike, onDelete }: {
   const player = usePlayer();
   const src = post.mediaUrl || post.linkUrl || "";
   const isAudio = post.kind === "audio" && !!src;
+  const isVideo = post.kind === "video" && !!src;
   const playing = player.track?.id === post.id && player.playing;
 
   return (
@@ -118,6 +119,15 @@ function PostCard({ post, accent, projectName, editable, onLike, onDelete }: {
           {post.body && <p className="mt-0.5 whitespace-pre-wrap text-sm leading-relaxed text-white/75">{post.body}</p>}
           {post.kind === "image" && post.mediaUrl && (
             <img src={post.mediaUrl} alt={post.title ?? ""} className="mt-2 max-h-80 w-full rounded-xl object-cover" loading="lazy" />
+          )}
+          {isVideo && (
+            <video
+              src={src}
+              controls
+              playsInline
+              preload="metadata"
+              className="mt-2 max-h-96 w-full rounded-xl bg-black/40 object-contain"
+            />
           )}
           {post.kind === "link" && post.linkUrl && (
             <a href={post.linkUrl} target="_blank" rel="noreferrer" className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-veil-200 hover:underline">

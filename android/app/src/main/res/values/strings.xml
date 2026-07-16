@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">MYVYB</string>
-    <string name="title_activity_main">MYVYB</string>
-    <string name="package_name">app.myvyb</string>
-    <string name="custom_url_scheme">app.myvyb</string>
+    <string name="app_name">Vybz</string>
+    <string name="title_activity_main">Vybz</string>
+    <string name="package_name">cloud.vybz.app</string>
+    <string name="custom_url_scheme">cloud.vybz.app</string>
 </resources>

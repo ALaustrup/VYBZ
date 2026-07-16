@@ -36,6 +36,7 @@ import { AdminPage } from "@/pages/AdminPage";
 import { ModPage } from "@/pages/ModPage";
 import { ModApplyPage } from "@/pages/ModApplyPage";
 import { StorePage } from "@/pages/StorePage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 import { cx } from "@/lib/utils";
 
 const NAV = [
@@ -109,7 +110,7 @@ export function App() {
         <Route path="/codex" element={<CodexPage />} />
         <Route path="/codex/:slug" element={<CodexDocPage />} />
         <Route path="/legal/:slug" element={<CodexDocPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </motion.div>
     </ErrorBoundary>

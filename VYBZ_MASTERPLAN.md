@@ -2,10 +2,12 @@
 
 > ## **VYBZ: Find Yours.**
 
-**Product:** VYBZ is the next-generation, **identity-first** platform for finding and
-seeking music-production collaborations, and for the frictionless exchange of raw
-creative material (samples, stems, one-shots, presets, MIDI, and full DAW project
-files). Owner: **Astra Matrix, Inc.** Domain: **`vybz.astramatrix.xyz`**.
+**Product:** VYBZ is the next-generation, **identity-first** platform for creator
+collaboration, social networking, and precision matchmaking across music, art,
+film, writing, game design, and every creative discipline — plus frictionless
+exchange of raw creative material (samples, stems, one-shots, presets, MIDI, and
+full DAW / project files). Owner: **Astra Matrix, Inc.** Canonical domain:
+**`vybz.cloud`** (legacy alias: `vybz.astramatrix.xyz`).
 
 **Status:** authoritative and current. This document was fully rewritten to match
 the real, shipped codebase after a clean-slate rebuild. If anything you have read
@@ -155,13 +157,14 @@ facets):** `collab_matches`, `my_opportunities`, `set_creator_roles`,
 ### 3.4 Infrastructure
 - **Supabase:** one VYBZ project (`xixmneooyufbeftdfpcm`), us-west-1. Anonymous sign-in
   **off**; email enabled; `mailer_autoconfirm` on for alpha (turn on email
-  verification before public launch). Storage buckets: `media-public` (avatars,
-  public), `audio-assets` + `project-files` (private, signed-URL access).
-- **Domain:** `vybz.astramatrix.xyz` (Vercel). SEO/canonical/manifest target it.
-- **Edge Functions:** `embed` computes semantic-resonance vectors using Supabase's
-  **built-in Edge inference** (`Supabase.ai`, model `gte-small`, 384-d) — free,
-  server-side, no external provider or API key. `passkey` (WebAuthn) wiring pending.
-  All MYVYB functions were removed.
+  verification before public launch). Avatars still use `media-public`; protected
+  drops + Studio versions use **Bunny secure** (token-auth); Space post media uses
+  Bunny public CDN. Legacy `audio-assets` / `project-files` remain readable.
+- **Domain:** **`vybz.cloud`** (Vercel — provision DNS zone in dashboard). SEO/
+  canonical/manifest/passkey allow-list target it. Legacy alias
+  `vybz.astramatrix.xyz` kept on the passkey host list during cutover.
+- **Edge Functions:** `embed` (gte-small resonance), `passkey` (WebAuthn, shipped),
+  `bunny-upload` / `bunny-sign`, `watermark` / `watermark-detect`. MYVYB functions removed.
 
 ---
 
@@ -432,7 +435,14 @@ platform. **VYBZ: Find Yours.**
 - Home feed is the curated landing (intent heading, comfortable/grid layout toggle, roomier).
 - Audio-reactive frame toned to a **subtle, colourful** glow that only shows during playback.
 
-### 12.2 Next: Projects-as-microblogs (replaces the old discipline modules)
+### 12.2 Spaces (profile microblogs) ✅ — UI: "Spaces"; schema: `profile_projects`
+
+Shipped: public Space tabs on profiles, post kinds (audio/image/video/text/link),
+follows → feed + match boosts, `/p/:id` deep links. Private collab rooms remain
+**Studio** (`projects` / `/projects`). Discipline-module *UX* stays out of nav;
+onboarding maps Role+Intent into modules via `apply_role_intent_onboarding`.
+
+_Historical heading retained for continuity:_
 One solid profile; users add unlimited **Projects** (aliases, bands, works) as profile
 tabs. Each Project is an in-profile **micro-blog**: the creator posts content + updates
 (music, artwork, ebooks, voice clips, links). Viewers open a Project tab to see its posts,
@@ -466,41 +476,16 @@ email/password as a fallback, and a **tap-your-avatar** entry (default avatar if
 - **Verified:** deployed function + migration; server paths smoke-tested; full browser
   sign-up→sign-out→sign-in exercised against the live backend via a virtual authenticator.
 
-**Still open (non-blocking):** for distinct apex domains (e.g. `vybz.cloud`), publish
-`/.well-known/webauthn` **related origins** so one credential spans all six domains;
-optional silent **conditional create** to auto-upgrade password users post-login.
+**Still open (non-blocking):** for distinct apex domains (e.g. `vybz.cloud` + redirect
+apexes), publish `/.well-known/webauthn` **related origins** so one credential spans
+them; optional silent **conditional create** to auto-upgrade password users post-login.
+Provision the Vercel DNS zone for `vybz.cloud` if not already live.
 
-_Original research notes retained below._
-
-**What already exists (reusable):** `src/lib/passkey.ts` + `supabase/functions/passkey`
-using `@simplewebauthn` v13 — discoverable/resident credentials, **usernameless** auth
-(`allowCredentials: []`), session minted via `admin.generateLink` → `verifyOtp`, plus a
-`passkeys` table with RLS and passkey management (list/rename/revoke). This is a strong base.
-
-**Gaps to close for the vision:**
-1. **Passkey-first *sign-up*.** Today a passkey can only be *added* to an already
-   email-anchored, signed-in account. Recommended unified flow: capture an email (for
-   recovery), create the account, and register the passkey in the *same* step so the passkey
-   is the primary credential from day one.
-2. **Conditional UI (autofill).** Fire a `mediation: 'conditional'` `get()` on load and mark
-   the email field `autocomplete="username webauthn"` so passkeys surface in autofill — the
-   "tap your avatar / one-tap sign-in" experience. Gate with `getClientCapabilities()`.
-3. **Conditional Create.** After a successful password login, silently offer a passkey
-   (`mediation: 'conditional'`) to upgrade password users. Treat `InvalidStateError`/
-   `NotAllowedError` as benign (already-exists / dismissed) — don't surface as errors.
-4. **RP ID strategy.** Bind RP ID to the **registrable domain** (`astramatrix.xyz`) so a
-   passkey works across `vybz.astramatrix.xyz` and any subdomain (today it's bound to the
-   request hostname, so a passkey doesn't roam across subdomains). For distinct domains,
-   publish `/.well-known/webauthn` **related origins**.
-5. **De-MYVYB the RP.** `RP_NAME` is still `"MYVYB"` and `ALLOWED_HOSTS` lists
-   `myvyb.astramatrix.xyz` — update to VYBZ / `vybz.astramatrix.xyz`.
-6. **Graceful fallback** to email/password (and magic link) whenever a passkey ceremony is
-   cancelled/unsupported.
-
-**Conflict check with current plans:** none structural. Auth is a layer *below* the
-role+intent onboarding and the Projects/feed work — those run post-auth regardless of method.
-The only touch-point is the entry screen (`Onboarding`), which becomes passkey-first with the
-avatar-tap affordance and email/password fallback. Safe to build independently.
+### 12.7 Closing the Loop ✅ (alignment sprint)
+Video playback in feed/Space cards; `apply_role_intent_onboarding` + embed intents;
+Spaces vs Studio copy; `vybz.cloud` canon in docs/legal; de-MYVYB packaging
+(`vybz-app`, `cloud.vybz.app`); connection Accept/Decline + `match_feedback`;
+avatar upload UI; Studio uploads → Bunny secure; orphan purge + `NotFoundPage`.
 
 ### 12.5 Staff system — admin, moderators, rewards ✅ (shipped 2026-07)
 Role tiers **member < moderator < admin** (`profiles.platform_role`, `is_admin` kept in

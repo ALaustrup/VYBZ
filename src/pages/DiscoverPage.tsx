@@ -5,7 +5,8 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
 import { ROLES, GENRES } from "@/lib/profileFields";
-import { avatarGradient, cx } from "@/lib/utils";
+import { Avatar } from "@/components/Avatar";
+import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
 
 // Creator finder. (The anti-popularity discovery *feed* is the home front door —
@@ -52,8 +53,8 @@ export function DiscoverPage() {
           : results.length === 0 ? <EmptyState icon={Users} title="No creators found" body="Try a different name, role, or genre." />
           : <div className="space-y-2">{results.map((c) => (
               <div key={c.userId} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-                <button onClick={() => navigate(`/u/${c.userId}`)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display font-bold text-white" style={{ background: `linear-gradient(150deg, ${avatarGradient(c.username || c.userId)[0]}, ${avatarGradient(c.username || c.userId)[1]})` }}>
-                  {(c.username || "?").charAt(0).toUpperCase()}
+                <button onClick={() => navigate(`/u/${c.userId}`)} className="shrink-0">
+                  <Avatar name={c.username} id={c.userId} size="md" />
                 </button>
                 <div className="min-w-0 flex-1">
                   <button onClick={() => navigate(`/u/${c.userId}`)} className="truncate font-display font-semibold text-white">{c.username}</button>

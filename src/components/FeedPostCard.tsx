@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ExternalLink, Heart, Pause, Play, Flag } from "lucide-react";
 import { playTrack, usePlayer } from "@/lib/audioBus";
-import { avatarGradient, cx } from "@/lib/utils";
+import { cx } from "@/lib/utils";
+import { Avatar } from "@/components/Avatar";
 import { ReportModal } from "@/components/ReportModal";
 import type { FeedPost } from "@/types";
 
-/** A single post in the unified home feed — author + project + content + like. */
+/** A single post in the unified home feed — author + Space + content + like. */
 export function FeedPostCard({ post, onLike }: { post: FeedPost; onLike: (on: boolean) => void }) {
   const navigate = useNavigate();
   const player = usePlayer();
@@ -14,14 +15,14 @@ export function FeedPostCard({ post, onLike }: { post: FeedPost; onLike: (on: bo
   const accent = post.accent || "#a87cf8";
   const src = post.mediaUrl || post.linkUrl || "";
   const isAudio = post.kind === "audio" && !!src;
+  const isVideo = post.kind === "video" && !!src;
   const playing = player.track?.id === post.id && player.playing;
-  const [c0, c1] = avatarGradient(post.authorUsername || post.authorId);
 
   return (
     <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
       <div className="mb-3 flex items-center gap-2.5">
-        <button onClick={() => navigate(`/u/${post.authorId}`)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold text-white" style={{ background: `linear-gradient(150deg, ${c0}, ${c1})` }}>
-          {(post.authorUsername || "?").charAt(0).toUpperCase()}
+        <button onClick={() => navigate(`/u/${post.authorId}`)} className="shrink-0">
+          <Avatar url={post.authorAvatarUrl} name={post.authorUsername} id={post.authorId} size="sm" />
         </button>
         <div className="min-w-0 flex-1 leading-tight">
           <button onClick={() => navigate(`/u/${post.authorId}`)} className="block truncate text-sm font-semibold text-white">{post.authorUsername || "Creator"}</button>
@@ -43,6 +44,16 @@ export function FeedPostCard({ post, onLike }: { post: FeedPost; onLike: (on: bo
           {post.title && <p className="font-display font-semibold text-white">{post.title}</p>}
           {post.body && <p className="mt-0.5 whitespace-pre-wrap text-sm leading-relaxed text-white/75">{post.body}</p>}
           {post.kind === "image" && post.mediaUrl && <img src={post.mediaUrl} alt={post.title ?? ""} className="mt-2 max-h-96 w-full rounded-xl object-cover" loading="lazy" />}
+          {isVideo && (
+            <video
+              src={src}
+              controls
+              playsInline
+              preload="metadata"
+              poster={undefined}
+              className="mt-2 max-h-[28rem] w-full rounded-xl bg-black/40 object-contain"
+            />
+          )}
           {post.kind === "link" && post.linkUrl && (
             <a href={post.linkUrl} target="_blank" rel="noreferrer" className="mt-1.5 inline-flex items-center gap-1.5 text-sm font-medium text-veil-200 hover:underline"><ExternalLink className="h-3.5 w-3.5" /> {hostOf(post.linkUrl)}</a>
           )}

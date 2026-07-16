@@ -1,7 +1,7 @@
 import { cx } from "@/lib/utils";
 
 /**
- * Canonical identity renderer. MYVYB identity is the username — emoji identities
+ * Canonical identity renderer. VYBZ identity is the username — emoji identities
  * have been removed entirely. Renders the username when present, otherwise falls
  * back to the per-post/peer display alias, and finally to "Someone".
  */

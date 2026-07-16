@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Camera, Check, Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { Avatar } from "@/components/Avatar";
 import { ROLES, ROLE_FAMILIES, GENRES, DAWS, PLUGINS } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProfileDetails } from "@/types";
@@ -10,9 +11,11 @@ import type { ProfileDetails } from "@/types";
 export function ProfileEditPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile, showToast } = useSession();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [influences, setInfluences] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [openToWork, setOpenToWork] = useState(false);
   const [remoteOk, setRemoteOk] = useState(true);
   const [genres, setGenres] = useState<string[]>([]);
@@ -26,7 +29,8 @@ export function ProfileEditPage() {
     if (!profile) return;
     const f = profile.profile ?? {};
     setBio(profile.bio ?? ""); setLocation(profile.location ?? "");
-    setInfluences(f.influences ?? ""); setOpenToWork(!!f.openToWork); setRemoteOk(f.remoteOk ?? true);
+    setAvatarUrl(profile.avatarUrl); setInfluences(f.influences ?? "");
+    setOpenToWork(!!f.openToWork); setRemoteOk(f.remoteOk ?? true);
     setGenres(f.genres ?? []); setDaws(f.daws ?? []); setPlugins(f.plugins ?? []);
     api.getMyRoles().then((r) => { setOffers(r.offers.map((o) => o.roleId)); setSeeks(r.seeks.map((s) => s.roleId)); });
   }, [profile]);
@@ -34,13 +38,30 @@ export function ProfileEditPage() {
   const tog = (arr: string[], set: (v: string[]) => void, v: string, max = 99) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v].slice(0, max));
 
+  async function pickAvatar(file: File | null) {
+    if (!file || !file.type.startsWith("image/")) return;
+    setBusy(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().slice(0, 5);
+      const url = await api.uploadAvatar(file, ext);
+      if (url) {
+        setAvatarUrl(url);
+        await api.updateMyProfile({ avatarUrl: url });
+        await refreshProfile();
+        showToast("Photo updated");
+      } else {
+        showToast("Couldn't upload that photo");
+      }
+    } finally { setBusy(false); }
+  }
+
   async function save() {
     setBusy(true);
     const details: ProfileDetails = {
       ...(profile?.profile ?? {}),
       genres, daws, plugins, influences: influences.trim() || undefined, openToWork, remoteOk,
     };
-    await api.updateMyProfile({ bio: bio.trim(), location: location.trim(), profile: details });
+    await api.updateMyProfile({ bio: bio.trim(), location: location.trim(), avatarUrl: avatarUrl ?? undefined, profile: details });
     await api.setMyRoles(offers.map((r) => ({ roleId: r, skill: 3 })), seeks.map((r) => ({ roleId: r, priority: 1 })));
     void api.refreshEmbedding(); // update semantic resonance vector (async, non-blocking)
     await refreshProfile();
@@ -57,6 +78,21 @@ export function ProfileEditPage() {
         <button onClick={save} disabled={busy} className="btn btn-primary h-9 px-4 py-0 text-sm">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}</button>
       </div>
       <div className="no-scrollbar flex-1 space-y-5 overflow-y-auto px-4 pb-10 pt-3">
+        <Section title="Photo">
+          <div className="flex items-center gap-4">
+            <Avatar url={avatarUrl} name={profile?.username} id={profile?.id} size="lg" square />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-white/65">A clear face or brand mark helps people recognize you in Connect & Spark.</p>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                onChange={(e) => void pickAvatar(e.target.files?.[0] ?? null)} />
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}
+                className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-3.5 py-2 text-[13px] font-semibold text-white/80 ring-1 ring-white/10 hover:text-white active:scale-95 disabled:opacity-50">
+                <Camera className="h-3.5 w-3.5" /> {avatarUrl ? "Change photo" : "Upload photo"}
+              </button>
+            </div>
+          </div>
+        </Section>
+
         <Section title="About">
           <input value={location} onChange={(e) => setLocation(e.target.value.slice(0, 60))} placeholder="Location (city, region)" className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 280))} rows={3} placeholder="Short bio — who you are as a creator" className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />

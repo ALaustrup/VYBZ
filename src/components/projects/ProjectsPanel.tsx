@@ -13,9 +13,9 @@ const ACCENTS = ["#a87cf8", "#00e0a4", "#00a1ff", "#ff5c8a", "#ffb020", "#7c5cff
 const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none";
 
 /**
- * The Projects surface on a profile: a tab per project (fully owner-editable) —
- * content projects show a micro-blog post feed, "hub" projects show a grid of
- * links to channels/sites or in-platform VYBZ Project Pages.
+ * Spaces surface on a profile (DB: profile_projects): a tab per Space —
+ * content Spaces show a micro-blog post feed; hub Spaces show a grid of links
+ * to channels/sites or in-platform VYBZ Spaces.
  */
 export function ProjectsPanel({ userId, editable }: { userId: string; editable: boolean }) {
   const navigate = useNavigate();
@@ -70,14 +70,14 @@ export function ProjectsPanel({ userId, editable }: { userId: string; editable: 
         <button onClick={() => setModal("project")} className="flex w-full flex-col items-center gap-3 rounded-3xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-12 text-center transition hover:border-veil-400/50 active:scale-[0.99]">
           <FolderPlus className="h-8 w-8 text-veil-300" />
           <div>
-            <p className="font-display text-lg font-semibold text-white">Start a project</p>
+            <p className="font-display text-lg font-semibold text-white">Start a Space</p>
             <p className="mt-1 text-sm text-white/50">Your aliases, bands, channels, releases — each becomes its own space you fully control.</p>
           </div>
         </button>
         <ProjectModals modal={modal} setModal={setModal} projects={projects} activeProjectId={activeId}
           onCreatedProject={async (id) => { await loadProjects(); setActiveId(id); }} onChanged={() => { if (activeId) void loadDetail(activeId); }} />
       </>
-    ) : <p className="py-8 text-center text-sm text-white/40">No projects yet.</p>;
+    ) : <p className="py-8 text-center text-sm text-white/40">No Spaces yet.</p>;
   }
 
   return (
@@ -108,8 +108,8 @@ export function ProjectsPanel({ userId, editable }: { userId: string; editable: 
       ) : <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>}
 
       {editable && active && (
-        <button onClick={async () => { if (confirm(`Remove project "${active.name}"?`)) { await api.archiveProject(active.id); await loadProjects(); } }}
-          className="text-[12px] font-medium text-white/35 hover:text-wild">Remove this project</button>
+        <button onClick={async () => { if (confirm(`Remove Space "${active.name}"?`)) { await api.archiveProject(active.id); await loadProjects(); } }}
+          className="text-[12px] font-medium text-white/35 hover:text-wild">Remove this Space</button>
       )}
 
       <ProjectModals modal={modal} setModal={setModal} projects={projects} activeProjectId={activeId}
@@ -180,14 +180,14 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
             className="glass-panel relative z-10 w-full max-w-md rounded-t-3xl p-5 sm:rounded-3xl">
             <div className="mb-3 flex items-center gap-2">
               <h2 className="flex-1 font-display text-lg font-bold text-white">
-                {modal === "project" ? "New project" : "Add link"}
+                {modal === "project" ? "New Space" : "Add link"}
               </h2>
               <button onClick={() => setModal(null)} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
             </div>
 
             {modal === "project" && (
               <div className="space-y-3">
-                <input value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder="Project name (alias, band, channel…)" className={inputCls} autoFocus />
+                <input value={name} onChange={(e) => setName(e.target.value.slice(0, 60))} placeholder="Space name (alias, band, channel…)" className={inputCls} autoFocus />
                 <div>
                   <p className="mb-1.5 text-[12px] font-semibold text-white/60">Type</p>
                   <div className="flex flex-wrap gap-1.5">
@@ -198,7 +198,7 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
                       </button>
                     ))}
                   </div>
-                  <p className="mt-1.5 text-[11px] text-white/40">{isHubKind(kind) ? "A hub of links to your channels/sites (or VYBZ Project Pages)." : "A micro-blog — post updates, tracks, art, and more."}</p>
+                  <p className="mt-1.5 text-[11px] text-white/40">{isHubKind(kind) ? "A hub of links to your channels/sites (or VYBZ Spaces)." : "A micro-blog — post updates, tracks, art, and more."}</p>
                 </div>
                 <input value={tagline} onChange={(e) => setTagline(e.target.value.slice(0, 100))} placeholder="Tagline (optional)" className={inputCls} />
                 <div>
@@ -218,24 +218,24 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
                 <input value={lLabel} onChange={(e) => setLLabel(e.target.value.slice(0, 60))} placeholder="Label (e.g. Main Channel)" className={inputCls} autoFocus />
                 <div className="flex gap-1.5">
                   <button onClick={() => setLMode("external")} className={cx("flex-1 rounded-xl py-2 text-[13px] font-semibold transition", lMode === "external" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}>External link</button>
-                  <button onClick={() => setLMode("page")} className={cx("flex-1 rounded-xl py-2 text-[13px] font-semibold transition", lMode === "page" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}>VYBZ Project Page</button>
+                  <button onClick={() => setLMode("page")} className={cx("flex-1 rounded-xl py-2 text-[13px] font-semibold transition", lMode === "page" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}>VYBZ Space</button>
                 </div>
                 {lMode === "external" ? (
                   <input value={lUrl} onChange={(e) => setLUrl(e.target.value)} placeholder="https://youtube.com/@yourchannel" className={inputCls} />
                 ) : (
                   <div>
                     <select value={lTarget} onChange={(e) => setLTarget(e.target.value)} className={cx(inputCls, "appearance-none")}>
-                      <option value="" style={{ background: "#0f1420" }}>Choose one of your projects…</option>
+                      <option value="" style={{ background: "#0f1420" }}>Choose one of your Spaces…</option>
                       {projects.filter((p) => p.id !== activeProjectId).map((p) => <option key={p.id} value={p.id} style={{ background: "#0f1420" }}>{p.name}</option>)}
                     </select>
-                    <p className="mt-1.5 text-[11px] text-white/40">Don't have a page yet? Create a project first, then link it here.</p>
+                    <p className="mt-1.5 text-[11px] text-white/40">Don't have a Space yet? Create one first, then link it here.</p>
                   </div>
                 )}
               </div>
             )}
 
             <button onClick={submit} disabled={busy} className="btn btn-primary mt-4 h-11 w-full py-0 text-sm disabled:opacity-50">
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modal === "project" ? "Create project" : "Add link"}
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : modal === "project" ? "Create Space" : "Add link"}
             </button>
           </motion.div>
         </motion.div>
