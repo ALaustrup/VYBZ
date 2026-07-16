@@ -52,8 +52,9 @@ if [ -z "${NO_SUPABASE:-}" ]; then
   ok "migrations applied"
 
   say "Deploying Edge Functions"
-  # Functions with custom auth / webhooks — no JWT gate at the edge.
-  NO_JWT="email-code passkey push-send room-mod stripe-webhook name-drop-notify"
+  # Functions that do their own auth / handle CORS preflight / are webhooks —
+  # they must NOT sit behind the edge JWT gate (it would 401 preflight + anon calls).
+  NO_JWT="passkey bunny-upload bunny-sign watermark watermark-detect push-send stripe-webhook"
   for fn in supabase/functions/*/; do
     name="$(basename "$fn")"
     [ "$name" = "_shared" ] && continue
