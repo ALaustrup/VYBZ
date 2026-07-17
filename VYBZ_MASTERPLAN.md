@@ -588,6 +588,21 @@ Made every surface feel like its own place without touching the mission or data:
 _Next visual phases (planned): media pipeline (direct/resumable Bunny uploads +
 Bunny Stream + optimistic/realtime posting), uploads dashboard, fake-data cleanup._
 
+### 12.12 Onboarding explicit seeks — "who are you looking for?" ✅ (shipped 2026-07, P0 #3)
+Closed the biggest cold-start gap: a new onboarding step (role → intent →
+**who are you looking for?** → avatar) captures the roles a creator explicitly
+wants, feeding `creator_seeks` directly so `collab_matches` surfaces
+exactly-wanted collaborators from day one (not just role-affinity inference).
+- **UX:** quick-pick roles sampled across families + live catalog search
+  (`suggestDisciplines`); selected roles show as removable chips. Skippable.
+- **Durable (migration `0032`):** explicit picks persist on
+  `profiles.profile.seekRoles`; `sync_creator_graph` builds `creator_seeks` from
+  **module `wants_roles` ∪ explicit `seekRoles`**, so they survive module
+  re-syncs and work for custom (non-catalog) roles too. `apply_role_intent_onboarding`
+  gained `p_seek_roles`. Manual editor (`set_creator_roles`) still overrides.
+- **Verified:** UI selection (Producer/Drums/Mix Engineer/Lead Vocalist) →
+  `creator_seeks` = those + affinity-inferred (band, bass). End-to-end on live DB.
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
