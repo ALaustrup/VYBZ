@@ -585,7 +585,18 @@ Made every surface feel like its own place without touching the mission or data:
   in the headless VM — validate on a real device._
 - **Residue:** purged MYVYB wording (Godmode/V¢/confession/NSFW) in touched files.
 
-_Next visual phases (planned): uploads dashboard, fake-data cleanup, dating layer._
+_Next visual phases (planned): fake-data cleanup, dating layer._
+
+### 12.11 Uploads/Library dashboard — Phase 3 ✅ (shipped 2026-07)
+The profile's read-only "Your drops" became a **manager**: each drop shows stats
+(plays · Vyb · Fail · rating) with inline **rename**, **set-featured**, and
+**delete** (confirm). Edit/delete are owner-scoped via existing `drops` RLS
+(`author_id = auth.uid()`); featuring is a guarded RPC (`set_featured_drop`,
+migration `0031` + `profiles.featured_drop_id`) that verifies ownership and
+headlines the chosen drop on the profile. Component: `UploadsLibrary`.
+_Verified end-to-end against the live DB (feature → rename → delete all persist)._
+_Follow-ups: purge the Bunny object on delete (edge `bunny-delete`); extend the
+Library to Space posts + Studio versions; surface the featured drop publicly._
 
 ### 12.10 Media pipeline — Phase 2 ✅ (shipped 2026-07)
 Instant posting + large, high-quality media:

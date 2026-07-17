@@ -61,6 +61,9 @@ legacy passkey/host allow-lists during cutover).
   playback. Bunny Stream/HLS transcode is planned (gated on a Stream library).
 - **Realtime feed:** `drops` + `project_posts` are in the `supabase_realtime`
   publication; `FeedPage` subscribes to INSERTs for instant posting (RLS-governed).
+- **Library:** `UploadsLibrary` on the profile manages a creator's own drops
+  (rename/delete via owner RLS; feature via `set_featured_drop` +
+  `profiles.featured_drop_id`).
 - **C2PA:** `worker/c2pa` ready; gated on worker host secrets.
 
 ## Matchmaking
