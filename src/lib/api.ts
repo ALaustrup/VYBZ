@@ -65,6 +65,7 @@ function toProfile(r: any): Profile {
     equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
     banned: r.banned ?? false,
     profile: (r.profile ?? {}) as ProfileDetails,
+    featuredDropId: r.featured_drop_id ?? null,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
   };
 }
@@ -857,6 +858,7 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
       license: a?.license ?? null,
       rating: a ? Number(a.rating_avg ?? 0) : undefined,
       ratingCount: a ? Number(a.rating_count ?? 0) : undefined,
+      plays: r.plays ?? 0,
       myReaction: myReactions.get(r.id), myRating: r.asset_id ? myRatings.get(r.asset_id) : undefined,
     } as Drop & { myReaction?: Reaction; myRating?: number };
   });
@@ -872,9 +874,26 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
 export async function dropsBy(authorId: string, limit = 40) {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays")
     .eq("author_id", authorId).order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
+}
+
+// ── Manage your own drops (Library) — owner-scoped via RLS + a guarded RPC ────
+/** Delete one of your own drops (RLS enforces ownership). */
+export async function deleteDrop(id: string): Promise<boolean> {
+  const { error } = await db().from("drops").delete().eq("id", id);
+  return !error;
+}
+/** Rename one of your own drops (RLS enforces ownership). */
+export async function updateDropTitle(id: string, title: string): Promise<boolean> {
+  const { error } = await db().from("drops").update({ title: title.trim() || null }).eq("id", id);
+  return !error;
+}
+/** Feature a drop on your profile (or pass null to clear). Server verifies ownership. */
+export async function setFeaturedDrop(dropId: string | null): Promise<boolean> {
+  const { error } = await db().rpc("set_featured_drop", { p_drop: dropId });
+  return !error;
 }
 
 // ── Discovery (anti-popularity feed) ─────────────────────────────────────────
