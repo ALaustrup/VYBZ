@@ -221,7 +221,9 @@ are UNION'd from offer/seek joins + vector-nearest, so thin/new profiles still m
 
 ### 5.3 Design discipline
 Definer functions read private facets to sharpen *your* results but emit only
-aggregates + role labels. Weights are hand-tuned today; §5.4 makes them earned.
+aggregates + role labels. Weights start hand-tuned and are then **earned from outcomes**
+via learning-to-rank (§5.4h) — admin overrides always win, learned weights refine the
+rest, and coded defaults remain the floor.
 
 ### 5.4 Enhancement roadmap — best matches across musicianship *and* production/agency types
 This is the standing brief for making matches world-class. Grouped by lever:
@@ -265,9 +267,15 @@ and improves match quality as the graph matures.
 connect/message/Spark history → "creators like the ones you connect with." Feed these
 as soft signals.
 
-**(h) Learning-to-rank.** Log which matches lead to connections/DMs/collaborations and
-train the weights from outcomes over time, replacing hand-tuning — while keeping the
-explainable "why" on top.
+**(h) Learning-to-rank.** ✅ *Shipped (0029).* Every `connect`/`pass`/`accept`/`decline`
+now snapshots a normalized 0–1 **signal vector** for the pair (`match_signal_vector`).
+`tune_matchmaking_weights()` compares each signal's average strength among positive vs
+negative outcomes and scales that signal's weight — **support-shrunk** (thin data barely
+moves) and **clamped to [0.4×, 2.0×]** of the hand-tuned base, so no signal is ever zeroed
+or runs away. `mm_w()` resolves **admin override → learned → coded default**, so learning
+never fights a manual setting and the defaults stay the floor. Runs nightly via `pg_cron`
+when available, or on demand from **/admin → Matchmaking → Run learning** (which shows the
+per-signal base→learned report). The explainable "why" is preserved on every card.
 
 **(i) Hard filters vs soft boosts.** Let users set non-negotiables (remote-only,
 DAW-compatible for project handoff, language) as hard filters, distinct from soft
@@ -276,8 +284,12 @@ ranking boosts.
 **(j) Fairness & freshness.** Guard against rich-get-richer: surface new/underexposed
 creators and diversify results so the network stays vibrant.
 
-**(k) Explainability & confidence.** Always show *why* + a confidence read so creators
-trust and act on matches.
+**(k) Explainability & confidence.** ◑ Always show *why* + a confidence read so creators
+trust and act on matches. *Confidence shipped (0029):* `collab_matches` returns a 0–1
+`confidence` built from how many independent evidence types corroborate a match blended
+with fit, surfaced as a labelled read (High / Solid / Emerging / Exploratory) on Connect
+and Spark alongside the existing "why" (has-what-you-seek / wants-what-you-bring / shared
+disciplines / shared genres+DAWs).
 
 ---
 
