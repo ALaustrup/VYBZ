@@ -27,10 +27,10 @@ Set-Location $RepoRoot
 $VYBZ = @{
   SupabaseRef     = "xixmneooyufbeftdfpcm"
   SupabaseUrl     = "https://xixmneooyufbeftdfpcm.supabase.co"
-  VercelProject   = "vyb-audio"
+  VercelProject   = "vybz"
   VercelTeam      = "astramatrix"
-  ProdDomain      = "vybz.astramatrix.xyz"
-  PreviewDomain   = "vyb-audio.vercel.app"
+  ProdDomain      = "vybz.cloud"
+  PreviewDomain   = "vybz.vercel.app"
   MyvybSupabase   = "xhgmpodfpcxfshaqspgh"  # do NOT point VYBZ at this
 }
 
@@ -90,8 +90,8 @@ try {
   $dns = Resolve-DnsName $VYBZ.ProdDomain -ErrorAction Stop
   Ok "$($VYBZ.ProdDomain) resolves"
 } catch {
-  Warn "$($VYBZ.ProdDomain) has no DNS record yet - add CNAME vybz -> cname.vercel-dns.com in astramatrix.xyz DNS, then assign domain to vyb-audio in Vercel"
-  Warn "If domain is on another Vercel project: Dashboard -> Domains -> remove from old project -> add to vyb-audio"
+  Warn "$($VYBZ.ProdDomain) has no DNS record yet - ensure registrar NS = ns1/ns2.vercel-dns.com and Vercel DNS zone is enabled (zone:true), then assign domain to project vybz"
+  Warn "If domain is on another Vercel project: Dashboard -> Domains -> remove from old project -> add to vybz"
 }
 
 # ── Supabase (requires token) ─────────────────────────────────────────────────

@@ -32,9 +32,10 @@ cp .env.example .env.local   # fill VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
 npm run dev
 ```
 
-Requires Node ≥ 20. Production deploys to Vercel; canonical host is
-**vybz.cloud**. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as
-project env vars. Auth redirect allowlist should include `https://vybz.cloud/**`.
+Requires Node ≥ 20. Production deploys via Vercel project **`astramatrix/vybz`**
+(GitHub `ALaustrup/vyb-audio` → `main`). Canonical host: **vybz.cloud**
+(preview: `vybz.vercel.app`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+as project env vars. Auth redirect allowlist includes `https://vybz.cloud/**`.
 
 ## Scripts
 

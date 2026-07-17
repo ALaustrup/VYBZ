@@ -11,8 +11,8 @@
 #
 # Optional overrides:
 #   SUPABASE_PROJECT_REF=xixmneooyufbeftdfpcm
-#   VERCEL_PROJECT_NAME=vyb-audio
-#   VERCEL_PROD_DOMAIN=vybz.astramatrix.xyz
+#   VERCEL_PROJECT_NAME=vybz
+#   VERCEL_PROD_DOMAIN=vybz.cloud
 #   NO_SUPABASE=1          # web-only deploy (skip migrations + functions)
 #
 # Requires: node 20+, npm. Supabase CLI via npx (no global install needed).
@@ -33,7 +33,7 @@ say "Preflight checks"
 require SUPABASE_ACCESS_TOKEN
 require VERCEL_TOKEN
 : "${SUPABASE_PROJECT_REF:=xixmneooyufbeftdfpcm}"
-: "${VERCEL_PROJECT_NAME:=vyb-audio}"
+: "${VERCEL_PROJECT_NAME:=vybz}"
 : "${VERCEL_PROD_DOMAIN:=vybz.cloud}"
 
 command -v node >/dev/null || die "node not installed"
@@ -123,7 +123,7 @@ for d in "$VERCEL_PROD_DOMAIN"; do
 done
 
 say "Smoke check"
-for url in "https://$VERCEL_PROD_DOMAIN/" "https://vyb-audio.vercel.app/" "$DEPLOY_URL/"; do
+for url in "https://$VERCEL_PROD_DOMAIN/" "https://www.$VERCEL_PROD_DOMAIN/" "https://vybz.vercel.app/" "$DEPLOY_URL/"; do
   code="$(curl -sI -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")"
   printf "    HTTP %s  %s\n" "$code" "$url"
 done
@@ -131,6 +131,6 @@ done
 printf "\n\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n"
 printf "\033[1;32m  VYBZ deployed.\033[0m\n"
 printf "  Production: https://%s\n" "$VERCEL_PROD_DOMAIN"
-printf "  Fallback:   https://vyb-audio.vercel.app\n"
+printf "  Fallback:   https://vybz.vercel.app\n"
 printf "  Build URL:  %s\n" "$DEPLOY_URL"
 printf "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n\n"
