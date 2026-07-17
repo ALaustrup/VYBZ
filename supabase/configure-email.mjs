@@ -39,7 +39,7 @@ const need = (k) => {
 const token = need("SUPABASE_ACCESS_TOKEN");
 const ref = process.env.SUPABASE_PROJECT_REF ?? "xixmneooyufbeftdfpcm";
 const APP = process.env.APP_URL ?? "https://vybz.cloud";
-const PREVIEW = process.env.PREVIEW_URL ?? "https://vybz.vercel.app";
+const PREVIEW = process.env.PREVIEW_URL ?? "https://vybz-astramatrix.vercel.app";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(here, "email-templates", "confirm.html"), "utf8");

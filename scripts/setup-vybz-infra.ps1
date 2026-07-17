@@ -30,7 +30,7 @@ $VYBZ = @{
   VercelProject   = "vybz"
   VercelTeam      = "astramatrix"
   ProdDomain      = "vybz.cloud"
-  PreviewDomain   = "vybz.vercel.app"
+  PreviewDomain   = "vybz-astramatrix.vercel.app"
   MyvybSupabase   = "xhgmpodfpcxfshaqspgh"  # do NOT point VYBZ at this
 }
 

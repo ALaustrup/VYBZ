@@ -123,7 +123,7 @@ for d in "$VERCEL_PROD_DOMAIN"; do
 done
 
 say "Smoke check"
-for url in "https://$VERCEL_PROD_DOMAIN/" "https://www.$VERCEL_PROD_DOMAIN/" "https://vybz.vercel.app/" "$DEPLOY_URL/"; do
+for url in "https://$VERCEL_PROD_DOMAIN/" "https://www.$VERCEL_PROD_DOMAIN/" "https://vybz-astramatrix.vercel.app/" "$DEPLOY_URL/"; do
   code="$(curl -sI -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")"
   printf "    HTTP %s  %s\n" "$code" "$url"
 done
@@ -131,6 +131,6 @@ done
 printf "\n\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n"
 printf "\033[1;32m  VYBZ deployed.\033[0m\n"
 printf "  Production: https://%s\n" "$VERCEL_PROD_DOMAIN"
-printf "  Fallback:   https://vybz.vercel.app\n"
+printf "  Fallback:   https://vybz-astramatrix.vercel.app\n"
 printf "  Build URL:  %s\n" "$DEPLOY_URL"
 printf "\033[1;32m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m\n\n"
