@@ -25,7 +25,12 @@ legacy passkey/host allow-lists during cutover).
   (role + intents + optional avatar) → app + `WelcomeTutorial`.
 - **State:** `src/store/session.tsx`; player via `AudioBus` / `usePlayer()`.
 - **Data:** `src/lib/api.ts` typed to `src/types.ts`.
-- **Design:** Smoked-Glass tokens in `src/index.css`.
+- **Design:** Smoked-Glass tokens in `src/index.css`. **Per-surface theming**
+  (`src/lib/surfaceTheme.ts`) sets `--accent-rgb` + the living-background variant
+  per route, so every surface recolours (Feed=violet, Connect=pink, Studio=teal,
+  Store=gold, …). Shared `PageHeader` primitive; `GrainOverlay` texture; `.reveal`
+  staggered entrances; audio-reactive intensity preference in `src/lib/display.ts`
+  (`getFxScale`) drives `ReactiveFrame` + `DynamicBackground`.
 
 ### Naming (product vs schema)
 

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { bgVariant } from "@/lib/backgrounds";
-import { useReduceFx } from "@/lib/display";
+import { useReduceFx, useFxScale } from "@/lib/display";
 
 interface DynamicBackgroundProps {
-  /** Variant id (aurora/ember/…). Godmode-customizable. */
+  /** Variant id (aurora/ember/…) — set per surface for a distinct backdrop. */
   variant?: string;
 }
 
@@ -28,6 +28,9 @@ const BASE = "#191c22";
 export function DynamicBackground({ variant }: DynamicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduce = useReduceFx();
+  const fxScale = useFxScale();
+  // Calmer blobs on "subtle" (default), fuller on "full"; static frame stays legible.
+  const blobAlpha = 0.34 * (reduce ? 1 : 0.72 + 0.28 * fxScale);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -105,7 +108,7 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
           if (b.y < -b.r) b.y = h + b.r;
           if (b.y > h + b.r) b.y = -b.r;
         }
-        drawBlob(b.x, b.y, b.r, b.color, 0.34);
+        drawBlob(b.x, b.y, b.r, b.color, blobAlpha);
       }
 
       // The reactive highlight that blooms under the finger/cursor.
@@ -150,7 +153,7 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [variant, reduce]);
+  }, [variant, reduce, blobAlpha]);
 
   return (
     <canvas

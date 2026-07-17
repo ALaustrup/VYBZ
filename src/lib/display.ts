@@ -55,3 +55,41 @@ export function useReduceFx(): boolean {
 export function useReduceFxOverride(): boolean | null {
   return useSyncExternalStore(subscribe, getReduceFxOverride, getReduceFxOverride);
 }
+
+// ── Audio-reactive intensity ────────────────────────────────────────────────
+// Independent of reduce-motion: even with effects on, creators can keep the
+// reactive frame + living background *subtle* (the default) or turn them Full.
+// A single 0..1 scalar the reactive canvases multiply their amplitude by.
+
+const FX_KEY = "vybz.fxIntensity";
+export type FxIntensity = "subtle" | "full";
+
+export function getFxIntensityPref(): FxIntensity {
+  try {
+    return localStorage.getItem(FX_KEY) === "full" ? "full" : "subtle";
+  } catch {
+    return "subtle";
+  }
+}
+
+/** Amplitude scalar for the reactive canvases (0 when effects are reduced). */
+export function getFxScale(): number {
+  if (getReduceFx()) return 0;
+  // Subtle (default) stays gently present; Full is clearly there, never harsh.
+  return getFxIntensityPref() === "full" ? 1.3 : 0.85;
+}
+
+export function setFxIntensity(v: FxIntensity) {
+  try { localStorage.setItem(FX_KEY, v); } catch { /* ignore */ }
+  listeners.forEach((l) => l());
+}
+
+/** Reactive intensity preference (for the settings toggle). */
+export function useFxIntensity(): FxIntensity {
+  return useSyncExternalStore(subscribe, getFxIntensityPref, getFxIntensityPref);
+}
+
+/** Reactive amplitude scalar used by ReactiveFrame / DynamicBackground. */
+export function useFxScale(): number {
+  return useSyncExternalStore(subscribe, getFxScale, getFxScale);
+}

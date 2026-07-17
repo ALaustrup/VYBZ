@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { usePlayer, readBands, readFrequencies, frequencyBinCount } from "@/lib/audioBus";
 import { paletteFor } from "@/lib/utils";
-import { useReduceFx } from "@/lib/display";
+import { useFxScale } from "@/lib/display";
 
 /**
  * Platform-wide audio-reactive frame. A full-viewport, click-through overlay that
@@ -12,7 +12,8 @@ import { useReduceFx } from "@/lib/display";
  */
 export function ReactiveFrame() {
   const { track, playing } = usePlayer();
-  const reduce = useReduceFx();
+  const fxScale = useFxScale(); // 0 = off/reduced, 0.6 = subtle (default), 1 = full
+  const reduce = fxScale === 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const seed = track?.seed ?? 1;
   const accent = track?.accent ?? "#a87cf8";
@@ -68,8 +69,9 @@ export function ReactiveFrame() {
       pop = Math.max(pop * 0.92, Math.max(0, b.bass - ema * 1.2) * 1.5);
       t += 0.016;
       const energy = Math.min(1, b.level * 1.1 + pop * 0.5);
-      // Clearly present while playing, swelling with energy — a real visual hook.
-      const master = intensity * (0.55 + energy * 1.15);
+      // Present while playing, swelling with energy — scaled by the creator's
+      // intensity preference (subtle by default) so it's a hook, never a klaxon.
+      const master = intensity * (0.55 + energy * 1.1) * fxScale;
       const minSide = Math.min(w, h);
       ctx.globalCompositeOperation = "lighter";
 
@@ -137,7 +139,7 @@ export function ReactiveFrame() {
     else raf = requestAnimationFrame(tick);
 
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
-  }, [playing, seed, accent, fx, reduce]);
+  }, [playing, seed, accent, fx, reduce, fxScale]);
 
   return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-[60] h-full w-full" />;
 }

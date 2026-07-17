@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { AudioLines } from "lucide-react";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
-import { useReduceFxOverride, setReduceFx } from "@/lib/display";
+import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
 import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
 import { Sparkles as SparklesIcon } from "lucide-react";
 import type { Drop, CreatorStats, Credit } from "@/types";
@@ -179,6 +179,34 @@ function DisplaySetting() {
       </div>
       <p className="mt-1.5 px-1 text-[11px] text-white/40">
         Auto follows your device. Reduced calms the animated background, reactive border, and visualizers for better battery and performance.
+      </p>
+      <IntensitySetting />
+    </div>
+  );
+}
+
+function IntensitySetting() {
+  const reduced = useReduceFx();
+  const intensity = useFxIntensity();
+  if (reduced) return null; // no point tuning intensity when effects are off
+  const opts: { id: "subtle" | "full"; label: string }[] = [
+    { id: "subtle", label: "Subtle" },
+    { id: "full", label: "Full" },
+  ];
+  return (
+    <div className="mt-3">
+      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Reactive intensity</p>
+      <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1">
+        {opts.map((o) => (
+          <button key={o.id} onClick={() => setFxIntensity(o.id)}
+            className={cx("flex-1 rounded-xl py-2 text-sm font-semibold transition",
+              intensity === o.id ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "text-white/50 hover:text-white/80")}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1.5 px-1 text-[11px] text-white/40">
+        How strongly the reactive border &amp; background respond to playback. Subtle is the default — present, never overpowering.
       </p>
     </div>
   );

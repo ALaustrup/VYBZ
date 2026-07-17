@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FolderGit2, Loader2, Plus, X, Users, GitBranch, CheckCircle2 } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { GENRES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
@@ -26,11 +27,15 @@ export function ProjectsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-4 pb-1 pt-3 max-lg:pr-14">
-        <h1 className="flex-1 font-display text-xl font-bold text-gradient">Studio</h1>
-        <button onClick={() => setComposing(true)} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95"><Plus className="h-4 w-4" /> New</button>
-      </div>
-      <p className="px-4 pb-2 text-xs text-white/45">Private rooms for collaboration — versioned handoffs, agreed splits, and verified credits when you release.</p>
+      <PageHeader
+        icon={FolderGit2}
+        title="Studio"
+        subtitle="Private rooms — versioned handoffs, splits & verified credits"
+        className="pb-1 max-lg:pr-14"
+        actions={
+          <button onClick={() => setComposing(true)} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95"><Plus className="h-4 w-4" /> New</button>
+        }
+      />
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-1">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>

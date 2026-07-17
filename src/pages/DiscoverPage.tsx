@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, Search, Sparkles, Target, UserPlus, Users } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { ROLES, GENRES } from "@/lib/profileFields";
 import { Avatar } from "@/components/Avatar";
@@ -30,7 +31,7 @@ export function DiscoverPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 pb-1 pt-3"><h1 className="font-display text-xl font-bold text-gradient">Discover creators</h1></div>
+      <PageHeader icon={Search} title="Discover creators" subtitle="Search the network by role, genre and craft" />
       <div className="space-y-2.5 px-4 pt-2">
         <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
           <Search className="h-4 w-4 text-white/40" />
