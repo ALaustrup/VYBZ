@@ -19,6 +19,13 @@ const KINDS: { id: AssetKind; label: string }[] = [
   { id: "midi", label: "MIDI" }, { id: "preset", label: "Preset" }, { id: "project", label: "Project" },
 ];
 const PREVIEW_ID = "compose-preview";
+// Large lossless masters are welcome; guard against absurd/accidental uploads.
+const MAX_AUDIO_BYTES = 1024 * 1024 * 1024; // 1 GB
+function prettyBytes(n: number): string {
+  if (n >= 1024 ** 3) return `${(n / 1024 ** 3).toFixed(1)} GB`;
+  if (n >= 1024 ** 2) return `${(n / 1024 ** 2).toFixed(0)} MB`;
+  return `${(n / 1024).toFixed(0)} KB`;
+}
 
 interface AudioState {
   file: File; url: string; ext: string; peaks: number[];
@@ -36,6 +43,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [license, setLicense] = useState("collab-only");
   const [decoding, setDecoding] = useState(false);
   const [posting, setPosting] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const player = usePlayer();
   const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
@@ -45,7 +53,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   useEffect(() => {
     if (open) {
       setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
-      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only"); setDecoding(false); setPosting(false);
+      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only"); setDecoding(false); setPosting(false); setProgress(null);
     }
   }, [open]);
 
@@ -53,6 +61,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+    if (file.size > MAX_AUDIO_BYTES) {
+      showToast(`That file is ${prettyBytes(file.size)} — max is 1 GB.`);
+      return;
+    }
     setDecoding(true);
     try {
       const meta = audioMeta(file);
@@ -75,7 +87,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   async function post() {
     if (!audio || posting) return;
     setPosting(true);
-    const path = await api.uploadAudio(audio.file, audio.ext);
+    setProgress(0);
+    const path = await api.uploadAudio(audio.file, audio.ext, setProgress);
+    setProgress(null);
     if (!path) { setPosting(false); showToast("Upload failed — check your connection."); return; }
     // Provenance: hash the original bytes + a lightweight acoustic signature.
     const [sha256, fingerprint] = await Promise.all([
@@ -178,6 +192,17 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             </div>
 
             <div className="shrink-0 border-t border-white/10 bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+              {progress !== null && (
+                <div className="mb-2.5">
+                  <div className="mb-1 flex items-center justify-between text-[11px] text-white/55">
+                    <span>{progress < 100 ? "Uploading…" : "Finalizing…"}{audio ? ` · ${prettyBytes(audio.file.size)}` : ""}</span>
+                    <span className="tabular-nums">{progress}%</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                    <div className="h-full rounded-full bg-veil-400 transition-all" style={{ width: `${progress}%` }} />
+                  </div>
+                </div>
+              )}
               <button onClick={post} disabled={!audio || posting} className="btn btn-primary w-full py-3.5">
                 {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Release your drop</>}
               </button>

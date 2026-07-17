@@ -58,31 +58,42 @@ Deno.serve(async (req: Request) => {
   const ct = req.headers.get("content-type") ?? "application/octet-stream";
   const ext = sanitizeExt(name);
 
-  const bytes = new Uint8Array(await req.arrayBuffer());
-  if (bytes.byteLength === 0) return json({ error: "empty" }, 400);
-  if (bytes.byteLength > 200 * 1024 * 1024) return json({ error: "too large (200MB max)" }, 413);
+  // Enforce the size cap from Content-Length (no full-file buffering) so large,
+  // high-quality masters and video stream straight through to Bunny.
+  const MAX_BYTES = 1024 * 1024 * 1024; // 1 GB
+  const lenHeader = req.headers.get("content-length");
+  const size = lenHeader ? parseInt(lenHeader, 10) : NaN;
+  if (lenHeader === "0") return json({ error: "empty" }, 400);
+  if (Number.isFinite(size) && size > MAX_BYTES) return json({ error: "too large (1GB max)" }, 413);
+  if (!req.body) return json({ error: "empty" }, 400);
+
+  // Stream the request body directly to Bunny (duplex) — memory stays flat
+  // regardless of file size, and progress is reported client-side.
+  const streamPut = (host: string, zone: string, pass: string, path: string) => {
+    const headers: Record<string, string> = { AccessKey: pass, "Content-Type": ct };
+    if (lenHeader) headers["Content-Length"] = lenHeader;
+    return fetch(`https://${host}/${zone}/${path}`, {
+      method: "PUT",
+      headers,
+      body: req.body,
+      // Required by the runtime to send a streaming request body.
+      duplex: "half",
+    } as RequestInit & { duplex: "half" });
+  };
 
   // Protected drop/project original → isolated, token-authed secure zone. Returns
   // ONLY the storage path (no public URL); previews are signed on demand.
   if (kind === "drop" || kind === "project") {
     if (!SEC_ZONE || !SEC_PASS) return json({ error: "secure bunny not configured" }, 500);
     const path = `${kind}s/${uid}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
-    const put = await fetch(`https://${SEC_HOST}/${SEC_ZONE}/${path}`, {
-      method: "PUT",
-      headers: { AccessKey: SEC_PASS, "Content-Type": ct },
-      body: bytes,
-    });
+    const put = await streamPut(SEC_HOST, SEC_ZONE, SEC_PASS, path);
     if (!put.ok) return json({ error: `bunny ${put.status}` }, 502);
     return json({ path });
   }
 
   // Public post media → open pull zone, returns the CDN URL.
   const path = `${uid}/posts/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
-  const put = await fetch(`https://${SHOST}/${SZONE}/${path}`, {
-    method: "PUT",
-    headers: { AccessKey: SPASS, "Content-Type": ct },
-    body: bytes,
-  });
+  const put = await streamPut(SHOST, SZONE, SPASS, path);
   if (!put.ok) return json({ error: `bunny ${put.status}` }, 502);
 
   return json({ url: `https://${CDN}/${path}`, path });
