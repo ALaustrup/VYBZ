@@ -23,14 +23,7 @@ file wins.**
 > rebuild. **VYBZ has no anonymity of any kind** — every account is a real, durable
 > creator identity. Any statement to the contrary is obsolete. Do not reintroduce
 > those concepts.
->
-> **Amendment (2026-07, owner-sanctioned):** an **identity-first creator-dating**
-> pillar is now a planned, first-class addition — see §12.8. This is categorically
-> different from MYVYB's removed dating: **no anonymity, no throwaway personas,
-> opt-in only**, built on the *same real-identity matchmaking graph* as collab.
-> The standing prohibition is on **anonymity and MYVYB's domain**, never on
-> romance between real, named creators. Do not "purge" the dating pillar as
-> residue — it is intentional.
+
 
 **Two promises define every decision:** (1) **matchmaking precision no other
 platform can touch**, and (2) **the creative-expression + exchange unlock every
@@ -73,10 +66,7 @@ raw creative materials**.
 - **Not anonymous.** There is no guest tier, no ephemeral alias, no "post anonymously."
 - **Not "the next SoundCloud."** It is not a streaming/consumption platform and not a
   store. Discovery exists **only** to make a connection or a collaboration happen.
-- Not a label, DSP, beat marketplace, or social-feed-for-its-own-sake. Not an
-  anonymous/hookup app — though an **opt-in, identity-first creator-dating** mode
-  is a sanctioned, planned pillar (§12.8), it is romance *between real creators*,
-  never anonymous.
+- Not a label, DSP, beat marketplace, dating app, or social-feed-for-its-own-sake.
 
 **Brand voice:** copy is **minimal**, always geared to *finding collabs and sharing
 material with the creators seeking them*. The tagline **"VYBZ: Find Yours."** is the
@@ -547,33 +537,13 @@ Purely-aesthetic store — **nothing functional is ever gated**. Items are unloc
 `max-w-5xl` / `xl:max-w-6xl`, and the feed grid now spans full width (2-col → 3-col on
 xl) so wide monitors are properly used instead of a narrow centered column.
 
-### 12.8 Creator dating (owner-sanctioned pillar — planned)
-An **opt-in, identity-first** dating layer that extends (never forks) the
-matchmaking engine: dating is a second *intent axis* on the same real-creator
-graph. Design brief:
-- **Data (additive, RLS-first):** `dating_profiles` (opt-in flag, orientation,
-  seeking, coarse distance, prompts; owner-only + a sanitized `dating_public()`),
-  `dating_prefs` (hard filters vs soft boosts, §5.4i), `dating_feedback` +
-  `dating_matches` — reusing the **exact LTR pattern** (`match_signal_vector` →
-  outcome-tuned weights) so the dating algorithm learns from outcomes on day one.
-- **Algorithm (`dating_matches()`):** blends creative fit (shared genres/DAWs/
-  discipline/resonance from collab signals) with dating signals (orientation/
-  seeking as *hard filters*, distance, prompt/embedding resonance) + reciprocity +
-  learned weights, with the same explainable "why" + **confidence read** (§5.4k).
-- **Surface:** a dedicated **`/dating`** page with its own accent (rose/coral) and
-  a browse/deck UI *distinct from Spark* so collab and dating never blur; DMs reuse
-  the existing thread system on mutual match.
-- **Safety & consent (non-negotiable):** opt-in; dating status never exposed to
-  non-matches; coarse geo only; block/report via `content_reports` + the mod queue;
-  no NSFW; strict separation so collaborators never see you in a dating context.
-
 ### 12.9 Visual identity system — Phase 1 ✅ (shipped 2026-07)
 Made every surface feel like its own place without touching the mission or data:
 - **Per-surface theming** (`lib/surfaceTheme`): wires the intended-but-unused
   `--accent-rgb` per route so the whole token system (`veil-*` utilities, title
   glow, buttons, nav glow, shadows) + the living-background variant recolour per
   surface — Feed=violet, Connect=pink, Discover=cyan, Studio=teal, Store=gold,
-  Staff=emerald, You=amber, Dating=rose — with a smooth accent crossfade.
+  Staff=emerald, You=amber — with a smooth accent crossfade.
 - **`PageHeader`** primitive: haloed surface icon + accent title + "why this page"
   subtitle + accent hairline (applied to Feed/Connect/Discover/Studio).
 - **Depth:** whisper-quiet film-grain overlay (`GrainOverlay`).
@@ -585,7 +555,7 @@ Made every surface feel like its own place without touching the mission or data:
   in the headless VM — validate on a real device._
 - **Residue:** purged MYVYB wording (Godmode/V¢/confession/NSFW) in touched files.
 
-_Next visual phases (planned): fake-data cleanup, dating layer._
+_Next visual phases (planned): fake-data cleanup._
 
 ### 12.11 Uploads/Library dashboard — Phase 3 ✅ (shipped 2026-07)
 The profile's read-only "Your drops" became a **manager**: each drop shows stats
