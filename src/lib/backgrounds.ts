@@ -1,22 +1,24 @@
 // Living background variants. Each is a small palette of accent hues that drift
-// over the charcoal base and warp toward touch ("heat-paint"). The default ships
-// for everyone; the premium variants are a Godmode personalization.
+// over the charcoal base and warp toward touch ("heat-paint"). Surfaces pick a
+// variant (see lib/surfaceTheme); some are cosmetic-store unlocks (Lane B).
 
 export interface BgVariant {
   id: string;
   label: string;
   /** Accent hues drawn as soft, additive blobs over the charcoal base. */
   colors: [string, string, string];
-  /** True for paid/exclusive variants (kept for back-compat with `price`). */
+  /** True for cosmetic-store variants (unlocked with credits). */
   premium: boolean;
-  /** Base V¢ price (0 = free). Purchasable by anyone; Godmode discounted. */
+  /** Base credit price (0 = free / always available). */
   price: number;
-  /** Godmode-only uniqueness (not for sale). */
+  /** Reserved: limited/exclusive variant (not in the general store). */
   exclusive?: boolean;
 }
 
 export const BG_VARIANTS: BgVariant[] = [
   { id: "aurora", label: "Slate", colors: ["#3a3f4b", "#4a5161", "#2b2f39"], premium: false, price: 0 },
+  // Colourful surface backdrops (also cosmetic unlocks). Used per-surface so
+  // Feed / Connect / Studio / Store each get their own living background.
   { id: "ember", label: "Ember", colors: ["#ff7a18", "#b3263f", "#7129e6"], premium: true, price: 120 },
   { id: "tide", label: "Tide", colors: ["#14b8a6", "#2563eb", "#7129e6"], premium: true, price: 120 },
   { id: "ink", label: "Ink Smoke", colors: ["#4b5165", "#6b7280", "#3a3f55"], premium: true, price: 120 },

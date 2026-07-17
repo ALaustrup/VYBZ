@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
 import { Loader2, AudioLines, Users, MessageSquare, User, Plus, Search, Bell, FolderGit2, ShieldCheck, Shield } from "lucide-react";
@@ -10,7 +10,9 @@ import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
 import { WelcomeTutorial } from "@/components/WelcomeTutorial";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
+import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
+import { surfaceForPath } from "@/lib/surfaceTheme";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -54,6 +56,17 @@ export function App() {
   const [composeOpen, setComposeOpen] = useState(false);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const location = useLocation();
+  const surface = surfaceForPath(location.pathname);
+
+  // Paint the whole token system in this surface's accent (Feed=violet,
+  // Connect=pink, Studio=teal, Store=gold, …). The design system already
+  // resolves every veil-* utility, title glow, button and shadow against
+  // --accent-rgb — so one line here re-themes the entire surface, smoothly.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--accent-rgb", surface.accent);
+    root.classList.add("accent-fade");
+  }, [surface.accent]);
 
   // Post-signup onboarding: ask role + intent until the creator has a role.
   const [onboarded, setOnboarded] = useState(false);
@@ -128,7 +141,8 @@ export function App() {
   if (desktop) {
     return (
       <>
-        <DynamicBackground variant="default" />
+        <DynamicBackground variant={surface.bg} />
+        <GrainOverlay />
         <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
         <div className="flex h-[100dvh] w-full overflow-hidden">
           <aside className="glass z-40 flex h-full w-60 shrink-0 flex-col border-r border-white/10 px-3 py-5">
@@ -148,7 +162,8 @@ export function App() {
 
   return (
     <>
-      <DynamicBackground variant="default" />
+      <DynamicBackground variant={surface.bg} />
+      <GrainOverlay />
       <div className="relative mx-auto flex h-[100dvh] max-w-md flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl">
         <MobileBell />
         <main className="relative z-10 flex-1 overflow-hidden pt-[env(safe-area-inset-top)]">{routes}</main>

@@ -4,6 +4,7 @@ import { Loader2, Plus, AudioLines, Compass, Clock, Shuffle, Sparkles, LayoutGri
 import { TrackCard } from "@/components/TrackCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
@@ -80,15 +81,17 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-5 pb-1 pt-4 max-lg:pr-14">
-        <div className="min-w-0">
-          <h1 className="font-display text-2xl font-bold text-gradient">Your feed</h1>
-          <p className="truncate text-[13px] text-white/50">{intent ? `Curated for “${intent}”` : "Fresh from the community"}</p>
-        </div>
-        <button onClick={onCompose} className="flex h-10 items-center gap-1.5 rounded-full bg-veil-500 px-4 text-sm font-semibold text-white shadow-glow active:scale-95">
-          <Plus className="h-4 w-4" /> Drop
-        </button>
-      </div>
+      <PageHeader
+        icon={AudioLines}
+        title="Your feed"
+        subtitle={intent ? `Curated for “${intent}”` : "Fresh from the community"}
+        className="pb-1 max-lg:pr-14"
+        actions={
+          <button onClick={onCompose} className="flex h-10 items-center gap-1.5 rounded-full bg-veil-500 px-4 text-sm font-semibold text-white shadow-glow active:scale-95">
+            <Plus className="h-4 w-4" /> Drop
+          </button>
+        }
+      />
 
       <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto px-5 pb-2 pt-1">
         {SCOPES.map((s) => (
@@ -128,8 +131,8 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
             <EmptyState icon={AudioLines} title="No drops yet" body="Share a sound — a loop, a stem, a work-in-progress — and let complementary creators find it." />
           ) : (
             <div className={cx("mx-auto gap-5", gridCls)}>
-              {drops.map((d) => (
-                <div key={d.id} className="relative">
+              {drops.map((d, i) => (
+                <div key={d.id} style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }} className="reveal relative">
                   {mode === "discovery" && (d.popularity ?? 1) < 0.2 && (
                     <span className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full bg-aqua-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-aqua-200 backdrop-blur"><Sparkles className="h-2.5 w-2.5" /> Under-exposed</span>
                   )}
@@ -144,7 +147,11 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
             body={scope === "following" ? "Follow creators' projects and their posts show up here." : "Be the first to post — head to your profile and share something to a project."} />
         ) : (
           <div className={cx("mx-auto gap-5", gridCls)}>
-            {posts.map((p) => <FeedPostCard key={p.id} post={p} onLike={(on) => likePost(p, on)} />)}
+            {posts.map((p, i) => (
+              <div key={p.id} style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }} className="reveal">
+                <FeedPostCard post={p} onLike={(on) => likePost(p, on)} />
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Briefcase, Flame, Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, UserPlus, Users } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
@@ -31,7 +32,7 @@ export function ConnectPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 pb-1 pt-3"><h1 className="font-display text-xl font-bold text-gradient">Connect</h1></div>
+      <PageHeader icon={Users} title="Connect" subtitle="Complementary creators, ranked both directions" />
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-2">
         <div className="mb-4 grid grid-cols-2 gap-2">
           <button onClick={() => navigate("/spark")} className="flex flex-col gap-1.5 rounded-2xl border border-veil-400/30 bg-gradient-to-br from-veil-500/25 to-wild/10 p-3.5 text-left transition active:scale-[0.98]">
@@ -53,8 +54,8 @@ export function ConnectPage() {
           <EmptyState icon={Users} title="No matches yet" body="Set the roles you bring and seek on your profile. The moment complementary creators join, they surface here — best-fit first, both directions." />
         ) : (
           <div className="space-y-2.5">
-            {matches.map((m) => (
-              <div key={m.userId} className={cx("rounded-2xl border p-3.5", m.mutual ? "border-feel/35 bg-gradient-to-br from-feel/10 to-aqua-400/[0.06]" : "border-white/8 bg-white/[0.03]")}>
+            {matches.map((m, i) => (
+              <div key={m.userId} style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }} className={cx("reveal rounded-2xl border p-3.5", m.mutual ? "border-feel/35 bg-gradient-to-br from-feel/10 to-aqua-400/[0.06]" : "border-white/8 bg-white/[0.03]")}>
                 <div className="flex items-center gap-3">
                   <button onClick={() => navigate(`/u/${m.userId}`)} className={cx("flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-display text-sm font-bold", m.mutual ? "bg-feel/25 text-white" : "bg-veil-500/20 text-veil-100")}>
                     {(m.username || "?").charAt(0).toUpperCase()}
