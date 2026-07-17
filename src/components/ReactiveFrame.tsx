@@ -71,7 +71,7 @@ export function ReactiveFrame() {
       const energy = Math.min(1, b.level * 1.1 + pop * 0.5);
       // Present while playing, swelling with energy — scaled by the creator's
       // intensity preference (subtle by default) so it's a hook, never a klaxon.
-      const master = intensity * (0.5 + energy * 1.0) * fxScale;
+      const master = intensity * (0.55 + energy * 1.1) * fxScale;
       const minSide = Math.min(w, h);
       ctx.globalCompositeOperation = "lighter";
 

@@ -75,7 +75,8 @@ export function getFxIntensityPref(): FxIntensity {
 /** Amplitude scalar for the reactive canvases (0 when effects are reduced). */
 export function getFxScale(): number {
   if (getReduceFx()) return 0;
-  return getFxIntensityPref() === "full" ? 1 : 0.6;
+  // Subtle (default) stays gently present; Full is clearly there, never harsh.
+  return getFxIntensityPref() === "full" ? 1.3 : 0.85;
 }
 
 export function setFxIntensity(v: FxIntensity) {
