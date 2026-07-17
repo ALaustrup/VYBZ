@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, Plus, AudioLines, Compass, Clock, Shuffle, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
@@ -6,6 +6,7 @@ import { FeedPostCard } from "@/components/FeedPostCard";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
 import * as api from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import type { Drop, Reaction, FeedPost } from "@/types";
@@ -49,13 +50,30 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const setLayoutPersist = (l: Layout) => { setLayout(l); try { localStorage.setItem("vybz.feedLayout", l); } catch { /* ignore */ } };
   const isSounds = scope === "sounds";
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     if (scope === "sounds") setDrops(mode === "discovery" ? await api.listDiscovery(seed, 50) : await api.listDrops(50));
     else setPosts(await api.feedPosts(scope, 50));
     setLoading(false);
   }, [scope, mode, seed]);
   useEffect(() => { void load(); }, [load]);
+
+  // Realtime: new drops / Space posts appear the instant they're created — yours
+  // and others' — without a manual refresh (silent reload, debounced).
+  const loadRef = useRef(load);
+  useEffect(() => { loadRef.current = load; }, [load]);
+  useEffect(() => {
+    const sb = supabase;
+    if (!sb) return;
+    const table = isSounds ? "drops" : "project_posts";
+    let t: ReturnType<typeof setTimeout> | null = null;
+    const bump = () => { if (t) clearTimeout(t); t = setTimeout(() => void loadRef.current(true), 500); };
+    const ch = sb
+      .channel(`feed:${table}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table }, bump)
+      .subscribe();
+    return () => { if (t) clearTimeout(t); void sb.removeChannel(ch); };
+  }, [isSounds]);
 
   function react(d: FeedItem, r: Reaction) {
     const next = d.myReaction === r ? undefined : r;
