@@ -5,6 +5,7 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+import { confidenceRead } from "@/lib/confidence";
 import type { CollabMatch } from "@/types";
 
 export function ConnectPage() {
@@ -64,7 +65,10 @@ export function ConnectPage() {
                       {m.mutual && <span className="flex shrink-0 items-center gap-1 rounded-full bg-feel/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Repeat className="h-2.5 w-2.5" /> Mutual</span>}
                       {m.reputation >= 0.5 && <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300"><Star className="h-2.5 w-2.5" fill="currentColor" /> Proven</span>}
                     </div>
-                    <p className="text-xs text-white/45">{Math.round(m.fit * 100)}% fit</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs text-white/45">{Math.round(m.fit * 100)}% fit</p>
+                      <ConfidencePill confidence={m.confidence} />
+                    </div>
                   </div>
                   <button onClick={() => connect(m)} className="flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white active:scale-95"><UserPlus className="h-3.5 w-3.5" /></button>
                   <button onClick={() => message(m)} className="flex shrink-0 items-center gap-1.5 rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95"><MessageCircle className="h-3.5 w-3.5" /></button>
@@ -86,6 +90,18 @@ export function ConnectPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function ConfidencePill({ confidence }: { confidence: number }) {
+  const r = confidenceRead(confidence);
+  return (
+    <span
+      title={`Match confidence ${r.pct}% — how much independent evidence backs this match`}
+      className={cx("flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-semibold", r.tone)}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {r.label}
+    </span>
   );
 }
 

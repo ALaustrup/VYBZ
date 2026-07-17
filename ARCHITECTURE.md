@@ -55,10 +55,19 @@ legacy passkey/host allow-lists during cutover).
 
 ## Matchmaking
 
-`collab_matches` v5 blends complementary roles, module disciplines, affinity,
-embeddings (includes `roleLabel` + `intents`), Space follows, and reputation.
-Onboarding calls `apply_role_intent_onboarding` so new creators get a module +
-implicit seeks from `role_affinities` immediately.
+`collab_matches` v6 blends complementary roles, module disciplines, affinity,
+embeddings (includes `roleLabel` + `intents`), Space follows, and reputation,
+and returns an explainable 0–1 `confidence` read. Onboarding calls
+`apply_role_intent_onboarding` so new creators get a module + implicit seeks from
+`role_affinities` immediately.
+
+**Learning-to-rank (0029).** `match_feedback` snapshots a normalized signal vector
+(`match_signal_vector`) on every `connect`/`pass`/`accept`/`decline`.
+`tune_matchmaking_weights()` scales each signal's weight from those outcomes
+(support-shrunk, clamped to [0.4×, 2.0×] of the hand-tuned base) and writes them to
+`matchmaking_learning`. Weight lookup `mm_w()` resolves **admin override → learned →
+default**. Runs via nightly `pg_cron` (when available) or `/admin → Matchmaking → Run
+learning` (`run_match_learning` / `match_learning_report`).
 
 ## Conventions
 

@@ -5,6 +5,7 @@ import { ArrowLeft, Disc3, Flame, Loader2, Music2, Repeat, Sparkles, Star, Targe
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { haptic } from "@/lib/utils";
+import { confidenceRead } from "@/lib/confidence";
 import type { CollabMatch } from "@/types";
 
 function gradientFor(id: string): string {
@@ -95,6 +96,11 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
             <button onClick={onOpen} className="font-display text-2xl font-bold text-white">{name}</button>
             <div className="flex flex-col items-end gap-1">
               <span className="text-sm font-semibold text-white/70">{Math.round(c.fit * 100)}% fit</span>
+              {(() => { const r = confidenceRead(c.confidence); return (
+                <span className={`flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold ${r.tone}`}>
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" /> {r.label}
+                </span>
+              ); })()}
               {c.mutual && <span className="flex items-center gap-1 rounded-full bg-feel/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Repeat className="h-3 w-3" /> Mutual</span>}
               {c.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
             </div>
