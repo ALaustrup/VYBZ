@@ -11,7 +11,7 @@ import type {
   AppNotification, CreatorSearchResult, CreatorStats,
   DisciplineModule, DisciplineCategory, DisciplineSchema, ModuleInput,
   DisciplineOption, SeekingIntent, PortfolioItem,
-  AdminMember, PendingDiscipline, BugReport, BugStatus, MatchWeights,
+  AdminMember, PendingDiscipline, BugReport, BugStatus, MatchWeights, MatchLearningReport,
   ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput, FeedPost,
   PlatformRole, ReportKind, ReportReason, ModAction, ContentReport, StaffMember,
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
@@ -421,6 +421,45 @@ export async function setMatchmakingConfig(config: MatchWeights): Promise<void> 
   const { error } = await db().rpc("set_matchmaking_config", { p: config });
   if (error) throw error;
 }
+
+// ── Learning-to-rank (outcome-driven weight tuning, §5.4h) ───────────────────
+function mapLearningReport(data: any): MatchLearningReport {
+  const report = (data?.report ?? {}) as Record<string, any>;
+  const signals = Object.entries(report).map(([key, v]: [string, any]) => ({
+    key,
+    base: Number(v?.base ?? 0),
+    learned: Number(v?.learned ?? 0),
+    multiplier: Number(v?.multiplier ?? 1),
+    pos: Number(v?.pos ?? 0),
+    neg: Number(v?.neg ?? 0),
+    support: Number(v?.support ?? 0),
+  })).sort((a, b) => b.multiplier - a.multiplier);
+  return {
+    signals,
+    runs: Number(data?.runs ?? 0),
+    feedbackCount: Number(data?.feedbackCount ?? 0),
+    updatedAt: data?.updatedAt ?? null,
+  };
+}
+/** Read the latest learned-weight report (admin only; empty until first run). */
+export async function getMatchLearning(): Promise<MatchLearningReport> {
+  const { data, error } = await db().rpc("match_learning_report");
+  if (error || !data) return { signals: [], runs: 0, feedbackCount: 0, updatedAt: null };
+  return mapLearningReport(data);
+}
+/** Run the learner now (admin only): tunes weights from recent match outcomes. */
+export async function runMatchLearning(): Promise<MatchLearningReport> {
+  const { data, error } = await db().rpc("run_match_learning");
+  if (error) throw error;
+  // run_match_learning returns { feedback_count, report, learned }; normalize.
+  const normalized = {
+    report: (data as any)?.report ?? {},
+    feedbackCount: (data as any)?.feedback_count ?? 0,
+    runs: 0,
+    updatedAt: new Date().toISOString(),
+  };
+  return mapLearningReport(normalized);
+}
 export async function adminListBugReports(status: string | null = null): Promise<BugReport[]> {
   const { data, error } = await db().rpc("admin_list_bug_reports", { p_status: status });
   if (error || !data) return [];
@@ -570,6 +609,7 @@ export async function collabMatches(limit = 30, category: string | null = null):
     sharedPlugins: r.shared_plugins ?? [], openToWork: !!r.open_to_work,
     resonance: Number(r.resonance ?? 0), reputation: Number(r.reputation ?? 0), fit: Number(r.fit ?? 0),
     sharedDisciplines: r.shared_disciplines ?? [],
+    confidence: Number(r.confidence ?? 0),
   }));
 }
 

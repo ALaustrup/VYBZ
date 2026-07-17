@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Bug, Layers, Loader2, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X } from "lucide-react";
+import { Bug, Layers, Loader2, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
-import type { AdminMember, BugReport, BugStatus, DisciplineCategory, MatchWeights, PendingDiscipline, WeightDef, StaffMember, StaffAction, ModApplicationRow, PlatformRole } from "@/types";
+import type { AdminMember, BugReport, BugStatus, DisciplineCategory, MatchWeights, MatchLearningReport, PendingDiscipline, WeightDef, StaffMember, StaffAction, ModApplicationRow, PlatformRole } from "@/types";
 
 const WEIGHTS: WeightDef[] = [
   { key: "shared_discipline", label: "Shared discipline", def: 4.0 },
@@ -23,8 +23,10 @@ const WEIGHTS: WeightDef[] = [
   { key: "resonance", label: "Semantic resonance", def: 3.0 },
   { key: "reputation", label: "Reputation", def: 1.5 },
   { key: "open", label: "Open to work", def: 1.0 },
-  { key: "divisor", label: "Score divisor (fit normaliser)", def: 28.0 },
+  { key: "divisor", label: "Score divisor (fit normaliser)", def: 30.0 },
 ];
+
+const WEIGHT_LABELS: Record<string, string> = Object.fromEntries(WEIGHTS.map((w) => [w.key, w.label]));
 
 type Tab = "members" | "staff" | "applications" | "disciplines" | "matchmaking" | "bugs";
 
@@ -316,6 +318,68 @@ function MatchmakingTab() {
         <button onClick={save} disabled={busy} className="btn btn-primary h-10 flex-1 py-0 text-sm">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save weights"}</button>
         <button onClick={reset} className="rounded-xl bg-white/[0.06] px-4 text-sm font-semibold text-white/75 active:scale-95">Reset</button>
       </div>
+      <p className="pt-1 text-[11px] text-white/40">Manual weights above always win; where a key is left at default, the learned weight below applies; otherwise the coded default.</p>
+      <LearningPanel />
+    </div>
+  );
+}
+
+// ── Learning-to-rank — outcome-driven weight tuning (§5.4h) ──────────────────
+function LearningPanel() {
+  const { showToast } = useSession();
+  const [report, setReport] = useState<MatchLearningReport | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { api.getMatchLearning().then(setReport); }, []);
+
+  async function run() {
+    setBusy(true);
+    try {
+      const r = await api.runMatchLearning();
+      setReport(r);
+      showToast(`Learned from ${r.feedbackCount} outcomes`);
+    } catch { showToast("Couldn't run learning"); }
+    finally { setBusy(false); }
+  }
+
+  const signals = report?.signals ?? [];
+  return (
+    <div className="mt-4 rounded-2xl border border-veil-400/25 bg-veil-500/[0.06] p-3.5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 font-display text-sm font-bold text-white"><Sparkles className="h-4 w-4 text-veil-200" /> Learning-to-rank</p>
+          <p className="mt-0.5 text-[11px] text-white/50">
+            Tunes each signal from real connect/pass/accept/decline outcomes.
+            {report ? ` ${report.feedbackCount} outcomes · ${report.runs} run${report.runs === 1 ? "" : "s"}.` : ""}
+          </p>
+        </div>
+        <button onClick={run} disabled={busy} className="btn btn-primary h-9 shrink-0 px-3 py-0 text-xs">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Run learning"}
+        </button>
+      </div>
+      {signals.length > 0 && (
+        <div className="mt-3 space-y-1">
+          <div className="flex items-center gap-2 px-1 text-[10px] uppercase tracking-wider text-white/35">
+            <span className="flex-1">Signal</span>
+            <span className="w-14 text-right">Base</span>
+            <span className="w-14 text-right">Learned</span>
+            <span className="w-12 text-right">×</span>
+            <span className="w-12 text-right">Data</span>
+          </div>
+          {signals.map((s) => {
+            const up = s.multiplier > 1.001, down = s.multiplier < 0.999;
+            return (
+              <div key={s.key} className="flex items-center gap-2 rounded-lg bg-white/[0.02] px-2.5 py-1.5 text-sm">
+                <span className="min-w-0 flex-1 truncate text-white/80">{WEIGHT_LABELS[s.key] ?? s.key}</span>
+                <span className="w-14 text-right text-white/45">{s.base}</span>
+                <span className={cx("w-14 text-right font-semibold", up ? "text-emerald-300" : down ? "text-rose-300" : "text-white/70")}>{s.learned}</span>
+                <span className={cx("w-12 text-right text-[11px]", up ? "text-emerald-300" : down ? "text-rose-300" : "text-white/40")}>{up ? "↑" : down ? "↓" : ""}{s.multiplier}</span>
+                <span className="w-12 text-right text-[11px] text-white/40" title={`+${s.pos} vs −${s.neg} avg signal in positive vs negative outcomes`}>{s.support}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -99,6 +99,8 @@ export interface CollabMatch {
   fit: number;
   /** Disciplines you both actively practice (strong "you both do X" signal). */
   sharedDisciplines: string[];
+  /** 0..1 read of how much independent evidence backs this match (§5.4k). */
+  confidence: number;
 }
 
 export interface CreatorStats {
@@ -442,6 +444,23 @@ export type MatchWeights = Record<string, number>;
 
 /** A tunable weight's metadata for the admin UI. */
 export interface WeightDef { key: string; label: string; def: number }
+
+/** Per-signal outcome-learning stats (learning-to-rank, §5.4h). */
+export interface LearningSignal {
+  key: string;
+  base: number;
+  learned: number;
+  multiplier: number;
+  pos: number;
+  neg: number;
+  support: number;
+}
+export interface MatchLearningReport {
+  signals: LearningSignal[];
+  runs: number;
+  feedbackCount: number;
+  updatedAt: string | null;
+}
 
 // ── Staff system (roles / moderation / rewards) ──────────────────────────────
 export type PlatformRole = "member" | "moderator" | "admin";
