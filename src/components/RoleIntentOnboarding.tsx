@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Camera, Check, Loader2, Sparkles, Target, X } from "lucide-react";
+import { ArrowRight, Camera, Check, Clapperboard, Gamepad2, Loader2, Music2, Palette, Sparkles, Target, X } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
-import { ROLES, ROLE_FAMILIES } from "@/lib/profileFields";
+import { ROLES, ROLE_FAMILIES, PROFESSIONS } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { DisciplineOption } from "@/types";
+
+const PROFESSION_ICON: Record<string, typeof Music2> = {
+  Music2, Palette, Clapperboard, Gamepad2,
+};
 
 type SeekRole = { id: string; label: string };
 // A representative quick-pick across role families for the "looking for" step.
@@ -34,7 +38,9 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   const navigate = useNavigate();
   const { profile, refreshProfile } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<"role" | "confirm" | "intent" | "seek" | "avatar">("role");
+  const [step, setStep] = useState<"profession" | "role" | "confirm" | "intent" | "seek" | "avatar">("profession");
+  const [profession, setProfession] = useState<string | null>(null);
+  const [secondaries, setSecondaries] = useState<string[]>([]);
   const [roleText, setRoleText] = useState("");
   const [match, setMatch] = useState<DisciplineOption | null>(null);
   const [chosenRoleId, setChosenRoleId] = useState<string | null>(null);
@@ -112,7 +118,7 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
     setBusy(true);
     try {
       const allIntents = [...intents, ...(customIntent.trim() ? [customIntent.trim()] : [])];
-      await api.applyRoleIntentOnboarding(chosenRoleId, chosenRoleLabel, allIntents, seeks.map((s) => s.id));
+      await api.applyRoleIntentOnboarding(chosenRoleId, chosenRoleLabel, allIntents, seeks.map((s) => s.id), profession, secondaries);
       void api.refreshEmbedding();
       await refreshProfile();
       onComplete();
@@ -123,8 +129,43 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   return (
     <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-8">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel w-full max-w-md p-7">
+        {step === "profession" && (
+          <>
+            <h1 className="font-display text-2xl font-bold text-gradient">What do you create?</h1>
+            <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/60">Pick your primary craft — it shapes your feed, tools and matches. Tap others you also do.</p>
+            <div className="grid grid-cols-2 gap-2.5">
+              {PROFESSIONS.map((p) => {
+                const Icon = PROFESSION_ICON[p.icon] ?? Sparkles;
+                const primary = profession === p.id;
+                const secondary = secondaries.includes(p.id);
+                return (
+                  <button key={p.id}
+                    onClick={() => {
+                      if (primary) return;
+                      if (!profession) { setProfession(p.id); return; }
+                      setSecondaries((s) => s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id]);
+                    }}
+                    className={cx("relative flex flex-col items-start gap-1.5 rounded-2xl border p-3.5 text-left transition active:scale-[0.98]",
+                      primary ? "border-veil-400/70 bg-veil-500/20" : secondary ? "border-aqua-400/50 bg-aqua-400/10" : "border-white/10 bg-white/[0.04] hover:border-veil-400/40")}>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900/60"><Icon className={cx("h-5 w-5", primary ? "text-veil-100" : secondary ? "text-aqua-200" : "text-white/70")} /></span>
+                    <span className="font-display text-sm font-bold text-white">{p.label}</span>
+                    <span className="text-[11px] leading-tight text-white/50">{p.blurb}</span>
+                    {primary && <span className="absolute right-2 top-2 rounded-full bg-veil-500/40 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">Primary</span>}
+                    {secondary && <span className="absolute right-2 top-2 rounded-full bg-aqua-400/25 px-1.5 py-0.5 text-[9px] font-bold uppercase text-aqua-100">Also</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {profession && <p className="mt-3 text-center text-[12px] text-white/45">Primary: <span className="font-semibold text-veil-200">{PROFESSIONS.find((p) => p.id === profession)?.label}</span>{secondaries.length > 0 ? ` · also ${secondaries.length}` : ""}</p>}
+            <button onClick={() => setStep("role")} disabled={!profession} className="btn btn-primary mt-4 w-full py-3.5 text-[15px] disabled:opacity-50">
+              Continue <ArrowRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+
         {step === "role" && (
           <>
+            <button onClick={() => setStep("profession")} className="mb-2 text-[12px] text-white/45 hover:text-white/70">← Craft</button>
             <h1 className="font-display text-2xl font-bold text-gradient">Choose your role</h1>
             <p className="mb-6 mt-2 text-[15px] leading-relaxed text-white/60">What do you do in the world of creative professions? Type it your way — we'll match you to the closest career.</p>
             <input autoFocus value={roleText} onChange={(e) => setRoleText(e.target.value)}

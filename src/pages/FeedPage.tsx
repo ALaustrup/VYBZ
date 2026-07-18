@@ -26,7 +26,15 @@ const SCOPES = [
   { id: "sounds", label: "Sounds" },
 ];
 
-function defaultScope(intents?: string[]): string {
+function defaultScope(profession?: string | null, intents?: string[]): string {
+  // Profession drives the tailored default feed (Phase A).
+  switch (profession) {
+    case "music": return "sounds";
+    case "visual_art": return "art";
+    case "film_video": return "video";
+    case "game_dev": return "all"; // game designers see a mix
+  }
+  // Fallback: infer from intents for creators without a profession yet.
   const s = (intents ?? []).join(" ").toLowerCase();
   if (/art|paint|illustr|design|photo/.test(s)) return "art";
   if (/video|youtube|film|stream/.test(s)) return "video";
@@ -39,7 +47,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId, profile } = useSession();
   const navigate = useNavigate();
   const intent = profile?.profile?.intents?.[0];
-  const [scope, setScope] = useState<string>(() => defaultScope(profile?.profile?.intents));
+  const [scope, setScope] = useState<string>(() => defaultScope(profile?.profile?.profession, profile?.profile?.intents));
   const [mode, setMode] = useState<Mode>("discovery");
   const [layout, setLayout] = useState<Layout>(() => {
     try { return (localStorage.getItem("vybz.feedLayout") as Layout) || "comfortable"; } catch { return "comfortable"; }

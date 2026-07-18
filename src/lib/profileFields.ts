@@ -57,6 +57,16 @@ export const ROLE_FAMILIES: { id: RoleFamily; label: string }[] = [
   { id: "business", label: "Business" },
 ];
 
+// ── Professions (top-level creative verticals; map to DB `categories`) ───────
+export interface Profession { id: string; label: string; blurb: string; icon: string }
+export const PROFESSIONS: Profession[] = [
+  { id: "music", label: "Music Producers", blurb: "Beats, tracks, mixing & sound design", icon: "Music2" },
+  { id: "visual_art", label: "Visual Artists", blurb: "Illustration, design & digital art", icon: "Palette" },
+  { id: "film_video", label: "Video Creators", blurb: "Editing, film & video content", icon: "Clapperboard" },
+  { id: "game_dev", label: "Game Designers", blurb: "Game design & development", icon: "Gamepad2" },
+];
+export const PROFESSION_LABEL: Record<string, string> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p.label]));
+
 export const ROLES: RoleDef[] = [
   { id: "drums", label: "Drums", family: "instrument" },
   { id: "percussion", label: "Percussion", family: "instrument" },

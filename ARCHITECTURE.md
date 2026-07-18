@@ -71,6 +71,15 @@ plugin/key/BPM(tempo-range)/location/remote over public facets. Feed ranking is
   `profiles.featured_drop_id`).
 - **C2PA:** `worker/c2pa` ready; gated on worker host secrets.
 
+## Professions (verticals)
+
+Four first-class professions map to the `categories` axis (migration `0016`):
+**Music Producers** (`music`), **Visual Artists** (`visual_art`), **Video
+Creators** (`film_video`), **Game Designers** (`game_dev`). Roles are scoped by
+category. A creator has a primary `profession` + optional `professions[]`
+(profile jsonb), set at onboarding, driving profile badges + the tailored default
+feed scope. `PROFESSIONS` catalog in `src/lib/profileFields.ts`.
+
 ## Matchmaking
 
 `collab_matches` v6 blends complementary roles, module disciplines, affinity,
