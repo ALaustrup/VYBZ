@@ -7,6 +7,7 @@ import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
+import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { AudioLines } from "lucide-react";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
@@ -46,6 +47,7 @@ export function ProfilePage() {
             <Flair data={cosmetics.flair} />
           </div>
           {facets.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{facets.roleLabel}</p>}
+          <ProfessionBadges primary={facets.profession} all={facets.professions} />
           {profile.location && <p className="text-sm text-white/50">{profile.location}</p>}
         </div>
         <button onClick={() => navigate("/profile/edit")} aria-label="Edit" className="flex h-10 w-10 items-center justify-center rounded-full glass active:scale-90"><Pencil className="h-4 w-4" /></button>
