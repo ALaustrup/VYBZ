@@ -1,12 +1,19 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Camera, Check, Loader2, Sparkles } from "lucide-react";
+import { ArrowRight, Camera, Check, Loader2, Sparkles, Target, X } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
+import { ROLES, ROLE_FAMILIES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { DisciplineOption } from "@/types";
+
+type SeekRole = { id: string; label: string };
+// A representative quick-pick across role families for the "looking for" step.
+const QUICK_SEEK: SeekRole[] = ROLE_FAMILIES.flatMap((f) =>
+  ROLES.filter((r) => r.family === f.id).slice(0, 2).map((r) => ({ id: r.id, label: r.label }))
+);
 
 /** What a creator is here for — drives the default feed curation. */
 const INTENTS = [
@@ -27,13 +34,16 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   const navigate = useNavigate();
   const { profile, refreshProfile } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<"role" | "confirm" | "intent" | "avatar">("role");
+  const [step, setStep] = useState<"role" | "confirm" | "intent" | "seek" | "avatar">("role");
   const [roleText, setRoleText] = useState("");
   const [match, setMatch] = useState<DisciplineOption | null>(null);
   const [chosenRoleId, setChosenRoleId] = useState<string | null>(null);
   const [chosenRoleLabel, setChosenRoleLabel] = useState("");
   const [intents, setIntents] = useState<string[]>([]);
   const [customIntent, setCustomIntent] = useState("");
+  const [seeks, setSeeks] = useState<SeekRole[]>([]);
+  const [seekQuery, setSeekQuery] = useState("");
+  const [seekResults, setSeekResults] = useState<SeekRole[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatarUrl ?? null);
   const [busy, setBusy] = useState(false);
 
@@ -69,6 +79,21 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   const toggleIntent = (i: string) =>
     setIntents((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));
 
+  const toggleSeek = (o: SeekRole) =>
+    setSeeks((p) => (p.some((x) => x.id === o.id) ? p.filter((x) => x.id !== o.id) : [...p, o]));
+
+  // Live search of the role catalog for "who are you looking for?" (debounced).
+  useEffect(() => {
+    const q = seekQuery.trim();
+    if (q.length < 2) { setSeekResults([]); return; }
+    let alive = true;
+    const t = setTimeout(async () => {
+      const res = await api.suggestDisciplines(q);
+      if (alive) setSeekResults(res.slice(0, 6).map((r) => ({ id: r.id, label: r.label })));
+    }, 220);
+    return () => { alive = false; clearTimeout(t); };
+  }, [seekQuery]);
+
   async function pickAvatar(file: File | null) {
     if (!file || !file.type.startsWith("image/")) return;
     setBusy(true);
@@ -87,7 +112,7 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
     setBusy(true);
     try {
       const allIntents = [...intents, ...(customIntent.trim() ? [customIntent.trim()] : [])];
-      await api.applyRoleIntentOnboarding(chosenRoleId, chosenRoleLabel, allIntents);
+      await api.applyRoleIntentOnboarding(chosenRoleId, chosenRoleLabel, allIntents, seeks.map((s) => s.id));
       void api.refreshEmbedding();
       await refreshProfile();
       onComplete();
@@ -146,10 +171,57 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
             </div>
             <input value={customIntent} onChange={(e) => setCustomIntent(e.target.value)}
               placeholder="Something else? Type it here" className={cx(inputCls, "py-3")} />
-            <button onClick={() => setStep("avatar")} disabled={busy || (intents.length === 0 && !customIntent.trim())}
+            <button onClick={() => setStep("seek")} disabled={busy || (intents.length === 0 && !customIntent.trim())}
               className="btn btn-primary mt-4 w-full py-3.5 text-[15px] disabled:opacity-50">
               Continue <ArrowRight className="h-4 w-4" />
             </button>
+          </>
+        )}
+
+        {step === "seek" && (
+          <>
+            <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-gradient"><Target className="h-6 w-6 text-aqua-300" /> Who are you looking for?</h1>
+            <p className="mb-4 mt-2 text-[15px] leading-relaxed text-white/60">Pick the roles you want to collaborate with. This is what powers your best matches — we'll surface creators who bring exactly this.</p>
+
+            {seeks.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-2">
+                {seeks.map((s) => (
+                  <button key={s.id} onClick={() => toggleSeek(s)}
+                    className="flex items-center gap-1 rounded-full bg-aqua-400/20 px-3 py-1.5 text-[13px] font-semibold text-aqua-100 ring-1 ring-aqua-400/40 active:scale-95">
+                    {s.label} <X className="h-3 w-3" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <input value={seekQuery} onChange={(e) => setSeekQuery(e.target.value)}
+              placeholder="Search roles — e.g. producer, vocalist, mix engineer…" className={cx(inputCls, "py-3")} />
+            {seekResults.length > 0 && (
+              <div className="mb-2 mt-2 flex flex-wrap gap-2">
+                {seekResults.filter((r) => !seeks.some((s) => s.id === r.id)).map((r) => (
+                  <button key={r.id} onClick={() => { toggleSeek(r); setSeekQuery(""); setSeekResults([]); }}
+                    className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[13px] font-medium text-white/75 hover:text-white active:scale-95">
+                    + {r.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className="mb-2 mt-4 text-[11px] uppercase tracking-wider text-white/40">Popular</p>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {QUICK_SEEK.filter((r) => !seeks.some((s) => s.id === r.id)).map((r) => (
+                <button key={r.id} onClick={() => toggleSeek(r)}
+                  className="rounded-full bg-white/[0.05] px-3 py-1.5 text-[13px] font-medium text-white/65 hover:text-white/90 active:scale-95">
+                  {r.label}
+                </button>
+              ))}
+            </div>
+
+            <button onClick={() => setStep("avatar")} disabled={busy}
+              className="btn btn-primary w-full py-3.5 text-[15px] disabled:opacity-50">
+              Continue <ArrowRight className="h-4 w-4" />
+            </button>
+            <button onClick={() => setStep("avatar")} className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70">Skip — I'll set this later</button>
           </>
         )}
 

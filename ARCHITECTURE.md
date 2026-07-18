@@ -22,7 +22,7 @@ legacy passkey/host allow-lists during cutover).
   Also: `/activity`, `/store`, `/admin`, `/mod`, `/apply-mod`, `/codex`,
   `/legal/:slug`, `/u/:id`, `/p/:id` (**Space** deep link), `*` → `NotFoundPage`.
 - **Auth gate:** Onboarding (passkey-first) → username → `RoleIntentOnboarding`
-  (role + intents + optional avatar) → app + `WelcomeTutorial`.
+  (role + intents + who-you-seek + optional avatar) → app + `WelcomeTutorial`.
 - **State:** `src/store/session.tsx`; player via `AudioBus` / `usePlayer()`.
 - **Data:** `src/lib/api.ts` typed to `src/types.ts`.
 - **Design:** Smoked-Glass tokens in `src/index.css`. **Per-surface theming**
@@ -71,8 +71,10 @@ legacy passkey/host allow-lists during cutover).
 `collab_matches` v6 blends complementary roles, module disciplines, affinity,
 embeddings (includes `roleLabel` + `intents`), Space follows, and reputation,
 and returns an explainable 0–1 `confidence` read. Onboarding calls
-`apply_role_intent_onboarding` so new creators get a module + implicit seeks from
-`role_affinities` immediately.
+`apply_role_intent_onboarding` (role + intents + **explicit seeks** from the
+"who are you looking for?" step) so new creators get a module + seeks
+immediately. `sync_creator_graph` builds `creator_seeks` from module
+`wants_roles` ∪ explicit `profiles.profile.seekRoles` (affinity + declared).
 
 **Learning-to-rank (0029).** `match_feedback` snapshots a normalized signal vector
 (`match_signal_vector`) on every `connect`/`pass`/`accept`/`decline`.

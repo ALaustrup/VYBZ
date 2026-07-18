@@ -157,11 +157,13 @@ export async function applyRoleIntentOnboarding(
   roleId: string | null,
   roleLabel: string,
   intents: string[],
+  seekRoles: string[] = [],
 ): Promise<string | null> {
   const { data, error } = await db().rpc("apply_role_intent_onboarding", {
     p_role_id: roleId,
     p_role_label: roleLabel,
     p_intents: intents,
+    p_seek_roles: seekRoles,
   });
   if (error) throw error;
   return (data as string) ?? null;
