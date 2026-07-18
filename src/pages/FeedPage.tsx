@@ -44,18 +44,21 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
     try { return (localStorage.getItem("vybz.feedLayout") as Layout) || "comfortable"; } catch { return "comfortable"; }
   });
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
+  const [forYouMode, setForYouMode] = useState<"foryou" | "undiscovered">("foryou");
   const [drops, setDrops] = useState<FeedItem[]>([]);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const setLayoutPersist = (l: Layout) => { setLayout(l); try { localStorage.setItem("vybz.feedLayout", l); } catch { /* ignore */ } };
   const isSounds = scope === "sounds";
+  const isForYou = scope === "all";
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     if (scope === "sounds") setDrops(mode === "discovery" ? await api.listDiscovery(seed, 50) : await api.listDrops(50));
+    else if (scope === "all") setPosts(forYouMode === "foryou" ? await api.feedForYou(50) : await api.feedUndiscovered(50));
     else setPosts(await api.feedPosts(scope, 50));
     setLoading(false);
-  }, [scope, mode, seed]);
+  }, [scope, mode, seed, forYouMode]);
   useEffect(() => { void load(); }, [load]);
 
   // Realtime: new drops / Space posts appear the instant they're created — yours
@@ -122,6 +125,12 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
       </div>
 
       <div className="flex items-center gap-2 px-5 pb-3">
+        {isForYou && (
+          <div className="flex gap-1 rounded-full border border-white/8 bg-white/[0.02] p-1">
+            <ModeBtn active={forYouMode === "foryou"} onClick={() => setForYouMode("foryou")} icon={Sparkles} label="For you" />
+            <ModeBtn active={forYouMode === "undiscovered"} onClick={() => setForYouMode("undiscovered")} icon={Compass} label="Undiscovered" />
+          </div>
+        )}
         {isSounds && (
           <>
             <div className="flex gap-1 rounded-full border border-white/8 bg-white/[0.02] p-1">
