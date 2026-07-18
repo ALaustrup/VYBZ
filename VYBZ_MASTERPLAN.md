@@ -605,6 +605,18 @@ exactly-wanted collaborators from day one (not just role-affinity inference).
 - **Verified:** UI selection (Producer/Drums/Mix Engineer/Lead Vocalist) →
   `creator_seeks` = those + affinity-inferred (band, bass). End-to-end on live DB.
 
+### 12.13 "For you" feed blend ✅ (shipped 2026-07, P0 #4)
+The default home feed is now **personalized**, not newest-first. `feed_for_you`
+scores each Space post by follow (+5), complement-fit author (+3), accepted
+connection (+2), and intent/content-type match (+1), decayed by recency; cold
+users fall back to recency gracefully. Anti-popularity **"Undiscovered"**
+(`feed_undiscovered`: fresh, least-liked first) is a separate toggle on the home
+feed, so new/under-exposed work still surfaces. Visibility was also hardened
+across `feed_posts`/`feed_for_you`/`feed_undiscovered` (hidden/scheduled/
+followers-only posts filtered). Migration `0033`.
+_Verified on live DB: a viewer who follows+complements creator B saw B's post
+ranked above unrelated C in For-you, and least-liked-first in Undiscovered._
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
