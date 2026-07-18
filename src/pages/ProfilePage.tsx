@@ -93,7 +93,7 @@ export function ProfilePage() {
       )}
 
       <div className="mb-5">
-        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Spaces</p>
+        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Projects</p>
         <ProjectsPanel userId={userId!} editable />
       </div>
 

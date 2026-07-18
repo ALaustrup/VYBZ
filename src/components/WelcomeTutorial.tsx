@@ -5,8 +5,8 @@ import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 
 const STEPS = [
-  { icon: FolderPlus, title: "Build your Spaces", body: "Your profile is yours. Add aliases, bands, channels or releases as Space tabs — post music, art, links and updates. Old-school customization, your way." },
-  { icon: Compass, title: "Find your people", body: "Connect surfaces creators who complement you — best-fit, both directions. Follow the Spaces you love; it sharpens your matches over time." },
+  { icon: FolderPlus, title: "Build your Projects", body: "Your profile is yours. Add aliases, bands, channels or releases as Project tabs — post music, art, links and updates. Old-school customization, your way." },
+  { icon: Compass, title: "Find your people", body: "Connect surfaces creators who complement you — best-fit, both directions. Follow the Projects you love; it sharpens your matches over time." },
   { icon: Sparkles, title: "Your feed, your way", body: "Your home is curated to what you're here for. Switch layouts, shuffle discovery, and surface under-exposed creators — real discovery, never vanity." },
 ];
 
