@@ -476,9 +476,15 @@ it over the coming phases).
   validated; `apply_role_intent_onboarding` v3). Shown as profile **badges**.
 - **Feed:** default scope is profession-tailored (Music→sounds, Visual→art,
   Video→video, Game→mixed; intent fallback for legacy profiles).
-- **Roadmap:** Phase B — per-profession content/uploads (image galleries, Bunny
-  Stream video, game devlogs/builds); Phase C — profession-aware matchmaking +
-  discovery facets + connectors; Phase D — profession tools & provenance.
+- **Phase B ✅ (2026-07):** per-profession content & tools. Visual Artists' art
+  Projects render image posts as a **gallery grid + lightbox**; the Project
+  widget catalog gained per-profession connectors — **Vimeo & Steam** (embeds),
+  **itch.io / ArtStation / Behance** (link cards). Large video already uploads
+  via the streamed `bunny-upload`; **Bunny Stream** (HLS) stays gated on a Stream
+  library. Game devlogs = text posts; playable builds via itch/Steam widgets.
+- **Roadmap:** Phase C — profession-aware matchmaking + discovery facets
+  (software/medium/engine/style) + connector auth; Phase D — profession tools &
+  provenance (image/video watermark + C2PA).
 - _Verified E2E: fresh signup → craft step (Visual Artists primary + Video
   Creators secondary) → Art feed default + profile badges._
 
