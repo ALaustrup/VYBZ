@@ -41,6 +41,13 @@ raw creative materials**.
 **It IS:**
 - **Identity-first.** Every creator is a real, named account (email + passkey). Your
   username, roles, catalog, and reputation are your identity across VYBZ.
+- **Open to the whole creative economy — as real identities with intent.** Alongside
+  creators, VYBZ admits **creator-adjacent** accounts via a first-class **Role Class**
+  axis: supporters/patrons, bookers/managers, curators, brands, and educators/students.
+  They are *not* a passive consumer tier — every account carries structured **intent**
+  and feeds matchmaking (a booker seeking a vocalist ↔ a vocalist open-to-work is the
+  engine's existing shape). Admitting the demand side widens matchmaking surface area
+  for creators; it never dilutes creator↔creator collab quality (see §12.20).
 - A **complementary-role matching engine.** A drummer seeking a pianist is matched to
   pianists seeking drummers; a vocalist seeking a band to bands seeking a vocalist; a
   rapper seeking a beatmaker to beatmakers seeking a rapper — **every direction of
@@ -63,8 +70,10 @@ raw creative materials**.
 
 **It is NOT:**
 - **Not anonymous.** There is no guest tier, no ephemeral alias, no "post anonymously."
-- **Not "the next SoundCloud."** It is not a streaming/consumption platform and not a
-  store. Discovery exists **only** to make a connection or a collaboration happen.
+- **Not "the next SoundCloud."** It is not a passive streaming/consumption platform and
+  not a store. Discovery exists **only** to make a connection or a collaboration happen —
+  including with creator-adjacent participants (patrons, bookers, curators), who join to
+  *act* (support, book, commission, curate), never merely to scroll.
 - Not a label, DSP, beat marketplace, dating app, or social-feed-for-its-own-sake.
 
 **Brand voice:** copy is **minimal**, always geared to *finding collabs and sharing
@@ -487,6 +496,41 @@ it over the coming phases).
   provenance (image/video watermark + C2PA).
 - _Verified E2E: fresh signup → craft step (Visual Artists primary + Video
   Creators secondary) → Art feed default + profile badges._
+
+### 12.20 Open Platform — creator-adjacent Role Class (Phase O)
+**Thesis:** creators don't only want other creators — they want the manager, the
+sync/booker, the curator, and the patron who funds the work. Those are demand-side
+signals VYBZ currently discards. Admitting them **as real identities with structured
+intent** widens matchmaking surface area without turning VYBZ into a consumption feed
+(§0 amended accordingly). This is *additive and reversible* (§9): zero changes to
+existing creator flows, feature-flagged, guardrails first.
+
+**Role Class axis** (sits beside the `professions` axis; `src/lib/profileFields.ts`):
+- **Creator** — today's default; offers/seeks creative roles.
+- **Creator-adjacent** — supporter/patron, booker/manager, curator/playlister,
+  brand/marketing, educator/student. Each carries **intent** ("Support creators",
+  "Book talent", "Hire a creative", "Commission work", "Curate", "Learn") mapped onto
+  the existing onboarding intent → feed-curation seam (`RoleIntentOnboarding.tsx`).
+
+**Guardrails (non-negotiable):**
+- Same real-identity/passkey standard — **no lurker/guest tier** (§0).
+- Match quality: role-class is a **filter/weight**; non-pro→creator matches never
+  outrank creator↔creator collab matches on a creator's Connect/Spark deck.
+- Feed separation: the sound-first drops feed stays creator-authored; adjacent
+  accounts consume **contextually** (to book/support/commission), never as a passive
+  scroll.
+- Monetization stays on-mission: patrons route into the **existing Stripe Connect
+  tips** rail (§4.1 Lane A) — no ads, no paywalls.
+
+**Staging:**
+- **O1 (next)** — Role Class as identity axis: schema (additive migration
+  `20260709_0038_role_class.sql`), onboarding role-class step, profile badge,
+  non-pro intents, feed separation. Behind a flag.
+- **O2** — demand-side matchmaking: bookers/managers/patrons ↔ creators surfaced on
+  Connect/Spark with confidence; role-class becomes a signal dimension in
+  `collab_matches` (not a new engine).
+- **O3** — patron/supporter loop wired to existing Stripe Connect tips + a
+  commissions board (reuses the opportunity board).
 
 ### 12.2 Spaces → Projects (profile creative projects) ✅ — schema: `profile_projects`
 

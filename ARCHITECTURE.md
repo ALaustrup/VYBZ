@@ -78,7 +78,16 @@ Four first-class professions map to the `categories` axis (migration `0016`):
 Creators** (`film_video`), **Game Designers** (`game_dev`). Roles are scoped by
 category. A creator has a primary `profession` + optional `professions[]`
 (profile jsonb), set at onboarding, driving profile badges + the tailored default
-feed scope. `PROFESSIONS` catalog in `src/lib/profileFields.ts`.
+feed scope. `PROFESSIONS` catalog in `src/lib/profileFields.ts`. **Phase B:** art
+Projects render image posts as a gallery grid + lightbox (`ProjectView.tsx`), and the
+Project widget catalog gained per-profession connectors — Vimeo/Steam embeds,
+itch.io/ArtStation/Behance link cards (`src/lib/widgets.ts`).
+
+**Role Class (Phase O, roadmap).** A second identity axis admits creator-adjacent
+accounts (supporter/patron, booker/manager, curator, brand, educator) as real
+identities with structured intent — additive, flagged, guardrailed so it never
+outranks creator↔creator collab matches. Schema lands in
+`20260709_0038_role_class.sql`; see `VYBZ_MASTERPLAN.md` §12.20.
 
 ## Matchmaking
 
