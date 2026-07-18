@@ -10,6 +10,7 @@ import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+import { isAdjacentClass } from "@/lib/profileFields";
 import type { Drop, Reaction, FeedPost } from "@/types";
 
 type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: number; visibility?: number };
@@ -26,7 +27,11 @@ const SCOPES = [
   { id: "sounds", label: "Sounds" },
 ];
 
-function defaultScope(profession?: string | null, intents?: string[]): string {
+function defaultScope(profession?: string | null, intents?: string[], roleClass?: string | null): string {
+  // Role Class (Phase O1): creator-adjacent accounts (patrons, bookers,
+  // curators, brands, educators) land on the mixed "For you" feed — the
+  // sound-first drops feed stays creator-authored; they consume contextually.
+  if (isAdjacentClass(roleClass)) return "all";
   // Profession drives the tailored default feed (Phase A).
   switch (profession) {
     case "music": return "sounds";
@@ -47,7 +52,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId, profile } = useSession();
   const navigate = useNavigate();
   const intent = profile?.profile?.intents?.[0];
-  const [scope, setScope] = useState<string>(() => defaultScope(profile?.profile?.profession, profile?.profile?.intents));
+  const [scope, setScope] = useState<string>(() => defaultScope(profile?.profile?.profession, profile?.profile?.intents, profile?.profile?.roleClass));
   const [mode, setMode] = useState<Mode>("discovery");
   const [layout, setLayout] = useState<Layout>(() => {
     try { return (localStorage.getItem("vybz.feedLayout") as Layout) || "comfortable"; } catch { return "comfortable"; }

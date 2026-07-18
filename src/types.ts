@@ -34,6 +34,8 @@ export interface ProfileDetails {
   profession?: string | null;
   /** Primary + optional secondary professions (category ids), primary first. */
   professions?: string[];
+  /** Identity axis (Phase O1): creator (default) | supporter | booker | curator | brand | educator. */
+  roleClass?: string | null;
   /** Top-level keys the creator has marked private. */
   hidden?: string[];
 }

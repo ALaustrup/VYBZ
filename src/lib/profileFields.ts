@@ -67,6 +67,29 @@ export const PROFESSIONS: Profession[] = [
 ];
 export const PROFESSION_LABEL: Record<string, string> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p.label]));
 
+// ── Role Class (Phase O1) — the identity axis that opens VYBZ to the whole ───
+// creative economy. `creator` is the default; the rest are creator-ADJACENT
+// real identities (never a passive consumer tier). Each carries structured
+// intent + declares which creators they're looking for, feeding matchmaking.
+export interface RoleClass { id: string; label: string; blurb: string; icon: string; adjacent: boolean }
+export const ROLE_CLASSES: RoleClass[] = [
+  { id: "creator",   label: "Creator",            blurb: "I make music, art, video or games", icon: "Sparkles",   adjacent: false },
+  { id: "supporter", label: "Supporter / Patron", blurb: "I follow & fund creators I love",   icon: "Heart",      adjacent: true  },
+  { id: "booker",    label: "Booker / Manager",   blurb: "I book, manage or scout talent",     icon: "Briefcase",  adjacent: true  },
+  { id: "curator",   label: "Curator",            blurb: "I discover & platform creative work", icon: "Compass",   adjacent: true  },
+  { id: "brand",     label: "Brand / Marketing",  blurb: "I commission & partner with creators", icon: "Megaphone", adjacent: true },
+  { id: "educator",  label: "Educator / Student", blurb: "I teach or I'm here to learn",        icon: "GraduationCap", adjacent: true },
+];
+export const ROLE_CLASS_LABEL: Record<string, string> = Object.fromEntries(ROLE_CLASSES.map((c) => [c.id, c.label]));
+export const ADJACENT_CLASS_IDS = new Set(ROLE_CLASSES.filter((c) => c.adjacent).map((c) => c.id));
+export const isAdjacentClass = (id?: string | null): boolean => !!id && ADJACENT_CLASS_IDS.has(id);
+
+// What a creator-adjacent account is here for — drives their default feed.
+export const ADJACENT_INTENTS = [
+  "Support creators", "Book talent", "Hire a creative", "Commission work",
+  "Curate & discover", "Learn", "Just exploring",
+];
+
 export const ROLES: RoleDef[] = [
   { id: "drums", label: "Drums", family: "instrument" },
   { id: "percussion", label: "Percussion", family: "instrument" },
