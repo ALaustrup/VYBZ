@@ -45,6 +45,25 @@ as project env vars. Auth redirect allowlist includes `https://vybz.cloud/**`.
 | `npm run build` | Typecheck + production build |
 | `npm run lint` | `tsc --noEmit` |
 | `scripts/deploy.sh` | Migrations + Edge Functions + Vercel |
+| `scripts/activate-vybz-domains.sh` | Point parked GoDaddy satellite domains at Vercel |
+
+## Satellite domains
+
+The satellite domains **`vybz.work`**, **`vybz.space`**, **`vybz.world`**,
+**`vybz.guru`**, and **`vybz.cc`** are registered at GoDaddy and each already has
+a **308 redirect → `vybz.cloud`** configured on the Vercel project. Activating
+them only requires repointing their GoDaddy DNS at Vercel (apex `A → 76.76.21.21`,
+matching the canonical `vybz.cloud`). Run:
+
+```bash
+export GODADDY_API_KEY="..." GODADDY_API_SECRET="..."   # PRODUCTION keys
+export VERCEL_TOKEN="..."                                # optional: post-write verification
+DRY_RUN=1 bash scripts/activate-vybz-domains.sh          # preview first
+bash scripts/activate-vybz-domains.sh                    # apply
+```
+
+The script is idempotent and verifies each record after writing. GoDaddy keys are
+created at <https://developer.godaddy.com/keys> (use the **Production** key/secret).
 
 ## License
 
