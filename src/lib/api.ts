@@ -376,6 +376,22 @@ export async function feedPosts(scope = "all", limit = 40): Promise<FeedPost[]> 
   if (error || !data) return [];
   return (data as any[]).map((p) => ({ ...p, createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now() })) as FeedPost[];
 }
+function mapPosts(data: any): FeedPost[] {
+  if (!data) return [];
+  return (data as any[]).map((p) => ({ ...p, createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now() })) as FeedPost[];
+}
+/** Personalized "For you" feed: complement-fit + Space-follows + intent, recency-decayed. */
+export async function feedForYou(limit = 40): Promise<FeedPost[]> {
+  const { data, error } = await db().rpc("feed_for_you", { p_limit: limit });
+  if (error) return [];
+  return mapPosts(data);
+}
+/** Anti-popularity "Undiscovered": fresh, least-liked posts first. */
+export async function feedUndiscovered(limit = 40): Promise<FeedPost[]> {
+  const { data, error } = await db().rpc("feed_undiscovered", { p_limit: limit });
+  if (error) return [];
+  return mapPosts(data);
+}
 
 // ── Admin console ────────────────────────────────────────────────────────────
 export async function adminListMembers(q = "", limit = 50): Promise<AdminMember[]> {
