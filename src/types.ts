@@ -49,6 +49,8 @@ export interface Profile {
   equippedCosmetics: Record<string, string>;
   banned: boolean;
   profile: ProfileDetails;
+  /** The drop the creator has chosen to headline their profile (Library). */
+  featuredDropId?: string | null;
   createdAt: number;
 }
 
@@ -78,6 +80,7 @@ export interface Drop {
   license?: string | null;
   rating?: number;
   ratingCount?: number;
+  plays?: number;
 }
 
 export interface RoleOffer { roleId: string; skill: number }

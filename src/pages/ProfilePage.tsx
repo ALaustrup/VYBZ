@@ -6,8 +6,7 @@ import { PasskeysCard } from "@/components/PasskeysCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
-import { TrackCard } from "@/components/TrackCard";
-import { EmptyState } from "@/components/EmptyState";
+import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { AudioLines } from "lucide-react";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
@@ -17,7 +16,7 @@ import { Sparkles as SparklesIcon } from "lucide-react";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function ProfilePage() {
-  const { profile, userId, signOut } = useSession();
+  const { profile, userId, signOut, refreshProfile } = useSession();
   const navigate = useNavigate();
   const [roles, setRoles] = useState<{ offers: string[]; seeks: string[] }>({ offers: [], seeks: [] });
   const [drops, setDrops] = useState<Drop[]>([]);
@@ -139,19 +138,11 @@ export function ProfilePage() {
       </button>
       <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
 
-      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Your drops</p>
+      <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><AudioLines className="h-3.5 w-3.5 text-veil-300" /> Your library</p>
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
-      ) : drops.length === 0 ? (
-        <EmptyState icon={AudioLines} title="No drops yet" body="Share your first sound from the feed." />
       ) : (
-        <div className="space-y-4">
-          {/* Featured drop hero (most recent), then the rest. */}
-          <TrackCard drop={drops[0]} queue={drops} />
-          {drops.length > 1 && (
-            <div className="grid gap-4 sm:grid-cols-2">{drops.slice(1).map((d) => <TrackCard key={d.id} drop={d} queue={drops} compact />)}</div>
-          )}
-        </div>
+        <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
       )}
     </div>
   );
