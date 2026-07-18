@@ -21,11 +21,21 @@ export interface WidgetKind {
 }
 
 export const WIDGET_KINDS: WidgetKind[] = [
+  // Music
   { id: "spotify", label: "Spotify", embed: true, placeholder: "Spotify track / album / artist / playlist URL" },
-  { id: "youtube", label: "YouTube", embed: true, placeholder: "YouTube video or playlist URL" },
   { id: "soundcloud", label: "SoundCloud", embed: true, placeholder: "SoundCloud track or playlist URL" },
-  { id: "apple_music", label: "Apple Music", embed: true, placeholder: "Apple Music song / album URL" },
   { id: "bandcamp", label: "Bandcamp", embed: true, placeholder: "Bandcamp album / track URL" },
+  { id: "apple_music", label: "Apple Music", embed: true, placeholder: "Apple Music song / album URL" },
+  // Video
+  { id: "youtube", label: "YouTube", embed: true, placeholder: "YouTube video or playlist URL" },
+  { id: "vimeo", label: "Vimeo", embed: true, placeholder: "Vimeo video URL" },
+  // Visual art
+  { id: "artstation", label: "ArtStation", embed: true, placeholder: "ArtStation profile / artwork URL" },
+  { id: "behance", label: "Behance", embed: true, placeholder: "Behance profile / project URL" },
+  // Games
+  { id: "steam", label: "Steam", embed: true, placeholder: "Steam store page URL (store.steampowered.com/app/…)" },
+  { id: "itch", label: "itch.io", embed: true, placeholder: "itch.io game URL (playable page)" },
+  // Universal
   { id: "link", label: "Website / Link", embed: true, placeholder: "Any URL — TikTok, Instagram, your site…" },
   // ── Gated OAuth connectors (need provider API credentials) ──
   { id: "spotify_artist", label: "Spotify for Artists", embed: false, gated: true, hint: "Live stream/listener stats" },
@@ -66,7 +76,18 @@ export function embedSrc(kind: string, url: string | undefined): string | null {
       if (!/music\.apple\.com/.test(u)) return null;
       return u.replace("music.apple.com", "embed.music.apple.com");
     }
-    // bandcamp / link → link card (bandcamp needs album/track ids not in the URL)
+    if (kind === "vimeo") {
+      const m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+      if (m) return `https://player.vimeo.com/video/${m[1]}`;
+      return null;
+    }
+    if (kind === "steam") {
+      const m = u.match(/store\.steampowered\.com\/app\/(\d+)/);
+      if (m) return `https://store.steampowered.com/widget/${m[1]}/`;
+      return null;
+    }
+    // bandcamp / itch / artstation / behance / link → link card
+    // (no clean keyless iframe; the card opens the source in a new tab)
     return null;
   } catch {
     return null;
@@ -76,8 +97,9 @@ export function embedSrc(kind: string, url: string | undefined): string | null {
 /** Suggested iframe height per embed kind. */
 export function embedHeight(kind: string, src: string): number {
   if (kind === "spotify") return /\/(artist|album|playlist|show)\//.test(src) ? 352 : 152;
-  if (kind === "youtube") return 200;
+  if (kind === "youtube" || kind === "vimeo") return 200;
   if (kind === "soundcloud") return 166;
   if (kind === "apple_music") return 175;
+  if (kind === "steam") return 190;
   return 180;
 }

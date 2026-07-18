@@ -1,4 +1,5 @@
-import { ExternalLink, Heart, Link2, Music2, Pause, Play, Plus, Puzzle, Trash2, UserPlus, UserCheck } from "lucide-react";
+import { useState } from "react";
+import { ExternalLink, Heart, Link2, Music2, Pause, Play, Plus, Puzzle, Trash2, UserPlus, UserCheck, X } from "lucide-react";
 import { playTrack, usePlayer } from "@/lib/audioBus";
 import { ProjectWidgets } from "@/components/ProjectWidgets";
 import { cx } from "@/lib/utils";
@@ -33,6 +34,10 @@ export function ProjectView({
 }) {
   const accent = detail.accent || "#a87cf8";
   const hub = isHubKind(detail.kind);
+  const isGallery = detail.kind === "art";
+  const [lightbox, setLightbox] = useState<string | null>(null);
+  const imagePosts = isGallery ? detail.posts.filter((p) => p.kind === "image" && p.mediaUrl) : [];
+  const otherPosts = isGallery ? detail.posts.filter((p) => !(p.kind === "image" && p.mediaUrl)) : detail.posts;
 
   return (
     <div className="space-y-4">
@@ -98,14 +103,42 @@ export function ProjectView({
         <div className="space-y-3">
           {editable && (
             <button onClick={onAddPost} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dashed border-white/20 py-3 text-sm font-semibold text-white/60 transition hover:border-white/40 hover:text-white active:scale-[0.99]">
-              <Plus className="h-4 w-4" /> New post
+              <Plus className="h-4 w-4" /> {isGallery ? "Add artwork" : "New post"}
             </button>
           )}
-          {detail.posts.length === 0 && !editable && <Empty text="No posts yet." />}
-          {detail.posts.map((p) => (
+          {detail.posts.length === 0 && !editable && <Empty text={isGallery ? "No artwork yet." : "No posts yet."} />}
+
+          {/* Visual Artists: image posts render as a gallery grid with a lightbox. */}
+          {isGallery && imagePosts.length > 0 && (
+            <div className="columns-2 gap-2.5 [column-fill:_balance] sm:columns-3">
+              {imagePosts.map((p) => (
+                <div key={p.id} className="group relative mb-2.5 break-inside-avoid overflow-hidden rounded-xl border border-white/8">
+                  <img src={p.mediaUrl!} alt={p.title ?? ""} loading="lazy"
+                    onClick={() => setLightbox(p.mediaUrl!)}
+                    className="w-full cursor-zoom-in object-cover transition group-hover:opacity-90" />
+                  {(p.title || editable) && (
+                    <div className="flex items-center gap-1 px-2 py-1.5">
+                      {p.title && <span className="min-w-0 flex-1 truncate text-[11px] text-white/70">{p.title}</span>}
+                      <button onClick={() => onLikePost(p, !p.liked)} className={cx("flex items-center gap-0.5 text-[11px]", p.liked ? "text-wild" : "text-white/45")}><Heart className={cx("h-3 w-3", p.liked && "fill-current")} />{p.likes > 0 ? p.likes : ""}</button>
+                      {editable && <button onClick={() => onDeletePost(p)} aria-label="Delete" className="text-white/35 hover:text-wild"><Trash2 className="h-3 w-3" /></button>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {otherPosts.map((p) => (
             <PostCard key={p.id} post={p} accent={accent} projectName={detail.name} editable={editable}
               onLike={(on) => onLikePost(p, on)} onDelete={() => onDeletePost(p)} />
           ))}
+        </div>
+      )}
+
+      {lightbox && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/90 p-4" onClick={() => setLightbox(null)}>
+          <button aria-label="Close" className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full glass"><X className="h-4 w-4" /></button>
+          <img src={lightbox} alt="" className="max-h-[92dvh] max-w-full rounded-xl object-contain" />
         </div>
       )}
     </div>
