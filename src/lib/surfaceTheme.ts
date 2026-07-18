@@ -23,13 +23,13 @@ const SURFACES: Array<{ test: (p: string) => boolean; theme: SurfaceTheme }> = [
   { test: (p) => p.startsWith("/spark"), theme: { id: "spark", accent: "251 113 133", bg: "rose", label: "Spark" } },
   { test: (p) => p.startsWith("/opportunities"), theme: { id: "opportunities", accent: "45 212 191", bg: "tide", label: "Opportunities" } },
   { test: (p) => p.startsWith("/connect"), theme: { id: "connect", accent: "244 114 182", bg: "rose", label: "Connect" } },
-  { test: (p) => p.startsWith("/projects"), theme: { id: "studio", accent: "45 212 191", bg: "tide", label: "Studio" } },
+  { test: (p) => p.startsWith("/projects"), theme: { id: "studio", accent: "45 212 191", bg: "tide", label: "Collabs" } },
   { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), theme: { id: "messages", accent: "96 165 250", bg: "tide", label: "Messages" } },
   { test: (p) => p.startsWith("/store"), theme: { id: "store", accent: "250 204 21", bg: "ember", label: "Store" } },
   { test: (p) => p.startsWith("/activity"), theme: { id: "activity", accent: "167 139 250", bg: "nebula", label: "Activity" } },
   { test: (p) => p.startsWith("/admin") || p.startsWith("/mod") || p.startsWith("/apply-mod"), theme: { id: "staff", accent: "52 211 153", bg: "ink", label: "Staff" } },
   { test: (p) => p.startsWith("/profile") || p.startsWith("/u/"), theme: { id: "you", accent: "251 191 36", bg: "ember", label: "You" } },
-  { test: (p) => p.startsWith("/p/"), theme: { id: "space", accent: "192 132 252", bg: "nebula", label: "Space" } },
+  { test: (p) => p.startsWith("/p/"), theme: { id: "space", accent: "192 132 252", bg: "nebula", label: "Project" } },
   { test: (p) => p.startsWith("/codex") || p.startsWith("/legal"), theme: { id: "codex", accent: "148 163 184", bg: "ink", label: "Codex" } },
 ];
 

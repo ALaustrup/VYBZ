@@ -323,10 +323,21 @@ export interface DisciplineModule {
   sort: number;
 }
 
-// ── Spaces (profile_projects — public creator microblogs / channels) ─────────
-// DB table remains profile_projects; UI copy is "Spaces". Private collab rooms
-// live in `projects` and are branded "Studio" in the nav.
+// ── Projects (profile_projects — public creator projects / channels) ─────────
+// DB table remains profile_projects; UI copy is "Projects" (unified — "Spaces"
+// retired). Each Project has content (posts/links) + a widget dashboard and is
+// shown on the profile. Private collaboration rooms live in `projects` and are
+// branded "Collabs" in the nav.
 export type ProjectKind = "music" | "video" | "art" | "writing" | "links" | "general";
+
+/** A pluggable data/showcase card on a Project (embeds or gated API connectors). */
+export interface ProjectWidget {
+  id: string;
+  kind: string;
+  title: string | null;
+  config: { url?: string; [k: string]: unknown };
+  sort?: number;
+}
 export type PostKind = "text" | "audio" | "image" | "video" | "link";
 export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
 
@@ -379,6 +390,7 @@ export interface ProfileProjectDetail {
   following: boolean;
   posts: ProjectPost[];
   links: ProjectLink[];
+  widgets: ProjectWidget[];
 }
 
 export interface FeedPost {

@@ -45,7 +45,7 @@ const NAV = [
   { to: "/", label: "Drops", icon: AudioLines, end: true },
   { to: "/discover", label: "Discover", icon: Search },
   { to: "/connect", label: "Connect", icon: Users, match: ["/spark", "/opportunities"] },
-  { to: "/projects", label: "Studio", icon: FolderGit2 },
+  { to: "/projects", label: "Collabs", icon: FolderGit2 },
   { to: "/messages", label: "Messages", icon: MessageSquare, match: ["/rooms"] },
   { to: "/profile", label: "You", icon: User, match: ["/u/"] },
 ];
