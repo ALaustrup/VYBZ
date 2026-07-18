@@ -44,6 +44,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [decoding, setDecoding] = useState(false);
   const [posting, setPosting] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
+  const [autoDetected, setAutoDetected] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const player = usePlayer();
   const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
@@ -53,7 +54,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   useEffect(() => {
     if (open) {
       setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
-      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only"); setDecoding(false); setPosting(false); setProgress(null);
+      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only"); setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
     }
   }, [open]);
 
@@ -69,10 +70,15 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     try {
       const meta = audioMeta(file);
       const url = URL.createObjectURL(file);
-      const wf = await computeWaveform(file);
+      const wf = await computeWaveform(file, 800, true); // analyze → auto BPM/key
       const ext = (file.name.split(".").pop() || "audio").toLowerCase();
       setAudio({ file, url, ext, peaks: wf?.peaks ?? placeholderWaveform(seed),
         duration: wf?.duration ?? 0, format: meta.format, lossless: meta.lossless, sampleRate: wf?.sampleRate ?? 0 });
+      // Pre-fill detected tempo/key (user can override); flag what was auto-filled.
+      const auto: string[] = [];
+      if (wf?.bpm) { setBpm(String(wf.bpm)); auto.push("tempo"); }
+      if (wf?.key && MUSICAL_KEYS.includes(wf.key)) { setMusicalKey(wf.key); auto.push("key"); }
+      setAutoDetected(auto);
     } catch { showToast("Couldn't read that audio."); }
     finally { setDecoding(false); }
   }
@@ -171,9 +177,14 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       <option value="">Key (optional)</option>
                       {MUSICAL_KEYS.map((k) => <option key={k} value={k} className="bg-ink-900">{k}</option>)}
                     </select>
-                    <button type="button" onClick={() => setAudio(null)} aria-label="Remove"
+                    <button type="button" onClick={() => { setAudio(null); setAutoDetected([]); }} aria-label="Remove"
                       className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
                   </div>
+                  {autoDetected.length > 0 && (
+                    <p className="flex items-center gap-1 text-[11px] text-veil-200">
+                      <AudioLines className="h-3 w-3" /> Auto-detected {autoDetected.join(" & ")} — edit if needed
+                    </p>
+                  )}
                   <div>
                     <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">Exchange license</p>
                     <div className="flex gap-1.5">
