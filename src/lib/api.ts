@@ -262,7 +262,23 @@ export async function getProjectDetail(id: string): Promise<ProfileProjectDetail
   return {
     ...d,
     posts: (d.posts ?? []).map((p: any) => ({ ...p, createdAt: p.createdAt ? new Date(p.createdAt).getTime() : Date.now() })),
+    widgets: (d.widgets ?? []).map((w: any) => ({ id: w.id, kind: w.kind, title: w.title ?? null, config: w.config ?? {}, sort: w.sort ?? 0 })),
   } as ProfileProjectDetail;
+}
+
+// ── Project widgets — owner-scoped via RLS on project_page_widgets ───
+export async function addSpaceWidget(projectId: string, kind: string, config: Record<string, unknown>, title?: string): Promise<boolean> {
+  const uid = await currentUserId();
+  if (!uid) return false;
+  const { error } = await db().from("project_page_widgets").insert({
+    project_id: projectId, user_id: uid, kind, title: title ?? null, config,
+    sort: Math.floor(Date.now() / 1000),
+  });
+  return !error;
+}
+export async function removeSpaceWidget(id: string): Promise<boolean> {
+  const { error } = await db().from("project_page_widgets").delete().eq("id", id);
+  return !error;
 }
 
 export async function createProfileProject(input: ProjectInput): Promise<string> {

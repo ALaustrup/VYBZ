@@ -29,8 +29,8 @@ export function ProjectsPage() {
     <div className="flex h-full flex-col">
       <PageHeader
         icon={FolderGit2}
-        title="Studio"
-        subtitle="Private rooms — versioned handoffs, splits & verified credits"
+        title="Collabs"
+        subtitle="Private collab rooms — versioned handoffs, splits & verified credits"
         className="pb-1 max-lg:pr-14"
         actions={
           <button onClick={() => setComposing(true)} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95"><Plus className="h-4 w-4" /> New</button>

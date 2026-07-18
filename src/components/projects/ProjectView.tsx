@@ -1,5 +1,6 @@
-import { ExternalLink, Heart, Link2, Music2, Pause, Play, Plus, Trash2, UserPlus, UserCheck } from "lucide-react";
+import { ExternalLink, Heart, Link2, Music2, Pause, Play, Plus, Puzzle, Trash2, UserPlus, UserCheck } from "lucide-react";
 import { playTrack, usePlayer } from "@/lib/audioBus";
+import { ProjectWidgets } from "@/components/ProjectWidgets";
 import { cx } from "@/lib/utils";
 import type { ProfileProjectDetail, ProjectLink, ProjectPost } from "@/types";
 
@@ -16,6 +17,7 @@ export const isHubKind = (k: string) => k === "video" || k === "links";
 /** Renders a single project: a link hub (channels) or a micro-blog post feed. */
 export function ProjectView({
   detail, editable, onFollow, onLikePost, onAddPost, onDeletePost, onAddLink, onDeleteLink, onOpenLink,
+  onAddWidget, onRemoveWidget,
 }: {
   detail: ProfileProjectDetail;
   editable: boolean;
@@ -26,6 +28,8 @@ export function ProjectView({
   onAddLink: () => void;
   onDeleteLink: (link: ProjectLink) => void;
   onOpenLink: (link: ProjectLink) => void;
+  onAddWidget?: (kind: string, config: Record<string, unknown>, title?: string) => Promise<void>;
+  onRemoveWidget?: (id: string) => void;
 }) {
   const accent = detail.accent || "#a87cf8";
   const hub = isHubKind(detail.kind);
@@ -51,6 +55,18 @@ export function ProjectView({
         </div>
       </div>
 
+      {(editable || (detail.widgets?.length ?? 0) > 0) && (
+        <div>
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40"><Puzzle className="h-3.5 w-3.5 text-veil-200" /> Widgets</p>
+          <ProjectWidgets
+            widgets={detail.widgets ?? []}
+            editable={editable}
+            onAdd={onAddWidget}
+            onRemove={onRemoveWidget}
+          />
+        </div>
+      )}
+
       {hub ? (
         <div className="space-y-2.5">
           {detail.links.length === 0 && !editable && <Empty text="No links yet." />}
@@ -63,7 +79,7 @@ export function ProjectView({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-white">{l.label}</span>
-                    <span className="block truncate text-[11px] text-white/45">{l.targetProjectId ? "VYBZ Space" : (l.url || "")}</span>
+                    <span className="block truncate text-[11px] text-white/45">{l.targetProjectId ? "VYBZ Project" : (l.url || "")}</span>
                   </span>
                 </button>
                 {editable && (
