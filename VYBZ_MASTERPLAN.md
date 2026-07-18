@@ -617,6 +617,15 @@ followers-only posts filtered). Migration `0033`.
 _Verified on live DB: a viewer who follows+complements creator B saw B's post
 ranked above unrelated C in For-you, and least-liked-first in Undiscovered._
 
+### 12.14 Auto BPM + key detection ✅ (shipped 2026-07, P1 #9)
+Drop uploads are analyzed **client-side** (no deps, no network, no cost) to
+auto-fill tempo + key: onset-flux autocorrelation for BPM, and an FFT chromagram
++ Krumhansl-Schmuckler correlation for key (`src/lib/audioAnalysis.ts`), run on
+the existing single decode in `computeWaveform`. The composer pre-fills both
+(user-overridable, with an "auto-detected" hint), strengthening the matchmaking
+tempo/key signals. _Verified: a known 120 BPM file detects 120 BPM / A minor._
+BPM is highly reliable; key is a best-effort suggestion.
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
