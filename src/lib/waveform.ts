@@ -21,6 +21,8 @@ const LOSSLESS_EXT = new Set(["wav", "aiff", "aif", "flac", "alac"]);
 export const AUDIO_ACCEPT =
   "audio/*,.wav,.aiff,.aif,.flac,.alac,.mp3,.ogg,.oga,.opus,.m4a,.aac,.mid,.midi,.zip";
 
+import { analyzeAudio } from "@/lib/audioAnalysis";
+
 export interface WaveformResult {
   /** Normalized peaks in 0..1, one per bucket. */
   peaks: number[];
@@ -30,6 +32,10 @@ export interface WaveformResult {
   sampleRate: number;
   /** Channel count. */
   channels: number;
+  /** Auto-detected tempo (only when `analyze` requested). */
+  bpm?: number | null;
+  /** Auto-detected musical key (only when `analyze` requested). */
+  key?: string | null;
 }
 
 export interface AudioMeta {
@@ -102,7 +108,8 @@ function decodeCtx(): AudioContext | null {
  */
 export async function computeWaveform(
   file: Blob,
-  buckets = 800
+  buckets = 800,
+  analyze = false
 ): Promise<WaveformResult | null> {
   const ctx = decodeCtx();
   if (!ctx) return null;
@@ -138,11 +145,15 @@ export async function computeWaveform(
   const loudest = peaks.reduce((m, v) => (v > m ? v : m), 0) || 1;
   const norm = peaks.map((p) => Math.min(1, p / loudest));
 
+  const analysis = analyze ? analyzeAudio(buffer) : { bpm: null, key: null };
+
   return {
     peaks: norm,
     duration: buffer.duration,
     sampleRate: buffer.sampleRate,
     channels,
+    bpm: analysis.bpm,
+    key: analysis.key,
   };
 }
 
