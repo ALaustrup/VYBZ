@@ -5,6 +5,7 @@ import { TrackCard } from "@/components/TrackCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
+import { FeedHero } from "@/components/FeedHero";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/store/session";
@@ -151,6 +152,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
       </div>
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-1">
+        <FeedHero />
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : isSounds ? (

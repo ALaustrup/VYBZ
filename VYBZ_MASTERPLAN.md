@@ -634,6 +634,13 @@ when the creator's `tempoMin..tempoMax` covers the target). Pairs with the
 auto-detected BPM/key signals. _Verified on live DB: each facet returned the
 right creator; BPM outside a creator's range correctly excluded them._
 
+### 12.16 Landing hero ✅ (shipped 2026-07)
+The post-login home feed opens with a personalized **hero**: a greeting, your
+strongest fresh matches (avatar, % fit, explainable **confidence read**) for
+one-tap Connect/Message, a "see all matches" link, and a finish-your-profile
+nudge (seeks/avatar) when relevant. Pure frontend (`FeedHero`, reuses
+`collab_matches`); dismissible. Ties matchmaking into the first screen.
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
