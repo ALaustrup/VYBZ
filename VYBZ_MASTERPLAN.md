@@ -523,9 +523,17 @@ existing creator flows, feature-flagged, guardrails first.
   tips** rail (§4.1 Lane A) — no ads, no paywalls.
 
 **Staging:**
-- **O1 (next)** — Role Class as identity axis: schema (additive migration
-  `20260709_0038_role_class.sql`), onboarding role-class step, profile badge,
-  non-pro intents, feed separation. Behind a flag.
+- **O1 ✅ (shipped 2026-07)** — Role Class as identity axis: schema (migration
+  `20260709_0038_role_class.sql` — `apply_role_intent_onboarding` v4 persists
+  `roleClass`; `set_role_class` + `_is_role_class` allowlist), a **"How do you
+  fit in?"** first onboarding step, adjacent users skip the profession/role
+  steps and get adjacent intents + a **"Which creators are you looking for?"**
+  step (their seeks feed `creator_seeks` via `sync_creator_graph`), a
+  `RoleClassBadge` on profiles, and feed separation (adjacent classes default to
+  the mixed "For you" feed; drops stay creator-authored). Behind
+  `VITE_FEATURE_ROLE_CLASS` (default on, instantly reversible). _E2E verified:
+  fresh Supporter + Booker signups skip profession/role, land on "For you", show
+  the correct badge, and persist `roleClass` + seeks in the live DB._
 - **O2** — demand-side matchmaking: bookers/managers/patrons ↔ creators surfaced on
   Connect/Spark with confidence; role-class becomes a signal dimension in
   `collab_matches` (not a new engine).
