@@ -190,6 +190,11 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **M. Brand system** | Official VYBZ logo set (mark/wordmark/mono), favicons/PWA icons, OG image, intro animation, email + Codex-doc headers. Drops into `public/brand/`. |
 
 ### 4.1 Development findings & environment constraints
+- **Seed cleanup (2026-07):** the demo/test accounts that seeded early matchmaking
+  (bulk `@vybztest.com` + `@example.com` demo profiles) were **purged from the live
+  DB** — cascading their drops, Spaces, roles/seeks, connections and DMs — so VYBZ
+  now carries only real creator identities. The owner account (`vybz`) was promoted
+  to **admin**. Orphaned Bunny objects (not publicly reachable) can be swept later.
 - **DM live audio (H1) is implemented and correct**, but cannot be fully exercised in the CI/VM test environment: there is **no microphone**, and `getDisplayMedia` tab-audio capture is **silent** (no real audio output device to capture), so the visualizer/audible path has no signal to show here. Verified in-sandbox: the go-live control + source menu, graceful no-device error handling, `getDisplayMedia` capture → offer → "Calling…" panel + controls, clean build, no console errors. Two real bugs found + fixed during testing: (a) a `MediaStreamSource→Analyser` graph needs a destination sink or Chrome won't process it; (b) the listener needs an `<audio>` element to actually hear the remote stream. **Full 1:1 live audio (audible + visualizer + two-peer connect) should be validated on real devices.**
 - **Infra-gated backlog** (all blocked only on hosting/cost, code is ready): C2PA worker live hosting (needs a reachable container host — LAN box unreachable, free Docker hosts now require payment/PRO); **TURN** server for strict-NAT WebRTC reliability; **LiveKit** SFU for group live rehearsal/XR. These flip on the moment infra exists.
 - **Media hosting & cost (2026-07):** user media is offloaded to **Bunny.net** to protect the Supabase free tier (5 GB egress / 1 GB storage).
