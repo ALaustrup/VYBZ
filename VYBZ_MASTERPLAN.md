@@ -626,6 +626,14 @@ the existing single decode in `computeWaveform`. The composer pre-fills both
 tempo/key signals. _Verified: a known 120 BPM file detects 120 BPM / A minor._
 BPM is highly reliable; key is a best-effort suggestion.
 
+### 12.15 Faceted discovery ✅ (shipped 2026-07, P1 #5)
+Discover became a real finder: beyond name/role/genre, a filter panel adds
+**DAW, plugin, musical key, BPM (tempo-range fit), location, and remote-only**
+(`search_creators` migration `0034`, definer over public facets; BPM matches
+when the creator's `tempoMin..tempoMax` covers the target). Pairs with the
+auto-detected BPM/key signals. _Verified on live DB: each facet returned the
+right creator; BPM outside a creator's range correctly excluded them._
+
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
 - **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/

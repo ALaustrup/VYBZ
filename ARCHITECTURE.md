@@ -48,6 +48,11 @@ legacy passkey/host allow-lists during cutover).
 - Drops, assets, Studio projects, Spaces + `feed_posts`
 - Rooms, notifications, staff/mod, cosmetics, passkeys, provenance ledger
 
+### Discovery
+`search_creators` (definer) powers faceted Discover: name + role/genre/DAW/
+plugin/key/BPM(tempo-range)/location/remote over public facets. Feed ranking is
+`feed_for_you` (personalized) / `feed_undiscovered` (anti-popularity).
+
 ### Edge Functions
 `passkey`, `bunny-upload`, `bunny-sign`, `watermark`, `watermark-detect`, `embed`
 (+ retained `push-send`, `stripe-webhook` for Lane A).
