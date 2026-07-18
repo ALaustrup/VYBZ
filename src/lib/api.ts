@@ -710,21 +710,27 @@ const isSecurePath = (p: string) => /^(drops|projects)\//.test(p);
  * The raw object is never publicly reachable; previews are signed on demand and
  * downloads are fetched server-side for watermarking.
  */
-export async function uploadAudio(file: Blob, ext: string): Promise<string | null> {
+export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: number) => void): Promise<string | null> {
   const sess = (await db().auth.getSession()).data.session;
   if (!sess) return null;
   const ct = (file as File).type || (ext === "wav" ? "audio/wav" : ext === "flac" ? "audio/flac" : "audio/mpeg");
-  const res = await fetch(
-    `${SUPABASE_URL}/functions/v1/bunny-upload?kind=drop&name=${encodeURIComponent("a." + ext)}`,
-    {
-      method: "POST",
-      headers: { authorization: `Bearer ${sess.access_token}`, apikey: SUPABASE_ANON_KEY, "content-type": ct },
-      body: file,
-    },
-  );
-  if (!res.ok) return null;
-  const j = await res.json().catch(() => null);
-  return (j?.path as string) ?? null;
+  const endpoint = `${SUPABASE_URL}/functions/v1/bunny-upload?kind=drop&name=${encodeURIComponent("a." + ext)}`;
+  // XHR (not fetch) so we can report real upload progress for large files.
+  return new Promise<string | null>((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", endpoint);
+    xhr.setRequestHeader("authorization", `Bearer ${sess.access_token}`);
+    xhr.setRequestHeader("apikey", SUPABASE_ANON_KEY);
+    xhr.setRequestHeader("content-type", ct);
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100)); };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try { resolve((JSON.parse(xhr.responseText).path as string) ?? null); } catch { resolve(null); }
+      } else resolve(null);
+    };
+    xhr.onerror = () => resolve(null);
+    xhr.send(file);
+  });
 }
 
 /** Mint short-lived token URLs for secure-zone paths via the bunny-sign function. */

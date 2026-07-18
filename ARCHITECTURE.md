@@ -56,6 +56,11 @@ legacy passkey/host allow-lists during cutover).
 - **Auth:** passkey-first WebAuthn + password fallback. Anonymous disabled.
 - **Media:** Bunny public (post media) + Bunny secure (drops + Studio versions).
   Legacy Supabase buckets (`media-public` avatars, `audio-assets`) still supported.
+  Uploads **stream** through `bunny-upload` (`duplex: "half"`, no buffering, ≤1 GB)
+  with client-side progress; objects serve with `accept-ranges` for streaming
+  playback. Bunny Stream/HLS transcode is planned (gated on a Stream library).
+- **Realtime feed:** `drops` + `project_posts` are in the `supabase_realtime`
+  publication; `FeedPage` subscribes to INSERTs for instant posting (RLS-governed).
 - **C2PA:** `worker/c2pa` ready; gated on worker host secrets.
 
 ## Matchmaking

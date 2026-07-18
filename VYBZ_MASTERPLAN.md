@@ -559,8 +559,27 @@ Made every surface feel like its own place without touching the mission or data:
   in the headless VM — validate on a real device._
 - **Residue:** purged MYVYB wording (Godmode/V¢/confession/NSFW) in touched files.
 
-_Next visual phases (planned): media pipeline (direct/resumable Bunny uploads +
-Bunny Stream + optimistic/realtime posting), uploads dashboard, fake-data cleanup._
+_Next visual phases (planned): uploads dashboard, fake-data cleanup._
+
+### 12.10 Media pipeline — Phase 2 ✅ (shipped 2026-07)
+Instant posting + large, high-quality media:
+- **Realtime feed** (migration `0030`): `drops` + `project_posts` added to the
+  `supabase_realtime` publication; `FeedPage` subscribes to INSERTs and silently
+  reloads (debounced), so new drops/Space posts appear the instant they're posted —
+  yours and others'. RLS still governs delivery (drops `using(true)`; posts gated
+  on the non-archived parent project). _Verified: a server-side insert surfaced at
+  the top of an idle feed with no refresh._
+- **Streamed uploads** (`bunny-upload`): the Edge Function now **streams the request
+  body straight to Bunny** (`duplex: "half"`) instead of buffering the whole file,
+  so memory stays flat and large masters/video go through; cap raised **200 MB → 1 GB**
+  (enforced via `Content-Length`). Objects serve with `accept-ranges: bytes` for
+  range-based streaming playback. _Verified end-to-end: exact-byte upload to both the
+  secure (drop) and public (post) zones._
+- **Upload progress + validation**: `uploadAudio` reports real progress (XHR); the
+  drop composer shows a progress bar + size and rejects >1 GB with a clear message.
+- **Deferred (documented):** Bunny **Stream/HLS** transcoding for adaptive video —
+  needs a provisioned Stream library + keys (not available in the build env); large
+  video already streams as progressive MP4 via Bunny CDN range requests until then.
 
 ### 12.4 Premium feel, mobile-first, modular & customizable UI
 Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
