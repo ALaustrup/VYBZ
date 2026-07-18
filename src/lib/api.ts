@@ -1088,9 +1088,16 @@ export async function markNotificationsRead() {
 }
 
 // ── Search / discovery ────────────────────────────────────────────────────────
-export async function searchCreators(query?: string, role?: string, genre?: string): Promise<CreatorSearchResult[]> {
+export interface CreatorFilters {
+  role?: string; genre?: string; daw?: string; plugin?: string;
+  key?: string; bpm?: number | null; location?: string; remote?: boolean | null;
+}
+export async function searchCreators(query?: string, f: CreatorFilters = {}): Promise<CreatorSearchResult[]> {
   const { data } = await db().rpc("search_creators", {
-    p_query: query || null, p_role: role || null, p_genre: genre || null, p_limit: 40,
+    p_query: query || null, p_role: f.role || null, p_genre: f.genre || null,
+    p_daw: f.daw || null, p_plugin: f.plugin || null, p_key: f.key || null,
+    p_bpm: f.bpm ?? null, p_location: f.location || null, p_remote: f.remote ?? null,
+    p_limit: 40,
   });
   return (data ?? []).map((r: any) => ({
     userId: r.user_id, username: r.username ?? null, location: r.location ?? null,
