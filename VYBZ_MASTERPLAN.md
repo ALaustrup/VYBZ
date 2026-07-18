@@ -452,7 +452,19 @@ platform. **VYBZ: Find Yours.**
 - Home feed is the curated landing (intent heading, comfortable/grid layout toggle, roomier).
 - Audio-reactive frame toned to a **subtle, colourful** glow that only shows during playback.
 
-### 12.2 Spaces (profile microblogs) ✅ — UI: "Spaces"; schema: `profile_projects`
+### 12.18 Unify Spaces + Projects ✅ (shipped 2026-07)
+"Spaces" and "Projects/Studio" collapsed into ONE concept: **Projects** =
+the on-profile creative projects (`profile_projects`). Each Project now carries
+content (posts/links) **plus a widget dashboard** (`project_page_widgets`,
+migration `0036`; embed widgets live + gated OAuth connectors) rendered in
+`ProjectView` on the profile and `/p/:id`. The private collaboration rooms
+(`projects`) are rebranded **"Collabs"** (versions/splits/credits) so nothing is
+named "Projects" twice. No data migration — additive. Showcase is native
+(Projects are always on the profile). _Verified end-to-end: create a Project,
+add a Spotify widget, it renders on the profile; nav shows "Collabs", profile
+shows "Projects"._
+
+### 12.2 Spaces → Projects (profile creative projects) ✅ — schema: `profile_projects`
 
 Shipped: public Space tabs on profiles, post kinds (audio/image/video/text/link),
 follows → feed + match boosts, `/p/:id` deep links. Private collab rooms remain

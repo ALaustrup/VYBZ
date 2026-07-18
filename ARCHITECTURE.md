@@ -36,8 +36,8 @@ legacy passkey/host allow-lists during cutover).
 
 | UI | Schema / routes | Purpose |
 |----|-----------------|---------|
-| **Spaces** | `profile_projects`, `/p/:id` | Public microblogs / channels on a profile |
-| **Studio** | `projects`, `/projects` | Private collab rooms, versions, splits, credits |
+| **Projects** (was "Spaces") | `profile_projects`, `/p/:id` | On-profile creative projects: content (posts/links) **+ widget dashboard** (`project_page_widgets`), shown on the profile |
+| **Collabs** (was "Studio") | `projects`, `/projects` | Private collab rooms, versions, splits, credits |
 
 ## Backend (Supabase)
 
