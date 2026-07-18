@@ -1,16 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Camera, Check, Clapperboard, Gamepad2, Loader2, Music2, Palette, Sparkles, Target, X } from "lucide-react";
+import { ArrowRight, Briefcase, Camera, Check, Clapperboard, Compass, Gamepad2, GraduationCap, Heart, Loader2, Megaphone, Music2, Palette, Sparkles, Target, X } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
-import { ROLES, ROLE_FAMILIES, PROFESSIONS } from "@/lib/profileFields";
+import { ROLES, ROLE_FAMILIES, PROFESSIONS, ROLE_CLASSES, ROLE_CLASS_LABEL, ADJACENT_INTENTS, isAdjacentClass } from "@/lib/profileFields";
+import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 import type { DisciplineOption } from "@/types";
 
 const PROFESSION_ICON: Record<string, typeof Music2> = {
   Music2, Palette, Clapperboard, Gamepad2,
+};
+
+const ROLE_CLASS_ICON: Record<string, typeof Music2> = {
+  Sparkles, Heart, Briefcase, Compass, Megaphone, GraduationCap,
 };
 
 type SeekRole = { id: string; label: string };
@@ -38,7 +43,11 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   const navigate = useNavigate();
   const { profile, refreshProfile } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<"profession" | "role" | "confirm" | "intent" | "seek" | "avatar">("profession");
+  const [step, setStep] = useState<"roleClass" | "profession" | "role" | "confirm" | "intent" | "seek" | "avatar">(
+    FLAGS.roleClass ? "roleClass" : "profession",
+  );
+  const [roleClass, setRoleClass] = useState<string>("creator");
+  const adjacent = isAdjacentClass(roleClass);
   const [profession, setProfession] = useState<string | null>(null);
   const [secondaries, setSecondaries] = useState<string[]>([]);
   const [roleText, setRoleText] = useState("");
@@ -118,7 +127,16 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
     setBusy(true);
     try {
       const allIntents = [...intents, ...(customIntent.trim() ? [customIntent.trim()] : [])];
-      await api.applyRoleIntentOnboarding(chosenRoleId, chosenRoleLabel, allIntents, seeks.map((s) => s.id), profession, secondaries);
+      const classLabel = ROLE_CLASS_LABEL[roleClass] ?? "";
+      await api.applyRoleIntentOnboarding(
+        adjacent ? null : chosenRoleId,
+        adjacent ? classLabel : chosenRoleLabel,
+        allIntents,
+        seeks.map((s) => s.id),
+        adjacent ? null : profession,
+        adjacent ? [] : secondaries,
+        roleClass,
+      );
       void api.refreshEmbedding();
       await refreshProfile();
       onComplete();
@@ -129,8 +147,37 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   return (
     <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-8">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel w-full max-w-md p-7">
+        {step === "roleClass" && (
+          <>
+            <h1 className="font-display text-2xl font-bold text-gradient">How do you fit in?</h1>
+            <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/60">VYBZ is for the whole creative economy. Tell us how you show up — you can change this anytime.</p>
+            <div className="grid gap-2.5">
+              {ROLE_CLASSES.map((c) => {
+                const Icon = ROLE_CLASS_ICON[c.icon] ?? Sparkles;
+                const on = roleClass === c.id;
+                return (
+                  <button key={c.id} onClick={() => setRoleClass(c.id)}
+                    className={cx("flex items-center gap-3 rounded-2xl border p-3.5 text-left transition active:scale-[0.99]",
+                      on ? "border-veil-400/70 bg-veil-500/20" : "border-white/10 bg-white/[0.04] hover:border-veil-400/40")}>
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/60"><Icon className={cx("h-5 w-5", on ? "text-veil-100" : "text-white/70")} /></span>
+                    <span className="min-w-0">
+                      <span className="block font-display text-sm font-bold text-white">{c.label}</span>
+                      <span className="block text-[12px] leading-tight text-white/50">{c.blurb}</span>
+                    </span>
+                    {on && <Check className="ml-auto h-4 w-4 shrink-0 text-veil-200" />}
+                  </button>
+                );
+              })}
+            </div>
+            <button onClick={() => setStep(adjacent ? "intent" : "profession")} className="btn btn-primary mt-4 w-full py-3.5 text-[15px]">
+              Continue <ArrowRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+
         {step === "profession" && (
           <>
+            {FLAGS.roleClass && <button onClick={() => setStep("roleClass")} className="mb-2 text-[12px] text-white/45 hover:text-white/70">← Back</button>}
             <h1 className="font-display text-2xl font-bold text-gradient">What do you create?</h1>
             <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/60">Pick your primary craft — it shapes your feed, tools and matches. Tap others you also do.</p>
             <div className="grid grid-cols-2 gap-2.5">
@@ -196,10 +243,11 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
 
         {step === "intent" && (
           <>
+            {adjacent && FLAGS.roleClass && <button onClick={() => setStep("roleClass")} className="mb-2 text-[12px] text-white/45 hover:text-white/70">← Back</button>}
             <h1 className="font-display text-2xl font-bold text-gradient">What are you here for?</h1>
             <p className="mb-5 mt-2 text-[15px] text-white/60">Pick what matters most — your home feed and matches are built around it. You can change this anytime.</p>
             <div className="mb-4 flex flex-wrap gap-2">
-              {INTENTS.map((i) => {
+              {(adjacent ? ADJACENT_INTENTS : INTENTS).map((i) => {
                 const on = intents.includes(i);
                 return (
                   <button key={i} onClick={() => toggleIntent(i)}
@@ -221,8 +269,8 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
 
         {step === "seek" && (
           <>
-            <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-gradient"><Target className="h-6 w-6 text-aqua-300" /> Who are you looking for?</h1>
-            <p className="mb-4 mt-2 text-[15px] leading-relaxed text-white/60">Pick the roles you want to collaborate with. This is what powers your best matches — we'll surface creators who bring exactly this.</p>
+            <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-gradient"><Target className="h-6 w-6 text-aqua-300" /> {adjacent ? "Which creators are you looking for?" : "Who are you looking for?"}</h1>
+            <p className="mb-4 mt-2 text-[15px] leading-relaxed text-white/60">{adjacent ? "Pick the kinds of creators you want to find. This powers your matches — we'll surface exactly these people." : "Pick the roles you want to collaborate with. This is what powers your best matches — we'll surface creators who bring exactly this."}</p>
 
             {seeks.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-2">

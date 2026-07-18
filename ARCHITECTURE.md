@@ -83,11 +83,17 @@ Projects render image posts as a gallery grid + lightbox (`ProjectView.tsx`), an
 Project widget catalog gained per-profession connectors — Vimeo/Steam embeds,
 itch.io/ArtStation/Behance link cards (`src/lib/widgets.ts`).
 
-**Role Class (Phase O, roadmap).** A second identity axis admits creator-adjacent
+**Role Class (Phase O1, shipped).** A second identity axis admits creator-adjacent
 accounts (supporter/patron, booker/manager, curator, brand, educator) as real
-identities with structured intent — additive, flagged, guardrailed so it never
-outranks creator↔creator collab matches. Schema lands in
-`20260709_0038_role_class.sql`; see `VYBZ_MASTERPLAN.md` §12.20.
+identities with structured intent — additive, flagged (`VITE_FEATURE_ROLE_CLASS`),
+guardrailed so it never outranks creator↔creator collab matches. `roleClass` lives
+on the profile jsonb (flows through `public_profile`); `apply_role_intent_onboarding`
+v4 persists it and adjacent users' seeks still feed `creator_seeks` via
+`sync_creator_graph` (migration `20260709_0038_role_class.sql`, `set_role_class`
+RPC). Onboarding branches at a "How do you fit in?" step; `ROLE_CLASSES` catalog +
+`isAdjacentClass` in `src/lib/profileFields.ts`; `RoleClassBadge` on profiles;
+adjacent classes default to the mixed "For you" feed. Ranking weight = Phase O2.
+See `VYBZ_MASTERPLAN.md` §12.20.
 
 ## Matchmaking
 

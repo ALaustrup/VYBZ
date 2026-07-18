@@ -7,6 +7,7 @@ import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
+import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import type { Drop, CreatorStats, Credit } from "@/types";
@@ -46,6 +47,7 @@ export function UserProfilePage() {
           </div>
           {f.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{f.roleLabel}</p>}
           <ProfessionBadges primary={f.profession} all={f.professions} />
+          <RoleClassBadge roleClass={f.roleClass} />
           {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>
         {!isMe && (

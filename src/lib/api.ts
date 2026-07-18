@@ -160,6 +160,7 @@ export async function applyRoleIntentOnboarding(
   seekRoles: string[] = [],
   profession: string | null = null,
   secondaries: string[] = [],
+  roleClass: string = "creator",
 ): Promise<string | null> {
   const { data, error } = await db().rpc("apply_role_intent_onboarding", {
     p_role_id: roleId,
@@ -168,9 +169,17 @@ export async function applyRoleIntentOnboarding(
     p_seek_roles: seekRoles,
     p_profession: profession,
     p_secondaries: secondaries,
+    p_role_class: roleClass,
   });
   if (error) throw error;
   return (data as string) ?? null;
+}
+
+/** Change the caller's Role Class later (Phase O1). Returns the applied class. */
+export async function setRoleClass(roleClass: string): Promise<string> {
+  const { data, error } = await db().rpc("set_role_class", { p_class: roleClass });
+  if (error) throw error;
+  return (data as string) ?? "creator";
 }
 export async function rolesFor(id: string): Promise<{ offers: string[]; seeks: string[] }> {
   const { data } = await db().rpc("creator_roles_for", { p_id: id });
