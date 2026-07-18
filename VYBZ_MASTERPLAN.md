@@ -464,6 +464,24 @@ named "Projects" twice. No data migration — additive. Showcase is native
 add a Spotify widget, it renders on the profile; nav shows "Collabs", profile
 shows "Projects"._
 
+### 12.19 Professions — first-class creative verticals, Phase A ✅ (shipped 2026-07)
+VYBZ supports four top-level **professions**, activating the dormant category
+axis (migration `0016`) as first-class identity: **Music Producers** (`music`),
+**Visual Artists** (`visual_art`), **Video Creators** (`film_video`), **Game
+Designers** (`game_dev`). Each is its own pathway (feed/tools/discovery scoped to
+it over the coming phases).
+- **Identity:** onboarding opens with **"What do you create?"** — one **primary**
+  profession + optional **secondaries** (a creator can be, e.g., a Game Designer
+  who also produces music). Stored on the profile (`profession` + `professions[]`,
+  validated; `apply_role_intent_onboarding` v3). Shown as profile **badges**.
+- **Feed:** default scope is profession-tailored (Music→sounds, Visual→art,
+  Video→video, Game→mixed; intent fallback for legacy profiles).
+- **Roadmap:** Phase B — per-profession content/uploads (image galleries, Bunny
+  Stream video, game devlogs/builds); Phase C — profession-aware matchmaking +
+  discovery facets + connectors; Phase D — profession tools & provenance.
+- _Verified E2E: fresh signup → craft step (Visual Artists primary + Video
+  Creators secondary) → Art feed default + profile badges._
+
 ### 12.2 Spaces → Projects (profile creative projects) ✅ — schema: `profile_projects`
 
 Shipped: public Space tabs on profiles, post kinds (audio/image/video/text/link),
