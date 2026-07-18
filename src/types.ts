@@ -30,6 +30,10 @@ export interface ProfileDetails {
   roleLabel?: string;
   /** What the creator is here for — drives default feed curation. */
   intents?: string[];
+  /** Primary profession (category id): music | visual_art | film_video | game_dev. */
+  profession?: string | null;
+  /** Primary + optional secondary professions (category ids), primary first. */
+  professions?: string[];
   /** Top-level keys the creator has marked private. */
   hidden?: string[];
 }
