@@ -87,6 +87,45 @@ Trust & Safety must-have.
 - Treat **#1 + #2** as a "Live" phase, unblocked by TURN (#1) and the Bunny-live /
   LiveKit decision (#2).
 
+### 2026-07-19 — "V¢ (VYBZ Credit)" — a platform value unit 🔴 (needs decision + legal)
+- **What (owner):** introduce **V¢ = "VYBZ Credit"** as the platform's transacting
+  unit that facilitates *all* value exchange — tips, paid services, commissions,
+  user-to-user payments. **Never required for anything**; purely an *optional* way
+  to support creators and pay for services rendered.
+- **Why it's compelling:** one coherent vocabulary + rail for every money moment
+  (tips O3b, commissions O3, cosmetics Lane B) instead of separate one-off Stripe
+  flows. A single "wallet" UX is friendlier and unifies the economy.
+- **⚠️ Two things to resolve before this can be promoted:**
+  1. **It revives a scrapped concept.** The MYVYB → VYBZ rebuild explicitly
+     *removed* "that app's economy" incl. a `V¢`-style unit (masterplan §0
+     Correction of record). Reintroducing V¢ is an owner-level mission decision,
+     not a routine feature. It can be done — but §0 must be amended deliberately.
+  2. **Money-transmission / regulatory exposure.** The design hinges on ONE
+     question: **can V¢ be cashed OUT?**
+     - **Closed-loop, spend-only** (buy V¢ with Stripe → spend on
+       tips/commissions/cosmetics; creators receive **real money via Stripe
+       Connect**, never a withdrawable V¢ balance): lowest risk, cleanest, most
+       on-mission. V¢ is essentially prepaid credit the *payer* holds.
+     - **V¢ balance that creators cash out** (stored value + payout): this is
+       **money transmission / stored value** → likely triggers licensing, KYC/AML,
+       escrow, chargeback handling, and tax reporting (1099-K). Do **not** build
+       without legal counsel.
+     - **Crypto/on-chain token**: off-mission (§0), highest regulatory risk —
+       recommend hard no.
+- **Recommended framing (my take):** promote V¢ **only** as a **thin, closed-loop
+  layer over Stripe Connect** — a branded unit (fix a ratio, e.g. `100 V¢ = $1`)
+  that the *payer* prepurchases or spends inline, while creator earnings always
+  settle as real money through Stripe Connect (never a withdrawable in-app
+  balance). That keeps the "no ads / no paywalls / not required for anything"
+  guardrails intact and sidesteps the money-transmitter problem, while still
+  giving the unified "V¢ everywhere" experience.
+- **Dependencies:** Stripe keys (same block as O3b). Best sequenced as the
+  *presentation + accounting layer* built on top of O3b's Stripe Connect rails —
+  i.e. do O3b first (real-money tips), then optionally wrap it in V¢.
+- **Open decisions for owner:** (a) amend §0 to allow V¢? (b) closed-loop
+  spend-only vs. cash-out? (c) fixed ratio + pricing? (d) does V¢ replace or sit
+  beside direct-dollar tipping?
+
 ---
 
 _No promotions yet — all of the above are captured for analysis only._
