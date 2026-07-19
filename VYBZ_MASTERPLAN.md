@@ -91,6 +91,10 @@ standard of economy for every string. Metadata/SEO uses **"Find Yours."** (no
 3. Obey the **Development Rules** (§9) on every change.
 4. Everything is **additive and reversible**. Never break a working feature to add one.
 5. `npm run build` (which runs `tsc --noEmit`) must pass with zero errors before commit.
+6. **Idea save points:** raw owner ideas are banked in `IDEAS_BACKLOG.md` between
+   phases (the agent asks for new ideas at each phase boundary). Ideas graduate
+   into a sequenced phase here only when promoted — the backlog never blocks the
+   active plan.
 
 ---
 
