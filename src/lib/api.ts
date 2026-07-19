@@ -735,6 +735,61 @@ export async function applyToOpportunity(postId: string, message?: string) {
   if (error) throw error;
 }
 
+// ── Tips (Stripe Connect, Phase O3b) ─────────────────────────────────────────
+async function fnErrorMessage(error: unknown, fallback: string): Promise<string> {
+  try {
+    const ctx = (error as { context?: { json?: () => Promise<any>; text?: () => Promise<string> } }).context;
+    if (ctx?.json) { const j = await ctx.json(); if (j?.error) return j.error as string; }
+    if (ctx?.text) { const t = await ctx.text(); if (t) return t; }
+  } catch { /* ignore */ }
+  return (error as Error)?.message ?? fallback;
+}
+
+/** Creator: start (or resume) Stripe Connect onboarding; returns a hosted URL. */
+export async function startPayoutOnboarding(origin: string): Promise<string | null> {
+  const { data, error } = await db().functions.invoke("stripe-connect-onboard", { body: { origin } });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not start payout onboarding."));
+  if ((data as any)?.error) throw new Error((data as any).error);
+  return (data as any)?.url ?? null;
+}
+
+/** Creator: re-sync payout readiness from Stripe (call on return from onboarding). */
+export async function refreshPayoutStatus(origin: string): Promise<{ hasAccount: boolean; chargesEnabled: boolean; detailsSubmitted: boolean }> {
+  const { data } = await db().functions.invoke("stripe-connect-onboard", { body: { origin, refresh: true } });
+  return {
+    hasAccount: !!(data as any)?.hasAccount,
+    chargesEnabled: !!(data as any)?.chargesEnabled,
+    detailsSubmitted: !!(data as any)?.detailsSubmitted,
+  };
+}
+
+export async function myPayoutStatus(): Promise<{ hasAccount: boolean; chargesEnabled: boolean; detailsSubmitted: boolean }> {
+  const { data } = await db().rpc("my_payout_status");
+  return {
+    hasAccount: !!(data as any)?.hasAccount,
+    chargesEnabled: !!(data as any)?.chargesEnabled,
+    detailsSubmitted: !!(data as any)?.detailsSubmitted,
+  };
+}
+
+export async function creatorTipsEnabled(uid: string): Promise<boolean> {
+  const { data } = await db().rpc("creator_tips_enabled", { p_uid: uid });
+  return !!data;
+}
+
+export async function tipsSummary(uid: string): Promise<{ count: number; supporters: number }> {
+  const { data } = await db().rpc("tips_summary", { p_uid: uid });
+  return { count: Number((data as any)?.count ?? 0), supporters: Number((data as any)?.supporters ?? 0) };
+}
+
+/** Supporter: start a tip Checkout to a creator; returns a hosted Checkout URL. */
+export async function startTip(toUserId: string, amountCents: number, origin: string, message?: string): Promise<string | null> {
+  const { data, error } = await db().functions.invoke("stripe-tip", { body: { toUserId, amountCents, origin, message } });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not start tip."));
+  if ((data as any)?.error) throw new Error((data as any).error);
+  return (data as any)?.url ?? null;
+}
+
 let _roleLabelCache: Map<string, string> | null = null;
 async function roleLabelMap(): Promise<Map<string, string>> {
   if (_roleLabelCache) return _roleLabelCache;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
 import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
@@ -8,6 +8,7 @@ import { TrackCard } from "@/components/TrackCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
+import { TipButton } from "@/components/TipButton";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import type { Drop, CreatorStats, Credit } from "@/types";
@@ -22,12 +23,20 @@ export function UserProfilePage() {
   const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
   const [reportOpen, setReportOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     Promise.all([api.getPublicProfile(id), api.dropsBy(id, 20), api.getCreatorStats(id), api.creatorCredits(id)]).then(([prof, d, s, c]) => {
       setP(prof); setDrops(d); setStats(s); setCredits(c); setLoading(false);
     });
   }, [id]);
+
+  useEffect(() => {
+    const t = searchParams.get("tip");
+    if (t === "success") showToast("Thanks for supporting this creator! 💜");
+    if (t === "success" || t === "cancel") { searchParams.delete("tip"); setSearchParams(searchParams, { replace: true }); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const cosmetics = useResolvedCosmetics(p?.equippedCosmetics);
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
@@ -51,7 +60,10 @@ export function UserProfilePage() {
           {p.location && <p className="text-sm text-white/50">{p.location}</p>}
         </div>
         {!isMe && (
-          <button onClick={() => setReportOpen(true)} aria-label="Report user" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70 active:scale-90"><Flag className="h-4 w-4" /></button>
+          <div className="flex shrink-0 items-center gap-2">
+            <TipButton userId={id} username={p.username} />
+            <button onClick={() => setReportOpen(true)} aria-label="Report user" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70 active:scale-90"><Flag className="h-4 w-4" /></button>
+          </div>
         )}
       </div>
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} targetKind="user" targetId={id} targetLabel={p.username ? `@${p.username}` : undefined} />
