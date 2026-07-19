@@ -142,6 +142,10 @@ export interface Opportunity {
   sharedDaws: string[];
   applied: boolean;
   fit: number;
+  /** Post kind (Phase O3): a collab (role-seeking) or a paid commission. */
+  kind: "collab" | "commission";
+  /** Human-readable budget for commissions (e.g. "$300 fixed"). */
+  budget: string | null;
 }
 
 export interface DmThread {

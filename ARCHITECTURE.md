@@ -96,7 +96,12 @@ adjacent classes default to the mixed "For you" feed. **Phase O2** (`collab_matc
 v7, migration `20260709_0039`) makes role-class a matchmaking dimension: matches
 emit `role_class`, a modest `roleclass` demand signal feeds fit/confidence, and a
 guardrail demotes adjacent candidates below all creator candidates on a creator's
-deck (never outranks creator↔creator collabs). See `VYBZ_MASTERPLAN.md` §12.20.
+deck (never outranks creator↔creator collabs). **Phase O3** adds a **commissions
+board**: `collab_posts.kind` (`collab`|`commission`) + `budget` (migration
+`20260709_0040`), Collabs/Commissions tabs on Opportunities, and a "Pitch" flow
+reusing `collab_applications` — the paid demand→creator loop. Stripe Connect tips
+(O3b) are designed but deferred until Stripe keys exist. See `VYBZ_MASTERPLAN.md`
+§12.20.
 
 ## Matchmaking
 

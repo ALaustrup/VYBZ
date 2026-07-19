@@ -549,8 +549,24 @@ existing creator flows, feature-flagged, guardrails first.
   surfaces on the vocalist's Connect ("Wants what you bring: Lead Vocalist",
   Booker / Manager badge) ranked below a mutual producer collab; the booker's own
   deck surfaces the vocalist._
-- **O3** — patron/supporter loop wired to existing Stripe Connect tips + a
-  commissions board (reuses the opportunity board).
+- **O3 ✅ (shipped 2026-07)** — **commissions board**: paid work requests on the
+  opportunity board. `collab_posts` gains `kind` (`collab` | `commission`) +
+  `budget` (migration `20260709_0040_commissions.sql`); Opportunities gets
+  Collabs / Commissions tabs, a commission post form (budget field), budget
+  badges, and a "Pitch" action reusing `collab_applications`. This is the paid
+  brand/booker/patron → creator loop, needing no payment keys. _E2E verified: a
+  Brand posts a "$300 fixed" commission → it appears under Commissions with the
+  budget badge → an illustrator sees it and pitches → correctly filtered out of
+  Collabs._
+- **O3b (gated on Stripe keys)** — native **Stripe Connect tips** (patron →
+  creator, on-mission per §4.1 Lane A). Design is ready: a `creator_payouts`
+  connect-account table + a `tips` ledger, three edge functions
+  (`stripe-connect-onboard` account link · `stripe-tip` Checkout w/ transfer to
+  the connected account · `stripe-webhook` signature-verified fulfilment), and a
+  flag-gated Tip/Support button. **Not built yet** — deliberately deferred so no
+  untested money-moving code ships until `STRIPE_SECRET_KEY` /
+  `STRIPE_WEBHOOK_SECRET` + a publishable key are provisioned. No ads, no
+  paywalls, no external payment links.
 
 ### 12.2 Spaces → Projects (profile creative projects) ✅ — schema: `profile_projects`
 
