@@ -54,7 +54,7 @@ if [ -z "${NO_SUPABASE:-}" ]; then
   say "Deploying Edge Functions"
   # Functions that do their own auth / handle CORS preflight / are webhooks —
   # they must NOT sit behind the edge JWT gate (it would 401 preflight + anon calls).
-  NO_JWT="passkey bunny-upload bunny-sign watermark watermark-detect push-send stripe-webhook"
+  NO_JWT="passkey bunny-upload bunny-sign watermark watermark-detect push-send stripe-webhook stripe-connect-onboard stripe-tip"
   for fn in supabase/functions/*/; do
     name="$(basename "$fn")"
     [ "$name" = "_shared" ] && continue

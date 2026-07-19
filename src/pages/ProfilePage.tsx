@@ -9,6 +9,7 @@ import * as api from "@/lib/api";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
+import { PayoutSetup } from "@/components/PayoutSetup";
 import { AudioLines } from "lucide-react";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
@@ -72,6 +73,8 @@ export function ProfilePage() {
         {facets.genres?.length ? <FacetRow label="Genres" items={facets.genres} tone="bg-veil-500/20 text-veil-100" /> : null}
         {facets.daws?.length ? <FacetRow label="DAWs" items={facets.daws} tone="bg-white/8 text-white/75" /> : null}
       </div>
+
+      <PayoutSetup />
 
       {(roles.offers.length === 0 && roles.seeks.length === 0) && (
         <button onClick={() => navigate("/profile/edit")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-aqua-400/25 bg-aqua-400/[0.06] p-3.5 text-left active:scale-[0.99]">
