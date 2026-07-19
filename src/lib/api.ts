@@ -658,6 +658,7 @@ export async function collabMatches(limit = 30, category: string | null = null):
     resonance: Number(r.resonance ?? 0), reputation: Number(r.reputation ?? 0), fit: Number(r.fit ?? 0),
     sharedDisciplines: r.shared_disciplines ?? [],
     confidence: Number(r.confidence ?? 0),
+    roleClass: r.role_class ?? "creator",
   }));
 }
 

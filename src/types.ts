@@ -110,6 +110,8 @@ export interface CollabMatch {
   sharedDisciplines: string[];
   /** 0..1 read of how much independent evidence backs this match (§5.4k). */
   confidence: number;
+  /** Candidate's identity axis (Phase O2): creator | supporter | booker | curator | brand | educator. */
+  roleClass?: string | null;
 }
 
 export interface CreatorStats {

@@ -92,8 +92,11 @@ v4 persists it and adjacent users' seeks still feed `creator_seeks` via
 `sync_creator_graph` (migration `20260709_0038_role_class.sql`, `set_role_class`
 RPC). Onboarding branches at a "How do you fit in?" step; `ROLE_CLASSES` catalog +
 `isAdjacentClass` in `src/lib/profileFields.ts`; `RoleClassBadge` on profiles;
-adjacent classes default to the mixed "For you" feed. Ranking weight = Phase O2.
-See `VYBZ_MASTERPLAN.md` §12.20.
+adjacent classes default to the mixed "For you" feed. **Phase O2** (`collab_matches`
+v7, migration `20260709_0039`) makes role-class a matchmaking dimension: matches
+emit `role_class`, a modest `roleclass` demand signal feeds fit/confidence, and a
+guardrail demotes adjacent candidates below all creator candidates on a creator's
+deck (never outranks creator↔creator collabs). See `VYBZ_MASTERPLAN.md` §12.20.
 
 ## Matchmaking
 

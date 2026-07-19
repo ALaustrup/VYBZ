@@ -6,6 +6,7 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { haptic } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
+import { ROLE_CLASS_LABEL, isAdjacentClass } from "@/lib/profileFields";
 import type { CollabMatch } from "@/types";
 
 function gradientFor(id: string): string {
@@ -102,6 +103,7 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
                 </span>
               ); })()}
               {c.mutual && <span className="flex items-center gap-1 rounded-full bg-feel/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Repeat className="h-3 w-3" /> Mutual</span>}
+              {isAdjacentClass(c.roleClass) && <span className="flex items-center gap-1 rounded-full bg-aqua-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-aqua-100">{ROLE_CLASS_LABEL[c.roleClass as string] ?? c.roleClass}</span>}
               {c.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
             </div>
           </div>
