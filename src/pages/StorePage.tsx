@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Coins, Check, Lock } from "lucide-react";
+import { ArrowLeft, Loader2, Coins, Check, Lock, ExternalLink } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
 import { Flair } from "@/lib/cosmetics";
 import type { Cosmetic, CosmeticStore } from "@/types";
+
+const PAYMENT_LINK = import.meta.env.VITE_STRIPE_PAYMENT_LINK?.trim() || "";
 
 /**
  * Cosmetic store (Lane B). Purely aesthetic accents + flair, unlocked with
@@ -57,9 +59,24 @@ export function StorePage() {
       </div>
       <div className="mb-5 h-px w-full bg-[var(--hairline)]" />
 
-      {store.credits === 0 && (
+      {PAYMENT_LINK ? (
+        <a
+          href={PAYMENT_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-veil-400/40 bg-veil-500/[0.08] py-3 text-sm font-semibold text-veil-100 active:scale-[0.99]"
+        >
+          <Coins className="h-4 w-4" /> Buy credits <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+        </a>
+      ) : store.credits === 0 ? (
         <p className="mb-5 text-[13px] leading-relaxed text-white/45">
-          Earn credits by moderating (see the <button type="button" className="text-white/75 underline decoration-white/20 hover:text-white" onClick={() => navigate("/apply-mod")}>moderator program</button>). Card top-ups arrive soon.
+          Earn credits by moderating (see the <button type="button" className="text-white/75 underline decoration-white/20 hover:text-white" onClick={() => navigate("/apply-mod")}>moderator program</button>). Card top-ups arrive when a Payment Link is configured.
+        </p>
+      ) : null}
+
+      {PAYMENT_LINK && (
+        <p className="mb-5 text-[11px] leading-snug text-white/35">
+          After checkout, credits may take a short time to appear (manual fulfillment until the webhook product is wired).
         </p>
       )}
 

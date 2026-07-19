@@ -67,6 +67,7 @@ export function ProjectView({
           <ProjectWidgets
             widgets={detail.widgets ?? []}
             editable={editable}
+            projectId={detail.id}
             onAdd={onAddWidget}
             onRemove={onRemoveWidget}
           />

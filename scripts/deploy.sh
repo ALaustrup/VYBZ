@@ -54,7 +54,7 @@ if [ -z "${NO_SUPABASE:-}" ]; then
   say "Deploying Edge Functions"
   # Functions that do their own auth / handle CORS preflight / are webhooks —
   # they must NOT sit behind the edge JWT gate (it would 401 preflight + anon calls).
-  NO_JWT="passkey bunny-upload bunny-sign watermark watermark-detect push-send stripe-webhook stripe-connect-onboard stripe-tip"
+  NO_JWT="passkey bunny-upload bunny-sign watermark watermark-detect push-send stripe-webhook stripe-connect-onboard stripe-tip oauth-start oauth-callback ice-servers"
   for fn in supabase/functions/*/; do
     name="$(basename "$fn")"
     [ "$name" = "_shared" ] && continue
@@ -69,7 +69,7 @@ if [ -z "${NO_SUPABASE:-}" ]; then
   done
 
   SECRETS_TO_SET=""
-  for v in OPENAI_API_KEY RESEND_API_KEY RESEND_FROM LIVEKIT_URL LIVEKIT_API_KEY LIVEKIT_API_SECRET VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY VAPID_SUBJECT PUSH_SEND_SECRET MOD_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET; do
+  for v in OPENAI_API_KEY RESEND_API_KEY RESEND_FROM LIVEKIT_URL LIVEKIT_API_KEY LIVEKIT_API_SECRET VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY VAPID_SUBJECT PUSH_SEND_SECRET MOD_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_TIP_FEE_BPS SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_SECRET OAUTH_STATE_SECRET TURN_URLS TURN_USERNAME TURN_CREDENTIAL APP_URL; do
     if [ -n "${!v:-}" ]; then SECRETS_TO_SET="$SECRETS_TO_SET $v=${!v}"; fi
   done
   if [ -n "$SECRETS_TO_SET" ]; then

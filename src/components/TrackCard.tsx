@@ -9,6 +9,9 @@ import { ReportButton } from "@/components/ReportButton";
 import { usePlayer, playTrack, seekFraction, type PlayerTrack } from "@/lib/audioBus";
 import { qualityLabel } from "@/lib/waveform";
 import * as api from "@/lib/api";
+import { FLAGS } from "@/lib/flags";
+import { trySwarmDownload, swarmSeedOptIn } from "@/lib/swarm";
+import { useSession } from "@/store/session";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
 
 const LICENSE_LABEL: Record<string, string> = {
@@ -50,6 +53,7 @@ interface TrackCardProps {
 /** The feed's atomic unit for an audio drop — identity-forward, sound-first. */
 export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, onOpenAuthor, className }: TrackCardProps) {
   const player = usePlayer();
+  const { userId } = useSession();
   const accent = useMemo(() => paletteFor(d.seed)[0], [d.seed]);
   const [downloading, setDownloading] = useState(false);
 
@@ -57,14 +61,28 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
     e.stopPropagation();
     if (!d.assetId || downloading) return;
     setDownloading(true);
-    const res = await api.downloadAsset(d.assetId);
-    setDownloading(false);
-    if (res) {
-      const a = document.createElement("a");
-      a.href = res.url; a.rel = "noopener";
-      a.download = `${(d.title || "drop").replace(/[^\w.-]+/g, "_")}.wav`;
-      document.body.appendChild(a); a.click(); a.remove();
-      if (res.revoke) setTimeout(() => URL.revokeObjectURL(res.url), 10_000);
+    try {
+      if (FLAGS.swarm && userId) {
+        const swarmUrl = await trySwarmDownload(d.assetId, userId, { seedOptIn: swarmSeedOptIn() });
+        if (swarmUrl) {
+          const a = document.createElement("a");
+          a.href = swarmUrl; a.rel = "noopener";
+          a.download = `${(d.title || "drop").replace(/[^\w.-]+/g, "_")}.bin`;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(swarmUrl), 10_000);
+          return;
+        }
+      }
+      const res = await api.downloadAsset(d.assetId);
+      if (res) {
+        const a = document.createElement("a");
+        a.href = res.url; a.rel = "noopener";
+        a.download = `${(d.title || "drop").replace(/[^\w.-]+/g, "_")}.wav`;
+        document.body.appendChild(a); a.click(); a.remove();
+        if (res.revoke) setTimeout(() => URL.revokeObjectURL(res.url), 10_000);
+      }
+    } finally {
+      setDownloading(false);
     }
   }
 

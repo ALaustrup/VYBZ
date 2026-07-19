@@ -14,6 +14,10 @@ import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { PayoutSetup } from "@/components/PayoutSetup";
 import { Discography } from "@/components/Discography";
+import { AffiliateLinks } from "@/components/AffiliateLinks";
+import { ProBadge } from "@/components/ProBadge";
+import { FLAGS } from "@/lib/flags";
+import { swarmSeedOptIn, setSwarmSeedOptIn } from "@/lib/swarm";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
@@ -54,6 +58,7 @@ export function ProfilePage() {
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <ProfessionBadges primary={facets.profession} all={facets.professions} />
             <RoleClassBadge roleClass={facets.roleClass} />
+            <ProBadge profile={facets} />
           </div>
           {profile.location && <p className="mt-1 text-sm text-white/40">{profile.location}</p>}
         </div>
@@ -82,6 +87,25 @@ export function ProfilePage() {
       </div>
 
       <PayoutSetup />
+
+      {userId && <AffiliateLinks userId={userId} editable />}
+
+      {FLAGS.swarm && (
+        <label className="mb-5 flex cursor-pointer items-start gap-3 border-y border-[var(--hairline)] py-3.5">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            defaultChecked={swarmSeedOptIn()}
+            onChange={(e) => setSwarmSeedOptIn(e.target.checked)}
+          />
+          <span>
+            <span className="block text-[13px] font-medium text-white/80">Seed downloads over Swarm</span>
+            <span className="mt-0.5 block text-[11px] text-white/40">
+              Opt-in P2P: share encrypted chunks with peers who already have download rights. CDN always remains the fallback.
+            </span>
+          </span>
+        </label>
+      )}
 
       {(roles.offers.length === 0 && roles.seeks.length === 0) && (
         <button type="button" onClick={() => navigate("/profile/edit")} className="mb-5 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-3.5 text-left">

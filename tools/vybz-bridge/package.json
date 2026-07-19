@@ -1,0 +1,13 @@
+{
+  "name": "vybz-bridge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Minimal VYBZ Bridge companion stub (localhost WebSocket)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

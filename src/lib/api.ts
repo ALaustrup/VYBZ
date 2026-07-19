@@ -792,6 +792,130 @@ export async function startTip(toUserId: string, amountCents: number, origin: st
   return (data as any)?.url ?? null;
 }
 
+// ── OAuth connectors (Phase C3) ──────────────────────────────────────────────
+export interface OAuthConnection {
+  id: string;
+  provider: string;
+  externalId: string | null;
+  meta: Record<string, unknown>;
+  expiresAt: number | null;
+  connectedAt: number;
+}
+
+export async function listOAuth(): Promise<OAuthConnection[]> {
+  const { data } = await db().rpc("list_my_oauth");
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    provider: r.provider,
+    externalId: r.external_id ?? null,
+    meta: (r.meta ?? {}) as Record<string, unknown>,
+    expiresAt: r.expires_at ? new Date(r.expires_at).getTime() : null,
+    connectedAt: r.connected_at ? new Date(r.connected_at).getTime() : Date.now(),
+  }));
+}
+
+export async function startOAuth(provider: string, projectId?: string): Promise<string> {
+  const { data, error } = await db().functions.invoke("oauth-start", {
+    body: { provider, projectId: projectId ?? null },
+  });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not start OAuth."));
+  if ((data as any)?.error) throw new Error((data as any).message || (data as any).error);
+  const url = (data as any)?.url;
+  if (!url) throw new Error("No authorize URL returned.");
+  return url as string;
+}
+
+export async function disconnectOAuth(provider: string): Promise<void> {
+  const { error } = await db().rpc("disconnect_oauth", { p_provider: provider });
+  if (error) throw error;
+}
+
+// ── Affiliates (Phase J) ─────────────────────────────────────────────────────
+export interface AffiliateLink {
+  id: string;
+  userId: string;
+  label: string;
+  url: string;
+  merchant: string | null;
+  disclosed: boolean;
+  sort: number;
+}
+
+export async function listAffiliateLinks(userId: string): Promise<AffiliateLink[]> {
+  const { data } = await db().from("affiliate_links")
+    .select("id,user_id,label,url,merchant,disclosed,sort")
+    .eq("user_id", userId)
+    .order("sort", { ascending: true });
+  return (data ?? []).map((r: any) => ({
+    id: r.id, userId: r.user_id, label: r.label, url: r.url,
+    merchant: r.merchant ?? null, disclosed: !!r.disclosed, sort: r.sort ?? 0,
+  }));
+}
+
+export async function upsertAffiliateLink(input: {
+  id?: string; label: string; url: string; merchant?: string | null;
+}): Promise<void> {
+  const uid = await currentUserId();
+  if (!uid) throw new Error("Not signed in.");
+  if (input.id) {
+    const { error } = await db().from("affiliate_links").update({
+      label: input.label.trim(), url: input.url.trim(),
+      merchant: input.merchant?.trim() || null, disclosed: true,
+    }).eq("id", input.id).eq("user_id", uid);
+    if (error) throw error;
+  } else {
+    const { error } = await db().from("affiliate_links").insert({
+      user_id: uid, label: input.label.trim(), url: input.url.trim(),
+      merchant: input.merchant?.trim() || null, disclosed: true,
+    });
+    if (error) throw error;
+  }
+}
+
+export async function deleteAffiliateLink(id: string): Promise<void> {
+  const uid = await currentUserId();
+  if (!uid) return;
+  await db().from("affiliate_links").delete().eq("id", id).eq("user_id", uid);
+}
+
+// ── Swarm manifest (Phase H) ─────────────────────────────────────────────────
+export async function swarmAssetManifest(assetId: string): Promise<{
+  assetId: string; chunkSize: number | null; chunkHashes: string[];
+  cipherAlgo: string | null; contentKeyEnvelope: unknown; byteSize: number;
+} | null> {
+  const { data, error } = await db().rpc("swarm_asset_manifest", { p_asset: assetId });
+  if (error || !data?.length) return null;
+  const r = data[0] as any;
+  return {
+    assetId: r.asset_id,
+    chunkSize: r.chunk_size ?? null,
+    chunkHashes: r.chunk_hashes ?? [],
+    cipherAlgo: r.cipher_algo ?? null,
+    contentKeyEnvelope: r.content_key_envelope ?? null,
+    byteSize: Number(r.byte_size ?? 0),
+  };
+}
+
+/** ICE servers for WebRTC (STUN + optional TURN from edge secrets). */
+let iceCache: { at: number; servers: RTCIceServer[] } | null = null;
+export async function fetchIceServers(): Promise<RTCIceServer[]> {
+  const now = Date.now();
+  if (iceCache && now - iceCache.at < 8 * 60_000) return iceCache.servers;
+  const fallback: RTCIceServer[] = [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+  ];
+  try {
+    const { data, error } = await db().functions.invoke("ice-servers", { body: {} });
+    if (error || !(data as any)?.iceServers) return fallback;
+    const servers = (data as any).iceServers as RTCIceServer[];
+    iceCache = { at: now, servers };
+    return servers;
+  } catch {
+    return fallback;
+  }
+}
+
 let _roleLabelCache: Map<string, string> | null = null;
 async function roleLabelMap(): Promise<Map<string, string>> {
   if (_roleLabelCache) return _roleLabelCache;

@@ -30,6 +30,12 @@ The Service, including its software, design, trademarks, and the "VYBZ" and "Ast
 ## 7. Third-Party Services
 The Service relies on third-party providers (e.g., cloud hosting, database, and delivery providers). Your use may be subject to their terms, and we are not responsible for third-party services.
 
+## 7A. Affiliate & Referral Links
+Creators may post gear, plugin, or merchant links that include affiliate or referral parameters. Those links are **display-only disclosures**: they never influence match scores, ranking, or discovery. Creators must disclose when a link may earn a commission. Astra Matrix is not a party to affiliate relationships between creators and merchants.
+
+## 7B. Optional Peer Distribution (Swarm)
+When enabled, VYBZ may offer an **opt-in** peer-to-peer (Swarm) path that exchanges encrypted asset chunks between users who already have download permission for that asset. Centralized delivery (CDN) remains available as the default fallback. Seeding is voluntary; do not use Swarm to circumvent licenses or rights.
+
 ## 8. Disclaimers
 THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. We do not warrant that the Service will be uninterrupted, secure, or error-free. **Documents in the VYBZ Codex are informational templates, not legal advice.**
 

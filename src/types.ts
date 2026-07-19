@@ -36,6 +36,10 @@ export interface ProfileDetails {
   professions?: string[];
   /** Identity axis (Phase O1): creator (default) | supporter | booker | curator | brand | educator. */
   roleClass?: string | null;
+  /** Phase J — soft Pro entitlement (badge + soft limits; never a hard paywall). */
+  pro?: boolean;
+  /** ISO timestamp when Pro expires (optional). */
+  proUntil?: string;
   /** Top-level keys the creator has marked private. */
   hidden?: string[];
 }

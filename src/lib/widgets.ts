@@ -4,10 +4,11 @@
 // Two tiers:
 //  • Embed widgets: paste a public URL → a live embed (Spotify/YouTube/SoundCloud/
 //    Apple Music) or a link card (anything else). No keys, works now.
-//  • Connectors (gated): OAuth account integrations that pull analytics
-//    (Spotify for Artists, Facebook Page, TikTok). These need provider API
-//    credentials + an OAuth flow, so they're shown but disabled until wired.
+//  • Connectors: OAuth account integrations. Spotify unlocks when
+//    VITE_FEATURE_OAUTH_SPOTIFY=on; Facebook/TikTok stay gated until credentials.
 // ---------------------------------------------------------------------------
+
+import { FLAGS } from "@/lib/flags";
 
 export interface WidgetKind {
   id: string;
@@ -37,8 +38,14 @@ export const WIDGET_KINDS: WidgetKind[] = [
   { id: "itch", label: "itch.io", embed: true, placeholder: "itch.io game URL (playable page)" },
   // Universal
   { id: "link", label: "Website / Link", embed: true, placeholder: "Any URL — TikTok, Instagram, your site…" },
-  // ── Gated OAuth connectors (need provider API credentials) ──
-  { id: "spotify_artist", label: "Spotify for Artists", embed: false, gated: true, hint: "Live stream/listener stats" },
+  // ── OAuth connectors ──
+  {
+    id: "spotify_artist",
+    label: "Spotify for Artists",
+    embed: false,
+    gated: !FLAGS.oauthSpotify,
+    hint: "Live stream/listener stats",
+  },
   { id: "facebook_page", label: "Facebook Page", embed: false, gated: true, hint: "Page insights & reach" },
   { id: "tiktok", label: "TikTok Analytics", embed: false, gated: true, hint: "Views & follower growth" },
 ];
@@ -54,7 +61,6 @@ export function embedSrc(kind: string, url: string | undefined): string | null {
   const u = url.trim();
   try {
     if (kind === "spotify") {
-      // open.spotify.com/<type>/<id> → open.spotify.com/embed/<type>/<id>
       const m = u.match(/open\.spotify\.com\/(intl-[a-z]+\/)?(track|album|artist|playlist|show|episode)\/([A-Za-z0-9]+)/);
       if (m) return `https://open.spotify.com/embed/${m[2]}/${m[3]}`;
       const uri = u.match(/spotify:(track|album|artist|playlist|show|episode):([A-Za-z0-9]+)/);
@@ -86,8 +92,6 @@ export function embedSrc(kind: string, url: string | undefined): string | null {
       if (m) return `https://store.steampowered.com/widget/${m[1]}/`;
       return null;
     }
-    // bandcamp / itch / artstation / behance / link → link card
-    // (no clean keyless iframe; the card opens the source in a new tab)
     return null;
   } catch {
     return null;

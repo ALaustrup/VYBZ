@@ -16,9 +16,11 @@ This Acceptable Use Policy ("AUP") governs conduct on VYBZ and is incorporated i
 - Use the Service to spam, artificially inflate or manipulate metrics, or to send unsolicited solicitations.
 - Resell or redistribute other users' assets outside the license granted for that asset.
 - Use the Service for any illegal purpose or in violation of applicable law.
+- Misrepresent affiliate or sponsored links as unpaid recommendations, or use affiliate links to manipulate matchmaking (affiliate links never affect ranking).
+- Abuse optional Swarm (P2P) seeding to redistribute assets beyond the license granted, or to seed content you are not permitted to download.
 
 ## 2. Content Standards
-Content you share should be your original work or properly licensed, accurately credited, and lawful. Provide accurate metadata and honor the license terms attached to assets you download.
+Content you share should be your original work or properly licensed, accurately credited, and lawful. Provide accurate metadata and honor the license terms attached to assets you download. Disclose affiliate/referral relationships when you post merchant links.
 
 ## 3. Enforcement
 We may review reported content and take action at our discretion, including removing content, limiting features, or suspending/terminating accounts. We may report unlawful activity to authorities.

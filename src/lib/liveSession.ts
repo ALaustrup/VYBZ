@@ -1,22 +1,17 @@
 // ---------------------------------------------------------------------------
-// Live 1:1 audio sessions between two DM participants (Phase H1).
-//
-// Pure peer-to-peer WebRTC — NO media server. The host captures their microphone
-// or desktop/tab audio and streams it to the other user, who hears it in the chat
-// window (and can record it / later extract MIDI). Signaling (offer / answer /
-// ICE / bye) rides the Supabase Realtime broadcast channel we already use, and NAT
-// traversal uses free public STUN. One-way by design (host → listener), matching
-// the production-collaboration flow; trivially extensible to two-way later.
+// Live 1:1 audio sessions between two DM participants (Phase H1 + K/H5 TURN).
+// Pure peer-to-peer WebRTC. ICE from edge `ice-servers` (STUN + optional TURN).
 // ---------------------------------------------------------------------------
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import * as api from "@/lib/api";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type LiveState = "idle" | "calling" | "incoming" | "connecting" | "connected" | "ended";
 export type LiveSource = "mic" | "desktop";
 
-const ICE_SERVERS: RTCIceServer[] = [
+const FALLBACK_ICE: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
 ];
@@ -27,7 +22,6 @@ export interface LiveSession {
   state: LiveState;
   isHost: boolean;
   source: LiveSource | null;
-  /** The audio stream to surface: local for the host, remote for the listener. */
   stream: MediaStream | null;
   remoteStream: MediaStream | null;
   incoming: boolean;
@@ -42,8 +36,6 @@ export interface LiveSession {
 
 async function capture(source: LiveSource): Promise<MediaStream> {
   if (source === "desktop") {
-    // Tab/system audio (desktop Chrome/Edge). video:true is required to expose an
-    // audio track in most browsers; we drop the video track and keep audio only.
     const s = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
     s.getVideoTracks().forEach((t) => { t.stop(); s.removeTrack(t); });
     if (s.getAudioTracks().length === 0) throw new Error("No audio was shared. In the picker, choose a tab/screen and tick “Share audio”.");
@@ -65,6 +57,11 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localRef = useRef<MediaStream | null>(null);
   const pendingOfferRef = useRef<RTCSessionDescriptionInit | null>(null);
+  const iceRef = useRef<RTCIceServer[]>(FALLBACK_ICE);
+
+  useEffect(() => {
+    void api.fetchIceServers().then((s) => { iceRef.current = s; }).catch(() => { /* STUN fallback */ });
+  }, []);
 
   const send = useCallback((event: string, payload: Omit<Signal, "from">) => {
     chRef.current?.send({ type: "broadcast", event, payload: { ...payload, from: selfId } });
@@ -86,8 +83,9 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
     if (next === "ended") setTimeout(() => setState((s) => (s === "ended" ? "idle" : s)), 1500);
   }, []);
 
-  const buildPc = useCallback(() => {
-    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  const buildPc = useCallback(async () => {
+    try { iceRef.current = await api.fetchIceServers(); } catch { /* keep cached */ }
+    const pc = new RTCPeerConnection({ iceServers: iceRef.current });
     pc.onicecandidate = (e) => { if (e.candidate) send("ice", { candidate: e.candidate.toJSON() }); };
     pc.ontrack = (e) => setRemoteStream(e.streams[0] ?? new MediaStream([e.track]));
     pc.onconnectionstatechange = () => {
@@ -99,7 +97,6 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
     return pc;
   }, [send, cleanup]);
 
-  // Subscribe to the per-thread signaling channel.
   useEffect(() => {
     if (!threadId || !selfId) return;
     const ch = supabase!.channel(`dm-rtc:${threadId}`, { config: { broadcast: { self: false } } });
@@ -136,7 +133,7 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
       setStream(local);
       setIsHost(true);
       setSource(src);
-      const pc = buildPc();
+      const pc = await buildPc();
       local.getTracks().forEach((t) => pc.addTrack(t, local));
       const offer = await pc.createOffer({ offerToReceiveAudio: false });
       await pc.setLocalDescription(offer);
@@ -152,7 +149,7 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
     const offer = pendingOfferRef.current;
     if (!offer) return;
     try {
-      const pc = buildPc();
+      const pc = await buildPc();
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);

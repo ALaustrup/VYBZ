@@ -31,6 +31,10 @@ Deno.serve(async (req: Request) => {
     if (!toUserId || toUserId === uid) return json({ error: "invalid recipient" }, 400);
     if (!(amountCents >= MIN_CENTS && amountCents <= MAX_CENTS)) return json({ error: "Tip must be between $1 and $500." }, 400);
 
+    // Optional platform fee in basis points (default 0 — behavior unchanged until set).
+    const feeBps = Math.max(0, Math.min(1000, Number(Deno.env.get("STRIPE_TIP_FEE_BPS") ?? "0") || 0));
+    const feeCents = feeBps > 0 ? Math.floor((amountCents * feeBps) / 10_000) : 0;
+
     const { data: rec } = await admin
       .from("creator_payouts").select("stripe_account_id, charges_enabled").eq("user_id", toUserId).maybeSingle();
     if (!rec?.stripe_account_id || !rec.charges_enabled) return json({ error: "This creator hasn't enabled tips yet." }, 400);
@@ -51,6 +55,7 @@ Deno.serve(async (req: Request) => {
       payment_intent_data: {
         description: `VYBZ tip to @${handle}`,
         transfer_data: { destination: rec.stripe_account_id },
+        ...(feeCents > 0 ? { application_fee_amount: feeCents } : {}),
       },
       success_url: `${origin}/u/${toUserId}?tip=success`,
       cancel_url: `${origin}/u/${toUserId}?tip=cancel`,

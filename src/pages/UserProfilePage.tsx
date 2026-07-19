@@ -10,6 +10,8 @@ import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { TipButton } from "@/components/TipButton";
 import { Discography } from "@/components/Discography";
+import { AffiliateLinks } from "@/components/AffiliateLinks";
+import { ProBadge } from "@/components/ProBadge";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import type { Drop, CreatorStats, Credit } from "@/types";
@@ -60,6 +62,7 @@ export function UserProfilePage() {
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <ProfessionBadges primary={f.profession} all={f.professions} />
             <RoleClassBadge roleClass={f.roleClass} />
+            <ProBadge profile={f} />
           </div>
           {p.location && <p className="mt-1 text-sm text-white/40">{p.location}</p>}
         </div>
@@ -96,6 +99,8 @@ export function UserProfilePage() {
         {p.seeks.length > 0 && <Row icon={<Target className="h-3.5 w-3.5 text-white/35" />} label="Seeks" items={p.seeks} />}
         {f.genres?.length ? <Row label="Genres" items={f.genres} /> : null}
       </div>
+
+      <AffiliateLinks userId={id} editable={isMe} />
 
       <div className="mb-5">
         <Discography credits={credits} isOwner={isMe} />
