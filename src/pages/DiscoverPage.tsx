@@ -5,7 +5,7 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
-import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS } from "@/lib/profileFields";
+import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL } from "@/lib/profileFields";
 import { Avatar } from "@/components/Avatar";
 import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
@@ -17,6 +17,7 @@ export function DiscoverPage() {
   const navigate = useNavigate();
   const { showToast } = useSession();
   const [query, setQuery] = useState("");
+  const [profession, setProfession] = useState("");
   const [role, setRole] = useState("");
   const [genre, setGenre] = useState("");
   const [daw, setDaw] = useState("");
@@ -30,28 +31,28 @@ export function DiscoverPage() {
   const [loading, setLoading] = useState(true);
 
   const activeCount = useMemo(
-    () => [role, genre, daw, plugin, musicalKey, bpm, location].filter(Boolean).length + (remote ? 1 : 0),
-    [role, genre, daw, plugin, musicalKey, bpm, location, remote],
+    () => [profession, role, genre, daw, plugin, musicalKey, bpm, location].filter(Boolean).length + (remote ? 1 : 0),
+    [profession, role, genre, daw, plugin, musicalKey, bpm, location, remote],
   );
 
   useEffect(() => {
     const t = setTimeout(() => {
       setLoading(true);
       api.searchCreators(query, {
-        role, genre, daw, plugin, key: musicalKey,
+        profession, role, genre, daw, plugin, key: musicalKey,
         bpm: bpm ? Number(bpm) : null, location, remote: remote ? true : null,
       }).then((r) => { setResults(r); setLoading(false); });
     }, 250);
     return () => clearTimeout(t);
-  }, [query, role, genre, daw, plugin, musicalKey, bpm, location, remote]);
+  }, [query, profession, role, genre, daw, plugin, musicalKey, bpm, location, remote]);
 
   function clearAll() {
-    setRole(""); setGenre(""); setDaw(""); setPlugin(""); setMusicalKey(""); setBpm(""); setLocation(""); setRemote(false);
+    setProfession(""); setRole(""); setGenre(""); setDaw(""); setPlugin(""); setMusicalKey(""); setBpm(""); setLocation(""); setRemote(false);
   }
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader title="Discover" subtitle="Search the network by role, genre, gear, tempo & place" />
+      <PageHeader title="Discover" subtitle="Search by craft, role, genre, gear, tempo & place" />
       <div className="space-y-2.5 px-5">
         <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
           <Search className="h-4 w-4 text-white/40" />
@@ -59,13 +60,13 @@ export function DiscoverPage() {
             className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none" />
         </label>
         <div className="flex gap-2">
+          <select value={profession} onChange={(e) => setProfession(e.target.value)} className={selCls}>
+            <option value="">Any craft</option>
+            {PROFESSIONS.map((p) => <option key={p.id} value={p.id} className="bg-ink-900">{p.label}</option>)}
+          </select>
           <select value={role} onChange={(e) => setRole(e.target.value)} className={selCls}>
             <option value="">Any role</option>
             {ROLES.map((r) => <option key={r.id} value={r.id} className="bg-ink-900">{r.label}</option>)}
-          </select>
-          <select value={genre} onChange={(e) => setGenre(e.target.value)} className={selCls}>
-            <option value="">Any genre</option>
-            {GENRES.map((g) => <option key={g} value={g} className="bg-ink-900">{g}</option>)}
           </select>
           <button onClick={() => setShowFilters((s) => !s)}
             className={cx("flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-95",
@@ -76,6 +77,10 @@ export function DiscoverPage() {
 
         {showFilters && (
           <div className="space-y-2.5 rounded-2xl border border-[var(--hairline)] bg-white/[0.02] p-3">
+            <select value={genre} onChange={(e) => setGenre(e.target.value)} className={selCls}>
+              <option value="">Any genre</option>
+              {GENRES.map((g) => <option key={g} value={g} className="bg-ink-900">{g}</option>)}
+            </select>
             <div className="flex gap-2">
               <select value={daw} onChange={(e) => setDaw(e.target.value)} className={selCls}>
                 <option value="">Any DAW</option>
@@ -126,7 +131,10 @@ export function DiscoverPage() {
                 </button>
                 <div className="min-w-0 flex-1">
                   <button type="button" onClick={() => navigate(`/u/${c.userId}`)} className="truncate font-display font-semibold text-white">{c.username}</button>
-                  {c.location && <p className="flex items-center gap-1 text-[11px] text-white/40"><MapPin className="h-2.5 w-2.5" />{c.location}</p>}
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-white/40">
+                    {c.profession && <span className="text-veil-200/90">{PROFESSION_LABEL[c.profession] ?? c.profession}</span>}
+                    {c.location && <span className="inline-flex items-center gap-1"><MapPin className="h-2.5 w-2.5" />{c.location}</span>}
+                  </p>
                   <p className="mt-0.5 truncate text-[11px] text-white/35">
                     {[...c.offers.slice(0, 2).map((o) => o), ...c.seeks.slice(0, 2).map((s) => `seeks ${s}`)].join(" · ")}
                   </p>

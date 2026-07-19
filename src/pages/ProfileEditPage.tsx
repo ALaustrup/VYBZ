@@ -4,7 +4,7 @@ import { ArrowLeft, Camera, Check, Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
-import { ROLES, ROLE_FAMILIES, GENRES, DAWS, PLUGINS } from "@/lib/profileFields";
+import { ROLES, ROLE_FAMILIES, GENRES, DAWS, PLUGINS, PROFESSIONS } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProfileDetails } from "@/types";
 
@@ -23,6 +23,8 @@ export function ProfileEditPage() {
   const [plugins, setPlugins] = useState<string[]>([]);
   const [offers, setOffers] = useState<string[]>([]);
   const [seeks, setSeeks] = useState<string[]>([]);
+  const [profession, setProfession] = useState<string | null>(null);
+  const [secondaries, setSecondaries] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -32,6 +34,8 @@ export function ProfileEditPage() {
     setAvatarUrl(profile.avatarUrl); setInfluences(f.influences ?? "");
     setOpenToWork(!!f.openToWork); setRemoteOk(f.remoteOk ?? true);
     setGenres(f.genres ?? []); setDaws(f.daws ?? []); setPlugins(f.plugins ?? []);
+    setProfession(f.profession ?? null);
+    setSecondaries((f.professions ?? []).filter((p) => p !== (f.profession ?? null)));
     api.getMyRoles().then((r) => { setOffers(r.offers.map((o) => o.roleId)); setSeeks(r.seeks.map((s) => s.roleId)); });
   }, [profile]);
 
@@ -60,6 +64,11 @@ export function ProfileEditPage() {
     const details: ProfileDetails = {
       ...(profile?.profile ?? {}),
       genres, daws, plugins, influences: influences.trim() || undefined, openToWork, remoteOk,
+      profession: profession ?? undefined,
+      professions: [
+        ...(profession ? [profession] : []),
+        ...secondaries.filter((p) => p !== profession),
+      ],
     };
     await api.updateMyProfile({ bio: bio.trim(), location: location.trim(), avatarUrl: avatarUrl ?? undefined, profile: details });
     await api.setMyRoles(offers.map((r) => ({ roleId: r, skill: 3 })), seeks.map((r) => ({ roleId: r, priority: 1 })));
@@ -103,6 +112,38 @@ export function ProfileEditPage() {
           <textarea value={influences} onChange={(e) => setInfluences(e.target.value.slice(0, 200))} rows={2} placeholder="Influences (e.g. Dilla, Hiatus Kaiyote, D'Angelo) — powers resonance matching" className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
           <Toggle label="Open to work / collaboration" on={openToWork} onClick={() => setOpenToWork((v) => !v)} />
           <Toggle label="Open to remote collaboration" on={remoteOk} onClick={() => setRemoteOk((v) => !v)} />
+        </Section>
+
+        <Section title="Craft">
+          <p className="text-[12px] text-white/40">Primary profession powers Feed defaults and Find ranking. Secondaries are optional.</p>
+          <div className="flex flex-wrap gap-1.5">
+            {PROFESSIONS.map((p) => (
+              <Chip
+                key={p.id}
+                label={p.label}
+                on={profession === p.id}
+                onClick={() => {
+                  setProfession((cur) => (cur === p.id ? null : p.id));
+                  setSecondaries((s) => s.filter((x) => x !== p.id));
+                }}
+              />
+            ))}
+          </div>
+          {profession && (
+            <>
+              <p className="pt-1 text-[11px] uppercase tracking-wide text-white/35">Also work in</p>
+              <div className="flex flex-wrap gap-1.5">
+                {PROFESSIONS.filter((p) => p.id !== profession).map((p) => (
+                  <Chip
+                    key={p.id}
+                    label={p.label}
+                    on={secondaries.includes(p.id)}
+                    onClick={() => tog(secondaries, setSecondaries, p.id, 3)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </Section>
 
         <Section title="I bring (roles you offer)">

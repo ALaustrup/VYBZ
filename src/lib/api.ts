@@ -658,6 +658,7 @@ export async function collabMatches(limit = 30, category: string | null = null):
     sharedPlugins: r.shared_plugins ?? [], openToWork: !!r.open_to_work,
     resonance: Number(r.resonance ?? 0), reputation: Number(r.reputation ?? 0), fit: Number(r.fit ?? 0),
     sharedDisciplines: r.shared_disciplines ?? [],
+    sharedProfessions: r.shared_professions ?? [],
     confidence: Number(r.confidence ?? 0),
     roleClass: r.role_class ?? "creator",
   }));
@@ -1183,17 +1184,20 @@ export async function markNotificationsRead() {
 export interface CreatorFilters {
   role?: string; genre?: string; daw?: string; plugin?: string;
   key?: string; bpm?: number | null; location?: string; remote?: boolean | null;
+  profession?: string;
 }
 export async function searchCreators(query?: string, f: CreatorFilters = {}): Promise<CreatorSearchResult[]> {
   const { data } = await db().rpc("search_creators", {
     p_query: query || null, p_role: f.role || null, p_genre: f.genre || null,
     p_daw: f.daw || null, p_plugin: f.plugin || null, p_key: f.key || null,
     p_bpm: f.bpm ?? null, p_location: f.location || null, p_remote: f.remote ?? null,
+    p_profession: f.profession || null,
     p_limit: 40,
   });
   return (data ?? []).map((r: any) => ({
     userId: r.user_id, username: r.username ?? null, location: r.location ?? null,
     offers: r.offers ?? [], seeks: r.seeks ?? [], genres: r.genres ?? [],
+    profession: r.profession ?? null,
   }));
 }
 

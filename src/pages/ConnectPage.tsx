@@ -7,19 +7,20 @@ import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
-import { ROLE_CLASS_LABEL, isAdjacentClass } from "@/lib/profileFields";
+import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL } from "@/lib/profileFields";
 import type { CollabMatch } from "@/types";
 
 export function ConnectPage() {
   const navigate = useNavigate();
-  const { showToast } = useSession();
+  const { showToast, profile } = useSession();
   const [matches, setMatches] = useState<CollabMatch[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    api.collabMatches(30).then((m) => { setMatches(m); setLoading(false); });
-  }, []);
+    const craft = profile?.profile?.profession ?? null;
+    api.collabMatches(30, craft).then((m) => { setMatches(m); setLoading(false); });
+  }, [profile?.profile?.profession]);
 
   async function connect(m: CollabMatch) {
     await api.connect(m.userId);
@@ -117,6 +118,13 @@ export function ConnectPage() {
                   </button>
                 </div>
                 <div className="mt-2.5 space-y-1 pl-14">
+                  {(m.sharedProfessions?.length ?? 0) > 0 && (
+                    <Why
+                      icon={<Sparkles className="h-3 w-3 text-veil-300" />}
+                      label="Same craft"
+                      items={(m.sharedProfessions ?? []).map((id) => PROFESSION_LABEL[id] ?? id)}
+                    />
+                  )}
                   {m.sharedDisciplines.length > 0 && <Why icon={<Sparkles className="h-3 w-3 text-white/35" />} label="You both do" items={m.sharedDisciplines} />}
                   {m.offersYouSeek.length > 0 && <Why icon={<Music2 className="h-3 w-3 text-feel/80" />} label="Has what you want" items={m.offersYouSeek} />}
                   {m.seeksYouOffer.length > 0 && <Why icon={<Target className="h-3 w-3 text-white/35" />} label="Wants what you bring" items={m.seeksYouOffer} />}

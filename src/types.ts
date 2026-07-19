@@ -108,6 +108,8 @@ export interface CollabMatch {
   fit: number;
   /** Disciplines you both actively practice (strong "you both do X" signal). */
   sharedDisciplines: string[];
+  /** Profession ids you both claim (primary or secondary). */
+  sharedProfessions?: string[];
   /** 0..1 read of how much independent evidence backs this match (§5.4k). */
   confidence: number;
   /** Candidate's identity axis (Phase O2): creator | supporter | booker | curator | brand | educator. */
@@ -184,6 +186,8 @@ export interface CreatorSearchResult {
   offers: string[];
   seeks: string[];
   genres: string[];
+  /** Primary profession id when set. */
+  profession?: string | null;
 }
 
 // ── Phase D: projects, versioned handoff, split sheets, verified credits ──────

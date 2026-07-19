@@ -495,9 +495,14 @@ it over the coming phases).
   **itch.io / ArtStation / Behance** (link cards). Large video already uploads
   via the streamed `bunny-upload`; **Bunny Stream** (HLS) stays gated on a Stream
   library. Game devlogs = text posts; playable builds via itch/Steam widgets.
-- **Roadmap:** Phase C — profession-aware matchmaking + discovery facets
-  (software/medium/engine/style) + connector auth; Phase D — profession tools &
-  provenance (image/video watermark + C2PA).
+- **Phase C1 ✅ (2026-07):** profession-aware matchmaking + Discover craft filter.
+  `collab_matches` v8 scores primary/secondary profession overlap (`mm_w('profession')`),
+  emits `shared_professions`, soft-scopes Find/Spark/FeedHero by caller craft, and
+  pulls same-craft peers into the candidate set. `search_creators` gains `p_profession`.
+  Profile edit exposes Craft (primary + secondaries). Deferred: software/medium/engine/style
+  facet catalogs + module editor (C2); OAuth connector auth (C3).
+- **Roadmap:** Phase C2 — module attrs editor + Discover facets for software/styles/engines;
+  Phase D — profession tools & provenance (image/video watermark + C2PA).
 - _Verified E2E: fresh signup → craft step (Visual Artists primary + Video
   Creators secondary) → Art feed default + profile badges._
 

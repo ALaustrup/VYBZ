@@ -6,7 +6,7 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { haptic } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
-import { ROLE_CLASS_LABEL, isAdjacentClass } from "@/lib/profileFields";
+import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL } from "@/lib/profileFields";
 import type { CollabMatch } from "@/types";
 
 function gradientFor(id: string): string {
@@ -16,13 +16,19 @@ function gradientFor(id: string): string {
 
 export function SparkPage() {
   const navigate = useNavigate();
-  const { showToast } = useSession();
+  const { showToast, profile } = useSession();
   const [deck, setDeck] = useState<CollabMatch[]>([]);
   const [idx, setIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const busy = useRef(false);
 
-  const load = useCallback(async () => { setLoading(true); setDeck(await api.collabMatches(30)); setIdx(0); setLoading(false); }, []);
+  const craft = profile?.profile?.profession ?? null;
+  const load = useCallback(async () => {
+    setLoading(true);
+    setDeck(await api.collabMatches(30, craft));
+    setIdx(0);
+    setLoading(false);
+  }, [craft]);
   useEffect(() => { void load(); }, [load]);
 
   const act = useCallback((c: CollabMatch, connect: boolean) => {
@@ -113,6 +119,13 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
           </div>
           {c.offersYouSeek.length > 0 && <p className="flex flex-wrap items-center gap-1 text-xs"><Music2 className="h-3.5 w-3.5 text-feel" /><span className="text-white/45">Has what you want:</span><span className="font-semibold text-feel">{c.offersYouSeek.join(" · ")}</span></p>}
           {c.seeksYouOffer.length > 0 && <p className="flex flex-wrap items-center gap-1 text-xs"><Target className="h-3.5 w-3.5 text-aqua-300" /><span className="text-white/45">Wants what you bring:</span><span className="font-semibold text-aqua-200">{c.seeksYouOffer.join(" · ")}</span></p>}
+          {(c.sharedProfessions?.length ?? 0) > 0 && (
+            <p className="flex flex-wrap items-center gap-1 text-xs">
+              <Sparkles className="h-3.5 w-3.5 text-veil-300" />
+              <span className="text-white/45">Same craft:</span>
+              <span className="font-semibold text-white/80">{(c.sharedProfessions ?? []).map((id) => PROFESSION_LABEL[id] ?? id).join(" · ")}</span>
+            </p>
+          )}
           {(c.sharedGenres.length > 0 || c.sharedDaws.length > 0) && (
             <div className="flex flex-wrap gap-1.5 pt-0.5">
               {c.sharedGenres.slice(0, 3).map((g) => <span key={g} className="rounded-full bg-veil-500/30 px-2.5 py-1 text-[11px] font-medium text-white">{g}</span>)}

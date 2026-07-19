@@ -27,7 +27,10 @@ export function FeedHero() {
     try { return localStorage.getItem(DISMISS_KEY) === "1"; } catch { return false; }
   });
 
-  useEffect(() => { api.collabMatches(3).then(setMatches); }, []);
+  useEffect(() => {
+    const craft = profile?.profile?.profession ?? null;
+    api.collabMatches(3, craft).then(setMatches);
+  }, [profile?.profile?.profession]);
 
   if (dismissed) return null;
 
