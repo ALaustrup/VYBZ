@@ -687,14 +687,17 @@ function mapOpportunity(r: any): Opportunity {
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
     sharedGenres: r.shared_genres ?? [], sharedDaws: r.shared_daws ?? [],
     applied: !!r.applied, fit: Number(r.fit ?? 0),
+    kind: (r.kind === "commission" ? "commission" : "collab"), budget: r.budget ?? null,
   };
 }
-export async function listOpportunities(limit = 40): Promise<Opportunity[]> {
+export async function listOpportunities(limit = 40, kind?: "collab" | "commission"): Promise<Opportunity[]> {
   // Everyone's open posts (browse), newest first, with author username.
-  const { data } = await db()
+  let q = db()
     .from("collab_posts")
-    .select("id,author_id,role_needed,title,body,genres,daws,remote_ok,location,commitment,created_at")
-    .eq("status", "open").order("created_at", { ascending: false }).limit(limit);
+    .select("id,author_id,role_needed,title,body,genres,daws,remote_ok,location,commitment,kind,budget,created_at")
+    .eq("status", "open");
+  if (kind) q = q.eq("kind", kind);
+  const { data } = await q.order("created_at", { ascending: false }).limit(limit);
   if (!data) return [];
   const authors = await usernamesFor(data.map((d: any) => d.author_id));
   const roleLabels = await roleLabelMap();
@@ -705,11 +708,13 @@ export async function listOpportunities(limit = 40): Promise<Opportunity[]> {
     remoteOk: !!r.remote_ok, location: r.location ?? null, commitment: r.commitment ?? null,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
     sharedGenres: [], sharedDaws: [], applied: false, fit: 0,
+    kind: (r.kind === "commission" ? "commission" : "collab"), budget: r.budget ?? null,
   }));
 }
 export async function createOpportunity(input: {
   roleNeeded: string; title: string; body?: string; genres?: string[];
   daws?: string[]; remoteOk?: boolean; location?: string; commitment?: string;
+  kind?: "collab" | "commission"; budget?: string;
 }) {
   const uid = await currentUserId();
   if (!uid) throw new Error("Not signed in.");
@@ -717,6 +722,7 @@ export async function createOpportunity(input: {
     author_id: uid, role_needed: input.roleNeeded, title: input.title, body: input.body ?? null,
     genres: input.genres ?? [], daws: input.daws ?? [], remote_ok: input.remoteOk ?? true,
     location: input.location ?? null, commitment: input.commitment ?? null,
+    kind: input.kind ?? "collab", budget: input.budget ?? null,
   });
   if (error) throw error;
 }
