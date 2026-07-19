@@ -568,6 +568,16 @@ existing creator flows, feature-flagged, guardrails first.
   `STRIPE_WEBHOOK_SECRET` + a publishable key are provisioned. No ads, no
   paywalls, no external payment links.
 
+### 12.21 Universal report/flag button ✅ (shipped 2026-07)
+Trust & Safety: a reusable `ReportButton` puts a simple, optional flag on **every**
+piece of user-generated content — audio **drops** (`TrackCard`), **project posts**
+and **gallery images** (`ProjectView`, non-owner), and the home feed
+(`FeedPostCard`, standardized on it). It feeds the existing moderation backbone
+(`report_content` → `content_reports` → `mod_report_queue`/`mod_resolve_report`),
+whose reasons already include **Illegal** — no schema change. _E2E verified: a
+drop flagged "Illegal" persists to `content_reports` (`reason='illegal'`, status
+`open`) and shows the reporter a confirmation._ (Promoted from `IDEAS_BACKLOG.md` #5.)
+
 ### 12.2 Spaces → Projects (profile creative projects) ✅ — schema: `profile_projects`
 
 Shipped: public Space tabs on profiles, post kinds (audio/image/video/text/link),

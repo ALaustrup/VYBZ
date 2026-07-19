@@ -70,7 +70,7 @@ Trust & Safety must-have.
   an extension, not new infra.
 - **Rough shape:** small–moderate; do alongside #3's video work.
 
-#### 5. Universal one-tap "report illegal content" flag 🟢 ⚑ (safety priority)
+#### 5. Universal one-tap "report illegal content" flag 🟢 ⚑ ✅ SHIPPED 2026-07
 - **What:** a simple, optional flag/report button on **every** piece of uploaded
   content (drops, project posts, video, streams).
 - **Fit:** the **reporting + staff/moderation backbone already exists**
@@ -80,6 +80,10 @@ Trust & Safety must-have.
   Legal §). Low effort, high protection — strong candidate to pull forward as a
   small standalone item rather than waiting on the full Live cluster.
 - **Rough shape:** small; can ship independently and early.
+- **✅ Shipped (2026-07):** promoted and delivered as a reusable `ReportButton`
+  on drops (`TrackCard`), project posts + gallery images (`ProjectView`), and the
+  home feed (`FeedPostCard`) — feeding the existing `content_reports` → mod queue
+  (reasons incl. "Illegal"). See masterplan §12.21. E2E-verified end to end.
 
 **Suggested grouping when promoted:**
 - Pull **#5** forward as a small, independent T&S item (not infra-gated).
