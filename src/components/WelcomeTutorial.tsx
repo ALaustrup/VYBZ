@@ -1,13 +1,25 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, FolderPlus, Compass, Sparkles, Check } from "lucide-react";
+import { ArrowRight, AudioLines, Check, Sparkles, Users } from "lucide-react";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 
 const STEPS = [
-  { icon: FolderPlus, title: "Build your Projects", body: "Your profile is yours. Add aliases, bands, channels or releases as Project tabs — post music, art, links and updates. Old-school customization, your way." },
-  { icon: Compass, title: "Find your people", body: "Connect surfaces creators who complement you — best-fit, both directions. Follow the Projects you love; it sharpens your matches over time." },
-  { icon: Sparkles, title: "Your feed, your way", body: "Your home is curated to what you're here for. Switch layouts, shuffle discovery, and surface under-exposed creators — real discovery, never vanity." },
+  {
+    icon: AudioLines,
+    title: "Your Feed",
+    body: "Home is the Feed — fresh drops from creators across music, art, video, and more. Share yours anytime from the Orb.",
+  },
+  {
+    icon: Users,
+    title: "Find your people",
+    body: "Find surfaces complementary creators — best-fit, both directions. Spark for quick connects; Opportunities for open roles.",
+  },
+  {
+    icon: Sparkles,
+    title: "Drop something",
+    body: "VYBZ gets better when you share work. Tap the Orb → New drop, or go live. Collabs hold private project rooms.",
+  },
 ];
 
 /** Shown once, right after onboarding — three quick tips, then into the app. */

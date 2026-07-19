@@ -35,7 +35,7 @@ export function ConnectPage() {
     <div className="flex h-full flex-col">
       <PageHeader
         title="Find"
-        subtitle="Complementary creators — ranked both directions"
+        subtitle="Creators who complement you — ranked both ways"
       />
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6">
@@ -65,7 +65,16 @@ export function ConnectPage() {
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : matches.length === 0 ? (
-          <EmptyState icon={Users} title="No matches yet" body="Set the roles you bring and seek on your profile. The moment complementary creators join, they surface here — best-fit first, both directions." />
+          <EmptyState
+            icon={Users}
+            title="No matches yet"
+            body="Add what you offer and who you’re looking for on your profile. Complementary creators show up here first."
+            action={
+              <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
+                Edit profile
+              </button>
+            }
+          />
         ) : (
           <div className="divide-y divide-[var(--hairline)]">
             {matches.map((m, i) => (

@@ -210,6 +210,7 @@ function UploadVersion({ projectId, busy, setBusy, onDone }: { projectId: string
 }
 
 function AddCollaborator({ projectId, existing, onClose, onAdded }: { projectId: string; existing: string[]; onClose: () => void; onAdded: () => Promise<void> }) {
+  const navigate = useNavigate();
   const { showToast } = useSession();
   const [matches, setMatches] = useState<CollabMatch[]>([]);
   const [loading, setLoading] = useState(true);
@@ -236,7 +237,16 @@ function AddCollaborator({ projectId, existing, onClose, onAdded }: { projectId:
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
         ) : matches.length === 0 ? (
-          <EmptyState icon={Users} title="No candidates" body="Match with creators on Connect first — you can add anyone you match with here." />
+          <EmptyState
+            icon={Users}
+            title="No candidates"
+            body="Find complementary creators first — then add anyone you match with here."
+            action={
+              <button type="button" onClick={() => navigate("/connect")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
+                Open Find
+              </button>
+            }
+          />
         ) : (
           <>
             <div className="max-h-56 space-y-1.5 overflow-y-auto">

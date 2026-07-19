@@ -44,7 +44,7 @@ export function OpportunitiesPage() {
           <button key={t} type="button" onClick={() => setTab(t)}
             className={cx("relative pb-2.5 text-[13px] font-medium transition",
               tab === t ? "text-white" : "text-white/40 hover:text-white/70")}>
-            {t === "collab" ? "Collabs" : <span className="inline-flex items-center gap-1"><DollarSign className="h-3.5 w-3.5" /> Commissions</span>}
+            {t === "collab" ? "Open roles" : <span className="inline-flex items-center gap-1"><DollarSign className="h-3.5 w-3.5" /> Commissions</span>}
             {tab === t && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
           </button>
         ))}

@@ -1,113 +1,39 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Briefcase, Camera, Check, Clapperboard, Compass, Gamepad2, GraduationCap, Heart, Loader2, Megaphone, Music2, Palette, Sparkles, Target, X } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Clapperboard,
+  Gamepad2,
+  Loader2,
+  Music2,
+  Palette,
+  Sparkles,
+} from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
-import { ROLES, ROLE_FAMILIES, PROFESSIONS, ROLE_CLASSES, ROLE_CLASS_LABEL, ADJACENT_INTENTS, isAdjacentClass } from "@/lib/profileFields";
-import { FLAGS } from "@/lib/flags";
+import { PROFESSIONS, PROFESSION_LABEL } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
-import type { DisciplineOption } from "@/types";
 
 const PROFESSION_ICON: Record<string, typeof Music2> = {
   Music2, Palette, Clapperboard, Gamepad2,
 };
 
-const ROLE_CLASS_ICON: Record<string, typeof Music2> = {
-  Sparkles, Heart, Briefcase, Compass, Megaphone, GraduationCap,
-};
-
-type SeekRole = { id: string; label: string };
-// A representative quick-pick across role families for the "looking for" step.
-const QUICK_SEEK: SeekRole[] = ROLE_FAMILIES.flatMap((f) =>
-  ROLES.filter((r) => r.family === f.id).slice(0, 2).map((r) => ({ id: r.id, label: r.label }))
-);
-
-/** What a creator is here for — drives the default feed curation. */
-const INTENTS = [
-  "Music collab", "Showcase art", "Connect with creators", "Get signed",
-  "Make money", "Find a musician", "Hire creatives", "Find work",
-  "Build a band", "Just exploring",
-];
-
-const inputCls =
-  "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-[15px] text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none";
-
 /**
- * Streamlined post-signup onboarding: role (fuzzily matched), intents, and an
- * optional avatar — then maps everything into the matchmaking graph via
- * apply_role_intent_onboarding (modules + complementary seeks).
+ * Lightweight post-signup setup — username already collected.
+ * Optional craft + optional photo, then invite them to share work on the Feed.
+ * Full matchmaking facets live on Profile edit later.
  */
 export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void }) {
   const navigate = useNavigate();
   const { profile, refreshProfile } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [step, setStep] = useState<"roleClass" | "profession" | "role" | "confirm" | "intent" | "seek" | "avatar">(
-    FLAGS.roleClass ? "roleClass" : "profession",
-  );
-  const [roleClass, setRoleClass] = useState<string>("creator");
-  const adjacent = isAdjacentClass(roleClass);
+  const [step, setStep] = useState<"craft" | "share">("craft");
   const [profession, setProfession] = useState<string | null>(null);
-  const [secondaries, setSecondaries] = useState<string[]>([]);
-  const [roleText, setRoleText] = useState("");
-  const [match, setMatch] = useState<DisciplineOption | null>(null);
-  const [chosenRoleId, setChosenRoleId] = useState<string | null>(null);
-  const [chosenRoleLabel, setChosenRoleLabel] = useState("");
-  const [intents, setIntents] = useState<string[]>([]);
-  const [customIntent, setCustomIntent] = useState("");
-  const [seeks, setSeeks] = useState<SeekRole[]>([]);
-  const [seekQuery, setSeekQuery] = useState("");
-  const [seekResults, setSeekResults] = useState<SeekRole[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatarUrl ?? null);
   const [busy, setBusy] = useState(false);
-
-  async function findRole() {
-    const q = roleText.trim();
-    if (q.length < 2) return;
-    setBusy(true);
-    try {
-      const [top] = await api.suggestDisciplines(q);
-      if (top) { setMatch(top); setStep("confirm"); }
-      else { await useCustomRole(q); }
-    } finally { setBusy(false); }
-  }
-
-  function acceptMatch() {
-    if (!match) return;
-    setChosenRoleId(match.id); setChosenRoleLabel(match.label); setStep("intent");
-  }
-
-  async function useCustomRole(label: string) {
-    setBusy(true);
-    try {
-      const res = await api.requestCustomDiscipline(label);
-      if (res.status === "auto_mapped" && res.mappedRoleId) {
-        setChosenRoleId(res.mappedRoleId); setChosenRoleLabel(res.mappedLabel ?? label);
-      } else {
-        setChosenRoleId(null); setChosenRoleLabel(label);
-      }
-      setStep("intent");
-    } finally { setBusy(false); }
-  }
-
-  const toggleIntent = (i: string) =>
-    setIntents((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));
-
-  const toggleSeek = (o: SeekRole) =>
-    setSeeks((p) => (p.some((x) => x.id === o.id) ? p.filter((x) => x.id !== o.id) : [...p, o]));
-
-  // Live search of the role catalog for "who are you looking for?" (debounced).
-  useEffect(() => {
-    const q = seekQuery.trim();
-    if (q.length < 2) { setSeekResults([]); return; }
-    let alive = true;
-    const t = setTimeout(async () => {
-      const res = await api.suggestDisciplines(q);
-      if (alive) setSeekResults(res.slice(0, 6).map((r) => ({ id: r.id, label: r.label })));
-    }, 220);
-    return () => { alive = false; clearTimeout(t); };
-  }, [seekQuery]);
 
   async function pickAvatar(file: File | null) {
     if (!file || !file.type.startsWith("image/")) return;
@@ -120,219 +46,155 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
         await api.updateMyProfile({ avatarUrl: url });
         await refreshProfile();
       }
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
 
-  async function finish() {
+  async function finish(openCompose: boolean) {
     setBusy(true);
     try {
-      const allIntents = [...intents, ...(customIntent.trim() ? [customIntent.trim()] : [])];
-      const classLabel = ROLE_CLASS_LABEL[roleClass] ?? "";
+      const label = profession
+        ? (PROFESSION_LABEL[profession] ?? "Creator")
+        : "Creator";
       await api.applyRoleIntentOnboarding(
-        adjacent ? null : chosenRoleId,
-        adjacent ? classLabel : chosenRoleLabel,
-        allIntents,
-        seeks.map((s) => s.id),
-        adjacent ? null : profession,
-        adjacent ? [] : secondaries,
-        roleClass,
+        null,
+        label,
+        profession ? ["Showcase work"] : ["Just exploring"],
+        [],
+        profession,
+        [],
+        "creator",
       );
       void api.refreshEmbedding();
       await refreshProfile();
       onComplete();
-      navigate("/");
-    } finally { setBusy(false); }
+      navigate(openCompose ? "/?compose=1" : "/");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6 py-8">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel w-full max-w-md p-7">
-        {step === "roleClass" && (
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-panel w-full max-w-md p-7"
+      >
+        {step === "craft" && (
           <>
-            <h1 className="font-display text-2xl font-bold text-gradient">How do you fit in?</h1>
-            <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/60">VYBZ is for the whole creative economy. Tell us how you show up — you can change this anytime.</p>
-            <div className="grid gap-2.5">
-              {ROLE_CLASSES.map((c) => {
-                const Icon = ROLE_CLASS_ICON[c.icon] ?? Sparkles;
-                const on = roleClass === c.id;
-                return (
-                  <button key={c.id} onClick={() => setRoleClass(c.id)}
-                    className={cx("flex items-center gap-3 rounded-2xl border p-3.5 text-left transition active:scale-[0.99]",
-                      on ? "border-veil-400/70 bg-veil-500/20" : "border-white/10 bg-white/[0.04] hover:border-veil-400/40")}>
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/60"><Icon className={cx("h-5 w-5", on ? "text-veil-100" : "text-white/70")} /></span>
-                    <span className="min-w-0">
-                      <span className="block font-display text-sm font-bold text-white">{c.label}</span>
-                      <span className="block text-[12px] leading-tight text-white/50">{c.blurb}</span>
-                    </span>
-                    {on && <Check className="ml-auto h-4 w-4 shrink-0 text-veil-200" />}
-                  </button>
-                );
-              })}
-            </div>
-            <button onClick={() => setStep(adjacent ? "intent" : "profession")} className="btn btn-primary mt-4 w-full py-3.5 text-[15px]">
-              Continue <ArrowRight className="h-4 w-4" />
-            </button>
-          </>
-        )}
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/35">
+              Almost in
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-bold text-gradient">
+              What do you make?
+            </h1>
+            <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/55">
+              Optional — helps the Feed and Find feel relevant. You can skip and fill this in anytime.
+            </p>
 
-        {step === "profession" && (
-          <>
-            {FLAGS.roleClass && <button onClick={() => setStep("roleClass")} className="mb-2 text-[12px] text-white/45 hover:text-white/70">← Back</button>}
-            <h1 className="font-display text-2xl font-bold text-gradient">What do you create?</h1>
-            <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/60">Pick your primary craft — it shapes your feed, tools and matches. Tap others you also do.</p>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid gap-2">
               {PROFESSIONS.map((p) => {
                 const Icon = PROFESSION_ICON[p.icon] ?? Sparkles;
-                const primary = profession === p.id;
-                const secondary = secondaries.includes(p.id);
+                const on = profession === p.id;
                 return (
-                  <button key={p.id}
-                    onClick={() => {
-                      if (primary) return;
-                      if (!profession) { setProfession(p.id); return; }
-                      setSecondaries((s) => s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id]);
-                    }}
-                    className={cx("relative flex flex-col items-start gap-1.5 rounded-2xl border p-3.5 text-left transition active:scale-[0.98]",
-                      primary ? "border-veil-400/70 bg-veil-500/20" : secondary ? "border-aqua-400/50 bg-aqua-400/10" : "border-white/10 bg-white/[0.04] hover:border-veil-400/40")}>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-900/60"><Icon className={cx("h-5 w-5", primary ? "text-veil-100" : secondary ? "text-aqua-200" : "text-white/70")} /></span>
-                    <span className="font-display text-sm font-bold text-white">{p.label}</span>
-                    <span className="text-[11px] leading-tight text-white/50">{p.blurb}</span>
-                    {primary && <span className="absolute right-2 top-2 rounded-full bg-veil-500/40 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">Primary</span>}
-                    {secondary && <span className="absolute right-2 top-2 rounded-full bg-aqua-400/25 px-1.5 py-0.5 text-[9px] font-bold uppercase text-aqua-100">Also</span>}
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setProfession(on ? null : p.id)}
+                    className={cx(
+                      "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition active:scale-[0.99]",
+                      on
+                        ? "border-veil-400/70 bg-veil-500/20"
+                        : "border-white/10 bg-white/[0.04] hover:border-veil-400/40",
+                    )}
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/60">
+                      <Icon className={cx("h-5 w-5", on ? "text-veil-100" : "text-white/70")} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-display text-sm font-bold text-white">{p.label}</span>
+                      <span className="block text-[12px] leading-tight text-white/45">{p.blurb}</span>
+                    </span>
                   </button>
                 );
               })}
             </div>
-            {profession && <p className="mt-3 text-center text-[12px] text-white/45">Primary: <span className="font-semibold text-veil-200">{PROFESSIONS.find((p) => p.id === profession)?.label}</span>{secondaries.length > 0 ? ` · also ${secondaries.length}` : ""}</p>}
-            <button onClick={() => setStep("role")} disabled={!profession} className="btn btn-primary mt-4 w-full py-3.5 text-[15px] disabled:opacity-50">
-              Continue <ArrowRight className="h-4 w-4" />
-            </button>
-          </>
-        )}
 
-        {step === "role" && (
-          <>
-            <button onClick={() => setStep("profession")} className="mb-2 text-[12px] text-white/45 hover:text-white/70">← Craft</button>
-            <h1 className="font-display text-2xl font-bold text-gradient">Choose your role</h1>
-            <p className="mb-6 mt-2 text-[15px] leading-relaxed text-white/60">What do you do in the world of creative professions? Type it your way — we'll match you to the closest career.</p>
-            <input autoFocus value={roleText} onChange={(e) => setRoleText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && findRole()}
-              placeholder="e.g. beatmaker, illustrator, screenwriter, game designer…" className={inputCls} />
-            <button onClick={findRole} disabled={busy || roleText.trim().length < 2} className="btn btn-primary mt-4 w-full py-3.5 text-[15px] disabled:opacity-50">
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
-            </button>
-          </>
-        )}
-
-        {step === "confirm" && match && (
-          <>
-            <h1 className="font-display text-2xl font-bold text-gradient">Is this you?</h1>
-            <p className="mb-5 mt-2 text-[15px] text-white/60">Based on “{roleText.trim()}”, we think you're a…</p>
-            <div className="mb-5 flex items-center gap-2 rounded-2xl border border-veil-400/30 bg-veil-500/[0.08] px-4 py-4">
-              <Sparkles className="h-5 w-5 shrink-0 text-veil-200" />
-              <span className="font-display text-lg font-semibold text-white">{match.label}</span>
-            </div>
-            <button onClick={acceptMatch} className="btn btn-primary w-full py-3.5 text-[15px]"><Check className="h-4 w-4" /> Yes, that's me</button>
-            <button onClick={() => useCustomRole(roleText.trim())} disabled={busy}
-              className="mt-3 w-full rounded-xl bg-white/[0.05] py-3 text-[14px] font-semibold text-white/75 hover:text-white active:scale-[0.99]">
-              {busy ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : `No — use “${roleText.trim()}” instead`}
-            </button>
-            <button onClick={() => setStep("role")} className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70">Try a different word</button>
-          </>
-        )}
-
-        {step === "intent" && (
-          <>
-            {adjacent && FLAGS.roleClass && <button onClick={() => setStep("roleClass")} className="mb-2 text-[12px] text-white/45 hover:text-white/70">← Back</button>}
-            <h1 className="font-display text-2xl font-bold text-gradient">What are you here for?</h1>
-            <p className="mb-5 mt-2 text-[15px] text-white/60">Pick what matters most — your home feed and matches are built around it. You can change this anytime.</p>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {(adjacent ? ADJACENT_INTENTS : INTENTS).map((i) => {
-                const on = intents.includes(i);
-                return (
-                  <button key={i} onClick={() => toggleIntent(i)}
-                    className={cx("rounded-full px-3.5 py-2 text-[13px] font-medium transition active:scale-95",
-                      on ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/65 hover:text-white/90")}>
-                    {on && <Check className="mr-1 inline h-3 w-3" />}{i}
-                  </button>
-                );
-              })}
-            </div>
-            <input value={customIntent} onChange={(e) => setCustomIntent(e.target.value)}
-              placeholder="Something else? Type it here" className={cx(inputCls, "py-3")} />
-            <button onClick={() => setStep("seek")} disabled={busy || (intents.length === 0 && !customIntent.trim())}
-              className="btn btn-primary mt-4 w-full py-3.5 text-[15px] disabled:opacity-50">
-              Continue <ArrowRight className="h-4 w-4" />
-            </button>
-          </>
-        )}
-
-        {step === "seek" && (
-          <>
-            <h1 className="flex items-center gap-2 font-display text-2xl font-bold text-gradient"><Target className="h-6 w-6 text-aqua-300" /> {adjacent ? "Which creators are you looking for?" : "Who are you looking for?"}</h1>
-            <p className="mb-4 mt-2 text-[15px] leading-relaxed text-white/60">{adjacent ? "Pick the kinds of creators you want to find. This powers your matches — we'll surface exactly these people." : "Pick the roles you want to collaborate with. This is what powers your best matches — we'll surface creators who bring exactly this."}</p>
-
-            {seeks.length > 0 && (
-              <div className="mb-3 flex flex-wrap gap-2">
-                {seeks.map((s) => (
-                  <button key={s.id} onClick={() => toggleSeek(s)}
-                    className="flex items-center gap-1 rounded-full bg-aqua-400/20 px-3 py-1.5 text-[13px] font-semibold text-aqua-100 ring-1 ring-aqua-400/40 active:scale-95">
-                    {s.label} <X className="h-3 w-3" />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <input value={seekQuery} onChange={(e) => setSeekQuery(e.target.value)}
-              placeholder="Search roles — e.g. producer, vocalist, mix engineer…" className={cx(inputCls, "py-3")} />
-            {seekResults.length > 0 && (
-              <div className="mb-2 mt-2 flex flex-wrap gap-2">
-                {seekResults.filter((r) => !seeks.some((s) => s.id === r.id)).map((r) => (
-                  <button key={r.id} onClick={() => { toggleSeek(r); setSeekQuery(""); setSeekResults([]); }}
-                    className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[13px] font-medium text-white/75 hover:text-white active:scale-95">
-                    + {r.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <p className="mb-2 mt-4 text-[11px] uppercase tracking-wider text-white/40">Popular</p>
-            <div className="mb-4 flex flex-wrap gap-2">
-              {QUICK_SEEK.filter((r) => !seeks.some((s) => s.id === r.id)).map((r) => (
-                <button key={r.id} onClick={() => toggleSeek(r)}
-                  className="rounded-full bg-white/[0.05] px-3 py-1.5 text-[13px] font-medium text-white/65 hover:text-white/90 active:scale-95">
-                  {r.label}
-                </button>
-              ))}
-            </div>
-
-            <button onClick={() => setStep("avatar")} disabled={busy}
-              className="btn btn-primary w-full py-3.5 text-[15px] disabled:opacity-50">
-              Continue <ArrowRight className="h-4 w-4" />
-            </button>
-            <button onClick={() => setStep("avatar")} className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70">Skip — I'll set this later</button>
-          </>
-        )}
-
-        {step === "avatar" && (
-          <>
-            <h1 className="font-display text-2xl font-bold text-gradient">Show your face — or your brand</h1>
-            <p className="mb-6 mt-2 text-[15px] text-white/60">Optional. A clear photo or logo makes Connect & Spark feel human. You can skip and add one later.</p>
-            <div className="mb-6 flex flex-col items-center gap-4">
-              <Avatar url={avatarUrl} name={profile?.username || chosenRoleLabel} id={profile?.id} size="lg" square />
-              <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                onChange={(e) => void pickAvatar(e.target.files?.[0] ?? null)} />
-              <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}
-                className="inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-4 py-2.5 text-sm font-semibold text-white/80 ring-1 ring-white/10 hover:text-white active:scale-95 disabled:opacity-50">
-                {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-                {avatarUrl ? "Change photo" : "Upload photo"}
+            <div className="mt-5 flex items-center gap-3">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => void pickAvatar(e.target.files?.[0] ?? null)}
+              />
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => fileRef.current?.click()}
+                aria-label="Add photo"
+                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/[0.04] transition hover:border-veil-400/50"
+              >
+                {avatarUrl ? (
+                  <Avatar url={avatarUrl} name={profile?.username} id={profile?.id} size="md" className="!h-14 !w-14" />
+                ) : (
+                  <Camera className="h-5 w-5 text-white/45" />
+                )}
               </button>
+              <p className="text-[13px] text-white/45">Photo optional</p>
             </div>
-            <button onClick={finish} disabled={busy} className="btn btn-primary w-full py-3.5 text-[15px] disabled:opacity-50">
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Enter VYBZ <ArrowRight className="h-4 w-4" /></>}
+
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setStep("share")}
+              className="btn btn-primary mt-5 w-full py-3.5 text-[15px]"
+            >
+              Continue <ArrowRight className="h-4 w-4" />
             </button>
-            <button onClick={finish} disabled={busy} className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void finish(false)}
+              className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70"
+            >
               Skip for now
+            </button>
+          </>
+        )}
+
+        {step === "share" && (
+          <>
+            <button
+              type="button"
+              onClick={() => setStep("craft")}
+              className="mb-2 text-[12px] text-white/45 hover:text-white/70"
+            >
+              ← Back
+            </button>
+            <h1 className="font-display text-2xl font-bold text-gradient">
+              Share something
+            </h1>
+            <p className="mb-6 mt-2 text-[15px] leading-relaxed text-white/55">
+              VYBZ works best when you put work out — a loop, a sketch, a clip, a draft. Drop it on the Feed and creators who fit can find you.
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void finish(true)}
+              className="btn btn-primary w-full py-3.5 text-[15px]"
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Share a drop <ArrowRight className="h-4 w-4" /></>}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void finish(false)}
+              className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70"
+            >
+              Enter the Feed
             </button>
           </>
         )}

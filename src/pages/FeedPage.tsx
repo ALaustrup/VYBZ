@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, Plus, AudioLines, Shuffle, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
@@ -46,8 +46,23 @@ function defaultScope(profession?: string | null, intents?: string[], roleClass?
 export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId, profile } = useSession();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
   const intent = profile?.profile?.intents?.[0];
   const [scope, setScope] = useState<string>(() => defaultScope(profile?.profile?.profession, profile?.profile?.intents, profile?.profile?.roleClass));
+
+  // Post-onboarding “Share a drop” lands here with ?compose=1
+  const wantsCompose = params.get("compose") === "1";
+  useEffect(() => {
+    if (!wantsCompose) return;
+    onCompose();
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("compose");
+      return next;
+    }, { replace: true });
+    // intentionally only when the query flag appears
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wantsCompose]);
   const [mode, setMode] = useState<Mode>("discovery");
   const [layout, setLayout] = useState<Layout>(() => {
     try { return (localStorage.getItem("vybz.feedLayout") as Layout) || "comfortable"; } catch { return "comfortable"; }
@@ -110,7 +125,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        title="Drops"
+        title="Feed"
         subtitle={intent ? `Curated for “${intent}”` : "Fresh from the network"}
         actions={
           <button type="button" onClick={onCompose} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
@@ -148,7 +163,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
         )}
         {isSounds && (
           <div className="flex items-center gap-3 text-[12px]">
-            <ModeLink active={mode === "discovery"} onClick={() => setMode("discovery")} label="Discovery" />
+            <ModeLink active={mode === "discovery"} onClick={() => setMode("discovery")} label="Explore" />
             <ModeLink active={mode === "latest"} onClick={() => setMode("latest")} label="Latest" />
             {mode === "discovery" && (
               <button
@@ -174,7 +189,16 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : isSounds ? (
           drops.length === 0 ? (
-            <EmptyState icon={AudioLines} title="No drops yet" body="Share a sound — a loop, a stem, a work-in-progress — and let complementary creators find it." />
+            <EmptyState
+              icon={AudioLines}
+              title="No drops yet"
+              body="Share a sound — a loop, a stem, a work-in-progress — and let complementary creators find it."
+              action={
+                <button type="button" onClick={onCompose} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
+                  <Plus className="h-3.5 w-3.5" /> Drop
+                </button>
+              }
+            />
           ) : (
             <div className={cx("mx-auto gap-5", gridCls)}>
               {drops.map((d, i) => (
@@ -189,8 +213,26 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
             </div>
           )
         ) : posts.length === 0 ? (
-          <EmptyState icon={Sparkles} title={scope === "following" ? "Nothing from your follows yet" : "No posts here yet"}
-            body={scope === "following" ? "Follow creators' projects and their posts show up here." : "Be the first to post — head to your profile and share something to a project."} />
+          <EmptyState
+            icon={Sparkles}
+            title={scope === "following" ? "Nothing from your follows yet" : "No posts here yet"}
+            body={
+              scope === "following"
+                ? "Follow creators and their posts show up here."
+                : "Share a drop — a sketch, a loop, a clip — and it lands on the Feed."
+            }
+            action={
+              scope !== "following" ? (
+                <button type="button" onClick={onCompose} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
+                  <Plus className="h-3.5 w-3.5" /> Drop
+                </button>
+              ) : (
+                <button type="button" onClick={() => navigate("/discover")} className="btn btn-ghost mt-1 h-9 px-4 py-0 text-xs">
+                  Discover creators
+                </button>
+              )
+            }
+          />
         ) : (
           <div className={cx("mx-auto gap-5", gridCls)}>
             {posts.map((p, i) => (

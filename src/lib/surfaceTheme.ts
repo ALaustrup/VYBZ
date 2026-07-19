@@ -28,11 +28,11 @@ export const DEFAULT_SURFACE: SurfaceTheme = {
 
 // Labels only — accent + bg are brand-locked.
 const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }> = [
-  { test: (p) => p === "/", id: "feed", label: "Your feed" },
+  { test: (p) => p === "/", id: "feed", label: "Feed" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover" },
   { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities" },
-  { test: (p) => p.startsWith("/connect"), id: "connect", label: "Connect" },
+  { test: (p) => p.startsWith("/connect"), id: "find", label: "Find" },
   { test: (p) => p.startsWith("/live"), id: "live", label: "Live" },
   { test: (p) => p.startsWith("/projects"), id: "studio", label: "Collabs" },
   { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), id: "messages", label: "Messages" },
@@ -54,11 +54,18 @@ export function surfaceForPath(pathname: string): SurfaceTheme {
 }
 
 /** Primary product modes for Orb Dock navigation. */
-export type AppMode = "find" | "make" | "you";
+export type AppMode = "find" | "drops" | "you";
 
+export const MODE_LABEL: Record<AppMode, string> = {
+  find: "Find",
+  drops: "Drops",
+  you: "You",
+};
+
+/** First destination when tapping a mode (app landing = Feed via Drops). */
 export const MODE_HOME: Record<AppMode, string> = {
   find: "/connect",
-  make: "/",
+  drops: "/",
   you: "/profile",
 };
 
@@ -86,5 +93,5 @@ export function modeForPath(pathname: string): AppMode {
   ) {
     return "you";
   }
-  return "make";
+  return "drops";
 }

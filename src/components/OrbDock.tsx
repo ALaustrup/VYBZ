@@ -17,7 +17,7 @@ import {
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import { BrandLockup, BrandMark } from "@/components/Brand";
-import { AppMode, MODE_HOME, modeForPath } from "@/lib/surfaceTheme";
+import { AppMode, MODE_HOME, MODE_LABEL, modeForPath } from "@/lib/surfaceTheme";
 import { cx } from "@/lib/utils";
 
 type OrbAction = {
@@ -27,7 +27,7 @@ type OrbAction = {
   run: () => void;
 };
 
-/** Mobile Orb Dock — Find | Orb | Make, with You as the top-right avatar. */
+/** Mobile Orb Dock — Find | Orb | Drops, with You as the top-right avatar. */
 export function OrbDock({ onCompose }: { onCompose: () => void }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export function OrbDock({ onCompose }: { onCompose: () => void }) {
       return;
     }
     // Already in this mode — cycle its key destinations (keeps the dock to 3 anchors).
-    if (next === "make") {
+    if (next === "drops") {
       if (pathname.startsWith("/live")) navigate("/");
       else if (pathname.startsWith("/projects")) navigate("/live");
       else navigate("/projects");
@@ -176,10 +176,10 @@ export function OrbDock({ onCompose }: { onCompose: () => void }) {
         </div>
 
         <ModeChip
-          label="Make"
+          label="Drops"
           icon={AudioLines}
-          active={mode === "make"}
-          onClick={() => goMode("make")}
+          active={mode === "drops"}
+          onClick={() => goMode("drops")}
         />
       </div>
     </div>
@@ -273,13 +273,13 @@ export function OrbSideRail({ onCompose }: { onCompose: () => void }) {
 
   type RailLink = { to: string; label: string; icon: typeof Users; end?: boolean; badge?: number };
   const findLinks: RailLink[] = [
-    { to: "/connect", label: "Connect", icon: Users },
+    { to: "/connect", label: "Matches", icon: Users },
     { to: "/spark", label: "Spark", icon: Sparkles },
     { to: "/discover", label: "Discover", icon: Search },
-    { to: "/opportunities", label: "Board", icon: FolderGit2 },
+    { to: "/opportunities", label: "Opportunities", icon: FolderGit2 },
   ];
-  const makeLinks: RailLink[] = [
-    { to: "/", label: "Drops", icon: AudioLines, end: true },
+  const dropsLinks: RailLink[] = [
+    { to: "/", label: "Feed", icon: AudioLines, end: true },
     { to: "/projects", label: "Collabs", icon: FolderGit2 },
     { to: "/live", label: "Live", icon: Radio },
   ];
@@ -289,7 +289,7 @@ export function OrbSideRail({ onCompose }: { onCompose: () => void }) {
     { to: "/activity", label: "Activity", icon: Bell, badge: unread },
   ];
 
-  const links = mode === "find" ? findLinks : mode === "make" ? makeLinks : youLinks;
+  const links = mode === "find" ? findLinks : mode === "drops" ? dropsLinks : youLinks;
 
   return (
     <aside className="glass z-40 flex h-full w-[4.75rem] shrink-0 flex-col items-center border-r border-white/10 py-5 xl:w-56 xl:items-stretch xl:px-3">
@@ -331,13 +331,13 @@ export function OrbSideRail({ onCompose }: { onCompose: () => void }) {
       </div>
 
       <div className="mb-3 flex flex-col gap-1 xl:px-0">
-        {(["find", "make", "you"] as AppMode[]).map((m) => (
+        {(["find", "drops", "you"] as AppMode[]).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => navigate(MODE_HOME[m])}
             className={cx(
-              "relative flex items-center justify-center gap-3 rounded-xl px-2 py-2.5 text-[13px] font-semibold capitalize xl:justify-start xl:px-3",
+              "relative flex items-center justify-center gap-3 rounded-xl px-2 py-2.5 text-[13px] font-semibold xl:justify-start xl:px-3",
               mode === m ? "text-white" : "text-white/50 hover:bg-white/[0.04] hover:text-white/85",
             )}
           >
@@ -348,8 +348,8 @@ export function OrbSideRail({ onCompose }: { onCompose: () => void }) {
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />
             )}
-            <span className="relative z-10 xl:hidden">{m === "find" ? <Users className="h-5 w-5" /> : m === "make" ? <AudioLines className="h-5 w-5" /> : <Avatar url={profile?.avatarUrl} name={profile?.displayName || profile?.username} id={profile?.id} size="sm" className="!h-6 !w-6 text-[10px]" />}</span>
-            <span className="relative z-10 hidden xl:inline">{m}</span>
+            <span className="relative z-10 xl:hidden">{m === "find" ? <Users className="h-5 w-5" /> : m === "drops" ? <AudioLines className="h-5 w-5" /> : <Avatar url={profile?.avatarUrl} name={profile?.displayName || profile?.username} id={profile?.id} size="sm" className="!h-6 !w-6 text-[10px]" />}</span>
+            <span className="relative z-10 hidden xl:inline">{MODE_LABEL[m]}</span>
           </button>
         ))}
       </div>
