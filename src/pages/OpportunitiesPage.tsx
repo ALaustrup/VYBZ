@@ -30,21 +30,26 @@ export function OpportunitiesPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-4 pb-1 pt-3 max-lg:pr-14">
-        <button onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <h1 className="flex-1 truncate font-display text-xl font-bold text-gradient">Opportunities</h1>
-        <button onClick={() => setComposing(true)} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95"><Plus className="h-4 w-4" /> Post</button>
+      <div className="flex items-center gap-3 px-5 pb-3 pt-4 max-lg:pr-14">
+        <button type="button" onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-display text-[1.65rem] font-semibold tracking-tight text-white">Opportunities</h1>
+          <p className="text-[13px] text-white/40">Open roles &amp; paid commissions</p>
+        </div>
+        <button type="button" onClick={() => setComposing(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs"><Plus className="h-3.5 w-3.5" /> Post</button>
       </div>
-      <div className="flex gap-2 px-4 pt-2">
+      <div className="mx-5 h-px bg-[var(--hairline)]" />
+      <div className="flex gap-5 px-5 pt-3">
         {(["collab", "commission"] as Tab[]).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={cx("flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95",
-              tab === t ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55 hover:text-white/85")}>
-            {t === "collab" ? "Collabs" : <><DollarSign className="h-3.5 w-3.5" /> Commissions</>}
+          <button key={t} type="button" onClick={() => setTab(t)}
+            className={cx("relative pb-2.5 text-[13px] font-medium transition",
+              tab === t ? "text-white" : "text-white/40 hover:text-white/70")}>
+            {t === "collab" ? "Collabs" : <span className="inline-flex items-center gap-1"><DollarSign className="h-3.5 w-3.5" /> Commissions</span>}
+            {tab === t && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
           </button>
         ))}
       </div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-3">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-2">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (
@@ -52,15 +57,15 @@ export function OpportunitiesPage() {
             ? <EmptyState icon={DollarSign} title="No open commissions yet" body="Commission a creator for paid work — a track, cover art, an edit, a game asset. Post a brief and a budget, and every creator who fits can pitch." />
             : <EmptyState icon={Briefcase} title="No open roles yet" body="Post what you're looking for — a vocalist, a mix engineer, a guitarist — and reach every creator who fits." />
         ) : (
-          <div className="space-y-2.5">
+          <div className="divide-y divide-[var(--hairline)]">
             {items.map((o) => (
-              <div key={o.id} className={cx("rounded-2xl border p-4", o.kind === "commission" ? "border-amber-400/25 bg-amber-400/[0.04]" : "border-white/8 bg-white/[0.03]")}>
+              <div key={o.id} className="py-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="font-display font-semibold text-white">{o.title}</p>
-                    <p className="mt-0.5 text-xs text-white/45">{o.kind === "commission" ? "Seeking" : "Needs"} <span className="font-semibold text-aqua-200">{o.roleLabel}</span> · {o.authorUsername ?? "creator"}{o.remoteOk ? " · remote ok" : ""}</p>
+                    <p className="mt-0.5 text-xs text-white/40">{o.kind === "commission" ? "Seeking" : "Needs"} <span className="font-medium text-white/70">{o.roleLabel}</span> · {o.authorUsername ?? "creator"}{o.remoteOk ? " · remote ok" : ""}</p>
                   </div>
-                  <button onClick={() => apply(o)} className="shrink-0 rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95">{o.kind === "commission" ? "Pitch" : "Apply"}</button>
+                  <button type="button" onClick={() => apply(o)} className="btn btn-primary h-8 shrink-0 px-3 py-0 text-xs">{o.kind === "commission" ? "Pitch" : "Apply"}</button>
                 </div>
                 {o.kind === "commission" && o.budget && (
                   <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-400/15 px-2.5 py-0.5 text-[11px] font-bold text-amber-200"><DollarSign className="h-3 w-3" /> {o.budget}</p>

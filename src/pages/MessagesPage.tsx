@@ -23,15 +23,18 @@ function ThreadList() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 pb-2 pt-3"><h1 className="font-display text-xl font-bold text-gradient">Messages</h1></div>
+      <div className="px-5 pb-3 pt-4 max-lg:pr-14">
+        <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Messages</h1>
+        <div className="mt-4 h-px w-full bg-[var(--hairline)]" />
+      </div>
       <ChatTabs active="direct" />
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-1">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-1">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : threads.length === 0 ? <EmptyState icon={MessageSquare} title="No direct messages yet" body="Connect with a collaborator, or jump into a community Room to meet people." />
-          : <div className="space-y-1.5">{threads.map((t) => (
-              <button key={t.id} onClick={() => navigate(`/messages/${t.id}`)} className="flex w-full items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-veil-500/20 font-display font-bold text-veil-100">{(t.peerUsername || "?").charAt(0).toUpperCase()}</span>
-                <div className="min-w-0 flex-1"><p className="truncate font-semibold text-white">{t.peerUsername || "Creator"}</p><p className="text-xs text-white/40">{timeAgo(t.lastAt)}</p></div>
+          : <div className="divide-y divide-[var(--hairline)]">{threads.map((t) => (
+              <button key={t.id} type="button" onClick={() => navigate(`/messages/${t.id}`)} className="flex w-full items-center gap-3 py-3.5 text-left active:scale-[0.995]">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-veil-500/20 font-display font-bold text-veil-100 ring-1 ring-white/10">{(t.peerUsername || "?").charAt(0).toUpperCase()}</span>
+                <div className="min-w-0 flex-1"><p className="truncate font-semibold text-white">{t.peerUsername || "Creator"}</p><p className="text-xs text-white/35">{timeAgo(t.lastAt)}</p></div>
               </button>
             ))}</div>}
       </div>

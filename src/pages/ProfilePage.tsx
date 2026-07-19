@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText, ShieldCheck, Shield, Bug } from "lucide-react";
+import {
+  Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText,
+  ShieldCheck, Shield, Bug, AudioLines, ChevronRight,
+} from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
@@ -10,12 +13,10 @@ import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { PayoutSetup } from "@/components/PayoutSetup";
-import { AudioLines } from "lucide-react";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
 import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
-import { Sparkles as SparklesIcon } from "lucide-react";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function ProfilePage() {
@@ -40,67 +41,73 @@ export function ProfilePage() {
   const facets = profile.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-4 pb-6 pt-3">
-      <div className="mb-4 flex items-center gap-4 max-lg:pr-14">
+    <div className="no-scrollbar h-full overflow-y-auto px-5 pb-8 pt-4 max-lg:pr-14">
+      <div className="mb-5 flex items-start gap-4">
         <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="truncate font-display text-2xl font-bold text-white">{profile.username}</h1>
+            <h1 className="truncate font-display text-[1.65rem] font-semibold tracking-tight text-white">{profile.username}</h1>
             <Flair data={cosmetics.flair} />
           </div>
-          {facets.roleLabel && <p className="truncate text-sm font-semibold text-veil-200">{facets.roleLabel}</p>}
-          <ProfessionBadges primary={facets.profession} all={facets.professions} />
-          <RoleClassBadge roleClass={facets.roleClass} />
-          {profile.location && <p className="text-sm text-white/50">{profile.location}</p>}
+          {facets.roleLabel && <p className="truncate text-sm text-white/55">{facets.roleLabel}</p>}
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <ProfessionBadges primary={facets.profession} all={facets.professions} />
+            <RoleClassBadge roleClass={facets.roleClass} />
+          </div>
+          {profile.location && <p className="mt-1 text-sm text-white/40">{profile.location}</p>}
         </div>
-        <button onClick={() => navigate("/profile/edit")} aria-label="Edit" className="flex h-10 w-10 items-center justify-center rounded-full glass active:scale-90"><Pencil className="h-4 w-4" /></button>
-        <button onClick={signOut} aria-label="Sign out" className="flex h-10 w-10 items-center justify-center rounded-full glass active:scale-90"><LogOut className="h-4 w-4" /></button>
+        <div className="flex shrink-0 gap-1.5 pt-1">
+          <button type="button" onClick={() => navigate("/profile/edit")} aria-label="Edit" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><Pencil className="h-4 w-4" /></button>
+          <button type="button" onClick={signOut} aria-label="Sign out" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><LogOut className="h-4 w-4" /></button>
+        </div>
       </div>
+      <div className="mb-5 h-px w-full bg-[var(--hairline)]" />
 
       {stats && (stats.ratings > 0 || stats.drops > 0 || stats.connections > 0) && (
-        <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-white/60">
-          {stats.reputation >= 0.5 && <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 font-bold uppercase tracking-wide text-amber-300"><Star className="h-3 w-3" fill="currentColor" /> Proven</span>}
-          {stats.ratings > 0 && <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-amber-300" fill="currentColor" />{stats.avgRating.toFixed(1)} · {stats.ratings} {stats.ratings === 1 ? "rating" : "ratings"}</span>}
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/45">
+          {stats.reputation >= 0.5 && <span className="flex items-center gap-1 font-medium text-white/65"><Star className="h-3 w-3" /> Proven</span>}
+          {stats.ratings > 0 && <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-white/50" />{stats.avgRating.toFixed(1)} · {stats.ratings}</span>}
           <span>{stats.drops} {stats.drops === 1 ? "drop" : "drops"}</span>
           {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{stats.connections}</span>}
         </div>
       )}
-      {profile.bio && <p className="mb-4 text-sm leading-relaxed text-white/75">{profile.bio}</p>}
+      {profile.bio && <p className="mb-5 text-sm leading-relaxed text-white/65">{profile.bio}</p>}
 
-      <div className="mb-4 space-y-2">
-        {roles.offers.length > 0 && <FacetRow icon={<Sparkles className="h-3.5 w-3.5 text-feel" />} label="I bring" items={roles.offers} tone="bg-feel/15 text-feel" />}
-        {roles.seeks.length > 0 && <FacetRow icon={<Target className="h-3.5 w-3.5 text-aqua-300" />} label="Looking for" items={roles.seeks} tone="bg-aqua-400/15 text-aqua-200" />}
-        {facets.genres?.length ? <FacetRow label="Genres" items={facets.genres} tone="bg-veil-500/20 text-veil-100" /> : null}
-        {facets.daws?.length ? <FacetRow label="DAWs" items={facets.daws} tone="bg-white/8 text-white/75" /> : null}
+      <div className="mb-5 space-y-2">
+        {roles.offers.length > 0 && <FacetRow icon={<Sparkles className="h-3.5 w-3.5 text-white/35" />} label="I bring" items={roles.offers} />}
+        {roles.seeks.length > 0 && <FacetRow icon={<Target className="h-3.5 w-3.5 text-white/35" />} label="Looking for" items={roles.seeks} />}
+        {facets.genres?.length ? <FacetRow label="Genres" items={facets.genres} /> : null}
+        {facets.daws?.length ? <FacetRow label="DAWs" items={facets.daws} /> : null}
       </div>
 
       <PayoutSetup />
 
       {(roles.offers.length === 0 && roles.seeks.length === 0) && (
-        <button onClick={() => navigate("/profile/edit")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-aqua-400/25 bg-aqua-400/[0.06] p-3.5 text-left active:scale-[0.99]">
-          <Target className="h-5 w-5 shrink-0 text-aqua-300" />
-          <p className="text-xs text-white/70">Add the roles you <span className="font-semibold text-white">bring</span> and <span className="font-semibold text-white">seek</span> — that's what powers precise collaborator matches.</p>
+        <button type="button" onClick={() => navigate("/profile/edit")} className="mb-5 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-3.5 text-left">
+          <Target className="h-4 w-4 shrink-0 text-veil-300" />
+          <p className="text-[13px] text-white/55">Add roles you <span className="text-white/85">bring</span> and <span className="text-white/85">seek</span> — that powers precise matches.</p>
+          <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-white/30" />
         </button>
       )}
 
       {credits.length > 0 && (
-        <div className="mb-4">
-          <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><BadgeCheck className="h-3.5 w-3.5 text-feel" /> Verified credits</p>
-          <div className="space-y-1.5">
+        <div className="mb-5">
+          <p className="eyebrow mb-3">Verified credits</p>
+          <div className="divide-y divide-[var(--hairline)]">
             {credits.map((c) => (
-              <div key={c.projectId} className="flex items-center gap-2 rounded-xl border border-feel/15 bg-feel/[0.05] px-3 py-2">
+              <div key={c.projectId} className="flex items-center gap-2 py-2.5">
                 <BadgeCheck className="h-4 w-4 shrink-0 text-feel" />
                 <span className="min-w-0 flex-1 truncate text-sm text-white/85">{c.title}</span>
-                {c.role && <span className="shrink-0 text-[11px] text-white/50">{c.role}</span>}
-                {c.split != null && <span className="shrink-0 text-[11px] font-semibold text-feel">{c.split}%</span>}
+                {c.role && <span className="shrink-0 text-[11px] text-white/40">{c.role}</span>}
+                {c.split != null && <span className="shrink-0 text-[11px] font-medium text-white/55">{c.split}%</span>}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="mb-5">
-        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Projects</p>
+      <div className="mb-6">
+        <p className="eyebrow mb-3">Projects</p>
         <ProjectsPanel userId={userId!} editable />
       </div>
 
@@ -108,50 +115,42 @@ export function ProfilePage() {
 
       <PasskeysCard />
 
-      <button onClick={() => navigate("/store")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
-        <SparklesIcon className="h-4 w-4 shrink-0 text-veil-300" />
-        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Cosmetic store</span><span className="block text-[11px] text-white/45">Profile accents & flair{profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}</span></span>
-      </button>
-
-      <button onClick={() => navigate("/codex")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
-        <ScrollText className="h-4 w-4 shrink-0 text-veil-300" />
-        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">VYBZ Codex & Legal</span><span className="block text-[11px] text-white/45">Free contracts, licenses & templates · Terms, Privacy, DMCA</span></span>
-      </button>
-
-      {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
-        <button onClick={() => navigate("/mod")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-aqua-400/25 bg-aqua-400/[0.07] p-4 text-left active:scale-[0.99]">
-          <Shield className="h-5 w-5 shrink-0 text-aqua-200" />
-          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-white">Moderator console</span><span className="block text-xs text-white/55">Review the report queue & earn rewards{profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}</span></span>
-        </button>
-      )}
-
-      {profile.platformRole === "member" && !profile.isAdmin && (
-        <button onClick={() => navigate("/apply-mod")} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
-          <Shield className="h-4 w-4 shrink-0 text-aqua-200" />
-          <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Become a moderator</span><span className="block text-[11px] text-white/45">Help keep VYBZ real — and earn rewards for it.</span></span>
-        </button>
-      )}
-
-      {profile.isAdmin && (
-        <button onClick={() => navigate("/admin")} className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-veil-400/25 bg-veil-500/[0.08] p-4 text-left active:scale-[0.99]">
-          <ShieldCheck className="h-5 w-5 shrink-0 text-veil-200" />
-          <span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-white">Admin console</span><span className="block text-xs text-white/55">Members, staff, applications, matchmaking & bug reports</span></span>
-        </button>
-      )}
-
-      <button onClick={() => setBugOpen(true)} className="mb-4 flex w-full items-center gap-2.5 rounded-2xl border border-white/8 bg-white/[0.03] p-3 text-left active:scale-[0.99]">
-        <Bug className="h-4 w-4 shrink-0 text-white/60" />
-        <span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-white">Report a bug</span><span className="block text-[11px] text-white/45">Something off? Tell us — it goes straight to the team.</span></span>
-      </button>
+      <div className="mb-6 divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
+        <LinkRow icon={Sparkles} title="Cosmetic store" body={`Profile accents & flair${profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}`} onClick={() => navigate("/store")} />
+        <LinkRow icon={ScrollText} title="VYBZ Codex & Legal" body="Contracts, licenses, Terms, Privacy, DMCA" onClick={() => navigate("/codex")} />
+        {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
+          <LinkRow icon={Shield} title="Moderator console" body={`Report queue & rewards${profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}`} onClick={() => navigate("/mod")} />
+        )}
+        {profile.platformRole === "member" && !profile.isAdmin && (
+          <LinkRow icon={Shield} title="Become a moderator" body="Help keep VYBZ real — earn rewards" onClick={() => navigate("/apply-mod")} />
+        )}
+        {profile.isAdmin && (
+          <LinkRow icon={ShieldCheck} title="Admin console" body="Members, staff, matchmaking & bugs" onClick={() => navigate("/admin")} />
+        )}
+        <LinkRow icon={Bug} title="Report a bug" body="Goes straight to the team" onClick={() => setBugOpen(true)} />
+      </div>
       <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
 
-      <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40"><AudioLines className="h-3.5 w-3.5 text-veil-300" /> Your library</p>
+      <p className="eyebrow mb-3 flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Your library</p>
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
       ) : (
         <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
       )}
     </div>
+  );
+}
+
+function LinkRow({ icon: Icon, title, body, onClick }: { icon: typeof Bug; title: string; body: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="flex w-full items-center gap-3 py-3.5 text-left transition hover:bg-white/[0.02] active:scale-[0.995]">
+      <Icon className="h-4 w-4 shrink-0 text-white/40" />
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-medium text-white">{title}</span>
+        <span className="block text-[11px] text-white/40">{body}</span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-white/25" />
+    </button>
   );
 }
 
@@ -164,19 +163,20 @@ function DisplaySetting() {
     { id: "reduced", label: "Reduced", val: true },
   ];
   return (
-    <div className="mb-4">
-      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Visual effects</p>
-      <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1">
+    <div className="mb-5">
+      <p className="eyebrow mb-3">Visual effects</p>
+      <div className="flex gap-5">
         {opts.map((o) => (
-          <button key={o.id} onClick={() => setReduceFx(o.val)}
-            className={cx("flex-1 rounded-xl py-2 text-sm font-semibold transition",
-              current === o.id ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "text-white/50 hover:text-white/80")}>
+          <button key={o.id} type="button" onClick={() => setReduceFx(o.val)}
+            className={cx("relative pb-2 text-[13px] font-medium transition",
+              current === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
             {o.label}
+            {current === o.id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
           </button>
         ))}
       </div>
-      <p className="mt-1.5 px-1 text-[11px] text-white/40">
-        Auto follows your device. Reduced calms the animated background, reactive border, and visualizers for better battery and performance.
+      <p className="mt-2 text-[11px] text-white/35">
+        Auto follows your device. Reduced calms the animated background and reactive border.
       </p>
       <IntensitySetting />
     </div>
@@ -186,35 +186,36 @@ function DisplaySetting() {
 function IntensitySetting() {
   const reduced = useReduceFx();
   const intensity = useFxIntensity();
-  if (reduced) return null; // no point tuning intensity when effects are off
+  if (reduced) return null;
   const opts: { id: "subtle" | "full"; label: string }[] = [
     { id: "subtle", label: "Subtle" },
     { id: "full", label: "Full" },
   ];
   return (
-    <div className="mt-3">
-      <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Reactive intensity</p>
-      <div className="flex gap-1.5 rounded-2xl border border-white/8 bg-white/[0.02] p-1">
+    <div className="mt-4">
+      <p className="eyebrow mb-3">Reactive intensity</p>
+      <div className="flex gap-5">
         {opts.map((o) => (
-          <button key={o.id} onClick={() => setFxIntensity(o.id)}
-            className={cx("flex-1 rounded-xl py-2 text-sm font-semibold transition",
-              intensity === o.id ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "text-white/50 hover:text-white/80")}>
+          <button key={o.id} type="button" onClick={() => setFxIntensity(o.id)}
+            className={cx("relative pb-2 text-[13px] font-medium transition",
+              intensity === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
             {o.label}
+            {intensity === o.id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
           </button>
         ))}
       </div>
-      <p className="mt-1.5 px-1 text-[11px] text-white/40">
-        How strongly the reactive border &amp; background respond to playback. Subtle is the default — present, never overpowering.
+      <p className="mt-2 text-[11px] text-white/35">
+        How strongly the reactive border responds to playback.
       </p>
     </div>
   );
 }
 
-function FacetRow({ icon, label, items, tone }: { icon?: React.ReactNode; label: string; items: string[]; tone: string }) {
+function FacetRow({ icon, label, items }: { icon?: React.ReactNode; label: string; items: string[] }) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">{icon}{label}</span>
-      {items.map((i) => <span key={i} className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${tone}`}>{i}</span>)}
-    </div>
+    <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px]">
+      <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-white/35">{icon}{label}</span>
+      <span className="text-white/65">{items.join(" · ")}</span>
+    </p>
   );
 }

@@ -127,29 +127,30 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>
-                <h2 className="font-display text-xl font-bold text-gradient">New drop</h2>
-                <p className="text-[11px] text-white/40">Share a sound. Find the creators seeking it.</p>
+                <h2 className="font-display text-xl font-semibold tracking-tight text-white">New drop</h2>
+                <p className="text-[12px] text-white/40">Share a sound. Find the creators seeking it.</p>
               </div>
-              <button onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
+              <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
             </div>
+            <div className="mx-5 h-px bg-[var(--hairline)]" />
 
-            <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4">
-              <div className="relative mb-4 block h-[26dvh] max-h-56 min-h-[10rem] w-full overflow-hidden rounded-2xl border border-white/10">
+            <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-4">
+              <div className="relative mb-4 block h-[26dvh] max-h-56 min-h-[10rem] w-full overflow-hidden rounded-2xl border border-[var(--hairline)] bg-ink-950/50">
                 {audio ? (
-                  <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-br from-veil-500/20 via-ink-900 to-ink-950 p-4">
-                    <span className="flex items-center gap-1.5 self-start rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white/85 backdrop-blur">
-                      <AudioLines className="h-3.5 w-3.5 text-veil-200" />{qualityLabel(audio.format, audio.sampleRate, audio.lossless) || "Audio"}
+                  <div className="absolute inset-0 flex flex-col justify-between p-4">
+                    <span className="flex items-center gap-1.5 self-start text-[11px] font-medium text-white/55">
+                      <AudioLines className="h-3.5 w-3.5 text-veil-300" />{qualityLabel(audio.format, audio.sampleRate, audio.lossless) || "Audio"}
                     </span>
                     <button type="button" onClick={preview} aria-label={previewPlaying ? "Pause" : "Play"}
-                      className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur transition active:scale-90">
+                      className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white backdrop-blur transition active:scale-90">
                       {previewPlaying ? <Pause className="h-6 w-6" /> : <Play className="ml-0.5 h-6 w-6" />}
                     </button>
                     <Waveform peaks={audio.peaks} progress={previewProgress} accent="#a87cf8" height={40}
                       onSeek={player.track?.id === PREVIEW_ID ? (f) => seekFraction(f) : undefined} />
                   </div>
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-veil-500/10 to-ink-950">
-                    <AudioLines className="h-10 w-10 text-white/20" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <AudioLines className="h-10 w-10 text-white/15" />
                   </div>
                 )}
               </div>
@@ -157,16 +158,19 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
               <input ref={fileRef} type="file" accept={AUDIO_ACCEPT} onChange={handleFile} className="hidden" />
               {!audio ? (
                 <button type="button" onClick={() => fileRef.current?.click()} disabled={decoding}
-                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-veil-400/25 bg-veil-500/[0.07] py-3.5 text-sm font-semibold text-white/85 transition active:scale-[0.98] disabled:opacity-60">
+                  className="btn btn-primary mb-3 w-full py-3.5 disabled:opacity-60">
                   <AudioLines className="h-4 w-4" />{decoding ? "Reading…" : "Upload audio — any format, full quality"}
                 </button>
               ) : (
-                <div className="mb-3 space-y-2.5">
-                  <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
+                <div className="mb-3 space-y-3">
+                  <div className="no-scrollbar flex gap-4 overflow-x-auto border-b border-[var(--hairline)]">
                     {KINDS.map((k) => (
                       <button key={k.id} type="button" onClick={() => setKind(k.id)}
-                        className={cx("shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition active:scale-95",
-                          kind === k.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55")}>{k.label}</button>
+                        className={cx("relative shrink-0 pb-2.5 text-xs font-medium transition",
+                          kind === k.id ? "text-white" : "text-white/40 hover:text-white/70")}>
+                        {k.label}
+                        {kind === k.id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
+                      </button>
                     ))}
                   </div>
                   <div className="flex gap-2">
@@ -186,12 +190,15 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     </p>
                   )}
                   <div>
-                    <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-white/40">Exchange license</p>
-                    <div className="flex gap-1.5">
+                    <p className="eyebrow mb-2">Exchange license</p>
+                    <div className="flex gap-4">
                       {[["collab-only","Collab only"],["credit-required","Credit required"],["free","Free"]].map(([id,label]) => (
                         <button key={id} type="button" onClick={() => setLicense(id)}
-                          className={cx("flex-1 rounded-full px-2 py-1.5 text-[11px] font-semibold transition active:scale-95",
-                            license === id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55")}>{label}</button>
+                          className={cx("relative pb-1.5 text-[12px] font-medium transition",
+                            license === id ? "text-white" : "text-white/40 hover:text-white/70")}>
+                          {label}
+                          {license === id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -199,10 +206,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
               )}
 
               <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))} placeholder="Name your drop…"
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-[15px] text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3.5 text-[15px] text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
             </div>
 
-            <div className="shrink-0 border-t border-white/10 bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+            <div className="shrink-0 border-t border-[var(--hairline)] bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
               {progress !== null && (
                 <div className="mb-2.5">
                   <div className="mb-1 flex items-center justify-between text-[11px] text-white/55">

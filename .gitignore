@@ -15,5 +15,9 @@ dist-ssr
 
 # Supabase CLI local state
 supabase/.temp/
+
+# Env: ignore secrets; keep committed templates
 .env*.local
-.env*
+.env
+.env.*
+!.env.example

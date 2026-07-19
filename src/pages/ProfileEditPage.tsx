@@ -72,21 +72,25 @@ export function ProfileEditPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-4 pb-1 pt-3">
-        <button onClick={() => navigate("/profile")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <h1 className="flex-1 font-display text-xl font-bold text-gradient">Edit profile</h1>
-        <button onClick={save} disabled={busy} className="btn btn-primary h-9 px-4 py-0 text-sm">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}</button>
+      <div className="flex items-center gap-3 px-5 pb-3 pt-4">
+        <button type="button" onClick={() => navigate("/profile")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
+        <div className="min-w-0 flex-1">
+          <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Edit profile</h1>
+          <p className="text-[13px] text-white/40">Identity, roles &amp; matching facets</p>
+        </div>
+        <button type="button" onClick={save} disabled={busy} className="btn btn-primary h-9 px-4 py-0 text-sm">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}</button>
       </div>
-      <div className="no-scrollbar flex-1 space-y-5 overflow-y-auto px-4 pb-10 pt-3">
+      <div className="mx-5 h-px bg-[var(--hairline)]" />
+      <div className="no-scrollbar flex-1 space-y-6 overflow-y-auto px-5 pb-10 pt-4">
         <Section title="Photo">
           <div className="flex items-center gap-4">
             <Avatar url={avatarUrl} name={profile?.username} id={profile?.id} size="lg" square />
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-white/65">A clear face or brand mark helps people recognize you in Connect & Spark.</p>
+              <p className="text-sm text-white/50">A clear face or brand mark helps people recognize you in Find &amp; Spark.</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => void pickAvatar(e.target.files?.[0] ?? null)} />
               <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}
-                className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/[0.06] px-3.5 py-2 text-[13px] font-semibold text-white/80 ring-1 ring-white/10 hover:text-white active:scale-95 disabled:opacity-50">
+                className="btn btn-ghost mt-2 h-9 px-3.5 py-0 text-[13px] disabled:opacity-50">
                 <Camera className="h-3.5 w-3.5" /> {avatarUrl ? "Change photo" : "Upload photo"}
               </button>
             </div>
@@ -134,23 +138,29 @@ export function ProfileEditPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="space-y-2.5"><p className="text-[11px] font-semibold uppercase tracking-wider text-white/45">{title}</p>{children}</div>;
+  return <div className="space-y-2.5"><p className="eyebrow">{title}</p>{children}</div>;
 }
 function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="flex w-full items-center justify-between rounded-xl border border-white/8 bg-white/[0.02] px-3.5 py-3 text-left text-sm text-white/80">
+    <button type="button" onClick={onClick} className="flex w-full items-center justify-between border-b border-[var(--hairline)] py-3 text-left text-sm text-white/75 last:border-0">
       {label}
       <span className={cx("relative h-6 w-11 rounded-full transition-colors", on ? "bg-veil-500" : "bg-white/15")}><span className={cx("absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all", on ? "left-[22px]" : "left-0.5")} /></span>
     </button>
   );
 }
-const TONES: Record<string, [string, string]> = {
-  feel: ["bg-feel/20 text-feel ring-1 ring-feel/50", "bg-white/[0.04] text-white/55"],
-  aqua: ["bg-aqua-400/20 text-aqua-200 ring-1 ring-aqua-400/50", "bg-white/[0.04] text-white/55"],
-  veil: ["bg-veil-500/30 text-white ring-1 ring-veil-400/50", "bg-white/[0.04] text-white/55"],
-};
-function Chip({ label, on, onClick, tone }: { label: string; on: boolean; onClick: () => void; tone: string }) {
-  return <button type="button" onClick={onClick} className={cx("flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition active:scale-95", on ? TONES[tone][0] : TONES[tone][1])}>{on && <Check className="h-3 w-3" />}{label}</button>;
+function Chip({ label, on, onClick }: { label: string; on: boolean; onClick: () => void; tone?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cx(
+        "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium transition active:scale-95",
+        on ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "bg-white/[0.03] text-white/45 hover:text-white/70",
+      )}
+    >
+      {on && <Check className="h-3 w-3" />}{label}
+    </button>
+  );
 }
 function Chips({ options, selected, onToggle, tone }: { options: { id: string; label: string }[]; selected: string[]; onToggle: (id: string) => void; tone: string }) {
   return <div className="flex flex-wrap gap-1.5">{options.map((o) => <Chip key={o.id} label={o.label} on={selected.includes(o.id)} onClick={() => onToggle(o.id)} tone={tone} />)}</div>;

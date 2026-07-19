@@ -10,10 +10,10 @@ import { cx } from "@/lib/utils";
 import type { ProjectSummary, ProjectStatus } from "@/types";
 
 const STATUS_TONE: Record<ProjectStatus, string> = {
-  open: "bg-white/8 text-white/60",
-  "in-progress": "bg-aqua-400/15 text-aqua-200",
-  released: "bg-feel/15 text-feel",
-  archived: "bg-white/6 text-white/40",
+  open: "text-white/50",
+  "in-progress": "text-white/70",
+  released: "text-feel",
+  archived: "text-white/35",
 };
 
 export function ProjectsPage() {
@@ -28,31 +28,29 @@ export function ProjectsPage() {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        icon={FolderGit2}
         title="Collabs"
-        subtitle="Private collab rooms — versioned handoffs, splits & verified credits"
-        className="pb-1 max-lg:pr-14"
+        subtitle="Private rooms — versions, splits & verified credits"
         actions={
-          <button onClick={() => setComposing(true)} className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500 px-3.5 text-sm font-semibold text-white shadow-glow active:scale-95"><Plus className="h-4 w-4" /> New</button>
+          <button type="button" onClick={() => setComposing(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs"><Plus className="h-3.5 w-3.5" /> New</button>
         }
       />
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-1">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (
           <EmptyState icon={FolderGit2} title="No projects yet" body="Start a project room, invite a collaborator you matched with, and track the record from first idea to released credit." />
         ) : (
-          <div className="space-y-2.5">
+          <div className="divide-y divide-[var(--hairline)]">
             {items.map((p) => (
-              <button key={p.id} onClick={() => navigate(`/projects/${p.id}`)} className="w-full rounded-2xl border border-white/8 bg-white/[0.03] p-4 text-left transition active:scale-[0.99] hover:border-white/15">
+              <button key={p.id} type="button" onClick={() => navigate(`/projects/${p.id}`)} className="w-full py-4 text-left transition hover:bg-white/[0.02] active:scale-[0.995]">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="min-w-0 truncate font-display font-semibold text-white">{p.title}</p>
-                  <span className={cx("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", STATUS_TONE[p.status])}>{p.status === "released" ? <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> released</span> : p.status}</span>
+                  <p className="min-w-0 truncate font-display text-[15px] font-semibold text-white">{p.title}</p>
+                  <span className={cx("shrink-0 text-[10px] font-medium uppercase tracking-wider", STATUS_TONE[p.status])}>{p.status === "released" ? <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> released</span> : p.status}</span>
                 </div>
-                <div className="mt-1.5 flex items-center gap-3 text-xs text-white/45">
+                <div className="mt-1.5 flex items-center gap-3 text-xs text-white/40">
                   <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{p.members}</span>
                   <span className="flex items-center gap-1"><GitBranch className="h-3.5 w-3.5" />{p.versions} {p.versions === 1 ? "version" : "versions"}</span>
-                  {p.isOwner && <span className="text-veil-200">owner</span>}
+                  {p.isOwner && <span className="text-white/55">owner</span>}
                 </div>
               </button>
             ))}
@@ -92,7 +90,7 @@ function CreateForm({ onClose, onCreated }: { onClose: () => void; onCreated: (i
     <div className="fixed inset-0 z-[55] flex items-end justify-center bg-black/75 backdrop-blur-sm" onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-3xl border-t border-white/10 bg-ink-900/95 p-5 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-2xl">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-gradient">New project</h2>
+          <h2 className="font-display text-lg font-semibold text-white">New project</h2>
           <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full glass"><X className="h-4 w-4" /></button>
         </div>
         <form onSubmit={submit} className="flex flex-col gap-3">

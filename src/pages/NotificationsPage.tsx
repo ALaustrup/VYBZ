@@ -49,16 +49,19 @@ export function NotificationsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-4 pb-1 pt-3"><h1 className="font-display text-xl font-bold text-gradient">Activity</h1></div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-2">
+      <div className="px-5 pb-3 pt-4 max-lg:pr-14">
+        <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Activity</h1>
+        <div className="mt-4 h-px w-full bg-[var(--hairline)]" />
+      </div>
+      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-1">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : items.length === 0 ? <EmptyState icon={Bell} title="Nothing yet" body="Connection requests, applications, and messages will show up here." />
-          : <div className="space-y-1.5">{items.map((n) => {
+          : <div className="divide-y divide-[var(--hairline)]">{items.map((n) => {
               const Icon = ICON[n.kind] ?? Bell;
               const incoming = isIncomingRequest(n);
               return (
-                <div key={n.id} className={cx("flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition", n.read ? "border-white/8 bg-white/[0.02]" : "border-veil-400/25 bg-veil-500/[0.06]")}>
-                  <button type="button" onClick={() => open(n)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-veil-500/20 text-veil-100 active:scale-95">
+                <div key={n.id} className={cx("flex w-full items-center gap-3 py-3.5 text-left transition", !n.read && "bg-veil-500/[0.04]")}>
+                  <button type="button" onClick={() => open(n)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/[0.04] text-white/70 ring-1 ring-white/10 active:scale-95">
                     <Icon className="h-4 w-4" />
                   </button>
                   <button type="button" onClick={() => open(n)} className="min-w-0 flex-1 text-left">

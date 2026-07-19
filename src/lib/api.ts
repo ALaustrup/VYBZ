@@ -16,6 +16,7 @@ import type {
   PlatformRole, ReportKind, ReportReason, ModAction, ContentReport, StaffMember,
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
   Cosmetic, CosmeticStore,
+  LiveSessionCard, LiveSessionDetail, LiveMessage, LiveSource,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -1349,6 +1350,176 @@ export function joinRoomPresence(
     onSync(Array.from(seen.values()));
   });
   ch.subscribe((status) => { if (status === "SUBSCRIBED") void ch.track({ user_id: me.id, username: me.username }); });
+  return ch;
+}
+
+// ── Stream: public live sessions (Bunny Stream + identity chat) ─────────────
+export async function listLiveSessions(limit = 40): Promise<LiveSessionCard[]> {
+  const { data, error } = await db().rpc("list_live_sessions", { lim: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((r) => ({
+    id: r.id,
+    hostId: r.host_id,
+    username: r.username ?? null,
+    displayName: r.display_name ?? null,
+    avatarUrl: r.avatar_url ?? null,
+    roleLabel: r.role_label ?? null,
+    title: r.title ?? null,
+    source: r.source as LiveSource,
+    intent: r.intent ?? null,
+    viewerCount: r.viewer_count ?? 0,
+    playbackHls: r.playback_hls ?? null,
+    startedAt: r.started_at ? new Date(r.started_at).getTime() : Date.now(),
+  }));
+}
+
+export async function getLiveSession(id: string): Promise<LiveSessionDetail | null> {
+  const me = await currentUserId();
+  const { data, error } = await db().from("live_sessions").select("*").eq("id", id).maybeSingle();
+  if (error || !data) return null;
+  const { data: host } = await db().from("profiles").select("username, display_name, avatar_url, profile").eq("id", data.host_id).maybeSingle();
+  const profile = (host?.profile ?? {}) as Record<string, unknown>;
+  return {
+    id: data.id,
+    hostId: data.host_id,
+    username: host?.username ?? null,
+    displayName: host?.display_name ?? null,
+    avatarUrl: host?.avatar_url ?? null,
+    roleLabel: (profile.roleLabel as string) ?? (profile.role as string) ?? null,
+    title: data.title ?? null,
+    source: data.source as LiveSource,
+    intent: data.intent ?? null,
+    viewerCount: data.viewer_count ?? 0,
+    playbackHls: data.playback_hls ?? null,
+    startedAt: data.started_at ? new Date(data.started_at).getTime() : Date.now(),
+    status: data.status,
+    bunnyGuid: data.bunny_guid ?? null,
+    rtmpUrl: me === data.host_id ? (data.rtmp_url ?? null) : null,
+    streamKey: me === data.host_id ? (data.stream_key ?? null) : null,
+    expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : Date.now(),
+  };
+}
+
+/** Start a live session. Optionally provisions Bunny Stream via edge function. */
+export async function startLiveSession(input: {
+  title?: string;
+  source: LiveSource;
+  intent?: string;
+}): Promise<LiveSessionDetail | null> {
+  const me = await currentUserId();
+  if (!me) return null;
+
+  // End any prior live session for this host (unique index).
+  await db().from("live_sessions").update({ status: "ended", ended_at: new Date().toISOString(), stream_key: null })
+    .eq("host_id", me).eq("status", "live");
+
+  let bunny: { guid?: string; playbackHls?: string; rtmpUrl?: string; streamKey?: string } = {};
+  try {
+    const { data: sess } = await db().auth.getSession();
+    const token = sess.session?.access_token;
+    if (token && SUPABASE_URL) {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/bunny-live`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: SUPABASE_ANON_KEY ?? "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "create", title: input.title || "Live on VYBZ" }),
+      });
+      if (res.ok) bunny = await res.json();
+    }
+  } catch { /* Bunny optional — presence + chat still work */ }
+
+  const { data, error } = await db().from("live_sessions").insert({
+    host_id: me,
+    title: input.title?.trim() || null,
+    source: input.source,
+    intent: input.intent?.trim() || null,
+    bunny_guid: bunny.guid ?? null,
+    playback_hls: bunny.playbackHls ?? null,
+    rtmp_url: bunny.rtmpUrl ?? null,
+    stream_key: bunny.streamKey ?? null,
+  }).select("*").single();
+  if (error || !data) return null;
+  return getLiveSession(data.id);
+}
+
+export async function endLiveSession(id: string): Promise<void> {
+  await db().rpc("end_live_session", { p_id: id });
+  try {
+    const { data: sess } = await db().auth.getSession();
+    const token = sess.session?.access_token;
+    const detail = await getLiveSession(id);
+    if (token && SUPABASE_URL && detail?.bunnyGuid) {
+      await fetch(`${SUPABASE_URL}/functions/v1/bunny-live`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          apikey: SUPABASE_ANON_KEY ?? "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action: "end", guid: detail.bunnyGuid }),
+      });
+    }
+  } catch { /* ignore */ }
+}
+
+export async function bumpLiveViewers(id: string, delta = 1): Promise<void> {
+  await db().rpc("bump_live_viewers", { p_id: id, delta });
+}
+
+export async function listLiveMessages(sessionId: string, limit = 80): Promise<LiveMessage[]> {
+  const me = await currentUserId();
+  const { data, error } = await db()
+    .from("live_messages")
+    .select("id, session_id, sender_id, body, created_at")
+    .eq("session_id", sessionId)
+    .order("created_at", { ascending: true })
+    .limit(limit);
+  if (error || !data) return [];
+  const names = await usernamesFor(data.map((m: { sender_id: string }) => m.sender_id));
+  return (data as any[]).map((r) => ({
+    id: r.id,
+    sessionId: r.session_id,
+    senderId: r.sender_id,
+    senderName: names.get(r.sender_id) ?? null,
+    body: r.body,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    mine: r.sender_id === me,
+  }));
+}
+
+export async function sendLiveMessage(sessionId: string, body: string): Promise<LiveMessage | null> {
+  const me = await currentUserId();
+  if (!me) return null;
+  const text = body.trim().slice(0, 1000);
+  if (!text) return null;
+  const { data, error } = await db().from("live_messages").insert({
+    session_id: sessionId,
+    sender_id: me,
+    body: text,
+  }).select("id, session_id, sender_id, body, created_at").single();
+  if (error || !data) return null;
+  const { data: prof } = await db().from("profiles").select("username").eq("id", me).maybeSingle();
+  return {
+    id: data.id,
+    sessionId: data.session_id,
+    senderId: data.sender_id,
+    senderName: prof?.username ?? null,
+    body: data.body,
+    createdAt: data.created_at ? new Date(data.created_at).getTime() : Date.now(),
+    mine: true,
+  };
+}
+
+export function subscribeLiveMessages(sessionId: string, cb: () => void): RealtimeChannel {
+  return subscribeInserts("live_messages", `session_id=eq.${sessionId}`, cb);
+}
+
+export function subscribeLiveSessions(cb: () => void): RealtimeChannel {
+  const ch = db().channel(`rt-live-sessions-${Math.random().toString(36).slice(2)}`);
+  ch.on("postgres_changes", { event: "*", schema: "public", table: "live_sessions" }, () => cb()).subscribe();
   return ch;
 }
 

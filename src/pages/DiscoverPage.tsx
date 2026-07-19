@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, MapPin, Search, SlidersHorizontal, Sparkles, Target, UserPlus, Users, X } from "lucide-react";
+import { Loader2, MapPin, Search, SlidersHorizontal, UserPlus, Users, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
@@ -51,8 +51,8 @@ export function DiscoverPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader icon={Search} title="Discover creators" subtitle="Search & filter the network by role, genre, gear, tempo & place" />
-      <div className="space-y-2.5 px-4 pt-2">
+      <PageHeader title="Discover" subtitle="Search the network by role, genre, gear, tempo & place" />
+      <div className="space-y-2.5 px-5">
         <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
           <Search className="h-4 w-4 text-white/40" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search creators by name…"
@@ -75,7 +75,7 @@ export function DiscoverPage() {
         </div>
 
         {showFilters && (
-          <div className="space-y-2.5 rounded-2xl border border-veil-400/20 bg-veil-500/[0.05] p-3">
+          <div className="space-y-2.5 rounded-2xl border border-[var(--hairline)] bg-white/[0.02] p-3">
             <div className="flex gap-2">
               <select value={daw} onChange={(e) => setDaw(e.target.value)} className={selCls}>
                 <option value="">Any DAW</option>
@@ -116,24 +116,23 @@ export function DiscoverPage() {
         )}
       </div>
 
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-3">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-3">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : results.length === 0 ? <EmptyState icon={Users} title="No creators found" body="Loosen a filter or try a different name, role, or gear." />
-          : <div className="space-y-2">{results.map((c) => (
-              <div key={c.userId} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
-                <button onClick={() => navigate(`/u/${c.userId}`)} className="shrink-0">
+          : <div className="divide-y divide-[var(--hairline)]">{results.map((c) => (
+              <div key={c.userId} className="flex items-center gap-3 py-3.5">
+                <button type="button" onClick={() => navigate(`/u/${c.userId}`)} className="shrink-0">
                   <Avatar name={c.username} id={c.userId} size="md" />
                 </button>
                 <div className="min-w-0 flex-1">
-                  <button onClick={() => navigate(`/u/${c.userId}`)} className="truncate font-display font-semibold text-white">{c.username}</button>
-                  {c.location && <p className="flex items-center gap-1 text-[11px] text-white/45"><MapPin className="h-2.5 w-2.5" />{c.location}</p>}
-                  <div className="flex flex-wrap gap-1 pt-0.5">
-                    {c.offers.slice(0, 2).map((o) => <span key={o} className="flex items-center gap-0.5 rounded-full bg-feel/15 px-1.5 py-0.5 text-[10px] text-feel"><Sparkles className="h-2.5 w-2.5" />{o}</span>)}
-                    {c.seeks.slice(0, 2).map((s) => <span key={s} className="flex items-center gap-0.5 rounded-full bg-aqua-400/15 px-1.5 py-0.5 text-[10px] text-aqua-200"><Target className="h-2.5 w-2.5" />{s}</span>)}
-                  </div>
+                  <button type="button" onClick={() => navigate(`/u/${c.userId}`)} className="truncate font-display font-semibold text-white">{c.username}</button>
+                  {c.location && <p className="flex items-center gap-1 text-[11px] text-white/40"><MapPin className="h-2.5 w-2.5" />{c.location}</p>}
+                  <p className="mt-0.5 truncate text-[11px] text-white/35">
+                    {[...c.offers.slice(0, 2).map((o) => o), ...c.seeks.slice(0, 2).map((s) => `seeks ${s}`)].join(" · ")}
+                  </p>
                 </div>
-                <button onClick={async () => { await api.connect(c.userId); showToast(`Connection sent to ${c.username ?? "creator"}`); }}
-                  className={cx("flex shrink-0 items-center gap-1.5 rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 active:scale-95")}><UserPlus className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={async () => { await api.connect(c.userId); showToast(`Connection sent to ${c.username ?? "creator"}`); }}
+                  className="btn btn-primary h-9 w-9 shrink-0 p-0" aria-label="Connect"><UserPlus className="h-3.5 w-3.5" /></button>
               </div>
             ))}</div>}
       </div>

@@ -5,9 +5,7 @@
 @layer base {
   :root {
     color-scheme: dark;
-    /* Per-page accent (r g b channels). Set per route in App.tsx from the page's
-       taskbar-icon color; this brand-violet is the calm default for non-nav
-       surfaces (onboarding, legal, connect). */
+    /* Brand violet — locked app-wide (sign-in Studio Glass). Do not retheme per route. */
     --accent-rgb: 168 124 248;
     /* The one frosted hairline. Every translucent-white outline collapses to
        this so panels read as glass (depth comes from blur + shadow + the inset

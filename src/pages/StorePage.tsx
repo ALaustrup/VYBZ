@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Sparkles, Coins, Check, Lock } from "lucide-react";
+import { ArrowLeft, Loader2, Coins, Check, Lock } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
@@ -44,21 +44,22 @@ export function StorePage() {
   const flairs = store.catalog.filter((c) => c.category === "flair");
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-4 pb-10 pt-3">
-      <div className="mb-4 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
+    <div className="no-scrollbar h-full overflow-y-auto px-5 pb-10 pt-4">
+      <div className="mb-3 flex items-center gap-3">
+        <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
         <div className="min-w-0 flex-1">
-          <h1 className="flex items-center gap-2 font-display text-xl font-bold text-gradient"><Sparkles className="h-5 w-5 text-veil-300" /> Cosmetic store</h1>
-          <p className="text-[12px] text-white/45">Make your profile yours. Purely cosmetic — never pay-to-win.</p>
+          <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Store</h1>
+          <p className="text-[13px] text-white/40">Cosmetic accents &amp; flair — never pay-to-win</p>
         </div>
-        <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-aqua-400/15 px-3 py-1.5 text-sm font-bold text-aqua-200 ring-1 ring-aqua-400/30">
-          <Coins className="h-4 w-4" /> {store.credits}
+        <span className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-white/70">
+          <Coins className="h-4 w-4 text-veil-300" /> {store.credits}
         </span>
       </div>
+      <div className="mb-5 h-px w-full bg-[var(--hairline)]" />
 
       {store.credits === 0 && (
-        <p className="mb-4 rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-[13px] leading-relaxed text-white/60">
-          Earn <span className="font-semibold text-aqua-200">credits</span> by moderating (see the <button className="underline" onClick={() => navigate("/apply-mod")}>moderator program</button>). Buying credits with card arrives soon.
+        <p className="mb-5 text-[13px] leading-relaxed text-white/45">
+          Earn credits by moderating (see the <button type="button" className="text-white/75 underline decoration-white/20 hover:text-white" onClick={() => navigate("/apply-mod")}>moderator program</button>). Card top-ups arrive soon.
         </p>
       )}
 
@@ -86,7 +87,7 @@ export function StorePage() {
 }
 
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="mb-6"><p className="mb-2.5 text-[11px] uppercase tracking-wider text-white/40">{title}</p>{children}</div>;
+  return <div className="mb-6"><p className="eyebrow mb-3">{title}</p>{children}</div>;
 }
 
 function ItemCard({ c, store, busy, onBuy, onEquip, onUnequip, children }: {
@@ -96,21 +97,20 @@ function ItemCard({ c, store, busy, onBuy, onEquip, onUnequip, children }: {
   const equipped = store.equipped[c.category] === c.id;
   const canAfford = store.credits >= c.price;
   return (
-    <div className={cx("rounded-2xl border p-3", equipped ? "border-veil-400/50 bg-veil-500/[0.08]" : "border-white/8 bg-white/[0.03]")}>
+    <div className={cx("rounded-xl border p-3", equipped ? "border-veil-400/40 bg-veil-500/[0.06]" : "border-[var(--hairline)] bg-white/[0.02]")}>
       {children}
-      <p className="truncate text-[13px] font-semibold text-white">{c.name}</p>
+      <p className="truncate text-[13px] font-medium text-white">{c.name}</p>
       {equipped ? (
-        <button onClick={onUnequip} className="mt-1.5 flex w-full items-center justify-center gap-1 rounded-full bg-veil-500/25 py-1.5 text-[12px] font-semibold text-veil-100 active:scale-95">
+        <button type="button" onClick={onUnequip} className="btn btn-primary mt-2 h-8 w-full py-0 text-[12px]">
           <Check className="h-3.5 w-3.5" /> Equipped
         </button>
       ) : owned ? (
-        <button onClick={onEquip} disabled={busy} className="mt-1.5 w-full rounded-full bg-white/[0.08] py-1.5 text-[12px] font-semibold text-white/85 active:scale-95 disabled:opacity-50">
+        <button type="button" onClick={onEquip} disabled={busy} className="btn btn-ghost mt-2 h-8 w-full py-0 text-[12px] disabled:opacity-50">
           {busy ? <Loader2 className="mx-auto h-3.5 w-3.5 animate-spin" /> : "Equip"}
         </button>
       ) : (
-        <button onClick={onBuy} disabled={busy || !canAfford}
-          className={cx("mt-1.5 flex w-full items-center justify-center gap-1 rounded-full py-1.5 text-[12px] font-semibold active:scale-95 disabled:opacity-50",
-            canAfford ? "bg-aqua-400/20 text-aqua-200" : "bg-white/[0.05] text-white/40")}>
+        <button type="button" onClick={onBuy} disabled={busy || !canAfford}
+          className={cx("btn mt-2 h-8 w-full py-0 text-[12px] disabled:opacity-50", canAfford ? "btn-primary" : "btn-ghost")}>
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : !canAfford ? <><Lock className="h-3 w-3" /> {c.price}</> : <><Coins className="h-3.5 w-3.5" /> {c.price}</>}
         </button>
       )}

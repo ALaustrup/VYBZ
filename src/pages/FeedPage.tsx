@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Plus, AudioLines, Compass, Clock, Shuffle, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
+import { Loader2, Plus, AudioLines, Shuffle, Sparkles, LayoutGrid, Rows3 } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { FeedPostCard } from "@/components/FeedPostCard";
 import { EmptyState } from "@/components/EmptyState";
@@ -28,18 +28,13 @@ const SCOPES = [
 ];
 
 function defaultScope(profession?: string | null, intents?: string[], roleClass?: string | null): string {
-  // Role Class (Phase O1): creator-adjacent accounts (patrons, bookers,
-  // curators, brands, educators) land on the mixed "For you" feed — the
-  // sound-first drops feed stays creator-authored; they consume contextually.
   if (isAdjacentClass(roleClass)) return "all";
-  // Profession drives the tailored default feed (Phase A).
   switch (profession) {
     case "music": return "sounds";
     case "visual_art": return "art";
     case "film_video": return "video";
-    case "game_dev": return "all"; // game designers see a mix
+    case "game_dev": return "all";
   }
-  // Fallback: infer from intents for creators without a profession yet.
   const s = (intents ?? []).join(" ").toLowerCase();
   if (/art|paint|illustr|design|photo/.test(s)) return "art";
   if (/video|youtube|film|stream/.test(s)) return "video";
@@ -75,8 +70,6 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   }, [scope, mode, seed, forYouMode]);
   useEffect(() => { void load(); }, [load]);
 
-  // Realtime: new drops / Space posts appear the instant they're created — yours
-  // and others' — without a manual refresh (silent reload, debounced).
   const loadRef = useRef(load);
   useEffect(() => { loadRef.current = load; }, [load]);
   useEffect(() => {
@@ -117,50 +110,61 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <PageHeader
-        icon={AudioLines}
-        title="Your feed"
-        subtitle={intent ? `Curated for “${intent}”` : "Fresh from the community"}
-        className="pb-1 max-lg:pr-14"
+        title="Drops"
+        subtitle={intent ? `Curated for “${intent}”` : "Fresh from the network"}
         actions={
-          <button onClick={onCompose} className="flex h-10 items-center gap-1.5 rounded-full bg-veil-500 px-4 text-sm font-semibold text-white shadow-glow active:scale-95">
-            <Plus className="h-4 w-4" /> Drop
+          <button type="button" onClick={onCompose} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
+            <Plus className="h-3.5 w-3.5" /> Drop
           </button>
         }
       />
 
-      <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto px-5 pb-2 pt-1">
+      <div className="no-scrollbar flex items-end gap-5 overflow-x-auto px-5 pb-0">
         {SCOPES.map((s) => (
-          <button key={s.id} onClick={() => setScope(s.id)}
-            className={cx("shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition active:scale-95",
-              scope === s.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55 hover:text-white/85")}>
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => setScope(s.id)}
+            className={cx(
+              "relative shrink-0 pb-2.5 text-[13px] font-medium transition",
+              scope === s.id ? "text-white" : "text-white/40 hover:text-white/70",
+            )}
+          >
             {s.label}
+            {scope === s.id && (
+              <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />
+            )}
           </button>
         ))}
       </div>
+      <div className="mx-5 h-px bg-[var(--hairline)]" />
 
-      <div className="flex items-center gap-2 px-5 pb-3">
+      <div className="flex items-center gap-3 px-5 py-2.5">
         {isForYou && (
-          <div className="flex gap-1 rounded-full border border-white/8 bg-white/[0.02] p-1">
-            <ModeBtn active={forYouMode === "foryou"} onClick={() => setForYouMode("foryou")} icon={Sparkles} label="For you" />
-            <ModeBtn active={forYouMode === "undiscovered"} onClick={() => setForYouMode("undiscovered")} icon={Compass} label="Undiscovered" />
+          <div className="flex gap-3 text-[12px]">
+            <ModeLink active={forYouMode === "foryou"} onClick={() => setForYouMode("foryou")} label="For you" />
+            <ModeLink active={forYouMode === "undiscovered"} onClick={() => setForYouMode("undiscovered")} label="Undiscovered" />
           </div>
         )}
         {isSounds && (
-          <>
-            <div className="flex gap-1 rounded-full border border-white/8 bg-white/[0.02] p-1">
-              <ModeBtn active={mode === "discovery"} onClick={() => setMode("discovery")} icon={Compass} label="Discovery" />
-              <ModeBtn active={mode === "latest"} onClick={() => setMode("latest")} icon={Clock} label="Latest" />
-            </div>
+          <div className="flex items-center gap-3 text-[12px]">
+            <ModeLink active={mode === "discovery"} onClick={() => setMode("discovery")} label="Discovery" />
+            <ModeLink active={mode === "latest"} onClick={() => setMode("latest")} label="Latest" />
             {mode === "discovery" && (
-              <button onClick={() => setSeed(Math.floor(Math.random() * 1e9))} aria-label="Shuffle" className="flex items-center gap-1 rounded-full bg-white/8 px-3 py-2 text-xs font-semibold text-white/80 active:scale-95">
-                <Shuffle className="h-3.5 w-3.5" /> Shuffle
+              <button
+                type="button"
+                onClick={() => setSeed(Math.floor(Math.random() * 1e9))}
+                aria-label="Shuffle"
+                className="flex items-center gap-1 text-white/40 hover:text-white/75"
+              >
+                <Shuffle className="h-3 w-3" /> Shuffle
               </button>
             )}
-          </>
+          </div>
         )}
-        <div className="ml-auto flex gap-1 rounded-full border border-white/8 bg-white/[0.02] p-1">
-          <button onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout" className={cx("rounded-full p-1.5 transition", layout === "comfortable" ? "bg-veil-500/25 text-white" : "text-white/45 hover:text-white/80")}><Rows3 className="h-4 w-4" /></button>
-          <button onClick={() => setLayoutPersist("grid")} aria-label="Grid layout" className={cx("rounded-full p-1.5 transition", layout === "grid" ? "bg-veil-500/25 text-white" : "text-white/45 hover:text-white/80")}><LayoutGrid className="h-4 w-4" /></button>
+        <div className="ml-auto flex items-center gap-1 text-white/35">
+          <button type="button" onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout" className={cx("rounded-lg p-1.5 transition", layout === "comfortable" ? "text-white" : "hover:text-white/70")}><Rows3 className="h-3.5 w-3.5" /></button>
+          <button type="button" onClick={() => setLayoutPersist("grid")} aria-label="Grid layout" className={cx("rounded-lg p-1.5 transition", layout === "grid" ? "text-white" : "hover:text-white/70")}><LayoutGrid className="h-3.5 w-3.5" /></button>
         </div>
       </div>
 
@@ -176,7 +180,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
               {drops.map((d, i) => (
                 <div key={d.id} style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }} className="reveal relative">
                   {mode === "discovery" && (d.popularity ?? 1) < 0.2 && (
-                    <span className="absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full bg-aqua-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-aqua-200 backdrop-blur"><Sparkles className="h-2.5 w-2.5" /> Under-exposed</span>
+                    <span className="absolute left-3 top-3 z-10 text-[10px] font-medium uppercase tracking-[0.14em] text-white/55">Under-exposed</span>
                   )}
                   <TrackCard drop={d} queue={drops} onReact={(r) => react(d, r)} onRate={(s) => rate(d, s)}
                     onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/profile")} />
@@ -201,11 +205,10 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   );
 }
 
-function ModeBtn({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: typeof Compass; label: string }) {
+function ModeLink({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <button onClick={onClick} className={cx("flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition",
-      active ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "text-white/55 hover:text-white/85")}>
-      <Icon className="h-3.5 w-3.5" /> {label}
+    <button type="button" onClick={onClick} className={cx("font-medium transition", active ? "text-white" : "text-white/35 hover:text-white/65")}>
+      {label}
     </button>
   );
 }

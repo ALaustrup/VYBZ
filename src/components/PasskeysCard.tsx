@@ -58,20 +58,21 @@ export function PasskeysCard() {
   }
 
   return (
-    <div className="mb-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+    <div className="mb-5">
       <div className="mb-1 flex items-center gap-2.5">
-        <KeyRound className="h-4 w-4 shrink-0 text-veil-300" />
+        <KeyRound className="h-4 w-4 shrink-0 text-white/35" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white">Passkeys</p>
-          <p className="text-[11px] text-white/45">Sign in with Face ID, Touch ID, or your device PIN — no password to remember.</p>
+          <p className="text-sm font-medium text-white">Passkeys</p>
+          <p className="text-[11px] text-white/40">Face ID, Touch ID, or device PIN — no password.</p>
         </div>
         {supported && (
-          <button onClick={add} disabled={adding}
-            className="flex shrink-0 items-center gap-1.5 rounded-full bg-veil-500/20 px-3 py-1.5 text-xs font-semibold text-veil-100 ring-1 ring-veil-400/30 active:scale-95 disabled:opacity-60">
+          <button type="button" onClick={add} disabled={adding}
+            className="btn btn-primary h-8 shrink-0 px-3 py-0 text-xs disabled:opacity-60">
             {adding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />} Add
           </button>
         )}
       </div>
+      <div className="mt-3 h-px w-full bg-[var(--hairline)]" />
 
       {!supported && (
         <p className="mt-2 text-[11px] text-white/40">This device or browser doesn’t support passkeys.</p>

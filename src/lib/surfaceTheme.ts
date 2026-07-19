@@ -1,14 +1,11 @@
-// ── Per-surface theming ──────────────────────────────────────────────────────
-// The design system already exposes a per-route accent (`--accent-rgb`) that the
-// whole token set (veil-* utilities, text-gradient, btn-primary, nav glow, the
-// veil-radial backdrop, shadows) resolves against — but nothing ever set it per
-// route, so every tab looked identical. This maps each major surface to its own
-// accent hue + living-background variant so Feed, Connect, Studio, Store, etc.
-// each read as their own place, while staying on-brand (one hue, calm glass).
+// ── Surface theming ──────────────────────────────────────────────────────────
+// Studio Glass: one brand violet everywhere (the sign-in accent). Surfaces keep
+// a label for quiet titles; living background stays on the calm aurora wash so
+// the product reads as one place — not a rainbow of themed tabs.
 
 export interface SurfaceTheme {
   id: string;
-  /** "r g b" channels for --accent-rgb. */
+  /** "r g b" channels for --accent-rgb. Always brand violet. */
   accent: string;
   /** DynamicBackground variant id (see lib/backgrounds). */
   bg: string;
@@ -16,26 +13,78 @@ export interface SurfaceTheme {
   label: string;
 }
 
-// Ordered longest-prefix-first so `/projects/:id` matches `/projects`, etc.
-const SURFACES: Array<{ test: (p: string) => boolean; theme: SurfaceTheme }> = [
-  { test: (p) => p === "/", theme: { id: "feed", accent: "168 124 248", bg: "nebula", label: "Your feed" } },
-  { test: (p) => p.startsWith("/discover"), theme: { id: "discover", accent: "56 189 248", bg: "tide", label: "Discover" } },
-  { test: (p) => p.startsWith("/spark"), theme: { id: "spark", accent: "251 113 133", bg: "rose", label: "Spark" } },
-  { test: (p) => p.startsWith("/opportunities"), theme: { id: "opportunities", accent: "45 212 191", bg: "tide", label: "Opportunities" } },
-  { test: (p) => p.startsWith("/connect"), theme: { id: "connect", accent: "244 114 182", bg: "rose", label: "Connect" } },
-  { test: (p) => p.startsWith("/projects"), theme: { id: "studio", accent: "45 212 191", bg: "tide", label: "Collabs" } },
-  { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), theme: { id: "messages", accent: "96 165 250", bg: "tide", label: "Messages" } },
-  { test: (p) => p.startsWith("/store"), theme: { id: "store", accent: "250 204 21", bg: "ember", label: "Store" } },
-  { test: (p) => p.startsWith("/activity"), theme: { id: "activity", accent: "167 139 250", bg: "nebula", label: "Activity" } },
-  { test: (p) => p.startsWith("/admin") || p.startsWith("/mod") || p.startsWith("/apply-mod"), theme: { id: "staff", accent: "52 211 153", bg: "ink", label: "Staff" } },
-  { test: (p) => p.startsWith("/profile") || p.startsWith("/u/"), theme: { id: "you", accent: "251 191 36", bg: "ember", label: "You" } },
-  { test: (p) => p.startsWith("/p/"), theme: { id: "space", accent: "192 132 252", bg: "nebula", label: "Project" } },
-  { test: (p) => p.startsWith("/codex") || p.startsWith("/legal"), theme: { id: "codex", accent: "148 163 184", bg: "ink", label: "Codex" } },
+/** Sign-in / brand violet — the single accent for the whole app. */
+export const BRAND_ACCENT = "168 124 248";
+
+/** Calm living backdrop shared with the sign-in screen. */
+export const BRAND_BG = "aurora";
+
+export const DEFAULT_SURFACE: SurfaceTheme = {
+  id: "default",
+  accent: BRAND_ACCENT,
+  bg: BRAND_BG,
+  label: "VYBZ",
+};
+
+// Labels only — accent + bg are brand-locked.
+const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }> = [
+  { test: (p) => p === "/", id: "feed", label: "Your feed" },
+  { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover" },
+  { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark" },
+  { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities" },
+  { test: (p) => p.startsWith("/connect"), id: "connect", label: "Connect" },
+  { test: (p) => p.startsWith("/live"), id: "live", label: "Live" },
+  { test: (p) => p.startsWith("/projects"), id: "studio", label: "Collabs" },
+  { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), id: "messages", label: "Messages" },
+  { test: (p) => p.startsWith("/store"), id: "store", label: "Store" },
+  { test: (p) => p.startsWith("/activity"), id: "activity", label: "Activity" },
+  { test: (p) => p.startsWith("/admin") || p.startsWith("/mod") || p.startsWith("/apply-mod"), id: "staff", label: "Staff" },
+  { test: (p) => p.startsWith("/profile") || p.startsWith("/u/"), id: "you", label: "You" },
+  { test: (p) => p.startsWith("/p/"), id: "space", label: "Project" },
+  { test: (p) => p.startsWith("/codex") || p.startsWith("/legal"), id: "codex", label: "Codex" },
 ];
 
-export const DEFAULT_SURFACE: SurfaceTheme = { id: "default", accent: "168 124 248", bg: "aurora", label: "VYBZ" };
-
 export function surfaceForPath(pathname: string): SurfaceTheme {
-  for (const s of SURFACES) if (s.test(pathname)) return s.theme;
+  for (const s of LABELS) {
+    if (s.test(pathname)) {
+      return { id: s.id, label: s.label, accent: BRAND_ACCENT, bg: BRAND_BG };
+    }
+  }
   return DEFAULT_SURFACE;
+}
+
+/** Primary product modes for Orb Dock navigation. */
+export type AppMode = "find" | "make" | "you";
+
+export const MODE_HOME: Record<AppMode, string> = {
+  find: "/connect",
+  make: "/",
+  you: "/profile",
+};
+
+export function modeForPath(pathname: string): AppMode {
+  if (
+    pathname.startsWith("/connect") ||
+    pathname.startsWith("/spark") ||
+    pathname.startsWith("/opportunities") ||
+    pathname.startsWith("/discover")
+  ) {
+    return "find";
+  }
+  if (
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/u/") ||
+    pathname.startsWith("/messages") ||
+    pathname.startsWith("/rooms") ||
+    pathname.startsWith("/activity") ||
+    pathname.startsWith("/store") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/mod") ||
+    pathname.startsWith("/apply-mod") ||
+    pathname.startsWith("/codex") ||
+    pathname.startsWith("/legal")
+  ) {
+    return "you";
+  }
+  return "make";
 }

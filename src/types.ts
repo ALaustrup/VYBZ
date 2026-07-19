@@ -271,6 +271,43 @@ export interface RoomPresence {
   username: string | null;
 }
 
+/** Public creator live session (Bunny Stream + identity chat). */
+export type LiveSource = "camera" | "display" | "both";
+
+export interface LiveSessionCard {
+  id: string;
+  hostId: string;
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  roleLabel: string | null;
+  title: string | null;
+  source: LiveSource;
+  intent: string | null;
+  viewerCount: number;
+  playbackHls: string | null;
+  startedAt: number;
+}
+
+export interface LiveSessionDetail extends LiveSessionCard {
+  status: "live" | "ended";
+  bunnyGuid: string | null;
+  rtmpUrl: string | null;
+  /** Present only for the host while live (never listed in catalog). */
+  streamKey: string | null;
+  expiresAt: number;
+}
+
+export interface LiveMessage {
+  id: string;
+  sessionId: string;
+  senderId: string;
+  senderName: string | null;
+  body: string;
+  createdAt: number;
+  mine: boolean;
+}
+
 // ── Dynamic discipline modules (tabbed, multi-discipline profiles) ───────────
 export type FieldType =
   | "text" | "textarea" | "number" | "select" | "multiselect"
