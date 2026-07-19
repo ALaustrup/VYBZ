@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ExternalLink, Heart, Link2, Music2, Pause, Play, Plus, Puzzle, Trash2, UserPlus, UserCheck, X } from "lucide-react";
 import { playTrack, usePlayer } from "@/lib/audioBus";
 import { ProjectWidgets } from "@/components/ProjectWidgets";
+import { ReportButton } from "@/components/ReportButton";
 import { cx } from "@/lib/utils";
 import type { ProfileProjectDetail, ProjectLink, ProjectPost } from "@/types";
 
@@ -120,7 +121,9 @@ export function ProjectView({
                     <div className="flex items-center gap-1 px-2 py-1.5">
                       {p.title && <span className="min-w-0 flex-1 truncate text-[11px] text-white/70">{p.title}</span>}
                       <button onClick={() => onLikePost(p, !p.liked)} className={cx("flex items-center gap-0.5 text-[11px]", p.liked ? "text-wild" : "text-white/45")}><Heart className={cx("h-3 w-3", p.liked && "fill-current")} />{p.likes > 0 ? p.likes : ""}</button>
-                      {editable && <button onClick={() => onDeletePost(p)} aria-label="Delete" className="text-white/35 hover:text-wild"><Trash2 className="h-3 w-3" /></button>}
+                      {editable
+                        ? <button onClick={() => onDeletePost(p)} aria-label="Delete" className="text-white/35 hover:text-wild"><Trash2 className="h-3 w-3" /></button>
+                        : <ReportButton kind="post" targetId={p.id} label={p.title ?? "artwork"} iconClassName="h-3 w-3" />}
                     </div>
                   )}
                 </div>
@@ -189,7 +192,9 @@ function PostCard({ post, accent, projectName, editable, onLike, onDelete }: {
               <Heart className={cx("h-4 w-4", post.liked && "fill-current")} /> {post.likes > 0 ? post.likes : "Like"}
             </button>
             <span className="text-[11px] text-white/30">{new Date(post.createdAt).toLocaleDateString()}</span>
-            {editable && <button onClick={onDelete} aria-label="Delete post" className="ml-auto rounded-full p-1 text-white/35 hover:text-wild"><Trash2 className="h-4 w-4" /></button>}
+            {editable
+              ? <button onClick={onDelete} aria-label="Delete post" className="ml-auto rounded-full p-1 text-white/35 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
+              : <ReportButton kind="post" targetId={post.id} label={post.title || post.body || projectName} className="ml-auto rounded-full p-1" iconClassName="h-4 w-4" />}
           </div>
         </div>
       </div>

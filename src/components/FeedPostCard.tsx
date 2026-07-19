@@ -1,17 +1,15 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ExternalLink, Heart, Pause, Play, Flag } from "lucide-react";
+import { ExternalLink, Heart, Pause, Play } from "lucide-react";
 import { playTrack, usePlayer } from "@/lib/audioBus";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
-import { ReportModal } from "@/components/ReportModal";
+import { ReportButton } from "@/components/ReportButton";
 import type { FeedPost } from "@/types";
 
 /** A single post in the unified home feed — author + Space + content + like. */
 export function FeedPostCard({ post, onLike }: { post: FeedPost; onLike: (on: boolean) => void }) {
   const navigate = useNavigate();
   const player = usePlayer();
-  const [reportOpen, setReportOpen] = useState(false);
   const accent = post.accent || "#a87cf8";
   const src = post.mediaUrl || post.linkUrl || "";
   const isAudio = post.kind === "audio" && !!src;
@@ -64,11 +62,8 @@ export function FeedPostCard({ post, onLike }: { post: FeedPost; onLike: (on: bo
         <button onClick={() => onLike(!post.liked)} className={cx("flex items-center gap-1.5 text-[13px] font-semibold transition active:scale-95", post.liked ? "text-wild" : "text-white/45 hover:text-white/80")}>
           <Heart className={cx("h-4 w-4", post.liked && "fill-current")} /> {post.likes > 0 ? post.likes : "Like"}
         </button>
-        <button onClick={() => setReportOpen(true)} aria-label="Report post" className="ml-auto text-white/25 transition hover:text-white/60 active:scale-95">
-          <Flag className="h-3.5 w-3.5" />
-        </button>
+        <ReportButton kind="post" targetId={post.id} label={post.title || post.body || post.projectName} className="ml-auto" />
       </div>
-      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} targetKind="post" targetId={post.id} targetLabel={post.title || post.body || post.projectName} />
     </div>
   );
 }

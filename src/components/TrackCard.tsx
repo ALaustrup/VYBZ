@@ -5,6 +5,7 @@ import type { Drop, Reaction } from "@/types";
 import { Handle } from "@/components/Handle";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
+import { ReportButton } from "@/components/ReportButton";
 import { usePlayer, playTrack, seekFraction, type PlayerTrack } from "@/lib/audioBus";
 import { qualityLabel } from "@/lib/waveform";
 import * as api from "@/lib/api";
@@ -154,6 +155,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
                 {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               </button>
             )}
+            <ReportButton kind="drop" targetId={d.id} label={d.title?.trim() || d.authorUsername || "drop"} className="flex items-center rounded-full px-2 py-1 hover:bg-wild/10" iconClassName="h-4 w-4" />
           </div>
           <div className="flex items-center gap-0.5" role="group" aria-label="Rate this track">
             {[1, 2, 3, 4, 5].map((n) => {
