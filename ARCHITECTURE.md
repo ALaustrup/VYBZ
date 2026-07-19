@@ -99,9 +99,12 @@ guardrail demotes adjacent candidates below all creator candidates on a creator'
 deck (never outranks creator↔creator collabs). **Phase O3** adds a **commissions
 board**: `collab_posts.kind` (`collab`|`commission`) + `budget` (migration
 `20260709_0040`), Collabs/Commissions tabs on Opportunities, and a "Pitch" flow
-reusing `collab_applications` — the paid demand→creator loop. Stripe Connect tips
-(O3b) are designed but deferred until Stripe keys exist. See `VYBZ_MASTERPLAN.md`
-§12.20.
+reusing `collab_applications` — the paid demand→creator loop. **Stripe Connect tips
+(O3b)** are built: `creator_payouts` + `tips` (migration `0041`), edge functions
+`stripe-connect-onboard` / `stripe-tip` (destination charge) / `stripe-webhook`
+(signature-verified), and `PayoutSetup` + `TipButton` in the UI. Behind
+`VITE_FEATURE_TIPS` (default off); go-live needs Stripe **Connect** enabled on the
+platform account. See `VYBZ_MASTERPLAN.md` §12.20.
 
 ## Matchmaking
 
