@@ -5,7 +5,7 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
-import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL } from "@/lib/profileFields";
+import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL, SOFTWARE, STYLES, ENGINES } from "@/lib/profileFields";
 import { Avatar } from "@/components/Avatar";
 import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
@@ -26,13 +26,16 @@ export function DiscoverPage() {
   const [bpm, setBpm] = useState("");
   const [location, setLocation] = useState("");
   const [remote, setRemote] = useState(false);
+  const [software, setSoftware] = useState("");
+  const [styles, setStyles] = useState("");
+  const [engines, setEngines] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [results, setResults] = useState<CreatorSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
 
   const activeCount = useMemo(
-    () => [profession, role, genre, daw, plugin, musicalKey, bpm, location].filter(Boolean).length + (remote ? 1 : 0),
-    [profession, role, genre, daw, plugin, musicalKey, bpm, location, remote],
+    () => [profession, role, genre, daw, plugin, musicalKey, bpm, location, software, styles, engines].filter(Boolean).length + (remote ? 1 : 0),
+    [profession, role, genre, daw, plugin, musicalKey, bpm, location, software, styles, engines, remote],
   );
 
   useEffect(() => {
@@ -41,13 +44,15 @@ export function DiscoverPage() {
       api.searchCreators(query, {
         profession, role, genre, daw, plugin, key: musicalKey,
         bpm: bpm ? Number(bpm) : null, location, remote: remote ? true : null,
+        software, styles, engines,
       }).then((r) => { setResults(r); setLoading(false); });
     }, 250);
     return () => clearTimeout(t);
-  }, [query, profession, role, genre, daw, plugin, musicalKey, bpm, location, remote]);
+  }, [query, profession, role, genre, daw, plugin, musicalKey, bpm, location, remote, software, styles, engines]);
 
   function clearAll() {
     setProfession(""); setRole(""); setGenre(""); setDaw(""); setPlugin(""); setMusicalKey(""); setBpm(""); setLocation(""); setRemote(false);
+    setSoftware(""); setStyles(""); setEngines("");
   }
 
   return (
@@ -80,6 +85,20 @@ export function DiscoverPage() {
             <select value={genre} onChange={(e) => setGenre(e.target.value)} className={selCls}>
               <option value="">Any genre</option>
               {GENRES.map((g) => <option key={g} value={g} className="bg-ink-900">{g}</option>)}
+            </select>
+            <div className="flex gap-2">
+              <select value={software} onChange={(e) => setSoftware(e.target.value)} className={selCls}>
+                <option value="">Any software</option>
+                {SOFTWARE.map((s) => <option key={s} value={s} className="bg-ink-900">{s}</option>)}
+              </select>
+              <select value={styles} onChange={(e) => setStyles(e.target.value)} className={selCls}>
+                <option value="">Any style</option>
+                {STYLES.map((s) => <option key={s} value={s} className="bg-ink-900">{s}</option>)}
+              </select>
+            </div>
+            <select value={engines} onChange={(e) => setEngines(e.target.value)} className={selCls}>
+              <option value="">Any engine</option>
+              {ENGINES.map((s) => <option key={s} value={s} className="bg-ink-900">{s}</option>)}
             </select>
             <div className="flex gap-2">
               <select value={daw} onChange={(e) => setDaw(e.target.value)} className={selCls}>

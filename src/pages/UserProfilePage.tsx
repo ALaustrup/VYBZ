@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, BadgeCheck, Flag } from "lucide-react";
+import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
 import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
 import * as api from "@/lib/api";
@@ -9,6 +9,7 @@ import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { TipButton } from "@/components/TipButton";
+import { Discography } from "@/components/Discography";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import type { Drop, CreatorStats, Credit } from "@/types";
@@ -96,20 +97,9 @@ export function UserProfilePage() {
         {f.genres?.length ? <Row label="Genres" items={f.genres} /> : null}
       </div>
 
-      {credits.length > 0 && (
-        <div className="mb-5">
-          <p className="eyebrow mb-3">Verified credits</p>
-          <div className="divide-y divide-[var(--hairline)]">
-            {credits.map((c) => (
-              <div key={c.projectId} className="flex items-center gap-2 py-2.5">
-                <BadgeCheck className="h-4 w-4 shrink-0 text-feel" />
-                <span className="min-w-0 flex-1 truncate text-sm text-white/85">{c.title}</span>
-                {c.role && <span className="shrink-0 text-[11px] text-white/40">{c.role}</span>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="mb-5">
+        <Discography credits={credits} isOwner={isMe} />
+      </div>
 
       <div className="mb-6">
         <p className="eyebrow mb-3">Projects</p>

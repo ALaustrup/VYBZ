@@ -67,6 +67,18 @@ export const PROFESSIONS: Profession[] = [
 ];
 export const PROFESSION_LABEL: Record<string, string> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p.label]));
 
+/** Discover + module-attrs catalogs (union of discipline_field_schemas seeds). */
+export const SOFTWARE = [
+  "Premiere Pro", "DaVinci Resolve", "Final Cut Pro", "After Effects", "Avid",
+  "Procreate", "Photoshop", "Clip Studio", "Illustrator", "Krita",
+  "Blender", "Maya", "ZBrush", "3ds Max", "Cinema 4D", "Substance",
+  "InDesign", "Figma",
+];
+export const STYLES = [
+  "Realism", "Anime / Manga", "Cartoon", "Vector", "Painterly", "Line art", "Pixel",
+];
+export const ENGINES = ["Unity", "Unreal", "Godot", "GameMaker", "Bevy", "Custom"];
+
 // ── Role Class (Phase O1) — the identity axis that opens VYBZ to the whole ───
 // creative economy. `creator` is the default; the rest are creator-ADJACENT
 // real identities (never a passive consumer tier). Each carries structured

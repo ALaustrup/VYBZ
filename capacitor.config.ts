@@ -5,7 +5,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 // `npx cap add ios|android` on a machine with the platform toolchains.
 const config: CapacitorConfig = {
   appId: "cloud.vybz.app",
-  appName: "Vybz",
+  appName: "VYBZ",
   webDir: "dist",
   backgroundColor: "#050307",
   ios: {

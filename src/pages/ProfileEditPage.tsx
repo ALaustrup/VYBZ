@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Check, Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
+import { ModuleAttrsEditor } from "@/components/ModuleAttrsEditor";
 import { ROLES, ROLE_FAMILIES, GENRES, DAWS, PLUGINS, PROFESSIONS } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProfileDetails } from "@/types";
@@ -12,6 +13,7 @@ export function ProfileEditPage() {
   const navigate = useNavigate();
   const { profile, refreshProfile, showToast } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
+  const moduleSaveRef = useRef<(() => Promise<void>) | null>(null);
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   const [influences, setInfluences] = useState("");
@@ -72,6 +74,7 @@ export function ProfileEditPage() {
     };
     await api.updateMyProfile({ bio: bio.trim(), location: location.trim(), avatarUrl: avatarUrl ?? undefined, profile: details });
     await api.setMyRoles(offers.map((r) => ({ roleId: r, skill: 3 })), seeks.map((r) => ({ roleId: r, priority: 1 })));
+    try { await moduleSaveRef.current?.(); } catch { /* module attrs optional */ }
     void api.refreshEmbedding(); // update semantic resonance vector (async, non-blocking)
     await refreshProfile();
     setBusy(false);
@@ -162,6 +165,11 @@ export function ProfileEditPage() {
               <Chips options={ROLES.filter((r) => r.family === fam.id)} selected={seeks} onToggle={(id) => tog(seeks, setSeeks, id)} tone="aqua" />
             </div>
           ))}
+        </Section>
+
+        <Section title="Discipline details">
+          <p className="text-[12px] text-white/40">Software, styles, engines — powers Find overlap for non-music crafts.</p>
+          <ModuleAttrsEditor offerRoleIds={offers} saveRef={moduleSaveRef} />
         </Section>
 
         <Section title="Genres">

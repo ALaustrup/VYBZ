@@ -15,6 +15,7 @@ export function CodexDocPage() {
     let alive = true;
     if (!doc) { setLoading(false); setError(true); return; }
     setLoading(true); setError(false);
+    document.title = `${doc.title} · VYBZ Codex`;
     (async () => {
       try {
         const [{ marked }, md] = await Promise.all([import("marked"), fetchDocMarkdown(doc.path)]);
@@ -25,18 +26,43 @@ export function CodexDocPage() {
         if (alive) { setError(true); setLoading(false); }
       }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+      document.title = "VYBZ";
+    };
   }, [doc]);
 
   function print() {
     // Open a clean window so the app-wide print-block (content protection) doesn't apply.
     const w = window.open("", "_blank", "width=820,height=900");
     if (!w) return;
-    w.document.write(`<!doctype html><html><head><title>${doc?.title ?? "VYBZ Codex"}</title>
-      <style>body{font:14px/1.6 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111;max-width:760px;margin:32px auto;padding:0 24px}
-      h1{font-size:24px}h2{font-size:18px;margin-top:1.4em}h3{font-size:15px}table{border-collapse:collapse;width:100%;margin:1em 0}
-      th,td{border:1px solid #999;padding:6px 8px;text-align:left;font-size:12px}hr{border:none;border-top:1px solid #ccc;margin:1.5em 0}
-      em{color:#555}</style></head><body>${html}</body></html>`);
+    const title = doc?.title ?? "VYBZ Codex";
+    const meta = doc
+      ? `${doc.jurisdiction} · v${doc.version} · Astra Matrix, Inc.`
+      : "Astra Matrix, Inc.";
+    w.document.write(`<!doctype html><html><head><title>${title} · VYBZ Codex</title>
+      <style>
+        body{font:14px/1.6 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111;max-width:760px;margin:32px auto;padding:0 24px}
+        .print-brand{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #ddd}
+        .print-brand img{height:28px;width:auto}
+        .print-brand .meta{font-size:11px;color:#666;margin-top:2px}
+        h1{font-size:24px}h2{font-size:18px;margin-top:1.4em}h3{font-size:15px}
+        table{border-collapse:collapse;width:100%;margin:1em 0}
+        th,td{border:1px solid #999;padding:6px 8px;text-align:left;font-size:12px}
+        hr{border:none;border-top:1px solid #ccc;margin:1.5em 0}
+        em{color:#555}
+        @media print{.print-brand{break-after:avoid}}
+      </style></head><body>
+      <header class="print-brand">
+        <img src="${window.location.origin}/brand/logo-black.svg" alt="VYBZ" onerror="this.style.display='none'" />
+        <div>
+          <strong style="font-size:15px">VYBZ Codex</strong>
+          <div class="meta">${meta}</div>
+        </div>
+      </header>
+      <h1>${title}</h1>
+      ${html}
+      </body></html>`);
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 300);

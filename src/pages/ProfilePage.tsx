@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, BadgeCheck, ScrollText,
+  Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, ScrollText,
   ShieldCheck, Shield, Bug, AudioLines, ChevronRight,
 } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
@@ -13,6 +13,7 @@ import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { PayoutSetup } from "@/components/PayoutSetup";
+import { Discography } from "@/components/Discography";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
@@ -90,21 +91,9 @@ export function ProfilePage() {
         </button>
       )}
 
-      {credits.length > 0 && (
-        <div className="mb-5">
-          <p className="eyebrow mb-3">Verified credits</p>
-          <div className="divide-y divide-[var(--hairline)]">
-            {credits.map((c) => (
-              <div key={c.projectId} className="flex items-center gap-2 py-2.5">
-                <BadgeCheck className="h-4 w-4 shrink-0 text-feel" />
-                <span className="min-w-0 flex-1 truncate text-sm text-white/85">{c.title}</span>
-                {c.role && <span className="shrink-0 text-[11px] text-white/40">{c.role}</span>}
-                {c.split != null && <span className="shrink-0 text-[11px] font-medium text-white/55">{c.split}%</span>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="mb-5">
+        <Discography credits={credits} isOwner />
+      </div>
 
       <div className="mb-6">
         <p className="eyebrow mb-3">Projects</p>

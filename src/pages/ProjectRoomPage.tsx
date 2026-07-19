@@ -7,6 +7,7 @@ import {
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { EmptyState } from "@/components/EmptyState";
+import { ProjectChat } from "@/components/ProjectChat";
 import { ROLES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProjectDetail, CollabMatch } from "@/types";
@@ -95,6 +96,8 @@ export function ProjectRoomPage() {
             <UploadVersion projectId={id} busy={uploading} setBusy={setUploading} onDone={load} />
           )}
         </div>
+
+        <ProjectChat projectId={id} />
 
         {/* Release */}
         {detail.isOwner && !released && (

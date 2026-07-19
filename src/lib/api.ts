@@ -1185,6 +1185,7 @@ export interface CreatorFilters {
   role?: string; genre?: string; daw?: string; plugin?: string;
   key?: string; bpm?: number | null; location?: string; remote?: boolean | null;
   profession?: string;
+  software?: string; styles?: string; engines?: string;
 }
 export async function searchCreators(query?: string, f: CreatorFilters = {}): Promise<CreatorSearchResult[]> {
   const { data } = await db().rpc("search_creators", {
@@ -1192,6 +1193,7 @@ export async function searchCreators(query?: string, f: CreatorFilters = {}): Pr
     p_daw: f.daw || null, p_plugin: f.plugin || null, p_key: f.key || null,
     p_bpm: f.bpm ?? null, p_location: f.location || null, p_remote: f.remote ?? null,
     p_profession: f.profession || null,
+    p_software: f.software || null, p_styles: f.styles || null, p_engines: f.engines || null,
     p_limit: 40,
   });
   return (data ?? []).map((r: any) => ({
@@ -1301,6 +1303,35 @@ export async function creatorCredits(id: string): Promise<import("@/types").Cred
     releasedAt: r.released_at ? new Date(r.released_at).getTime() : null,
     split: r.split != null ? Number(r.split) : null,
   }));
+}
+
+// ── Collab room chat (Phase D) ───────────────────────────────────────────────
+export interface ProjectMessage {
+  id: string;
+  senderId: string;
+  username: string | null;
+  body: string;
+  createdAt: number;
+  mine: boolean;
+}
+
+export async function listProjectMessages(projectId: string, limit = 80): Promise<ProjectMessage[]> {
+  const uid = await currentUserId();
+  const { data, error } = await db().rpc("list_project_messages", { p_project: projectId, p_limit: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((r) => ({
+    id: r.id,
+    senderId: r.sender_id,
+    username: r.username ?? null,
+    body: r.body,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    mine: !!uid && r.sender_id === uid,
+  }));
+}
+
+export async function sendProjectMessage(projectId: string, body: string): Promise<void> {
+  const { error } = await db().rpc("send_project_message", { p_project: projectId, p_body: body });
+  if (error) throw error;
 }
 
 // ── Rooms (Phase F: categorized collab chat + presence) ─────────────────────

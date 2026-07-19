@@ -197,7 +197,7 @@ export function BrandLockup({
   /** Tailwind height class for the logo (width auto). */
   height?: string;
   reactive?: boolean;
-  variant?: "white" | "color";
+  variant?: "white" | "color" | "black";
 }) {
   const ref = useRef<HTMLImageElement | null>(null);
   const { playing } = usePlayer();
@@ -219,7 +219,10 @@ export function BrandLockup({
     return () => cancelAnimationFrame(raf);
   }, [reactive, reduce, playing]);
 
-  const src = variant === "color" ? "/brand/logo.svg" : "/brand/logo-white.svg";
+  const src =
+    variant === "color" ? "/brand/logo.svg"
+    : variant === "black" ? "/brand/logo-black.svg"
+    : "/brand/logo-white.svg";
   return (
     <span className={cx("inline-flex items-center", className)}>
       <img ref={ref} src={src} alt="VYBZ" draggable={false}
