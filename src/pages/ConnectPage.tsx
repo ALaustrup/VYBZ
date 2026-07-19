@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
+import { ROLE_CLASS_LABEL, isAdjacentClass } from "@/lib/profileFields";
 import type { CollabMatch } from "@/types";
 
 export function ConnectPage() {
@@ -64,6 +65,7 @@ export function ConnectPage() {
                     <div className="flex items-center gap-2">
                       <button onClick={() => navigate(`/u/${m.userId}`)} className="truncate font-display font-semibold text-white">{m.username || "Creator"}</button>
                       {m.mutual && <span className="flex shrink-0 items-center gap-1 rounded-full bg-feel/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Repeat className="h-2.5 w-2.5" /> Mutual</span>}
+                      {isAdjacentClass(m.roleClass) && <span className="flex shrink-0 items-center gap-1 rounded-full bg-aqua-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-aqua-100"><Briefcase className="h-2.5 w-2.5" /> {ROLE_CLASS_LABEL[m.roleClass as string] ?? m.roleClass}</span>}
                       {m.reputation >= 0.5 && <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300"><Star className="h-2.5 w-2.5" fill="currentColor" /> Proven</span>}
                     </div>
                     <div className="flex items-center gap-2">
