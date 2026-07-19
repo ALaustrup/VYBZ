@@ -538,9 +538,17 @@ existing creator flows, feature-flagged, guardrails first.
   `VITE_FEATURE_ROLE_CLASS` (default on, instantly reversible). _E2E verified:
   fresh Supporter + Booker signups skip profession/role, land on "For you", show
   the correct badge, and persist `roleClass` + seeks in the live DB._
-- **O2** — demand-side matchmaking: bookers/managers/patrons ↔ creators surfaced on
-  Connect/Spark with confidence; role-class becomes a signal dimension in
-  `collab_matches` (not a new engine).
+- **O2 ✅ (shipped 2026-07)** — demand-side matchmaking. `collab_matches` **v7**
+  (migration `20260709_0039_roleclass_matchmaking.sql`) emits each candidate's
+  `role_class`, adds a modest `roleclass` demand-alignment signal (feeds fit +
+  confidence via `mm_w`, so LTR is undisturbed), and enforces the **guardrail**:
+  on a creator's deck, adjacent candidates are demoted below every creator
+  candidate — a demand-side match can never outrank a creator↔creator collab.
+  Adjacent callers still rank creators by fit. Connect + Spark badge demand-side
+  matches. _Verified: simulated + live UI — a booker seeking "Lead Vocalist"
+  surfaces on the vocalist's Connect ("Wants what you bring: Lead Vocalist",
+  Booker / Manager badge) ranked below a mutual producer collab; the booker's own
+  deck surfaces the vocalist._
 - **O3** — patron/supporter loop wired to existing Stripe Connect tips + a
   commissions board (reuses the opportunity board).
 
