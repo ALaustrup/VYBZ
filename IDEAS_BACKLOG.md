@@ -100,10 +100,10 @@ Trust & Safety must-have.
   (tips O3b, commissions O3, cosmetics Lane B) instead of separate one-off Stripe
   flows. A single "wallet" UX is friendlier and unifies the economy.
 - **⚠️ Two things to resolve before this can be promoted:**
-  1. **It revives a scrapped concept.** The MYVYB → VYBZ rebuild explicitly
-     *removed* "that app's economy" incl. a `V¢`-style unit (masterplan §0
-     Correction of record). Reintroducing V¢ is an owner-level mission decision,
-     not a routine feature. It can be done — but §0 must be amended deliberately.
+  1. **It revives a scrapped concept.** The clean rebuild explicitly *removed*
+     unrelated platform-economy units (masterplan §0 Correction of record).
+     Reintroducing V¢ is an owner-level mission decision, not a routine feature.
+     It can be done — but §0 must be amended deliberately.
   2. **Money-transmission / regulatory exposure.** The design hinges on ONE
      question: **can V¢ be cashed OUT?**
      - **Closed-loop, spend-only** (buy V¢ with Stripe → spend on

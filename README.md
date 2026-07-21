@@ -33,7 +33,7 @@ npm run dev
 ```
 
 Requires Node ≥ 20. Production deploys via Vercel project **`astramatrix/vybz`**
-(GitHub `ALaustrup/vyb-audio` → `main`). Canonical host: **vybz.cloud**
+(GitHub `ALaustrup/VYBZ` → `main`). Canonical host: **vybz.cloud**
 (preview: `vybz-astramatrix.vercel.app`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
 as project env vars. Auth redirect allowlist includes `https://vybz.cloud/**`.
 

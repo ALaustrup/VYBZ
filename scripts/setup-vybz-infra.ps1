@@ -31,7 +31,7 @@ $VYBZ = @{
   VercelTeam      = "astramatrix"
   ProdDomain      = "vybz.cloud"
   PreviewDomain   = "vybz-astramatrix.vercel.app"
-  MyvybSupabase   = "xhgmpodfpcxfshaqspgh"  # do NOT point VYBZ at this
+  GitHubRepo      = "ALaustrup/VYBZ"
 }
 
 function Say($msg) { Write-Host ""; Write-Host "> $msg" -ForegroundColor Cyan }
@@ -47,9 +47,8 @@ Write-Host "  Domain:   $($VYBZ.ProdDomain)"
 # ── Git / GitHub ─────────────────────────────────────────────────────────────
 Say "Git remotes"
 $remotes = (git remote -v 2>$null) -join "`n"
-if ($remotes -notmatch "(?i)origin.*vyb-audio") { Die "origin must point to ALaustrup/vyb-audio" }
-if ($remotes -notmatch "(?i)upstream.*myvybsocial") { Warn "upstream -> myvybsocial missing (add for cherry-picks): git remote add upstream https://github.com/ALaustrup/myvybsocial.git" }
-else { Ok "origin + upstream remotes configured" }
+if ($remotes -notmatch "(?i)origin.*(VYBZ|vybz|vyb-audio)") { Die "origin must point to $($VYBZ.GitHubRepo) (or legacy remote name)" }
+Ok "origin remote configured"
 
 $branch = git branch --show-current
 if ($branch -ne "main") { Warn "Not on main (currently: $branch)" } else { Ok "on main" }
@@ -58,7 +57,7 @@ if (git status --porcelain) { Warn "Working tree has uncommitted changes" } else
 
 Say "GitHub repo"
 try {
-  $ghJson = gh repo view ALaustrup/vyb-audio --json isPrivate,url 2>$null | ConvertFrom-Json
+  $ghJson = gh repo view $VYBZ.GitHubRepo --json isPrivate,url 2>$null | ConvertFrom-Json
   if ($ghJson) {
     Ok "$($ghJson.url) (private=$($ghJson.isPrivate))"
     Warn "Branch protection on private repos requires GitHub Pro - enforce manually or upgrade"
@@ -137,7 +136,7 @@ if (-not $LocalOnly) {
       npx supabase secrets set "OPENAI_API_KEY=$($env:OPENAI_API_KEY)" 2>&1 | Out-Null
       Ok "OPENAI_API_KEY secret set"
     } else {
-      Warn "OPENAI_API_KEY not set - embed/moderation/companion functions need it"
+      Warn "OPENAI_API_KEY not set - embed/moderation functions need it"
     }
   }
 }

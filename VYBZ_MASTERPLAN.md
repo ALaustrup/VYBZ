@@ -15,14 +15,13 @@ elsewhere (old notes, prior drafts, commit history) conflicts with this file, **
 file wins.**
 
 > ### Correction of record (read once, then move on)
-> VYBZ was originally scaffolded by forking an unrelated app ("MYVYB"). That was a
-> mistake: **only the visual design/layout was ever meant to carry over — nothing
-> else.** The entire inherited functional domain (anonymous/guest accounts,
-> confessions, dating, crisis "lifelines," random chat, AI companions/echoes, NSFW,
-> games, that app's live/rooms/XR, and its economy) was **removed** in a clean
-> rebuild. **VYBZ has no anonymity of any kind** — every account is a real, durable
-> creator identity. Any statement to the contrary is obsolete. Do not reintroduce
-> those concepts.
+> Early scaffolding briefly carried over unrelated product concepts from a prior
+> experiment. That was a mistake: **only a thin visual layout sketch was ever meant
+> to carry over — nothing else.** Anonymous/guest accounts, confessions, dating,
+> crisis "lifelines," random chat, AI companions, unrelated economies, and similar
+> off-mission domains were **removed** in a clean rebuild. **VYBZ has no anonymity
+> of any kind** — every account is a real, durable creator identity. Any statement
+> to the contrary is obsolete. Do not reintroduce those concepts.
 
 **Two promises define every decision:** (1) **matchmaking precision no other
 platform can touch**, and (2) **the creative-expression + exchange unlock every
@@ -177,7 +176,7 @@ facets):** `collab_matches`, `my_opportunities`, `set_creator_roles`,
   canonical/manifest/passkey allow-list target it. Legacy alias
   `vybz.astramatrix.xyz` kept on the passkey host list during cutover.
 - **Edge Functions:** `embed` (gte-small resonance), `passkey` (WebAuthn, shipped),
-  `bunny-upload` / `bunny-sign`, `watermark` / `watermark-detect`. MYVYB functions removed.
+  `bunny-upload` / `bunny-sign`, `watermark` / `watermark-detect`. Off-mission legacy functions removed.
 
 ---
 
@@ -622,7 +621,7 @@ email/password as a fallback, and a **tap-your-avatar** entry (default avatar if
   round avatar affordance; **conditional UI** (`useBrowserAutofill`) armed when an
   anchored email input is present.
 - **Profile management:** `PasskeysCard` — add (upgrades password accounts), rename, revoke.
-- **De-MYVYB + RP ID:** `RP_NAME="VYBZ"`, allow-list = `vybz.cloud` + `vybz.*` +
+- **Passkey RP ID:** `RP_NAME="VYBZ"`, allow-list = `vybz.cloud` + `vybz.*` +
   `astramatrix.xyz` + `*.vercel.app` + `localhost`; RP ID now bound to the **registrable
   domain** so a passkey roams across subdomains.
 - **Fallback:** full email/password path with graceful WebAuthn error handling
@@ -637,7 +636,7 @@ Provision the Vercel DNS zone for `vybz.cloud` if not already live.
 
 ### 12.7 Closing the Loop ✅ (alignment sprint)
 Video playback in feed/Space cards; `apply_role_intent_onboarding` + embed intents;
-Spaces vs Studio copy; `vybz.cloud` canon in docs/legal; de-MYVYB packaging
+Spaces vs Studio copy; `vybz.cloud` canon in docs/legal; packaging cleanup
 (`vybz-app`, `cloud.vybz.app`); connection Accept/Decline + `match_feedback`;
 avatar upload UI; Studio uploads → Bunny secure; orphan purge + `NotFoundPage`.
 
@@ -694,7 +693,7 @@ Made every surface feel like its own place without touching the mission or data:
   scale amplitude by it (0 when effects reduced). _Env note (§4.1): the realtime
   analyser needs a real audio device, so the beat-synced pulse can't be captured
   in the headless VM — validate on a real device._
-- **Residue:** purged MYVYB wording (Godmode/V¢/confession/NSFW) in touched files.
+- **Residue:** purged off-mission wording (legacy economy / confession domains) in touched files.
 
 ### 12.11 Uploads/Library dashboard — Phase 3 ✅ (shipped 2026-07)
 The profile's read-only "Your drops" became a **manager**: each drop shows stats

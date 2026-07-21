@@ -30,10 +30,10 @@ export default {
           800: "rgb(var(--accent-rgb) / <alpha-value>)",
           900: "rgb(var(--accent-rgb) / <alpha-value>)",
         },
-        // Reaction accents (semantic, fixed — they convey meaning, not theme).
-        feel: "#34f5a0", // Unveil — green (reveal)
-        wild: "#ff3b5c", // legacy red (kept for some accents)
-        shroud: "rgb(var(--accent-rgb) / <alpha-value>)", // Veil — follows accent
+        // Reaction / semantic accents (fixed — they convey meaning, not theme).
+        feel: "#34f5a0",
+        wild: "#ff3b5c",
+        shroud: "rgb(var(--accent-rgb) / <alpha-value>)",
         glow: "#a87cf8",
         // Iridescent secondary accent — pairs with violet for the "Smoked Glass"
         // sheen on the living background and focal highlights.

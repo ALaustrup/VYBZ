@@ -17,8 +17,12 @@ export default defineConfig({
           if (id.includes("@tensorflow") || id.includes("@spotify/basic-pitch") || id.includes("@tonejs/midi")) return "audio-midi";
           if (id.includes("framer-motion")) return "motion";
           if (id.includes("@supabase")) return "supabase";
-          if (id.includes("react-router") || id.includes("/react/") || id.includes("react-dom")) return "react";
           if (id.includes("lucide-react")) return "icons";
+          // Keep react / react-dom / scheduler / react-router in the shared
+          // vendor chunk together. Splitting them (especially parking
+          // `scheduler` alone) crashes React 18 with
+          // `Cannot set properties of undefined (setting 'unstable_now')`
+          // → blank dark screen on vybz.cloud.
           return "vendor";
         },
       },
@@ -52,7 +56,7 @@ export default defineConfig({
               /^https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "veiled-media",
+              cacheName: "vybz-media",
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
               cacheableResponse: { statuses: [0, 200] },
             },
@@ -64,7 +68,7 @@ export default defineConfig({
               /^https:\/\/[a-z0-9]+\.supabase\.co\/storage\/v1\/object\/sign\/.*/i,
             handler: "CacheFirst",
             options: {
-              cacheName: "veiled-media-signed",
+              cacheName: "vybz-media-signed",
               expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 6 },
               cacheableResponse: { statuses: [0, 200] },
             },

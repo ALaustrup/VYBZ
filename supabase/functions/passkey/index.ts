@@ -234,7 +234,7 @@ Deno.serve(async (req: Request) => {
         rpName: RP_NAME,
         rpID: rp.rpID,
         userID: new TextEncoder().encode(user.id),
-        userName: user.email ?? `veiled-${user.id.slice(0, 8)}`,
+        userName: user.email ?? `vybz-${user.id.slice(0, 8)}`,
         attestationType: "none",
         excludeCredentials: (existing.data ?? []).map((c) => ({
           id: c.credential_id as string,

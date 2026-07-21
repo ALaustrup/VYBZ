@@ -1,5 +1,5 @@
 -- ===========================================================================
--- VYBZ v1 — clean, identity-first schema (fresh start; no MYVYB inheritance).
+-- VYBZ v1 — clean, identity-first schema.
 --
 -- VYBZ is a creator-identity platform for finding music collaborators and
 -- exchanging samples/stems/projects. There is NO anonymity: every account is a
