@@ -54,7 +54,7 @@ export function LivePage() {
           <EmptyState
             icon={Radio}
             title="No one live yet"
-            body="Be first — share your process on camera or your display and let complementary creators find you."
+            body="Be first — share your process on camera or your display and let complementary musicians find you."
             action={
               <button type="button" onClick={() => setGoLive(true)} className="btn btn-primary mt-2 px-5 py-2.5 text-sm">
                 Go live

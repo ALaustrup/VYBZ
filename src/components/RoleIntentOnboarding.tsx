@@ -14,7 +14,7 @@ import {
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
-import { PROFESSIONS, PROFESSION_LABEL } from "@/lib/profileFields";
+import { PRIMARY_PROFESSION, PROFESSIONS, PROFESSION_LABEL } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 
 const PROFESSION_ICON: Record<string, typeof Music2> = {
@@ -23,7 +23,7 @@ const PROFESSION_ICON: Record<string, typeof Music2> = {
 
 /**
  * Lightweight post-signup setup — username already collected.
- * Optional craft + optional photo, then invite them to share work on the Feed.
+ * Music-first: primary craft defaults to Music; other crafts are optional.
  * Full matchmaking facets live on Profile edit later.
  */
 export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void }) {
@@ -31,9 +31,13 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   const { profile, refreshProfile } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState<"craft" | "share">("craft");
-  const [profession, setProfession] = useState<string | null>(null);
+  const [profession, setProfession] = useState<string | null>(PRIMARY_PROFESSION);
+  const [showMoreCrafts, setShowMoreCrafts] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatarUrl ?? null);
   const [busy, setBusy] = useState(false);
+
+  const music = PROFESSIONS.find((p) => p.id === PRIMARY_PROFESSION)!;
+  const secondaries = PROFESSIONS.filter((p) => p.id !== PRIMARY_PROFESSION);
 
   async function pickAvatar(file: File | null) {
     if (!file || !file.type.startsWith("image/")) return;
@@ -54,15 +58,14 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   async function finish(openCompose: boolean) {
     setBusy(true);
     try {
-      const label = profession
-        ? (PROFESSION_LABEL[profession] ?? "Creator")
-        : "Creator";
+      const craft = profession ?? PRIMARY_PROFESSION;
+      const label = PROFESSION_LABEL[craft] ?? "Creator";
       await api.applyRoleIntentOnboarding(
         null,
         label,
-        profession ? ["Showcase work"] : ["Just exploring"],
+        ["Showcase work"],
         [],
-        profession,
+        craft,
         [],
         "creator",
       );
@@ -73,6 +76,31 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
     } finally {
       setBusy(false);
     }
+  }
+
+  function CraftButton({ id, label, blurb, icon }: { id: string; label: string; blurb: string; icon: string }) {
+    const Icon = PROFESSION_ICON[icon] ?? Sparkles;
+    const on = profession === id;
+    return (
+      <button
+        type="button"
+        onClick={() => setProfession(id)}
+        className={cx(
+          "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition active:scale-[0.99]",
+          on
+            ? "border-veil-400/70 bg-veil-500/20"
+            : "border-white/10 bg-white/[0.04] hover:border-veil-400/40",
+        )}
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/60">
+          <Icon className={cx("h-5 w-5", on ? "text-veil-100" : "text-white/70")} />
+        </span>
+        <span className="min-w-0">
+          <span className="block font-display text-sm font-bold text-white">{label}</span>
+          <span className="block text-[12px] leading-tight text-white/45">{blurb}</span>
+        </span>
+      </button>
+    );
   }
 
   return (
@@ -88,38 +116,25 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
               Almost in
             </p>
             <h1 className="mt-2 font-display text-2xl font-bold text-gradient">
-              What do you make?
+              Make music with the right people
             </h1>
             <p className="mb-5 mt-2 text-[15px] leading-relaxed text-white/55">
-              Optional — helps the Feed and Find feel relevant. You can skip and fill this in anytime.
+              VYBZ is built for music collaboration. Confirm your lane — you can add other crafts later on your profile.
             </p>
 
             <div className="grid gap-2">
-              {PROFESSIONS.map((p) => {
-                const Icon = PROFESSION_ICON[p.icon] ?? Sparkles;
-                const on = profession === p.id;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setProfession(on ? null : p.id)}
-                    className={cx(
-                      "flex items-center gap-3 rounded-2xl border p-3.5 text-left transition active:scale-[0.99]",
-                      on
-                        ? "border-veil-400/70 bg-veil-500/20"
-                        : "border-white/10 bg-white/[0.04] hover:border-veil-400/40",
-                    )}
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-900/60">
-                      <Icon className={cx("h-5 w-5", on ? "text-veil-100" : "text-white/70")} />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-display text-sm font-bold text-white">{p.label}</span>
-                      <span className="block text-[12px] leading-tight text-white/45">{p.blurb}</span>
-                    </span>
-                  </button>
-                );
-              })}
+              <CraftButton {...music} />
+              {showMoreCrafts ? (
+                secondaries.map((p) => <CraftButton key={p.id} {...p} />)
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowMoreCrafts(true)}
+                  className="rounded-2xl border border-dashed border-white/10 px-3.5 py-2.5 text-left text-[12px] text-white/40 hover:border-white/20 hover:text-white/60"
+                >
+                  Also work in art, video, or games? (optional)
+                </button>
+              )}
             </div>
 
             <div className="mt-5 flex items-center gap-3">
@@ -157,10 +172,10 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
             <button
               type="button"
               disabled={busy}
-              onClick={() => void finish(false)}
+              onClick={() => { setProfession(PRIMARY_PROFESSION); void finish(false); }}
               className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70"
             >
-              Skip for now
+              Skip — enter as Music
             </button>
           </>
         )}
@@ -175,10 +190,10 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
               ← Back
             </button>
             <h1 className="font-display text-2xl font-bold text-gradient">
-              Share something
+              Drop a sound
             </h1>
             <p className="mb-6 mt-2 text-[15px] leading-relaxed text-white/55">
-              VYBZ works best when you put work out — a loop, a sketch, a clip, a draft. Drop it on the Feed and creators who fit can find you.
+              Share a loop, stem, or track on the Feed — producers, vocalists, and engineers who fit can find you.
             </p>
             <button
               type="button"

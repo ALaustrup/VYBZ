@@ -6,6 +6,7 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import { confidenceRead } from "@/lib/confidence";
+import { craftScope } from "@/lib/profileFields";
 import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 import type { CollabMatch } from "@/types";
@@ -28,7 +29,7 @@ export function FeedHero() {
   });
 
   useEffect(() => {
-    const craft = profile?.profile?.profession ?? null;
+    const craft = craftScope(profile?.profile?.profession);
     api.collabMatches(3, craft).then(setMatches);
   }, [profile?.profile?.profession]);
 
@@ -68,7 +69,7 @@ export function FeedHero() {
         <p className="mt-1 text-[13px] text-white/40">Finding your best matches…</p>
       ) : top.length > 0 ? (
         <>
-          <p className="mb-3 mt-1 text-[12px] text-white/40">Strongest matches right now.</p>
+          <p className="mb-3 mt-1 text-[12px] text-white/40">Strongest music collab matches right now.</p>
           <div className="divide-y divide-[var(--hairline)]">
             {top.map((m) => {
               const r = confidenceRead(m.confidence);

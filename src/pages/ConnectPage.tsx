@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
-import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL } from "@/lib/profileFields";
+import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL, craftScope } from "@/lib/profileFields";
 import type { CollabMatch } from "@/types";
 
 export function ConnectPage() {
@@ -18,7 +18,7 @@ export function ConnectPage() {
 
   useEffect(() => {
     setLoading(true);
-    const craft = profile?.profile?.profession ?? null;
+    const craft = craftScope(profile?.profile?.profession);
     api.collabMatches(30, craft).then((m) => { setMatches(m); setLoading(false); });
   }, [profile?.profile?.profession]);
 
@@ -36,7 +36,7 @@ export function ConnectPage() {
     <div className="flex h-full flex-col">
       <PageHeader
         title="Find"
-        subtitle="Creators who complement you — ranked both ways"
+        subtitle="Musicians who complement you — ranked both ways"
       />
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6">
@@ -69,7 +69,7 @@ export function ConnectPage() {
           <EmptyState
             icon={Users}
             title="No matches yet"
-            body="Add what you offer and who you’re looking for on your profile. Complementary creators show up here first."
+            body="Add what you bring and who you’re looking for — producer, vocalist, mix engineer. Complementary musicians show up here first."
             action={
               <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
                 Edit profile
@@ -121,7 +121,7 @@ export function ConnectPage() {
                   {(m.sharedProfessions?.length ?? 0) > 0 && (
                     <Why
                       icon={<Sparkles className="h-3 w-3 text-veil-300" />}
-                      label="Same craft"
+                      label="Same lane"
                       items={(m.sharedProfessions ?? []).map((id) => PROFESSION_LABEL[id] ?? id)}
                     />
                   )}

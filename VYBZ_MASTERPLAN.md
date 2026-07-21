@@ -2,12 +2,11 @@
 
 > ## **VYBZ: Find Yours.**
 
-**Product:** VYBZ is the next-generation, **identity-first** platform for creator
-collaboration, social networking, and precision matchmaking across music, art,
-film, writing, game design, and every creative discipline — plus frictionless
-exchange of raw creative material (samples, stems, one-shots, presets, MIDI, and
-full DAW / project files). Owner: **Astra Matrix, Inc.** Canonical domain:
-**`vybz.cloud`** (legacy alias: `vybz.astramatrix.xyz`).
+**Product:** VYBZ is the next-generation, **identity-first** platform for **music
+collaboration** and precision matchmaking — plus frictionless exchange of raw creative
+material (samples, stems, one-shots, presets, MIDI, and full DAW / project files).
+Art, video, and games remain optional secondary crafts. Owner: **Astra Matrix, Inc.**
+Canonical domain: **`vybz.cloud`** (legacy alias: `vybz.astramatrix.xyz`).
 
 **Status:** authoritative and current. This document was fully rewritten to match
 the real, shipped codebase after a clean-slate rebuild. If anything you have read
@@ -477,34 +476,30 @@ named "Projects" twice. No data migration — additive. Showcase is native
 add a Spotify widget, it renders on the profile; nav shows "Collabs", profile
 shows "Projects"._
 
-### 12.19 Professions — first-class creative verticals, Phase A ✅ (shipped 2026-07)
-VYBZ supports four top-level **professions**, activating the dormant category
-axis (migration `0016`) as first-class identity: **Music Producers** (`music`),
-**Visual Artists** (`visual_art`), **Video Creators** (`film_video`), **Game
-Designers** (`game_dev`). Each is its own pathway (feed/tools/discovery scoped to
-it over the coming phases).
-- **Identity:** onboarding opens with **"What do you create?"** — one **primary**
-  profession + optional **secondaries** (a creator can be, e.g., a Game Designer
-  who also produces music). Stored on the profile (`profession` + `professions[]`,
-  validated; `apply_role_intent_onboarding` v3). Shown as profile **badges**.
-- **Feed:** default scope is profession-tailored (Music→sounds, Visual→art,
-  Video→video, Game→mixed; intent fallback for legacy profiles).
-- **Phase B ✅ (2026-07):** per-profession content & tools. Visual Artists' art
-  Projects render image posts as a **gallery grid + lightbox**; the Project
-  widget catalog gained per-profession connectors — **Vimeo & Steam** (embeds),
-  **itch.io / ArtStation / Behance** (link cards). Large video already uploads
-  via the streamed `bunny-upload`; **Bunny Stream** (HLS) stays gated on a Stream
-  library. Game devlogs = text posts; playable builds via itch/Steam widgets.
+### 12.19 Professions — music-first crafts (Phase A ✅; re-centered 2026-07)
+VYBZ's **primary product lane is Music** (`music`). Three optional secondary
+crafts remain available: **Visual art** (`visual_art`), **Video** (`film_video`),
+**Games** (`game_dev`). They never outrank music in defaults, SEO, onboarding, or
+soft-scoped Find/Spark.
+- **Identity:** onboarding leads with **"Make music with the right people"** —
+  Music selected by default; other crafts sit behind an optional expander.
+  Stored on the profile (`profession` + `professions[]`, validated;
+  `apply_role_intent_onboarding`). Shown as profile **badges**. Unset craft
+  soft-scopes as Music (`craftScope()` / `PRIMARY_PROFESSION`).
+- **Feed:** unset / Music → **Sounds**; Visual→art, Video→video, Game→mixed.
+  Scope chips put Sounds/Music ahead of Art/Video/Writing.
+- **Widgets:** Spotify / SoundCloud / Bandcamp / Apple Music / YouTube first;
+  ArtStation / Behance / Steam / itch demoted under “other crafts.”
+- **Phase B ✅ (2026-07):** per-craft content tools remain (art gallery, Vimeo/
+  Steam embeds, itch/ArtStation/Behance link cards). Bunny Stream gated.
 - **Phase C1 ✅ (2026-07):** profession-aware matchmaking + Discover craft filter.
-  `collab_matches` v8 scores primary/secondary profession overlap (`mm_w('profession')`),
-  emits `shared_professions`, soft-scopes Find/Spark/FeedHero by caller craft, and
-  pulls same-craft peers into the candidate set. `search_creators` gains `p_profession`.
-  Profile edit exposes Craft (primary + secondaries). Deferred: software/medium/engine/style
-  facet catalogs + module editor (C2); OAuth connector auth (C3).
-- **Roadmap:** Phase C2 — module attrs editor + Discover facets for software/styles/engines;
-  Phase D — profession tools & provenance (image/video watermark + C2PA).
-- _Verified E2E: fresh signup → craft step (Visual Artists primary + Video
-  Creators secondary) → Art feed default + profile badges._
+  `collab_matches` scores primary/secondary overlap, soft-scopes Find/Spark/
+  FeedHero/Collab-add by caller craft (Music when unset). `search_creators`
+  gains `p_profession`.
+- **Role Class (§12.20)** stays demand-side around **music** collabs (bookers,
+  patrons, curators) — not a multi-vertical pivot.
+- **Roadmap:** deepen music tools (stems, DAW exchange, Bridge); secondary crafts
+  stay available but never the product center of gravity.
 
 ### 12.20 Open Platform — creator-adjacent Role Class (Phase O)
 **Thesis:** creators don't only want other creators — they want the manager, the

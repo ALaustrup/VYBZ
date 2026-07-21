@@ -6,7 +6,7 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { haptic } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
-import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL } from "@/lib/profileFields";
+import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL, craftScope } from "@/lib/profileFields";
 import type { CollabMatch } from "@/types";
 
 function gradientFor(id: string): string {
@@ -22,7 +22,7 @@ export function SparkPage() {
   const [loading, setLoading] = useState(true);
   const busy = useRef(false);
 
-  const craft = profile?.profile?.profession ?? null;
+  const craft = craftScope(profile?.profile?.profession);
   const load = useCallback(async () => {
     setLoading(true);
     setDeck(await api.collabMatches(30, craft));
@@ -51,7 +51,7 @@ export function SparkPage() {
         <button type="button" onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
         <div className="min-w-0 flex-1">
           <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Spark</h1>
-          <p className="text-[13px] text-white/40">Swipe complementary creators</p>
+          <p className="text-[13px] text-white/40">Swipe complementary musicians</p>
         </div>
       </div>
       <div className="mx-5 h-px bg-[var(--hairline)]" />
@@ -62,7 +62,7 @@ export function SparkPage() {
           <div className="flex h-full flex-col items-center justify-center px-6 text-center">
             <Sparkles className="mb-3 h-8 w-8 text-veil-200" />
             <h2 className="font-display text-lg font-bold text-white">You're all caught up</h2>
-            <p className="mt-1.5 max-w-xs text-sm text-white/55">Add your offered/sought roles on your profile so more complementary creators surface.</p>
+            <p className="mt-1.5 max-w-xs text-sm text-white/55">Add your offered/sought roles on your profile so more complementary musicians surface.</p>
             <button onClick={load} className="btn btn-ghost mt-5 px-5 text-xs">Refresh</button>
           </div>
         ) : (
@@ -122,7 +122,7 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
           {(c.sharedProfessions?.length ?? 0) > 0 && (
             <p className="flex flex-wrap items-center gap-1 text-xs">
               <Sparkles className="h-3.5 w-3.5 text-veil-300" />
-              <span className="text-white/45">Same craft:</span>
+              <span className="text-white/45">Same lane:</span>
               <span className="font-semibold text-white/80">{(c.sharedProfessions ?? []).map((id) => PROFESSION_LABEL[id] ?? id).join(" · ")}</span>
             </p>
           )}

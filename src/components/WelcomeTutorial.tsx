@@ -8,12 +8,12 @@ const STEPS = [
   {
     icon: AudioLines,
     title: "Your Feed",
-    body: "Home is the Feed — fresh drops from creators across music, art, video, and more. Share yours anytime from the Orb.",
+    body: "Home is the Feed — fresh drops from musicians and producers. Share a loop or track anytime from the Orb.",
   },
   {
     icon: Users,
     title: "Find your people",
-    body: "Find surfaces complementary creators — best-fit, both directions. Spark for quick connects; Opportunities for open roles.",
+    body: "Find surfaces complementary musicians — best-fit, both directions. Spark for quick connects; Opportunities for open roles.",
   },
   {
     icon: Sparkles,

@@ -54,8 +54,8 @@ export function OpportunitiesPage() {
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (
           isCommission
-            ? <EmptyState icon={DollarSign} title="No open commissions yet" body="Commission a creator for paid work — a track, cover art, an edit, a game asset. Post a brief and a budget, and every creator who fits can pitch." />
-            : <EmptyState icon={Briefcase} title="No open roles yet" body="Post what you're looking for — a vocalist, a mix engineer, a guitarist — and reach every creator who fits." />
+            ? <EmptyState icon={DollarSign} title="No open commissions yet" body="Commission a musician for paid work — a track, topline, mix, or stem package. Post a brief and a budget." />
+            : <EmptyState icon={Briefcase} title="No open roles yet" body="Post what you're looking for — a vocalist, a mix engineer, a guitarist — and reach every musician who fits." />
         ) : (
           <div className="divide-y divide-[var(--hairline)]">
             {items.map((o) => (

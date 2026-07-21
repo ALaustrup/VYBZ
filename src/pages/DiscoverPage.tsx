@@ -5,7 +5,7 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
-import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL, SOFTWARE, STYLES, ENGINES } from "@/lib/profileFields";
+import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL, SOFTWARE, STYLES, ENGINES, PRIMARY_PROFESSION } from "@/lib/profileFields";
 import { Avatar } from "@/components/Avatar";
 import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
@@ -17,7 +17,7 @@ export function DiscoverPage() {
   const navigate = useNavigate();
   const { showToast } = useSession();
   const [query, setQuery] = useState("");
-  const [profession, setProfession] = useState("");
+  const [profession, setProfession] = useState(PRIMARY_PROFESSION);
   const [role, setRole] = useState("");
   const [genre, setGenre] = useState("");
   const [daw, setDaw] = useState("");
@@ -51,17 +51,17 @@ export function DiscoverPage() {
   }, [query, profession, role, genre, daw, plugin, musicalKey, bpm, location, remote, software, styles, engines]);
 
   function clearAll() {
-    setProfession(""); setRole(""); setGenre(""); setDaw(""); setPlugin(""); setMusicalKey(""); setBpm(""); setLocation(""); setRemote(false);
+    setProfession(PRIMARY_PROFESSION); setRole(""); setGenre(""); setDaw(""); setPlugin(""); setMusicalKey(""); setBpm(""); setLocation(""); setRemote(false);
     setSoftware(""); setStyles(""); setEngines("");
   }
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader title="Discover" subtitle="Search by craft, role, genre, gear, tempo & place" />
+      <PageHeader title="Discover" subtitle="Find musicians by role, genre, DAW, tempo & place" />
       <div className="space-y-2.5 px-5">
         <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
           <Search className="h-4 w-4 text-white/40" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search creators by name…"
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by name…"
             className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none" />
         </label>
         <div className="flex gap-2">
@@ -142,7 +142,7 @@ export function DiscoverPage() {
 
       <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-3">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
-          : results.length === 0 ? <EmptyState icon={Users} title="No creators found" body="Loosen a filter or try a different name, role, or gear." />
+          : results.length === 0 ? <EmptyState icon={Users} title="No musicians found" body="Loosen a filter or try a different name, role, or gear." />
           : <div className="divide-y divide-[var(--hairline)]">{results.map((c) => (
               <div key={c.userId} className="flex items-center gap-3 py-3.5">
                 <button type="button" onClick={() => navigate(`/u/${c.userId}`)} className="shrink-0">

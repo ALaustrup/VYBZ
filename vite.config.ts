@@ -75,7 +75,7 @@ export default defineConfig({
         name: "VYBZ — Find Yours.",
         short_name: "VYBZ",
         description:
-          "The creative network — showcase your projects, get matched with collaborators and opportunities, and find your people. Find Yours.",
+          "Music collaboration network — drop sounds, match with complementary musicians, exchange stems and project files. Find Yours.",
         id: "/",
         start_url: "/",
         scope: "/",

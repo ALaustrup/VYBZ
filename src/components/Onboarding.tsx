@@ -118,7 +118,7 @@ export function Onboarding() {
         className="glass-panel w-full max-w-sm p-7">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
           <BrandLockup height="h-10" />
-          <p className="text-sm text-white/55">Find Yours. — the network for creators.</p>
+          <p className="text-sm text-white/55">Find Yours. — music collaboration &amp; matchmaking.</p>
         </div>
 
         {/* Passkey-first path */}

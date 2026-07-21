@@ -128,7 +128,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>
                 <h2 className="font-display text-xl font-semibold tracking-tight text-white">New drop</h2>
-                <p className="text-[12px] text-white/40">Share a sound. Find the creators seeking it.</p>
+                <p className="text-[12px] text-white/40">Share a sound. Find the musicians seeking it.</p>
               </div>
               <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
             </div>

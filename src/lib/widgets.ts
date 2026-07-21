@@ -22,22 +22,21 @@ export interface WidgetKind {
 }
 
 export const WIDGET_KINDS: WidgetKind[] = [
-  // Music
+  // Music (primary)
   { id: "spotify", label: "Spotify", embed: true, placeholder: "Spotify track / album / artist / playlist URL" },
   { id: "soundcloud", label: "SoundCloud", embed: true, placeholder: "SoundCloud track or playlist URL" },
   { id: "bandcamp", label: "Bandcamp", embed: true, placeholder: "Bandcamp album / track URL" },
   { id: "apple_music", label: "Apple Music", embed: true, placeholder: "Apple Music song / album URL" },
-  // Video
+  // Video (often music-adjacent)
   { id: "youtube", label: "YouTube", embed: true, placeholder: "YouTube video or playlist URL" },
   { id: "vimeo", label: "Vimeo", embed: true, placeholder: "Vimeo video URL" },
-  // Visual art
-  { id: "artstation", label: "ArtStation", embed: true, placeholder: "ArtStation profile / artwork URL" },
-  { id: "behance", label: "Behance", embed: true, placeholder: "Behance profile / project URL" },
-  // Games
-  { id: "steam", label: "Steam", embed: true, placeholder: "Steam store page URL (store.steampowered.com/app/…)" },
-  { id: "itch", label: "itch.io", embed: true, placeholder: "itch.io game URL (playable page)" },
   // Universal
-  { id: "link", label: "Website / Link", embed: true, placeholder: "Any URL — TikTok, Instagram, your site…" },
+  { id: "link", label: "Website / Link", embed: true, placeholder: "Any URL — Instagram, your site…" },
+  // Secondary crafts (optional — demoted in picker)
+  { id: "artstation", label: "ArtStation", embed: true, placeholder: "ArtStation profile / artwork URL", hint: "Secondary craft" },
+  { id: "behance", label: "Behance", embed: true, placeholder: "Behance profile / project URL", hint: "Secondary craft" },
+  { id: "steam", label: "Steam", embed: true, placeholder: "Steam store page URL (store.steampowered.com/app/…)", hint: "Secondary craft" },
+  { id: "itch", label: "itch.io", embed: true, placeholder: "itch.io game URL (playable page)", hint: "Secondary craft" },
   // ── OAuth connectors ──
   {
     id: "spotify_artist",
@@ -49,6 +48,11 @@ export const WIDGET_KINDS: WidgetKind[] = [
   { id: "facebook_page", label: "Facebook Page", embed: false, gated: true, hint: "Page insights & reach" },
   { id: "tiktok", label: "TikTok Analytics", embed: false, gated: true, hint: "Views & follower growth" },
 ];
+
+export const MUSIC_WIDGET_IDS = new Set([
+  "spotify", "soundcloud", "bandcamp", "apple_music", "youtube", "vimeo", "link", "spotify_artist",
+]);
+export const SECONDARY_WIDGET_IDS = new Set(["artstation", "behance", "steam", "itch"]);
 
 export const WIDGET_LABEL: Record<string, string> = Object.fromEntries(WIDGET_KINDS.map((w) => [w.id, w.label]));
 

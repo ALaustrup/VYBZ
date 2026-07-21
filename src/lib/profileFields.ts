@@ -57,15 +57,21 @@ export const ROLE_FAMILIES: { id: RoleFamily; label: string }[] = [
   { id: "business", label: "Business" },
 ];
 
-// ── Professions (top-level creative verticals; map to DB `categories`) ───────
+// ── Professions (music-first; other crafts are optional secondaries) ─────────
 export interface Profession { id: string; label: string; blurb: string; icon: string }
+/** Primary product lane — music production & collaboration. */
+export const PRIMARY_PROFESSION = "music";
 export const PROFESSIONS: Profession[] = [
-  { id: "music", label: "Music Producers", blurb: "Beats, tracks, mixing & sound design", icon: "Music2" },
-  { id: "visual_art", label: "Visual Artists", blurb: "Illustration, design & digital art", icon: "Palette" },
-  { id: "film_video", label: "Video Creators", blurb: "Editing, film & video content", icon: "Clapperboard" },
-  { id: "game_dev", label: "Game Designers", blurb: "Game design & development", icon: "Gamepad2" },
+  { id: "music", label: "Music", blurb: "Produce, write, mix, perform — find your collaborators", icon: "Music2" },
+  { id: "visual_art", label: "Visual art", blurb: "Optional secondary — cover art, design, illustration", icon: "Palette" },
+  { id: "film_video", label: "Video", blurb: "Optional secondary — edits, film, visuals for tracks", icon: "Clapperboard" },
+  { id: "game_dev", label: "Games", blurb: "Optional secondary — audio + interactive projects", icon: "Gamepad2" },
 ];
 export const PROFESSION_LABEL: Record<string, string> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p.label]));
+/** Soft-scope Find/Spark/FeedHero: unset craft → music (product default). */
+export function craftScope(profession?: string | null): string {
+  return profession && PROFESSIONS.some((p) => p.id === profession) ? profession : PRIMARY_PROFESSION;
+}
 
 /** Discover + module-attrs catalogs (union of discipline_field_schemas seeds). */
 export const SOFTWARE = [
@@ -79,13 +85,11 @@ export const STYLES = [
 ];
 export const ENGINES = ["Unity", "Unreal", "Godot", "GameMaker", "Bevy", "Custom"];
 
-// ── Role Class (Phase O1) — the identity axis that opens VYBZ to the whole ───
-// creative economy. `creator` is the default; the rest are creator-ADJACENT
-// real identities (never a passive consumer tier). Each carries structured
-// intent + declares which creators they're looking for, feeding matchmaking.
+// ── Role Class (Phase O1) — demand-side identities around music collabs ─────
+// `creator` is the default; adjacent classes book/support/curate musicians.
 export interface RoleClass { id: string; label: string; blurb: string; icon: string; adjacent: boolean }
 export const ROLE_CLASSES: RoleClass[] = [
-  { id: "creator",   label: "Creator",            blurb: "I make music, art, video or games", icon: "Sparkles",   adjacent: false },
+  { id: "creator",   label: "Creator",            blurb: "I make music — produce, write, perform, mix", icon: "Sparkles",   adjacent: false },
   { id: "supporter", label: "Supporter / Patron", blurb: "I follow & fund creators I love",   icon: "Heart",      adjacent: true  },
   { id: "booker",    label: "Booker / Manager",   blurb: "I book, manage or scout talent",     icon: "Briefcase",  adjacent: true  },
   { id: "curator",   label: "Curator",            blurb: "I discover & platform creative work", icon: "Compass",   adjacent: true  },

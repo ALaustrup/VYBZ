@@ -8,7 +8,7 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { EmptyState } from "@/components/EmptyState";
 import { ProjectChat } from "@/components/ProjectChat";
-import { ROLES } from "@/lib/profileFields";
+import { ROLES, craftScope } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProjectDetail, CollabMatch } from "@/types";
 
@@ -214,14 +214,20 @@ function UploadVersion({ projectId, busy, setBusy, onDone }: { projectId: string
 
 function AddCollaborator({ projectId, existing, onClose, onAdded }: { projectId: string; existing: string[]; onClose: () => void; onAdded: () => Promise<void> }) {
   const navigate = useNavigate();
-  const { showToast } = useSession();
+  const { showToast, profile } = useSession();
+  const craft = craftScope(profile?.profile?.profession);
   const [matches, setMatches] = useState<CollabMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [picked, setPicked] = useState<string | null>(null);
   const [role, setRole] = useState(ROLES[0].id);
   const [busy, setBusy] = useState(false);
 
-  useEffect(() => { api.collabMatches(40).then((m) => { setMatches(m.filter((x) => !existing.includes(x.userId))); setLoading(false); }); }, [existing]);
+  useEffect(() => {
+    api.collabMatches(40, craft).then((m) => {
+      setMatches(m.filter((x) => !existing.includes(x.userId)));
+      setLoading(false);
+    });
+  }, [existing, craft]);
 
   async function add() {
     if (!picked) return;
@@ -243,7 +249,7 @@ function AddCollaborator({ projectId, existing, onClose, onAdded }: { projectId:
           <EmptyState
             icon={Users}
             title="No candidates"
-            body="Find complementary creators first — then add anyone you match with here."
+            body="Find complementary musicians first — then add anyone you match with here."
             action={
               <button type="button" onClick={() => navigate("/connect")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
                 Open Find

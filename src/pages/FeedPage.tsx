@@ -20,11 +20,11 @@ type Layout = "comfortable" | "grid";
 const SCOPES = [
   { id: "all", label: "For you" },
   { id: "following", label: "Following" },
+  { id: "sounds", label: "Sounds" },
   { id: "music", label: "Music" },
   { id: "art", label: "Art" },
   { id: "video", label: "Video" },
   { id: "writing", label: "Writing" },
-  { id: "sounds", label: "Sounds" },
 ];
 
 function defaultScope(profession?: string | null, intents?: string[], roleClass?: string | null): string {
@@ -39,8 +39,8 @@ function defaultScope(profession?: string | null, intents?: string[], roleClass?
   if (/art|paint|illustr|design|photo/.test(s)) return "art";
   if (/video|youtube|film|stream/.test(s)) return "video";
   if (/writ|author|book|poet|story|script/.test(s)) return "writing";
-  if (/music|musician|sign|beat|produc|sound|dj|rap|sing/.test(s)) return "sounds";
-  return "all";
+  // Music-first product default when craft unset
+  return "sounds";
 }
 
 export function FeedPage({ onCompose }: { onCompose: () => void }) {
@@ -126,7 +126,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
     <div className="flex h-full flex-col">
       <PageHeader
         title="Feed"
-        subtitle={intent ? `Curated for “${intent}”` : "Fresh from the network"}
+        subtitle={intent ? `Curated for “${intent}”` : "Fresh sounds from the network"}
         actions={
           <button type="button" onClick={onCompose} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
             <Plus className="h-3.5 w-3.5" /> Drop
@@ -192,7 +192,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
             <EmptyState
               icon={AudioLines}
               title="No drops yet"
-              body="Share a sound — a loop, a stem, a work-in-progress — and let complementary creators find it."
+              body="Share a sound — a loop, a stem, a work-in-progress — and let complementary musicians find it."
               action={
                 <button type="button" onClick={onCompose} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
                   <Plus className="h-3.5 w-3.5" /> Drop
@@ -218,8 +218,8 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
             title={scope === "following" ? "Nothing from your follows yet" : "No posts here yet"}
             body={
               scope === "following"
-                ? "Follow creators and their posts show up here."
-                : "Share a drop — a sketch, a loop, a clip — and it lands on the Feed."
+                ? "Follow musicians and their posts show up here."
+                : "Share a drop — a loop, a stem, a clip — and it lands on the Feed."
             }
             action={
               scope !== "following" ? (
@@ -228,7 +228,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
                 </button>
               ) : (
                 <button type="button" onClick={() => navigate("/discover")} className="btn btn-ghost mt-1 h-9 px-4 py-0 text-xs">
-                  Discover creators
+                  Discover musicians
                 </button>
               )
             }

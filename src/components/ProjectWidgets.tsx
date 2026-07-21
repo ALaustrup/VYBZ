@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, Loader2, Lock, Plus, Puzzle, Trash2, X, Unplug } from "lucide-react";
-import { WIDGET_KINDS, WIDGET_LABEL, embedSrc, embedHeight, type WidgetKind } from "@/lib/widgets";
+import { WIDGET_KINDS, SECONDARY_WIDGET_IDS, WIDGET_LABEL, embedSrc, embedHeight, type WidgetKind } from "@/lib/widgets";
 import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
@@ -78,6 +78,7 @@ export function WidgetPicker({ onAdd, onClose, projectId }: {
   projectId?: string;
 }) {
   const [chosen, setChosen] = useState<WidgetKind | null>(null);
+  const [showSecondary, setShowSecondary] = useState(false);
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [busy, setBusy] = useState(false);
@@ -141,9 +142,9 @@ export function WidgetPicker({ onAdd, onClose, projectId }: {
 
         {!chosen ? (
           <>
-            <p className="mb-3 text-[12px] text-white/50">Pick a source to showcase or monitor on this project.</p>
+            <p className="mb-3 text-[12px] text-white/50">Music &amp; video embeds first — other crafts are optional.</p>
             <div className="grid grid-cols-2 gap-2">
-              {WIDGET_KINDS.map((k) => {
+              {WIDGET_KINDS.filter((k) => !SECONDARY_WIDGET_IDS.has(k.id)).map((k) => {
                 const connected = !k.embed && connections.some((c) => c.provider === k.id);
                 return (
                   <button key={k.id} onClick={() => !k.gated && setChosen(k)} disabled={k.gated}
@@ -161,6 +162,22 @@ export function WidgetPicker({ onAdd, onClose, projectId }: {
                 );
               })}
             </div>
+            {showSecondary ? (
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {WIDGET_KINDS.filter((k) => SECONDARY_WIDGET_IDS.has(k.id)).map((k) => (
+                  <button key={k.id} onClick={() => setChosen(k)}
+                    className="flex flex-col items-start gap-0.5 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-left transition hover:border-veil-400/50 active:scale-[0.98]">
+                    <span className="text-sm font-semibold text-white">{k.label}</span>
+                    <span className="text-[11px] text-white/45">{k.hint ?? "Embed"}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <button type="button" onClick={() => setShowSecondary(true)}
+                className="mt-3 w-full rounded-xl border border-dashed border-white/10 px-3 py-2.5 text-left text-[12px] text-white/40 hover:border-white/20 hover:text-white/60">
+                Art, games &amp; other crafts…
+              </button>
+            )}
           </>
         ) : (
           <>
