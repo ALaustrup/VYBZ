@@ -46,6 +46,9 @@ export async function trySwarmDownload(
   const manifest = await api.swarmAssetManifest(assetId);
   if (!manifest?.chunkHashes?.length) return null;
 
+  // Prefer edge ICE (STUN + optional TURN) so Swarm survives strict NAT like DM live.
+  const iceServers = await api.fetchIceServers().catch(() => STUN);
+
   const n = manifest.chunkHashes.length;
   const chunks: (ArrayBuffer | null)[] = Array(n).fill(null);
   const seedOptIn = !!opts?.seedOptIn;
@@ -120,7 +123,7 @@ export async function trySwarmDownload(
 
       if (payload.type === "hello" && payload.hasChunks && !peerId) {
         peerId = payload.from;
-        pc = new RTCPeerConnection({ iceServers: STUN });
+        pc = new RTCPeerConnection({ iceServers });
         pcHolder.current = pc;
         pc.onicecandidate = (e) => {
           if (e.candidate) send({ type: "ice", candidate: e.candidate.toJSON() });
@@ -135,7 +138,7 @@ export async function trySwarmDownload(
 
       if (payload.type === "offer-sdp" && seedOptIn && !pc && payload.sdp) {
         peerId = payload.from;
-        pc = new RTCPeerConnection({ iceServers: STUN });
+        pc = new RTCPeerConnection({ iceServers });
         pcHolder.current = pc;
         pc.onicecandidate = (e) => {
           if (e.candidate) send({ type: "ice", candidate: e.candidate.toJSON() });

@@ -53,10 +53,10 @@ export function TipButton({ userId, username, className }: { userId: string; use
           <div className="glass-panel w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center gap-2">
               <Heart className="h-4 w-4 text-feel" />
-              <h2 className="flex-1 font-display text-lg font-bold text-white">Tip @{username ?? "creator"}</h2>
-              <button onClick={() => setOpen(false)} aria-label="Close" className="text-white/40 hover:text-white"><X className="h-5 w-5" /></button>
+              <h2 className="flex-1 font-display text-lg font-bold text-gradient">Tip @{username ?? "musician"}</h2>
+              <button onClick={() => setOpen(false)} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full glass text-white/50 hover:text-white"><X className="h-4 w-4" /></button>
             </div>
-            <p className="mb-3 text-[13px] text-white/55">Goes straight to the creator via Stripe. Optional — a way to say thanks.</p>
+            <p className="mb-3 text-[13px] text-white/55">Support their next track, mix, or stem pack — goes straight via Stripe.</p>
             <div className="mb-3 grid grid-cols-4 gap-2">
               {PRESETS.map((p) => (
                 <button key={p} onClick={() => { setAmount(p); setCustom(""); }}

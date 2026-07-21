@@ -91,17 +91,17 @@ export function ProfilePage() {
       {userId && <AffiliateLinks userId={userId} editable />}
 
       {FLAGS.swarm && (
-        <label className="mb-5 flex cursor-pointer items-start gap-3 border-y border-[var(--hairline)] py-3.5">
+        <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5">
           <input
             type="checkbox"
-            className="mt-0.5"
+            className="mt-0.5 accent-[var(--veil-400)]"
             defaultChecked={swarmSeedOptIn()}
             onChange={(e) => setSwarmSeedOptIn(e.target.checked)}
           />
           <span>
-            <span className="block text-[13px] font-medium text-white/80">Seed downloads over Swarm</span>
-            <span className="mt-0.5 block text-[11px] text-white/40">
-              Opt-in P2P: share encrypted chunks with peers who already have download rights. CDN always remains the fallback.
+            <span className="block text-[13px] font-medium text-white/85">Seed stems over Swarm</span>
+            <span className="mt-0.5 block text-[11px] leading-snug text-white/40">
+              Opt-in P2P for encrypted audio chunks with peers who already have download rights. CDN stays the fallback.
             </span>
           </span>
         </label>

@@ -42,18 +42,18 @@ export function PayoutSetup() {
   if (!FLAGS.tips || !status) return null;
 
   return (
-    <div className="mb-4 rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+    <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-sm">
       <div className="flex items-center gap-2">
         <Heart className="h-4 w-4 text-feel" />
-        <p className="flex-1 font-display text-sm font-bold text-white">Creator tips</p>
+        <p className="flex-1 font-display text-sm font-bold text-white">Tips from supporters</p>
         {status.chargesEnabled && (
           <span className="flex items-center gap-1 rounded-full bg-feel/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-feel"><Check className="h-3 w-3" /> Enabled</span>
         )}
       </div>
       <p className="mt-1 text-[13px] leading-snug text-white/55">
         {status.chargesEnabled
-          ? "Supporters can tip you directly — payments settle to your connected Stripe account."
-          : "Let supporters tip you directly via Stripe. Optional, and reversible anytime."}
+          ? "Patrons and fans can tip you for tracks, mixes, and collabs — settles to your Stripe account."
+          : "Let supporters tip you for music work via Stripe. Optional — never gates features."}
       </p>
       {!status.chargesEnabled && (
         <button onClick={enable} disabled={busy} className="btn btn-primary mt-3 w-full py-2.5 text-sm disabled:opacity-50">

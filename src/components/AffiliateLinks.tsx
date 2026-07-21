@@ -39,7 +39,7 @@ export function AffiliateLinks({ userId, editable }: { userId: string; editable?
     <div className="mb-5">
       <p className="eyebrow mb-1">Gear I use</p>
       <p className="mb-3 text-[11px] leading-snug text-white/40">
-        Affiliate / referral links may earn a commission. Disclosure required — these never affect match ranking.
+        Plugins, interfaces, monitors — affiliate links may earn a commission. Never affect match ranking.
       </p>
       {links.length > 0 && (
         <div className="mb-3 divide-y divide-[var(--hairline)]">
@@ -68,7 +68,7 @@ export function AffiliateLinks({ userId, editable }: { userId: string; editable?
           <input value={merchant} onChange={(e) => setMerchant(e.target.value.slice(0, 80))} placeholder="Merchant (optional)"
             className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
           <button type="button" onClick={add} disabled={busy || !label.trim() || !url.trim()}
-            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-veil-500/20 py-2 text-sm font-semibold text-veil-100 ring-1 ring-veil-400/30 disabled:opacity-40">
+            className="btn btn-primary h-10 w-full py-0 text-sm disabled:opacity-40">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="h-4 w-4" /> Add link</>}
           </button>
         </div>
