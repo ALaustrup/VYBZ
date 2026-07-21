@@ -17,8 +17,11 @@ export default defineConfig({
           if (id.includes("@tensorflow") || id.includes("@spotify/basic-pitch") || id.includes("@tonejs/midi")) return "audio-midi";
           if (id.includes("framer-motion")) return "motion";
           if (id.includes("@supabase")) return "supabase";
-          if (id.includes("react-router") || id.includes("/react/") || id.includes("react-dom")) return "react";
           if (id.includes("lucide-react")) return "icons";
+          // Keep React/scheduler/router inside the shared vendor chunk.
+          // A separate "react" chunk previously pulled scheduler into vendor and
+          // crashed the SPA (Cannot set 'unstable_now' on undefined) once the
+          // module graph shifted — and also created vendor↔react circular chunks.
           return "vendor";
         },
       },
