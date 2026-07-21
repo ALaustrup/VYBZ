@@ -110,6 +110,43 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Boot heal: if a stale PWA shell still throws the React scheduler crash,
+         unregister SWs, wipe caches, and reload once so vybz.cloud recovers. -->
+    <script>
+      (function () {
+        var FLAG = "vybz-sw-heal-20260721";
+        try {
+          if (sessionStorage.getItem(FLAG) === "1") return;
+        } catch (_) {}
+        window.addEventListener("error", function onBootError(ev) {
+          var msg = (ev && ev.message) || "";
+          if (
+            msg.indexOf("unstable_now") === -1 &&
+            msg.indexOf("Cannot set properties of undefined") === -1
+          ) {
+            return;
+          }
+          window.removeEventListener("error", onBootError);
+          try {
+            sessionStorage.setItem(FLAG, "1");
+          } catch (_) {}
+          var clear = Promise.resolve();
+          if ("serviceWorker" in navigator) {
+            clear = navigator.serviceWorker.getRegistrations().then(function (regs) {
+              return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            });
+          }
+          var wipe = window.caches
+            ? caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              })
+            : Promise.resolve();
+          Promise.all([clear, wipe]).finally(function () {
+            location.reload();
+          });
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
