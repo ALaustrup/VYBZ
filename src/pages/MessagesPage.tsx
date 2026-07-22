@@ -23,7 +23,7 @@ function ThreadList() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-3 pt-4 max-lg:pr-14">
+      <div className="px-5 pb-3 pt-4">
         <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Messages</h1>
         <div className="mt-4 h-px w-full bg-[var(--hairline)]" />
       </div>
@@ -90,7 +90,7 @@ function Thread({ threadId }: { threadId: string }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="relative flex items-center gap-3 px-4 pb-2 pt-3 max-lg:pr-14">
+      <div className="relative flex items-center gap-3 px-4 pb-2 pt-3">
         <button onClick={() => navigate("/messages")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
         <h1 className="min-w-0 flex-1 truncate font-display text-lg font-bold text-white">{peer?.username ?? "Conversation"}</h1>
         {session.state === "idle" && (

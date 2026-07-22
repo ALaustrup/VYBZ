@@ -117,7 +117,7 @@ export function ProjectRoomPage() {
 
 function Header({ title, onBack, status }: { title: string; onBack: () => void; status?: string }) {
   return (
-    <div className="flex items-center gap-3 px-4 pb-1 pt-3 max-lg:pr-14">
+    <div className="flex items-center gap-3 px-4 pb-1 pt-3">
       <button onClick={onBack} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
       <h1 className="min-w-0 flex-1 truncate font-display text-xl font-bold text-gradient">{title}</h1>
       {status && <span className="shrink-0 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/55">{status}</span>}

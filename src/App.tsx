@@ -11,8 +11,8 @@ import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
-import { YouChip } from "@/components/OrbDock";
 import { Taskbar } from "@/components/taskbar/Taskbar";
+import { AppChrome } from "@/components/shell/AppChrome";
 import { BRAND_ACCENT, BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
@@ -123,16 +123,15 @@ export function App() {
       <DynamicBackground variant={surface.bg} />
       <GrainOverlay />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
-      <div className="relative mx-auto flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden">
-        <YouChip />
-        <main className="relative z-10 min-h-0 flex-1 overflow-hidden pt-[env(safe-area-inset-top)]">
-          <div className="mx-auto h-full w-full max-w-5xl px-4 pr-14 sm:px-6 sm:pr-16 lg:px-8">{routes}</div>
-        </main>
-        <GlobalPlayer className="relative z-40 pb-0" />
-        <ErrorBoundary>
-          <Taskbar onCompose={() => setComposeOpen(true)} />
-        </ErrorBoundary>
-      </div>
+      <AppChrome
+        stage={routes}
+        player={<GlobalPlayer className="relative z-40 pb-0" />}
+        taskbar={
+          <ErrorBoundary>
+            <Taskbar onCompose={() => setComposeOpen(true)} />
+          </ErrorBoundary>
+        }
+      />
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <ReactiveFrame />
       <WelcomeTutorial />

@@ -23,7 +23,7 @@ export function ModPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-3 max-lg:pr-14">
+      <div className="flex items-center gap-2 px-4 pb-1 pt-3">
         <Shield className="h-5 w-5 text-aqua-300" />
         <h1 className="font-display text-xl font-bold text-gradient">Moderator console</h1>
       </div>

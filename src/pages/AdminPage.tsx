@@ -37,7 +37,7 @@ export function AdminPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-3 max-lg:pr-14">
+      <div className="flex items-center gap-2 px-4 pb-1 pt-3">
         <ShieldCheck className="h-5 w-5 text-veil-300" />
         <h1 className="font-display text-xl font-bold text-gradient">Admin console</h1>
       </div>

@@ -38,7 +38,7 @@ export function ProjectPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 pb-1 pt-4 max-lg:pr-14">
+      <div className="flex items-center gap-3 px-5 pb-1 pt-4">
         <button onClick={() => navigate(-1)} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
         <h1 className="flex-1 truncate font-display text-xl font-bold text-gradient">{detail?.name ?? "Project"}</h1>
         {detail && <button onClick={() => navigate(`/u/${detail.userId}`)} className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold text-white/75 active:scale-95">Creator</button>}

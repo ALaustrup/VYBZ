@@ -12,6 +12,24 @@
        top sheen), never as white-outlined boxes. Tuned faint on purpose. */
     --hairline: rgba(255, 255, 255, 0.055);
     --hairline-strong: rgba(255, 255, 255, 0.1);
+
+    /* App shell tokens (Step 3A) — chrome heights + stage padding. */
+    --app-bar-h: 3.25rem;
+    --taskbar-h: 5.5rem;
+    --player-h: 0px;
+    --stage-pad-x: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --stage-pad-x: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --stage-pad-x: 2rem;
+    }
   }
 
   /* Opt-in smooth cross-fade for persistent accent-driven chrome (page tint,
@@ -81,6 +99,41 @@
 }
 
 @layer components {
+  /* ── App shell (Step 3A) ─────────────────────────────────────────────────── */
+  .app-shell {
+    @apply relative mx-auto flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden;
+  }
+
+  .app-bar {
+    @apply relative z-40 shrink-0 border-b border-white/[0.06] bg-ink-950/55;
+    padding-top: env(safe-area-inset-top);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  }
+
+  .app-bar-inner {
+    @apply flex items-center gap-3;
+    min-height: var(--app-bar-h);
+    padding-left: var(--stage-pad-x);
+    padding-right: var(--stage-pad-x);
+  }
+
+  .app-stage {
+    @apply relative z-10 min-h-0 flex-1 overflow-hidden;
+  }
+
+  .app-stage-inner {
+    @apply mx-auto h-full w-full max-w-5xl;
+    padding-left: var(--stage-pad-x);
+    padding-right: var(--stage-pad-x);
+  }
+
+  /* Bottom stack: GlobalPlayer + Taskbar — persistent native-feel dock.
+     Safe-area is owned by Taskbar so we don't double-pad. */
+  .app-dock {
+    @apply relative z-40 shrink-0;
+  }
+
   /* Frosted dark-glass panel used by nav and overlays. A faint top highlight +
      saturation sell the "Smoked Glass" look over the living background. */
   .glass {

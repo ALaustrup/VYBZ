@@ -33,7 +33,7 @@ export function RoomsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-3 pt-4 max-lg:pr-14">
+      <div className="px-5 pb-3 pt-4">
         <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Rooms</h1>
         <div className="mt-4 h-px w-full bg-[var(--hairline)]" />
       </div>

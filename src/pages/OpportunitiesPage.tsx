@@ -30,7 +30,7 @@ export function OpportunitiesPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 pb-3 pt-4 max-lg:pr-14">
+      <div className="flex items-center gap-3 px-5 pb-3 pt-4">
         <button type="button" onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-display text-[1.65rem] font-semibold tracking-tight text-white">Opportunities</h1>
