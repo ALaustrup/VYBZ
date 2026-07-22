@@ -42,6 +42,7 @@ import { StorePage } from "@/pages/StorePage";
 import { LivePage } from "@/pages/LivePage";
 import { LiveWatchPage } from "@/pages/LiveWatchPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import { ArtistPage } from "@/pages/ArtistPage";
 
 export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
@@ -106,6 +107,7 @@ export function App() {
         <Route path="/apply-mod" element={<ModApplyPage />} />
         <Route path="/store" element={<StorePage />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
+        <Route path="/artist/:slug" element={<ArtistPage />} />
         <Route path="/p/:id" element={<ProjectPage />} />
         <Route path="/codex" element={<CodexPage />} />
         <Route path="/codex/:slug" element={<CodexDocPage />} />

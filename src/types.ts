@@ -104,6 +104,24 @@ export interface Drop {
   audience?: PostAudience;
   /** Track-linked Orb + outline customization (uploader vision). */
   playbackCustomization?: PlaybackCustomization | null;
+  /** Free-text band/artist credit used for Official Artist claim gate. */
+  creditedArtist?: string | null;
+  /** Linked official artist entity (when claimed). */
+  artistId?: string | null;
+}
+
+/** Official Artist entity (linked to user accounts — model 1A). */
+export interface ArtistProfile {
+  id: string;
+  slug: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  coverUrl: string | null;
+  primaryGenres: string[];
+  verifiedAt: number | null;
+  createdBy: string;
+  createdAt: number;
 }
 
 export interface RoleOffer { roleId: string; skill: number }

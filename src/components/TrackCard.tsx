@@ -34,7 +34,7 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
   return {
     id: d.id, url: d.audioUrl ?? "",
     title: d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled",
-    artist: d.authorUsername || "Creator",
+    artist: d.creditedArtist?.trim() || d.authorUsername || "Creator",
     waveform: d.waveform, durationSec: d.durationSec,
     quality: qualityLabel(d.audioFormat ?? undefined, d.sampleRate ?? undefined, d.lossless),
     lossless: d.lossless, seed: d.seed, accent,

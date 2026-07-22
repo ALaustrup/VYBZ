@@ -15,6 +15,7 @@ import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { PayoutSetup } from "@/components/PayoutSetup";
 import { Discography } from "@/components/Discography";
 import { AffiliateLinks } from "@/components/AffiliateLinks";
+import { ArtistRoster } from "@/components/ArtistRoster";
 import { ProBadge } from "@/components/ProBadge";
 import { FLAGS } from "@/lib/flags";
 import { swarmSeedOptIn, setSwarmSeedOptIn } from "@/lib/swarm";
@@ -105,6 +106,10 @@ export function ProfilePage() {
           <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
         </div>
       )}
+
+      <div className="mb-5">
+        <ArtistRoster userId={userId!} editable drops={drops} />
+      </div>
 
       <div className="mb-5">
         <p className="eyebrow mb-3">Studio</p>

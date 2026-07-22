@@ -51,6 +51,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [license, setLicense] = useState("collab-only");
   const [fx, setFx] = useState<PostFx>("glow");
   const [audience, setAudience] = useState<PostAudience>("public");
+  const [creditedArtist, setCreditedArtist] = useState("");
   const [paletteId, setPaletteId] = useState("veil");
   const [customPalette, setCustomPalette] = useState<string[] | null>(null);
   const [pulseScale, setPulseScale] = useState(0.55);
@@ -81,7 +82,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     if (open) {
       setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
       setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only");
-      setFx("glow"); setAudience("public");
+      setFx("glow"); setAudience("public"); setCreditedArtist("");
       setPaletteId("veil"); setCustomPalette(null);
       setPulseScale(0.55); setRimIntensity(0.5); setSpecularFollow(true);
       setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
@@ -150,6 +151,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       musicalKey: musicalKey || undefined, audioFormat: audio.format, sampleRate: audio.sampleRate || undefined,
       lossless: audio.lossless, license, sha256, fingerprint, fx, audience,
       playbackCustomization: playback,
+      creditedArtist: creditedArtist.trim() || undefined,
     });
     setPosting(false);
     if (!drop) { showToast("Couldn't post that drop."); return; }
@@ -244,6 +246,13 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                         </button>
                       ))}
                     </div>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Credited artist</label>
+                    <input value={creditedArtist} onChange={(e) => setCreditedArtist(e.target.value.slice(0, 80))}
+                      placeholder="Band / artist name (for Official Artist claim)"
+                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                    <p className="mt-1 text-[11px] text-white/35">Tag the same name on ≥2 drops to claim /artist/your-slug.</p>
                   </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">

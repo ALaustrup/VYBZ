@@ -17,7 +17,7 @@ import type {
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
   Cosmetic, CosmeticStore,
   LiveSessionCard, LiveSessionDetail, LiveMessage, LiveSource,
-  PostFx, PostAudience, PlaybackCustomization,
+  PostFx, PostAudience, PlaybackCustomization, ArtistProfile,
 } from "@/types";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -1033,6 +1033,7 @@ export interface NewDrop {
   audience?: PostAudience;
   inviteeIds?: string[];
   playbackCustomization?: PlaybackCustomization;
+  creditedArtist?: string;
 }
 export async function createDrop(input: NewDrop): Promise<Drop | null> {
   const uid = await currentUserId();
@@ -1059,27 +1060,37 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     if (aerr || !asset) return null;
     assetId = (asset as { id: string }).id;
   }
+  const credited = input.creditedArtist?.trim() || null;
   let drop: { id: string; created_at: string } | null = null;
   {
     const res = await db().from("drops").insert({
       author_id: uid, title: input.title ?? null, body: input.body ?? null,
       asset_id: assetId, seed: input.seed, fx, audience,
       playback_customization: playback,
+      credited_artist: credited,
     }).select("id,created_at").single();
     if (!res.error && res.data) drop = res.data as { id: string; created_at: string };
     else {
       const mid = await db().from("drops").insert({
         author_id: uid, title: input.title ?? null, body: input.body ?? null,
         asset_id: assetId, seed: input.seed, fx, audience,
+        credited_artist: credited,
       }).select("id,created_at").single();
       if (!mid.error && mid.data) drop = mid.data as { id: string; created_at: string };
       else {
-        const fallback = await db().from("drops").insert({
+        const mid2 = await db().from("drops").insert({
           author_id: uid, title: input.title ?? null, body: input.body ?? null,
-          asset_id: assetId, seed: input.seed,
+          asset_id: assetId, seed: input.seed, fx, audience,
         }).select("id,created_at").single();
-        if (fallback.error || !fallback.data) return null;
-        drop = fallback.data as { id: string; created_at: string };
+        if (!mid2.error && mid2.data) drop = mid2.data as { id: string; created_at: string };
+        else {
+          const fallback = await db().from("drops").insert({
+            author_id: uid, title: input.title ?? null, body: input.body ?? null,
+            asset_id: assetId, seed: input.seed,
+          }).select("id,created_at").single();
+          if (fallback.error || !fallback.data) return null;
+          drop = fallback.data as { id: string; created_at: string };
+        }
       }
     }
   }
@@ -1100,6 +1111,7 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     audioFormat: input.audioFormat ?? null, sampleRate: input.sampleRate ?? null, lossless: input.lossless,
     license: input.license ?? "collab-only",
     fx, audience, playbackCustomization: playback,
+    creditedArtist: credited,
   };
 }
 
@@ -1147,6 +1159,8 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
       fx: r.fx ?? "glow",
       audience: r.audience ?? "public",
       playbackCustomization: parsePlaybackCustomization(r.playback_customization),
+      creditedArtist: r.credited_artist ?? null,
+      artistId: r.artist_id ?? null,
       myReaction: myReactions.get(r.id), myRating: r.asset_id ? myRatings.get(r.asset_id) : undefined,
     } as Drop & { myReaction?: Reaction; myRating?: number };
   });
@@ -1158,7 +1172,7 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
   const { data: rpc, error } = await db().rpc("list_visible_drops", { p_limit: limit });
   if (!error && Array.isArray(rpc)) return assembleDrops(rpc, myId);
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id")
     .eq("audience", "public")
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
@@ -1166,7 +1180,7 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
 export async function dropsBy(authorId: string, limit = 40) {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id")
     .eq("author_id", authorId).order("created_at", { ascending: false }).limit(limit);
   // Owner sees all; others rely on RLS / client filter for private
   const rows = (data ?? []).filter((r: any) => {
@@ -1191,6 +1205,102 @@ export async function updateDropTitle(id: string, title: string): Promise<boolea
 /** Feature a drop on your profile (or pass null to clear). Server verifies ownership. */
 export async function setFeaturedDrop(dropId: string | null): Promise<boolean> {
   const { error } = await db().rpc("set_featured_drop", { p_drop: dropId });
+  return !error;
+}
+
+// ── Official Artist Profiles (Phase 2 · model 1A linked entities) ─────────────
+function toArtist(r: Record<string, unknown>): ArtistProfile {
+  return {
+    id: String(r.id),
+    slug: String(r.slug ?? ""),
+    displayName: String(r.display_name ?? ""),
+    bio: (r.bio as string | null) ?? null,
+    avatarUrl: (r.avatar_url as string | null) ?? null,
+    coverUrl: (r.cover_url as string | null) ?? null,
+    primaryGenres: Array.isArray(r.primary_genres) ? (r.primary_genres as string[]) : [],
+    verifiedAt: r.verified_at ? new Date(String(r.verified_at)).getTime() : null,
+    createdBy: String(r.created_by ?? ""),
+    createdAt: r.created_at ? new Date(String(r.created_at)).getTime() : Date.now(),
+  };
+}
+
+export function normalizeArtistSlug(raw: string): string {
+  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+}
+
+export async function artistSlugAvailable(slug: string): Promise<boolean> {
+  const { data, error } = await db().rpc("artist_slug_available", { p_slug: slug });
+  if (error) return false;
+  return !!data;
+}
+
+export async function getArtistBySlug(slug: string): Promise<ArtistProfile | null> {
+  const { data, error } = await db().rpc("get_artist_by_slug", { p_slug: slug });
+  if (error || !data) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return row ? toArtist(row as Record<string, unknown>) : null;
+}
+
+export async function artistsForUser(userId: string): Promise<ArtistProfile[]> {
+  const { data, error } = await db().rpc("artists_for_user", { p_user_id: userId });
+  if (error || !Array.isArray(data)) return [];
+  return data.map((r) => toArtist(r as Record<string, unknown>));
+}
+
+export async function createArtistProfile(input: {
+  slug: string;
+  displayName: string;
+  bio?: string;
+  genres?: string[];
+  dropIds: string[];
+}): Promise<{ artist: ArtistProfile | null; error?: string }> {
+  const { data, error } = await db().rpc("create_artist_profile", {
+    p_slug: input.slug,
+    p_display_name: input.displayName,
+    p_bio: input.bio ?? null,
+    p_genres: input.genres ?? [],
+    p_drop_ids: input.dropIds,
+  });
+  if (error) {
+    const msg = error.message || "Couldn't create artist profile";
+    if (/need_two_tagged_drops/i.test(msg)) {
+      return { artist: null, error: "Tag at least 2 of your drops with this artist name first." };
+    }
+    if (/slug taken/i.test(msg)) return { artist: null, error: "That slug is taken." };
+    if (/invalid slug/i.test(msg)) return { artist: null, error: "Use a short URL slug (letters, numbers, hyphens)." };
+    return { artist: null, error: msg };
+  }
+  const row = Array.isArray(data) ? data[0] : data;
+  return { artist: row ? toArtist(row as Record<string, unknown>) : null };
+}
+
+export async function dropsForArtist(artistId: string, limit = 40): Promise<Drop[]> {
+  const myId = await currentUserId();
+  const { data } = await db().from("drops")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id")
+    .eq("artist_id", artistId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return assembleDrops(data ?? [], myId);
+}
+
+export async function artistMembers(artistId: string): Promise<{ userId: string; role: string; username: string | null }[]> {
+  const { data } = await db().from("artist_members")
+    .select("user_id, role")
+    .eq("artist_id", artistId);
+  if (!data?.length) return [];
+  const names = await usernamesFor(data.map((r: { user_id: string }) => r.user_id));
+  return data.map((r: { user_id: string; role: string }) => ({
+    userId: r.user_id,
+    role: r.role,
+    username: names.get(r.user_id) ?? null,
+  }));
+}
+
+export async function updateDropCreditedArtist(dropId: string, creditedArtist: string | null): Promise<boolean> {
+  const { error } = await db().from("drops")
+    .update({ credited_artist: creditedArtist?.trim() || null })
+    .eq("id", dropId);
   return !error;
 }
 

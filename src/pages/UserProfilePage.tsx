@@ -11,6 +11,7 @@ import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { TipButton } from "@/components/TipButton";
 import { Discography } from "@/components/Discography";
 import { AffiliateLinks } from "@/components/AffiliateLinks";
+import { ArtistRoster } from "@/components/ArtistRoster";
 import { ProBadge } from "@/components/ProBadge";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
@@ -101,6 +102,10 @@ export function UserProfilePage() {
       </div>
 
       <AffiliateLinks userId={id} editable={isMe} />
+
+      <div className="mb-5">
+        <ArtistRoster userId={id} editable={isMe} drops={drops} />
+      </div>
 
       <div className="mb-5">
         <Discography credits={credits} isOwner={isMe} />

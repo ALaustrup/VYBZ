@@ -161,7 +161,7 @@ export function useTaskbarPins(): TaskbarPinsState {
 
 export function pinIsActive(pin: PinDef, pathname: string): boolean {
   if (pin.end) return pathname === pin.to;
-  if (pin.to === "/profile") return pathname.startsWith("/profile") || pathname.startsWith("/u/");
+  if (pin.to === "/profile") return pathname.startsWith("/profile") || pathname.startsWith("/u/") || pathname.startsWith("/artist/");
   return pathname === pin.to || pathname.startsWith(`${pin.to}/`);
 }
 
