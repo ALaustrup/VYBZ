@@ -2,6 +2,10 @@
 // VYBZ domain types. Identity-first: every account is a real creator.
 // ---------------------------------------------------------------------------
 
+import type { PlaybackCustomization } from "@/lib/playbackCustomization";
+
+export type { PlaybackCustomization } from "@/lib/playbackCustomization";
+
 export type Reaction = "feel" | "wild";
 
 export type AssetKind =
@@ -98,6 +102,8 @@ export interface Drop {
   fx?: PostFx | null;
   /** Who can see this drop in feeds. */
   audience?: PostAudience;
+  /** Track-linked Orb + outline customization (uploader vision). */
+  playbackCustomization?: PlaybackCustomization | null;
 }
 
 export interface RoleOffer { roleId: string; skill: number }

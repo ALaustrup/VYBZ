@@ -30,6 +30,7 @@ function fmtTime(s: number): string {
 
 export function toPlayerTrack(d: Drop): PlayerTrack {
   const accent = paletteFor(d.seed)[0];
+  const playback = d.playbackCustomization ?? undefined;
   return {
     id: d.id, url: d.audioUrl ?? "",
     title: d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled",
@@ -37,7 +38,8 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
     waveform: d.waveform, durationSec: d.durationSec,
     quality: qualityLabel(d.audioFormat ?? undefined, d.sampleRate ?? undefined, d.lossless),
     lossless: d.lossless, seed: d.seed, accent,
-    fx: d.fx ?? "glow",
+    fx: playback?.reactiveStyle ?? d.fx ?? "glow",
+    playback,
   };
 }
 

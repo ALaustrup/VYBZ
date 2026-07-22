@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { readBands, usePlayer } from "@/lib/audioBus";
 import { useFxScale, useReduceFx } from "@/lib/display";
-import { cx, paletteFor } from "@/lib/utils";
+import { resolvePlaybackVisuals } from "@/lib/playbackCustomization";
+import { cx } from "@/lib/utils";
 
 interface OrbSphereProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface OrbSphereProps {
 /**
  * Canvas “fake-3D” orb — pointer-follow specular, neochrome rim in hit range,
  * audio-reactive pulse from AudioBus, white flash on open.
+ * While a track plays, uploader playback_customization fully owns palette / pulse.
  */
 export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,8 +22,17 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
   const { playing, track } = usePlayer();
   const reduce = useReduceFx();
   const fxScale = useFxScale();
-  const accent = track?.accent ?? "#a87cf8";
-  const seed = track?.seed ?? 1;
+  const visuals = useMemo(
+    () => resolvePlaybackVisuals({
+      seed: track?.seed,
+      accent: track?.accent,
+      fx: track?.fx,
+      playback: track?.playback,
+    }),
+    [track?.seed, track?.accent, track?.fx, track?.playback],
+  );
+  const { accent, seed, palette: pal, pulseScale, rimIntensity, specularFollow } = visuals;
+  const palKey = pal.join(",");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -29,6 +40,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const colors = palKey.split(",");
 
     const SIZE = 72;
     let dpr = 1;
@@ -51,7 +63,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       const dy = cy - r.height / 2;
       const hit = Math.hypot(dx, dy) < r.width * 0.55;
       ptr.inside = hit;
-      if (hit) {
+      if (hit && specularFollow) {
         ptr.tx = SIZE * 0.5 + dx * 0.55;
         ptr.ty = SIZE * 0.5 + dy * 0.55;
       } else {
@@ -73,9 +85,6 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
     let hidden = document.hidden;
     const onVis = () => { hidden = document.hidden; };
 
-    const [c0, c1, c2] = paletteFor(seed);
-    const pal = [accent, c0, c1, c2];
-
     const draw = () => {
       if (hidden) {
         raf = requestAnimationFrame(draw);
@@ -88,38 +97,38 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       else flashA *= 0.88;
 
       const bands = playing && !reduce ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
-      const pulse = reduce ? (playing ? 0.12 : 0) : (bands.bass * 0.55 + bands.level * 0.35) * fxScale;
+      const pulse = reduce
+        ? (playing ? 0.12 : 0)
+        : (bands.bass * 0.55 + bands.level * 0.35) * fxScale * (0.35 + pulseScale * 1.2);
       const R = SIZE * 0.38 + pulse * 4;
       const cx = SIZE / 2;
       const cy = SIZE / 2;
 
       ctx.clearRect(0, 0, SIZE, SIZE);
 
-      // Soft outer neon rim when hovered / open
       if (ptr.inside || open) {
         const rim = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.55);
         const hueShift = (t * 40) % 360;
-        rim.addColorStop(0, `hsla(${280 + hueShift * 0.05}, 80%, 70%, ${0.08 + pulse * 0.2})`);
-        rim.addColorStop(0.55, hexA(pal[0], 0.22 + pulse * 0.25));
-        rim.addColorStop(1, hexA(pal[2], 0));
+        const rimA = (0.06 + pulse * 0.2) * (0.4 + rimIntensity * 1.2);
+        rim.addColorStop(0, `hsla(${280 + hueShift * 0.05}, 80%, 70%, ${rimA})`);
+        rim.addColorStop(0.55, hexA(colors[0], (0.18 + pulse * 0.25) * (0.5 + rimIntensity)));
+        rim.addColorStop(1, hexA(colors[2], 0));
         ctx.fillStyle = rim;
         ctx.beginPath();
         ctx.arc(cx, cy, R * 1.55, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // Sphere body
       const body = ctx.createRadialGradient(ptr.x, ptr.y, R * 0.05, cx, cy, R);
       body.addColorStop(0, flashA > 0.05 ? `rgba(255,255,255,${0.95 * flashA + 0.55})` : "#f4efff");
-      body.addColorStop(0.35, hexA(pal[0], 0.85));
-      body.addColorStop(0.72, hexA(pal[1], 0.95));
+      body.addColorStop(0.35, hexA(colors[0], 0.85));
+      body.addColorStop(0.72, hexA(colors[1], 0.95));
       body.addColorStop(1, "#1a1528");
       ctx.fillStyle = body;
       ctx.beginPath();
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.fill();
 
-      // Specular
       const spec = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, R * 0.45);
       spec.addColorStop(0, `rgba(255,255,255,${0.55 + flashA * 0.4})`);
       spec.addColorStop(1, "rgba(255,255,255,0)");
@@ -128,13 +137,12 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.fill();
 
-      // Equator shimmer (audio)
       if (playing && !reduce) {
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, R, 0, Math.PI * 2);
         ctx.clip();
-        ctx.strokeStyle = hexA(pal[Math.floor(t * 2) % 4], 0.25 + pulse * 0.45);
+        ctx.strokeStyle = hexA(colors[Math.floor(t * 2) % 4], 0.25 + pulse * 0.45);
         ctx.lineWidth = 1.25;
         ctx.beginPath();
         for (let i = 0; i < 24; i++) {
@@ -150,18 +158,13 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
         ctx.restore();
       }
 
-      // Crisp outline
       ctx.strokeStyle = hexA("#ffffff", 0.18 + (ptr.inside ? 0.2 : 0) + pulse * 0.15);
       ctx.lineWidth = 1.25;
       ctx.beginPath();
       ctx.arc(cx, cy, R, 0, Math.PI * 2);
       ctx.stroke();
 
-      if (open || flashA > 0.02 || playing || ptr.inside || Math.abs(ptr.x - ptr.tx) > 0.2) {
-        raf = requestAnimationFrame(draw);
-      } else {
-        raf = requestAnimationFrame(draw);
-      }
+      raf = requestAnimationFrame(draw);
     };
 
     document.addEventListener("visibilitychange", onVis);
@@ -172,7 +175,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       wrap.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [playing, accent, seed, reduce, fxScale, open, flash]);
+  }, [playing, accent, seed, palKey, pulseScale, rimIntensity, specularFollow, reduce, fxScale, open, flash]);
 
   return (
     <button

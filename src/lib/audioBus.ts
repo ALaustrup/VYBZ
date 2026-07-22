@@ -18,6 +18,7 @@
 // ---------------------------------------------------------------------------
 
 import { useSyncExternalStore } from "react";
+import type { PlaybackCustomization } from "@/lib/playbackCustomization";
 
 export interface PlayerTrack {
   /** Stable id (the drop/asset id) — used to reconcile "is this one playing?". */
@@ -38,6 +39,8 @@ export interface PlayerTrack {
   accent?: string;
   /** Poster-chosen audio-reactive effect id (drives the platform-wide frame). */
   fx?: string;
+  /** Uploader Orb / outline vision — overrides listener defaults while playing. */
+  playback?: PlaybackCustomization;
 }
 
 export interface PlayerSnapshot {
@@ -236,6 +239,14 @@ export function playTrack(track: PlayerTrack, list?: PlayerTrack[]) {
   ensureGraph();
   void ctx?.resume();
   void el.play().catch(() => set({ playing: false, loading: false }));
+}
+
+/** Update visual/meta fields on the current track without restarting audio. */
+export function patchCurrentTrack(patch: Partial<PlayerTrack>) {
+  if (!snapshot.track) return;
+  const track = { ...snapshot.track, ...patch };
+  queue = queue.map((t) => (t.id === track.id ? { ...t, ...patch } : t));
+  set({ track });
 }
 
 export async function toggle() {

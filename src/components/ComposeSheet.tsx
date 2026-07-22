@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AudioLines, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
 import { useSession } from "@/store/session";
@@ -8,8 +8,13 @@ import {
   AUDIO_ACCEPT, audioMeta, computeWaveform, placeholderWaveform, qualityLabel,
   sha256Hex, acousticSignature,
 } from "@/lib/waveform";
-import { playTrack, usePlayer, seekFraction } from "@/lib/audioBus";
+import { playTrack, patchCurrentTrack, usePlayer, seekFraction } from "@/lib/audioBus";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
+import {
+  ORB_PALETTE_PRESETS,
+  buildPlaybackCustomization,
+  type PlaybackCustomization,
+} from "@/lib/playbackCustomization";
 import { cx, paletteFor } from "@/lib/utils";
 import type { AssetKind, PostAudience, PostFx } from "@/types";
 
@@ -46,6 +51,11 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [license, setLicense] = useState("collab-only");
   const [fx, setFx] = useState<PostFx>("glow");
   const [audience, setAudience] = useState<PostAudience>("public");
+  const [paletteId, setPaletteId] = useState("veil");
+  const [customPalette, setCustomPalette] = useState<string[] | null>(null);
+  const [pulseScale, setPulseScale] = useState(0.55);
+  const [rimIntensity, setRimIntensity] = useState(0.5);
+  const [specularFollow, setSpecularFollow] = useState(true);
   const [decoding, setDecoding] = useState(false);
   const [posting, setPosting] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
@@ -57,14 +67,37 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     ? player.currentTime / (player.duration || audio!.duration) : 0;
   const accent = paletteFor(seed)[0];
 
+  const playback = useMemo((): PlaybackCustomization => {
+    const preset = ORB_PALETTE_PRESETS.find((p) => p.id === paletteId);
+    const orbPalette = customPalette ?? preset?.colors;
+    return buildPlaybackCustomization({
+      orbPalette,
+      reactiveStyle: fx,
+      orbEffects: { pulseScale, rimIntensity, specularFollow },
+    }, fx);
+  }, [paletteId, customPalette, fx, pulseScale, rimIntensity, specularFollow]);
+
   useEffect(() => {
     if (open) {
       setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
       setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only");
       setFx("glow"); setAudience("public");
+      setPaletteId("veil"); setCustomPalette(null);
+      setPulseScale(0.55); setRimIntensity(0.5); setSpecularFollow(true);
       setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
     }
   }, [open]);
+
+  // Keep the live Orb preview in sync while composing (uploader vision wins).
+  useEffect(() => {
+    if (!open || player.track?.id !== PREVIEW_ID) return;
+    patchCurrentTrack({
+      accent: playback.orbPalette?.[0] ?? accent,
+      fx,
+      playback,
+      seed,
+    });
+  }, [playback, open, accent, fx, seed, player.track?.id]);
 
   async function handleFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -92,10 +125,12 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
 
   function preview() {
     if (!audio) return;
-    playTrack({ id: PREVIEW_ID, url: audio.url, title: title || "Preview", artist: "You",
+    playTrack({
+      id: PREVIEW_ID, url: audio.url, title: title || "Preview", artist: "You",
       waveform: audio.peaks, durationSec: audio.duration,
       quality: qualityLabel(audio.format, audio.sampleRate, audio.lossless), lossless: audio.lossless,
-      seed, accent, fx });
+      seed, accent: playback.orbPalette?.[0] ?? accent, fx, playback,
+    });
   }
 
   async function post() {
@@ -114,6 +149,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       waveform: audio.peaks, durationSec: audio.duration, bpm: bpm ? Number(bpm) : undefined,
       musicalKey: musicalKey || undefined, audioFormat: audio.format, sampleRate: audio.sampleRate || undefined,
       lossless: audio.lossless, license, sha256, fingerprint, fx, audience,
+      playbackCustomization: playback,
     });
     setPosting(false);
     if (!drop) { showToast("Couldn't post that drop."); return; }
@@ -152,7 +188,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white backdrop-blur transition active:scale-90">
                       {previewPlaying ? <Pause className="h-6 w-6" /> : <Play className="ml-0.5 h-6 w-6" />}
                     </button>
-                    <Waveform peaks={audio.peaks} progress={previewProgress} accent={accent} height={40}
+                    <Waveform peaks={audio.peaks} progress={previewProgress} accent={playback.orbPalette?.[0] ?? accent} height={40}
                       onSeek={player.track?.id === PREVIEW_ID ? (f) => seekFraction(f) : undefined} />
                   </div>
                 ) : (
@@ -209,9 +245,36 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <p className="mb-1.5 flex items-center gap-1.5 text-[12px] font-semibold text-white/60"><Zap className="h-3.5 w-3.5 text-veil-200" /> Outline effect</p>
-                    <div className="flex flex-wrap gap-1.5">
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
+                    <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
+                      <Zap className="h-3.5 w-3.5 text-veil-200" /> Drop customization
+                    </p>
+                    <p className="mb-3 text-[11px] text-white/40">
+                      Listeners see your Orb palette and outline FX while this track plays. Preview to watch the taskbar Orb update.
+                    </p>
+                    <p className="mb-1.5 text-[11px] font-medium text-white/50">Orb palette</p>
+                    <div className="mb-3 flex flex-wrap gap-1.5">
+                      {ORB_PALETTE_PRESETS.map((p) => (
+                        <button key={p.id} type="button"
+                          onClick={() => { setPaletteId(p.id); setCustomPalette(null); }}
+                          className={cx(
+                            "flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium transition active:scale-95",
+                            paletteId === p.id && !customPalette
+                              ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
+                              : "bg-white/[0.05] text-white/60 hover:text-white/90",
+                          )}>
+                          <span className="flex gap-0.5">
+                            {p.colors.slice(0, 3).map((c) => (
+                              <span key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
+                            ))}
+                          </span>
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="mb-1.5 text-[11px] font-medium text-white/50">Outline effect</p>
+                    <div className="mb-3 flex flex-wrap gap-1.5">
                       {FX_OPTIONS.map((o) => (
                         <button key={o.id} type="button" onClick={() => setFx(o.id)}
                           className={cx("rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95", fx === o.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90")}>
@@ -219,7 +282,27 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                         </button>
                       ))}
                     </div>
+                    <label className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
+                      <span>Pulse</span>
+                      <input type="range" min={0} max={100} value={Math.round(pulseScale * 100)}
+                        onChange={(e) => setPulseScale(Number(e.target.value) / 100)}
+                        className="h-1.5 w-40 accent-veil-400" />
+                    </label>
+                    <label className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
+                      <span>Rim</span>
+                      <input type="range" min={0} max={100} value={Math.round(rimIntensity * 100)}
+                        onChange={(e) => setRimIntensity(Number(e.target.value) / 100)}
+                        className="h-1.5 w-40 accent-veil-400" />
+                    </label>
+                    <button type="button" onClick={() => setSpecularFollow((v) => !v)}
+                      className={cx(
+                        "mt-1 w-full rounded-xl py-2 text-[12px] font-medium transition",
+                        specularFollow ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/50",
+                      )}>
+                      Specular follow {specularFollow ? "on" : "off"}
+                    </button>
                   </div>
+
                   <div>
                     <p className="mb-1.5 text-[12px] font-semibold text-white/60">Audience</p>
                     <div className="flex gap-1.5">

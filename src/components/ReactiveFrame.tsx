@@ -1,28 +1,31 @@
 import { useEffect, useRef } from "react";
 import { usePlayer, readBands, readFrequencies, frequencyBinCount } from "@/lib/audioBus";
-import { paletteFor } from "@/lib/utils";
+import { resolvePlaybackVisuals } from "@/lib/playbackCustomization";
 import { useFxScale } from "@/lib/display";
 
 /**
  * Outline-first audio-reactive chrome. Strokes the viewport edges (and optional
  * hairline dashes) from the poster’s PostFx — no foggy fills. Click-through.
+ * Uploader playback_customization overrides listener defaults while a track plays.
  */
 export function ReactiveFrame() {
   const { track, playing } = usePlayer();
   const fxScale = useFxScale();
   const reduce = fxScale === 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const seed = track?.seed ?? 1;
-  const accent = track?.accent ?? "#a87cf8";
-  const fx = track?.fx ?? "glow";
+  const visuals = resolvePlaybackVisuals({
+    seed: track?.seed,
+    accent: track?.accent,
+    fx: track?.fx,
+    playback: track?.playback,
+  });
+  const { seed, accent, fx, palette: pal } = visuals;
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const [c0, c1, c2] = paletteFor(seed);
-    const pal = [accent, c0, c1, c2];
 
     let w = 0, h = 0, dpr = 1;
     const resize = () => {
@@ -151,7 +154,7 @@ export function ReactiveFrame() {
       document.documentElement.style.removeProperty("--reactive-line");
       document.documentElement.style.removeProperty("--reactive-line-strong");
     };
-  }, [playing, seed, accent, fx, reduce, fxScale]);
+  }, [playing, seed, accent, fx, pal, reduce, fxScale]);
 
   return <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-[60] h-full w-full" />;
 }
