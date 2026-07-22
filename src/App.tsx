@@ -127,7 +127,9 @@ export function App() {
           <div className="mx-auto h-full w-full max-w-5xl px-4 pr-14 sm:px-6 sm:pr-16 lg:px-8">{routes}</div>
         </main>
         <GlobalPlayer className="relative z-40 pb-0" />
-        <Taskbar onCompose={() => setComposeOpen(true)} />
+        <ErrorBoundary>
+          <Taskbar onCompose={() => setComposeOpen(true)} />
+        </ErrorBoundary>
       </div>
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <ReactiveFrame />

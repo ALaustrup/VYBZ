@@ -79,8 +79,27 @@ const KEY = "vybz.taskbarPins";
 const MAX_SIDE = 4;
 const listeners = new Set<() => void>();
 
+/** Cached snapshot — useSyncExternalStore requires Object.is-stable getSnapshot. */
+let cached: TaskbarPinsState = {
+  left: [...DEFAULT_PINS.left],
+  right: [...DEFAULT_PINS.right],
+};
+let cachedRaw: string | null = null;
+let cacheReady = false;
+
+function samePins(a: TaskbarPinsState, b: TaskbarPinsState): boolean {
+  return (
+    a.left.length === b.left.length &&
+    a.right.length === b.right.length &&
+    a.left.every((id, i) => id === b.left[i]) &&
+    a.right.every((id, i) => id === b.right[i])
+  );
+}
+
 function normalize(raw: unknown): TaskbarPinsState {
-  if (!raw || typeof raw !== "object") return { ...DEFAULT_PINS, left: [...DEFAULT_PINS.left], right: [...DEFAULT_PINS.right] };
+  if (!raw || typeof raw !== "object") {
+    return { left: [...DEFAULT_PINS.left], right: [...DEFAULT_PINS.right] };
+  }
   const o = raw as { left?: unknown; right?: unknown };
   const clean = (arr: unknown, fallback: PinId[]) => {
     if (!Array.isArray(arr)) return [...fallback];
@@ -91,20 +110,42 @@ function normalize(raw: unknown): TaskbarPinsState {
   return { left: clean(o.left, DEFAULT_PINS.left), right: clean(o.right, DEFAULT_PINS.right) };
 }
 
+function readPins(): TaskbarPinsState {
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(KEY);
+  } catch {
+    raw = null;
+  }
+  if (cacheReady && raw === cachedRaw) return cached;
+  const next = raw ? normalize(JSON.parse(raw)) : { left: [...DEFAULT_PINS.left], right: [...DEFAULT_PINS.right] };
+  cachedRaw = raw;
+  cacheReady = true;
+  if (!samePins(cached, next)) cached = next;
+  return cached;
+}
+
 export function getTaskbarPins(): TaskbarPinsState {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return { left: [...DEFAULT_PINS.left], right: [...DEFAULT_PINS.right] };
-    return normalize(JSON.parse(raw));
+    return readPins();
   } catch {
-    return { left: [...DEFAULT_PINS.left], right: [...DEFAULT_PINS.right] };
+    if (!cacheReady) {
+      cached = { left: [...DEFAULT_PINS.left], right: [...DEFAULT_PINS.right] };
+      cachedRaw = null;
+      cacheReady = true;
+    }
+    return cached;
   }
 }
 
 export function setTaskbarPins(next: TaskbarPinsState) {
   const state = normalize(next);
   try {
-    localStorage.setItem(KEY, JSON.stringify(state));
+    const raw = JSON.stringify(state);
+    localStorage.setItem(KEY, raw);
+    cached = state;
+    cachedRaw = raw;
+    cacheReady = true;
   } catch { /* ignore */ }
   listeners.forEach((l) => l());
 }
