@@ -59,7 +59,7 @@ const MORE_SECTIONS: MoreSection[] = [
     label: "Resources",
     items: [
       { id: "codex", label: "Codex & Legal", to: "/codex", icon: ScrollText },
-      { id: "collabs", label: "Collab projects", to: "/projects", icon: FolderGit2 },
+      { id: "collabs", label: "Studio projects", to: "/projects", icon: FolderGit2 },
     ],
   },
   {

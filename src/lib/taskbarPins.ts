@@ -46,12 +46,12 @@ export interface PinDef {
 }
 
 export const PIN_CATALOG: PinDef[] = [
-  { id: "feed", label: "Feed", to: "/", icon: AudioLines, end: true },
-  { id: "connect", label: "Connect", to: "/connect", icon: Users },
-  { id: "collabs", label: "Collabs", to: "/projects", icon: FolderGit2 },
+  { id: "feed", label: "Home", to: "/", icon: AudioLines, end: true },
+  { id: "connect", label: "Network", to: "/connect", icon: Users },
+  { id: "collabs", label: "Studio", to: "/projects", icon: FolderGit2 },
   { id: "live", label: "Live", to: "/live", icon: Radio },
   { id: "messages", label: "Messages", to: "/messages", icon: MessageSquare, badgeUnread: false },
-  { id: "profile", label: "Profile", to: "/profile", icon: Users },
+  { id: "profile", label: "You", to: "/profile", icon: Users },
   { id: "activity", label: "Activity", to: "/activity", icon: Bell, badgeUnread: true },
   { id: "discover", label: "Discover", to: "/discover", icon: Search },
   { id: "spark", label: "Spark", to: "/spark", icon: Sparkles },
@@ -70,6 +70,7 @@ export interface TaskbarPinsState {
   right: PinId[];
 }
 
+/** Four hubs left · utilities right: Home · Network · Studio | Live · Messages · You */
 export const DEFAULT_PINS: TaskbarPinsState = {
   left: ["feed", "connect", "collabs"],
   right: ["live", "messages", "profile"],

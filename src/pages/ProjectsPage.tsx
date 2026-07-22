@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FolderGit2, Loader2, Plus, X, Users, GitBranch, CheckCircle2 } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
-import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { GENRES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProjectSummary, ProjectStatus } from "@/types";
@@ -25,20 +25,25 @@ export function ProjectsPage() {
   async function load() { setLoading(true); setItems(await api.myProjects()); setLoading(false); }
   useEffect(() => { void load(); }, []);
 
+  useRegisterAppBar({
+    actions: (
+      <button type="button" onClick={() => setComposing(true)}
+        className="btn btn-primary h-9 px-3.5 py-0 text-xs">
+        <Plus className="h-3.5 w-3.5" /> New
+      </button>
+    ),
+  }, []);
+
   return (
     <div className="flex h-full flex-col">
-      <PageHeader
-        title="Collabs"
-        subtitle="Private project rooms"
-        actions={
-          <button type="button" onClick={() => setComposing(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs"><Plus className="h-3.5 w-3.5" /> New</button>
-        }
-      />
-      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
+        <p className="mb-4 text-[13px] leading-snug text-white/45">
+          Project rooms for collabs — invite people from Network, then track versions through release.
+        </p>
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (
-          <EmptyState icon={FolderGit2} title="No projects yet" body="Start a project room, invite a collaborator you matched with, and track the record from first idea to released credit." />
+          <EmptyState icon={FolderGit2} title="No projects yet" body="Start a Studio project, invite a collaborator from Network, and track the record from first idea to released credit." />
         ) : (
           <div className="divide-y divide-[var(--hairline)]">
             {items.map((p) => (

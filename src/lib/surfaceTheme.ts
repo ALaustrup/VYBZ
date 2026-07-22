@@ -28,11 +28,11 @@ export const DEFAULT_SURFACE: SurfaceTheme = {
 
 // Labels only — accent + bg are brand-locked.
 const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }> = [
-  { test: (p) => p === "/", id: "feed", label: "Drops" },
+  { test: (p) => p === "/", id: "home", label: "Home" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover" },
   { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities" },
-  { test: (p) => p.startsWith("/connect"), id: "find", label: "Find" },
+  { test: (p) => p.startsWith("/connect"), id: "network", label: "Network" },
   { test: (p) => p.startsWith("/live"), id: "live", label: "Live" },
   { test: (p) => p.startsWith("/projects"), id: "studio", label: "Studio" },
   { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), id: "messages", label: "Messages" },
@@ -53,19 +53,20 @@ export function surfaceForPath(pathname: string): SurfaceTheme {
   return DEFAULT_SURFACE;
 }
 
-/** Primary product modes for Orb Dock navigation. */
-export type AppMode = "find" | "drops" | "you";
+/** Hub taxonomy (legacy AppMode kept for any remaining callers). */
+export type AppMode = "network" | "home" | "studio" | "you";
 
 export const MODE_LABEL: Record<AppMode, string> = {
-  find: "Find",
-  drops: "Drops",
+  network: "Network",
+  home: "Home",
+  studio: "Studio",
   you: "You",
 };
 
-/** First destination when tapping a mode (app landing = Feed via Drops). */
 export const MODE_HOME: Record<AppMode, string> = {
-  find: "/connect",
-  drops: "/",
+  network: "/connect",
+  home: "/",
+  studio: "/projects",
   you: "/profile",
 };
 
@@ -76,13 +77,16 @@ export function modeForPath(pathname: string): AppMode {
     pathname.startsWith("/opportunities") ||
     pathname.startsWith("/discover")
   ) {
-    return "find";
+    return "network";
+  }
+  if (pathname.startsWith("/projects") || pathname.startsWith("/live") || pathname.startsWith("/rooms")) {
+    return "studio";
   }
   if (
     pathname.startsWith("/profile") ||
     pathname.startsWith("/u/") ||
+    pathname.startsWith("/artist/") ||
     pathname.startsWith("/messages") ||
-    pathname.startsWith("/rooms") ||
     pathname.startsWith("/activity") ||
     pathname.startsWith("/store") ||
     pathname.startsWith("/admin") ||
@@ -93,5 +97,5 @@ export function modeForPath(pathname: string): AppMode {
   ) {
     return "you";
   }
-  return "drops";
+  return "home";
 }

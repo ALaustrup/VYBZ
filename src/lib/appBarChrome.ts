@@ -12,11 +12,11 @@ export interface ChromeDef {
 }
 
 export function chromeForPath(pathname: string): ChromeDef {
-  if (pathname === "/") return { title: "Drops", subtitle: "Fresh sound from the network" };
-  if (pathname.startsWith("/discover")) return { title: "Discover" };
+  if (pathname === "/") return { title: "Home", subtitle: "Drops from the network" };
+  if (pathname.startsWith("/discover")) return { title: "Discover", showBack: true, backTo: "/connect" };
   if (pathname.startsWith("/activity")) return { title: "Activity" };
   if (pathname.startsWith("/connect")) {
-    return { title: "Connect", subtitle: "Creators who complement your craft" };
+    return { title: "Network", subtitle: "Match, spark, and find collaborators" };
   }
   if (pathname.startsWith("/spark")) return { title: "Spark", showBack: true, backTo: "/connect" };
   if (pathname.startsWith("/opportunities")) {
@@ -25,7 +25,9 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/projects/") && pathname !== "/projects") {
     return { title: "Collab room", showBack: true, backTo: "/projects" };
   }
-  if (pathname.startsWith("/projects")) return { title: "Studio" };
+  if (pathname.startsWith("/projects")) {
+    return { title: "Studio", subtitle: "Projects, sessions, and catalog work" };
+  }
   if (pathname.startsWith("/live/") && pathname !== "/live") {
     return { title: "Live", showBack: true, backTo: "/live" };
   }
@@ -35,7 +37,7 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/rooms/") && pathname !== "/rooms") {
     return { title: "Room", showBack: true, backTo: "/rooms" };
   }
-  if (pathname.startsWith("/rooms")) return { title: "Rooms" };
+  if (pathname.startsWith("/rooms")) return { title: "Rooms", showBack: true, backTo: "/projects" };
   if (pathname.startsWith("/profile/edit")) {
     return { title: "Edit profile", showBack: true, backTo: "/profile" };
   }

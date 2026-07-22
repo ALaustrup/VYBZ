@@ -34,7 +34,7 @@ export function ConnectPage() {
   return (
     <div className="flex h-full flex-col">
       <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
-        <div className="mb-5 flex gap-5 border-b border-[var(--hairline)] pb-2.5">
+        <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 border-b border-[var(--hairline)] pb-2.5">
           <button
             type="button"
             onClick={() => navigate("/spark")}
@@ -53,9 +53,18 @@ export function ConnectPage() {
             Opportunities
             <ArrowRight className="h-3 w-3 opacity-0 transition group-hover:opacity-60" />
           </button>
+          <button
+            type="button"
+            onClick={() => navigate("/discover")}
+            className="group flex items-center gap-2 text-[13px] font-medium text-white/55 transition hover:text-white"
+          >
+            <Music2 className="h-3.5 w-3.5 text-white/40" />
+            Discover
+            <ArrowRight className="h-3 w-3 opacity-0 transition group-hover:opacity-60" />
+          </button>
         </div>
 
-        <p className="eyebrow mb-3">Collaborators for you</p>
+        <p className="eyebrow mb-3">Suggested collaborators</p>
 
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>

@@ -7,13 +7,13 @@ import { cx } from "@/lib/utils";
 const STEPS = [
   {
     icon: AudioLines,
-    title: "Your Feed",
-    body: "Home is a stream of music drops. Play anything — the orb and borders react to the sound.",
+    title: "Home",
+    body: "Home is your drop stream. Play anything — the orb and borders react to the sound.",
   },
   {
     icon: CircleDot,
     title: "The Orb",
-    body: "Tap the sphere in the center of the taskbar for New drop, Go live, Spark, and Messages. Pin your favorite pages on the left and right.",
+    body: "Tap the sphere for New drop, Go live, Spark, and Messages. Pins on the sides are Home, Network, Studio, and You.",
   },
   {
     icon: Sparkles,
