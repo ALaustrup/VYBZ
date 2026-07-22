@@ -55,7 +55,7 @@ export function GlobalPlayer({ className }: { className?: string }) {
       {/* Collapsed dock bar — placement controlled by the parent shell. */}
       <div className={cx("relative z-40 px-3 pb-1", className)}>
         <div
-          className="glass relative mx-auto flex max-w-md items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] px-3 py-2 shadow-[0_10px_34px_-14px_rgba(0,0,0,0.95)]"
+          className="glass relative mx-auto flex max-w-3xl items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] px-3 py-2 shadow-[0_10px_34px_-14px_rgba(0,0,0,0.95)]"
         >
           {/* Thin progress hairline. */}
           <span

@@ -29,12 +29,12 @@ export function ProjectsPage() {
     <div className="flex h-full flex-col">
       <PageHeader
         title="Collabs"
-        subtitle="Private rooms — versions, splits & verified credits"
+        subtitle="Private project rooms"
         actions={
           <button type="button" onClick={() => setComposing(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs"><Plus className="h-3.5 w-3.5" /> New</button>
         }
       />
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (

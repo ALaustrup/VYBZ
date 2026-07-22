@@ -48,7 +48,7 @@ export function UserProfilePage() {
   const f = p.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-5 pb-8 pt-4">
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-3 sm:pt-5">
       <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="mb-4 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
 
       <div className="mb-5 flex items-start gap-4">

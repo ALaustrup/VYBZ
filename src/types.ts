@@ -8,6 +8,9 @@ export type AssetKind =
   | "sample" | "loop" | "oneshot" | "stem" | "acapella"
   | "midi" | "preset" | "project" | "track";
 
+export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
+export type PostAudience = "public" | "followers" | "private";
+
 /** Owner-editable music facets + privacy (stored in profiles.profile jsonb). */
 export interface ProfileDetails {
   bio?: string;
@@ -91,6 +94,10 @@ export interface Drop {
   rating?: number;
   ratingCount?: number;
   plays?: number;
+  /** Poster-chosen audio-reactive outline effect. */
+  fx?: PostFx | null;
+  /** Who can see this drop in feeds. */
+  audience?: PostAudience;
 }
 
 export interface RoleOffer { roleId: string; skill: number }
@@ -396,7 +403,6 @@ export interface ProjectWidget {
   sort?: number;
 }
 export type PostKind = "text" | "audio" | "image" | "video" | "link";
-export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
 
 export interface ProfileProject {
   id: string;
@@ -471,8 +477,7 @@ export interface FeedPost {
 }
 
 export interface ProjectInput { name: string; kind: ProjectKind; tagline?: string | null; accent?: string | null; coverUrl?: string | null }
-export type PostAudience = "public" | "followers";
-export interface PostInput { projectId: string; kind: PostKind; title?: string | null; body?: string | null; mediaUrl?: string | null; linkUrl?: string | null; audience?: PostAudience; scheduledAt?: string | null; fx?: PostFx }
+export interface PostInput { projectId: string; kind: PostKind; title?: string | null; body?: string | null; mediaUrl?: string | null; linkUrl?: string | null; audience?: PostAudience; scheduledAt?: string | null; fx?: PostFx; inviteeIds?: string[] }
 export interface LinkInput { projectId: string; label: string; url?: string | null; thumbUrl?: string | null; targetProjectId?: string | null }
 
 // ── Admin console ────────────────────────────────────────────────────────────

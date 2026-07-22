@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, ScrollText,
-  ShieldCheck, Shield, Bug, AudioLines, ChevronRight,
+  ShieldCheck, Shield, Bug, AudioLines, ChevronRight, ChevronDown,
 } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
@@ -33,6 +33,7 @@ export function ProfilePage() {
   const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
   const [bugOpen, setBugOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -46,8 +47,8 @@ export function ProfilePage() {
   const facets = profile.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-5 pb-8 pt-4 max-lg:pr-14">
-      <div className="mb-5 flex items-start gap-4">
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-3 sm:pt-5">
+      <div className="mb-4 flex items-start gap-4">
         <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
         <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex flex-wrap items-center gap-2">
@@ -60,57 +61,34 @@ export function ProfilePage() {
             <RoleClassBadge roleClass={facets.roleClass} />
             <ProBadge profile={facets} />
           </div>
-          {profile.location && <p className="mt-1 text-sm text-white/40">{profile.location}</p>}
+          {stats && (
+            <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-white/40">
+              {stats.reputation >= 0.5 && <span className="flex items-center gap-1 text-white/60"><Star className="h-3 w-3" /> Proven</span>}
+              <span>{stats.drops} drops</span>
+              {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{stats.connections}</span>}
+            </p>
+          )}
         </div>
         <div className="flex shrink-0 gap-1.5 pt-1">
           <button type="button" onClick={() => navigate("/profile/edit")} aria-label="Edit" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><Pencil className="h-4 w-4" /></button>
           <button type="button" onClick={signOut} aria-label="Sign out" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><LogOut className="h-4 w-4" /></button>
         </div>
       </div>
-      <div className="mb-5 h-px w-full bg-[var(--hairline)]" />
 
-      {stats && (stats.ratings > 0 || stats.drops > 0 || stats.connections > 0) && (
-        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/45">
-          {stats.reputation >= 0.5 && <span className="flex items-center gap-1 font-medium text-white/65"><Star className="h-3 w-3" /> Proven</span>}
-          {stats.ratings > 0 && <span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 text-white/50" />{stats.avgRating.toFixed(1)} · {stats.ratings}</span>}
-          <span>{stats.drops} {stats.drops === 1 ? "drop" : "drops"}</span>
-          {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />{stats.connections}</span>}
+      {profile.bio && <p className="mb-4 text-sm leading-relaxed text-white/60">{profile.bio}</p>}
+
+      {(roles.offers.length > 0 || roles.seeks.length > 0 || facets.genres?.length) && (
+        <div className="mb-5 space-y-1.5 text-[13px] text-white/55">
+          {roles.offers.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">I bring </span>{roles.offers.join(" · ")}</p>}
+          {roles.seeks.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">Seeking </span>{roles.seeks.join(" · ")}</p>}
+          {facets.genres?.length ? <p><span className="text-[11px] uppercase tracking-wider text-white/35">Genres </span>{facets.genres.join(" · ")}</p> : null}
         </div>
-      )}
-      {profile.bio && <p className="mb-5 text-sm leading-relaxed text-white/65">{profile.bio}</p>}
-
-      <div className="mb-5 space-y-2">
-        {roles.offers.length > 0 && <FacetRow icon={<Sparkles className="h-3.5 w-3.5 text-white/35" />} label="I bring" items={roles.offers} />}
-        {roles.seeks.length > 0 && <FacetRow icon={<Target className="h-3.5 w-3.5 text-white/35" />} label="Looking for" items={roles.seeks} />}
-        {facets.genres?.length ? <FacetRow label="Genres" items={facets.genres} /> : null}
-        {facets.daws?.length ? <FacetRow label="DAWs" items={facets.daws} /> : null}
-      </div>
-
-      <PayoutSetup />
-
-      {userId && <AffiliateLinks userId={userId} editable />}
-
-      {FLAGS.swarm && (
-        <label className="mb-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5">
-          <input
-            type="checkbox"
-            className="mt-0.5 accent-[var(--veil-400)]"
-            defaultChecked={swarmSeedOptIn()}
-            onChange={(e) => setSwarmSeedOptIn(e.target.checked)}
-          />
-          <span>
-            <span className="block text-[13px] font-medium text-white/85">Seed stems over Swarm</span>
-            <span className="mt-0.5 block text-[11px] leading-snug text-white/40">
-              Opt-in P2P for encrypted audio chunks with peers who already have download rights. CDN stays the fallback.
-            </span>
-          </span>
-        </label>
       )}
 
       {(roles.offers.length === 0 && roles.seeks.length === 0) && (
-        <button type="button" onClick={() => navigate("/profile/edit")} className="mb-5 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-3.5 text-left">
+        <button type="button" onClick={() => navigate("/profile/edit")} className="mb-5 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-3 text-left">
           <Target className="h-4 w-4 shrink-0 text-veil-300" />
-          <p className="text-[13px] text-white/55">Add roles you <span className="text-white/85">bring</span> and <span className="text-white/85">seek</span> — that powers precise matches.</p>
+          <p className="text-[13px] text-white/55">Add roles you bring and seek for better matches.</p>
           <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-white/30" />
         </button>
       )}
@@ -119,44 +97,69 @@ export function ProfilePage() {
         <Discography credits={credits} isOwner />
       </div>
 
-      <div className="mb-6">
-        <p className="eyebrow mb-3">Projects</p>
+      <p className="eyebrow mb-3 flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
+      {loading ? (
+        <div className="mb-6 flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
+      ) : (
+        <div className="mb-6">
+          <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
+        </div>
+      )}
+
+      <div className="mb-5">
+        <p className="eyebrow mb-3">Studio</p>
         <ProjectsPanel userId={userId!} editable />
       </div>
 
-      <DisplaySetting />
+      <button
+        type="button"
+        onClick={() => setSettingsOpen((v) => !v)}
+        className="mb-2 flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left"
+      >
+        <span className="text-[13px] font-semibold text-white/80">Settings & tools</span>
+        <ChevronDown className={cx("h-4 w-4 text-white/40 transition", settingsOpen && "rotate-180")} />
+      </button>
 
-      <PasskeysCard />
-
-      <div className="mb-6 divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
-        <LinkRow icon={Sparkles} title="Cosmetic store" body={`Profile accents & flair${profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}`} onClick={() => navigate("/store")} />
-        <LinkRow icon={ScrollText} title="VYBZ Codex & Legal" body="Contracts, licenses, Terms, Privacy, DMCA" onClick={() => navigate("/codex")} />
-        {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
-          <LinkRow icon={Shield} title="Moderator console" body={`Report queue & rewards${profile.modPoints > 0 ? ` · ${profile.modPoints} credits` : ""}`} onClick={() => navigate("/mod")} />
-        )}
-        {profile.platformRole === "member" && !profile.isAdmin && (
-          <LinkRow icon={Shield} title="Become a moderator" body="Help keep VYBZ real — earn rewards" onClick={() => navigate("/apply-mod")} />
-        )}
-        {profile.isAdmin && (
-          <LinkRow icon={ShieldCheck} title="Admin console" body="Members, staff, matchmaking & bugs" onClick={() => navigate("/admin")} />
-        )}
-        <LinkRow icon={Bug} title="Report a bug" body="Goes straight to the team" onClick={() => setBugOpen(true)} />
-      </div>
-      <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
-
-      <p className="eyebrow mb-3 flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Your library</p>
-      {loading ? (
-        <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
-      ) : (
-        <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
+      {settingsOpen && (
+        <div className="mb-4 space-y-4 rounded-2xl border border-white/8 bg-ink-950/40 p-4">
+          <DisplaySetting />
+          <PayoutSetup />
+          {userId && <AffiliateLinks userId={userId} editable />}
+          {FLAGS.swarm && (
+            <label className="flex cursor-pointer items-start gap-3">
+              <input type="checkbox" className="mt-0.5 accent-[var(--veil-400)]" defaultChecked={swarmSeedOptIn()} onChange={(e) => setSwarmSeedOptIn(e.target.checked)} />
+              <span>
+                <span className="block text-[13px] font-medium text-white/85">Seed stems over Swarm</span>
+                <span className="mt-0.5 block text-[11px] text-white/40">Opt-in P2P for encrypted audio chunks.</span>
+              </span>
+            </label>
+          )}
+          <PasskeysCard />
+          <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
+            <LinkRow icon={Sparkles} title="Cosmetic store" body="Accents & flair" onClick={() => navigate("/store")} />
+            <LinkRow icon={ScrollText} title="Codex & Legal" body="Contracts, Terms, Privacy" onClick={() => navigate("/codex")} />
+            {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
+              <LinkRow icon={Shield} title="Moderate" body="Report queue" onClick={() => navigate("/mod")} />
+            )}
+            {profile.platformRole === "member" && !profile.isAdmin && (
+              <LinkRow icon={Shield} title="Become a moderator" body="Help keep VYBZ real" onClick={() => navigate("/apply-mod")} />
+            )}
+            {profile.isAdmin && (
+              <LinkRow icon={ShieldCheck} title="Admin" body="Members & matchmaking" onClick={() => navigate("/admin")} />
+            )}
+            <LinkRow icon={Bug} title="Report a bug" body="Goes to the team" onClick={() => setBugOpen(true)} />
+          </div>
+        </div>
       )}
+
+      <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </div>
   );
 }
 
 function LinkRow({ icon: Icon, title, body, onClick }: { icon: typeof Bug; title: string; body: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="flex w-full items-center gap-3 py-3.5 text-left transition hover:bg-white/[0.02] active:scale-[0.995]">
+    <button type="button" onClick={onClick} className="flex w-full items-center gap-3 py-3 text-left transition hover:bg-white/[0.02]">
       <Icon className="h-4 w-4 shrink-0 text-white/40" />
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-medium text-white">{title}</span>
@@ -176,21 +179,17 @@ function DisplaySetting() {
     { id: "reduced", label: "Reduced", val: true },
   ];
   return (
-    <div className="mb-5">
-      <p className="eyebrow mb-3">Visual effects</p>
+    <div>
+      <p className="eyebrow mb-2">Visual effects</p>
       <div className="flex gap-5">
         {opts.map((o) => (
           <button key={o.id} type="button" onClick={() => setReduceFx(o.val)}
-            className={cx("relative pb-2 text-[13px] font-medium transition",
-              current === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
+            className={cx("relative pb-2 text-[13px] font-medium transition", current === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
             {o.label}
             {current === o.id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
           </button>
         ))}
       </div>
-      <p className="mt-2 text-[11px] text-white/35">
-        Auto follows your device. Reduced calms the animated background and reactive border.
-      </p>
       <IntensitySetting />
     </div>
   );
@@ -200,35 +199,18 @@ function IntensitySetting() {
   const reduced = useReduceFx();
   const intensity = useFxIntensity();
   if (reduced) return null;
-  const opts: { id: "subtle" | "full"; label: string }[] = [
-    { id: "subtle", label: "Subtle" },
-    { id: "full", label: "Full" },
-  ];
   return (
-    <div className="mt-4">
-      <p className="eyebrow mb-3">Reactive intensity</p>
+    <div className="mt-3">
+      <p className="eyebrow mb-2">Reactive intensity</p>
       <div className="flex gap-5">
-        {opts.map((o) => (
+        {([{ id: "subtle" as const, label: "Subtle" }, { id: "full" as const, label: "Full" }]).map((o) => (
           <button key={o.id} type="button" onClick={() => setFxIntensity(o.id)}
-            className={cx("relative pb-2 text-[13px] font-medium transition",
-              intensity === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
+            className={cx("relative pb-2 text-[13px] font-medium transition", intensity === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
             {o.label}
             {intensity === o.id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
           </button>
         ))}
       </div>
-      <p className="mt-2 text-[11px] text-white/35">
-        How strongly the reactive border responds to playback.
-      </p>
     </div>
-  );
-}
-
-function FacetRow({ icon, label, items }: { icon?: React.ReactNode; label: string; items: string[] }) {
-  return (
-    <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px]">
-      <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-white/35">{icon}{label}</span>
-      <span className="text-white/65">{items.join(" · ")}</span>
-    </p>
   );
 }

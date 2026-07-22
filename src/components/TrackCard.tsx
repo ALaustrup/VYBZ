@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useState } from "react";
-import { Pause, Play, Star, Heart, EyeOff, MessageCircle, Music2, Loader2, Download } from "lucide-react";
+import { Pause, Play, Star, Heart, Music2, Loader2, Download } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
 import { Handle } from "@/components/Handle";
 import { Waveform } from "@/components/Waveform";
@@ -37,6 +37,7 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
     waveform: d.waveform, durationSec: d.durationSec,
     quality: qualityLabel(d.audioFormat ?? undefined, d.sampleRate ?? undefined, d.lossless),
     lossless: d.lossless, seed: d.seed, accent,
+    fx: d.fx ?? "glow",
   };
 }
 
@@ -155,36 +156,30 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
         </div>
 
         <div className="mt-1 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
-            <button onClick={() => onReact?.("feel")} aria-label="Vyb"
-              className={cx("flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition active:scale-90 hover:bg-feel/10", d.myReaction === "feel" ? "text-feel" : "text-feel/70")}>
-              <Heart className="h-4 w-4" fill={d.myReaction === "feel" ? "currentColor" : "none"} />{formatCount(d.feels)}
+          <div className="flex items-center gap-0.5">
+            <button type="button" onClick={() => onReact?.("feel")} aria-label="Vyb"
+              className={cx("flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition active:scale-90 hover:bg-feel/10", d.myReaction === "feel" ? "text-feel" : "text-white/40")}>
+              <Heart className="h-4 w-4" fill={d.myReaction === "feel" ? "currentColor" : "none"} />
+              {d.feels > 0 ? formatCount(d.feels) : null}
             </button>
-            <button onClick={() => onReact?.("wild")} aria-label="Fail"
-              className={cx("flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold transition active:scale-90 hover:bg-shroud/10", d.myReaction === "wild" ? "text-shroud" : "text-white/45")}>
-              <EyeOff className="h-4 w-4" />{formatCount(d.wilds)}
-            </button>
-            <span className="flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold text-white/40">
-              <MessageCircle className="h-4 w-4" />
-            </span>
             {d.assetId && (
-              <button onClick={download} aria-label="Download"
-                className="flex items-center rounded-full px-2 py-1 text-white/55 transition active:scale-90 hover:bg-white/10 hover:text-white">
+              <button type="button" onClick={download} aria-label="Download"
+                className="flex items-center rounded-full px-2 py-1 text-white/40 transition active:scale-90 hover:bg-white/10 hover:text-white">
                 {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               </button>
             )}
             <ReportButton kind="drop" targetId={d.id} label={d.title?.trim() || d.authorUsername || "drop"} className="flex items-center rounded-full px-2 py-1 hover:bg-wild/10" iconClassName="h-4 w-4" />
           </div>
-          <div className="flex items-center gap-0.5" role="group" aria-label="Rate this track">
+          <div className="flex items-center gap-0.5 opacity-70" role="group" aria-label="Rate this track">
             {[1, 2, 3, 4, 5].map((n) => {
               const filled = (mine || Math.round(avg)) >= n;
               return (
-                <button key={n} onClick={(e) => { e.stopPropagation(); onRate?.(n); }} aria-label={`Rate ${n}`} className="p-0.5 transition active:scale-90">
-                  <Star className={cx("h-3.5 w-3.5", filled ? "text-amber-300" : "text-white/25")} fill={filled ? "currentColor" : "none"} />
+                <button type="button" key={n} onClick={(e) => { e.stopPropagation(); onRate?.(n); }} aria-label={`Rate ${n}`} className="p-0.5 transition active:scale-90">
+                  <Star className={cx("h-3.5 w-3.5", filled ? "text-amber-300" : "text-white/20")} fill={filled ? "currentColor" : "none"} />
                 </button>
               );
             })}
-            {count > 0 && <span className="ml-1 font-mono text-[10px] text-white/45">{avg.toFixed(1)}</span>}
+            {count > 0 && <span className="ml-1 font-mono text-[10px] text-white/35">{avg.toFixed(1)}</span>}
           </div>
         </div>
       </div>

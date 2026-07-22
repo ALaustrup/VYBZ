@@ -47,7 +47,7 @@ Write-Host "  Domain:   $($VYBZ.ProdDomain)"
 # ── Git / GitHub ─────────────────────────────────────────────────────────────
 Say "Git remotes"
 $remotes = (git remote -v 2>$null) -join "`n"
-if ($remotes -notmatch "(?i)origin.*vyb-audio") { Die "origin must point to ALaustrup/vyb-audio" }
+if ($remotes -notmatch "(?i)origin.*(VYBZ|vyb-audio)") { Die "origin must point to ALaustrup/VYBZ (formerly vyb-audio)" }
 if ($remotes -notmatch "(?i)upstream.*myvybsocial") { Warn "upstream -> myvybsocial missing (add for cherry-picks): git remote add upstream https://github.com/ALaustrup/myvybsocial.git" }
 else { Ok "origin + upstream remotes configured" }
 
@@ -58,7 +58,7 @@ if (git status --porcelain) { Warn "Working tree has uncommitted changes" } else
 
 Say "GitHub repo"
 try {
-  $ghJson = gh repo view ALaustrup/vyb-audio --json isPrivate,url 2>$null | ConvertFrom-Json
+  $ghJson = gh repo view ALaustrup/VYBZ --json isPrivate,url 2>$null | ConvertFrom-Json
   if ($ghJson) {
     Ok "$($ghJson.url) (private=$($ghJson.isPrivate))"
     Warn "Branch protection on private repos requires GitHub Pro - enforce manually or upgrade"

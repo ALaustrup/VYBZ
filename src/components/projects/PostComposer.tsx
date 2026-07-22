@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Clock, Globe, Image as ImageIcon, Loader2, Music2, Upload, Users, X, Zap } from "lucide-react";
+import { Clock, Globe, Image as ImageIcon, Loader2, Lock, Music2, Upload, Users, X, Zap } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
@@ -151,8 +151,9 @@ export function PostComposer({ project, onClose, onPosted }: { project: ProfileP
             <div>
               <p className="mb-1.5 text-[12px] font-semibold text-white/60">Audience</p>
               <div className="flex gap-1.5">
-                <button onClick={() => setAudience("public")} className={cx("flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-[13px] font-semibold transition", audience === "public" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Globe className="h-4 w-4" /> Public</button>
-                <button onClick={() => setAudience("followers")} className={cx("flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-[13px] font-semibold transition", audience === "followers" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Users className="h-4 w-4" /> Followers</button>
+                <button type="button" onClick={() => setAudience("public")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "public" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Globe className="h-3.5 w-3.5" /> Public</button>
+                <button type="button" onClick={() => setAudience("followers")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "followers" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Users className="h-3.5 w-3.5" /> Network</button>
+                <button type="button" onClick={() => setAudience("private")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "private" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Lock className="h-3.5 w-3.5" /> Private</button>
               </div>
             </div>
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AudioLines, Loader2, Pause, Play, Send, Trash2, X } from "lucide-react";
+import { AudioLines, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Waveform } from "@/components/Waveform";
@@ -10,17 +10,20 @@ import {
 } from "@/lib/waveform";
 import { playTrack, usePlayer, seekFraction } from "@/lib/audioBus";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
-import { cx } from "@/lib/utils";
-import type { AssetKind } from "@/types";
+import { cx, paletteFor } from "@/lib/utils";
+import type { AssetKind, PostAudience, PostFx } from "@/types";
 
 const KINDS: { id: AssetKind; label: string }[] = [
   { id: "track", label: "Track" }, { id: "loop", label: "Loop" }, { id: "sample", label: "Sample" },
   { id: "oneshot", label: "One-shot" }, { id: "stem", label: "Stem" }, { id: "acapella", label: "Acapella" },
   { id: "midi", label: "MIDI" }, { id: "preset", label: "Preset" }, { id: "project", label: "Project" },
 ];
+const FX_OPTIONS: { id: PostFx; label: string }[] = [
+  { id: "glow", label: "Glow" }, { id: "aurora", label: "Aurora" }, { id: "pulse", label: "Pulse" },
+  { id: "bars", label: "Bars" }, { id: "ripple", label: "Ripple" }, { id: "off", label: "Off" },
+];
 const PREVIEW_ID = "compose-preview";
-// Large lossless masters are welcome; guard against absurd/accidental uploads.
-const MAX_AUDIO_BYTES = 1024 * 1024 * 1024; // 1 GB
+const MAX_AUDIO_BYTES = 1024 * 1024 * 1024;
 function prettyBytes(n: number): string {
   if (n >= 1024 ** 3) return `${(n / 1024 ** 3).toFixed(1)} GB`;
   if (n >= 1024 ** 2) return `${(n / 1024 ** 2).toFixed(0)} MB`;
@@ -41,6 +44,8 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [bpm, setBpm] = useState("");
   const [musicalKey, setMusicalKey] = useState("");
   const [license, setLicense] = useState("collab-only");
+  const [fx, setFx] = useState<PostFx>("glow");
+  const [audience, setAudience] = useState<PostAudience>("public");
   const [decoding, setDecoding] = useState(false);
   const [posting, setPosting] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
@@ -50,11 +55,14 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
   const previewProgress = player.track?.id === PREVIEW_ID && (player.duration || audio?.duration)
     ? player.currentTime / (player.duration || audio!.duration) : 0;
+  const accent = paletteFor(seed)[0];
 
   useEffect(() => {
     if (open) {
       setTitle(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
-      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only"); setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
+      setKind("track"); setBpm(""); setMusicalKey(""); setLicense("collab-only");
+      setFx("glow"); setAudience("public");
+      setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
     }
   }, [open]);
 
@@ -70,11 +78,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     try {
       const meta = audioMeta(file);
       const url = URL.createObjectURL(file);
-      const wf = await computeWaveform(file, 800, true); // analyze → auto BPM/key
+      const wf = await computeWaveform(file, 800, true);
       const ext = (file.name.split(".").pop() || "audio").toLowerCase();
       setAudio({ file, url, ext, peaks: wf?.peaks ?? placeholderWaveform(seed),
         duration: wf?.duration ?? 0, format: meta.format, lossless: meta.lossless, sampleRate: wf?.sampleRate ?? 0 });
-      // Pre-fill detected tempo/key (user can override); flag what was auto-filled.
       const auto: string[] = [];
       if (wf?.bpm) { setBpm(String(wf.bpm)); auto.push("tempo"); }
       if (wf?.key && MUSICAL_KEYS.includes(wf.key)) { setMusicalKey(wf.key); auto.push("key"); }
@@ -87,7 +94,8 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     if (!audio) return;
     playTrack({ id: PREVIEW_ID, url: audio.url, title: title || "Preview", artist: "You",
       waveform: audio.peaks, durationSec: audio.duration,
-      quality: qualityLabel(audio.format, audio.sampleRate, audio.lossless), lossless: audio.lossless, seed });
+      quality: qualityLabel(audio.format, audio.sampleRate, audio.lossless), lossless: audio.lossless,
+      seed, accent, fx });
   }
 
   async function post() {
@@ -97,7 +105,6 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     const path = await api.uploadAudio(audio.file, audio.ext, setProgress);
     setProgress(null);
     if (!path) { setPosting(false); showToast("Upload failed — check your connection."); return; }
-    // Provenance: hash the original bytes + a lightweight acoustic signature.
     const [sha256, fingerprint] = await Promise.all([
       sha256Hex(audio.file).catch(() => undefined),
       acousticSignature(audio.peaks).catch(() => undefined),
@@ -106,11 +113,11 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       title: title.trim() || undefined, seed, assetKind: kind, audioUrl: path,
       waveform: audio.peaks, durationSec: audio.duration, bpm: bpm ? Number(bpm) : undefined,
       musicalKey: musicalKey || undefined, audioFormat: audio.format, sampleRate: audio.sampleRate || undefined,
-      lossless: audio.lossless, license, sha256, fingerprint,
+      lossless: audio.lossless, license, sha256, fingerprint, fx, audience,
     });
     setPosting(false);
     if (!drop) { showToast("Couldn't post that drop."); return; }
-    celebrate("Your drop is live");
+    celebrate(audience === "private" ? "Private drop saved" : "Your drop is live");
     onClose();
     onPosted();
   }
@@ -123,7 +130,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             onClick={onClose} className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm" />
           <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl">
+            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl">
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>
@@ -145,7 +152,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white backdrop-blur transition active:scale-90">
                       {previewPlaying ? <Pause className="h-6 w-6" /> : <Play className="ml-0.5 h-6 w-6" />}
                     </button>
-                    <Waveform peaks={audio.peaks} progress={previewProgress} accent="#a87cf8" height={40}
+                    <Waveform peaks={audio.peaks} progress={previewProgress} accent={accent} height={40}
                       onSeek={player.track?.id === PREVIEW_ID ? (f) => seekFraction(f) : undefined} />
                   </div>
                 ) : (
@@ -202,6 +209,28 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       ))}
                     </div>
                   </div>
+                  <div>
+                    <p className="mb-1.5 flex items-center gap-1.5 text-[12px] font-semibold text-white/60"><Zap className="h-3.5 w-3.5 text-veil-200" /> Outline effect</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {FX_OPTIONS.map((o) => (
+                        <button key={o.id} type="button" onClick={() => setFx(o.id)}
+                          className={cx("rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95", fx === o.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90")}>
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-1.5 text-[12px] font-semibold text-white/60">Audience</p>
+                    <div className="flex gap-1.5">
+                      <button type="button" onClick={() => setAudience("public")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "public" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Globe className="h-3.5 w-3.5" /> Public</button>
+                      <button type="button" onClick={() => setAudience("followers")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "followers" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Users className="h-3.5 w-3.5" /> Network</button>
+                      <button type="button" onClick={() => setAudience("private")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "private" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Lock className="h-3.5 w-3.5" /> Private</button>
+                    </div>
+                    {audience === "private" && (
+                      <p className="mt-1.5 text-[11px] text-white/40">Only you can see this until you invite listeners from the library.</p>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -221,7 +250,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                   </div>
                 </div>
               )}
-              <button onClick={post} disabled={!audio || posting} className="btn btn-primary w-full py-3.5">
+              <button type="button" onClick={post} disabled={!audio || posting} className="btn btn-primary w-full py-3.5">
                 {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Release your drop</>}
               </button>
             </div>

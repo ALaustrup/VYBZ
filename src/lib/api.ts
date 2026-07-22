@@ -17,6 +17,7 @@ import type {
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
   Cosmetic, CosmeticStore,
   LiveSessionCard, LiveSessionDetail, LiveMessage, LiveSource,
+  PostFx, PostAudience,
 } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -331,15 +332,23 @@ export async function reorderProjects(ids: string[]): Promise<void> {
 export async function createPost(input: PostInput): Promise<string> {
   const uid = await currentUserId();
   if (!uid) throw new Error("Not signed in");
+  const audience = input.audience ?? "public";
   const { data, error } = await db().from("project_posts").insert({
     project_id: input.projectId, user_id: uid, kind: input.kind,
     title: input.title ?? null, body: input.body ?? null,
     media_url: input.mediaUrl ?? null, link_url: input.linkUrl ?? null,
-    audience: input.audience ?? "public", scheduled_at: input.scheduledAt ?? null,
+    audience, scheduled_at: input.scheduledAt ?? null,
     fx: input.fx ?? "glow",
   }).select("id").single();
   if (error) throw error;
-  return (data as { id: string }).id;
+  const postId = (data as { id: string }).id;
+  if (audience === "private" && input.inviteeIds?.length) {
+    const rows = input.inviteeIds.filter((id) => id && id !== uid).map((invitee_id) => ({
+      post_id: postId, invitee_id,
+    }));
+    if (rows.length) await db().from("post_invites").upsert(rows);
+  }
+  return postId;
 }
 
 /**
@@ -1019,6 +1028,9 @@ export interface NewDrop {
   bpm?: number; musicalKey?: string; audioFormat?: string; sampleRate?: number; lossless?: boolean;
   license?: string;
   sha256?: string; fingerprint?: string;
+  fx?: PostFx;
+  audience?: PostAudience;
+  inviteeIds?: string[];
 }
 export async function createDrop(input: NewDrop): Promise<Drop | null> {
   const uid = await currentUserId();
@@ -1036,20 +1048,42 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     if (aerr || !asset) return null;
     assetId = (asset as any).id;
   }
-  const { data: drop, error } = await db().from("drops").insert({
-    author_id: uid, title: input.title ?? null, body: input.body ?? null,
-    asset_id: assetId, seed: input.seed,
-  }).select("id,created_at").single();
-  if (error || !drop) return null;
+  const audience = input.audience ?? "public";
+  const fx = input.fx ?? "glow";
+  let drop: { id: string; created_at: string } | null = null;
+  {
+    const res = await db().from("drops").insert({
+      author_id: uid, title: input.title ?? null, body: input.body ?? null,
+      asset_id: assetId, seed: input.seed, fx, audience,
+    }).select("id,created_at").single();
+    if (!res.error && res.data) drop = res.data as any;
+    else {
+      // Pre-migration fallback (no fx/audience columns yet)
+      const fallback = await db().from("drops").insert({
+        author_id: uid, title: input.title ?? null, body: input.body ?? null,
+        asset_id: assetId, seed: input.seed,
+      }).select("id,created_at").single();
+      if (fallback.error || !fallback.data) return null;
+      drop = fallback.data as any;
+    }
+  }
+  if (!drop) return null;
+  if (audience === "private" && input.inviteeIds?.length) {
+    const rows = input.inviteeIds.filter((id) => id && id !== uid).map((invitee_id) => ({
+      drop_id: drop!.id, invitee_id,
+    }));
+    if (rows.length) await db().from("drop_invites").upsert(rows).then(() => undefined, () => undefined);
+  }
   const signed = input.audioUrl ? (await signAudio([input.audioUrl])).get(input.audioUrl) : undefined;
   return {
-    id: (drop as any).id, authorId: uid, authorUsername: null, title: input.title ?? null,
+    id: drop.id, authorId: uid, authorUsername: null, title: input.title ?? null,
     body: input.body ?? null, seed: input.seed, feels: 0, wilds: 0,
-    createdAt: new Date((drop as any).created_at).getTime(), assetId,
+    createdAt: new Date(drop.created_at).getTime(), assetId,
     audioUrl: signed ?? input.audioUrl, waveform: input.waveform, durationSec: input.durationSec,
     assetKind: input.assetKind, bpm: input.bpm ?? null, musicalKey: input.musicalKey ?? null,
     audioFormat: input.audioFormat ?? null, sampleRate: input.sampleRate ?? null, lossless: input.lossless,
     license: input.license ?? "collab-only",
+    fx, audience,
   };
 }
 
@@ -1094,6 +1128,8 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
       rating: a ? Number(a.rating_avg ?? 0) : undefined,
       ratingCount: a ? Number(a.rating_count ?? 0) : undefined,
       plays: r.plays ?? 0,
+      fx: r.fx ?? "glow",
+      audience: r.audience ?? "public",
       myReaction: myReactions.get(r.id), myRating: r.asset_id ? myRatings.get(r.asset_id) : undefined,
     } as Drop & { myReaction?: Reaction; myRating?: number };
   });
@@ -1101,17 +1137,27 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
 
 export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reaction; myRating?: number })[]> {
   const myId = await currentUserId();
+  // Prefer RPC that enforces audience; fall back to filtered select.
+  const { data: rpc, error } = await db().rpc("list_visible_drops", { p_limit: limit });
+  if (!error && Array.isArray(rpc)) return assembleDrops(rpc, myId);
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience")
+    .eq("audience", "public")
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
 }
 export async function dropsBy(authorId: string, limit = 40) {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience")
     .eq("author_id", authorId).order("created_at", { ascending: false }).limit(limit);
-  return assembleDrops(data ?? [], myId);
+  // Owner sees all; others rely on RLS / client filter for private
+  const rows = (data ?? []).filter((r: any) => {
+    if (myId && r.author_id === myId) return true;
+    if ((r.audience ?? "public") === "public") return true;
+    return false; // followers/private for others come through RPC paths
+  });
+  return assembleDrops(myId === authorId ? (data ?? []) : rows, myId);
 }
 
 // ── Manage your own drops (Library) — owner-scoped via RLS + a guarded RPC ────

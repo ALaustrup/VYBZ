@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { bgVariant } from "@/lib/backgrounds";
 import { useReduceFx, useFxScale } from "@/lib/display";
+import { usePlayer } from "@/lib/audioBus";
 
 interface DynamicBackgroundProps {
   /** Variant id (aurora/ember/…) — set per surface for a distinct backdrop. */
@@ -29,8 +30,10 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduce = useReduceFx();
   const fxScale = useFxScale();
-  // Calmer blobs on "subtle" (default), fuller on "full"; static frame stays legible.
-  const blobAlpha = 0.34 * (reduce ? 1 : 0.72 + 0.28 * fxScale);
+  const { playing } = usePlayer();
+  // Quieter when audio is playing so orb + outline FX own the reactivity.
+  const playDim = playing ? 0.55 : 1;
+  const blobAlpha = 0.34 * (reduce ? 1 : 0.72 + 0.28 * fxScale) * playDim;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -153,14 +156,14 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [variant, reduce, blobAlpha]);
+  }, [variant, reduce, blobAlpha, playing]);
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 h-full w-full"
-      style={{ filter: "blur(28px)", transform: "scale(1.08)" }}
+      style={{ filter: playing ? "blur(22px)" : "blur(28px)", transform: "scale(1.08)", opacity: playing ? 0.85 : 1 }}
     />
   );
 }

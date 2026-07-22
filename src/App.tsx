@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
-import { useMediaQuery } from "@/lib/useMediaQuery";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
@@ -12,7 +11,8 @@ import { ComposeSheet } from "@/components/ComposeSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
-import { OrbDock, OrbSideRail, YouChip } from "@/components/OrbDock";
+import { YouChip } from "@/components/OrbDock";
+import { Taskbar } from "@/components/taskbar/Taskbar";
 import { BRAND_ACCENT, BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
@@ -47,12 +47,9 @@ export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
   const [feedKey, setFeedKey] = useState(0);
   const [composeOpen, setComposeOpen] = useState(false);
-  const desktop = useMediaQuery("(min-width: 1024px)");
   const location = useLocation();
   const surface = surfaceForPath(location.pathname);
 
-  // Studio Glass: lock the sign-in violet as the only accent. Labels still
-  // resolve per route for quiet titles; the token system never rethemes.
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty("--accent-rgb", BRAND_ACCENT);
@@ -119,49 +116,27 @@ export function App() {
     </ErrorBoundary>
   );
 
-  const overlays = (
+  return (
     <>
+      <DynamicBackground variant={surface.bg} />
+      <GrainOverlay />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
+      <div className="relative mx-auto flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden">
+        <YouChip />
+        <main className="relative z-10 min-h-0 flex-1 overflow-hidden pt-[env(safe-area-inset-top)]">
+          <div className="mx-auto h-full w-full max-w-5xl px-4 pr-14 sm:px-6 sm:pr-16 lg:px-8">{routes}</div>
+        </main>
+        <GlobalPlayer className="relative z-40 pb-0" />
+        <Taskbar onCompose={() => setComposeOpen(true)} />
+      </div>
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <ReactiveFrame />
       <WelcomeTutorial />
       <Toast /><Confetti />
     </>
   );
-
-  if (desktop) {
-    return (
-      <>
-        <DynamicBackground variant={surface.bg} />
-        <GrainOverlay />
-        <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
-        <div className="flex h-[100dvh] w-full overflow-hidden">
-          <OrbSideRail onCompose={() => setComposeOpen(true)} />
-          <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-            <div className="mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-hidden px-6 xl:max-w-6xl lg:px-8">{routes}</div>
-            <GlobalPlayer className="relative z-10 pb-3" />
-          </main>
-        </div>
-        {overlays}
-      </>
-    );
-  }
-
-  return (
-    <>
-      <DynamicBackground variant={surface.bg} />
-      <GrainOverlay />
-      <div className="relative mx-auto flex h-[100dvh] max-w-md flex-col overflow-hidden bg-ink-950/70 backdrop-blur-2xl">
-        <YouChip />
-        <main className="relative z-10 flex-1 overflow-hidden pt-[env(safe-area-inset-top)]">{routes}</main>
-        <GlobalPlayer />
-        <OrbDock onCompose={() => setComposeOpen(true)} />
-      </div>
-      {overlays}
-    </>
-  );
 }
 
-/** Minimal public layout for the Codex + legal pages (no sign-in required). */
 function PublicDocShell() {
   const location = useLocation();
   return (

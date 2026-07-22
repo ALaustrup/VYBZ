@@ -30,7 +30,7 @@ export function PageHeader({
       initial={reduce ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-      className={cx("px-5 pt-4 pb-3 max-lg:pr-14", className)}
+      className={cx("px-1 pt-3 pb-2 sm:pt-5", className)}
     >
       <div className="flex items-start gap-3">
         {back}

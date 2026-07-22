@@ -34,13 +34,10 @@ export function ConnectPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader
-        title="Find"
-        subtitle="Musicians who complement you — ranked both ways"
-      />
+      <PageHeader title="Connect" subtitle="Creators who complement your craft" />
 
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6">
-        <div className="mb-6 flex gap-6 border-b border-[var(--hairline)] pb-3">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
+        <div className="mb-5 flex gap-5 border-b border-[var(--hairline)] pb-2.5">
           <button
             type="button"
             onClick={() => navigate("/spark")}
