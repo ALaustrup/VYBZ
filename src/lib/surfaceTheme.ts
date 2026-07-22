@@ -28,13 +28,13 @@ export const DEFAULT_SURFACE: SurfaceTheme = {
 
 // Labels only — accent + bg are brand-locked.
 const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }> = [
-  { test: (p) => p === "/", id: "feed", label: "Feed" },
+  { test: (p) => p === "/", id: "feed", label: "Drops" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover" },
   { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities" },
   { test: (p) => p.startsWith("/connect"), id: "find", label: "Find" },
   { test: (p) => p.startsWith("/live"), id: "live", label: "Live" },
-  { test: (p) => p.startsWith("/projects"), id: "studio", label: "Collabs" },
+  { test: (p) => p.startsWith("/projects"), id: "studio", label: "Studio" },
   { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), id: "messages", label: "Messages" },
   { test: (p) => p.startsWith("/store"), id: "store", label: "Store" },
   { test: (p) => p.startsWith("/activity"), id: "activity", label: "Activity" },

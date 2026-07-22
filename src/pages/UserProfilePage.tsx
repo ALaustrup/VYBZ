@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, Flag } from "lucide-react";
+import { Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
 import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
 import * as api from "@/lib/api";
@@ -15,6 +15,7 @@ import { ArtistRoster } from "@/components/ArtistRoster";
 import { ProBadge } from "@/components/ProBadge";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function UserProfilePage() {
@@ -42,6 +43,11 @@ export function UserProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
+  useRegisterAppBar({
+    title: p?.username ? `@${p.username}` : "Creator",
+    subtitle: p?.profile?.roleLabel || undefined,
+  }, [p?.username, p?.profile?.roleLabel]);
+
   const cosmetics = useResolvedCosmetics(p?.equippedCosmetics);
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   if (!p) return <div className="flex h-full items-center justify-center text-white/50">Profile not found.</div>;
@@ -49,9 +55,7 @@ export function UserProfilePage() {
   const f = p.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-3 sm:pt-5">
-      <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="mb-4 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-2">
       <div className="mb-5 flex items-start gap-4">
         <Avatar url={p.avatarUrl} name={p.username} id={id} size="lg" square />
         <div className="min-w-0 flex-1 pt-0.5">

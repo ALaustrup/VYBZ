@@ -23,6 +23,7 @@ import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
 import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function ProfilePage() {
@@ -43,12 +44,29 @@ export function ProfilePage() {
     });
   }, [userId]);
 
+  useRegisterAppBar({
+    title: profile?.username ? `@${profile.username}` : "You",
+    subtitle: profile?.profile?.roleLabel || undefined,
+    actions: (
+      <>
+        <button type="button" onClick={() => navigate("/profile/edit")} aria-label="Edit"
+          className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+          <Pencil className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={signOut} aria-label="Sign out"
+          className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+          <LogOut className="h-4 w-4" />
+        </button>
+      </>
+    ),
+  }, [profile?.username, profile?.profile?.roleLabel, signOut, navigate]);
+
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   if (!profile) return null;
   const facets = profile.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-3 sm:pt-5">
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-2">
       <div className="mb-4 flex items-start gap-4">
         <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
         <div className="min-w-0 flex-1 pt-0.5">
@@ -69,10 +87,6 @@ export function ProfilePage() {
               {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{stats.connections}</span>}
             </p>
           )}
-        </div>
-        <div className="flex shrink-0 gap-1.5 pt-1">
-          <button type="button" onClick={() => navigate("/profile/edit")} aria-label="Edit" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><Pencil className="h-4 w-4" /></button>
-          <button type="button" onClick={signOut} aria-label="Sign out" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><LogOut className="h-4 w-4" /></button>
         </div>
       </div>
 

@@ -118,6 +118,12 @@
     padding-right: var(--stage-pad-x);
   }
 
+  .app-bar--sub .app-bar-inner {
+    min-height: calc(var(--app-bar-h) + 0.65rem);
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+
   .app-stage {
     @apply relative z-10 min-h-0 flex-1 overflow-hidden;
   }

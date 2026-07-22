@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, BadgeCheck, Loader2, Users } from "lucide-react";
+import { BadgeCheck, Loader2, Users } from "lucide-react";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { Avatar } from "@/components/Avatar";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { ArtistProfile, Drop } from "@/types";
 
 export function ArtistPage() {
@@ -28,6 +29,11 @@ export function ArtistPage() {
     return () => { cancelled = true; };
   }, [slug]);
 
+  useRegisterAppBar({
+    title: artist?.displayName || "Artist",
+    subtitle: artist ? `/artist/${artist.slug}` : undefined,
+  }, [artist?.displayName, artist?.slug]);
+
   if (loading) {
     return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   }
@@ -43,12 +49,7 @@ export function ArtistPage() {
   const owners = members.filter((m) => m.role === "owner" || m.role === "manager");
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-3 sm:pt-5">
-      <button type="button" onClick={() => navigate(-1)} aria-label="Back"
-        className="mb-4 flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
-        <ArrowLeft className="h-4 w-4" />
-      </button>
-
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-2">
       <div className="mb-5 flex items-start gap-4">
         <Avatar url={artist.avatarUrl} name={artist.displayName} id={artist.id} size="lg" square />
         <div className="min-w-0 flex-1 pt-0.5">

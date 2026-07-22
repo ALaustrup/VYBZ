@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Briefcase, Flame, Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, UserPlus, Users, ArrowRight } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
-import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
@@ -34,9 +33,7 @@ export function ConnectPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader title="Connect" subtitle="Creators who complement your craft" />
-
-      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
         <div className="mb-5 flex gap-5 border-b border-[var(--hairline)] pb-2.5">
           <button
             type="button"

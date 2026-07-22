@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/EmptyState";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/store/session";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx } from "@/lib/utils";
 import type { Drop, Reaction } from "@/types";
 
@@ -58,6 +59,25 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
     return () => { if (t) clearTimeout(t); void sb.removeChannel(ch); };
   }, []);
 
+  useRegisterAppBar({
+    actions: (
+      <div className="flex items-center gap-0.5 text-white/45">
+        <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Feed options" aria-expanded={filtersOpen}
+          className={cx("rounded-xl p-2 transition hover:text-white/80", filtersOpen && "bg-white/[0.06] text-white")}>
+          <SlidersHorizontal className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout"
+          className={cx("rounded-xl p-2 transition", layout === "comfortable" ? "text-white" : "hover:text-white/70")}>
+          <Rows3 className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={() => setLayoutPersist("grid")} aria-label="Grid layout"
+          className={cx("rounded-xl p-2 transition", layout === "grid" ? "text-white" : "hover:text-white/70")}>
+          <LayoutGrid className="h-4 w-4" />
+        </button>
+      </div>
+    ),
+  }, [filtersOpen, layout]);
+
   function react(d: FeedItem, r: Reaction) {
     const next = d.myReaction === r ? undefined : r;
     setDrops((list) => list.map((x) => {
@@ -78,23 +98,8 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-end justify-between gap-3 px-1 pb-3 pt-3 sm:pt-5">
-        <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">Drops</h1>
-          <p className="mt-0.5 text-[13px] text-white/40">Fresh sound from the network</p>
-        </div>
-        <div className="flex items-center gap-1 text-white/40">
-          <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Feed options" aria-expanded={filtersOpen}
-            className={cx("rounded-xl p-2 transition hover:text-white/80", filtersOpen && "text-white bg-white/[0.06]")}>
-            <SlidersHorizontal className="h-4 w-4" />
-          </button>
-          <button type="button" onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout" className={cx("rounded-xl p-2 transition", layout === "comfortable" ? "text-white" : "hover:text-white/70")}><Rows3 className="h-4 w-4" /></button>
-          <button type="button" onClick={() => setLayoutPersist("grid")} aria-label="Grid layout" className={cx("rounded-xl p-2 transition", layout === "grid" ? "text-white" : "hover:text-white/70")}><LayoutGrid className="h-4 w-4" /></button>
-        </div>
-      </div>
-
       {filtersOpen && (
-        <div className="mb-3 flex flex-wrap items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2.5 text-[12px]">
+        <div className="mb-2 mt-2 flex flex-wrap items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2.5 text-[12px]">
           <button type="button" onClick={() => setMode("discovery")} className={cx("font-medium", mode === "discovery" ? "text-white" : "text-white/40")}>Explore</button>
           <button type="button" onClick={() => setMode("latest")} className={cx("font-medium", mode === "latest" ? "text-white" : "text-white/40")}>Latest</button>
           {mode === "discovery" && (
@@ -105,7 +110,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
         </div>
       )}
 
-      <div className="no-scrollbar flex-1 overflow-y-auto pb-4 pt-1">
+      <div className="no-scrollbar flex-1 overflow-y-auto pb-4 pt-2">
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : drops.length === 0 ? (

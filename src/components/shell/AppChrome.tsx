@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { ShellAppBar } from "@/components/shell/ShellAppBar";
+import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 
 /**
- * App-like chrome wrapper (Step 3A). Owns shell CSS tokens, sticky top bar,
+ * App-like chrome wrapper. Owns shell CSS tokens, sticky ContextualAppBar,
  * scroll stage, and reserved bottom stack for GlobalPlayer + Taskbar.
  * Does not alter Taskbar / Orb behavior — only placement in the column.
  */
@@ -17,7 +17,7 @@ export function AppChrome({
 }) {
   return (
     <div className="app-shell">
-      <ShellAppBar />
+      <ContextualAppBar />
       <main className="app-stage">
         <div className="app-stage-inner">{stage}</div>
       </main>
