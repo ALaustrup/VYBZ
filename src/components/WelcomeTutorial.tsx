@@ -13,12 +13,12 @@ const STEPS = [
   {
     icon: CircleDot,
     title: "The Orb",
-    body: "Tap the sphere for New drop, Go live, Spark, and Messages. Pins on the sides are Home, Network, Studio, and You.",
+    body: "Tap the sphere to create — New drop, Go live, Spark, or Messages. Pins navigate: Home, Network, Studio, and You.",
   },
   {
     icon: Sparkles,
-    title: "Share your work",
-    body: "Drop a loop or stem from the Orb. Choose public, network, or private — and pick an outline effect that plays with your track.",
+    title: "Find collaborators",
+    body: "Open Network for ranked matches, Spark mode, Jobs, and Search. The Orb’s Spark is a shortcut into that same deck.",
   },
 ];
 

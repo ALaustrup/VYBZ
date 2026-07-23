@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Loader2, MessageSquare, Send, Radio, Mic, MonitorSpeaker } from "lucide-react";
+import { Loader2, MessageSquare, Send, Mic, MonitorSpeaker } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { ChatTabs } from "@/components/ChatTabs";
@@ -61,7 +61,7 @@ function Thread({ threadId }: { threadId: string }) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [peer, setPeer] = useState<{ id: string; username: string | null } | null>(null);
-  const [srcMenu, setSrcMenu] = useState(false);
+  const [jamMenu, setJamMenu] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const session = useLiveSession(threadId, userId);
   const peerName = peer?.username ?? "your collaborator";
@@ -78,13 +78,7 @@ function Thread({ threadId }: { threadId: string }) {
 
   useRegisterAppBar({
     title: peer?.username ? `@${peer.username}` : "Conversation",
-    actions: session.state === "idle" ? (
-      <button type="button" onClick={() => setSrcMenu((v) => !v)} aria-label="Start live session" aria-expanded={srcMenu}
-        className="flex h-9 items-center gap-1.5 rounded-full bg-veil-500/20 px-3 text-sm font-semibold text-veil-100 ring-1 ring-veil-400/40 active:scale-95">
-        <Radio className="h-4 w-4" /> Go live
-      </button>
-    ) : null,
-  }, [peer?.username, session.state, srcMenu]);
+  }, [peer?.username]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
@@ -96,14 +90,14 @@ function Thread({ threadId }: { threadId: string }) {
 
   return (
     <div className="relative flex h-full flex-col">
-      {srcMenu && session.state === "idle" && (
+      {jamMenu && session.state === "idle" && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setSrcMenu(false)} />
-          <div className="absolute right-4 top-2 z-50 w-56 overflow-hidden rounded-2xl border border-white/10 bg-ink-900/95 p-1.5 shadow-card backdrop-blur-2xl">
-            <button type="button" onClick={() => { setSrcMenu(false); void session.startCall("mic"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
-              <Mic className="h-4 w-4 text-veil-200" /> <span><span className="font-semibold">Microphone</span><span className="block text-[11px] text-white/45">Jam or talk live</span></span>
+          <div className="fixed inset-0 z-40" onClick={() => setJamMenu(false)} />
+          <div className="absolute bottom-16 left-3 z-50 w-56 overflow-hidden rounded-2xl border border-white/10 bg-ink-900/95 p-1.5 shadow-card backdrop-blur-2xl">
+            <button type="button" onClick={() => { setJamMenu(false); void session.startCall("mic"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
+              <Mic className="h-4 w-4 text-veil-200" /> <span><span className="font-semibold">Microphone</span><span className="block text-[11px] text-white/45">Jam or talk</span></span>
             </button>
-            <button type="button" onClick={() => { setSrcMenu(false); void session.startCall("desktop"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
+            <button type="button" onClick={() => { setJamMenu(false); void session.startCall("desktop"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
               <MonitorSpeaker className="h-4 w-4 text-aqua-200" /> <span><span className="font-semibold">Desktop audio</span><span className="block text-[11px] text-white/45">Share a DAW/tab (Chrome)</span></span>
             </button>
           </div>
@@ -118,8 +112,17 @@ function Thread({ threadId }: { threadId: string }) {
       </div>
       <LiveSessionPanel session={session} peerName={peerName} />
       <form onSubmit={send} className="flex items-center gap-2 border-t border-white/10 px-1 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Message…" className="flex-1 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
-        <button type="submit" className="flex h-10 w-10 items-center justify-center rounded-full bg-veil-500 text-white shadow-glow active:scale-90"><Send className="h-4 w-4" /></button>
+        {session.state === "idle" && (
+          <button type="button" onClick={() => setJamMenu((v) => !v)} aria-label="Start jam" aria-expanded={jamMenu}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full glass text-white/70 active:scale-95">
+            <Mic className="h-4 w-4" />
+          </button>
+        )}
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Message…"
+          className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+        <button type="submit" disabled={!text.trim()} aria-label="Send" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-veil-500 text-white shadow-glow active:scale-90 disabled:opacity-40">
+          <Send className="h-4 w-4" />
+        </button>
       </form>
     </div>
   );

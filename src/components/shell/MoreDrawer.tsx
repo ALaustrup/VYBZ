@@ -1,15 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
-  Briefcase,
   Bell,
-  FolderGit2,
   MessageSquare,
   ScrollText,
-  Search,
   Shield,
   ShieldCheck,
-  Sparkles,
   Store,
   X,
   type LucideIcon,
@@ -35,16 +31,8 @@ type MoreSection = {
   items: MoreItem[];
 };
 
+/** Overflow only — Network/Studio hubs live on pins + Network strip. */
 const MORE_SECTIONS: MoreSection[] = [
-  {
-    id: "network",
-    label: "Network",
-    items: [
-      { id: "discover", label: "Search", to: "/discover", icon: Search },
-      { id: "spark", label: "Spark", to: "/spark", icon: Sparkles },
-      { id: "opportunities", label: "Jobs", to: "/opportunities", icon: Briefcase },
-    ],
-  },
   {
     id: "workspace",
     label: "Workspace",
@@ -59,7 +47,6 @@ const MORE_SECTIONS: MoreSection[] = [
     label: "Resources",
     items: [
       { id: "codex", label: "Codex & Legal", to: "/codex", icon: ScrollText },
-      { id: "collabs", label: "Studio projects", to: "/projects", icon: FolderGit2 },
     ],
   },
   {
