@@ -174,4 +174,53 @@ export function catalogForRole(opts: { isMod?: boolean; isAdmin?: boolean }): Pi
   });
 }
 
+export type PinSide = "left" | "right";
+
+export interface PinSlot {
+  side: PinSide;
+  index: number;
+}
+
+/**
+ * Move a pin from one slot to another. If the target side is full and the source
+ * is the other side, swap with the pin at the target index.
+ */
+export function reorderPin(
+  state: TaskbarPinsState,
+  from: PinSlot,
+  to: PinSlot,
+): TaskbarPinsState {
+  const left = [...state.left];
+  const right = [...state.right];
+  const src = from.side === "left" ? left : right;
+  const dst = to.side === "left" ? left : right;
+
+  if (from.index < 0 || from.index >= src.length) return state;
+  if (to.index < 0) return state;
+
+  if (from.side === to.side) {
+    if (to.index >= src.length) return state;
+    const [id] = src.splice(from.index, 1);
+    const insertAt = Math.min(to.index, src.length);
+    src.splice(insertAt, 0, id);
+    return { left, right };
+  }
+
+  const [id] = src.splice(from.index, 1);
+  if (dst.length >= MAX_SIDE) {
+    // Swap: put target pin into the vacated source slot
+    const targetIdx = Math.min(to.index, dst.length - 1);
+    if (targetIdx < 0) {
+      src.splice(from.index, 0, id); // restore
+      return state;
+    }
+    const [swapped] = dst.splice(targetIdx, 1, id);
+    src.splice(Math.min(from.index, src.length), 0, swapped);
+  } else {
+    const insertAt = Math.min(to.index, dst.length);
+    dst.splice(insertAt, 0, id);
+  }
+  return { left, right };
+}
+
 export { MAX_SIDE };

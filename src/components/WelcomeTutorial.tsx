@@ -13,7 +13,7 @@ const STEPS = [
   {
     icon: CircleDot,
     title: "The Orb",
-    body: "Tap the sphere to create — New drop, Go live, Spark, or Messages. Pins navigate: Home, Network, Studio, and You.",
+    body: "Tap the sphere to create — New drop, Go live, Spark, or Messages. Hold any taskbar pin to rearrange; use the gear to add or remove hubs.",
   },
   {
     icon: Sparkles,

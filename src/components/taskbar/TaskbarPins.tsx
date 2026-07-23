@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Settings2, X } from "lucide-react";
+import { Check, Plus, Settings2, X } from "lucide-react";
 import { useSession } from "@/store/session";
 import {
   MAX_SIDE,
@@ -11,22 +11,38 @@ import {
   setTaskbarPins,
   useTaskbarPins,
   type PinId,
+  type PinSide,
+  type PinSlot,
+  type TaskbarPinsState,
 } from "@/lib/taskbarPins";
 import { cx } from "@/lib/utils";
+
+const LONG_PRESS_MS = 450;
+const MOVE_CANCEL_PX = 8;
 
 export function TaskbarPinRow({
   side,
   pathname,
   unread,
   orientation = "horizontal",
+  editing = false,
+  draft,
+  onLongPressEnter,
+  draggingId,
+  onDragStart,
 }: {
-  side: "left" | "right";
+  side: PinSide;
   pathname: string;
   unread: number;
   orientation?: "horizontal" | "vertical";
+  editing?: boolean;
+  draft?: TaskbarPinsState;
+  onLongPressEnter?: (slot: PinSlot) => void;
+  draggingId?: PinId | null;
+  onDragStart?: (slot: PinSlot, point: { x: number; y: number }) => void;
 }) {
-  const pins = useTaskbarPins();
-  const ids = pins[side];
+  const saved = useTaskbarPins();
+  const ids = (draft ?? saved)[side];
   const vertical = orientation === "vertical";
 
   return (
@@ -37,25 +53,25 @@ export function TaskbarPinRow({
           ? cx("w-full flex-col", side === "left" ? "justify-start" : "mt-auto justify-end")
           : cx("flex-1", side === "right" && "justify-end"),
       )}
+      data-taskbar-side={side}
     >
-      {ids.map((id) => {
+      {ids.map((id, index) => {
         const pin = PIN_BY_ID[id];
         if (!pin) return null;
         const Icon = pin.icon;
-        const active = pinIsActive(pin, pathname);
-        const showBadge = pin.badgeUnread && unread > 0 && pathname !== "/activity";
-        return (
-          <NavLink
-            key={id}
-            to={pin.to}
-            end={!!pin.end}
-            aria-label={pin.label}
-            title={pin.label}
-            className={cx(
-              "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1.5 py-1 transition",
-              active ? "text-white" : "text-white/45 hover:text-white/80",
-            )}
-          >
+        const active = !editing && pinIsActive(pin, pathname);
+        const showBadge = !editing && pin.badgeUnread && unread > 0 && pathname !== "/activity";
+        const isDragging = draggingId === id;
+        const slot: PinSlot = { side, index };
+
+        const className = cx(
+          "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1.5 py-1 transition touch-none select-none",
+          editing ? "taskbar-pin-jiggle text-white/80" : active ? "text-white" : "text-white/45 hover:text-white/80",
+          isDragging && "opacity-30",
+        );
+
+        const inner = (
+          <>
             {active && (
               <motion.span
                 layoutId="taskbar-pin-active"
@@ -76,38 +92,195 @@ export function TaskbarPinRow({
                 {pin.label}
               </span>
             )}
-          </NavLink>
+          </>
+        );
+
+        if (editing) {
+          return (
+            <button
+              key={id}
+              type="button"
+              data-pin-slot={`${side}-${index}`}
+              data-pin-id={id}
+              aria-label={`Move ${pin.label}`}
+              title={pin.label}
+              className={className}
+              onPointerDown={(e) => {
+                if (e.button !== 0) return;
+                e.preventDefault();
+                onDragStart?.(slot, { x: e.clientX, y: e.clientY });
+              }}
+            >
+              {inner}
+            </button>
+          );
+        }
+
+        return (
+          <PinNavItem
+            key={id}
+            to={pin.to}
+            end={!!pin.end}
+            label={pin.label}
+            className={className}
+            slot={slot}
+            onLongPressEnter={onLongPressEnter}
+          >
+            {inner}
+          </PinNavItem>
         );
       })}
     </div>
   );
 }
 
-export function TaskbarCustomizeButton({ rail = false }: { rail?: boolean }) {
-  const [open, setOpen] = useState(false);
+function PinNavItem({
+  to,
+  end,
+  label,
+  className,
+  slot,
+  onLongPressEnter,
+  children,
+}: {
+  to: string;
+  end: boolean;
+  label: string;
+  className: string;
+  slot: PinSlot;
+  onLongPressEnter?: (slot: PinSlot) => void;
+  children: ReactNode;
+}) {
+  const timer = useRef<number | null>(null);
+  const start = useRef<{ x: number; y: number } | null>(null);
+  const armed = useRef(false);
+
+  function clear() {
+    if (timer.current != null) {
+      window.clearTimeout(timer.current);
+      timer.current = null;
+    }
+    start.current = null;
+    armed.current = false;
+  }
+
   return (
-    <>
-      <button
-        type="button"
-        aria-label="Customize taskbar"
-        onClick={() => setOpen(true)}
-        className={cx(
-          "absolute z-20 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-ink-900/80 text-white/40 opacity-0 transition hover:text-white/80 group-hover/taskbar:opacity-100 focus:opacity-100 sm:opacity-60",
-          rail ? "right-1 top-1" : "-top-2 right-2",
-        )}
-      >
-        <Settings2 className="h-3.5 w-3.5" />
-      </button>
-      <PinCustomizeSheet open={open} onClose={() => setOpen(false)} />
-    </>
+    <NavLink
+      to={to}
+      end={end}
+      aria-label={label}
+      title={label}
+      className={className}
+      draggable={false}
+      onPointerDown={(e) => {
+        if (e.button !== 0 || !onLongPressEnter) return;
+        start.current = { x: e.clientX, y: e.clientY };
+        armed.current = false;
+        timer.current = window.setTimeout(() => {
+          armed.current = true;
+          try { navigator.vibrate?.(10); } catch { /* ignore */ }
+          onLongPressEnter(slot);
+        }, LONG_PRESS_MS);
+      }}
+      onPointerMove={(e) => {
+        if (!start.current || timer.current == null) return;
+        const dx = e.clientX - start.current.x;
+        const dy = e.clientY - start.current.y;
+        if (dx * dx + dy * dy > MOVE_CANCEL_PX * MOVE_CANCEL_PX) clear();
+      }}
+      onPointerUp={clear}
+      onPointerCancel={clear}
+      onClick={(e) => {
+        if (armed.current) {
+          e.preventDefault();
+          armed.current = false;
+        }
+      }}
+      onContextMenu={(e) => {
+        // Long-press customize on touch / right-click shouldn't open the browser menu.
+        if (onLongPressEnter) e.preventDefault();
+      }}
+    >
+      {children}
+    </NavLink>
   );
 }
 
-function PinCustomizeSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function TaskbarCustomizeButton({
+  rail = false,
+  onOpen,
+}: {
+  rail?: boolean;
+  onOpen: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="Customize taskbar"
+      onClick={onOpen}
+      className={cx(
+        "absolute z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-ink-900/85 text-white/55 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-veil-400/50",
+        rail ? "right-1 top-1" : "-top-2.5 right-2",
+      )}
+    >
+      <Settings2 className="h-3.5 w-3.5" />
+    </button>
+  );
+}
+
+export function TaskbarEditChrome({
+  rail,
+  onDone,
+  onAdd,
+}: {
+  rail: boolean;
+  onDone: () => void;
+  onAdd: () => void;
+}) {
+  return (
+    <div
+      className={cx(
+        "z-30 flex items-center gap-2",
+        rail
+          ? "mb-2 w-full justify-center px-1"
+          : "absolute -top-10 left-1/2 flex -translate-x-1/2",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onAdd}
+        className="flex h-8 items-center gap-1 rounded-full border border-white/12 bg-ink-900/90 px-3 text-[12px] font-semibold text-white/80 backdrop-blur-md"
+      >
+        <Plus className="h-3.5 w-3.5" /> Add
+      </button>
+      <button
+        type="button"
+        onClick={onDone}
+        className="flex h-8 items-center gap-1 rounded-full border border-veil-400/40 bg-veil-500/25 px-3 text-[12px] font-semibold text-white backdrop-blur-md"
+      >
+        <Check className="h-3.5 w-3.5" /> Done
+      </button>
+    </div>
+  );
+}
+
+export function PinCustomizeSheet({
+  open,
+  onClose,
+  draft,
+  onApply,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** When provided (edit mode), Save applies to draft instead of localStorage immediately. */
+  draft?: TaskbarPinsState | null;
+  onApply?: (next: TaskbarPinsState) => void;
+}) {
   const { profile } = useSession();
   const saved = useTaskbarPins();
-  const [left, setLeft] = useState<PinId[]>(saved.left);
-  const [right, setRight] = useState<PinId[]>(saved.right);
+  const seed = draft ?? saved;
+  const [left, setLeft] = useState<PinId[]>(seed.left);
+  const [right, setRight] = useState<PinId[]>(seed.right);
   const catalog = useMemo(
     () =>
       catalogForRole({
@@ -119,11 +292,12 @@ function PinCustomizeSheet({ open, onClose }: { open: boolean; onClose: () => vo
 
   useEffect(() => {
     if (!open) return;
-    setLeft([...saved.left]);
-    setRight([...saved.right]);
-  }, [open, saved.left, saved.right]);
+    const s = draft ?? saved;
+    setLeft([...s.left]);
+    setRight([...s.right]);
+  }, [open, draft, saved.left, saved.right]);
 
-  function toggle(side: "left" | "right", id: PinId) {
+  function toggle(side: PinSide, id: PinId) {
     const set = side === "left" ? setLeft : setRight;
     const cur = side === "left" ? left : right;
     const other = side === "left" ? right : left;
@@ -132,7 +306,6 @@ function PinCustomizeSheet({ open, onClose }: { open: boolean; onClose: () => vo
       return;
     }
     if (cur.length >= MAX_SIDE) return;
-    // Remove from other side if present
     if (other.includes(id)) {
       if (side === "left") setRight(other.filter((x) => x !== id));
       else setLeft(other.filter((x) => x !== id));
@@ -141,7 +314,9 @@ function PinCustomizeSheet({ open, onClose }: { open: boolean; onClose: () => vo
   }
 
   function save() {
-    setTaskbarPins({ left, right });
+    const next = { left, right };
+    if (onApply) onApply(next);
+    else setTaskbarPins(next);
     onClose();
   }
 
@@ -166,7 +341,9 @@ function PinCustomizeSheet({ open, onClose }: { open: boolean; onClose: () => vo
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="font-display text-lg font-semibold text-white">Customize taskbar</h2>
-                <p className="text-[12px] text-white/45">Up to {MAX_SIDE} pins per side. Center orb stays for actions.</p>
+                <p className="text-[12px] text-white/45">
+                  Up to {MAX_SIDE} pins per side. Hold a pin on the bar to rearrange.
+                </p>
               </div>
               <button type="button" aria-label="Close" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full glass">
                 <X className="h-4 w-4" />
@@ -222,4 +399,29 @@ function SideEditor({
       </div>
     </div>
   );
+}
+
+/** Find nearest pin slot under/near a point (edit-mode snap target). */
+export function nearestPinSlot(x: number, y: number, exclude?: PinSlot): PinSlot | null {
+  const nodes = document.querySelectorAll<HTMLElement>("[data-pin-slot]");
+  let best: PinSlot | null = null;
+  let bestDist = Infinity;
+  nodes.forEach((el) => {
+    const key = el.dataset.pinSlot;
+    if (!key) return;
+    const [side, idxStr] = key.split("-") as [PinSide, string];
+    const index = Number(idxStr);
+    if (exclude && exclude.side === side && exclude.index === index) return;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const d = (cx - x) ** 2 + (cy - y) ** 2;
+    if (d < bestDist) {
+      bestDist = d;
+      best = { side, index };
+    }
+  });
+  // Snap radius ~ 72px
+  if (bestDist > 72 * 72) return null;
+  return best;
 }

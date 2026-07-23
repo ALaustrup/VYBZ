@@ -438,6 +438,18 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .bell-alert { animation: vybz-bell-pulse 2.2s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .bell-alert { animation: none; } .nav-item:hover { transform: none; } }
 
+/* Taskbar edit mode — light phone-home-screen jiggle */
+@keyframes vybz-pin-jiggle {
+  0%, 100% { transform: rotate(-1.4deg); }
+  50% { transform: rotate(1.4deg); }
+}
+.taskbar-pin-jiggle {
+  animation: vybz-pin-jiggle 0.28s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+.taskbar-pin-jiggle:nth-child(even) { animation-delay: -0.14s; }
+@media (prefers-reduced-motion: reduce) { .taskbar-pin-jiggle { animation: none; } }
+
 /* ── VYBZ audio-reactive brand mark: painted radial halo behind the icon ───── */
 .vybz-mark-halo {
   border-radius: 9999px;
