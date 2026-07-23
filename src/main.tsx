@@ -26,6 +26,10 @@ if ("serviceWorker" in navigator) {
     reloaded = true;
     window.location.reload();
   });
+  // Proactively pull the latest SW so returning users leave a broken precache.
+  void navigator.serviceWorker.ready
+    .then((reg) => reg.update())
+    .catch(() => undefined);
 }
 
 /** Native shell polish — StatusBar / Splash / Keyboard (no-op on web). */

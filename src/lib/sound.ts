@@ -12,7 +12,7 @@ import { SOUND_MANIFEST, type SoundName } from "./soundManifest";
  *   `useSoundSettings()`.
  */
 
-const LS_KEY = "veiled.sound";
+const LS_KEY = "vybz.sound";
 
 export interface SoundSettings {
   enabled: boolean;
