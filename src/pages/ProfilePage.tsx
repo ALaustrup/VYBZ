@@ -66,22 +66,18 @@ export function ProfilePage() {
   const facets = profile.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-2">
-      <div className="mb-4 flex items-start gap-4">
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5">
+      <div className="mb-3 flex items-start gap-3">
         <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
         <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="truncate font-display text-[1.65rem] font-semibold tracking-tight text-white">{profile.username}</h1>
             <Flair data={cosmetics.flair} />
-          </div>
-          {facets.roleLabel && <p className="truncate text-sm text-white/55">{facets.roleLabel}</p>}
-          <div className="mt-1 flex flex-wrap items-center gap-2">
             <ProfessionBadges primary={facets.profession} all={facets.professions} />
             <RoleClassBadge roleClass={facets.roleClass} />
             <ProBadge profile={facets} />
           </div>
           {stats && (
-            <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-white/40">
+            <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-white/40">
               {stats.reputation >= 0.5 && <span className="flex items-center gap-1 text-white/60"><Star className="h-3 w-3" /> Proven</span>}
               <span>{stats.drops} drops</span>
               {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{stats.connections}</span>}
@@ -90,10 +86,10 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {profile.bio && <p className="mb-4 text-sm leading-relaxed text-white/60">{profile.bio}</p>}
+      {profile.bio && <p className="mb-3 text-sm leading-relaxed text-white/60">{profile.bio}</p>}
 
       {(roles.offers.length > 0 || roles.seeks.length > 0 || facets.genres?.length) && (
-        <div className="mb-5 space-y-1.5 text-[13px] text-white/55">
+        <div className="mb-4 space-y-1 text-[13px] text-white/55">
           {roles.offers.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">I bring </span>{roles.offers.join(" · ")}</p>}
           {roles.seeks.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">Seeking </span>{roles.seeks.join(" · ")}</p>}
           {facets.genres?.length ? <p><span className="text-[11px] uppercase tracking-wider text-white/35">Genres </span>{facets.genres.join(" · ")}</p> : null}
@@ -101,32 +97,32 @@ export function ProfilePage() {
       )}
 
       {(roles.offers.length === 0 && roles.seeks.length === 0) && (
-        <button type="button" onClick={() => navigate("/profile/edit")} className="mb-5 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-3 text-left">
+        <button type="button" onClick={() => navigate("/profile/edit")} className="mb-4 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-2.5 text-left">
           <Target className="h-4 w-4 shrink-0 text-veil-300" />
           <p className="text-[13px] text-white/55">Add roles you bring and seek for better matches.</p>
           <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-white/30" />
         </button>
       )}
 
-      <div className="mb-5">
+      <div className="mb-4">
         <Discography credits={credits} isOwner />
       </div>
 
-      <p className="eyebrow mb-3 flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
+      <p className="eyebrow mb-2 flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
       {loading ? (
-        <div className="mb-6 flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
+        <div className="mb-4 flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
       ) : (
-        <div className="mb-6">
+        <div className="mb-4">
           <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
         </div>
       )}
 
-      <div className="mb-5">
+      <div className="mb-4">
         <ArtistRoster userId={userId!} editable drops={drops} />
       </div>
 
-      <div className="mb-5">
-        <p className="eyebrow mb-3">Studio</p>
+      <div className="mb-4">
+        <p className="eyebrow mb-2">Studio</p>
         <ProjectsPanel userId={userId!} editable />
       </div>
 

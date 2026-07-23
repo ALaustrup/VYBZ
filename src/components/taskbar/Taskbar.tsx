@@ -56,7 +56,7 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   }));
 
   return (
-    <div className="group/taskbar relative z-40 px-3 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-1">
+    <div className="group/taskbar relative z-40 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-0">
       <div className="glass relative mx-auto flex h-[76px] w-full max-w-3xl items-center gap-1 rounded-[28px] px-2 sm:px-3">
         <TaskbarCustomizeButton />
         <TaskbarPinRow side="left" pathname={pathname} unread={unread} />

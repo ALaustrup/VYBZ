@@ -109,27 +109,30 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   }
 
   return (
-    <div className={cx("group relative overflow-hidden rounded-3xl border border-white/10 bg-ink-900/60 shadow-card backdrop-blur-sm", className)}>
-      <div className={cx("relative w-full", compact ? "h-28" : "h-44")}>
+    <div className={cx("group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/60 shadow-card backdrop-blur-sm", className)}>
+      <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0"><TrackVisualizer seed={d.seed} accent={accent} active={playing} /></div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950/70" />
         {d.lossless && (
-          <span className="absolute right-3 top-3 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white/90 backdrop-blur">Lossless</span>
+          <span className="absolute right-2.5 top-2.5 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white/90 backdrop-blur">Lossless</span>
         )}
         <button onClick={togglePlay} aria-label={playing ? "Pause" : "Play"}
-          className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur transition active:scale-90 group-hover:scale-105"
+          className={cx(
+            "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur transition active:scale-90 group-hover:scale-105",
+            compact ? "h-11 w-11" : "h-12 w-12",
+          )}
           style={{ boxShadow: `0 0 30px -6px ${accent}` }}>
-          {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : playing ? <Pause className="h-6 w-6" /> : <Play className="ml-0.5 h-6 w-6" />}
+          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : playing ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
         </button>
         {peaks && (
-          <div className="absolute inset-x-3 bottom-2">
-            <Waveform peaks={peaks} progress={progress} accent={accent} height={compact ? 26 : 34}
+          <div className="absolute inset-x-2.5 bottom-1.5">
+            <Waveform peaks={peaks} progress={progress} accent={accent} height={compact ? 22 : 28}
               onSeek={isCurrent ? (f) => seekFraction(f) : undefined} />
           </div>
         )}
       </div>
 
-      <div className={cx("flex flex-col gap-2", compact ? "p-3" : "p-4")}>
+      <div className={cx("flex flex-col", compact ? "gap-1.5 p-2.5" : "gap-1.5 p-3")}>
         <div className="flex items-center justify-between gap-2">
           <button onClick={onOpenAuthor} className="flex min-w-0 items-center gap-1.5 text-white/60">
             <Handle username={d.authorUsername} size={compact ? 15 : 17} />

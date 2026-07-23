@@ -94,7 +94,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
     void api.rateTrack(d.id, stars);
   }
 
-  const gridCls = useMemo(() => layout === "grid" ? "grid w-full sm:grid-cols-2 xl:grid-cols-3 gap-5" : "flex max-w-2xl flex-col gap-5", [layout]);
+  const gridCls = useMemo(() => layout === "grid" ? "grid w-full sm:grid-cols-2 xl:grid-cols-3 gap-3" : "flex max-w-2xl flex-col gap-3.5", [layout]);
 
   return (
     <div className="flex h-full flex-col">
@@ -110,7 +110,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
         </div>
       )}
 
-      <div className="no-scrollbar flex-1 overflow-y-auto pb-4 pt-2">
+      <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : drops.length === 0 ? (

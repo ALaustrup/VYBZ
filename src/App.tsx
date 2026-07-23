@@ -125,7 +125,7 @@ export function App() {
       <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
       <AppChrome
         stage={routes}
-        player={<GlobalPlayer className="relative z-40 pb-0" />}
+        player={<GlobalPlayer />}
         taskbar={
           <ErrorBoundary>
             <Taskbar onCompose={() => setComposeOpen(true)} />

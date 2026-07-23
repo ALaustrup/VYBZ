@@ -13,10 +13,11 @@
     --hairline: rgba(255, 255, 255, 0.055);
     --hairline-strong: rgba(255, 255, 255, 0.1);
 
-    /* App shell tokens (Step 3A) — chrome heights + stage padding. */
+    /* App shell tokens — chrome heights + stage padding (3A/3E). */
     --app-bar-h: 3.25rem;
     --taskbar-h: 5.5rem;
     --player-h: 0px;
+    --dock-gap: 0.2rem;
     --stage-pad-x: 1rem;
   }
 
@@ -137,7 +138,8 @@
   /* Bottom stack: GlobalPlayer + Taskbar — persistent native-feel dock.
      Safe-area is owned by Taskbar so we don't double-pad. */
   .app-dock {
-    @apply relative z-40 shrink-0;
+    @apply relative z-40 flex shrink-0 flex-col;
+    gap: var(--dock-gap);
   }
 
   /* Frosted dark-glass panel used by nav and overlays. A faint top highlight +

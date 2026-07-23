@@ -49,38 +49,31 @@ export function ArtistPage() {
   const owners = members.filter((m) => m.role === "owner" || m.role === "manager");
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-6 pt-2">
-      <div className="mb-5 flex items-start gap-4">
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5">
+      <div className="mb-3 flex items-start gap-3">
         <Avatar url={artist.avatarUrl} name={artist.displayName} id={artist.id} size="lg" square />
         <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="truncate font-display text-[1.65rem] font-semibold tracking-tight text-white">
-              {artist.displayName}
-            </h1>
             {artist.verifiedAt && (
               <span className="inline-flex items-center gap-1 rounded-full bg-veil-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-veil-100">
                 <BadgeCheck className="h-3 w-3" /> Official
               </span>
             )}
+            {artist.primaryGenres.length > 0 && (
+              <p className="text-[12px] text-white/50">{artist.primaryGenres.join(" · ")}</p>
+            )}
           </div>
-          <p className="text-sm text-white/40">/artist/{artist.slug}</p>
-          {artist.primaryGenres.length > 0 && (
-            <p className="mt-2 text-[12px] text-white/50">{artist.primaryGenres.join(" · ")}</p>
-          )}
+          {artist.bio && <p className="mt-1.5 text-sm leading-relaxed text-white/65">{artist.bio}</p>}
         </div>
       </div>
 
-      <div className="mb-5 h-px w-full bg-[var(--hairline)]" />
-
-      {artist.bio && <p className="mb-5 text-sm leading-relaxed text-white/65">{artist.bio}</p>}
-
       {owners.length > 0 && (
-        <div className="mb-6">
-          <p className="eyebrow mb-3 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Linked accounts</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-4">
+          <p className="eyebrow mb-2 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> Linked accounts</p>
+          <div className="flex flex-wrap gap-1.5">
             {owners.map((m) => (
               <button key={m.userId} type="button" onClick={() => navigate(`/u/${m.userId}`)}
-                className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12px] font-medium text-white/70 hover:text-white">
+                className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[12px] font-medium text-white/70 hover:text-white">
                 @{m.username || "creator"} · {m.role}
               </button>
             ))}
@@ -90,11 +83,12 @@ export function ArtistPage() {
 
       {drops.length > 0 ? (
         <>
-          <p className="eyebrow mb-3">Catalog</p>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <p className="eyebrow mb-2">Catalog</p>
+          <div className="grid gap-3 sm:grid-cols-2">
             {drops.map((d) => (
               <TrackCard
                 key={d.id}
+                compact
                 drop={{ ...d, authorUsername: d.creditedArtist || d.authorUsername }}
                 queue={drops}
               />
