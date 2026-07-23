@@ -558,21 +558,19 @@ existing creator flows, feature-flagged, guardrails first.
   Brand posts a "$300 fixed" commission → it appears under Commissions with the
   budget badge → an illustrator sees it and pitches → correctly filtered out of
   Collabs._
-- **O3b ✅ built (2026-07) — one toggle from live** — native **Stripe Connect
-  tips** (patron → creator, on-mission per §4.1 Lane A). Shipped: `creator_payouts`
-  + `tips` ledger with read RPCs (migration `0041`); three edge functions —
-  `stripe-connect-onboard` (Express account + hosted onboarding link + a `refresh`
-  status re-sync), `stripe-tip` (destination-charge Checkout so funds settle to
-  the creator), `stripe-webhook` (signature-verified: marks tips paid on
-  `checkout.session.completed`, syncs readiness on `account.updated`); frontend
-  `PayoutSetup` (Enable tips) + `TipButton` (amount sheet → hosted Checkout).
-  Stripe test keys are set (Supabase secrets `STRIPE_SECRET_KEY` /
-  `STRIPE_WEBHOOK_SECRET`; webhook endpoint registered), and client→function→
-  Stripe wiring is verified. Gated behind `VITE_FEATURE_TIPS` (default **off**).
-  **Remaining to go live:** enable **Stripe Connect** on the platform account
-  (one-time, `dashboard.stripe.com/connect`), then flip `VITE_FEATURE_TIPS=on`
-  — full onboard→tip E2E runs in Stripe test mode after that. No ads, no
-  paywalls, no external payment links.
+- **O3b ✅ live (2026-07)** — native **Stripe Connect tips** (patron → creator,
+  on-mission per §4.1 Lane A). Shipped: `creator_payouts` + `tips` ledger with read
+  RPCs (migration `0041`); three edge functions — `stripe-connect-onboard` (Express
+  account + hosted onboarding link + a `refresh` status re-sync), `stripe-tip`
+  (destination-charge Checkout so funds settle to the creator), `stripe-webhook`
+  (signature-verified: marks tips paid on `checkout.session.completed`, syncs
+  readiness on `account.updated`); frontend `PayoutSetup` (Enable tips) + `TipButton`
+  (amount sheet → hosted Checkout). Stripe keys + webhook registered on Edge;
+  `VITE_FEATURE_TIPS=on` for production / preview / development (Vercel) and local
+  `.env.local`. **Owner smoke:** You → Settings ⋯ → Enable tips (Express onboard) →
+  second account Tips on `/u/{id}` → Checkout → `tips.status=paid`. Platform Connect
+  must stay enabled at [dashboard.stripe.com/settings/connect](https://dashboard.stripe.com/settings/connect)
+  (Express). Fee: `STRIPE_TIP_FEE_BPS=0`. No ads, no paywalls, no external payment links.
 
 ### 12.21 Universal report/flag button ✅ (shipped 2026-07)
 Trust & Safety: a reusable `ReportButton` puts a simple, optional flag on **every**

@@ -103,7 +103,8 @@ reusing `collab_applications` — the paid demand→creator loop. **Stripe Conne
 (O3b)** are built: `creator_payouts` + `tips` (migration `0041`), edge functions
 `stripe-connect-onboard` / `stripe-tip` (destination charge) / `stripe-webhook`
 (signature-verified), and `PayoutSetup` + `TipButton` in the UI. Behind
-`VITE_FEATURE_TIPS` (default off); go-live needs Stripe **Connect** enabled on the
+`VITE_FEATURE_TIPS` (**on** in production / preview / development as of 2026-07);
+platform Stripe **Connect** (Express) must remain enabled for onboard → tip E2E.
 platform account. See `VYBZ_MASTERPLAN.md` §12.20.
 
 ## Matchmaking
