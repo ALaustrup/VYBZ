@@ -812,6 +812,14 @@ export async function startTip(toUserId: string, amountCents: number, origin: st
   return (data as any)?.url ?? null;
 }
 
+/** Buyer: start a cosmetic-credit pack Checkout (platform charge); returns hosted URL. */
+export async function startCreditTopup(packId: string, origin: string): Promise<string | null> {
+  const { data, error } = await db().functions.invoke("stripe-credit-topup", { body: { packId, origin } });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not start credit top-up."));
+  if ((data as any)?.error) throw new Error((data as any).error);
+  return (data as any)?.url ?? null;
+}
+
 // ── OAuth connectors (Phase C3) ──────────────────────────────────────────────
 export interface OAuthConnection {
   id: string;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Loader2, Coins, Check, Lock, ExternalLink } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Loader2, Coins, Check, Lock } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -8,21 +8,43 @@ import { cx } from "@/lib/utils";
 import { Flair } from "@/lib/cosmetics";
 import type { Cosmetic, CosmeticStore } from "@/types";
 
-const PAYMENT_LINK = import.meta.env.VITE_STRIPE_PAYMENT_LINK?.trim() || "";
+/** Display-only pack labels — amounts/credits enforced server-side. */
+const PACKS = [
+  { id: "starter", dollars: 5, credits: 50, label: "Starter" },
+  { id: "plus", dollars: 10, credits: 120, label: "Plus" },
+  { id: "pro", dollars: 25, credits: 350, label: "Pro" },
+] as const;
 
 /**
  * Cosmetic store (Lane B). Purely aesthetic accents + flair, unlocked with
- * credits earned from moderation (Stripe top-ups arrive with Lane A). Nothing
- * functional is ever gated here.
+ * credits from moderation or Stripe card top-ups (Lane A). Nothing functional
+ * is ever gated here.
  */
 export function StorePage() {
   const { refreshProfile, showToast } = useSession();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
   const [store, setStore] = useState<CosmeticStore | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [topupBusy, setTopupBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => { setStore(await api.listCosmetics()); }, []);
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    const topup = params.get("topup");
+    if (!topup) return;
+    if (topup === "success") {
+      showToast("Credits added — thanks!");
+      void load();
+      void refreshProfile();
+    } else if (topup === "cancel") {
+      showToast("Top-up canceled.");
+    }
+    const next = new URLSearchParams(params);
+    next.delete("topup");
+    setParams(next, { replace: true });
+  }, [params, setParams, showToast, load, refreshProfile]);
 
   useRegisterAppBar({
     actions: store ? (
@@ -31,6 +53,19 @@ export function StorePage() {
       </span>
     ) : null,
   }, [store?.credits]);
+
+  async function buyPack(packId: string) {
+    setTopupBusy(packId);
+    try {
+      const url = await api.startCreditTopup(packId, window.location.origin);
+      if (url) { window.location.href = url; return; }
+      showToast("Could not start checkout.");
+    } catch (e) {
+      showToast((e as Error).message);
+    } finally {
+      setTopupBusy(null);
+    }
+  }
 
   async function buy(c: Cosmetic) {
     setBusy(c.id);
@@ -56,26 +91,42 @@ export function StorePage() {
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-1 pb-10 pt-2">
-      {PAYMENT_LINK ? (
-        <a
-          href={PAYMENT_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-veil-400/40 bg-veil-500/[0.08] py-3 text-sm font-semibold text-veil-100 active:scale-[0.99]"
-        >
-          <Coins className="h-4 w-4" /> Buy credits <ExternalLink className="h-3.5 w-3.5 opacity-60" />
-        </a>
-      ) : store.credits === 0 ? (
-        <p className="mb-5 text-[13px] leading-relaxed text-white/45">
-          Earn credits by moderating (see the <button type="button" className="text-white/75 underline decoration-white/20 hover:text-white" onClick={() => navigate("/apply-mod")}>moderator program</button>). Card top-ups arrive when a Payment Link is configured.
+      <div className="mb-5">
+        <p className="eyebrow mb-2">Buy credits</p>
+        <div className="grid grid-cols-3 gap-2">
+          {PACKS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              disabled={!!topupBusy}
+              onClick={() => void buyPack(p.id)}
+              className={cx(
+                "rounded-2xl border border-veil-400/35 bg-veil-500/[0.08] px-2 py-3 text-center transition active:scale-[0.98] disabled:opacity-50",
+                topupBusy === p.id && "ring-1 ring-veil-300/50",
+              )}
+            >
+              {topupBusy === p.id ? (
+                <Loader2 className="mx-auto h-4 w-4 animate-spin text-veil-200" />
+              ) : (
+                <>
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-white/45">{p.label}</p>
+                  <p className="mt-0.5 font-display text-lg font-bold text-white">${p.dollars}</p>
+                  <p className="mt-0.5 flex items-center justify-center gap-1 text-[12px] text-veil-200">
+                    <Coins className="h-3 w-3" /> {p.credits}
+                  </p>
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] leading-snug text-white/35">
+          Optional card top-up for accents and flair. Or earn credits via the{" "}
+          <button type="button" className="text-white/60 underline decoration-white/20 hover:text-white" onClick={() => navigate("/apply-mod")}>
+            moderator program
+          </button>
+          .
         </p>
-      ) : null}
-
-      {PAYMENT_LINK && (
-        <p className="mb-5 text-[11px] leading-snug text-white/35">
-          After checkout, credits may take a short time to appear (manual fulfillment until the webhook product is wired).
-        </p>
-      )}
+      </div>
 
       <Group title="Profile accents">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

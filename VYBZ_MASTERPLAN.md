@@ -664,8 +664,9 @@ Purely-aesthetic store — **nothing functional is ever gated**. Items are unloc
   badge by the username. Applied on own + others' profiles (`lib/cosmetics` + `Flair`).
 - **`/store`** page: buy / equip / unequip, credit balance, live previews.
 - This closes the loop with the moderator rewards: mod work → credits → cosmetics.
-- **Next (Lane A):** Stripe Connect (tips + exchange fee) and card top-ups for credits —
-  awaiting Stripe keys.
+- **Lane A credit top-ups ✅ (2026-07):** platform Checkout packs (`stripe-credit-topup` +
+  `credit_topups` ledger + `fulfill_credit_topup` on webhook) — Starter $5/50, Plus $10/120,
+  Pro $25/350 → `mod_points`. No Connect KYC required. Tips remain O3b (Express).
 
 **Desktop layout:** the main content shell was widened from `max-w-2xl` (672px) to
 `max-w-5xl` / `xl:max-w-6xl`, and the feed grid now spans full width (2-col → 3-col on

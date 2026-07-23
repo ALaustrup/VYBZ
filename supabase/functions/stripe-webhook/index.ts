@@ -2,6 +2,7 @@
 //
 // Signature-verified Stripe webhook. Handles:
 //   • checkout.session.completed (kind=tip) → mark the tip 'paid'
+//   • checkout.session.completed (kind=credit_topup) → fulfill_credit_topup
 //   • account.updated             → sync creator_payouts readiness flags
 //
 // Deploy with --no-verify-jwt (Stripe calls this without a Supabase JWT; we
@@ -27,12 +28,19 @@ Deno.serve(async (req: Request) => {
   try {
     if (event.type === "checkout.session.completed") {
       const s = event.data.object as { id: string; payment_intent?: string; metadata?: Record<string, string> };
+      const pi = typeof s.payment_intent === "string" ? s.payment_intent : null;
       if (s.metadata?.kind === "tip") {
         await admin.from("tips").update({
           status: "paid",
           paid_at: new Date().toISOString(),
-          stripe_payment_intent: typeof s.payment_intent === "string" ? s.payment_intent : null,
+          stripe_payment_intent: pi,
         }).eq("stripe_session_id", s.id);
+      } else if (s.metadata?.kind === "credit_topup") {
+        const { error } = await admin.rpc("fulfill_credit_topup", {
+          p_session_id: s.id,
+          p_payment_intent: pi,
+        });
+        if (error) console.error("fulfill_credit_topup", error.message);
       }
     } else if (event.type === "account.updated") {
       const a = event.data.object as {
