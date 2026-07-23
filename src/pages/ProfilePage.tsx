@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, ScrollText,
-  ShieldCheck, Shield, Bug, AudioLines, ChevronRight, ChevronDown,
+  ShieldCheck, Shield, Bug, AudioLines, ChevronRight, MoreHorizontal, X,
 } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
@@ -53,13 +54,17 @@ export function ProfilePage() {
           className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
           <Pencil className="h-4 w-4" />
         </button>
+        <button type="button" onClick={() => setSettingsOpen(true)} aria-label="Settings & tools" aria-expanded={settingsOpen}
+          className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
         <button type="button" onClick={signOut} aria-label="Sign out"
           className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
           <LogOut className="h-4 w-4" />
         </button>
       </>
     ),
-  }, [profile?.username, profile?.profile?.roleLabel, signOut, navigate]);
+  }, [profile?.username, profile?.profile?.roleLabel, signOut, navigate, settingsOpen]);
 
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   if (!profile) return null;
@@ -126,46 +131,64 @@ export function ProfilePage() {
         <ProjectsPanel userId={userId!} editable />
       </div>
 
-      <button
-        type="button"
-        onClick={() => setSettingsOpen((v) => !v)}
-        className="mb-2 flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left"
-      >
-        <span className="text-[13px] font-semibold text-white/80">Settings & tools</span>
-        <ChevronDown className={cx("h-4 w-4 text-white/40 transition", settingsOpen && "rotate-180")} />
-      </button>
-
-      {settingsOpen && (
-        <div className="mb-4 space-y-4 rounded-2xl border border-white/8 bg-ink-950/40 p-4">
-          <DisplaySetting />
-          <PayoutSetup />
-          {userId && <AffiliateLinks userId={userId} editable />}
-          {FLAGS.swarm && (
-            <label className="flex cursor-pointer items-start gap-3">
-              <input type="checkbox" className="mt-0.5 accent-[var(--veil-400)]" defaultChecked={swarmSeedOptIn()} onChange={(e) => setSwarmSeedOptIn(e.target.checked)} />
-              <span>
-                <span className="block text-[13px] font-medium text-white/85">Seed stems over Swarm</span>
-                <span className="mt-0.5 block text-[11px] text-white/40">Opt-in P2P for encrypted audio chunks.</span>
-              </span>
-            </label>
-          )}
-          <PasskeysCard />
-          <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
-            <LinkRow icon={Sparkles} title="Cosmetic store" body="Accents & flair" onClick={() => navigate("/store")} />
-            <LinkRow icon={ScrollText} title="Codex & Legal" body="Contracts, Terms, Privacy" onClick={() => navigate("/codex")} />
-            {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
-              <LinkRow icon={Shield} title="Moderate" body="Report queue" onClick={() => navigate("/mod")} />
-            )}
-            {profile.platformRole === "member" && !profile.isAdmin && (
-              <LinkRow icon={Shield} title="Become a moderator" body="Help keep VYBZ real" onClick={() => navigate("/apply-mod")} />
-            )}
-            {profile.isAdmin && (
-              <LinkRow icon={ShieldCheck} title="Admin" body="Members & matchmaking" onClick={() => navigate("/admin")} />
-            )}
-            <LinkRow icon={Bug} title="Report a bug" body="Goes to the team" onClick={() => setBugOpen(true)} />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {settingsOpen && (
+          <motion.div
+            className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm" onClick={() => setSettingsOpen(false)} />
+            <motion.div
+              role="dialog"
+              aria-label="Settings & tools"
+              initial={{ y: 28, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 28, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 320, damping: 30 }}
+              className="relative z-10 flex max-h-[88dvh] w-full max-w-lg flex-col rounded-t-3xl border border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl sm:rounded-3xl"
+            >
+              <div className="flex shrink-0 items-center justify-between border-b border-white/8 px-4 py-3">
+                <p className="text-[13px] font-semibold text-white/90">Settings & tools</p>
+                <button type="button" onClick={() => setSettingsOpen(false)} aria-label="Close"
+                  className="flex h-8 w-8 items-center justify-center rounded-full glass active:scale-90">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="no-scrollbar space-y-4 overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <DisplaySetting />
+                <PayoutSetup />
+                {userId && <AffiliateLinks userId={userId} editable />}
+                {FLAGS.swarm && (
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input type="checkbox" className="mt-0.5 accent-[var(--veil-400)]" defaultChecked={swarmSeedOptIn()} onChange={(e) => setSwarmSeedOptIn(e.target.checked)} />
+                    <span>
+                      <span className="block text-[13px] font-medium text-white/85">Seed stems over Swarm</span>
+                      <span className="mt-0.5 block text-[11px] text-white/40">Opt-in P2P for encrypted audio chunks.</span>
+                    </span>
+                  </label>
+                )}
+                <PasskeysCard />
+                <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
+                  <LinkRow icon={Sparkles} title="Cosmetic store" body="Accents & flair" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
+                  <LinkRow icon={ScrollText} title="Codex & Legal" body="Contracts, Terms, Privacy" onClick={() => { setSettingsOpen(false); navigate("/codex"); }} />
+                  {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
+                    <LinkRow icon={Shield} title="Moderate" body="Report queue" onClick={() => { setSettingsOpen(false); navigate("/mod"); }} />
+                  )}
+                  {profile.platformRole === "member" && !profile.isAdmin && (
+                    <LinkRow icon={Shield} title="Become a moderator" body="Help keep VYBZ real" onClick={() => { setSettingsOpen(false); navigate("/apply-mod"); }} />
+                  )}
+                  {profile.isAdmin && (
+                    <LinkRow icon={ShieldCheck} title="Admin" body="Members & matchmaking" onClick={() => { setSettingsOpen(false); navigate("/admin"); }} />
+                  )}
+                  <LinkRow icon={Bug} title="Report a bug" body="Goes to the team" onClick={() => { setSettingsOpen(false); setBugOpen(true); }} />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </div>
