@@ -1547,6 +1547,23 @@ export async function myProjects(): Promise<import("@/types").ProjectSummary[]> 
     id: r.id, title: r.title, status: r.status, ownerId: r.owner_id,
     isOwner: !!r.is_owner, members: Number(r.members ?? 0), versions: Number(r.versions ?? 0),
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    myAgreed: !!r.my_agreed,
+    pendingAgrees: Number(r.pending_agrees ?? 0),
+  }));
+}
+
+/** Recent Studio release batches (bulk uploads) owned by the caller. */
+export async function myReleaseBatches(limit = 8): Promise<import("@/types").ReleaseBatchSummary[]> {
+  const { data } = await db()
+    .from("release_batches")
+    .select("id,title,credited_artist,created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    title: r.title ?? null,
+    creditedArtist: r.credited_artist ?? null,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
   }));
 }
 

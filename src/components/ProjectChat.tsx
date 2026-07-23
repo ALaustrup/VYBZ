@@ -5,7 +5,7 @@ import { cx } from "@/lib/utils";
 import type { ProjectMessage } from "@/lib/api";
 
 /** Member-only Collab room thread (project_messages). */
-export function ProjectChat({ projectId }: { projectId: string }) {
+export function ProjectChat({ projectId, fill = false }: { projectId: string; fill?: boolean }) {
   const [msgs, setMsgs] = useState<ProjectMessage[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -46,11 +46,18 @@ export function ProjectChat({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="mt-5">
-      <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
-        <MessageSquare className="h-3.5 w-3.5" /> Room chat
-      </div>
-      <div className="flex max-h-72 flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02]">
+    <div className={cx(fill ? "flex min-h-0 flex-1 flex-col" : "mt-5")}>
+      {!fill && (
+        <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/40">
+          <MessageSquare className="h-3.5 w-3.5" /> Room chat
+        </div>
+      )}
+      <div
+        className={cx(
+          "flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02]",
+          fill ? "min-h-0 flex-1" : "max-h-72",
+        )}
+      >
         <div className="no-scrollbar flex-1 space-y-2.5 overflow-y-auto px-3 py-3">
           {loading ? (
             <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>

@@ -237,6 +237,17 @@ export interface ProjectSummary {
   members: number;
   versions: number;
   createdAt: number;
+  /** Caller's split agreement on this room. */
+  myAgreed: boolean;
+  /** Collaborators who have not agreed their split yet. */
+  pendingAgrees: number;
+}
+
+export interface ReleaseBatchSummary {
+  id: string;
+  title: string | null;
+  creditedArtist: string | null;
+  createdAt: number;
 }
 
 export interface ProjectCollaborator {

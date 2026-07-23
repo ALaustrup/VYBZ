@@ -30,7 +30,7 @@ export function chromeForPath(pathname: string): ChromeDef {
     return { title: "Collab", showBack: true, backTo: "/projects" };
   }
   if (pathname.startsWith("/projects")) {
-    return { title: "Studio", subtitle: "Collab rooms and catalog releases" };
+    return { title: "Studio", subtitle: "Collabs needing you, then catalog releases" };
   }
   if (pathname.startsWith("/live/") && pathname !== "/live") {
     return { title: "Live", showBack: true, backTo: "/live" };
