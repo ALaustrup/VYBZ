@@ -33,16 +33,12 @@ export function RoomsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-3 pt-4">
-        <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Rooms</h1>
-        <div className="mt-4 h-px w-full bg-[var(--hairline)]" />
-      </div>
       <ChatTabs active="rooms" />
-      <div className="px-5 pb-2">
+      <div className="px-1 pb-2">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search rooms…"
           className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
       </div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : (

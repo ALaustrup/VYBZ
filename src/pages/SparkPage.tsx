@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
-import { ArrowLeft, Disc3, Loader2, Music2, Repeat, Sparkles, Star, Target, UserPlus, X } from "lucide-react";
+import { Disc3, Loader2, Music2, Repeat, Sparkles, Star, Target, UserPlus, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { haptic } from "@/lib/utils";
@@ -47,14 +47,6 @@ export function SparkPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 pb-3 pt-4">
-        <button type="button" onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Spark</h1>
-          <p className="text-[13px] text-white/40">Swipe complementary musicians</p>
-        </div>
-      </div>
-      <div className="mx-5 h-px bg-[var(--hairline)]" />
       <div className="relative flex-1 px-4 pb-6 pt-2">
         {loading ? (
           <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>

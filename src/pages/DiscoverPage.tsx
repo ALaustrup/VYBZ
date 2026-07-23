@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, MapPin, Search, SlidersHorizontal, UserPlus, Users, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
-import { PageHeader } from "@/components/PageHeader";
 import { useSession } from "@/store/session";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL, SOFTWARE, STYLES, ENGINES, PRIMARY_PROFESSION } from "@/lib/profileFields";
 import { Avatar } from "@/components/Avatar";
 import { cx } from "@/lib/utils";
@@ -38,6 +38,17 @@ export function DiscoverPage() {
     [profession, role, genre, daw, plugin, musicalKey, bpm, location, software, styles, engines, remote],
   );
 
+  useRegisterAppBar({
+    actions: (
+      <button type="button" onClick={() => setShowFilters((s) => !s)} aria-label="Filters" aria-expanded={showFilters}
+        className={cx("flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
+          showFilters || activeCount > 0 ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "glass text-white/70")}>
+        <SlidersHorizontal className="h-3.5 w-3.5" />
+        {activeCount > 0 ? activeCount : "Filters"}
+      </button>
+    ),
+  }, [showFilters, activeCount]);
+
   useEffect(() => {
     const t = setTimeout(() => {
       setLoading(true);
@@ -57,8 +68,7 @@ export function DiscoverPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader title="Discover" subtitle="Find musicians by role, genre, DAW, tempo & place" />
-      <div className="space-y-2.5 px-5">
+      <div className="space-y-2.5 px-1 pt-2">
         <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
           <Search className="h-4 w-4 text-white/40" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by name…"
@@ -73,11 +83,6 @@ export function DiscoverPage() {
             <option value="">Any role</option>
             {ROLES.map((r) => <option key={r.id} value={r.id} className="bg-ink-900">{r.label}</option>)}
           </select>
-          <button onClick={() => setShowFilters((s) => !s)}
-            className={cx("flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-semibold transition active:scale-95",
-              showFilters || activeCount > 0 ? "border-veil-400/50 bg-veil-500/20 text-veil-100" : "border-white/10 bg-white/[0.03] text-white/70")}>
-            <SlidersHorizontal className="h-4 w-4" />{activeCount > 0 ? activeCount : ""}
-          </button>
         </div>
 
         {showFilters && (
@@ -140,7 +145,7 @@ export function DiscoverPage() {
         )}
       </div>
 
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-3">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-3">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : results.length === 0 ? <EmptyState icon={Users} title="No musicians found" body="Loosen a filter or try a different name, role, or gear." />
           : <div className="divide-y divide-[var(--hairline)]">{results.map((c) => (

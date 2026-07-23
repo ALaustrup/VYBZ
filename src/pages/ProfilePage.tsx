@@ -122,7 +122,7 @@ export function ProfilePage() {
       </div>
 
       <div className="mb-4">
-        <p className="eyebrow mb-2">Studio</p>
+        <p className="eyebrow mb-2">Projects</p>
         <ProjectsPanel userId={userId!} editable />
       </div>
 

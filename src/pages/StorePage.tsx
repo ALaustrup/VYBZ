@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2, Coins, Check, Lock, ExternalLink } from "lucide-react";
+import { Loader2, Coins, Check, Lock, ExternalLink } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx } from "@/lib/utils";
 import { Flair } from "@/lib/cosmetics";
 import type { Cosmetic, CosmeticStore } from "@/types";
@@ -22,6 +23,14 @@ export function StorePage() {
 
   const load = useCallback(async () => { setStore(await api.listCosmetics()); }, []);
   useEffect(() => { void load(); }, [load]);
+
+  useRegisterAppBar({
+    actions: store ? (
+      <span className="flex items-center gap-1.5 px-1 text-sm font-medium text-white/70">
+        <Coins className="h-4 w-4 text-veil-300" /> {store.credits}
+      </span>
+    ) : null,
+  }, [store?.credits]);
 
   async function buy(c: Cosmetic) {
     setBusy(c.id);
@@ -46,19 +55,7 @@ export function StorePage() {
   const flairs = store.catalog.filter((c) => c.category === "flair");
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-5 pb-10 pt-4">
-      <div className="mb-3 flex items-center gap-3">
-        <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Store</h1>
-          <p className="text-[13px] text-white/40">Cosmetic accents &amp; flair — never pay-to-win</p>
-        </div>
-        <span className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-white/70">
-          <Coins className="h-4 w-4 text-veil-300" /> {store.credits}
-        </span>
-      </div>
-      <div className="mb-5 h-px w-full bg-[var(--hairline)]" />
-
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-10 pt-2">
       {PAYMENT_LINK ? (
         <a
           href={PAYMENT_LINK}

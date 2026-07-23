@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Camera, Check, Loader2 } from "lucide-react";
+import { Camera, Check, Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
 import { ModuleAttrsEditor } from "@/components/ModuleAttrsEditor";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { ROLES, ROLE_FAMILIES, GENRES, DAWS, PLUGINS, PROFESSIONS, PRIMARY_PROFESSION } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProfileDetails } from "@/types";
@@ -82,23 +83,22 @@ export function ProfileEditPage() {
     navigate("/profile");
   }
 
+  useRegisterAppBar({
+    actions: (
+      <button type="button" onClick={save} disabled={busy} className="btn btn-primary h-9 px-4 py-0 text-sm">
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+      </button>
+    ),
+  }, [busy]);
+
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 pb-3 pt-4">
-        <button type="button" onClick={() => navigate("/profile")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <div className="min-w-0 flex-1">
-          <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Edit profile</h1>
-          <p className="text-[13px] text-white/40">Identity, roles &amp; matching facets</p>
-        </div>
-        <button type="button" onClick={save} disabled={busy} className="btn btn-primary h-9 px-4 py-0 text-sm">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}</button>
-      </div>
-      <div className="mx-5 h-px bg-[var(--hairline)]" />
-      <div className="no-scrollbar flex-1 space-y-6 overflow-y-auto px-5 pb-10 pt-4">
+      <div className="no-scrollbar flex-1 space-y-6 overflow-y-auto px-1 pb-10 pt-2">
         <Section title="Photo">
           <div className="flex items-center gap-4">
             <Avatar url={avatarUrl} name={profile?.username} id={profile?.id} size="lg" square />
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-white/50">A clear face or brand mark helps people recognize you in Find &amp; Spark.</p>
+              <p className="text-sm text-white/50">A clear face or brand mark helps people recognize you in Network &amp; Spark.</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => void pickAvatar(e.target.files?.[0] ?? null)} />
               <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}

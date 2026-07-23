@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft, Loader2, Plus, X, Upload, GitBranch, CheckCircle2, Check,
+  Loader2, Plus, X, Upload, GitBranch, CheckCircle2, Check,
   Rocket, PieChart, Users, FileMusic,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { EmptyState } from "@/components/EmptyState";
 import { ProjectChat } from "@/components/ProjectChat";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { ROLES, craftScope } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProjectDetail, CollabMatch } from "@/types";
 
 export function ProjectRoomPage() {
   const { id = "" } = useParams();
-  const navigate = useNavigate();
   const { userId, showToast, celebrate } = useSession();
   const [detail, setDetail] = useState<ProjectDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,11 +27,15 @@ export function ProjectRoomPage() {
   }, [id]);
   useEffect(() => { void load(); }, [load]);
 
+  useRegisterAppBar({
+    title: detail?.title ?? (loading ? "Collab" : "Not available"),
+    subtitle: detail?.status ? detail.status.replace(/-/g, " ") : undefined,
+  }, [detail?.title, detail?.status, loading]);
+
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   if (!detail) return (
     <div className="flex h-full flex-col">
-      <Header title="Studio" onBack={() => navigate("/projects")} />
-      <EmptyState icon={FileMusic} title="Not available" body="This Studio project doesn't exist or you're not a member." />
+      <EmptyState icon={FileMusic} title="Not available" body="This Studio collab doesn't exist or you're not a member." />
     </div>
   );
 
@@ -42,8 +46,7 @@ export function ProjectRoomPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title={detail.title} onBack={() => navigate("/projects")} status={detail.status} />
-      <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-6 pt-1">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
         {released && (
           <div className="mb-3 flex items-center gap-2 rounded-2xl border border-feel/25 bg-feel/[0.08] px-3.5 py-2.5 text-sm text-feel">
             <CheckCircle2 className="h-4 w-4 shrink-0" /> Released — every agreed collaborator earned a verified credit.
@@ -111,16 +114,6 @@ export function ProjectRoomPage() {
         )}
       </div>
       {adding && <AddCollaborator projectId={id} existing={detail.collaborators.map((c) => c.userId)} onClose={() => setAdding(false)} onAdded={async () => { setAdding(false); await load(); }} />}
-    </div>
-  );
-}
-
-function Header({ title, onBack, status }: { title: string; onBack: () => void; status?: string }) {
-  return (
-    <div className="flex items-center gap-3 px-4 pb-1 pt-3">
-      <button onClick={onBack} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-      <h1 className="min-w-0 flex-1 truncate font-display text-xl font-bold text-gradient">{title}</h1>
-      {status && <span className="shrink-0 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/55">{status}</span>}
     </div>
   );
 }
@@ -252,7 +245,7 @@ function AddCollaborator({ projectId, existing, onClose, onAdded }: { projectId:
             body="Find complementary musicians first — then add anyone you match with here."
             action={
               <button type="button" onClick={() => navigate("/connect")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
-                Open Find
+                Open Network
               </button>
             }
           />

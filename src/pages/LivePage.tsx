@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, Loader2, Monitor, Radio, Video } from "lucide-react";
-import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { Avatar } from "@/components/Avatar";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
 import { cx, timeAgo } from "@/lib/utils";
 import type { LiveSessionCard } from "@/types";
@@ -15,6 +15,14 @@ export function LivePage() {
   const [items, setItems] = useState<LiveSessionCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [goLive, setGoLive] = useState(false);
+
+  useRegisterAppBar({
+    actions: (
+      <button type="button" onClick={() => setGoLive(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
+        <Radio className="h-3.5 w-3.5" /> Go live
+      </button>
+    ),
+  }, []);
 
   useEffect(() => {
     if (params.get("go") === "1") {
@@ -37,17 +45,7 @@ export function LivePage() {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader
-        title="Live"
-        subtitle="Who’s on right now"
-        actions={
-          <button type="button" onClick={() => setGoLive(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
-            <Radio className="h-3.5 w-3.5" /> Go live
-          </button>
-        }
-      />
-
-      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (

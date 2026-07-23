@@ -49,11 +49,7 @@ export function NotificationsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-3 pt-4">
-        <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Activity</h1>
-        <div className="mt-4 h-px w-full bg-[var(--hairline)]" />
-      </div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-1">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : items.length === 0 ? <EmptyState icon={Bell} title="Nothing yet" body="Connection requests, applications, and messages will show up here." />
           : <div className="divide-y divide-[var(--hairline)]">{items.map((n) => {

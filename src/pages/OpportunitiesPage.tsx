@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Briefcase, Check, DollarSign, Loader2, Plus, X } from "lucide-react";
+import { Briefcase, Check, DollarSign, Loader2, Plus, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { ROLES, GENRES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { Opportunity } from "@/types";
@@ -11,7 +11,6 @@ import type { Opportunity } from "@/types";
 type Tab = "collab" | "commission";
 
 export function OpportunitiesPage() {
-  const navigate = useNavigate();
   const { showToast } = useSession();
   const [items, setItems] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +19,14 @@ export function OpportunitiesPage() {
 
   async function load(t: Tab) { setLoading(true); setItems(await api.listOpportunities(50, t)); setLoading(false); }
   useEffect(() => { void load(tab); }, [tab]);
+
+  useRegisterAppBar({
+    actions: (
+      <button type="button" onClick={() => setComposing(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
+        <Plus className="h-3.5 w-3.5" /> Post
+      </button>
+    ),
+  }, []);
 
   async function apply(o: Opportunity) {
     try { await api.applyToOpportunity(o.id); showToast(o.kind === "commission" ? "Pitched — the client can see you now." : "Applied — the poster can see you now."); }
@@ -30,16 +37,7 @@ export function OpportunitiesPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 pb-3 pt-4">
-        <button type="button" onClick={() => navigate("/connect")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-[1.65rem] font-semibold tracking-tight text-white">Opportunities</h1>
-          <p className="text-[13px] text-white/40">Open roles &amp; paid commissions</p>
-        </div>
-        <button type="button" onClick={() => setComposing(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs"><Plus className="h-3.5 w-3.5" /> Post</button>
-      </div>
-      <div className="mx-5 h-px bg-[var(--hairline)]" />
-      <div className="flex gap-5 px-5 pt-3">
+      <div className="flex gap-5 px-1 pt-2">
         {(["collab", "commission"] as Tab[]).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)}
             className={cx("relative pb-2.5 text-[13px] font-medium transition",
@@ -49,7 +47,7 @@ export function OpportunitiesPage() {
           </button>
         ))}
       </div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-6 pt-2">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (
