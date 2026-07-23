@@ -8,6 +8,7 @@ import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
 import { WelcomeTutorial } from "@/components/WelcomeTutorial";
 import { ComposeSheet } from "@/components/ComposeSheet";
+import { BulkUploadSheet } from "@/components/BulkUploadSheet";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
@@ -48,6 +49,7 @@ export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
   const [feedKey, setFeedKey] = useState(0);
   const [composeOpen, setComposeOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const location = useLocation();
   const surface = surfaceForPath(location.pathname);
 
@@ -92,7 +94,7 @@ export function App() {
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/spark" element={<SparkPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
-        <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/projects" element={<ProjectsPage onBulkUpload={() => setBulkOpen(true)} />} />
         <Route path="/projects/:id" element={<ProjectRoomPage />} />
         <Route path="/live" element={<LivePage />} />
         <Route path="/live/:id" element={<LiveWatchPage />} />
@@ -133,6 +135,7 @@ export function App() {
         }
       />
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+      <BulkUploadSheet open={bulkOpen} onClose={() => setBulkOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <ReactiveFrame />
       <WelcomeTutorial />
       <Toast /><Confetti />

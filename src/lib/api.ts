@@ -1034,6 +1034,8 @@ export interface NewDrop {
   inviteeIds?: string[];
   playbackCustomization?: PlaybackCustomization;
   creditedArtist?: string;
+  /** Optional Studio bulk-release group. */
+  releaseBatchId?: string;
 }
 export async function createDrop(input: NewDrop): Promise<Drop | null> {
   const uid = await currentUserId();
@@ -1061,6 +1063,7 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     assetId = (asset as { id: string }).id;
   }
   const credited = input.creditedArtist?.trim() || null;
+  const batchId = input.releaseBatchId || null;
   let drop: { id: string; created_at: string } | null = null;
   {
     const res = await db().from("drops").insert({
@@ -1068,12 +1071,14 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
       asset_id: assetId, seed: input.seed, fx, audience,
       playback_customization: playback,
       credited_artist: credited,
+      release_batch_id: batchId,
     }).select("id,created_at").single();
     if (!res.error && res.data) drop = res.data as { id: string; created_at: string };
     else {
       const mid = await db().from("drops").insert({
         author_id: uid, title: input.title ?? null, body: input.body ?? null,
         asset_id: assetId, seed: input.seed, fx, audience,
+        playback_customization: playback,
         credited_artist: credited,
       }).select("id,created_at").single();
       if (!mid.error && mid.data) drop = mid.data as { id: string; created_at: string };
@@ -1081,15 +1086,23 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
         const mid2 = await db().from("drops").insert({
           author_id: uid, title: input.title ?? null, body: input.body ?? null,
           asset_id: assetId, seed: input.seed, fx, audience,
+          credited_artist: credited,
         }).select("id,created_at").single();
         if (!mid2.error && mid2.data) drop = mid2.data as { id: string; created_at: string };
         else {
-          const fallback = await db().from("drops").insert({
+          const mid3 = await db().from("drops").insert({
             author_id: uid, title: input.title ?? null, body: input.body ?? null,
-            asset_id: assetId, seed: input.seed,
+            asset_id: assetId, seed: input.seed, fx, audience,
           }).select("id,created_at").single();
-          if (fallback.error || !fallback.data) return null;
-          drop = fallback.data as { id: string; created_at: string };
+          if (!mid3.error && mid3.data) drop = mid3.data as { id: string; created_at: string };
+          else {
+            const fallback = await db().from("drops").insert({
+              author_id: uid, title: input.title ?? null, body: input.body ?? null,
+              asset_id: assetId, seed: input.seed,
+            }).select("id,created_at").single();
+            if (fallback.error || !fallback.data) return null;
+            drop = fallback.data as { id: string; created_at: string };
+          }
         }
       }
     }
@@ -1113,6 +1126,22 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     fx, audience, playbackCustomization: playback,
     creditedArtist: credited,
   };
+}
+
+/** Create a Studio release batch (bulk upload group). Returns id or null. */
+export async function createReleaseBatch(input: {
+  title?: string;
+  creditedArtist?: string;
+}): Promise<string | null> {
+  const uid = await currentUserId();
+  if (!uid) return null;
+  const { data, error } = await db().from("release_batches").insert({
+    owner_id: uid,
+    title: input.title?.trim() || null,
+    credited_artist: input.creditedArtist?.trim() || null,
+  }).select("id").single();
+  if (error || !data) return null;
+  return (data as { id: string }).id;
 }
 
 async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> {

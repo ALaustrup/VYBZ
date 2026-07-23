@@ -10,6 +10,7 @@ import {
 } from "@/lib/waveform";
 import { playTrack, patchCurrentTrack, usePlayer, seekFraction } from "@/lib/audioBus";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
+import { readId3Tags, titleFromFilename } from "@/lib/id3Tags";
 import {
   ORB_PALETTE_PRESETS,
   buildPlaybackCustomization,
@@ -61,6 +62,8 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [posting, setPosting] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [autoDetected, setAutoDetected] = useState<string[]>([]);
+  const [id3Meta, setId3Meta] = useState<{ genre?: string | null; year?: number | null; album?: string | null }>({});
+  const [artworkUrl, setArtworkUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const player = usePlayer();
   const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
@@ -86,8 +89,13 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       setPaletteId("veil"); setCustomPalette(null);
       setPulseScale(0.55); setRimIntensity(0.5); setSpecularFollow(true);
       setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
+      setId3Meta({}); setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
     }
   }, [open]);
+
+  useEffect(() => () => {
+    if (artworkUrl) URL.revokeObjectURL(artworkUrl);
+  }, [artworkUrl]);
 
   // Keep the live Orb preview in sync while composing (uploader vision wins).
   useEffect(() => {
@@ -110,15 +118,34 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     }
     setDecoding(true);
     try {
-      const meta = audioMeta(file);
+      const [tags, meta, wf] = await Promise.all([
+        readId3Tags(file),
+        Promise.resolve(audioMeta(file)),
+        computeWaveform(file, 800, true),
+      ]);
       const url = URL.createObjectURL(file);
-      const wf = await computeWaveform(file, 800, true);
       const ext = (file.name.split(".").pop() || "audio").toLowerCase();
       setAudio({ file, url, ext, peaks: wf?.peaks ?? placeholderWaveform(seed),
         duration: wf?.duration ?? 0, format: meta.format, lossless: meta.lossless, sampleRate: wf?.sampleRate ?? 0 });
+
+      setArtworkUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return tags.artworkUrl;
+      });
+
       const auto: string[] = [];
-      if (wf?.bpm) { setBpm(String(wf.bpm)); auto.push("tempo"); }
+      if (tags.title) { setTitle(tags.title.slice(0, 80)); auto.push("title"); }
+      else setTitle(titleFromFilename(file.name).slice(0, 80));
+      if (tags.artist) { setCreditedArtist(tags.artist.slice(0, 80)); auto.push("artist"); }
+      if (tags.bpm) { setBpm(String(tags.bpm)); auto.push("tempo"); }
+      else if (wf?.bpm) { setBpm(String(wf.bpm)); auto.push("tempo"); }
       if (wf?.key && MUSICAL_KEYS.includes(wf.key)) { setMusicalKey(wf.key); auto.push("key"); }
+      setId3Meta({
+        genre: tags.genreMatched ?? tags.genre,
+        year: tags.year,
+        album: tags.album,
+      });
+      if (tags.genre || tags.year || tags.album) auto.push("tags");
       setAutoDetected(auto);
     } catch { showToast("Couldn't read that audio."); }
     finally { setDecoding(false); }
@@ -181,6 +208,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
 
             <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-4">
               <div className="relative mb-4 block h-[26dvh] max-h-56 min-h-[10rem] w-full overflow-hidden rounded-2xl border border-[var(--hairline)] bg-ink-950/50">
+                {artworkUrl && (
+                  <img src={artworkUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" draggable={false} />
+                )}
                 {audio ? (
                   <div className="absolute inset-0 flex flex-col justify-between p-4">
                     <span className="flex items-center gap-1.5 self-start text-[11px] font-medium text-white/55">
@@ -226,12 +256,20 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       <option value="">Key (optional)</option>
                       {MUSICAL_KEYS.map((k) => <option key={k} value={k} className="bg-ink-900">{k}</option>)}
                     </select>
-                    <button type="button" onClick={() => { setAudio(null); setAutoDetected([]); }} aria-label="Remove"
+                    <button type="button" onClick={() => {
+                      setAudio(null); setAutoDetected([]); setId3Meta({});
+                      setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
+                    }} aria-label="Remove"
                       className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
                   </div>
                   {autoDetected.length > 0 && (
                     <p className="flex items-center gap-1 text-[11px] text-veil-200">
-                      <AudioLines className="h-3 w-3" /> Auto-detected {autoDetected.join(" & ")} — edit if needed
+                      <AudioLines className="h-3 w-3" /> From file tags / analysis: {autoDetected.join(", ")} — edit if needed
+                    </p>
+                  )}
+                  {(id3Meta.genre || id3Meta.year || id3Meta.album) && (
+                    <p className="text-[11px] text-white/40">
+                      {[id3Meta.album, id3Meta.genre, id3Meta.year].filter(Boolean).join(" · ")}
                     </p>
                   )}
                   <div>

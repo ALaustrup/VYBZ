@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderGit2, Loader2, Plus, X, Users, GitBranch, CheckCircle2 } from "lucide-react";
+import { FolderGit2, Loader2, Plus, Upload, X, Users, GitBranch, CheckCircle2 } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
@@ -16,7 +16,7 @@ const STATUS_TONE: Record<ProjectStatus, string> = {
   archived: "text-white/35",
 };
 
-export function ProjectsPage() {
+export function ProjectsPage({ onBulkUpload }: { onBulkUpload?: () => void }) {
   const navigate = useNavigate();
   const [items, setItems] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,12 +27,20 @@ export function ProjectsPage() {
 
   useRegisterAppBar({
     actions: (
-      <button type="button" onClick={() => setComposing(true)}
-        className="btn btn-primary h-9 px-3.5 py-0 text-xs">
-        <Plus className="h-3.5 w-3.5" /> New
-      </button>
+      <>
+        {onBulkUpload && (
+          <button type="button" onClick={onBulkUpload}
+            className="btn btn-ghost h-9 px-3 py-0 text-xs">
+            <Upload className="h-3.5 w-3.5" /> Upload
+          </button>
+        )}
+        <button type="button" onClick={() => setComposing(true)}
+          className="btn btn-primary h-9 px-3.5 py-0 text-xs">
+          <Plus className="h-3.5 w-3.5" /> New
+        </button>
+      </>
     ),
-  }, []);
+  }, [onBulkUpload]);
 
   return (
     <div className="flex h-full flex-col">
