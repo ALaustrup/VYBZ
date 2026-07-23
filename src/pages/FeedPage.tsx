@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3, SlidersHorizontal } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
+import { FeedHero } from "@/components/FeedHero";
 import { EmptyState } from "@/components/EmptyState";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
@@ -111,6 +112,9 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
       )}
 
       <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
+        <div className="mx-auto max-w-2xl px-0.5">
+          <FeedHero />
+        </div>
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : drops.length === 0 ? (

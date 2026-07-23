@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Loader2, Plus, X, Upload, GitBranch, CheckCircle2, Check,
-  Rocket, PieChart, Users, FileMusic, MessageSquare,
+  Rocket, PieChart, Users, FileMusic, MessageSquare, Star,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
@@ -210,6 +210,8 @@ function CreditsTab({
   showToast: (msg: string) => void;
   celebrate: (msg: string) => void;
 }) {
+  const { userId } = useSession();
+
   return (
     <div>
       {released && (
@@ -259,6 +261,84 @@ function CreditsTab({
           {allAgreed && total === 100 ? "Release project" : "Everyone must agree · splits = 100%"}
         </button>
       )}
+
+      {released && userId && (
+        <CollabRatePeers
+          projectId={projectId}
+          peers={detail.collaborators.filter((c) => c.userId !== userId)}
+          showToast={showToast}
+        />
+      )}
+    </div>
+  );
+}
+
+function CollabRatePeers({
+  projectId,
+  peers,
+  showToast,
+}: {
+  projectId: string;
+  peers: ProjectDetail["collaborators"];
+  showToast: (msg: string) => void;
+}) {
+  const [mine, setMine] = useState<Record<string, number>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+
+  useEffect(() => {
+    void api.projectCollabRatings(projectId).then(setMine);
+  }, [projectId]);
+
+  if (peers.length === 0) return null;
+
+  async function rate(rateeId: string, stars: number) {
+    setBusy(rateeId);
+    try {
+      await api.rateCollaborator(projectId, rateeId, stars);
+      setMine((m) => ({ ...m, [rateeId]: stars }));
+      showToast("Thanks — that trust signal helps matchmaking.");
+    } catch {
+      showToast("Couldn't save rating.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="mt-6">
+      <SectionTitle icon={<Star className="h-3.5 w-3.5" />} label="Rate collaborators" />
+      <p className="mb-2 text-[12px] text-white/40">Honest 1–5 after release — builds reputation, never gates collabs.</p>
+      <div className="space-y-2">
+        {peers.map((c) => (
+          <div key={c.userId} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3.5 py-2.5">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-white/90">{c.username ?? "creator"}</p>
+              {c.role && <p className="text-[11px] text-white/45">{c.role}</p>}
+            </div>
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((n) => {
+                const active = (mine[c.userId] ?? 0) >= n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    disabled={busy === c.userId}
+                    aria-label={`Rate ${n} stars`}
+                    onClick={() => rate(c.userId, n)}
+                    className={cx(
+                      "p-0.5 transition",
+                      active ? "text-amber-300" : "text-white/25 hover:text-white/50",
+                      busy === c.userId && "opacity-50",
+                    )}
+                  >
+                    <Star className="h-4 w-4" fill={active ? "currentColor" : "none"} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

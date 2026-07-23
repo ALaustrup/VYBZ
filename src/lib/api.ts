@@ -1658,6 +1658,22 @@ export async function creatorCredits(id: string): Promise<import("@/types").Cred
   }));
 }
 
+/** Rate a collaborator on a released Studio project (§5.4f). */
+export async function rateCollaborator(projectId: string, rateeId: string, rating: number): Promise<void> {
+  const { error } = await db().rpc("rate_collaborator", {
+    p_project: projectId, p_ratee: rateeId, p_rating: rating,
+  });
+  if (error) throw error;
+}
+
+/** Ratings the caller has given on a project (ratee_id → 1–5). */
+export async function projectCollabRatings(projectId: string): Promise<Record<string, number>> {
+  const { data } = await db().rpc("project_collab_ratings", { p_project: projectId });
+  const out: Record<string, number> = {};
+  for (const r of data ?? []) out[r.ratee_id] = Number(r.rating);
+  return out;
+}
+
 // ── Collab room chat (Phase D) ───────────────────────────────────────────────
 export interface ProjectMessage {
   id: string;

@@ -11,22 +11,36 @@ import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 import type { CollabMatch } from "@/types";
 
-const DISMISS_KEY = "vybz.heroDismissed";
+const DISMISS_UNTIL_KEY = "vybz.heroDismissedUntil";
+const LEGACY_DISMISS_KEY = "vybz.heroDismissed";
+const SOFT_MS = 24 * 60 * 60 * 1000;
+
+function readDismissed(): boolean {
+  try {
+    const until = Number(localStorage.getItem(DISMISS_UNTIL_KEY) || 0);
+    if (until > Date.now()) return true;
+    // Migrate forever-dismiss → soft 24h window once
+    if (localStorage.getItem(LEGACY_DISMISS_KEY) === "1") {
+      localStorage.removeItem(LEGACY_DISMISS_KEY);
+      localStorage.setItem(DISMISS_UNTIL_KEY, String(Date.now() + SOFT_MS));
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
 
 /**
- * The post-login landing hero. Turns the top of the home feed into a launchpad:
- * a greeting, your strongest fresh matches (with the explainable confidence read)
- * for one-tap Connect/Message, and a gentle nudge to finish your profile so
- * matchmaking sharpens. Dismissible; reappears only if re-enabled.
+ * Home match teaser — soft-dismiss (24h), not forever. Reappears so Network
+ * stays a daily pull without gamification junk.
  */
 export function FeedHero() {
   const navigate = useNavigate();
   const { profile, showToast } = useSession();
   const [matches, setMatches] = useState<CollabMatch[] | null>(null);
   const reduce = useReduceFx();
-  const [dismissed, setDismissed] = useState(() => {
-    try { return localStorage.getItem(DISMISS_KEY) === "1"; } catch { return false; }
-  });
+  const [dismissed, setDismissed] = useState(readDismissed);
 
   useEffect(() => {
     const craft = craftScope(profile?.profile?.profession);
@@ -37,7 +51,10 @@ export function FeedHero() {
 
   function dismiss() {
     setDismissed(true);
-    try { localStorage.setItem(DISMISS_KEY, "1"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(DISMISS_UNTIL_KEY, String(Date.now() + SOFT_MS));
+      localStorage.removeItem(LEGACY_DISMISS_KEY);
+    } catch { /* ignore */ }
   }
   async function connect(m: CollabMatch) {
     await api.connect(m.userId);
@@ -55,9 +72,9 @@ export function FeedHero() {
       initial={reduce ? false : { opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="relative mb-5 border-b border-[var(--hairline)] pb-4"
+      className="relative mb-4 border-b border-[var(--hairline)] pb-4"
     >
-      <button onClick={dismiss} aria-label="Dismiss" className="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-full text-white/35 hover:text-white/70">
+      <button onClick={dismiss} aria-label="Dismiss for today" className="absolute right-0 top-0 flex h-7 w-7 items-center justify-center rounded-full text-white/35 hover:text-white/70">
         <X className="h-3.5 w-3.5" />
       </button>
 
@@ -69,7 +86,7 @@ export function FeedHero() {
         <p className="mt-1 text-[13px] text-white/40">Finding your best matches…</p>
       ) : top.length > 0 ? (
         <>
-          <p className="mb-3 mt-1 text-[12px] text-white/40">Strongest music collab matches right now.</p>
+          <p className="mb-3 mt-1 text-[12px] text-white/40">Strongest collab matches right now.</p>
           <div className="divide-y divide-[var(--hairline)]">
             {top.map((m) => {
               const r = confidenceRead(m.confidence);
@@ -90,7 +107,7 @@ export function FeedHero() {
             })}
           </div>
           <button type="button" onClick={() => navigate("/connect")} className="mt-2 flex items-center gap-1 text-[12px] font-medium text-white/45 hover:text-white/80">
-            See all matches <ArrowRight className="h-3.5 w-3.5" />
+            Open Network <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </>
       ) : (
