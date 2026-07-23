@@ -1,8 +1,8 @@
 # VYBZ Terms of Service
 
 **Operator:** Astra Matrix, Inc. ("Astra Matrix," "we," "us")
-**Service:** VYBZ (the "Service") — vybz.cloud
-**Effective Date:** [EFFECTIVE DATE]   **Version:** 1.0
+**Service:** VYBZ (the "Service") — https://vybz.cloud
+**Effective Date:** July 23, 2026 **Version:** 1.1
 
 These Terms of Service (the "Terms") are a binding agreement between you and Astra Matrix, Inc. governing your access to and use of VYBZ. By creating an account or using the Service, you agree to these Terms. If you do not agree, do not use the Service.
 
@@ -28,12 +28,19 @@ Your use of VYBZ is subject to our **Acceptable Use Policy** and **Copyright & D
 The Service, including its software, design, trademarks, and the "VYBZ" and "Astra Matrix" names and logos, is owned by Astra Matrix or its licensors and is protected by law. These Terms grant you no rights in our intellectual property except to use the Service as permitted.
 
 ## 7. Third-Party Services
-The Service relies on third-party providers (e.g., cloud hosting, database, and delivery providers). Your use may be subject to their terms, and we are not responsible for third-party services.
+The Service relies on third-party providers (e.g., cloud hosting, database, delivery, email, and payment providers). Your use may be subject to their terms, and we are not responsible for third-party services except as required by law.
 
-## 7A. Affiliate & Referral Links
+## 7A. Tips, Payouts & Payments (Stripe)
+VYBZ may offer optional **tips** to creators and optional purchases (e.g. cosmetics). Tips and payouts are processed by **Stripe** using **Stripe Connect**. When you enable tips, you create or link a Stripe Connect Express account and complete Stripe-hosted onboarding (including identity verification). Funds from tips settle to your connected Stripe account subject to Stripe’s terms, payout schedules, and applicable fees (platform application fees, if any, will be disclosed in-product).
+
+- Tips and cosmetics are **optional** and never gate core collaboration features.
+- Card and bank details are handled by Stripe; Astra Matrix does not store full payment-card numbers.
+- Your use of Stripe is also subject to the [Stripe Connected Account Agreement](https://stripe.com/connect-account/legal) (and related Stripe terms) presented during onboarding, and to our [Privacy Policy](/legal/privacy.md) (including its Stripe disclosures).
+
+## 7B. Affiliate & Referral Links
 Creators may post gear, plugin, or merchant links that include affiliate or referral parameters. Those links are **display-only disclosures**: they never influence match scores, ranking, or discovery. Creators must disclose when a link may earn a commission. Astra Matrix is not a party to affiliate relationships between creators and merchants.
 
-## 7B. Optional Peer Distribution (Swarm)
+## 7C. Optional Peer Distribution (Swarm)
 When enabled, VYBZ may offer an **opt-in** peer-to-peer (Swarm) path that exchanges encrypted asset chunks between users who already have download permission for that asset. Centralized delivery (CDN) remains available as the default fallback. Seeding is voluntary; do not use Swarm to circumvent licenses or rights.
 
 ## 8. Disclaimers
@@ -55,8 +62,8 @@ We may update these Terms. Material changes will be notified through the Service
 These Terms are governed by the laws of [STATE/COUNTRY], without regard to conflict-of-laws rules. Disputes will be resolved in the courts located in [VENUE], or, where elected, by binding arbitration, and you and Astra Matrix consent to that jurisdiction.
 
 ## 14. Contact
-Astra Matrix, Inc. — [COMPANY ADDRESS] — [legal@astramatrix.xyz]
+Astra Matrix, Inc. — legal@astramatrix.xyz — https://vybz.cloud
 
 ---
 
-*This document is provided by Astra Matrix, Inc. and should be reviewed by qualified counsel and finalized with company-specific details before public reliance.*
+*Astra Matrix, Inc. provides these Terms for VYBZ. Governing-law venue should be finalized with counsel. Mailing address available on request via legal@astramatrix.xyz.*

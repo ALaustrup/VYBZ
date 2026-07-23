@@ -33,8 +33,8 @@ export const CODEX_DOCS: CodexDoc[] = [
   { slug: "performance-booking-agreement", kind: "template", category: "Management & Live", title: "Performance / Booking Agreement", summary: "Books a live show: fee, deposit, cancellation, and technical/hospitality rider.", jurisdiction: "US-first · adapt to your territory", version: "1.0", path: "/codex/performance-booking-agreement.md" },
 
   // ── Platform legal (Astra Matrix, Inc.) ─────────────────────────────────────
-  { slug: "terms", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Terms of Service", summary: "The binding agreement governing use of VYBZ.", jurisdiction: "Astra Matrix, Inc.", version: "1.0", path: "/legal/terms.md" },
-  { slug: "privacy", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Privacy Policy", summary: "What we collect, how we use and share it, and your rights.", jurisdiction: "Astra Matrix, Inc.", version: "1.0", path: "/legal/privacy.md" },
+  { slug: "terms", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Terms of Service", summary: "The binding agreement governing use of VYBZ, including optional Stripe tips.", jurisdiction: "Astra Matrix, Inc.", version: "1.1", path: "/legal/terms.md" },
+  { slug: "privacy", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Privacy Policy", summary: "What we collect (including Stripe Connect tips), how we use and share it, and your rights.", jurisdiction: "Astra Matrix, Inc.", version: "2.0", path: "/legal/privacy.md" },
   { slug: "dmca", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Copyright & DMCA Policy", summary: "How to report infringement and how we respond (notice & takedown).", jurisdiction: "Astra Matrix, Inc.", version: "1.0", path: "/legal/dmca.md" },
   { slug: "acceptable-use", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Acceptable Use Policy", summary: "Conduct rules for the platform.", jurisdiction: "Astra Matrix, Inc.", version: "1.0", path: "/legal/acceptable-use.md" },
 ];
