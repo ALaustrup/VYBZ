@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "stripe": {
+    "stripe-vybz": {
       "url": "https://mcp.stripe.com"
     }
   }
