@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "framer-motion";
-import { Disc3, Loader2, Music2, Repeat, Sparkles, Star, Target, UserPlus, X } from "lucide-react";
+import { Disc3, Loader2, Music2, Repeat, Sparkles, Star, Target, UserPlus, X, SlidersHorizontal } from "lucide-react";
 import * as api from "@/lib/api";
+import { NetworkModes } from "@/components/network/NetworkModes";
+import { MatchHardFiltersPanel } from "@/components/network/MatchHardFiltersPanel";
 import { useSession } from "@/store/session";
-import { haptic } from "@/lib/utils";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
+import { haptic, cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
 import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL, craftScope } from "@/lib/profileFields";
+import {
+  loadMatchFilters, saveMatchFilters, matchFilterCount, type MatchHardFilters,
+} from "@/lib/matchFilters";
 import type { CollabMatch } from "@/types";
 
 function gradientFor(id: string): string {
@@ -20,16 +26,44 @@ export function SparkPage() {
   const [deck, setDeck] = useState<CollabMatch[]>([]);
   const [idx, setIdx] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<MatchHardFilters>(loadMatchFilters);
+  const [showFilters, setShowFilters] = useState(false);
   const busy = useRef(false);
+  const activeCount = matchFilterCount(filters);
+
+  useRegisterAppBar({
+    actions: (
+      <button
+        type="button"
+        onClick={() => setShowFilters((s) => !s)}
+        aria-label="Must-have filters"
+        aria-expanded={showFilters}
+        className={cx(
+          "flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
+          showFilters || activeCount > 0
+            ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40"
+            : "glass text-white/70",
+        )}
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5" />
+        {activeCount > 0 ? activeCount : "Filters"}
+      </button>
+    ),
+  }, [showFilters, activeCount]);
 
   const craft = craftScope(profile?.profile?.profession);
   const load = useCallback(async () => {
     setLoading(true);
-    setDeck(await api.collabMatches(30, craft));
+    setDeck(await api.collabMatches(40, craft, filters));
     setIdx(0);
     setLoading(false);
-  }, [craft]);
+  }, [craft, filters]);
   useEffect(() => { void load(); }, [load]);
+
+  function updateFilters(next: MatchHardFilters) {
+    setFilters(next);
+    saveMatchFilters(next);
+  }
 
   const act = useCallback((c: CollabMatch, connect: boolean) => {
     if (busy.current) return; busy.current = true;
@@ -47,15 +81,29 @@ export function SparkPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="relative flex-1 px-4 pb-6 pt-2">
+      <div className="px-1 pt-2">
+        <NetworkModes />
+        {showFilters && <MatchHardFiltersPanel filters={filters} onChange={updateFilters} />}
+      </div>
+      <div className="relative flex-1 px-4 pb-6 pt-1">
         {loading ? (
           <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : idx >= deck.length ? (
           <div className="flex h-full flex-col items-center justify-center px-6 text-center">
             <Sparkles className="mb-3 h-8 w-8 text-veil-200" />
-            <h2 className="font-display text-lg font-bold text-white">You're all caught up</h2>
-            <p className="mt-1.5 max-w-xs text-sm text-white/55">Add your offered/sought roles on your profile so more complementary musicians surface.</p>
-            <button onClick={load} className="btn btn-ghost mt-5 px-5 text-xs">Refresh</button>
+            <h2 className="font-display text-lg font-bold text-white">
+              {activeCount > 0 && deck.length === 0 ? "No cards with these must-haves" : "You're all caught up"}
+            </h2>
+            <p className="mt-1.5 max-w-xs text-sm text-white/55">
+              {activeCount > 0 && deck.length === 0
+                ? "Clear remote, DAW, or language filters to refill the deck."
+                : "Add your offered/sought roles on your profile so more complementary musicians surface."}
+            </p>
+            {activeCount > 0 && deck.length === 0 ? (
+              <button onClick={() => updateFilters({ remoteOnly: false, daw: "", language: "" })} className="btn btn-ghost mt-5 px-5 text-xs">Clear filters</button>
+            ) : (
+              <button onClick={load} className="btn btn-ghost mt-5 px-5 text-xs">Refresh</button>
+            )}
           </div>
         ) : (
           <div className="relative mx-auto h-full max-w-sm">

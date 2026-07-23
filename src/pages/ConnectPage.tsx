@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, Flame, Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, UserPlus, Users, ArrowRight } from "lucide-react";
+import { Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, UserPlus, Users, SlidersHorizontal } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
+import { NetworkModes } from "@/components/network/NetworkModes";
+import { MatchHardFiltersPanel } from "@/components/network/MatchHardFiltersPanel";
 import { useSession } from "@/store/session";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx } from "@/lib/utils";
 import { confidenceRead } from "@/lib/confidence";
 import { ROLE_CLASS_LABEL, isAdjacentClass, PROFESSION_LABEL, craftScope } from "@/lib/profileFields";
+import {
+  loadMatchFilters, saveMatchFilters, matchFilterCount, type MatchHardFilters,
+} from "@/lib/matchFilters";
 import type { CollabMatch } from "@/types";
 
 export function ConnectPage() {
@@ -14,12 +20,43 @@ export function ConnectPage() {
   const { showToast, profile } = useSession();
   const [matches, setMatches] = useState<CollabMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<MatchHardFilters>(loadMatchFilters);
+  const [showFilters, setShowFilters] = useState(() => matchFilterCount(loadMatchFilters()) > 0);
+  const activeCount = matchFilterCount(filters);
+
+  useRegisterAppBar({
+    actions: (
+      <button
+        type="button"
+        onClick={() => setShowFilters((s) => !s)}
+        aria-label="Must-have filters"
+        aria-expanded={showFilters}
+        className={cx(
+          "flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
+          showFilters || activeCount > 0
+            ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40"
+            : "glass text-white/70",
+        )}
+      >
+        <SlidersHorizontal className="h-3.5 w-3.5" />
+        {activeCount > 0 ? activeCount : "Filters"}
+      </button>
+    ),
+  }, [showFilters, activeCount]);
 
   useEffect(() => {
     setLoading(true);
     const craft = craftScope(profile?.profile?.profession);
-    api.collabMatches(30, craft).then((m) => { setMatches(m); setLoading(false); });
-  }, [profile?.profile?.profession]);
+    api.collabMatches(40, craft, filters).then((m) => {
+      setMatches(m);
+      setLoading(false);
+    });
+  }, [profile?.profile?.profession, filters]);
+
+  function updateFilters(next: MatchHardFilters) {
+    setFilters(next);
+    saveMatchFilters(next);
+  }
 
   async function connect(m: CollabMatch) {
     await api.connect(m.userId);
@@ -34,35 +71,8 @@ export function ConnectPage() {
   return (
     <div className="flex h-full flex-col">
       <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
-        <div className="mb-5 flex flex-wrap gap-x-5 gap-y-2 border-b border-[var(--hairline)] pb-2.5">
-          <button
-            type="button"
-            onClick={() => navigate("/spark")}
-            className="group flex items-center gap-2 text-[13px] font-medium text-white/55 transition hover:text-white"
-          >
-            <Flame className="h-3.5 w-3.5 text-veil-300" />
-            Spark
-            <ArrowRight className="h-3 w-3 opacity-0 transition group-hover:opacity-60" />
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/opportunities")}
-            className="group flex items-center gap-2 text-[13px] font-medium text-white/55 transition hover:text-white"
-          >
-            <Briefcase className="h-3.5 w-3.5 text-white/40" />
-            Opportunities
-            <ArrowRight className="h-3 w-3 opacity-0 transition group-hover:opacity-60" />
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/discover")}
-            className="group flex items-center gap-2 text-[13px] font-medium text-white/55 transition hover:text-white"
-          >
-            <Music2 className="h-3.5 w-3.5 text-white/40" />
-            Discover
-            <ArrowRight className="h-3 w-3 opacity-0 transition group-hover:opacity-60" />
-          </button>
-        </div>
+        <NetworkModes />
+        {showFilters && <MatchHardFiltersPanel filters={filters} onChange={updateFilters} />}
 
         <p className="eyebrow mb-3">Suggested collaborators</p>
 
@@ -71,12 +81,22 @@ export function ConnectPage() {
         ) : matches.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="No matches yet"
-            body="Add what you bring and who you’re looking for — producer, vocalist, mix engineer. Complementary musicians show up here first."
+            title={activeCount > 0 ? "No matches with these must-haves" : "No matches yet"}
+            body={
+              activeCount > 0
+                ? "Loosen remote, DAW, or language — or clear filters to see the full ranked deck."
+                : "Add what you bring and who you’re looking for — producer, vocalist, mix engineer. Complementary musicians show up here first."
+            }
             action={
-              <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
-                Edit profile
-              </button>
+              activeCount > 0 ? (
+                <button type="button" onClick={() => updateFilters({ remoteOnly: false, daw: "", language: "" })} className="btn btn-ghost mt-1 h-9 px-4 py-0 text-xs">
+                  Clear filters
+                </button>
+              ) : (
+                <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-primary mt-1 h-9 px-4 py-0 text-xs">
+                  Edit profile
+                </button>
+              )
             }
           />
         ) : (

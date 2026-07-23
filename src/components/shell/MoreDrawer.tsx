@@ -40,9 +40,9 @@ const MORE_SECTIONS: MoreSection[] = [
     id: "network",
     label: "Network",
     items: [
-      { id: "discover", label: "Discover", to: "/discover", icon: Search },
+      { id: "discover", label: "Search", to: "/discover", icon: Search },
       { id: "spark", label: "Spark", to: "/spark", icon: Sparkles },
-      { id: "opportunities", label: "Opportunities", to: "/opportunities", icon: Briefcase },
+      { id: "opportunities", label: "Jobs", to: "/opportunities", icon: Briefcase },
     ],
   },
   {

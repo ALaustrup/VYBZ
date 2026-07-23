@@ -14,17 +14,17 @@ export interface ChromeDef {
 export function chromeForPath(pathname: string): ChromeDef {
   if (pathname === "/") return { title: "Home", subtitle: "Drops from the network" };
   if (pathname.startsWith("/discover")) {
-    return { title: "Discover", subtitle: "Search by craft, role, genre, DAW & place", showBack: true, backTo: "/connect" };
+    return { title: "Network", subtitle: "Search by craft, role, genre, DAW & place" };
   }
   if (pathname.startsWith("/activity")) return { title: "Activity" };
   if (pathname.startsWith("/connect")) {
-    return { title: "Network", subtitle: "Match, spark, and find collaborators" };
+    return { title: "Network", subtitle: "Ranked collaborators for your craft" };
   }
   if (pathname.startsWith("/spark")) {
-    return { title: "Spark", subtitle: "Swipe complementary musicians", showBack: true, backTo: "/connect" };
+    return { title: "Network", subtitle: "Swipe the same match deck" };
   }
   if (pathname.startsWith("/opportunities")) {
-    return { title: "Opportunities", subtitle: "Open roles & paid commissions", showBack: true, backTo: "/connect" };
+    return { title: "Network", subtitle: "Roles ranked for what you offer" };
   }
   if (pathname.startsWith("/projects/") && pathname !== "/projects") {
     return { title: "Collab", showBack: true, backTo: "/projects" };

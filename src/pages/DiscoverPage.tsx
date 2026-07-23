@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, MapPin, Search, SlidersHorizontal, UserPlus, Users, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
+import { NetworkModes } from "@/components/network/NetworkModes";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { ROLES, GENRES, DAWS, PLUGINS, MUSICAL_KEYS, PROFESSIONS, PROFESSION_LABEL, SOFTWARE, STYLES, ENGINES, PRIMARY_PROFESSION } from "@/lib/profileFields";
@@ -69,6 +70,7 @@ export function DiscoverPage() {
   return (
     <div className="flex h-full flex-col">
       <div className="space-y-2.5 px-1 pt-2">
+        <NetworkModes />
         <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
           <Search className="h-4 w-4 text-white/40" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by name…"

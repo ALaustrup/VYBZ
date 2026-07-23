@@ -658,8 +658,18 @@ export async function refreshEmbedding(): Promise<void> {
 }
 
 // ── Matchmaking ──────────────────────────────────────────────────────────────
-export async function collabMatches(limit = 30, category: string | null = null): Promise<CollabMatch[]> {
-  const { data, error } = await db().rpc("collab_matches", { p_limit: limit, p_category: category });
+export async function collabMatches(
+  limit = 30,
+  category: string | null = null,
+  filters?: { remoteOnly?: boolean; daw?: string; language?: string },
+): Promise<CollabMatch[]> {
+  const { data, error } = await db().rpc("collab_matches", {
+    p_limit: limit,
+    p_category: category,
+    p_remote_only: filters?.remoteOnly ? true : null,
+    p_daw: filters?.daw || null,
+    p_language: filters?.language || null,
+  });
   if (error || !data) return [];
   return data.map((r: any) => ({
     userId: r.user_id, username: r.username ?? null,
