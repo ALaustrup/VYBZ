@@ -128,11 +128,11 @@ export function App() {
       <AppChrome
         stage={routes}
         player={<GlobalPlayer />}
-        taskbar={
+        taskbar={(placement) => (
           <ErrorBoundary>
-            <Taskbar onCompose={() => setComposeOpen(true)} />
+            <Taskbar variant={placement} onCompose={() => setComposeOpen(true)} />
           </ErrorBoundary>
-        }
+        )}
       />
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <BulkUploadSheet open={bulkOpen} onClose={() => setBulkOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />

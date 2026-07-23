@@ -18,16 +18,26 @@ export function TaskbarPinRow({
   side,
   pathname,
   unread,
+  orientation = "horizontal",
 }: {
   side: "left" | "right";
   pathname: string;
   unread: number;
+  orientation?: "horizontal" | "vertical";
 }) {
   const pins = useTaskbarPins();
   const ids = pins[side];
+  const vertical = orientation === "vertical";
 
   return (
-    <div className={cx("flex min-w-0 flex-1 items-center gap-0.5", side === "right" && "justify-end")}>
+    <div
+      className={cx(
+        "flex min-w-0 items-center gap-0.5",
+        vertical
+          ? cx("w-full flex-col", side === "left" ? "justify-start" : "mt-auto justify-end")
+          : cx("flex-1", side === "right" && "justify-end"),
+      )}
+    >
       {ids.map((id) => {
         const pin = PIN_BY_ID[id];
         if (!pin) return null;
@@ -40,6 +50,7 @@ export function TaskbarPinRow({
             to={pin.to}
             end={!!pin.end}
             aria-label={pin.label}
+            title={pin.label}
             className={cx(
               "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1.5 py-1 transition",
               active ? "text-white" : "text-white/45 hover:text-white/80",
@@ -60,9 +71,11 @@ export function TaskbarPinRow({
                 </span>
               )}
             </span>
-            <span className={cx("relative z-10 hidden text-[9px] font-semibold sm:block", active ? "text-white/90" : "text-white/40")}>
-              {pin.label}
-            </span>
+            {!vertical && (
+              <span className={cx("relative z-10 hidden text-[9px] font-semibold sm:block", active ? "text-white/90" : "text-white/40")}>
+                {pin.label}
+              </span>
+            )}
           </NavLink>
         );
       })}
@@ -70,7 +83,7 @@ export function TaskbarPinRow({
   );
 }
 
-export function TaskbarCustomizeButton() {
+export function TaskbarCustomizeButton({ rail = false }: { rail?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -78,7 +91,10 @@ export function TaskbarCustomizeButton() {
         type="button"
         aria-label="Customize taskbar"
         onClick={() => setOpen(true)}
-        className="absolute -top-2 right-2 z-20 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-ink-900/80 text-white/40 opacity-0 transition hover:text-white/80 group-hover/taskbar:opacity-100 focus:opacity-100 sm:opacity-60"
+        className={cx(
+          "absolute z-20 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-ink-900/80 text-white/40 opacity-0 transition hover:text-white/80 group-hover/taskbar:opacity-100 focus:opacity-100 sm:opacity-60",
+          rail ? "right-1 top-1" : "-top-2 right-2",
+        )}
       >
         <Settings2 className="h-3.5 w-3.5" />
       </button>

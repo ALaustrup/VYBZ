@@ -4,15 +4,24 @@ import { useSession } from "@/store/session";
 import { OrbSphere } from "@/components/taskbar/OrbSphere";
 import { DEFAULT_ORB_ACTIONS, OrbFan, type OrbFanAction } from "@/components/taskbar/OrbFan";
 import { TaskbarCustomizeButton, TaskbarPinRow } from "@/components/taskbar/TaskbarPins";
+import type { TaskbarPlacement } from "@/components/shell/AppChrome";
+import { cx } from "@/lib/utils";
 
-/** Universal bottom taskbar — edge page pins + center interactive orb. */
-export function Taskbar({ onCompose }: { onCompose: () => void }) {
+/** Universal taskbar — edge page pins + center interactive orb (dock or desktop rail). */
+export function Taskbar({
+  onCompose,
+  variant = "dock",
+}: {
+  onCompose: () => void;
+  variant?: TaskbarPlacement;
+}) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { unread } = useSession();
   const [open, setOpen] = useState(false);
   const [flash, setFlash] = useState(false);
   const orbZoneRef = useRef<HTMLDivElement>(null);
+  const rail = variant === "rail";
 
   useEffect(() => {
     setOpen(false);
@@ -56,17 +65,37 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   }));
 
   return (
-    <div className="group/taskbar relative z-40 px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-0">
-      <div className="glass relative mx-auto flex h-[76px] w-full max-w-3xl items-center gap-1 rounded-[28px] px-2 sm:px-3">
-        <TaskbarCustomizeButton />
-        <TaskbarPinRow side="left" pathname={pathname} unread={unread} />
+    <div
+      className={cx(
+        "group/taskbar relative z-40",
+        rail
+          ? "flex h-full w-full flex-col px-0 py-0"
+          : "px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-0",
+      )}
+    >
+      <div
+        className={cx(
+          "glass relative mx-auto items-center gap-1 px-2",
+          rail
+            ? "flex h-full w-full max-w-none flex-col rounded-[28px] py-3"
+            : "flex h-[76px] w-full max-w-3xl rounded-[28px] sm:px-3",
+        )}
+      >
+        <TaskbarCustomizeButton rail={rail} />
+        <TaskbarPinRow side="left" pathname={pathname} unread={unread} orientation={rail ? "vertical" : "horizontal"} />
 
-        <div ref={orbZoneRef} className="relative z-10 flex shrink-0 items-center justify-center px-1">
-          <OrbFan open={open} actions={actions} onClose={() => setOpen(false)} />
+        <div
+          ref={orbZoneRef}
+          className={cx(
+            "relative z-10 flex shrink-0 items-center justify-center",
+            rail ? "my-2 px-0 py-1" : "px-1",
+          )}
+        >
+          <OrbFan open={open} actions={actions} onClose={() => setOpen(false)} direction={rail ? "end" : "up"} />
           <OrbSphere open={open} flash={flash} onClick={toggleOrb} />
         </div>
 
-        <TaskbarPinRow side="right" pathname={pathname} unread={unread} />
+        <TaskbarPinRow side="right" pathname={pathname} unread={unread} orientation={rail ? "vertical" : "horizontal"} />
       </div>
     </div>
   );

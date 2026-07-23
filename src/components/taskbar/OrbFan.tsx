@@ -23,20 +23,29 @@ interface OrbFanProps {
   open: boolean;
   actions: OrbFanAction[];
   onClose: () => void;
+  /** Dock: fan upward. Rail: fan into the stage (end / right). */
+  direction?: "up" | "end";
 }
 
-/** Horizontal action chips above the orb — independent glow hues + hover tilt. */
-export function OrbFan({ open, actions, onClose }: OrbFanProps) {
+/** Action chips from the orb — independent glow hues + hover tilt. */
+export function OrbFan({ open, actions, onClose, direction = "up" }: OrbFanProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const reduce = useReduceFx();
   const focusIdx = useRef(0);
+  const rail = direction === "end";
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      const next = rail
+        ? (e.key === "ArrowDown" || e.key === "ArrowRight")
+        : e.key === "ArrowRight";
+      const prev = rail
+        ? (e.key === "ArrowUp" || e.key === "ArrowLeft")
+        : e.key === "ArrowLeft";
+      if (next || prev) {
         e.preventDefault();
-        const dir = e.key === "ArrowRight" ? 1 : -1;
+        const dir = next ? 1 : -1;
         focusIdx.current = (focusIdx.current + dir + actions.length) % actions.length;
         const btn = rootRef.current?.querySelectorAll<HTMLButtonElement>("[data-orb-fan]")[focusIdx.current];
         btn?.focus();
@@ -44,7 +53,7 @@ export function OrbFan({ open, actions, onClose }: OrbFanProps) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, actions.length, onClose]);
+  }, [open, actions.length, onClose, rail]);
 
   return (
     <AnimatePresence>
@@ -53,11 +62,16 @@ export function OrbFan({ open, actions, onClose }: OrbFanProps) {
           ref={rootRef}
           role="menu"
           aria-label="Orb actions"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, ...(rail ? { x: -12 } : { y: 12 }) }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          exit={{ opacity: 0, ...(rail ? { x: -8 } : { y: 8 }) }}
           transition={{ type: "spring", stiffness: 420, damping: 30 }}
-          className="pointer-events-auto absolute bottom-[calc(100%+0.65rem)] left-1/2 z-30 flex -translate-x-1/2 items-end gap-2.5 sm:gap-3"
+          className={cx(
+            "pointer-events-auto absolute z-30 flex gap-2.5 sm:gap-3",
+            rail
+              ? "left-[calc(100%+0.65rem)] top-1/2 -translate-y-1/2 flex-col items-start"
+              : "bottom-[calc(100%+0.65rem)] left-1/2 -translate-x-1/2 items-end",
+          )}
         >
           {actions.map((action, i) => {
             const Icon = action.icon;
@@ -67,11 +81,15 @@ export function OrbFan({ open, actions, onClose }: OrbFanProps) {
                 type="button"
                 data-orb-fan
                 role="menuitem"
-                initial={{ opacity: 0, y: 16, scale: 0.85 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.85 }}
+                initial={{ opacity: 0, scale: 0.85, ...(rail ? { x: -16 } : { y: 16 }) }}
+                animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                exit={{ opacity: 0, scale: 0.85, ...(rail ? { x: -10 } : { y: 10 }) }}
                 transition={{ type: "spring", stiffness: 400, damping: 26, delay: i * 0.04 }}
-                whileHover={reduce ? undefined : { rotate: i % 2 === 0 ? -8 : 8, y: -4, scale: 1.06 }}
+                whileHover={reduce ? undefined : {
+                  rotate: i % 2 === 0 ? -8 : 8,
+                  ...(rail ? { x: 4 } : { y: -4 }),
+                  scale: 1.06,
+                }}
                 whileTap={{ scale: 0.94 }}
                 onClick={() => action.run()}
                 className={cx(
