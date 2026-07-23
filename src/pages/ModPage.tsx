@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import {
-  Shield, Flag, Award, Loader2, EyeOff, Trash2, AlertTriangle, Bell, Check, Crown, Medal,
+  Flag, Award, Loader2, EyeOff, Trash2, AlertTriangle, Bell, Check, Crown, Medal,
 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { ContentReport, ModAction, ModStats } from "@/types";
 
 type Tab = "queue" | "rewards";
@@ -19,14 +20,11 @@ export function ModPage() {
   const { profile } = useSession();
   const [tab, setTab] = useState<Tab>("queue");
   const isStaff = profile && (profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin);
+  useRegisterAppBar({ title: "Moderator console" }, []);
   if (profile && !isStaff) return <Navigate to="/profile" replace />;
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-3">
-        <Shield className="h-5 w-5 text-aqua-300" />
-        <h1 className="font-display text-xl font-bold text-gradient">Moderator console</h1>
-      </div>
       <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 pt-2">
         <TabBtn on={tab === "queue"} onClick={() => setTab("queue")} icon={<Flag className="h-3.5 w-3.5" />} label="Report queue" />
         <TabBtn on={tab === "rewards"} onClick={() => setTab("rewards")} icon={<Award className="h-3.5 w-3.5" />} label="My rewards" />

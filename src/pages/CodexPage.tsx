@@ -3,10 +3,15 @@ import { Link } from "react-router-dom";
 import { FileText, Search, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { BrandLockup } from "@/components/Brand";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { CODEX_DOCS, type CodexDoc } from "@/lib/codex";
 
 export function CodexPage() {
   const [q, setQ] = useState("");
+  useRegisterAppBar({
+    title: "Codex",
+    subtitle: "Contracts, Terms & templates",
+  }, []);
 
   const { templateGroups, policies, empty } = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -28,11 +33,8 @@ export function CodexPage() {
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-5 pb-10 pt-4">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-1">
-          <BrandLockup height="h-6" reactive={false} className="mb-3 opacity-90" />
-        </div>
-        <h1 className="font-display text-[1.65rem] font-semibold tracking-tight text-white">Codex</h1>
-        <p className="mt-1 mb-4 text-sm text-white/45">
+        <BrandLockup height="h-6" reactive={false} className="mb-3 opacity-90" />
+        <p className="mb-4 text-sm text-white/45">
           Free music-industry documents from <span className="text-white/70">Astra Matrix, Inc.</span> — starting points for collaborations.
         </p>
         <div className="mb-5 h-px w-full bg-[var(--hairline)]" />

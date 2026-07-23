@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { Shield, Loader2, ArrowLeft, CheckCircle2, Clock, XCircle, Award, Heart } from "lucide-react";
+import { Navigate } from "react-router-dom";
+import { Shield, Loader2, CheckCircle2, Clock, XCircle, Award, Heart } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { MyModApplication } from "@/types";
 
 const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[15px] text-white placeholder:text-white/35 focus:border-aqua-400/60 focus:outline-none";
@@ -14,7 +15,6 @@ const inputCls = "w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 
  */
 export function ModApplyPage() {
   const { profile, showToast } = useSession();
-  const navigate = useNavigate();
   const [app, setApp] = useState<MyModApplication | null | undefined>(undefined);
   const [pitch, setPitch] = useState("");
   const [experience, setExperience] = useState("");
@@ -24,6 +24,11 @@ export function ModApplyPage() {
   const [err, setErr] = useState<string | null>(null);
 
   const isStaff = profile && (profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin);
+
+  useRegisterAppBar({
+    title: "Join moderation",
+    subtitle: "Help keep VYBZ real — and earn rewards",
+  }, []);
 
   useEffect(() => { api.myModApplication().then((a) => setApp(a)); }, []);
 
@@ -47,18 +52,11 @@ export function ModApplyPage() {
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-4 pb-10 pt-3">
-      <button onClick={() => navigate(-1)} className="mb-3 flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80">
-        <ArrowLeft className="h-4 w-4" /> Back
-      </button>
-
       <div className="mb-5 flex items-center gap-2.5">
         <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-aqua-400/30 to-veil-500/25 ring-1 ring-white/10">
           <Shield className="h-5 w-5 text-aqua-200" />
         </span>
-        <div>
-          <h1 className="font-display text-xl font-bold text-gradient">Join the moderation team</h1>
-          <p className="text-[13px] text-white/50">Help keep VYBZ real — and earn rewards for it.</p>
-        </div>
+        <p className="text-[13px] text-white/50">Apply below — admins review every pitch.</p>
       </div>
 
       {app === undefined ? (

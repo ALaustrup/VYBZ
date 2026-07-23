@@ -54,9 +54,16 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/store")) {
     return { title: "Store", subtitle: "Accents & flair — never pay-to-win", showBack: true, backTo: "/profile" };
   }
-  if (pathname.startsWith("/admin")) return { title: "Admin" };
-  if (pathname.startsWith("/mod")) return { title: "Moderate" };
-  if (pathname.startsWith("/apply-mod")) return { title: "Apply", showBack: true, backTo: "/profile" };
-  if (pathname.startsWith("/codex") || pathname.startsWith("/legal")) return { title: "Codex" };
+  if (pathname.startsWith("/admin")) return { title: "Admin console" };
+  if (pathname.startsWith("/mod")) return { title: "Moderator console" };
+  if (pathname.startsWith("/apply-mod")) {
+    return { title: "Join moderation", subtitle: "Help keep VYBZ real", showBack: true, backTo: "/profile" };
+  }
+  if ((pathname.startsWith("/codex/") && pathname !== "/codex") || pathname.startsWith("/legal/")) {
+    return { title: "Codex", showBack: true, backTo: "/codex" };
+  }
+  if (pathname.startsWith("/codex") || pathname.startsWith("/legal")) {
+    return { title: "Codex", subtitle: "Contracts, Terms & templates" };
+  }
   return { title: "VYBZ" };
 }

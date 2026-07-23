@@ -9,7 +9,7 @@ export interface SurfaceTheme {
   accent: string;
   /** DynamicBackground variant id (see lib/backgrounds). */
   bg: string;
-  /** Short surface label (used by PageHeader defaults). */
+  /** Short surface label for route chrome / ambient context. */
   label: string;
 }
 

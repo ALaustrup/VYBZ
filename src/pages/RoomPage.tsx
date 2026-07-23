@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Hash, Loader2, Send, Circle, Radio, Play } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Hash, Loader2, Send, Radio, Play } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { usePlayer, getSnapshot, playTrack, seek, pause, toggle } from "@/lib/audioBus";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx } from "@/lib/utils";
 import type { Room, RoomMessage, RoomPresence } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -50,7 +51,6 @@ function ListenBar({ hosting, live, following, currentTitle, onHost, onStop, onJ
 
 export function RoomPage() {
   const { id = "" } = useParams();
-  const navigate = useNavigate();
   const { userId, profile } = useSession();
   const player = usePlayer();
   const [room, setRoom] = useState<Room | null>(null);
@@ -141,19 +141,13 @@ export function RoomPage() {
     await load();
   }
 
+  useRegisterAppBar({
+    title: room?.title ?? "Room",
+    subtitle: `${online.length} online`,
+  }, [room?.title, online.length]);
+
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-4 pb-2 pt-3">
-        <button onClick={() => navigate("/rooms")} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-veil-500/15 text-veil-100"><Hash className="h-4 w-4" /></span>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-lg font-bold text-white">{room?.title ?? "Room"}</h1>
-          <p className="flex items-center gap-1 text-[11px] text-white/45">
-            <Circle className="h-2 w-2 fill-feel text-feel" /> {online.length} online
-          </p>
-        </div>
-      </div>
-
       <ListenBar
         hosting={hosting}
         live={listen && listen.track && listen.hostId !== userId ? listen : null}

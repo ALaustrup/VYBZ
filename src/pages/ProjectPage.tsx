@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { ProjectView } from "@/components/projects/ProjectView";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { ProfileProjectDetail, ProjectLink, ProjectPost } from "@/types";
 
 /** Full-page view of a single Project (profile_projects) — deep links + hub targets. */
@@ -21,6 +22,16 @@ export function ProjectPage() {
   }, [id]);
   useEffect(() => { void load(); }, [load]);
 
+  useRegisterAppBar({
+    title: detail?.name ?? (loading ? "Project" : "Unavailable"),
+    actions: detail ? (
+      <button type="button" onClick={() => navigate(`/u/${detail.userId}`)}
+        className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold text-white/75 active:scale-95">
+        Creator
+      </button>
+    ) : null,
+  }, [detail?.name, detail?.userId, loading, navigate]);
+
   async function follow(on: boolean) {
     if (!detail) return;
     setDetail({ ...detail, following: on, followers: detail.followers + (on ? 1 : -1) });
@@ -37,25 +48,18 @@ export function ProjectPage() {
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 pb-1 pt-4">
-        <button onClick={() => navigate(-1)} aria-label="Back" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><ArrowLeft className="h-4 w-4" /></button>
-        <h1 className="flex-1 truncate font-display text-xl font-bold text-gradient">{detail?.name ?? "Project"}</h1>
-        {detail && <button onClick={() => navigate(`/u/${detail.userId}`)} className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold text-white/75 active:scale-95">Creator</button>}
-      </div>
-      <div className="no-scrollbar flex-1 overflow-y-auto px-5 pb-8 pt-2">
-        {loading ? (
-          <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
-        ) : !detail ? (
-          <p className="py-16 text-center text-sm text-white/45">This project isn't available.</p>
-        ) : (
-          <div className="mx-auto max-w-xl">
-            <ProjectView detail={detail} editable={false}
-              onFollow={follow} onLikePost={likePost} onOpenLink={openLink}
-              onAddPost={() => {}} onDeletePost={() => {}} onAddLink={() => {}} onDeleteLink={() => {}} />
-          </div>
-        )}
-      </div>
+    <div className="no-scrollbar h-full overflow-y-auto px-5 pb-8 pt-2">
+      {loading ? (
+        <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
+      ) : !detail ? (
+        <p className="py-16 text-center text-sm text-white/45">This project isn't available.</p>
+      ) : (
+        <div className="mx-auto max-w-xl">
+          <ProjectView detail={detail} editable={false}
+            onFollow={follow} onLikePost={likePost} onOpenLink={openLink}
+            onAddPost={() => {}} onDeletePost={() => {}} onAddLink={() => {}} onDeleteLink={() => {}} />
+        </div>
+      )}
     </div>
   );
 }

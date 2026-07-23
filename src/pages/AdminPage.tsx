@@ -4,6 +4,7 @@ import { Bug, Layers, Loader2, ShieldCheck, SlidersHorizontal, Users, UserPlus, 
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
+import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { AdminMember, BugReport, BugStatus, DisciplineCategory, MatchWeights, MatchLearningReport, PendingDiscipline, WeightDef, StaffMember, StaffAction, ModApplicationRow, PlatformRole } from "@/types";
 
 const WEIGHTS: WeightDef[] = [
@@ -33,14 +34,11 @@ type Tab = "members" | "staff" | "applications" | "disciplines" | "matchmaking" 
 export function AdminPage() {
   const { profile } = useSession();
   const [tab, setTab] = useState<Tab>("members");
+  useRegisterAppBar({ title: "Admin console" }, []);
   if (profile && !profile.isAdmin) return <Navigate to="/profile" replace />;
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 px-4 pb-1 pt-3">
-        <ShieldCheck className="h-5 w-5 text-veil-300" />
-        <h1 className="font-display text-xl font-bold text-gradient">Admin console</h1>
-      </div>
       <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 pt-2">
         <TabBtn on={tab === "members"} onClick={() => setTab("members")} icon={<Users className="h-3.5 w-3.5" />} label="Members" />
         <TabBtn on={tab === "staff"} onClick={() => setTab("staff")} icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Staff" />
