@@ -2,7 +2,7 @@
 
 The authoritative technical map of the VYBZ codebase. Product context lives in
 [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md). Release labels:
-[`VERSIONING.md`](./VERSIONING.md) (**current: Beta-0A.1**).
+[`VERSIONING.md`](./VERSIONING.md) (**current: Beta-0B**).
 
 ## Overview
 
@@ -24,6 +24,15 @@ Production deploys from `main` via Vercel project `astramatrix/vybz`.
   **full-bleed bottom dock** (taskbar + integrated `GlobalPlayer`). Same layout on
   mobile and desktop — **no side rail**. Taskbar pins use a `1fr | Orb | 1fr` grid
   with even pin spacing; customize via long-press / gear (`TaskbarPins`).
+- **Studio / Music Repos:** `/projects` is the Repos hub when `VITE_FEATURE_REPOS`
+  is on (default). `create_repo` + CAS tables (`repo_blobs` / `repo_trees` /
+  `repo_commits` / `repo_branches` / `repo_merge_requests` / `repo_listings`);
+  New Repo sheet walks a local DAW folder, hashes SHA-256, uploads missing blobs,
+  commits to `main`. Room tabs: **History**, **Branches** (create branch, merge
+  requests take-theirs/keep-ours, pull tip into a folder), **Listing** (credit
+  marketplace), Files, Credits. Listed feed on Studio hub. Bridge companion
+  (`tools/vybz-bridge`) watches folders and emits `commit-ready` (web still
+  performs CAS upload).
 - **Orb (`OrbSphere`):** idle neochrome plasma sphere; while a track plays, eases
   into the uploader’s `playback_customization` morph + palette; on playback end,
   soft-blends back to idle. Listener intensity: **Off / Soft / VYBZ Max**
@@ -51,7 +60,7 @@ Production deploys from `main` via Vercel project `astramatrix/vybz`.
 | UI label | Schema / routes | Purpose |
 |----------|-----------------|---------|
 | **Projects** | `profile_projects`, `/p/:id` | On-profile creative projects: micro-blog posts and/or hub widgets (`project_page_widgets`) |
-| **Studio** | `projects`, `/projects` | Private collab rooms: versions, splits, credits, bulk release batches |
+| **Studio / Repos** | `projects`, `/projects` | Private collab rooms + Music Repos VCS: CAS commits, splits, credits, listings |
 
 (Historical docs sometimes said “Spaces” / “Collabs” for the same surfaces.)
 
@@ -62,12 +71,13 @@ project (CLI link name may still show as `vyb-audio`). Do not point the app at a
 other Supabase project.
 
 ### Schema highlights (`supabase/migrations/`)
-Migrations are timestamped from `20260709_*` through `20260724_*` (58+ files).
+Migrations are timestamped from `20260709_*` through `20260724_*` (60+ files).
 Core: profiles + taxonomy + `creator_roles` / `creator_seeks`; `profile_modules` +
 `apply_role_intent_onboarding`; connections + DMs; drops / assets / playback
-customization; Studio projects + release batches; profile Projects + widgets;
-rooms; live streams; staff/mod; cosmetics + credit top-ups; passkeys; provenance
-ledger; weekly digest; OAuth connections; habit/trust; network hard filters.
+customization; Studio projects + Music Repos CAS + release batches; profile
+Projects + widgets; rooms; live streams; staff/mod; cosmetics + credit top-ups;
+passkeys; provenance ledger; weekly digest; OAuth connections; habit/trust;
+network hard filters.
 
 ### Discovery & feed
 `search_creators` powers faceted Discover. Feed ranking:
@@ -79,7 +89,7 @@ ledger; weekly digest; OAuth connections; habit/trust; network hard filters.
 | Function | Role |
 |----------|------|
 | `passkey` | WebAuthn |
-| `bunny-upload` / `bunny-sign` / `bunny-live` | Media upload, signed URLs, live media helpers |
+| `bunny-upload` / `bunny-sign` / `bunny-live` | Media upload (incl. `kind=repo-blob` CAS), signed URLs, live media helpers |
 | `watermark` / `watermark-detect` | Forensic watermark + optional C2PA forward |
 | `embed` | gte-small resonance embeddings |
 | `stripe-connect-onboard` / `stripe-tip` / `stripe-webhook` / `stripe-credit-topup` | Connect tips + cosmetic credit packs |
@@ -91,9 +101,10 @@ Shared helpers live under `_shared/`. There is **no** `push-send` function in-tr
 
 ### Auth & media
 - **Auth:** passkey-first WebAuthn + password fallback. Anonymous disabled.
-- **Media:** Bunny public (post media) + Bunny secure (drops + Studio versions).
-  Legacy Supabase buckets (`media-public` avatars, `audio-assets`) still readable.
-  Uploads stream through `bunny-upload` (≤1 GB) with client progress.
+- **Media:** Bunny public (post media) + Bunny secure (drops, Studio versions,
+  `repo-blobs/` CAS objects). Legacy Supabase buckets (`media-public` avatars,
+  `audio-assets`) still readable. Uploads stream through `bunny-upload` (≤1 GB)
+  with client progress.
 - **Library:** `UploadsLibrary` on profile (rename / delete / feature drop).
 - **C2PA:** `worker/c2pa` container; gated on `C2PA_WORKER_*` secrets.
 

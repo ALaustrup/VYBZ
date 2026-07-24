@@ -13,7 +13,7 @@ Authoritative sources of truth (in order when they conflict):
 5. [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) — parked ideas between phases
 6. [`CHANGELOG.md`](./CHANGELOG.md) — shipped release notes
 
-**Current release label:** read `package.json` → `vybz.release` (now **Beta-0A.1**).
+**Current release label:** read `package.json` → `vybz.release` (now **Beta-0B**).
 
 ## Cursor Cloud specific instructions
 

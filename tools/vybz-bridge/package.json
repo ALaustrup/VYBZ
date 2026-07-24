@@ -1,8 +1,8 @@
 {
   "name": "vybz-bridge",
   "private": true,
-  "version": "0.1.0",
-  "description": "Minimal VYBZ Bridge companion stub (localhost WebSocket)",
+  "version": "0.2.0",
+  "description": "VYBZ Bridge — localhost WebSocket companion for Music Repos folder watch",
   "type": "module",
   "scripts": {
     "start": "node server.mjs"

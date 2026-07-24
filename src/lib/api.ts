@@ -977,7 +977,7 @@ async function usernamesFor(ids: string[]): Promise<Map<string, string>> {
 
 // ── Assets + upload ──────────────────────────────────────────────────────────
 /** Secure-zone (token-authed Bunny) paths look like `drops/…` or `projects/…`. */
-const isSecurePath = (p: string) => /^(drops|projects)\//.test(p);
+const isSecurePath = (p: string) => /^(drops|projects|repo-blobs)\//.test(p);
 
 /**
  * Upload a protected drop original to Bunny's isolated, token-authed secure zone
@@ -1591,6 +1591,10 @@ export async function myProjects(): Promise<import("@/types").ProjectSummary[]> 
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
     myAgreed: !!r.my_agreed,
     pendingAgrees: Number(r.pending_agrees ?? 0),
+    repoKind: (r.repo_kind as "collab" | "repo") ?? "collab",
+    daw: r.daw ?? null,
+    visibility: (r.visibility as "private" | "collab" | "listed") ?? "private",
+    commitCount: Number(r.commit_count ?? 0),
   }));
 }
 
@@ -1624,6 +1628,7 @@ export async function projectDetail(id: string): Promise<import("@/types").Proje
   const { data, error } = await db().rpc("project_detail", { p_project: id });
   if (error || !data) return null;
   const p = data.project ?? {};
+  const tip = data.tip;
   return {
     id: p.id, title: p.title, description: p.description ?? null,
     bpm: p.bpm ?? null, musicalKey: p.musical_key ?? null, genres: p.genres ?? [],
@@ -1639,6 +1644,24 @@ export async function projectDetail(id: string): Promise<import("@/types").Proje
       assetId: v.asset_id ?? null, kind: v.kind ?? null, format: v.format ?? null,
       createdAt: v.created_at ? new Date(v.created_at).getTime() : Date.now(),
     })),
+    repoKind: (p.repo_kind as "collab" | "repo") ?? "collab",
+    daw: p.daw ?? null,
+    visibility: (p.visibility as "private" | "collab" | "listed") ?? "private",
+    defaultBranch: p.default_branch ?? "main",
+    license: p.license ?? "collab-only",
+    branches: (data.branches ?? []).map((b: any) => ({
+      name: b.name,
+      commitId: b.commit_id,
+      updatedAt: b.updated_at ? new Date(b.updated_at).getTime() : Date.now(),
+    })),
+    tip: tip ? {
+      id: tip.commit_id,
+      message: tip.message ?? "",
+      createdAt: tip.created_at ? new Date(tip.created_at).getTime() : Date.now(),
+      author: tip.author ?? null,
+      fileCount: Number(tip.file_count ?? 0),
+      totalBytes: Number(tip.total_bytes ?? 0),
+    } : null,
   };
 }
 
@@ -1689,6 +1712,403 @@ export async function addVersion(projectId: string, file: Blob, filename: string
   if (aErr || !asset) return false;
   const { error } = await db().rpc("add_version", { p_project: projectId, p_asset: (asset as any).id, p_note: note ?? null });
   return !error;
+}
+
+// ── Music Repos (Phase N) ────────────────────────────────────────────────────
+
+export async function createRepo(input: {
+  title: string;
+  description?: string;
+  daw?: string;
+  visibility?: "private" | "collab" | "listed";
+  license?: string;
+  bpm?: number;
+  musicalKey?: string;
+  genres?: string[];
+}): Promise<string | null> {
+  const { data, error } = await db().rpc("create_repo", {
+    p_title: input.title,
+    p_description: input.description ?? null,
+    p_daw: input.daw ?? null,
+    p_visibility: input.visibility ?? "private",
+    p_license: input.license ?? "collab-only",
+    p_bpm: input.bpm ?? null,
+    p_key: input.musicalKey ?? null,
+    p_genres: input.genres ?? [],
+  });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+export async function repoBlobExists(hashes: string[]): Promise<Set<string>> {
+  if (!hashes.length) return new Set();
+  const { data } = await db().rpc("repo_blob_exists", { p_hashes: hashes });
+  return new Set((data as string[] | null) ?? []);
+}
+
+export async function uploadRepoBlob(
+  file: Blob,
+  filename: string,
+  hash: string,
+  onProgress?: (pct: number) => void,
+): Promise<string | null> {
+  const sess = (await db().auth.getSession()).data.session;
+  if (!sess) return null;
+  const ext = (filename.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+  const ct = (file as File).type || "application/octet-stream";
+  const endpoint =
+    `${SUPABASE_URL}/functions/v1/bunny-upload?kind=repo-blob` +
+    `&hash=${encodeURIComponent(hash)}&name=${encodeURIComponent(filename || `a.${ext}`)}`;
+
+  return await new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", endpoint);
+    xhr.setRequestHeader("authorization", `Bearer ${sess.access_token}`);
+    xhr.setRequestHeader("apikey", SUPABASE_ANON_KEY);
+    xhr.setRequestHeader("content-type", ct);
+    xhr.setRequestHeader("x-content-hash", hash);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status < 200 || xhr.status >= 300) {
+        resolve(null);
+        return;
+      }
+      try {
+        const j = JSON.parse(xhr.responseText);
+        resolve((j?.path as string) ?? null);
+      } catch {
+        resolve(null);
+      }
+    };
+    xhr.onerror = () => resolve(null);
+    xhr.send(file);
+  });
+}
+
+export async function registerRepoBlob(
+  hash: string,
+  size: number,
+  bunnyPath: string,
+  mime?: string,
+): Promise<boolean> {
+  const { data, error } = await db().rpc("repo_register_blob", {
+    p_hash: hash,
+    p_size: size,
+    p_bunny_path: bunnyPath,
+    p_mime: mime ?? null,
+  });
+  return !error && !!data;
+}
+
+export async function commitRepo(input: {
+  projectId: string;
+  branch?: string;
+  message: string;
+  entries: { path: string; hash: string; size: number; mode?: string }[];
+  parentId?: string | null;
+  bounceAssetId?: string | null;
+  plugins?: unknown[];
+  meta?: Record<string, unknown>;
+}): Promise<string | null> {
+  const { data, error } = await db().rpc("repo_commit", {
+    p_project: input.projectId,
+    p_branch: input.branch ?? "main",
+    p_message: input.message,
+    p_entries: input.entries.map((e) => ({
+      path: e.path,
+      hash: e.hash,
+      size: e.size,
+      mode: e.mode ?? "blob",
+    })),
+    p_parent: input.parentId ?? null,
+    p_bounce_asset: input.bounceAssetId ?? null,
+    p_plugins: input.plugins ?? [],
+    p_meta: input.meta ?? {},
+  });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+/**
+ * Full folder → CAS upload → commit pipeline.
+ */
+export async function syncRepoFolder(opts: {
+  projectId: string;
+  entries: import("@/lib/repoSync").RepoFileEntry[];
+  message: string;
+  branch?: string;
+  daw?: string;
+  onProgress?: (phase: string, detail: string, pct?: number) => void;
+}): Promise<string | null> {
+  const { projectId, entries, message, branch = "main" } = opts;
+  if (!entries.length) return null;
+
+  opts.onProgress?.("dedupe", "Checking existing blobs…");
+  const hashes = [...new Set(entries.map((e) => e.hash))];
+  const existing = await repoBlobExists(hashes);
+  const missing = entries.filter((e) => !existing.has(e.hash));
+  // Unique missing by hash
+  const byHash = new Map<string, typeof entries[0]>();
+  for (const e of missing) {
+    if (!byHash.has(e.hash)) byHash.set(e.hash, e);
+  }
+  const toUpload = [...byHash.values()];
+
+  let i = 0;
+  for (const e of toUpload) {
+    i += 1;
+    opts.onProgress?.(
+      "upload",
+      `Uploading ${e.path} (${i}/${toUpload.length})`,
+      Math.round((i / Math.max(1, toUpload.length)) * 100),
+    );
+    const path = await uploadRepoBlob(e.file, e.path.split("/").pop() || e.path, e.hash);
+    if (!path) throw new Error(`Upload failed: ${e.path}`);
+    const ok = await registerRepoBlob(e.hash, e.size, path, e.mime);
+    if (!ok) throw new Error(`Register failed: ${e.path}`);
+  }
+
+  // Ensure all entries are registered (deduped ones too — register is idempotent)
+  for (const e of entries) {
+    if (existing.has(e.hash)) continue;
+    // already registered in upload loop
+  }
+  // Re-register existing hashes that might only exist remotely from another repo — blob table is global
+  for (const e of entries) {
+    if (!existing.has(e.hash)) continue;
+    // nothing — already in CAS
+  }
+
+  opts.onProgress?.("commit", "Creating commit…");
+  const commitId = await commitRepo({
+    projectId,
+    branch,
+    message,
+    entries: entries.map((e) => ({ path: e.path, hash: e.hash, size: e.size })),
+    meta: { daw: opts.daw ?? null, file_count: entries.length },
+  });
+  return commitId;
+}
+
+export async function repoHistory(
+  projectId: string,
+  branch = "main",
+  limit = 40,
+): Promise<import("@/types").RepoCommitSummary[]> {
+  const { data, error } = await db().rpc("repo_history", {
+    p_project: projectId,
+    p_branch: branch,
+    p_limit: limit,
+  });
+  if (error || !data) return [];
+  return (data as any[]).map((c) => ({
+    id: c.id,
+    message: c.message ?? "",
+    createdAt: c.created_at ? new Date(c.created_at).getTime() : Date.now(),
+    author: c.author ?? null,
+    treeHash: c.tree_hash,
+    parentId: c.parent_id ?? null,
+    bounceAssetId: c.bounce_asset_id ?? null,
+    fileCount: Number(c.file_count ?? 0),
+    totalBytes: Number(c.total_bytes ?? 0),
+    plugins: c.plugins,
+    meta: c.meta,
+  }));
+}
+
+export async function repoTreeAt(
+  projectId: string,
+  commitId?: string | null,
+  branch = "main",
+): Promise<import("@/types").RepoTreeView | null> {
+  const { data, error } = await db().rpc("repo_tree_at", {
+    p_project: projectId,
+    p_commit: commitId ?? null,
+    p_branch: branch,
+  });
+  if (error || !data) return null;
+  return {
+    commitId: data.commit_id ?? null,
+    treeHash: data.tree_hash,
+    fileCount: Number(data.file_count ?? 0),
+    totalBytes: Number(data.total_bytes ?? 0),
+    entries: (data.entries ?? []).map((e: any) => ({
+      path: e.path,
+      hash: e.hash,
+      size: Number(e.size ?? 0),
+      mode: e.mode,
+    })),
+  };
+}
+
+export async function upsertRepoListing(
+  projectId: string,
+  priceCredits: number,
+  grantKind: "download" | "fork" | "collab_invite" = "download",
+  active = true,
+): Promise<boolean> {
+  const { data, error } = await db().rpc("repo_upsert_listing", {
+    p_project: projectId,
+    p_price: priceCredits,
+    p_grant: grantKind,
+    p_active: active,
+  });
+  return !error && !!data;
+}
+
+export async function purchaseRepo(projectId: string): Promise<string | null> {
+  const { data, error } = await db().rpc("repo_purchase", { p_project: projectId });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+export async function createRepoBranch(
+  projectId: string,
+  name: string,
+  fromBranch = "main",
+): Promise<boolean> {
+  const { data, error } = await db().rpc("repo_create_branch", {
+    p_project: projectId,
+    p_name: name,
+    p_from_branch: fromBranch,
+  });
+  return !error && !!data;
+}
+
+export async function openRepoMr(input: {
+  projectId: string;
+  title: string;
+  source: string;
+  target?: string;
+  body?: string;
+}): Promise<string | null> {
+  const { data, error } = await db().rpc("repo_open_mr", {
+    p_project: input.projectId,
+    p_title: input.title,
+    p_source: input.source,
+    p_target: input.target ?? "main",
+    p_body: input.body ?? null,
+  });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+export async function listRepoMrs(
+  projectId: string,
+  status?: string | null,
+): Promise<import("@/types").RepoMergeRequest[]> {
+  const { data, error } = await db().rpc("repo_list_mrs", {
+    p_project: projectId,
+    p_status: status ?? null,
+  });
+  if (error || !data) return [];
+  return (data as any[]).map((m) => ({
+    id: m.id,
+    title: m.title,
+    body: m.body ?? null,
+    status: m.status,
+    sourceBranch: m.source_branch,
+    targetBranch: m.target_branch,
+    headCommitId: m.head_commit_id ?? null,
+    authorId: m.author_id,
+    author: m.author ?? null,
+    createdAt: m.created_at ? new Date(m.created_at).getTime() : Date.now(),
+    closedAt: m.closed_at ? new Date(m.closed_at).getTime() : null,
+  }));
+}
+
+export async function mergeRepoMr(
+  mrId: string,
+  strategy: "theirs" | "ours" = "theirs",
+): Promise<boolean> {
+  const { data, error } = await db().rpc("repo_merge_mr", {
+    p_mr: mrId,
+    p_strategy: strategy,
+  });
+  return !error && !!data;
+}
+
+export async function closeRepoMr(mrId: string): Promise<boolean> {
+  const { data, error } = await db().rpc("repo_close_mr", { p_mr: mrId });
+  return !error && !!data;
+}
+
+export async function repoTipManifest(
+  projectId: string,
+  branch = "main",
+): Promise<import("@/types").RepoTipManifest | null> {
+  const { data, error } = await db().rpc("repo_tip_manifest", {
+    p_project: projectId,
+    p_branch: branch,
+  });
+  if (error || !data) return null;
+  return {
+    commitId: data.commit_id ?? null,
+    branch: data.branch ?? branch,
+    treeHash: data.tree_hash,
+    fileCount: Number(data.file_count ?? 0),
+    totalBytes: Number(data.total_bytes ?? 0),
+    files: (data.files ?? []).map((f: any) => ({
+      path: f.path,
+      hash: f.hash,
+      size: Number(f.size ?? 0),
+      bunnyPath: f.bunny_path,
+      mime: f.mime ?? null,
+    })),
+  };
+}
+
+/** Sign tip blob paths for download (pull). */
+export async function pullRepoTipUrls(
+  projectId: string,
+  branch = "main",
+): Promise<{ path: string; url: string; size: number }[]> {
+  const tip = await repoTipManifest(projectId, branch);
+  if (!tip?.files?.length) return [];
+  const paths = tip.files.map((f) => f.bunnyPath).filter(Boolean);
+  const signed = await bunnySign(paths);
+  return tip.files
+    .map((f) => {
+      const url = signed.get(f.bunnyPath);
+      return url ? { path: f.path, url, size: f.size } : null;
+    })
+    .filter((x): x is { path: string; url: string; size: number } => !!x);
+}
+
+export async function getRepoListing(
+  projectId: string,
+): Promise<import("@/types").RepoListing | null> {
+  const { data, error } = await db().rpc("repo_get_listing", { p_project: projectId });
+  if (error || !data) return null;
+  return {
+    projectId: data.project_id,
+    priceCredits: Number(data.price_credits ?? 0),
+    grantKind: data.grant_kind,
+    active: !!data.active,
+    sales: Number(data.sales ?? 0),
+    title: data.title ?? null,
+    ownerId: data.owner_id,
+    daw: data.daw ?? null,
+    license: data.license ?? null,
+  };
+}
+
+export async function listedReposFeed(limit = 24): Promise<import("@/types").RepoListingCard[]> {
+  const { data, error } = await db().rpc("repo_listed_feed", { p_limit: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((r) => ({
+    projectId: r.project_id,
+    title: r.title,
+    daw: r.daw ?? null,
+    license: r.license ?? null,
+    priceCredits: Number(r.price_credits ?? 0),
+    grantKind: r.grant_kind,
+    sales: Number(r.sales ?? 0),
+    owner: r.owner ?? null,
+    ownerId: r.owner_id,
+  }));
 }
 
 export async function creatorCredits(id: string): Promise<import("@/types").Credit[]> {

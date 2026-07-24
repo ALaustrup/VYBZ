@@ -15,4 +15,6 @@ export const FLAGS = {
   swarm: on(import.meta.env.VITE_FEATURE_SWARM),
   /** Phase J — Pro soft entitlement UI (badge + soft limits; no hard paywall). */
   pro: !off(import.meta.env.VITE_FEATURE_PRO),
+  /** Phase N — Music Repos (CAS VCS on Studio). Default ON; set off to hide. */
+  repos: !off(import.meta.env.VITE_FEATURE_REPOS),
 } as const;

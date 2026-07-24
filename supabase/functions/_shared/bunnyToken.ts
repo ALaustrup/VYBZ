@@ -26,5 +26,5 @@ export async function signBunnyUrl(
 
 /** Whether a stored asset path lives in the token-authed secure Bunny zone. */
 export function isSecureBunnyPath(p: string): boolean {
-  return /^(drops|projects)\//.test(p);
+  return /^(drops|projects|repo-blobs)\//.test(p);
 }

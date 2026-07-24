@@ -1,6 +1,6 @@
 # VYBZ — Security & Privacy
 
-_Astra Matrix, Inc._ · **Beta-0A.1**
+_Astra Matrix, Inc._ · **Beta-0B**
 
 How VYBZ handles accounts, sensitive data, and access control. VYBZ is
 **identity-first** — every account is a real creator — but it collects as little as

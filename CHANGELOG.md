@@ -3,6 +3,17 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## Beta-0B — 2026-07-24 — Music Repos
+
+Studio evolves into a GitHub-like music VCS (flag `VITE_FEATURE_REPOS`, default on).
+
+- Migrations `20260724_0059_music_repos.sql` + `0060_music_repos_collab_market.sql` — CAS blobs/trees/commits/branches, merge requests, tip pull manifest, listings/purchases
+- `bunny-upload` `kind=repo-blob`; secure paths include `repo-blobs/` for `bunny-sign`
+- New Repo sheet — directory picker / drag-drop, Ableton/FL ignore rules, SHA-256 dedupe sync
+- Repo room tabs — History, Branches (MR + pull tip), Listing (cosmetic credits), Files, Credits
+- Studio hub — “Repos for sale” feed via `repo_listed_feed` + purchase with `mod_points`
+- Bridge R4 — `tools/vybz-bridge` folder watch + `commit-ready` auto-commit protocol (`repo-watch-v1`)
+
 ## Beta-0A.1 — 2026-07-24
 
 Documentation and ops alignment to the live Beta-0A platform.

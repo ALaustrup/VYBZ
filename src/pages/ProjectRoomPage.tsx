@@ -2,20 +2,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Loader2, Plus, X, Upload, GitBranch, CheckCircle2, Check,
-  Rocket, PieChart, Users, FileMusic, MessageSquare, Star,
+  Rocket, PieChart, Users, FileMusic, MessageSquare, Star, History,
+  GitMerge, Store,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { EmptyState } from "@/components/EmptyState";
 import { ProjectChat } from "@/components/ProjectChat";
+import { RepoHistoryPanel } from "@/components/repos/RepoHistoryPanel";
+import { RepoCollabPanel } from "@/components/repos/RepoCollabPanel";
+import { RepoListingPanel } from "@/components/repos/RepoListingPanel";
+import { FLAGS } from "@/lib/flags";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { ROLES, craftScope } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { ProjectDetail, CollabMatch } from "@/types";
 
-type RoomTab = "chat" | "files" | "credits";
+type RoomTab = "chat" | "files" | "history" | "vcs" | "market" | "credits";
 
-const TABS: { id: RoomTab; label: string; icon: typeof MessageSquare }[] = [
+const BASE_TABS: { id: RoomTab; label: string; icon: typeof MessageSquare }[] = [
   { id: "chat", label: "Chat", icon: MessageSquare },
   { id: "files", label: "Files", icon: GitBranch },
   { id: "credits", label: "Credits", icon: PieChart },
@@ -36,10 +41,29 @@ export function ProjectRoomPage() {
   }, [id]);
   useEffect(() => { void load(); }, [load]);
 
+  const tabs = (() => {
+    const isRepo = FLAGS.repos && detail?.repoKind === "repo";
+    if (!isRepo) return BASE_TABS;
+    return [
+      BASE_TABS[0],
+      { id: "history" as const, label: "History", icon: History },
+      { id: "vcs" as const, label: "Branches", icon: GitMerge },
+      BASE_TABS[1],
+      { id: "market" as const, label: "Listing", icon: Store },
+      BASE_TABS[2],
+    ];
+  })();
+
   useRegisterAppBar({
     title: detail?.title ?? (loading ? "Collab" : "Not available"),
-    subtitle: detail?.status ? detail.status.replace(/-/g, " ") : undefined,
-  }, [detail?.title, detail?.status, loading]);
+    subtitle: detail
+      ? [
+          detail.repoKind === "repo" ? "Repo" : "Collab",
+          detail.daw,
+          detail.status?.replace(/-/g, " "),
+        ].filter(Boolean).join(" · ")
+      : undefined,
+  }, [detail?.title, detail?.status, detail?.repoKind, detail?.daw, loading]);
 
   if (loading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
   if (!detail) return (
@@ -57,7 +81,7 @@ export function ProjectRoomPage() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex gap-5 border-b border-[var(--hairline)] px-1 pt-2">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button
             key={t.id}
             type="button"
@@ -88,6 +112,25 @@ export function ProjectRoomPage() {
         </div>
       ) : (
         <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-3">
+          {tab === "history" && (
+            <RepoHistoryPanel
+              detail={detail}
+              projectId={id}
+              canUpload={!!me?.canUpload && !released}
+              onRefresh={load}
+            />
+          )}
+          {tab === "vcs" && (
+            <RepoCollabPanel
+              detail={detail}
+              projectId={id}
+              canUpload={!!me?.canUpload && !released}
+              onRefresh={load}
+            />
+          )}
+          {tab === "market" && (
+            <RepoListingPanel detail={detail} projectId={id} onRefresh={load} />
+          )}
           {tab === "files" && (
             <FilesTab
               detail={detail}

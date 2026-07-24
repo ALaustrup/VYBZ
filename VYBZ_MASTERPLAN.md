@@ -8,7 +8,7 @@ material (samples, stems, one-shots, presets, MIDI, and full DAW / project files
 Art, video, and games remain optional secondary crafts. Owner: **Astra Matrix, Inc.**
 Canonical domain: **`vybz.cloud`** (legacy alias: `vybz.astramatrix.xyz`).
 
-**Status:** authoritative for product trajectory. **Current release: Beta-0A.1**
+**Status:** authoritative for product trajectory. **Current release: Beta-0B**
 (see [`VERSIONING.md`](./VERSIONING.md) + [`CHANGELOG.md`](./CHANGELOG.md)).
 Technical map of the live tree: [`ARCHITECTURE.md`](./ARCHITECTURE.md). If this
 file conflicts with older notes or commit history, prefer this file + ARCHITECTURE
@@ -98,23 +98,24 @@ standard of economy for every string. Metadata/SEO uses **"Find Yours."** (no
 
 ---
 
-## 2. Current state — Beta-0A (shipped)
+## 2. Current state — Beta-0B (shipped)
 
-**Beta-0A** is the closed-Alpha baseline on `main` (tag/`branch` `Beta-0A`). New
-work extends it under the Beta-NL[.P] scheme.
+**Beta-0B** extends the Beta-0A baseline with **Music Repos** (Studio → GitHub-like
+music VCS). Labels follow the Beta-NL[.P] scheme in [`VERSIONING.md`](./VERSIONING.md).
 
 **Shipped (high level):**
 - **Identity + auth.** Passkey-first WebAuthn + email/password; username claim;
   role + intent (+ role class) onboarding. Anonymous sign-in disabled.
-- **Creator profiles + Projects** (on-profile microblogs / hubs) + **Studio**
-  (private collab rooms, versions, splits, credits, release batches).
+- **Creator profiles + Projects** (on-profile microblogs / hubs) + **Studio /
+  Music Repos** (CAS commits, branches/MRs, credit listings, Bridge watch,
+  splits, verified credits, release batches).
 - **Precision matchmaking** on Connect + Spark; opportunities + commissions;
   learning-to-rank weights.
 - **Sound-first feed**, New Drop editor, global player in the **full-bleed
   bottom taskbar**, **Orb-first** reactivity (idle neochrome → uploader morph).
-- **Connections, DMs, Rooms, Live**, Bunny secure media, watermark + C2PA worker
-  path, Stripe Connect tips + credit top-ups, cosmetic store, weekly digest,
-  Codex/Legal.
+- **Connections, DMs, Rooms, Live**, Bunny secure media (incl. `repo-blobs`),
+  watermark + C2PA worker path, Stripe Connect tips + credit top-ups, cosmetic
+  store, weekly digest, Codex/Legal.
 
 Verified end-to-end paths are documented in §4.1 and §12.x. For the live route /
 Edge Function inventory, prefer [`ARCHITECTURE.md`](./ARCHITECTURE.md).
@@ -198,7 +199,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
 | **I. Mobile + packaging** | Capacitor Android/iOS, PWA polish, native plugin-scanner sync. |
 | **J. Monetization** | Pro tier; tasteful, disclosed affiliate gear/plugin links (never influencing match scores). |
-| **K. DM real-time collaboration** ◑ | **H1** live 1:1 audio in DMs (WebRTC P2P, mic/desktop audio, in-chat player + record) ✅ · **H3** audio→MIDI (Basic Pitch, client-side) ✅ · **H4** Web-MIDI→DAW bridge (stream notes to a virtual port) ✅. Next: **H5** native "VYBZ Bridge" for deep plugin/audio integration + TURN for NAT reliability. |
+| **N. Music Repos** ✅ | GitHub-like music VCS on Studio: content-addressed blobs/trees/commits, New Repo folder sync (Ableton/FL ignore rules), History + Branches (MR / pull tip), Listing marketplace (`mod_points`), Bridge folder watch (`tools/vybz-bridge`). Flag: `VITE_FEATURE_REPOS`. R5 DAWproject/stems later. |
 | **L. Codex (public doc library)** | Free, public, professionally-drafted music-industry document library (contracts→demand letters) with plain-English explainers, jurisdiction tags, and disclaimers. US-first. ~90 document types catalogued. |
 | **M. Brand system** | Official VYBZ logo set (mark/wordmark/mono), favicons/PWA icons, OG image, intro animation, email + Codex-doc headers. Drops into `public/brand/`. |
 
@@ -212,7 +213,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 - **Infra-gated backlog** (all blocked only on hosting/cost, code is ready): C2PA worker live hosting (needs a reachable container host — LAN box unreachable, free Docker hosts now require payment/PRO); **TURN** server for strict-NAT WebRTC reliability; **LiveKit** SFU for group live rehearsal/XR. These flip on the moment infra exists.
 - **Media hosting & cost (2026-07):** user media is offloaded to **Bunny.net** to protect the Supabase free tier (5 GB egress / 1 GB storage).
   - *Public post media* → open Bunny pull zone `vybz-cdn-e8684f` (returns a CDN URL). Unchanged.
-  - *Protected drop originals* (§8 exchange) → **isolated** Bunny storage zone `vybz-secure-6d606c` behind a **token-authenticated** pull zone (`vybz-secure-6d606c.b-cdn.net`). Raw objects are **not** publicly reachable (unsigned → 403); previews are short-lived token-signed URLs minted by the `bunny-sign` fn; downloads are fetched **server-side** (AccessKey) by the `watermark` fn for per-recipient watermarking. Legacy Supabase-path assets still work (paths are detected by the `drops/`|`projects/` prefix). Secrets: `BUNNY_SECURE_*`.
+  - *Protected drop originals* (§8 exchange) → **isolated** Bunny storage zone `vybz-secure-6d606c` behind a **token-authenticated** pull zone (`vybz-secure-6d606c.b-cdn.net`). Raw objects are **not** publicly reachable (unsigned → 403); previews are short-lived token-signed URLs minted by the `bunny-sign` fn; downloads are fetched **server-side** (AccessKey) by the `watermark` fn for per-recipient watermarking. Legacy Supabase-path assets still work (paths are detected by the `drops/`|`projects/`|`repo-blobs/` prefix). Secrets: `BUNNY_SECURE_*`.
   - *Known caveat:* Bunny serves `.wav` as `application/octet-stream`; the watermarked **download** is correctly `audio/wav`, but WAV **previews** may need a pull-zone Content-Type edge rule for the WebAudio analyser. Compressed formats (mp3/m4a) are unaffected. Follow-up: video → **Bunny Stream** (HLS/transcode).
 - **Email (2026-07):** Supabase's built-in mailer is throttled (~few/hour) and will break sign-up/passkey-recovery at launch. `scripts/configure-resend-smtp.sh` wires **Resend** (free 3k/mo) as custom SMTP via the Management API — run once the `RESEND_API_KEY` + verified sender are in place.
 - **Monetization (planned, no gating):** Lane A — **Stripe Connect** creator tips + a small exchange transaction fee (mission-aligned; gates nothing). Lane B — a **cosmetic store** (profile/Project skins, accent gradients, audio-reactive frame/visualizer packs, custom cursors, animated flair, founder badge) via one-time Stripe purchases. No ads, no popups, nothing functional behind a paywall.

@@ -13,7 +13,7 @@ creative discipline. Owner: **Astra Matrix, Inc.** Canonical domain:
 > plan, [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map, and
 > [`VERSIONING.md`](./VERSIONING.md) for Alpha → Beta-0A release labels.
 >
-> **Current release:** **Beta-0A.1** (see [`CHANGELOG.md`](./CHANGELOG.md)).
+> **Current release:** **Beta-0B** (see [`CHANGELOG.md`](./CHANGELOG.md)).
 
 ## What's shipped
 

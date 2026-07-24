@@ -248,6 +248,11 @@ export interface ProjectSummary {
   myAgreed: boolean;
   /** Collaborators who have not agreed their split yet. */
   pendingAgrees: number;
+  /** Music Repos: collab room vs full repo. */
+  repoKind?: "collab" | "repo";
+  daw?: string | null;
+  visibility?: "private" | "collab" | "listed";
+  commitCount?: number;
 }
 
 export interface ReleaseBatchSummary {
@@ -291,6 +296,89 @@ export interface ProjectDetail {
   createdAt: number;
   collaborators: ProjectCollaborator[];
   versions: ProjectVersion[];
+  repoKind?: "collab" | "repo";
+  daw?: string | null;
+  visibility?: "private" | "collab" | "listed";
+  defaultBranch?: string;
+  license?: string;
+  branches?: { name: string; commitId: string; updatedAt: number }[];
+  tip?: RepoCommitSummary | null;
+}
+
+export interface RepoCommitSummary {
+  id: string;
+  message: string;
+  createdAt: number;
+  author: string | null;
+  treeHash?: string;
+  parentId?: string | null;
+  bounceAssetId?: string | null;
+  fileCount: number;
+  totalBytes: number;
+  plugins?: unknown;
+  meta?: unknown;
+}
+
+export interface RepoTreeEntry {
+  path: string;
+  hash: string;
+  size: number;
+  mode?: string;
+}
+
+export interface RepoTreeView {
+  commitId: string | null;
+  treeHash?: string;
+  fileCount: number;
+  totalBytes: number;
+  entries: RepoTreeEntry[];
+}
+
+export interface RepoMergeRequest {
+  id: string;
+  title: string;
+  body: string | null;
+  status: "open" | "merged" | "closed";
+  sourceBranch: string;
+  targetBranch: string;
+  headCommitId: string | null;
+  authorId: string;
+  author: string | null;
+  createdAt: number;
+  closedAt: number | null;
+}
+
+export interface RepoTipManifest {
+  commitId: string | null;
+  branch: string;
+  treeHash?: string;
+  fileCount: number;
+  totalBytes: number;
+  files: { path: string; hash: string; size: number; bunnyPath: string; mime: string | null }[];
+}
+
+export interface RepoListing {
+  projectId: string;
+  priceCredits: number;
+  grantKind: "download" | "fork" | "collab_invite";
+  active: boolean;
+  sales: number;
+  title: string | null;
+  ownerId: string;
+  daw: string | null;
+  license: string | null;
+}
+
+export interface RepoListingCard {
+  projectId: string;
+  title: string;
+  daw: string | null;
+  license: string | null;
+  priceCredits: number;
+  grantKind: string;
+  sales: number;
+  owner: string | null;
+  ownerId: string;
 }
 
 export interface Credit {

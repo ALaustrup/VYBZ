@@ -27,10 +27,10 @@ export function chromeForPath(pathname: string): ChromeDef {
     return { title: "Network", subtitle: "Roles ranked for what you offer" };
   }
   if (pathname.startsWith("/projects/") && pathname !== "/projects") {
-    return { title: "Collab", showBack: true, backTo: "/projects" };
+    return { title: "Repo", showBack: true, backTo: "/projects" };
   }
   if (pathname.startsWith("/projects")) {
-    return { title: "Studio", subtitle: "Collabs needing you, then catalog releases" };
+    return { title: "Studio", subtitle: "Music Repos · collabs · releases" };
   }
   if (pathname.startsWith("/live/") && pathname !== "/live") {
     return { title: "Live", showBack: true, backTo: "/live" };

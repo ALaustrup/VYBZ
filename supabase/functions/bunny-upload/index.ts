@@ -30,7 +30,7 @@ const SEC_HOST = Deno.env.get("BUNNY_SECURE_STORAGE_HOST") ?? "storage.bunnycdn.
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-file-name",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-file-name, x-content-hash",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 function json(body: unknown, status = 200): Response {
@@ -89,6 +89,25 @@ Deno.serve(async (req: Request) => {
     const put = await streamPut(SEC_HOST, SEC_ZONE, SEC_PASS, path);
     if (!put.ok) return json({ error: `bunny ${put.status}` }, 502);
     return json({ path });
+  }
+
+  // Music Repos CAS blob — path is content-addressed by SHA-256 hex.
+  if (kind === "repo-blob") {
+    if (!SEC_ZONE || !SEC_PASS) return json({ error: "secure bunny not configured" }, 500);
+    const hash = (url.searchParams.get("hash") ?? req.headers.get("x-content-hash") ?? "")
+      .toLowerCase()
+      .replace(/[^a-f0-9]/g, "");
+    if (hash.length !== 64) return json({ error: "hash required (sha-256 hex)" }, 400);
+    const path = `repo-blobs/${hash}.${ext === "bin" ? "bin" : ext}`;
+    // Idempotent: if object already exists, succeed without re-upload.
+    const probe = await fetch(`https://${SEC_HOST}/${SEC_ZONE}/${path}`, {
+      method: "HEAD",
+      headers: { AccessKey: SEC_PASS },
+    });
+    if (probe.ok) return json({ path, hash, deduped: true });
+    const put = await streamPut(SEC_HOST, SEC_ZONE, SEC_PASS, path);
+    if (!put.ok) return json({ error: `bunny ${put.status}` }, 502);
+    return json({ path, hash, deduped: false });
   }
 
   // Public post media → open pull zone, returns the CDN URL.
