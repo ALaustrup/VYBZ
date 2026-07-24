@@ -30,6 +30,8 @@ export function TaskbarPinRow({
   onLongPressEnter,
   draggingId,
   onDragStart,
+  /** Flatten into parent flex for even spacing across the full bar. */
+  spread = false,
 }: {
   side: PinSide;
   pathname: string;
@@ -40,6 +42,7 @@ export function TaskbarPinRow({
   onLongPressEnter?: (slot: PinSlot) => void;
   draggingId?: PinId | null;
   onDragStart?: (slot: PinSlot, point: { x: number; y: number }) => void;
+  spread?: boolean;
 }) {
   const saved = useTaskbarPins();
   const ids = (draft ?? saved)[side];
@@ -48,10 +51,15 @@ export function TaskbarPinRow({
   return (
     <div
       className={cx(
-        "flex min-w-0 items-center gap-0.5",
-        vertical
-          ? cx("w-full flex-col", side === "left" ? "justify-start" : "mt-auto justify-end")
-          : cx("flex-1", side === "right" && "justify-end"),
+        "flex min-w-0 items-center",
+        spread && !vertical
+          ? "h-full w-full justify-evenly"
+          : cx(
+              "gap-0.5",
+              vertical
+                ? cx("w-full flex-col", side === "left" ? "justify-start" : "justify-end")
+                : cx(side === "left" ? "justify-end" : "justify-start"),
+            ),
       )}
       data-taskbar-side={side}
     >
@@ -65,7 +73,8 @@ export function TaskbarPinRow({
         const slot: PinSlot = { side, index };
 
         const className = cx(
-          "relative flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-0.5 rounded-2xl px-1.5 py-1 transition touch-none select-none",
+          "relative flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-2xl py-1 transition touch-none select-none",
+          spread && !vertical ? "h-full min-w-0 flex-1 px-0.5" : "min-w-[44px] px-1.5",
           editing ? "taskbar-pin-jiggle text-white/80" : active ? "text-white" : "text-white/45 hover:text-white/80",
           isDragging && "opacity-30",
         );

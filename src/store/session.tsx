@@ -53,21 +53,39 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!supabase) { setReady(true); return; }
-    supabase.auth.getSession().then(async ({ data }) => {
-      const u = data.session?.user ?? null;
-      setUserId(u?.id ?? null);
-      setEmail(u?.email ?? null);
-      if (u) await loadProfile(u.id);
-      setReady(true);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_e, sess) => {
+    const client = supabase;
+    let cancelled = false;
+    const boot = async () => {
+      try {
+        const { data } = await client.auth.getSession();
+        if (cancelled) return;
+        const u = data.session?.user ?? null;
+        setUserId(u?.id ?? null);
+        setEmail(u?.email ?? null);
+        // Unblock the UI immediately — profile can arrive a beat later.
+        setReady(true);
+        if (u) void loadProfile(u.id);
+      } catch {
+        if (!cancelled) setReady(true);
+      }
+    };
+    void boot();
+    // Safety: never leave the app on the boot spinner forever.
+    const failsafe = window.setTimeout(() => {
+      if (!cancelled) setReady(true);
+    }, 8000);
+    const { data: sub } = client.auth.onAuthStateChange(async (_e, sess) => {
       const u = sess?.user ?? null;
       setUserId(u?.id ?? null);
       setEmail(u?.email ?? null);
-      if (u) await loadProfile(u.id);
+      if (u) void loadProfile(u.id);
       else setProfile(null);
     });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      window.clearTimeout(failsafe);
+      sub.subscription.unsubscribe();
+    };
   }, [loadProfile]);
 
   const showToast = useCallback((text: string) => {

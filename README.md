@@ -10,7 +10,10 @@ creative discipline. Owner: **Astra Matrix, Inc.** Canonical domain:
 **VYBZ has no anonymity.** Every account is a real, durable creator identity.
 
 > 📐 See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for the product + engineering
-> plan, and [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map.
+> plan, [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map, and
+> [`VERSIONING.md`](./VERSIONING.md) for Alpha → Beta-0A release labels.
+>
+> **Current release:** **Beta-0A** (see [`CHANGELOG.md`](./CHANGELOG.md)).
 
 ## What's shipped
 

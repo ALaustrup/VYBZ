@@ -9,7 +9,6 @@ import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
 import { WelcomeTutorial } from "@/components/WelcomeTutorial";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { BulkUploadSheet } from "@/components/BulkUploadSheet";
-import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { Taskbar } from "@/components/taskbar/Taskbar";
@@ -127,10 +126,9 @@ export function App() {
       <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
       <AppChrome
         stage={routes}
-        player={<GlobalPlayer />}
-        taskbar={(placement) => (
+        dock={(
           <ErrorBoundary>
-            <Taskbar variant={placement} onCompose={() => setComposeOpen(true)} />
+            <Taskbar onCompose={() => setComposeOpen(true)} />
           </ErrorBoundary>
         )}
       />

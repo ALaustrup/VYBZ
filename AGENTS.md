@@ -9,7 +9,10 @@ Authoritative sources of truth (in order when they conflict):
 1. [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) — product + engineering trajectory
 2. [`ARCHITECTURE.md`](./ARCHITECTURE.md) — technical map
 3. [`SECURITY.md`](./SECURITY.md) — threat model + hard rules
-4. [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) — parked ideas between phases
+4. [`VERSIONING.md`](./VERSIONING.md) — Alpha / Beta-0A release labels + SemVer twin
+5. [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) — parked ideas between phases
+
+**Current release label:** read `package.json` → `vybz.release` (now **Beta-0A**).
 
 ## Cursor Cloud specific instructions
 

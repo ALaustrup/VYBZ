@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
+import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { OrbSphere } from "@/components/taskbar/OrbSphere";
 import { DEFAULT_ORB_ACTIONS, OrbFan, type OrbFanAction } from "@/components/taskbar/OrbFan";
 import {
@@ -10,7 +11,6 @@ import {
   TaskbarPinRow,
   nearestPinSlot,
 } from "@/components/taskbar/TaskbarPins";
-import type { TaskbarPlacement } from "@/components/shell/AppChrome";
 import {
   PIN_BY_ID,
   getTaskbarPins,
@@ -21,19 +21,15 @@ import {
   type PinSlot,
   type TaskbarPinsState,
 } from "@/lib/taskbarPins";
+import { usePlayer } from "@/lib/audioBus";
 import { cx } from "@/lib/utils";
 
-/** Universal taskbar — edge page pins + center interactive orb (dock or desktop rail). */
-export function Taskbar({
-  onCompose,
-  variant = "dock",
-}: {
-  onCompose: () => void;
-  variant?: TaskbarPlacement;
-}) {
+/** Bottom-centered taskbar — pins + Orb + integrated player (mobile = desktop). */
+export function Taskbar({ onCompose }: { onCompose: () => void }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { unread } = useSession();
+  const { track } = usePlayer();
   const saved = useTaskbarPins();
   const [open, setOpen] = useState(false);
   const [flash, setFlash] = useState(false);
@@ -48,12 +44,21 @@ export function Taskbar({
   } | null>(null);
   const orbZoneRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
-  const rail = variant === "rail";
   const pins = draft ?? saved;
+  const playing = !!track;
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    // Reserve stage space under the fixed dock (player strip grows the dock).
+    const root = document.documentElement;
+    root.style.setProperty("--dock-reserve", playing ? "9.75rem" : "6.25rem");
+    return () => {
+      root.style.removeProperty("--dock-reserve");
+    };
+  }, [playing]);
 
   useEffect(() => {
     if (!open || editing) return;
@@ -107,11 +112,6 @@ export function Taskbar({
   }
 
   function openCatalog() {
-    if (!editing) {
-      // Gear in normal mode: open sheet against saved pins
-      setSheetOpen(true);
-      return;
-    }
     setSheetOpen(true);
   }
 
@@ -149,7 +149,6 @@ export function Taskbar({
     });
   }
 
-  // Global pointer tracking while dragging (finger may leave the pin button).
   useEffect(() => {
     if (!drag || !editing) return;
     const move = (e: PointerEvent) => onDragMove({ x: e.clientX, y: e.clientY });
@@ -190,7 +189,7 @@ export function Taskbar({
   const pinProps = {
     pathname,
     unread,
-    orientation: (rail ? "vertical" : "horizontal") as "horizontal" | "vertical",
+    orientation: "horizontal" as const,
     editing,
     draft: pins,
     onLongPressEnter,
@@ -199,44 +198,37 @@ export function Taskbar({
   };
 
   return (
-    <div
-      className={cx(
-        "group/taskbar relative z-40",
-        rail
-          ? "flex h-full w-full flex-col px-0 py-0"
-          : "px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-0",
-      )}
-    >
-      {editing && rail && <TaskbarEditChrome rail onDone={finishEdit} onAdd={openCatalog} />}
-
+    <div className="group/taskbar pointer-events-none flex w-full overflow-visible pb-[max(0.35rem,env(safe-area-inset-bottom))]">
       <div
         ref={barRef}
         className={cx(
-          "glass relative mx-auto items-center gap-1 border-transparent px-2",
-          rail
-            ? "flex h-full w-full max-w-none flex-col rounded-[28px] py-3"
-            : "flex h-[76px] w-full max-w-3xl rounded-[28px] sm:px-3",
+          "pointer-events-auto glass relative mx-0 flex w-full max-w-none flex-col overflow-visible",
+          "rounded-none border-x-0 border-b-0 border-transparent",
+          "shadow-[0_18px_50px_-28px_rgba(0,0,0,0.95)]",
           editing && "ring-1 ring-veil-400/35",
         )}
       >
-        {editing && !rail && <TaskbarEditChrome rail={false} onDone={finishEdit} onAdd={openCatalog} />}
-        {!editing && <TaskbarCustomizeButton rail={rail} onOpen={openCatalog} />}
+        {editing && <TaskbarEditChrome rail={false} onDone={finishEdit} onAdd={openCatalog} />}
+        {!editing && <TaskbarCustomizeButton rail={false} onOpen={openCatalog} />}
 
-        <TaskbarPinRow side="left" {...pinProps} />
+        <GlobalPlayer />
 
-        <div
-          ref={orbZoneRef}
-          className={cx(
-            "relative z-10 flex shrink-0 items-center justify-center",
-            rail ? "my-2 px-0 py-1" : "px-1",
-            editing && "pointer-events-none opacity-40",
-          )}
-        >
-          <OrbFan open={open && !editing} actions={actions} onClose={() => setOpen(false)} direction={rail ? "end" : "up"} />
-          <OrbSphere open={open && !editing} flash={flash} onClick={toggleOrb} />
+        <div className="relative grid h-[72px] w-full grid-cols-[1fr_auto_1fr] items-stretch px-[max(0.15rem,env(safe-area-inset-left))] pr-[max(0.15rem,env(safe-area-inset-right))] sm:h-[76px]">
+          <TaskbarPinRow side="left" {...pinProps} spread />
+
+          <div
+            ref={orbZoneRef}
+            className={cx(
+              "relative z-20 flex shrink-0 items-center justify-center overflow-visible px-1",
+              editing && "pointer-events-none opacity-40",
+            )}
+          >
+            <OrbFan open={open && !editing} actions={actions} onClose={() => setOpen(false)} direction="up" />
+            <OrbSphere open={open && !editing} flash={flash} onClick={toggleOrb} />
+          </div>
+
+          <TaskbarPinRow side="right" {...pinProps} spread />
         </div>
-
-        <TaskbarPinRow side="right" {...pinProps} />
       </div>
 
       <PinCustomizeSheet

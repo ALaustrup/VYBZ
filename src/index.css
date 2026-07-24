@@ -18,6 +18,7 @@
     --taskbar-h: 5.5rem;
     --player-h: 0px;
     --dock-gap: 0.2rem;
+    --dock-reserve: 6.25rem;
     --rail-w: 5.75rem;
     --stage-pad-x: 1rem;
   }
@@ -101,27 +102,13 @@
 }
 
 @layer components {
-  /* ── App shell (Step 3A + desktop rail) ──────────────────────────────────── */
+  /* ── App shell — single column; taskbar is a fixed bottom overlay ───────── */
   .app-shell {
     @apply relative mx-auto flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden;
   }
 
-  /* Desktop: persistent left rail for Taskbar; main column keeps AppBar + stage + player. */
-  .app-shell--rail {
-    @apply max-w-7xl flex-row overflow-visible;
-  }
-
   .app-shell-main {
     @apply flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden;
-  }
-
-  .app-rail {
-    @apply relative z-50 flex h-full shrink-0 flex-col justify-center overflow-visible;
-    width: var(--rail-w);
-    padding-top: 0.75rem;
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-    padding-left: max(0.35rem, env(safe-area-inset-left));
-    padding-right: 0.35rem;
   }
 
   .app-bar {
@@ -146,6 +133,8 @@
 
   .app-stage {
     @apply relative z-10 min-h-0 flex-1 overflow-hidden;
+    /* Clear the fixed dock so feed content isn’t trapped under pins/Orb/player */
+    padding-bottom: calc(var(--dock-reserve, 6.25rem) + env(safe-area-inset-bottom, 0px));
   }
 
   .app-stage-inner {
@@ -154,10 +143,9 @@
     padding-right: var(--stage-pad-x);
   }
 
-  /* Bottom stack: GlobalPlayer (+ Taskbar on mobile). Safe-area owned by Taskbar. */
+  /* Always-on bottom chrome — above stage content, below expanded player / confetti */
   .app-dock {
-    @apply relative z-40 flex shrink-0 flex-col;
-    gap: var(--dock-gap);
+    @apply pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center overflow-visible;
   }
 
   /* Frosted dark-glass panel used by nav and overlays. Static hairline —

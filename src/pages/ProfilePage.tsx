@@ -286,12 +286,22 @@ function DisplaySetting() {
 function IntensitySetting() {
   const reduced = useReduceFx();
   const intensity = useFxIntensity();
-  if (reduced) return null;
+  if (reduced) {
+    return (
+      <p className="mt-3 text-[11px] text-white/40">
+        Reactive Orb is off while visual effects are Reduced (or OS reduce-motion).
+      </p>
+    );
+  }
   return (
     <div className="mt-3">
       <p className="eyebrow mb-2">Reactive intensity</p>
-      <div className="flex gap-5">
-        {([{ id: "subtle" as const, label: "Subtle" }, { id: "full" as const, label: "Full" }]).map((o) => (
+      <div className="flex flex-wrap gap-5">
+        {([
+          { id: "off" as const, label: "Off" },
+          { id: "soft" as const, label: "Soft" },
+          { id: "max" as const, label: "VYBZ Max" },
+        ]).map((o) => (
           <button key={o.id} type="button" onClick={() => setFxIntensity(o.id)}
             className={cx("relative pb-2 text-[13px] font-medium transition", intensity === o.id ? "text-white" : "text-white/35 hover:text-white/70")}>
             {o.label}
@@ -299,6 +309,9 @@ function IntensitySetting() {
           </button>
         ))}
       </div>
+      <p className="mt-2 text-[11px] text-white/40">
+        Off pauses Orb audio morph. Soft is gentle. VYBZ Max is vivid color + full edge reactivity.
+      </p>
     </div>
   );
 }

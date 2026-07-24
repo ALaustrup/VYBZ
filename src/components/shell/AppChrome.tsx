@@ -1,37 +1,28 @@
 import type { ReactNode } from "react";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
-import { useMediaQuery } from "@/lib/useMediaQuery";
-
-export type TaskbarPlacement = "dock" | "rail";
 
 /**
- * App-like chrome wrapper. Sticky ContextualAppBar, scroll stage, player dock.
- * Mobile: Taskbar in the bottom dock. Desktop (lg+): same Taskbar in a left rail.
- * Does not alter Orb / pin behavior — placement only.
+ * App chrome: sticky app bar, scroll stage, and a fixed bottom dock overlay
+ * (taskbar + integrated player). Same layout on mobile and desktop — no side rail.
  */
 export function AppChrome({
   stage,
-  player,
-  taskbar,
+  dock,
 }: {
   stage: ReactNode;
-  player: ReactNode;
-  taskbar: (placement: TaskbarPlacement) => ReactNode;
+  /** Always-visible bottom chrome (taskbar + player). */
+  dock: ReactNode;
 }) {
-  const rail = useMediaQuery("(min-width: 1024px)");
-
   return (
-    <div className={rail ? "app-shell app-shell--rail" : "app-shell"}>
-      {rail && <aside className="app-rail">{taskbar("rail")}</aside>}
+    <div className="app-shell">
       <div className="app-shell-main">
         <ContextualAppBar />
         <main className="app-stage">
           <div className="app-stage-inner">{stage}</div>
         </main>
-        <div className="app-dock">
-          {player}
-          {!rail && taskbar("dock")}
-        </div>
+      </div>
+      <div className="app-dock" role="complementary" aria-label="Playback and navigation">
+        {dock}
       </div>
     </div>
   );

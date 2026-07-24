@@ -2,8 +2,7 @@ import { useSyncExternalStore } from "react";
 
 // User-adjustable visual-effects preference. Combines the OS "reduce motion"
 // setting with an in-app override so people on low-end devices (or who just want
-// max battery/perf) can turn the heavy canvas visuals down. Read by the living
-// background, the reactive frame, and the track visualizers.
+// max battery/perf) can turn the heavy canvas visuals down.
 
 const KEY = "vybz.reduceFx";
 const listeners = new Set<() => void>();
@@ -56,27 +55,46 @@ export function useReduceFxOverride(): boolean | null {
   return useSyncExternalStore(subscribe, getReduceFxOverride, getReduceFxOverride);
 }
 
-// ── Audio-reactive intensity ────────────────────────────────────────────────
-// Independent of reduce-motion: even with effects on, creators can keep the
-// reactive frame + living background *subtle* (the default) or turn them Full.
-// A single 0..1 scalar the reactive canvases multiply their amplitude by.
+// ── Audio-reactive intensity (listener) ─────────────────────────────────────
+// Off / Soft / VYBZ Max — amplitude + chroma for Orb and living background.
+// Accessibility reduce-FX still forces scale 0.
 
 const FX_KEY = "vybz.fxIntensity";
-export type FxIntensity = "subtle" | "full";
+export type FxIntensity = "off" | "soft" | "max";
 
 export function getFxIntensityPref(): FxIntensity {
   try {
-    return localStorage.getItem(FX_KEY) === "full" ? "full" : "subtle";
+    const raw = localStorage.getItem(FX_KEY);
+    if (raw === "off" || raw === "soft" || raw === "max") return raw;
+    // Migrate legacy Subtle / Full
+    if (raw === "full") return "max";
+    if (raw === "subtle") return "soft";
+    return "soft";
   } catch {
-    return "subtle";
+    return "soft";
   }
 }
 
-/** Amplitude scalar for the reactive canvases (0 when effects are reduced). */
+/** Amplitude scalar for reactive canvases (0 when reduced or Off). */
 export function getFxScale(): number {
   if (getReduceFx()) return 0;
-  // Subtle (default) stays gently present; Full is clearly there, never harsh.
-  return getFxIntensityPref() === "full" ? 1.3 : 0.85;
+  switch (getFxIntensityPref()) {
+    case "off": return 0;
+    case "max": return 1.6;
+    case "soft":
+    default: return 0.55;
+  }
+}
+
+/** 0..1 chroma/brightness lift for Orb palette remaster (not glow). */
+export function getChromaBoost(): number {
+  if (getReduceFx()) return 0;
+  switch (getFxIntensityPref()) {
+    case "off": return 0;
+    case "max": return 0.85;
+    case "soft":
+    default: return 0.35;
+  }
 }
 
 export function setFxIntensity(v: FxIntensity) {
@@ -89,7 +107,11 @@ export function useFxIntensity(): FxIntensity {
   return useSyncExternalStore(subscribe, getFxIntensityPref, getFxIntensityPref);
 }
 
-/** Reactive amplitude scalar used by ReactiveFrame / DynamicBackground. */
+/** Reactive amplitude scalar used by Orb / DynamicBackground. */
 export function useFxScale(): number {
   return useSyncExternalStore(subscribe, getFxScale, getFxScale);
+}
+
+export function useChromaBoost(): number {
+  return useSyncExternalStore(subscribe, getChromaBoost, getChromaBoost);
 }

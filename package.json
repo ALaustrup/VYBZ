@@ -2,6 +2,10 @@
   "name": "vybz-app",
   "private": true,
   "version": "0.1.0",
+  "vybz": {
+    "release": "Beta-0A",
+    "era": "beta"
+  },
   "type": "module",
   "description": "VYBZ — identity-first creator social, collaboration, and precision matchmaking for every creative discipline.",
   "engines": {

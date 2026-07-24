@@ -20,16 +20,22 @@ if (typeof window !== "undefined") {
 }
 
 if ("serviceWorker" in navigator) {
-  let reloaded = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (reloaded) return;
-    reloaded = true;
-    window.location.reload();
-  });
-  // Proactively pull the latest SW so returning users leave a broken precache.
-  void navigator.serviceWorker.ready
-    .then((reg) => reg.update())
-    .catch(() => undefined);
+  // Dev: never let a stale PWA precache / autoUpdate reload-loop mask HMR.
+  if (import.meta.env.DEV) {
+    void navigator.serviceWorker.getRegistrations().then((regs) => {
+      for (const reg of regs) void reg.unregister();
+    }).catch(() => undefined);
+  } else {
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    });
+    void navigator.serviceWorker.ready
+      .then((reg) => reg.update())
+      .catch(() => undefined);
+  }
 }
 
 /** Native shell polish — StatusBar / Splash / Keyboard (no-op on web). */

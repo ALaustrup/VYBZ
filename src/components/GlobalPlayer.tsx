@@ -33,12 +33,8 @@ function fmt(s: number): string {
 }
 
 /**
- * The seamless, always-on media player docked in the taskbar (§ user brief).
- * A slim glass bar surfaces the moment anything plays anywhere on VYBZ; it
- * streams the ORIGINAL file through the shared AudioBus so output is the highest
- * fidelity the source carries (lossless when uploaded lossless — see the HD
- * badge). Tap to expand into a full now-playing surface with the track's seeded,
- * audio-reactive visualizer and a large scrubber.
+ * Compact now-playing strip for the unified taskbar glass, plus full-screen
+ * expanded surface. Renders nothing when the queue is empty.
  */
 export function GlobalPlayer({ className }: { className?: string }) {
   const p = usePlayer();
@@ -52,55 +48,51 @@ export function GlobalPlayer({ className }: { className?: string }) {
 
   return (
     <>
-      {/* Collapsed dock bar — placement controlled by the parent shell. */}
-      <div className={cx("relative z-40 px-3", className)}>
-        <div
-          className="glass relative mx-auto flex max-w-3xl items-center gap-2.5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] px-2.5 py-1.5 shadow-[0_10px_34px_-14px_rgba(0,0,0,0.95)]"
-        >
-          {/* Thin progress hairline. */}
-          <span
-            aria-hidden
-            className="absolute inset-x-0 top-0 h-0.5 origin-left"
-            style={{ background: accent, transform: `scaleX(${progress})` }}
-          />
-
+      <div className={cx("relative shrink-0", className)}>
+        <span
+          aria-hidden
+          className="absolute inset-x-0 top-0 z-[1] h-0.5 origin-left"
+          style={{ background: accent, transform: `scaleX(${progress})` }}
+        />
+        <div className="flex items-center gap-2 px-2.5 pb-1.5 pt-2.5 sm:gap-2.5 sm:px-3">
           <button
+            type="button"
             onClick={() => setExpanded(true)}
-            className="flex min-w-0 flex-1 items-center gap-3 text-left"
-            aria-label="Open player"
+            className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
+            aria-label="Open now playing"
           >
             <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg"
-              style={{ background: `${accent}22` }}
+              className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl"
+              style={{ background: `${accent}28` }}
             >
               <Music2 className="h-4 w-4" style={{ color: accent }} />
             </span>
             <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-white">
+              <span className="block truncate text-[13px] font-semibold leading-tight text-white sm:text-sm">
                 {p.track.title}
               </span>
-              <span className="block truncate text-[11px] text-white/50">
+              <span className="block truncate text-[10px] text-white/50 sm:text-[11px]">
                 {p.track.artist}
                 {p.track.lossless && (
-                  <span className="ml-1.5 font-mono text-[9px] uppercase text-white/40">
-                    · Lossless
-                  </span>
+                  <span className="ml-1 font-mono text-[9px] uppercase text-white/40">· HD</span>
                 )}
               </span>
             </span>
           </button>
 
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             {p.queueLength > 1 && (
               <button
+                type="button"
                 onClick={prev}
                 aria-label="Previous"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition active:scale-90 hover:text-white"
+                className="hidden h-8 w-8 items-center justify-center rounded-full text-white/70 transition active:scale-90 hover:text-white sm:flex"
               >
                 <SkipBack className="h-4 w-4" />
               </button>
             )}
             <button
+              type="button"
               onClick={() => void toggle()}
               aria-label={p.playing ? "Pause" : "Play"}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white transition active:scale-90"
@@ -116,6 +108,7 @@ export function GlobalPlayer({ className }: { className?: string }) {
             </button>
             {p.queueLength > 1 && (
               <button
+                type="button"
                 onClick={next}
                 aria-label="Next"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition active:scale-90 hover:text-white"
@@ -125,18 +118,17 @@ export function GlobalPlayer({ className }: { className?: string }) {
             )}
           </div>
         </div>
+        <div className="mx-3 h-px bg-white/[0.07]" />
       </div>
 
-      {/* Expanded now-playing surface. */}
       <AnimatePresence>
         {expanded && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[65] flex flex-col bg-ink-950/95 backdrop-blur-2xl"
+            className="fixed inset-0 z-[75] flex flex-col bg-ink-950/95 backdrop-blur-2xl"
           >
-            {/* Reactive visualizer backdrop. */}
             <div className="absolute inset-0 opacity-60">
               <TrackVisualizer seed={p.track.seed ?? 1} accent={accent} active={p.playing} />
             </div>
@@ -144,6 +136,7 @@ export function GlobalPlayer({ className }: { className?: string }) {
 
             <div className="relative z-10 flex items-center justify-between px-5 pt-[max(1rem,env(safe-area-inset-top))]">
               <button
+                type="button"
                 onClick={() => setExpanded(false)}
                 aria-label="Minimize player"
                 className="flex h-10 w-10 items-center justify-center rounded-full glass active:scale-90"
@@ -158,9 +151,7 @@ export function GlobalPlayer({ className }: { className?: string }) {
 
             <div className="relative z-10 mt-auto flex flex-col gap-4 px-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
               <div>
-                <h2 className="font-display text-2xl font-bold text-white">
-                  {p.track.title}
-                </h2>
+                <h2 className="font-display text-2xl font-bold text-white">{p.track.title}</h2>
                 <p className="mt-1 flex items-center gap-2 text-sm text-white/60">
                   {p.track.artist}
                   {p.track.quality && (
@@ -171,7 +162,6 @@ export function GlobalPlayer({ className }: { className?: string }) {
                 </p>
               </div>
 
-              {/* Large scrubber. */}
               {peaks && (
                 <Waveform
                   peaks={peaks}
@@ -186,9 +176,9 @@ export function GlobalPlayer({ className }: { className?: string }) {
                 <span>{fmt(dur)}</span>
               </div>
 
-              {/* Transport. */}
               <div className="flex items-center justify-center gap-6">
                 <button
+                  type="button"
                   onClick={prev}
                   aria-label="Previous"
                   className="flex h-12 w-12 items-center justify-center rounded-full text-white/80 transition active:scale-90 disabled:opacity-30"
@@ -197,6 +187,7 @@ export function GlobalPlayer({ className }: { className?: string }) {
                   <SkipBack className="h-6 w-6" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => void toggle()}
                   aria-label={p.playing ? "Pause" : "Play"}
                   className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-ink-950 shadow-glow transition active:scale-95"
@@ -211,6 +202,7 @@ export function GlobalPlayer({ className }: { className?: string }) {
                   )}
                 </button>
                 <button
+                  type="button"
                   onClick={next}
                   aria-label="Next"
                   className="flex h-12 w-12 items-center justify-center rounded-full text-white/80 transition active:scale-90 disabled:opacity-30"
@@ -220,9 +212,8 @@ export function GlobalPlayer({ className }: { className?: string }) {
                 </button>
               </div>
 
-              {/* Volume. */}
               <div className="flex items-center gap-3">
-                <button onClick={toggleMute} aria-label="Mute" className="text-white/70 active:scale-90">
+                <button type="button" onClick={toggleMute} aria-label="Mute" className="text-white/70 active:scale-90">
                   {p.muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
                 </button>
                 <input
@@ -238,7 +229,6 @@ export function GlobalPlayer({ className }: { className?: string }) {
                 />
               </div>
 
-              {/* Audio → MIDI: pull a MIDI clip from this track for your DAW. */}
               {p.track.url && (
                 <div className="flex items-center justify-center">
                   <ExtractMidiButton source={p.track.url} title={p.track.title} />

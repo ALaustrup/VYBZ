@@ -16,9 +16,12 @@ export function IntroSplash() {
   useEffect(() => {
     if (!show) return;
     try { sessionStorage.setItem("vybz.intro", "1"); } catch { /* ignore */ }
-    const t = setTimeout(() => setShow(false), reduce ? 800 : 2800);
+    const ms = reduce ? 800 : 2800;
+    const t = setTimeout(() => setShow(false), ms);
     return () => clearTimeout(t);
-  }, [show, reduce]);
+    // Intentionally only re-arm when `show` flips on — not when reduce toggles mid-splash.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
 
   return (
     <AnimatePresence>

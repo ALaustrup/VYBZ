@@ -412,7 +412,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       <Zap className="h-3.5 w-3.5 text-veil-200" /> Orb customization
                     </p>
                     <p className="mb-3 text-[11px] text-white/40">
-                      Listeners see your Orb palette and morph while this track plays.
+                      Listeners see your Orb palette and morph while this track plays. Their Off / Soft / VYBZ Max setting scales how vivid and reactive it gets.
                     </p>
                     <p className="mb-1.5 text-[11px] font-medium text-white/50">Orb palette</p>
                     <div className="mb-3 flex flex-wrap gap-1.5">
