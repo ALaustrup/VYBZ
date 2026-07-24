@@ -196,7 +196,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **E. Signature reactivity** ✅ | Taskbar **Orb** (idle neochrome plasma → uploader morph/palette while playing) + seeded per-track visualizers; listener **Off / Soft / VYBZ Max**; viewport outline FX retired. |
 | **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
 | **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
-| **O. Unified Social Live** ◑ | One public ultra-low-latency live tier + premium V¢ text/voice rooms. **Phase 1** schema/RLS/ledger ✅. **Phase 2** LiveKit SFU tokens + Bunny VOD offload + client helpers ✅ (needs LIVEKIT_* secrets). Phase 3 Social tab / Orb dashboard next. |
+| **O. Unified Social Live** ✅ | One public ultra-low-latency live tier + premium V¢ text/voice rooms. Phase 1 schema/RLS/ledger ✅. Phase 2 LiveKit SFU tokens + Bunny VOD ✅ (needs LIVEKIT_* secrets). **Phase 3** Social hub (`/social` Top 3 + rooms) + Orb Go Live → LiveKit Watch ✅. |
 | **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
 | **I. Mobile + packaging** | Capacitor Android/iOS, PWA polish, native plugin-scanner sync. |
 | **J. Monetization** | Pro tier; tasteful, disclosed affiliate gear/plugin links (never influencing match scores). |

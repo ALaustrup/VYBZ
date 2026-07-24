@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Bell,
   MessageSquare,
+  Radio,
   ScrollText,
   Shield,
   ShieldCheck,
@@ -37,6 +38,7 @@ const MORE_SECTIONS: MoreSection[] = [
     id: "workspace",
     label: "Workspace",
     items: [
+      { id: "social", label: "Social", to: "/social", icon: Radio },
       { id: "rooms", label: "Rooms", to: "/rooms", icon: MessageSquare },
       { id: "store", label: "Store", to: "/store", icon: Store },
       { id: "activity", label: "Activity", to: "/activity", icon: Bell },

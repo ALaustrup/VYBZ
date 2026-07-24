@@ -6,12 +6,12 @@ import { ChatTabs } from "@/components/ChatTabs";
 import { cx, timeAgo } from "@/lib/utils";
 import type { Room, RoomKind } from "@/types";
 
-const KIND_META: Record<RoomKind, { label: string; icon: typeof Hash }> = {
+const KIND_META: Record<Exclude<RoomKind, "social">, { label: string; icon: typeof Hash }> = {
   role: { label: "Roles & instruments", icon: Music2 },
   genre: { label: "Genres", icon: Disc3 },
   daw: { label: "DAWs", icon: SlidersHorizontal },
 };
-const ORDER: RoomKind[] = ["role", "genre", "daw"];
+const ORDER: Exclude<RoomKind, "social">[] = ["role", "genre", "daw"];
 
 export function RoomsPage() {
   const navigate = useNavigate();

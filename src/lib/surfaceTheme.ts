@@ -33,6 +33,7 @@ const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }>
   { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities" },
   { test: (p) => p.startsWith("/connect"), id: "network", label: "Network" },
+  { test: (p) => p.startsWith("/social"), id: "social", label: "Social" },
   { test: (p) => p.startsWith("/live"), id: "live", label: "Live" },
   { test: (p) => p.startsWith("/projects"), id: "studio", label: "Studio" },
   { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), id: "messages", label: "Messages" },
@@ -79,7 +80,7 @@ export function modeForPath(pathname: string): AppMode {
   ) {
     return "network";
   }
-  if (pathname.startsWith("/projects") || pathname.startsWith("/live") || pathname.startsWith("/rooms")) {
+  if (pathname.startsWith("/projects") || pathname.startsWith("/live") || pathname.startsWith("/social") || pathname.startsWith("/rooms")) {
     return "studio";
   }
   if (

@@ -2183,7 +2183,86 @@ export async function listRooms(): Promise<import("@/types").Room[]> {
   return (data ?? []).map((r: any) => ({
     id: r.id, kind: r.kind, refId: r.ref_id, title: r.title,
     messages: Number(r.messages ?? 0), lastAt: r.last_at ? new Date(r.last_at).getTime() : null,
+    accessTier: (r.access_tier as "free" | "premium") ?? "free",
+    vcPrice: r.vc_price != null ? Number(r.vc_price) : null,
+    billingPeriod: r.billing_period ?? null,
+    ownerId: r.owner_id ?? null,
+    voiceEnabled: !!r.voice_enabled,
+    perks: (r.perks ?? {}) as Record<string, unknown>,
   }));
+}
+
+export async function topLiveSessions(limit = 3): Promise<import("@/types").LiveSessionCard[]> {
+  const { data, error } = await db().rpc("top_live_sessions", { p_limit: limit });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return rows.map((r: any) => ({
+    id: r.id,
+    hostId: r.host_id,
+    username: r.username ?? null,
+    displayName: r.display_name ?? null,
+    avatarUrl: r.avatar_url ?? null,
+    roleLabel: r.role_label ?? null,
+    title: r.title ?? null,
+    source: (r.source ?? "camera") as import("@/types").LiveSource,
+    intent: r.intent ?? null,
+    viewerCount: Number(r.viewer_count ?? 0),
+    playbackHls: r.playback_hls ?? null,
+    startedAt: r.started_at ? new Date(r.started_at).getTime() : Date.now(),
+  }));
+}
+
+export async function listSocialRooms(limit = 40): Promise<import("@/types").SocialRoomCard[]> {
+  const { data, error } = await db().rpc("list_social_rooms", { p_limit: limit });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return rows.map((r: any) => ({
+    id: r.id,
+    title: r.title,
+    description: r.description ?? null,
+    accessTier: (r.access_tier as "free" | "premium") ?? "free",
+    vcPrice: r.vc_price != null ? Number(r.vc_price) : null,
+    billingPeriod: r.billing_period ?? null,
+    perks: (r.perks ?? {}) as Record<string, unknown>,
+    voiceEnabled: !!r.voice_enabled,
+    ownerId: r.owner_id ?? null,
+    ownerUsername: r.owner_username ?? null,
+    members: Number(r.members ?? 0),
+    canAccess: !!r.can_access,
+  }));
+}
+
+export async function createSocialRoom(input: {
+  title: string;
+  description?: string;
+  accessTier?: "free" | "premium";
+  vcPrice?: number;
+  billingPeriod?: "week" | "month";
+  voiceEnabled?: boolean;
+  perks?: Record<string, unknown>;
+}): Promise<string | null> {
+  const { data, error } = await db().rpc("create_social_room", {
+    p_title: input.title,
+    p_description: input.description ?? null,
+    p_access_tier: input.accessTier ?? "free",
+    p_vc_price: input.vcPrice ?? null,
+    p_billing_period: input.billingPeriod ?? null,
+    p_perks: input.perks ?? {},
+    p_voice_enabled: input.voiceEnabled ?? false,
+  });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+export async function subscribeRoomVc(roomId: string): Promise<string | null> {
+  const { data, error } = await db().rpc("subscribe_room_vc", { p_room: roomId });
+  if (error) throw error;
+  return (data as string) ?? null;
+}
+
+export async function cancelRoomSubscription(roomId: string): Promise<boolean> {
+  const { data, error } = await db().rpc("cancel_room_subscription", { p_room: roomId });
+  return !error && !!data;
 }
 
 export async function getRoom(id: string): Promise<import("@/types").Room | null> {
@@ -2275,6 +2354,9 @@ export async function getLiveSession(id: string): Promise<LiveSessionDetail | nu
     rtmpUrl: me === data.host_id ? (data.rtmp_url ?? null) : null,
     streamKey: me === data.host_id ? (data.stream_key ?? null) : null,
     expiresAt: data.expires_at ? new Date(data.expires_at).getTime() : Date.now(),
+    livekitRoom: data.livekit_room ?? null,
+    sfuProvider: data.sfu_provider ?? null,
+    audioMode: (data.audio_mode as "music" | "speech") ?? "music",
   };
 }
 

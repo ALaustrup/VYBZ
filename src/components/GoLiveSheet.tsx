@@ -4,20 +4,21 @@ import { Camera, Loader2, Monitor, Radio, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { setLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { cx } from "@/lib/utils";
 import type { LiveSource } from "@/types";
 
 /**
  * Go-live sheet — Studio Glass. Captures camera and/or display for local preview,
- * then creates a live_sessions row (+ Bunny Stream when configured). Browser
- * publishes to Bunny via RTMP (OBS/Streamlabs) using the host stream key on the
- * Watch page; in-app preview uses the local MediaStream.
+ * creates a live_sessions row (LiveKit SFU + optional Bunny HLS/VOD), then hands
+ * the MediaStream to LiveWatch for publish.
  */
 export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const { showToast, profile } = useSession();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const handedOff = useRef(false);
   const [source, setSource] = useState<LiveSource>("camera");
   const [title, setTitle] = useState("");
   const [intent, setIntent] = useState("");
@@ -27,7 +28,8 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
 
   useEffect(() => {
     if (!open) {
-      stopPreview();
+      if (!handedOff.current) stopPreview();
+      handedOff.current = false;
       setTitle("");
       setIntent("");
       setSource("camera");
@@ -93,8 +95,12 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
         setBusy(false);
         return;
       }
-      // Hand the local preview stream to the watch page via sessionStorage flag;
-      // tracks keep running until Watch unmounts / ends.
+      // Hand preview tracks to LiveWatch for LiveKit publish (do not stop them here).
+      if (streamRef.current) {
+        setLivePreviewHandoff(streamRef.current);
+        streamRef.current = null;
+        handedOff.current = true;
+      }
       showToast("You're live");
       onClose();
       navigate(`/live/${session.id}`);
@@ -118,7 +124,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
             <div className="flex items-center justify-between px-5 py-3">
               <div>
                 <h2 className="font-display text-xl font-semibold tracking-tight text-white">Go live</h2>
-                <p className="text-[12px] text-white/40">Camera or display — find collaborators in real time.</p>
+                <p className="text-[12px] text-white/40">Ultra public live — camera, display, or both via SFU.</p>
               </div>
               <button type="button" onClick={onClose} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
             </div>
@@ -163,7 +169,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
 
               {err && <p className="text-xs font-medium text-wild">{err}</p>}
               <p className="text-[11px] leading-relaxed text-white/35">
-                Streams are public to signed-in creators and expire after 24 hours. With Bunny Stream configured, push RTMP from OBS using the key on your Watch page.
+                Public ultra tier for all creators — expires after 24 hours. In-app publish uses LiveKit when configured; OBS RTMP remains optional for Bunny HLS/VOD.
               </p>
             </div>
 

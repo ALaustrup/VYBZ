@@ -42,4 +42,4 @@ Secrets (already listed in `scripts/deploy.sh`): `LIVEKIT_URL`, `LIVEKIT_API_KEY
 
 ## Phase 3 next
 
-Social tab UI (Top 3 lives + room discovery), Orb Go Live dashboard wiring to these tokens.
+Social tab UI (Top 3 lives + room discovery), Orb Go Live dashboard wiring to these tokens — see `UNIFIED_SOCIAL_LIVE_PHASE3.md`.

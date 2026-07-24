@@ -390,7 +390,7 @@ export interface Credit {
 }
 
 // ── Phase F: categorized collab chat (taxonomy-bound rooms + presence) ────────
-export type RoomKind = "role" | "genre" | "daw";
+export type RoomKind = "role" | "genre" | "daw" | "social";
 
 export interface Room {
   id: string;
@@ -399,6 +399,27 @@ export interface Room {
   title: string;
   messages: number;
   lastAt: number | null;
+  accessTier?: "free" | "premium";
+  vcPrice?: number | null;
+  billingPeriod?: "week" | "month" | null;
+  ownerId?: string | null;
+  voiceEnabled?: boolean;
+  perks?: Record<string, unknown>;
+}
+
+export interface SocialRoomCard {
+  id: string;
+  title: string;
+  description: string | null;
+  accessTier: "free" | "premium";
+  vcPrice: number | null;
+  billingPeriod: "week" | "month" | null;
+  perks: Record<string, unknown>;
+  voiceEnabled: boolean;
+  ownerId: string | null;
+  ownerUsername: string | null;
+  members: number;
+  canAccess: boolean;
 }
 
 export interface RoomMessage {
@@ -441,6 +462,9 @@ export interface LiveSessionDetail extends LiveSessionCard {
   /** Present only for the host while live (never listed in catalog). */
   streamKey: string | null;
   expiresAt: number;
+  livekitRoom?: string | null;
+  sfuProvider?: string | null;
+  audioMode?: "music" | "speech";
 }
 
 export interface LiveMessage {

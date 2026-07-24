@@ -22,6 +22,7 @@ import {
   type TaskbarPinsState,
 } from "@/lib/taskbarPins";
 import { usePlayer } from "@/lib/audioBus";
+import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 
 /** Bottom-centered taskbar — pins + Orb + integrated player (mobile = desktop). */
@@ -178,7 +179,7 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
     run: () => {
       setOpen(false);
       if (a.id === "drop") onCompose();
-      else if (a.id === "live") navigate("/live?go=1");
+      else if (a.id === "live") navigate(FLAGS.socialLive ? "/social?go=1" : "/live?go=1");
       else if (a.id === "spark") navigate("/spark");
       else if (a.id === "messages") navigate("/messages");
     },

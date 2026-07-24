@@ -4,6 +4,8 @@ import { ArrowLeft, Copy, Loader2, MessageCircle, PhoneOff, Radio, Send, UserPlu
 import { Avatar } from "@/components/Avatar";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { takeLivePreviewHandoff } from "@/lib/livePreviewHandoff";
+import { joinLiveSessionSfu, type LiveSfuSession } from "@/lib/livekitSfu";
 import { cx } from "@/lib/utils";
 import type { LiveMessage, LiveSessionDetail } from "@/types";
 
@@ -17,8 +19,10 @@ export function LiveWatchPage() {
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(true);
   const [sending, setSending] = useState(false);
+  const [sfuActive, setSfuActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const sfuRef = useRef<LiveSfuSession | null>(null);
   const isHost = !!userId && session?.hostId === userId;
 
   useEffect(() => {
@@ -51,13 +55,56 @@ export function LiveWatchPage() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs.length]);
 
-  // HLS playback when Bunny URL exists; otherwise quiet waiting state.
+  // LiveKit SFU (primary) — host publishes handoff/cam; viewers subscribe.
+  useEffect(() => {
+    if (!session || session.status !== "live" || !id) return;
+    const preferSfu = session.sfuProvider === "livekit" || !!session.livekitRoom;
+    if (!preferSfu) return;
+
+    let cancelled = false;
+    const handoff = isHost ? takeLivePreviewHandoff() : null;
+
+    (async () => {
+      const sfu = await joinLiveSessionSfu({
+        sessionId: id,
+        canPublish: isHost,
+        audioMode: session.audioMode ?? "music",
+        localStream: handoff,
+        videoEl: videoRef.current,
+      });
+      if (cancelled) {
+        await sfu.disconnect();
+        handoff?.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      sfuRef.current = sfu;
+      setSfuActive(sfu.connected);
+      if (!sfu.connected && isHost && handoff && videoRef.current) {
+        // Local preview while SFU secrets missing
+        videoRef.current.srcObject = handoff;
+        videoRef.current.muted = true;
+        void videoRef.current.play().catch(() => {});
+        setSfuActive(true);
+      } else if (!sfu.connected) {
+        handoff?.getTracks().forEach((t) => t.stop());
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      void sfuRef.current?.disconnect();
+      sfuRef.current = null;
+      setSfuActive(false);
+    };
+  }, [session?.id, session?.status, session?.sfuProvider, session?.livekitRoom, session?.audioMode, isHost, id]);
+
+  // HLS fallback when Bunny URL exists and SFU isn't showing video.
   useEffect(() => {
     const el = videoRef.current;
-    if (!el || !session?.playbackHls) return;
+    if (!el || !session?.playbackHls || sfuActive) return;
     el.src = session.playbackHls;
     void el.play().catch(() => {});
-  }, [session?.playbackHls]);
+  }, [session?.playbackHls, sfuActive]);
 
   async function send() {
     if (!text.trim() || sending) return;
@@ -69,9 +116,11 @@ export function LiveWatchPage() {
   }
 
   async function end() {
+    await sfuRef.current?.disconnect();
+    sfuRef.current = null;
     await api.endLiveSession(id);
     showToast("Stream ended");
-    navigate("/live");
+    navigate("/social");
   }
 
   async function connectHost() {
@@ -99,20 +148,30 @@ export function LiveWatchPage() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
         <p className="text-white/55">Stream not found.</p>
-        <button type="button" onClick={() => navigate("/live")} className="btn btn-ghost px-4 py-2 text-sm">Back to Live</button>
+        <button type="button" onClick={() => navigate("/social")} className="btn btn-ghost px-4 py-2 text-sm">Back to Social</button>
       </div>
     );
   }
 
   const ended = session.status !== "live";
+  const hasVideo = sfuActive || !!session.playbackHls;
 
   return (
     <div className="relative flex h-full flex-col bg-ink-950">
       <div className="relative min-h-0 flex-1 bg-black">
-        {session.playbackHls && !ended ? (
-          <video ref={videoRef} className="h-full w-full object-contain" playsInline controls={false} autoPlay />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+        <video
+          ref={videoRef}
+          className={cx(
+            "h-full w-full object-contain",
+            (!hasVideo || ended) && "pointer-events-none absolute inset-0 opacity-0",
+          )}
+          playsInline
+          controls={false}
+          autoPlay
+          muted={isHost}
+        />
+        {(!hasVideo || ended) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
             <Radio className={cx("h-10 w-10", ended ? "text-white/25" : "animate-pulse text-veil-300")} />
             <p className="font-display text-lg font-semibold text-white">
               {ended ? "Stream ended" : isHost ? "You're live" : "Waiting for broadcast"}
@@ -121,7 +180,7 @@ export function LiveWatchPage() {
               {ended
                 ? "This session is over. Streams expire after 24 hours."
                 : isHost
-                  ? "Preview is local. Push RTMP from OBS with your stream key for viewers on Bunny."
+                  ? "Ultra SFU is connecting. Optional: push RTMP from OBS for Bunny HLS/VOD."
                   : "The host is connecting their camera or display."}
             </p>
           </div>
@@ -129,7 +188,7 @@ export function LiveWatchPage() {
 
         <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-4 pb-10 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <div className="pointer-events-auto flex items-center gap-3">
-            <button type="button" onClick={() => navigate("/live")} aria-label="Back"
+            <button type="button" onClick={() => navigate("/social")} aria-label="Back"
               className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -147,7 +206,6 @@ export function LiveWatchPage() {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-2 border-t border-[var(--hairline)] px-4 py-2.5">
         {!isHost && !ended && (
           <>
@@ -167,7 +225,6 @@ export function LiveWatchPage() {
         </button>
       </div>
 
-      {/* Identity chat */}
       {chatOpen && (
         <div className="flex max-h-[38%] min-h-[10rem] flex-col border-t border-[var(--hairline)] bg-ink-950/90">
           <div className="no-scrollbar flex-1 space-y-2.5 overflow-y-auto px-4 py-3">

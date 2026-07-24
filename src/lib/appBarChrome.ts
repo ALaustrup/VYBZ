@@ -32,8 +32,11 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/projects")) {
     return { title: "Studio", subtitle: "Music Repos · collabs · releases" };
   }
+  if (pathname.startsWith("/social")) {
+    return { title: "Social", subtitle: "Top lives · rooms · V¢" };
+  }
   if (pathname.startsWith("/live/") && pathname !== "/live") {
-    return { title: "Live", showBack: true, backTo: "/live" };
+    return { title: "Live", showBack: true, backTo: "/social" };
   }
   if (pathname.startsWith("/live")) return { title: "Live", subtitle: "Who’s on right now" };
   if (pathname.startsWith("/messages/")) return { title: "Messages", showBack: true, backTo: "/messages" };

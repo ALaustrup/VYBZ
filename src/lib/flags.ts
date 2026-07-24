@@ -17,4 +17,6 @@ export const FLAGS = {
   pro: !off(import.meta.env.VITE_FEATURE_PRO),
   /** Phase N — Music Repos (CAS VCS on Studio). Default ON; set off to hide. */
   repos: !off(import.meta.env.VITE_FEATURE_REPOS),
+  /** Phase O — Unified Social Live (Social tab + SFU). Default ON. */
+  socialLive: !off(import.meta.env.VITE_FEATURE_SOCIAL_LIVE),
 } as const;

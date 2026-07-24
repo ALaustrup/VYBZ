@@ -19,6 +19,7 @@ export type PinId =
   | "feed"
   | "connect"
   | "collabs"
+  | "social"
   | "live"
   | "messages"
   | "profile"
@@ -49,6 +50,7 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "feed", label: "Home", to: "/", icon: AudioLines, end: true },
   { id: "connect", label: "Network", to: "/connect", icon: Users },
   { id: "collabs", label: "Studio", to: "/projects", icon: FolderGit2 },
+  { id: "social", label: "Social", to: "/social", icon: Users },
   { id: "live", label: "Live", to: "/live", icon: Radio },
   { id: "messages", label: "Messages", to: "/messages", icon: MessageSquare, badgeUnread: false },
   { id: "profile", label: "You", to: "/profile", icon: Users },
@@ -70,10 +72,10 @@ export interface TaskbarPinsState {
   right: PinId[];
 }
 
-/** Four hubs left · utilities right: Home · Network · Studio | Live · Messages · You */
+/** Four hubs left · utilities right: Home · Network · Studio | Social · Messages · You */
 export const DEFAULT_PINS: TaskbarPinsState = {
   left: ["feed", "connect", "collabs"],
-  right: ["live", "messages", "profile"],
+  right: ["social", "messages", "profile"],
 };
 
 const KEY = "vybz.taskbarPins";
