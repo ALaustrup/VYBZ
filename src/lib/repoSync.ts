@@ -3,7 +3,15 @@
  * apply ignore rules, and prepare CAS entries for upload.
  */
 
-export type RepoDawHint = "ableton" | "fl" | "logic" | "reaper" | "bitwig" | "cubase" | "other";
+export type RepoDawHint =
+  | "ableton"
+  | "fl"
+  | "logic"
+  | "reaper"
+  | "bitwig"
+  | "cubase"
+  | "dawproject"
+  | "other";
 
 export interface RepoFileEntry {
   /** Relative POSIX path from project root. */
@@ -21,11 +29,25 @@ export interface RepoWalkProgress {
   bytes: number;
 }
 
+/** First-class interchange signals (R5) — never claim bit-perfect DAW merge. */
+export interface RepoPackAnalysis {
+  hasDawproject: boolean;
+  dawprojectPaths: string[];
+  stemPaths: string[];
+  bouncePaths: string[];
+  /** True when Stems/ or similar convention is present. */
+  hasStemPack: boolean;
+  hasBounce: boolean;
+  /** Short, honest handoff hints for collaborators on other DAWs. */
+  exportHints: string[];
+}
+
 export interface RepoWalkResult {
   entries: RepoFileEntry[];
   daw: RepoDawHint;
   skipped: number;
   totalBytes: number;
+  pack: RepoPackAnalysis;
 }
 
 const SKIP_DIR_NAMES = new Set([
@@ -51,6 +73,31 @@ const SKIP_EXT = new Set([
   "lnk",
 ]);
 
+/** Convention folders treated as stem / export packs (case-insensitive first segment). */
+const STEM_DIR_ROOTS = new Set([
+  "stems",
+  "stem",
+  "stem pack",
+  "stem packs",
+  "exports",
+  "export",
+  "audio export",
+  "audio exports",
+]);
+
+const BOUNCE_DIR_ROOTS = new Set([
+  "bounces",
+  "bounce",
+  "rendered",
+  "render",
+  "mixdowns",
+  "mixdown",
+]);
+
+const BOUNCE_NAME_RE =
+  /(^|[_\-\s])(bounce|master|mixdown|print|stereo\s*mix|final\s*mix)([_\-\s.]|$)/i;
+const AUDIO_EXT = new Set(["wav", "aiff", "aif", "flac", "mp3", "m4a", "ogg", "bwf"]);
+
 function normalizeRel(parts: string[]): string {
   return parts.map((p) => p.replace(/\\/g, "/")).filter(Boolean).join("/");
 }
@@ -69,9 +116,37 @@ function shouldSkipFile(name: string): boolean {
   return SKIP_EXT.has(ext);
 }
 
+function extOf(path: string): string {
+  const base = path.toLowerCase().split("/").pop() ?? "";
+  const i = base.lastIndexOf(".");
+  return i >= 0 ? base.slice(i + 1) : "";
+}
+
+function isUnderStemDir(path: string): boolean {
+  const parts = path.replace(/\\/g, "/").split("/").filter(Boolean);
+  if (!parts.length) return false;
+  const root = parts[0].toLowerCase();
+  if (STEM_DIR_ROOTS.has(root)) return true;
+  return parts.some((p, i) => i > 0 && STEM_DIR_ROOTS.has(p.toLowerCase()));
+}
+
+function isLikelyBounce(path: string): boolean {
+  const lower = path.toLowerCase();
+  const ext = extOf(lower);
+  if (!AUDIO_EXT.has(ext)) return false;
+  if (isUnderStemDir(path)) return false;
+  const parts = lower.split("/").filter(Boolean);
+  if (parts.some((p) => BOUNCE_DIR_ROOTS.has(p))) return true;
+  const base = parts[parts.length - 1] ?? lower;
+  return BOUNCE_NAME_RE.test(base);
+}
+
 export function detectDaw(rootName: string, fileNames: string[]): RepoDawHint {
   const joined = fileNames.join("\n").toLowerCase();
   const root = rootName.toLowerCase();
+  if (joined.includes(".dawproject") || fileNames.some((f) => f.toLowerCase().endsWith(".dawproject"))) {
+    return "dawproject";
+  }
   if (joined.includes(".als") || root.includes("ableton") || joined.includes("samples/")) return "ableton";
   if (joined.includes(".flp") || root.includes("fl studio")) return "fl";
   if (joined.includes(".logicx") || joined.includes("projectdata")) return "logic";
@@ -79,6 +154,90 @@ export function detectDaw(rootName: string, fileNames: string[]): RepoDawHint {
   if (joined.includes(".bwproject")) return "bitwig";
   if (joined.includes(".cpr")) return "cubase";
   return "other";
+}
+
+/** Classify stem packs, DAWproject, and bounce files from relative paths. */
+export function analyzeRepoPack(paths: string[], daw?: RepoDawHint): RepoPackAnalysis {
+  const dawprojectPaths = paths.filter((p) => p.toLowerCase().endsWith(".dawproject"));
+  const stemPaths = paths.filter((p) => {
+    if (!AUDIO_EXT.has(extOf(p))) return false;
+    return isUnderStemDir(p);
+  });
+  const bouncePaths = paths.filter((p) => isLikelyBounce(p) && !isUnderStemDir(p));
+  const hasDawproject = dawprojectPaths.length > 0;
+  const hasStemPack = stemPaths.length > 0;
+  const hasBounce = bouncePaths.length > 0;
+  const hintDaw = daw ?? detectDaw("project", paths);
+
+  const exportHints: string[] = [];
+  if (hasDawproject) {
+    exportHints.push(
+      "DAWproject found — best open interchange for Bitwig/Studio One/Reaper and friends. Plugin fidelity still varies.",
+    );
+  }
+  if (hasStemPack) {
+    exportHints.push(
+      `${stemPaths.length} stem file(s) under a Stems/Exports folder — collaborators can rebuild without your DAW session.`,
+    );
+  } else {
+    exportHints.push(
+      "Add a Stems/ (or Exports/) folder with dry stems before listing or inviting mixers — full DAW packs are best-effort only.",
+    );
+  }
+  if (hasBounce) {
+    exportHints.push("Stereo bounce detected — good preview for listeners who lack your plugins.");
+  } else {
+    exportHints.push(
+      "Export a stereo bounce (WAV) into Bounces/ or name it *bounce* / *master* so the tip has a playable reference.",
+    );
+  }
+
+  switch (hintDaw) {
+    case "ableton":
+      exportHints.push(
+        "Ableton: File → Export Audio/Video (stems) or Collect All and Save before commit. We do not merge .als XML.",
+      );
+      break;
+    case "fl":
+      exportHints.push("FL Studio: File → Export → Wave file / Split mixer tracks into Stems/. .flp stays opaque.");
+      break;
+    case "logic":
+      exportHints.push("Logic: File → Export → All Tracks as Audio Files into Stems/. Package .logicx as the session.");
+      break;
+    case "reaper":
+      exportHints.push("REAPER: File → Render → stems, or save a .dawproject export beside the .rpp.");
+      break;
+    case "bitwig":
+      exportHints.push("Bitwig: Export → Audio / DAWproject. Native .bwproject is Bitwig-only.");
+      break;
+    case "cubase":
+      exportHints.push("Cubase: Export → Audio Mixdown (Channel Batch) into Stems/.");
+      break;
+    case "dawproject":
+      exportHints.push(
+        "Prefer keeping the .dawproject updated when you change arrangement — stems still help missing plugins.",
+      );
+      break;
+    default:
+      exportHints.push(
+        "Cross-DAW handoff: commit Stems/ + bounce + optional .dawproject. Never assume bit-perfect session merge.",
+      );
+  }
+
+  return {
+    hasDawproject,
+    dawprojectPaths,
+    stemPaths,
+    bouncePaths,
+    hasStemPack,
+    hasBounce,
+    exportHints,
+  };
+}
+
+/** Analyze paths from an already-walked tree (History UI). */
+export function analyzeTreePaths(paths: string[]): RepoPackAnalysis {
+  return analyzeRepoPack(paths);
 }
 
 async function sha256Hex(file: Blob): Promise<string> {
@@ -118,7 +277,6 @@ export async function walkDirectoryHandle(
         continue;
       }
       const file = await (handle as FileSystemFileHandle).getFile();
-      // Soft cap per file 500MB inside the 1GB bunny limit
       if (file.size > 500 * 1024 * 1024) {
         skipped += 1;
         onProgress?.({ scanned, kept: entries.length, skipped, bytes });
@@ -140,11 +298,13 @@ export async function walkDirectoryHandle(
   }
 
   await walk(root, []);
+  const daw = detectDaw(root.name, names);
   return {
     entries,
-    daw: detectDaw(root.name, names),
+    daw,
     skipped,
     totalBytes: bytes,
+    pack: analyzeRepoPack(names, daw),
   };
 }
 
@@ -195,11 +355,13 @@ export async function walkFileList(
     onProgress?.({ scanned, kept: entries.length, skipped, bytes });
   }
 
+  const daw = detectDaw(rootName, names);
   return {
     entries,
-    daw: detectDaw(rootName, names),
+    daw,
     skipped,
     totalBytes: bytes,
+    pack: analyzeRepoPack(names, daw),
   };
 }
 
@@ -217,5 +379,6 @@ export const DAW_LABEL: Record<RepoDawHint, string> = {
   reaper: "REAPER",
   bitwig: "Bitwig",
   cubase: "Cubase",
+  dawproject: "DAWproject",
   other: "DAW project",
 };

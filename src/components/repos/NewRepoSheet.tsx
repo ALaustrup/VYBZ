@@ -8,8 +8,10 @@ import {
   walkDirectoryHandle,
   walkFileList,
   type RepoFileEntry,
+  type RepoPackAnalysis,
   type RepoWalkProgress,
 } from "@/lib/repoSync";
+import { RepoExportHints } from "@/components/repos/RepoExportHints";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 
@@ -39,6 +41,7 @@ export function NewRepoSheet({
   const [busy, setBusy] = useState(false);
   const [repoId, setRepoId] = useState<string | null>(existingProjectId ?? null);
   const [entries, setEntries] = useState<RepoFileEntry[]>([]);
+  const [pack, setPack] = useState<RepoPackAnalysis | null>(null);
   const [daw, setDaw] = useState<string>("other");
   const [walk, setWalk] = useState<RepoWalkProgress | null>(null);
   const [phase, setPhase] = useState("");
@@ -86,6 +89,7 @@ export function NewRepoSheet({
         return;
       }
       setEntries(result.entries);
+      setPack(result.pack);
       setDaw(result.daw);
       if (!title.trim()) setTitle(handle.name.replace(/\s+Project$/i, "").slice(0, 80));
       setMessage(`Import · ${DAW_LABEL[result.daw]} · ${result.entries.length} files`);
@@ -124,6 +128,7 @@ export function NewRepoSheet({
         return;
       }
       setEntries(result.entries);
+      setPack(result.pack);
       setDaw(result.daw);
       setMessage(`Import · ${DAW_LABEL[result.daw]} · ${result.entries.length} files`);
       setStep("sync");
@@ -290,6 +295,7 @@ export function NewRepoSheet({
                 {entries.length} files · {formatBytes(entries.reduce((s, e) => s + e.size, 0))}
               </p>
             </div>
+            {pack && <RepoExportHints pack={pack} />}
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value.slice(0, 200))}

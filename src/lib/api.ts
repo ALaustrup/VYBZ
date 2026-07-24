@@ -20,6 +20,7 @@ import type {
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
 } from "@/types";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
+import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const AUDIO_BUCKET = "audio-assets";
@@ -1882,12 +1883,23 @@ export async function syncRepoFolder(opts: {
   }
 
   opts.onProgress?.("commit", "Creating commit…");
+  const paths = entries.map((e) => e.path);
+  const pack = analyzeRepoPack(paths, opts.daw as RepoDawHint | undefined);
   const commitId = await commitRepo({
     projectId,
     branch,
     message,
     entries: entries.map((e) => ({ path: e.path, hash: e.hash, size: e.size })),
-    meta: { daw: opts.daw ?? null, file_count: entries.length },
+    meta: {
+      daw: opts.daw ?? null,
+      file_count: entries.length,
+      has_dawproject: pack.hasDawproject,
+      has_stem_pack: pack.hasStemPack,
+      has_bounce: pack.hasBounce,
+      stem_count: pack.stemPaths.length,
+      bounce_count: pack.bouncePaths.length,
+      dawproject_paths: pack.dawprojectPaths.slice(0, 20),
+    },
   });
   return commitId;
 }

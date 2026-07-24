@@ -3,6 +3,12 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## Beta-0B.1 (in progress) — Music Repos R5
+
+- DAWproject / stem-pack / bounce detection on folder walk; commit `meta` flags
+- History **Handoff** panel — honest export hints (no bit-perfect `.als` merge claims)
+- File tree highlights for `.dawproject`, `Stems/`, and bounce paths
+
 ## Beta-0B — 2026-07-24 — Music Repos
 
 Studio evolves into a GitHub-like music VCS (flag `VITE_FEATURE_REPOS`, default on).

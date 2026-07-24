@@ -196,10 +196,11 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **E. Signature reactivity** ✅ | Taskbar **Orb** (idle neochrome plasma → uploader morph/palette while playing) + seeded per-track visualizers; listener **Off / Soft / VYBZ Max**; viewport outline FX retired. |
 | **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
 | **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
+| **O. Unified Social Live** ◑ | Replace fragmented live tiers / Clubz: **one public ultra-low-latency live tier**; premium **text+voice rooms** on recurring closed-loop **V¢** (`mod_points` + `vc_ledger`). Phase 1 schema/RLS/renewals shipped (`20260724_0061`). Phase 2+ SFU + Social tab + Orb Go Live dashboard. |
 | **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
 | **I. Mobile + packaging** | Capacitor Android/iOS, PWA polish, native plugin-scanner sync. |
 | **J. Monetization** | Pro tier; tasteful, disclosed affiliate gear/plugin links (never influencing match scores). |
-| **N. Music Repos** ✅ | GitHub-like music VCS on Studio: content-addressed blobs/trees/commits, New Repo folder sync (Ableton/FL ignore rules), History + Branches (MR / pull tip), Listing marketplace (`mod_points`), Bridge folder watch (`tools/vybz-bridge`). Flag: `VITE_FEATURE_REPOS`. R5 DAWproject/stems later. |
+| **N. Music Repos** ✅ | GitHub-like music VCS on Studio: CAS blobs/trees/commits, folder sync, History + Branches (MR / pull tip), Listing marketplace, Bridge watch, **R5 DAWproject/stems handoff hints**. Flag: `VITE_FEATURE_REPOS`. |
 | **L. Codex (public doc library)** | Free, public, professionally-drafted music-industry document library (contracts→demand letters) with plain-English explainers, jurisdiction tags, and disclaimers. US-first. ~90 document types catalogued. |
 | **M. Brand system** | Official VYBZ logo set (mark/wordmark/mono), favicons/PWA icons, OG image, intro animation, email + Codex-doc headers. Drops into `public/brand/`. |
 

@@ -28,11 +28,15 @@ Production deploys from `main` via Vercel project `astramatrix/vybz`.
   is on (default). `create_repo` + CAS tables (`repo_blobs` / `repo_trees` /
   `repo_commits` / `repo_branches` / `repo_merge_requests` / `repo_listings`);
   New Repo sheet walks a local DAW folder, hashes SHA-256, uploads missing blobs,
-  commits to `main`. Room tabs: **History**, **Branches** (create branch, merge
-  requests take-theirs/keep-ours, pull tip into a folder), **Listing** (credit
-  marketplace), Files, Credits. Listed feed on Studio hub. Bridge companion
-  (`tools/vybz-bridge`) watches folders and emits `commit-ready` (web still
-  performs CAS upload).
+  commits to `main`. Room tabs: **History** (handoff hints for DAWproject/stems/
+  bounce), **Branches** (create branch, merge requests take-theirs/keep-ours,
+  pull tip into a folder), **Listing** (credit marketplace), Files, Credits.
+  Listed feed on Studio hub. Bridge companion (`tools/vybz-bridge`) watches
+  folders and emits `commit-ready` (web still performs CAS upload).
+- **Unified Social Live (Phase O / Phase 1):** additive schema on `live_sessions`
+  (single `ultra` public tier) + social/premium `rooms`, `room_memberships`,
+  `vc_ledger`; RPCs `subscribe_room_vc` / `process_vc_room_renewals` (service
+  role cron). See `docs/UNIFIED_SOCIAL_LIVE_PHASE1.md`. SFU + Social tab UI = Phase 2+.
 - **Orb (`OrbSphere`):** idle neochrome plasma sphere; while a track plays, eases
   into the uploader’s `playback_customization` morph + palette; on playback end,
   soft-blends back to idle. Listener intensity: **Off / Soft / VYBZ Max**
