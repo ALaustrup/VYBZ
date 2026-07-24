@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Bell,
   MessageSquare,
+  Plus,
   Radio,
   ScrollText,
   Shield,
@@ -79,6 +80,7 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
   const reduce = useReduceFx();
   const role = profile?.platformRole ?? "member";
   const isAdmin = !!profile?.isAdmin || role === "admin";
+  const vc = profile?.modPoints ?? 0;
 
   function go(to: string) {
     onClose();
@@ -108,14 +110,29 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             transition={reduce ? { duration: 0.01 } : { type: "spring", stiffness: 380, damping: 36 }}
             className="fixed inset-y-0 right-0 z-[70] flex w-[min(100%,22rem)] flex-col border-l border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
           >
-            <div className="flex items-center justify-between border-b border-[var(--hairline)] px-4 pb-3 pt-[max(0.85rem,env(safe-area-inset-top))]">
-              <div>
-                <h2 className="font-display text-lg font-semibold text-white">More</h2>
-                <p className="text-[12px] text-white/40">Secondary destinations</p>
+            <div className="border-b border-[var(--hairline)] px-4 pb-3 pt-[max(0.85rem,env(safe-area-inset-top))]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-display text-lg font-semibold text-white">More</h2>
+                  <p className="text-[12px] text-white/40">Secondary destinations</p>
+                </div>
+                <button type="button" aria-label="Close" onClick={onClose}
+                  className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-              <button type="button" aria-label="Close" onClick={onClose}
-                className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
-                <X className="h-4 w-4" />
+              <button
+                type="button"
+                onClick={() => go("/store")}
+                className="mt-3 flex w-full items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-left transition hover:bg-white/[0.06] active:scale-[0.99]"
+                aria-label={`V¢ balance ${vc}. Top up.`}
+              >
+                <span className="font-display text-[15px] font-semibold tracking-tight text-white">
+                  {vc.toLocaleString()} <span className="text-veil-200">V¢</span>
+                </span>
+                <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-veil-500/25 text-veil-100 ring-1 ring-veil-400/35">
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </span>
               </button>
             </div>
 

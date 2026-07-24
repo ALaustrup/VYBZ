@@ -320,14 +320,68 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 ---
 
+### 2026-07-24 — Orb Joystick Sphere (3D radial menu) 🟢 → ✅ **PROMOTED**
+
+#### Orb as top-down joystick + next-gen audio morph ✅ Phase 1
+- **Status:** Promoted — Phase 1 (canvas joystick + magnetic sectors + fan a11y
+  fallback) building now. Phase 2 WebGL morph remains backlog.
+- See masterplan Phase **E** addendum.
+
+---
+
+### 2026-07-24 — Voice slot lights + premium polish cluster 🟢
+
+#### A. Tricolor voice occupancy lights (rooms) 🟢
+- **What:** In voice rooms, glowing status dots beside display names show who is
+  speaking and **slot order** (max **3** concurrent voices):
+  - **Green** = 1st active speaker (earliest still-talking)
+  - **Yellow** = 2nd
+  - **Pink** = 3rd (and final allowed simultaneous voice)
+  - When a slot frees (user silent for **3s cooldown**), lower slots promote
+    (pink→yellow, yellow→green). A new entrant always takes the lowest free
+    color (so if green+yellow busy, next join is pink). No 4th voice until a
+    cooldown opens a slot after someone stops.
+- **Fit:** Extends Phase **O** room voice (`joinRoomVoiceSfu` + LiveKit
+  `Track` audio levels / `isSpeaking`). Pure UX premium — not a hard SFU mute
+  gate unless we later enforce server-side (start client-only).
+- **Implementation sketch:**
+  - LiveKit `participant.isSpeaking` + `audioLevel` → local slot manager
+  - Ordered list of active speakers; assign G/Y/P; 3s silence timer per uid
+  - Render dot next to presence / message author rows on `RoomPage`
+- **Guardrails:** Visual-first; optional later “soft duck” of 4th publishers.
+  Respect reduce-motion (static dots, no pulse). Never imply paid priority
+  speak slots (V¢ rooms stay access-gated, not pay-to-talk-over).
+- **Rough shape:** small–moderate FE. Promote with “voice slot lights — start”.
+
+#### B. Platform-wide premium polish ideas (analysis) 🟢
+Ways to make VYBZ feel unmistakably high-end without clutter:
+
+| Idea | How (highest quality path) |
+|------|----------------------------|
+| **1. Material glass system** | One shared `surface` token set (hairline, specular sweep, press depth). Apply to sheets, More drawer, room chrome — CSS vars + framer spring, not per-page one-offs. |
+| **2. Presence choreography** | Soft avatar ring pulse when online; typed “···” with Orb-accent hue; join/leave fades. Realtime already exists — polish motion only. |
+| **3. Sonic micro-feedback** | Optional UI ticks (join voice, send, Orb snap) via tiny WebAudio blips, gated by FX intensity / user mute. Never fight the track. |
+| **4. Drop provenance shimmer** | Subtle ledger-verified edge on watermarked assets (trust without badges spam). |
+| **5. Match reveal** | Network/Spark: score reveal as a short Orb-palette bloom instead of a flat number. |
+| **6. Live Top-3 stage frame** | Social hub: active Top 3 get a shared “broadcast bezel” (thin reactive stroke from host audio if available). |
+| **7. Haptic grammar** | Same vibrate pattern language for Orb sector snap, voice slot grant, DM ping — muscle memory. |
+| **8. Empty states as stages** | Replace flat EmptyState copy with one atmospheric still (product photography / DAW desk) + single CTA — brand-first. |
+
+- **Packaging:** Promote **A** alone as a Social Live polish slice, or bundle
+  **A + 1 + 2** as “Premium Rooms Surface.” Rest stay backlog until asked.
+
+---
+
 ### Suggested packaging when promoting
 
 | Package | Ideas | When |
 |---------|-------|------|
 | **Reactive Media** | #1 + #2 (+ #3) | FE-heavy; shared runtime; unblocks Live aesthetics |
 | **Unified Social Live** | #4 → Phase **O** | Phases 1–4 ✅ (schema, SFU, Social hub, room voice) |
+| **Orb Joystick** | 2026-07-24 | ✅ Phase 1 promoted; Phase 2 WebGL later |
+| **Voice slot lights** | 2026-07-24 A | After Orb P1; LiveKit speaking events |
+| **Premium surface** | 2026-07-24 B | Incremental polish slices |
 
 ---
 
-_No promotions yet — all of the above are captured for analysis only. Uncommitted
-R5 (DAWproject/stems) work remains a separate local change set._
+_Unpromoted ideas above remain analysis-only until called into the masterplan._

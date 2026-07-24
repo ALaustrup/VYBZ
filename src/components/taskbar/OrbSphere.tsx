@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { readBands, readFrequencies, frequencyBinCount, usePlayer } from "@/lib/audioBus";
 import { useChromaBoost, useFxScale, useReduceFx } from "@/lib/display";
 import { resolvePlaybackVisuals } from "@/lib/playbackCustomization";
@@ -8,7 +8,16 @@ import type { PostFx } from "@/types";
 interface OrbSphereProps {
   open: boolean;
   flash: boolean;
-  onClick: () => void;
+  /** Force idle default sphere (joystick hover / aim). */
+  calm?: boolean;
+  /** Normalized stick throw in screen space (−THROW..THROW from joystick). */
+  stick?: { x: number; y: number };
+  onClick?: () => void;
+  onPointerDown?: (e: ReactPointerEvent<HTMLButtonElement>) => void;
+  onPointerMove?: (e: ReactPointerEvent<HTMLButtonElement>) => void;
+  onPointerUp?: (e: ReactPointerEvent<HTMLButtonElement>) => void;
+  onPointerCancel?: (e: ReactPointerEvent<HTMLButtonElement>) => void;
+  ariaLabel?: string;
   className?: string;
 }
 
@@ -27,7 +36,19 @@ const NEO = ["#00ffc8", "#5b8cff", "#c77dff", "#ff5d8f", "#00a1ff", "#34f5a0", "
  * Canvas Orb — idle neochrome sphere; while playing, uploader morph + palette.
  * Softly blends back to idle when playback stops (blend state survives prop churn).
  */
-export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
+export function OrbSphere({
+  open,
+  flash,
+  calm = false,
+  stick = { x: 0, y: 0 },
+  onClick,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  ariaLabel,
+  className,
+}: OrbSphereProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLButtonElement>(null);
   const { playing, track } = usePlayer();
@@ -45,13 +66,16 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
   );
   const { accent, seed, palette: pal, pulseScale, rimIntensity, specularFollow, fx } = visuals;
   const palKey = pal.join(",");
-  const live = playing && !!track;
+  const live = playing && !!track && !calm;
 
   // Mutable frame inputs — keep the RAF loop alive without resetting liveBlend.
   const frame = useRef({
     live,
     open,
     flash,
+    calm,
+    stickX: stick.x,
+    stickY: stick.y,
     reduce,
     fxScale,
     chroma,
@@ -67,6 +91,9 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
     live,
     open,
     flash,
+    calm,
+    stickX: stick.x,
+    stickY: stick.y,
     reduce,
     fxScale,
     chroma,
@@ -149,17 +176,23 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       const f = frame.current;
       t += 0.016;
 
-      // Ease toward live (uploader) or idle (default sphere)
-      const targetBlend = f.live ? 1 : 0;
-      liveBlend += (targetBlend - liveBlend) * (f.live ? 0.09 : 0.038);
+      // Ease toward live (uploader) or idle (default sphere). Calm = joystick hover/aim.
+      const targetBlend = f.calm ? 0 : f.live ? 1 : 0;
+      const blendRate = f.calm ? 0.22 : f.live ? 0.09 : 0.038;
+      liveBlend += (targetBlend - liveBlend) * blendRate;
       if (Math.abs(liveBlend - targetBlend) < 0.002) liveBlend = targetBlend;
+
+      // Stick throw offsets the body (top-down joystick feel)
+      const stickPx = HIT * 0.55;
+      const stickCx = mid + f.stickX * stickPx;
+      const stickCy = mid + f.stickY * stickPx;
 
       ptr.x += (ptr.tx - ptr.x) * 0.14;
       ptr.y += (ptr.ty - ptr.y) * 0.14;
       if (f.flash) flashA = 1;
       else flashA *= 0.88;
 
-      const reactive = !f.reduce && f.fxScale > 0.02;
+      const reactive = !f.reduce && f.fxScale > 0.02 && !f.calm;
       const bands = f.live && reactive
         ? readBands()
         : { bass: 0, mid: 0, high: 0, level: 0 };
@@ -177,8 +210,8 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
         : 0;
       const pulse = Math.min(0.95, drive) * liveBlend;
       const R = Math.min(CORE_R + pulse * (4 + ampCap * 3), MAX_R);
-      const cx = mid;
-      const cy = mid;
+      const cx = stickCx;
+      const cy = stickCy;
 
       const uploadColors = f.palKey.split(",").map((c) => vividHex(c, f.chroma));
       const neo = neoChromeAt(t);
@@ -312,10 +345,14 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       ref={wrapRef}
       type="button"
       onClick={onClick}
-      aria-label={open ? "Close actions" : "Open actions"}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+      aria-label={ariaLabel ?? (open ? "Close actions" : "Open actions")}
       aria-expanded={open}
       className={cx(
-        "relative z-10 grid h-[72px] w-[72px] place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-veil-400/60",
+        "relative z-10 grid h-[72px] w-[72px] place-items-center rounded-full outline-none touch-none focus-visible:ring-2 focus-visible:ring-veil-400/60",
         className,
       )}
     >

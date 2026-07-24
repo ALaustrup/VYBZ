@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
 import { GlobalPlayer } from "@/components/GlobalPlayer";
-import { OrbSphere } from "@/components/taskbar/OrbSphere";
-import { DEFAULT_ORB_ACTIONS, OrbFan, type OrbFanAction } from "@/components/taskbar/OrbFan";
+import { DEFAULT_ORB_ACTIONS, type OrbFanAction } from "@/components/taskbar/OrbFan";
+import { OrbJoystick } from "@/components/taskbar/OrbJoystick";
 import {
   PinCustomizeSheet,
   TaskbarCustomizeButton,
@@ -32,8 +32,6 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   const { unread } = useSession();
   const { track } = usePlayer();
   const saved = useTaskbarPins();
-  const [open, setOpen] = useState(false);
-  const [flash, setFlash] = useState(false);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<TaskbarPinsState | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -49,10 +47,6 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   const playing = !!track;
 
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     // Reserve stage space under the fixed dock (player strip grows the dock).
     const root = document.documentElement;
     root.style.setProperty("--dock-reserve", playing ? "9.75rem" : "6.25rem");
@@ -62,26 +56,7 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   }, [playing]);
 
   useEffect(() => {
-    if (!open || editing) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    const onPointer = (e: PointerEvent) => {
-      if (orbZoneRef.current?.contains(e.target as Node)) return;
-      setOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    const t = window.setTimeout(() => window.addEventListener("pointerdown", onPointer), 0);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("pointerdown", onPointer);
-    };
-  }, [open, editing]);
-
-  useEffect(() => {
     if (!editing) return;
-    setOpen(false);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") discardEdit();
     };
@@ -94,7 +69,6 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
     const base = seed ?? getTaskbarPins();
     setDraft({ left: [...base.left], right: [...base.right] });
     setEditing(true);
-    setOpen(false);
   }
 
   function discardEdit() {
@@ -165,19 +139,9 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!drag, editing, draft]);
 
-  function toggleOrb() {
-    if (editing) return;
-    if (!open) {
-      setFlash(true);
-      window.setTimeout(() => setFlash(false), 220);
-    }
-    setOpen((v) => !v);
-  }
-
   const actions: OrbFanAction[] = DEFAULT_ORB_ACTIONS.map((a) => ({
     ...a,
     run: () => {
-      setOpen(false);
       if (a.id === "drop") onCompose();
       else if (a.id === "live") navigate(FLAGS.socialLive ? "/social?go=1" : "/live?go=1");
       else if (a.id === "spark") navigate("/spark");
@@ -224,8 +188,7 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
               editing && "pointer-events-none opacity-40",
             )}
           >
-            <OrbFan open={open && !editing} actions={actions} onClose={() => setOpen(false)} direction="up" />
-            <OrbSphere open={open && !editing} flash={flash} onClick={toggleOrb} />
+            <OrbJoystick actions={actions} disabled={editing} />
           </div>
 
           <TaskbarPinRow side="right" {...pinProps} spread />

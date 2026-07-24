@@ -193,7 +193,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **B. Matchmaking depth** ✅ | Role-affinity graph, skill-tier proximity, reputation, free `gte-small` resonance, production/agency matching. |
 | **C. Exchange + protection** ✅ | Download gating, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + verified; live hosting pending a reachable container host. |
 | **D. Projects & collab rooms** ✅ | Private project rooms, versioned handoffs, split sheets, release gate, **verified credits**. Next: discography surface + threaded per-project chat. |
-| **E. Signature reactivity** ✅ | Taskbar **Orb** (idle neochrome plasma → uploader morph/palette while playing) + seeded per-track visualizers; listener **Off / Soft / VYBZ Max**; viewport outline FX retired. |
+| **E. Signature reactivity** ✅ | Taskbar **Orb** (idle neochrome → uploader morph) + visualizers; **Off / Soft / VYBZ Max**. **Orb Joystick Phase 1** ✅ — hover calms to default sphere; hold+drag stick selects Drop/Live/Spark/Messages; magnetic snap + haptics; fan chips remain for reduced-motion. Phase 2 WebGL morph later. |
 | **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
 | **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
 | **O. Unified Social Live** ✅ | One public ultra-low-latency live tier + premium V¢ text/voice rooms. Phases 1–3 ✅. **Phase 4** room voice UI (LiveKit) + V¢ renewals cron ops ✅. |
@@ -378,6 +378,10 @@ The `AudioBus` analyser drives:
    sphere / blob / bars / ring / liquid). On playback end, soft-blends back to idle.
    Listener intensity **Off / Soft / VYBZ Max** (`display.ts`) scales amplitude +
    chroma. Respect `prefers-reduced-motion`.
+   **Joystick (Phase 1):** hover/aim calms morph to the default sphere; hold and
+   drag like a top-down gamepad stick toward cardinal actions (Drop / Live /
+   Spark / Messages); magnetic sector snap + optional haptic; release to run.
+   Reduced-motion keeps the legacy fan chip tray (`OrbFan`).
 2. **Seeded per-track visualizers** — every drop’s visualizer derives from
    `hash(creator_id + asset_id)` so tracks stay unique (static seeded frame at rest,
    reactive while playing).
