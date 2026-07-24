@@ -239,9 +239,9 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 #### 4. Unified Social + Live — scrap Clubz tiers; premium V¢ text/voice rooms 🔴🟡 → ◑ **PROMOTED**
 
-- **Status:** Promoted to masterplan **Phase O**. **Phase 1 shipped** (schema/RLS/V¢
-  ledger + `process_vc_room_renewals`) — see migration `20260724_0061_unified_social_live.sql`
-  and `docs/UNIFIED_SOCIAL_LIVE_PHASE1.md`. Awaiting Phase 2 (SFU transport).
+- **Status:** Promoted to masterplan **Phase O**. **Phase 1–2 shipped** (schema +
+  LiveKit token pipeline + Bunny VOD offload docs). Phase 3 = Social tab / Orb
+  dashboard UI. See `docs/UNIFIED_SOCIAL_LIVE_PHASE1.md` + `PHASE2.md`.
 - **V¢ closed-loop decision (Phase 1):** balance = `profiles.mod_points`; no cash-out;
   5% platform fee withheld from owner share (informational ledger). Full §0 V¢
   branding still open; mechanics unblocked for room subs.

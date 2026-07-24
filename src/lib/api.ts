@@ -2318,8 +2318,24 @@ export async function startLiveSession(input: {
     playback_hls: bunny.playbackHls ?? null,
     rtmp_url: bunny.rtmpUrl ?? null,
     stream_key: bunny.streamKey ?? null,
+    input_mode: input.source,
+    quality_tier: "ultra",
+    visibility: "public",
+    audio_mode: "music",
+    sfu_provider: "livekit",
   }).select("*").single();
   if (error || !data) return null;
+
+  // Attach LiveKit room name (Edge mints tokens; works when LIVEKIT_* secrets set)
+  try {
+    await db().rpc("attach_live_sfu", {
+      p_session: data.id,
+      p_provider: "livekit",
+      p_room: `vybz-live-${data.id}`,
+      p_audio_mode: "music",
+    });
+  } catch { /* SFU optional until secrets exist */ }
+
   return getLiveSession(data.id);
 }
 

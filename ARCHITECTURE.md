@@ -94,6 +94,7 @@ network hard filters.
 |----------|------|
 | `passkey` | WebAuthn |
 | `bunny-upload` / `bunny-sign` / `bunny-live` | Media upload (incl. `kind=repo-blob` CAS), signed URLs, live media helpers |
+| `livekit-token` / `vc-room-renewals` | Unified Social Live: LiveKit JWTs; V¢ room subscription cron |
 | `watermark` / `watermark-detect` | Forensic watermark + optional C2PA forward |
 | `embed` | gte-small resonance embeddings |
 | `stripe-connect-onboard` / `stripe-tip` / `stripe-webhook` / `stripe-credit-topup` | Connect tips + cosmetic credit packs |
