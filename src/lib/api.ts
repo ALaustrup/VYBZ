@@ -2266,10 +2266,42 @@ export async function cancelRoomSubscription(roomId: string): Promise<boolean> {
 }
 
 export async function getRoom(id: string): Promise<import("@/types").Room | null> {
-  const { data } = await db().from("rooms").select("id,kind,ref_id,title").eq("id", id).maybeSingle();
+  const uid = await currentUserId();
+  const { data } = await db()
+    .from("rooms")
+    .select("id,kind,ref_id,title,access_tier,vc_price,billing_period,owner_id,voice_enabled,livekit_room,perks")
+    .eq("id", id)
+    .maybeSingle();
   if (!data) return null;
   const r = data as any;
-  return { id: r.id, kind: r.kind, refId: r.ref_id, title: r.title, messages: 0, lastAt: null };
+  let canAccess = true;
+  if (r.kind === "social" || r.access_tier === "premium") {
+    const { data: ok } = await db().rpc("can_access_room", { p_room: id, p_uid: uid });
+    canAccess = !!ok;
+  }
+  return {
+    id: r.id,
+    kind: r.kind,
+    refId: r.ref_id ?? "",
+    title: r.title,
+    messages: 0,
+    lastAt: null,
+    accessTier: (r.access_tier as "free" | "premium") ?? "free",
+    vcPrice: r.vc_price != null ? Number(r.vc_price) : null,
+    billingPeriod: r.billing_period ?? null,
+    ownerId: r.owner_id ?? null,
+    voiceEnabled: !!r.voice_enabled,
+    livekitRoom: r.livekit_room ?? null,
+    perks: (r.perks ?? {}) as Record<string, unknown>,
+    canAccess,
+  };
+}
+
+/** Ensure LiveKit voice room name is attached (no-op if voice disabled / no access). */
+export async function ensureRoomVoiceChannel(roomId: string): Promise<string | null> {
+  const { data, error } = await db().rpc("ensure_room_voice_channel", { p_room: roomId });
+  if (error) return null;
+  return (data as string) ?? null;
 }
 
 export async function listRoomMessages(roomId: string, limit = 100): Promise<import("@/types").RoomMessage[]> {

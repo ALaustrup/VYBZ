@@ -404,7 +404,10 @@ export interface Room {
   billingPeriod?: "week" | "month" | null;
   ownerId?: string | null;
   voiceEnabled?: boolean;
+  livekitRoom?: string | null;
   perks?: Record<string, unknown>;
+  /** Resolved via can_access_room (premium social rooms). */
+  canAccess?: boolean;
 }
 
 export interface SocialRoomCard {

@@ -20,6 +20,6 @@
 
 LiveKit secrets on Edge (`LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`) for in-app SFU. Without them, Go Live still creates the session + chat; host keeps local preview; viewers wait / use HLS if Bunny is configured.
 
-## Phase 4 candidates
+## Phase 4
 
-Room voice UI (`mintRoomVoiceToken`), cron wiring polish for `vc-room-renewals`, Social ranking signals beyond viewer count.
+Room voice UI + renewals cron docs — see `UNIFIED_SOCIAL_LIVE_PHASE4.md`.

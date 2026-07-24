@@ -325,7 +325,7 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 | Package | Ideas | When |
 |---------|-------|------|
 | **Reactive Media** | #1 + #2 (+ #3) | FE-heavy; shared runtime; unblocks Live aesthetics |
-| **Unified Social Live** | #4 → Phase **O** | Phases 1–3 ✅ (schema, SFU, Social hub); Phase 4 candidates in docs |
+| **Unified Social Live** | #4 → Phase **O** | Phases 1–4 ✅ (schema, SFU, Social hub, room voice) |
 
 ---
 

@@ -208,3 +208,121 @@ export async function joinLiveSessionSfu(opts: {
     };
   }
 }
+
+export type RoomVoiceSession = {
+  configured: boolean;
+  connected: boolean;
+  muted: boolean;
+  setMuted: (muted: boolean) => Promise<void>;
+  disconnect: () => Promise<void>;
+  error?: string;
+};
+
+/**
+ * Join a social room voice channel (audio-only). Access gated server-side via can_access_room.
+ */
+export async function joinRoomVoiceSfu(opts: {
+  roomId: string;
+  canPublish?: boolean;
+  /** Optional host element for remote audio elements. */
+  audioHost?: HTMLElement | null;
+  onParticipantCount?: (n: number) => void;
+}): Promise<RoomVoiceSession> {
+  const tokenRes = await mintRoomVoiceToken(opts.roomId, opts.canPublish !== false);
+  if (!tokenRes.configured || !tokenRes.url || !tokenRes.token) {
+    return {
+      configured: false,
+      connected: false,
+      muted: true,
+      setMuted: async () => {},
+      disconnect: async () => {},
+      error: tokenRes.error ?? "livekit_unconfigured",
+    };
+  }
+
+  const conn = await connectLivekitRoom({
+    url: tokenRes.url,
+    token: tokenRes.token,
+    audioMode: "speech",
+  });
+  if (!conn) {
+    return {
+      configured: true,
+      connected: false,
+      muted: true,
+      setMuted: async () => {},
+      disconnect: async () => {},
+      error: "connect_failed",
+    };
+  }
+
+  const { room, disconnect: baseDisconnect } = conn;
+  let muted = false;
+  const attached = new Set<HTMLMediaElement>();
+
+  try {
+    const lk = await import("livekit-client");
+
+    const bumpCount = () => {
+      opts.onParticipantCount?.(room.numParticipants);
+    };
+
+    const attachAudio = (track: import("livekit-client").RemoteTrack) => {
+      if (track.kind !== lk.Track.Kind.Audio) return;
+      const el = track.attach();
+      el.autoplay = true;
+      (opts.audioHost ?? document.body).appendChild(el);
+      attached.add(el);
+    };
+
+    room.on(lk.RoomEvent.TrackSubscribed, (track) => {
+      attachAudio(track);
+      bumpCount();
+    });
+    room.on(lk.RoomEvent.TrackUnsubscribed, () => bumpCount());
+    room.on(lk.RoomEvent.ParticipantConnected, bumpCount);
+    room.on(lk.RoomEvent.ParticipantDisconnected, bumpCount);
+
+    for (const p of room.remoteParticipants.values()) {
+      for (const pub of p.trackPublications.values()) {
+        if (pub.track) attachAudio(pub.track);
+      }
+    }
+
+    if (tokenRes.canPublish !== false && opts.canPublish !== false) {
+      await room.localParticipant.setMicrophoneEnabled(true);
+    } else {
+      muted = true;
+    }
+    bumpCount();
+
+    const session: RoomVoiceSession = {
+      configured: true,
+      connected: true,
+      muted,
+      setMuted: async (next: boolean) => {
+        muted = next;
+        session.muted = next;
+        await room.localParticipant.setMicrophoneEnabled(!next);
+      },
+      disconnect: async () => {
+        attached.forEach((el) => {
+          el.remove();
+        });
+        attached.clear();
+        await baseDisconnect();
+      },
+    };
+    return session;
+  } catch (e) {
+    await baseDisconnect();
+    return {
+      configured: true,
+      connected: false,
+      muted: true,
+      setMuted: async () => {},
+      disconnect: async () => {},
+      error: e instanceof Error ? e.message : "voice_join_failed",
+    };
+  }
+}
