@@ -212,7 +212,7 @@ export function Taskbar({
       <div
         ref={barRef}
         className={cx(
-          "glass relative mx-auto items-center gap-1 px-2",
+          "glass relative mx-auto items-center gap-1 border-transparent px-2",
           rail
             ? "flex h-full w-full max-w-none flex-col rounded-[28px] py-3"
             : "flex h-[76px] w-full max-w-3xl rounded-[28px] sm:px-3",

@@ -17,9 +17,9 @@ export const AUDIO_EXTENSIONS = [
 /** Lossless containers — drive the "HD / Lossless" quality badge. */
 const LOSSLESS_EXT = new Set(["wav", "aiff", "aif", "flac", "alac"]);
 
-/** Accept attribute for the audio file input (all common formats + MIDI + zip). */
+/** Accept audio + common video containers (audio is extracted client-side). */
 export const AUDIO_ACCEPT =
-  "audio/*,.wav,.aiff,.aif,.flac,.alac,.mp3,.ogg,.oga,.opus,.m4a,.aac,.mid,.midi,.zip";
+  "audio/*,video/*,.wav,.aiff,.aif,.flac,.alac,.mp3,.ogg,.oga,.opus,.m4a,.aac,.mid,.midi,.mp4,.m4v,.webm,.mov,.mkv,.zip";
 
 import { analyzeAudio } from "@/lib/audioAnalysis";
 

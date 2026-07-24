@@ -104,7 +104,7 @@ export function Confetti() {
     <>
       <canvas
         ref={canvasRef}
-        className="pointer-events-none fixed inset-0 z-[60]"
+        className="pointer-events-none fixed inset-0 z-[80]"
         style={{ width: "100%", height: "100%" }}
       />
       <AnimatePresence>
@@ -115,7 +115,7 @@ export function Confetti() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -24, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 320, damping: 22 }}
-            className="pointer-events-none fixed left-1/2 top-24 z-[61] -translate-x-1/2"
+            className="pointer-events-none fixed left-1/2 top-24 z-[81] -translate-x-1/2"
           >
             <div className="glass flex items-center gap-2 rounded-full px-5 py-2.5 shadow-glow">
               <span className="text-lg">✦</span>

@@ -17,7 +17,7 @@ import type {
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
   Cosmetic, CosmeticStore,
   LiveSessionCard, LiveSessionDetail, LiveMessage, LiveSource,
-  PostFx, PostAudience, PlaybackCustomization, ArtistProfile,
+  PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
 } from "@/types";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -1064,6 +1064,8 @@ export interface NewDrop {
   inviteeIds?: string[];
   playbackCustomization?: PlaybackCustomization;
   creditedArtist?: string;
+  album?: string;
+  releaseType?: ReleaseType;
   /** Optional Studio bulk-release group. */
   releaseBatchId?: string;
 }
@@ -1093,6 +1095,8 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     assetId = (asset as { id: string }).id;
   }
   const credited = input.creditedArtist?.trim() || null;
+  const album = input.album?.trim() || null;
+  const releaseType = input.releaseType || null;
   const batchId = input.releaseBatchId || null;
   let drop: { id: string; created_at: string } | null = null;
   {
@@ -1101,6 +1105,8 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
       asset_id: assetId, seed: input.seed, fx, audience,
       playback_customization: playback,
       credited_artist: credited,
+      album,
+      release_type: releaseType,
       release_batch_id: batchId,
     }).select("id,created_at").single();
     if (!res.error && res.data) drop = res.data as { id: string; created_at: string };
@@ -1110,6 +1116,8 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
         asset_id: assetId, seed: input.seed, fx, audience,
         playback_customization: playback,
         credited_artist: credited,
+        album,
+        release_type: releaseType,
       }).select("id,created_at").single();
       if (!mid.error && mid.data) drop = mid.data as { id: string; created_at: string };
       else {
@@ -1117,21 +1125,31 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
           author_id: uid, title: input.title ?? null, body: input.body ?? null,
           asset_id: assetId, seed: input.seed, fx, audience,
           credited_artist: credited,
+          album,
+          release_type: releaseType,
         }).select("id,created_at").single();
         if (!mid2.error && mid2.data) drop = mid2.data as { id: string; created_at: string };
         else {
           const mid3 = await db().from("drops").insert({
             author_id: uid, title: input.title ?? null, body: input.body ?? null,
             asset_id: assetId, seed: input.seed, fx, audience,
+            credited_artist: credited,
           }).select("id,created_at").single();
           if (!mid3.error && mid3.data) drop = mid3.data as { id: string; created_at: string };
           else {
-            const fallback = await db().from("drops").insert({
+            const mid4 = await db().from("drops").insert({
               author_id: uid, title: input.title ?? null, body: input.body ?? null,
-              asset_id: assetId, seed: input.seed,
+              asset_id: assetId, seed: input.seed, fx, audience,
             }).select("id,created_at").single();
-            if (fallback.error || !fallback.data) return null;
-            drop = fallback.data as { id: string; created_at: string };
+            if (!mid4.error && mid4.data) drop = mid4.data as { id: string; created_at: string };
+            else {
+              const fallback = await db().from("drops").insert({
+                author_id: uid, title: input.title ?? null, body: input.body ?? null,
+                asset_id: assetId, seed: input.seed,
+              }).select("id,created_at").single();
+              if (fallback.error || !fallback.data) return null;
+              drop = fallback.data as { id: string; created_at: string };
+            }
           }
         }
       }
@@ -1155,6 +1173,8 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     license: input.license ?? "collab-only",
     fx, audience, playbackCustomization: playback,
     creditedArtist: credited,
+    album,
+    releaseType,
   };
 }
 
@@ -1220,6 +1240,8 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
       playbackCustomization: parsePlaybackCustomization(r.playback_customization),
       creditedArtist: r.credited_artist ?? null,
       artistId: r.artist_id ?? null,
+      album: r.album ?? null,
+      releaseType: r.release_type ?? null,
       myReaction: myReactions.get(r.id), myRating: r.asset_id ? myRatings.get(r.asset_id) : undefined,
     } as Drop & { myReaction?: Reaction; myRating?: number };
   });
@@ -1231,7 +1253,7 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
   const { data: rpc, error } = await db().rpc("list_visible_drops", { p_limit: limit });
   if (!error && Array.isArray(rpc)) return assembleDrops(rpc, myId);
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
     .eq("audience", "public")
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
@@ -1239,7 +1261,7 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
 export async function dropsBy(authorId: string, limit = 40) {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
     .eq("author_id", authorId).order("created_at", { ascending: false }).limit(limit);
   // Owner sees all; others rely on RLS / client filter for private
   const rows = (data ?? []).filter((r: any) => {
@@ -1336,7 +1358,7 @@ export async function createArtistProfile(input: {
 export async function dropsForArtist(artistId: string, limit = 40): Promise<Drop[]> {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
-    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
     .eq("artist_id", artistId)
     .order("created_at", { ascending: false })
     .limit(limit);

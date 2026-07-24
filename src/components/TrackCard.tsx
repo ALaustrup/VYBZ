@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useState } from "react";
-import { Pause, Play, Star, Heart, Music2, Loader2, Download } from "lucide-react";
+import { Pause, Play, Star, Heart, Loader2, Download } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
 import { Handle } from "@/components/Handle";
 import { Waveform } from "@/components/Waveform";
@@ -21,6 +21,11 @@ const LICENSE_LABEL: Record<string, string> = {
 const KIND_LABEL: Record<string, string> = {
   sample: "Sample", loop: "Loop", oneshot: "One-shot", stem: "Stem",
   acapella: "Acapella", midi: "MIDI", preset: "Preset", project: "Project", track: "Track",
+};
+
+const RELEASE_LABEL: Record<string, string> = {
+  original: "Original", remix: "Remix", cover: "Cover", edit: "Edit",
+  mashup: "Mashup", live: "Live", instrumental: "Instrumental", bootleg: "Bootleg",
 };
 
 function fmtTime(s: number): string {
@@ -109,12 +114,17 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   }
 
   return (
-    <div className={cx("group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-900/60 shadow-card backdrop-blur-sm", className)}>
+    <div className={cx("group relative overflow-hidden rounded-2xl bg-ink-900/60 shadow-card backdrop-blur-sm", className)}>
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0"><TrackVisualizer seed={d.seed} accent={accent} active={playing} /></div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950/70" />
         {d.lossless && (
           <span className="absolute right-2.5 top-2.5 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white/90 backdrop-blur">Lossless</span>
+        )}
+        {(d.releaseType || d.assetKind) && (
+          <span className="absolute left-2.5 top-2.5 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/85 backdrop-blur">
+            {d.releaseType ? (RELEASE_LABEL[d.releaseType] ?? d.releaseType) : (KIND_LABEL[d.assetKind ?? "track"] ?? "Track")}
+          </span>
         )}
         <button onClick={togglePlay} aria-label={playing ? "Pause" : "Play"}
           className={cx(
@@ -132,26 +142,40 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
         )}
       </div>
 
-      <div className={cx("flex flex-col", compact ? "gap-1.5 p-2.5" : "gap-1.5 p-3")}>
-        <div className="flex items-center justify-between gap-2">
-          <button onClick={onOpenAuthor} className="flex min-w-0 items-center gap-1.5 text-white/60">
-            <Handle username={d.authorUsername} size={compact ? 15 : 17} />
-          </button>
-          <div className="flex shrink-0 items-center gap-1.5">
+      <div className={cx("flex flex-col", compact ? "gap-1 p-2.5" : "gap-1 p-3")}>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <button
+              type="button"
+              onClick={onOpenAuthor}
+              className={cx(
+                "block w-full truncate text-left font-display font-semibold text-white transition hover:text-veil-200",
+                compact ? "text-sm" : "text-base",
+              )}
+            >
+              {d.creditedArtist?.trim() || d.authorUsername || "Creator"}
+            </button>
+            <p className={cx("truncate text-white/70", compact ? "text-xs" : "text-sm")}>
+              {d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled"}
+            </p>
+            <p className="truncate text-[11px] text-white/40">
+              {d.album?.trim() || "Single"}
+              {d.releaseType && d.assetKind ? ` · ${KIND_LABEL[d.assetKind] ?? d.assetKind}` : ""}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col items-end gap-1">
             {d.license && (
               <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/55">
                 {LICENSE_LABEL[d.license] ?? d.license}
               </span>
             )}
-            <span className="flex items-center gap-1 rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold text-white/70">
-              <Music2 className="h-3 w-3" style={{ color: accent }} />{KIND_LABEL[d.assetKind ?? "track"]}
-            </span>
+            {d.authorUsername && d.creditedArtist?.trim() && (
+              <button type="button" onClick={onOpenAuthor} className="max-w-[7rem] truncate text-[10px] text-white/35 hover:text-white/60">
+                <Handle username={d.authorUsername} size={12} />
+              </button>
+            )}
           </div>
         </div>
-
-        <p className={cx("font-display font-semibold text-white", compact ? "line-clamp-1 text-sm" : "line-clamp-2 text-base")}>
-          {d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"]}
-        </p>
 
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[10px] uppercase tracking-wide text-white/40">
           {dur > 0 && <span>{fmtTime(dur)}</span>}

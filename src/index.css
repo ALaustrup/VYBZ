@@ -160,29 +160,27 @@
     gap: var(--dock-gap);
   }
 
-  /* Frosted dark-glass panel used by nav and overlays. A faint top highlight +
-     saturation sell the "Smoked Glass" look over the living background. */
+  /* Frosted dark-glass panel used by nav and overlays. Static hairline —
+     audio reactivity lives on the taskbar Orb, not chrome borders. */
   .glass {
     @apply bg-white/[0.05];
-    border: 1px solid var(--reactive-line, var(--hairline));
+    border: 1px solid var(--hairline);
     backdrop-filter: blur(22px) saturate(1.5);
     -webkit-backdrop-filter: blur(22px) saturate(1.5);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
       0 18px 40px -28px rgba(0, 0, 0, 0.9);
-    transition: border-color 0.12s linear;
   }
 
   /* A heavier panel for cards/sheets that hold dense content. */
   .glass-panel {
     @apply rounded-3xl bg-ink-900/55;
-    border: 1px solid var(--reactive-line, var(--hairline));
+    border: 1px solid var(--hairline);
     backdrop-filter: blur(26px) saturate(1.6);
     -webkit-backdrop-filter: blur(26px) saturate(1.6);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
       0 24px 60px -34px rgba(0, 0, 0, 0.92);
-    transition: border-color 0.12s linear;
   }
 
   /* Headline treatment — crisp white text that quietly glows the current page's

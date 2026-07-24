@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef } from "react";
-import { readBands, usePlayer } from "@/lib/audioBus";
+import { readBands, readFrequencies, frequencyBinCount, usePlayer } from "@/lib/audioBus";
 import { useFxScale, useReduceFx } from "@/lib/display";
 import { resolvePlaybackVisuals } from "@/lib/playbackCustomization";
 import { cx } from "@/lib/utils";
+import type { PostFx } from "@/types";
 
 interface OrbSphereProps {
   open: boolean;
@@ -12,9 +13,8 @@ interface OrbSphereProps {
 }
 
 /**
- * Canvas “fake-3D” orb — pointer-follow specular, neochrome rim in hit range,
- * audio-reactive pulse from AudioBus, white flash on open.
- * While a track plays, uploader playback_customization fully owns palette / pulse.
+ * Canvas Orb — primary audio-reactive surface. Morphs (sphere / blob / ring /
+ * bars / liquid) from frequency bands + uploader playback_customization.
  */
 export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,7 +31,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
     }),
     [track?.seed, track?.accent, track?.fx, track?.playback],
   );
-  const { accent, seed, palette: pal, pulseScale, rimIntensity, specularFollow } = visuals;
+  const { accent, seed, palette: pal, pulseScale, rimIntensity, specularFollow, fx } = visuals;
   const palKey = pal.join(",");
 
   useEffect(() => {
@@ -41,6 +41,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const colors = palKey.split(",");
+    const freq = new Uint8Array(frequencyBinCount());
 
     const SIZE = 72;
     let dpr = 1;
@@ -85,6 +86,8 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
     let hidden = document.hidden;
     const onVis = () => { hidden = document.hidden; };
 
+    const morph = morphMode(fx);
+
     const draw = () => {
       if (hidden) {
         raf = requestAnimationFrame(draw);
@@ -97,6 +100,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       else flashA *= 0.88;
 
       const bands = playing && !reduce ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
+      if (playing && !reduce) readFrequencies(freq);
       const pulse = reduce
         ? (playing ? 0.12 : 0)
         : (bands.bass * 0.55 + bands.level * 0.35) * fxScale * (0.35 + pulseScale * 1.2);
@@ -106,62 +110,68 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
 
       ctx.clearRect(0, 0, SIZE, SIZE);
 
-      if (ptr.inside || open) {
-        const rim = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.55);
-        const hueShift = (t * 40) % 360;
-        const rimA = (0.06 + pulse * 0.2) * (0.4 + rimIntensity * 1.2);
-        rim.addColorStop(0, `hsla(${280 + hueShift * 0.05}, 80%, 70%, ${rimA})`);
-        rim.addColorStop(0.55, hexA(colors[0], (0.18 + pulse * 0.25) * (0.5 + rimIntensity)));
+      // Soft aura — subtle, not a chrome outline
+      if ((ptr.inside || open || playing) && !reduce) {
+        const rim = ctx.createRadialGradient(cx, cy, R * 0.55, cx, cy, R * 1.65);
+        const rimA = (0.05 + pulse * 0.22) * (0.35 + rimIntensity * 1.15);
+        rim.addColorStop(0, hexA(colors[0], rimA));
+        rim.addColorStop(0.55, hexA(colors[1], rimA * 0.55));
         rim.addColorStop(1, hexA(colors[2], 0));
         ctx.fillStyle = rim;
         ctx.beginPath();
-        ctx.arc(cx, cy, R * 1.55, 0, Math.PI * 2);
+        ctx.arc(cx, cy, R * 1.65, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      const body = ctx.createRadialGradient(ptr.x, ptr.y, R * 0.05, cx, cy, R);
+      // Morphing body silhouette
+      ctx.save();
+      pathMorph(ctx, morph, cx, cy, R, t, bands, freq, pulse);
+      ctx.clip();
+
+      const body = ctx.createRadialGradient(ptr.x, ptr.y, R * 0.05, cx, cy, R * 1.05);
       body.addColorStop(0, flashA > 0.05 ? `rgba(255,255,255,${0.95 * flashA + 0.55})` : "#f4efff");
       body.addColorStop(0.35, hexA(colors[0], 0.85));
       body.addColorStop(0.72, hexA(colors[1], 0.95));
       body.addColorStop(1, "#1a1528");
       ctx.fillStyle = body;
-      ctx.beginPath();
-      ctx.arc(cx, cy, R, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(0, 0, SIZE, SIZE);
 
       const spec = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, R * 0.45);
       spec.addColorStop(0, `rgba(255,255,255,${0.55 + flashA * 0.4})`);
       spec.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = spec;
-      ctx.beginPath();
-      ctx.arc(cx, cy, R, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(0, 0, SIZE, SIZE);
 
-      if (playing && !reduce) {
-        ctx.save();
+      if (playing && !reduce && morph === "bars") {
+        const n = 12;
+        for (let i = 0; i < n; i++) {
+          const v = (freq[Math.floor((i / n) * freq.length)] || 0) / 255;
+          const bh = (4 + v * R * 1.4) * fxScale;
+          const x = cx - R * 0.7 + (i / (n - 1)) * R * 1.4;
+          ctx.fillStyle = hexA(colors[i % colors.length], 0.35 + v * 0.5);
+          ctx.fillRect(x - 1.5, cy + R * 0.35 - bh, 3, bh);
+        }
+      } else if (playing && !reduce && morph === "liquid") {
+        ctx.strokeStyle = hexA(colors[Math.floor(t * 2) % colors.length], 0.3 + pulse * 0.4);
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
-        ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.strokeStyle = hexA(colors[Math.floor(t * 2) % 4], 0.25 + pulse * 0.45);
-        ctx.lineWidth = 1.25;
-        ctx.beginPath();
-        for (let i = 0; i < 24; i++) {
-          const a = (i / 24) * Math.PI * 2 + t * 0.8;
-          const wob = Math.sin(a * 3 + bands.mid * 8) * (2 + pulse * 4);
-          const x = cx + Math.cos(a) * (R * 0.72 + wob);
-          const y = cy + Math.sin(a) * (R * 0.28);
+        for (let i = 0; i < 28; i++) {
+          const a = (i / 28) * Math.PI * 2 + t * 0.9;
+          const wob = Math.sin(a * 3 + bands.mid * 10) * (2 + pulse * 5);
+          const x = cx + Math.cos(a) * (R * 0.55 + wob);
+          const y = cy + Math.sin(a * 1.2) * (R * 0.35 + wob * 0.4);
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.closePath();
         ctx.stroke();
-        ctx.restore();
       }
+      ctx.restore();
 
-      ctx.strokeStyle = hexA("#ffffff", 0.18 + (ptr.inside ? 0.2 : 0) + pulse * 0.15);
-      ctx.lineWidth = 1.25;
-      ctx.beginPath();
-      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      // Thin rim on silhouette
+      ctx.strokeStyle = hexA("#ffffff", 0.14 + (ptr.inside ? 0.18 : 0) + pulse * 0.12);
+      ctx.lineWidth = 1.15;
+      pathMorph(ctx, morph, cx, cy, R, t, bands, freq, pulse);
       ctx.stroke();
 
       raf = requestAnimationFrame(draw);
@@ -175,7 +185,7 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       wrap.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVis);
     };
-  }, [playing, accent, seed, palKey, pulseScale, rimIntensity, specularFollow, reduce, fxScale, open, flash]);
+  }, [playing, accent, seed, palKey, pulseScale, rimIntensity, specularFollow, reduce, fxScale, open, flash, fx]);
 
   return (
     <button
@@ -192,6 +202,61 @@ export function OrbSphere({ open, flash, onClick, className }: OrbSphereProps) {
       <canvas ref={canvasRef} aria-hidden className="pointer-events-none" />
     </button>
   );
+}
+
+type Morph = "sphere" | "blob" | "ring" | "bars" | "liquid";
+
+function morphMode(fx: PostFx): Morph {
+  switch (fx) {
+    case "pulse": return "blob";
+    case "bars": return "bars";
+    case "ripple": return "ring";
+    case "aurora": return "liquid";
+    case "off":
+    case "glow":
+    default: return "sphere";
+  }
+}
+
+function pathMorph(
+  ctx: CanvasRenderingContext2D,
+  morph: Morph,
+  cx: number,
+  cy: number,
+  R: number,
+  t: number,
+  bands: { bass: number; mid: number; high: number; level: number },
+  freq: Uint8Array,
+  pulse: number,
+) {
+  ctx.beginPath();
+  if (morph === "sphere" || morph === "bars") {
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    return;
+  }
+  if (morph === "ring") {
+    const inner = R * (0.55 - pulse * 0.08);
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.arc(cx, cy, Math.max(4, inner), 0, Math.PI * 2, true);
+    return;
+  }
+  // blob / liquid — frequency-warped circle
+  const n = 48;
+  for (let i = 0; i <= n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    const fi = Math.floor(((i / n) * freq.length)) % Math.max(1, freq.length);
+    const f = (freq[fi] || 0) / 255;
+    const warp =
+      morph === "liquid"
+        ? Math.sin(a * 4 + t * 2.2) * (2.5 + bands.high * 6) + f * 5 * pulse
+        : Math.sin(a * 3 + t * 1.6 + bands.bass * 2) * (3 + pulse * 5) + bands.mid * 4;
+    const rr = R + warp;
+    const x = cx + Math.cos(a) * rr;
+    const y = cy + Math.sin(a) * rr;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
 }
 
 function hexA(hex: string, a: number): string {

@@ -12,6 +12,10 @@ export type AssetKind =
   | "sample" | "loop" | "oneshot" | "stem" | "acapella"
   | "midi" | "preset" | "project" | "track";
 
+export type ReleaseType =
+  | "original" | "remix" | "cover" | "edit" | "mashup"
+  | "live" | "instrumental" | "bootleg";
+
 export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
 export type PostAudience = "public" | "followers" | "private";
 
@@ -108,8 +112,11 @@ export interface Drop {
   creditedArtist?: string | null;
   /** Linked official artist entity (when claimed). */
   artistId?: string | null;
+  /** Album / EP name; empty → UI shows “Single”. */
+  album?: string | null;
+  /** Release flavor chosen at upload (original, remix, …). */
+  releaseType?: ReleaseType | null;
 }
-
 /** Official Artist entity (linked to user accounts — model 1A). */
 export interface ArtistProfile {
   id: string;
