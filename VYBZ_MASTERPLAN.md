@@ -666,6 +666,10 @@ Purely-aesthetic store — **nothing functional is ever gated**. Items are unloc
 - **Lane A credit top-ups ✅ (2026-07):** platform Checkout packs (`stripe-credit-topup` +
   `credit_topups` ledger + `fulfill_credit_topup` on webhook) — Starter $5/50, Plus $10/120,
   Pro $25/350 → `mod_points`. No Connect KYC required. Tips remain O3b (Express).
+- **Weekly best-fit digest ✅ (2026-07):** opt-in (`profiles.digest_opt_in`, default off) email
+  of top Connect matches via edge `weekly-digest` + Resend (`RESEND_API_KEY`,
+  `DIGEST_CRON_SECRET`). Reuses `collab_matches_for` (service role). You → Settings toggle.
+  Schedule Mondays 15:00 UTC in Dashboard cron (or invoke with `?dry_run=1`).
 
 **Desktop layout:** the main content shell was widened from `max-w-2xl` (672px) to
 `max-w-5xl` / `xl:max-w-6xl`, and the feed grid now spans full width (2-col → 3-col on

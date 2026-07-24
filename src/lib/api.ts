@@ -820,6 +820,18 @@ export async function startCreditTopup(packId: string, origin: string): Promise<
   return (data as any)?.url ?? null;
 }
 
+/** Weekly best-fit digest opt-in (Resend). Default off. */
+export async function getDigestOptIn(): Promise<boolean> {
+  const { data } = await db().rpc("my_digest_opt_in");
+  return !!data;
+}
+
+export async function setDigestOptIn(on: boolean): Promise<boolean> {
+  const { data, error } = await db().rpc("set_digest_opt_in", { p_on: on });
+  if (error) throw new Error(error.message);
+  return !!data;
+}
+
 // ── OAuth connectors (Phase C3) ──────────────────────────────────────────────
 export interface OAuthConnection {
   id: string;

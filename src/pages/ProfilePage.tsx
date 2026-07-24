@@ -160,6 +160,7 @@ export function ProfilePage() {
                 <DisplaySetting />
                 <PayoutSetup />
                 {userId && <AffiliateLinks userId={userId} editable />}
+                <DigestOptIn />
                 {FLAGS.swarm && (
                   <label className="flex cursor-pointer items-start gap-3">
                     <input type="checkbox" className="mt-0.5 accent-[var(--veil-400)]" defaultChecked={swarmSeedOptIn()} onChange={(e) => setSwarmSeedOptIn(e.target.checked)} />
@@ -192,6 +193,55 @@ export function ProfilePage() {
 
       <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </div>
+  );
+}
+
+function DigestOptIn() {
+  const { showToast } = useSession();
+  const [on, setOn] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    void api.getDigestOptIn().then((v) => {
+      if (!alive) return;
+      setOn(v);
+      setReady(true);
+    }).catch(() => { if (alive) setReady(true); });
+    return () => { alive = false; };
+  }, []);
+
+  async function toggle(next: boolean) {
+    setBusy(true);
+    try {
+      setOn(await api.setDigestOptIn(next));
+      showToast(next ? "Weekly digest on — Mondays via email." : "Weekly digest off.");
+    } catch (e) {
+      showToast((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!ready) return null;
+
+  return (
+    <label className="flex cursor-pointer items-start gap-3">
+      <input
+        type="checkbox"
+        className="mt-0.5 accent-[var(--veil-400)]"
+        checked={on}
+        disabled={busy}
+        onChange={(e) => void toggle(e.target.checked)}
+      />
+      <span>
+        <span className="block text-[13px] font-medium text-white/85">Weekly match digest</span>
+        <span className="mt-0.5 block text-[11px] text-white/40">
+          Opt-in email with your top Network fits (Mondays). Same ranking as Connect — never required.
+        </span>
+      </span>
+    </label>
   );
 }
 
