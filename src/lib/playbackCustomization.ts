@@ -5,7 +5,7 @@ import { paletteFor } from "@/lib/utils";
 export interface PlaybackCustomization {
   /** 2–4 hex colors driving Orb body + outline palette. */
   orbPalette?: string[];
-  /** Maps to drops.fx / ReactiveFrame style. */
+  /** Maps to drops.fx / Orb morph style while the track plays. */
   reactiveStyle?: PostFx;
   orbEffects?: {
     /** Bass pulse amplitude scale 0..1 (default ~0.55). */

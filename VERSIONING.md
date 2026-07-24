@@ -7,7 +7,7 @@ Canonical product labels use the **Beta-NL[.P]** scheme. Tooling keeps a paralle
 
 | Era | Scope |
 |-----|--------|
-| **Alpha** | All development **before** the `Beta-0A` tag (MYVYB pivot through Orb/taskbar unification). Historical only — do not open new Alpha labels. |
+| **Alpha** | All development **before** the `Beta-0A` tag (pivot through Orb/taskbar unification). Historical only — do not open new Alpha labels. |
 | **Beta** | Current public platform line, starting at **Beta-0A**. |
 
 ## Label grammar

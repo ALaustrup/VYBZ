@@ -1,7 +1,8 @@
 # VYBZ — Architecture
 
 The authoritative technical map of the VYBZ codebase. Product context lives in
-[`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md).
+[`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md). Release labels:
+[`VERSIONING.md`](./VERSIONING.md) (**current: Beta-0A.1**).
 
 ## Overview
 
@@ -10,123 +11,109 @@ Every account is a real creator; there is no anonymous/guest path. The client
 talks to Supabase with the anon key under Row-Level Security; privileged paths
 use `SECURITY DEFINER` RPCs and Edge Functions.
 
-**Canonical domain:** `vybz.cloud` (also allowed: `vybz.astramatrix.xyz` for
-legacy passkey/host allow-lists during cutover).
+**Canonical domain:** `vybz.cloud` (legacy alias `vybz.astramatrix.xyz` remains on
+passkey/host allow-lists during cutover).
+
+**Git:** single remote `origin` → [`ALaustrup/VYBZ`](https://github.com/ALaustrup/VYBZ).
+Production deploys from `main` via Vercel project `astramatrix/vybz`.
 
 ## Frontend
 
 - **Entry:** `src/main.tsx` → `SessionProvider` → `App`.
-- **Shell & routing (`src/App.tsx`):** desktop left rail + mobile bottom nav.
-  Primary: `/` (feed), `/discover`, `/connect` (+ `/spark`, `/opportunities`),
-  `/projects` (**Studio**), `/messages` (+ `/rooms`), `/profile`.
-  Also: `/activity`, `/store`, `/admin`, `/mod`, `/apply-mod`, `/codex`,
-  `/legal/:slug`, `/u/:id`, `/p/:id` (**Space** deep link), `*` → `NotFoundPage`.
+- **Shell (`AppChrome`):** sticky contextual app bar + scroll stage + fixed
+  **full-bleed bottom dock** (taskbar + integrated `GlobalPlayer`). Same layout on
+  mobile and desktop — **no side rail**. Taskbar pins use a `1fr | Orb | 1fr` grid
+  with even pin spacing; customize via long-press / gear (`TaskbarPins`).
+- **Orb (`OrbSphere`):** idle neochrome plasma sphere; while a track plays, eases
+  into the uploader’s `playback_customization` morph + palette; on playback end,
+  soft-blends back to idle. Listener intensity: **Off / Soft / VYBZ Max**
+  (`src/lib/display.ts`). Viewport outline FX are retired (`ReactiveFrame` is a
+  no-op stub kept for import stability).
+- **Routing (`src/App.tsx`):**
+  - Primary: `/` (feed), `/discover`, `/connect` (+ `/spark`, `/opportunities`),
+    `/projects` (**Studio**), `/messages` (+ `/rooms`), `/live` (+ `/live/:id`),
+    `/profile`.
+  - Also: `/activity`, `/store`, `/admin`, `/mod`, `/apply-mod`, `/codex`,
+    `/codex/:slug`, `/legal/:slug`, `/u/:id`, `/artist/:slug`, `/p/:id`
+    (**Project** deep link), `*` → `NotFoundPage`.
 - **Auth gate:** Onboarding (passkey-first) → username → `RoleIntentOnboarding`
-  (role + intents + who-you-seek + optional avatar) → app + `WelcomeTutorial`.
+  (role + intents + who-you-seek + optional avatar / role class) → app +
+  `WelcomeTutorial`.
 - **State:** `src/store/session.tsx`; player via `AudioBus` / `usePlayer()`.
 - **Data:** `src/lib/api.ts` typed to `src/types.ts`.
 - **Design:** Smoked-Glass tokens in `src/index.css`. **Per-surface theming**
-  (`src/lib/surfaceTheme.ts`) sets `--accent-rgb` + the living-background variant
-  per route, so every surface recolours (Feed=violet, Connect=pink, Studio=teal,
-  Store=gold, …). Shared `PageHeader` primitive; `GrainOverlay` texture; `.reveal`
-  staggered entrances; audio-reactive intensity preference in `src/lib/display.ts`
-  (`getFxScale`) drives `ReactiveFrame` + `DynamicBackground`.
+  (`src/lib/surfaceTheme.ts`) sets `--accent-rgb` + living-background variant per
+  route. Shared `PageHeader`; `GrainOverlay`; `.reveal` entrances;
+  `DynamicBackground` scales with FX intensity; primary reactivity is the Orb.
 
 ### Naming (product vs schema)
 
-| UI | Schema / routes | Purpose |
-|----|-----------------|---------|
-| **Projects** (was "Spaces") | `profile_projects`, `/p/:id` | On-profile creative projects: content (posts/links) **+ widget dashboard** (`project_page_widgets`), shown on the profile |
-| **Collabs** (was "Studio") | `projects`, `/projects` | Private collab rooms, versions, splits, credits |
+| UI label | Schema / routes | Purpose |
+|----------|-----------------|---------|
+| **Projects** | `profile_projects`, `/p/:id` | On-profile creative projects: micro-blog posts and/or hub widgets (`project_page_widgets`) |
+| **Studio** | `projects`, `/projects` | Private collab rooms: versions, splits, credits, bulk release batches |
+
+(Historical docs sometimes said “Spaces” / “Collabs” for the same surfaces.)
 
 ## Backend (Supabase)
 
-### Schema highlights (`supabase/migrations/20260709_*.sql`)
-- Profiles + taxonomy + `creator_roles` / `creator_seeks`
-- `profile_modules` (match graph source) + `apply_role_intent_onboarding`
-- `connections` + `respond_connection` + `match_feedback`
-- Drops, assets, Studio projects, Spaces + `feed_posts`
-- Rooms, notifications, staff/mod, cosmetics, passkeys, provenance ledger
+**Project ref:** `xixmneooyufbeftdfpcm` (us-west-1). This is the **VYBZ** production
+project (CLI link name may still show as `vyb-audio`). Do not point the app at any
+other Supabase project.
 
-### Discovery
-`search_creators` (definer) powers faceted Discover: name + role/genre/DAW/
-plugin/key/BPM(tempo-range)/location/remote over public facets. Feed ranking is
-`feed_for_you` (personalized) / `feed_undiscovered` (anti-popularity).
+### Schema highlights (`supabase/migrations/`)
+Migrations are timestamped from `20260709_*` through `20260724_*` (58+ files).
+Core: profiles + taxonomy + `creator_roles` / `creator_seeks`; `profile_modules` +
+`apply_role_intent_onboarding`; connections + DMs; drops / assets / playback
+customization; Studio projects + release batches; profile Projects + widgets;
+rooms; live streams; staff/mod; cosmetics + credit top-ups; passkeys; provenance
+ledger; weekly digest; OAuth connections; habit/trust; network hard filters.
 
-### Edge Functions
-`passkey`, `bunny-upload`, `bunny-sign`, `watermark`, `watermark-detect`, `embed`
-(+ retained `push-send`, `stripe-webhook` for Lane A).
+### Discovery & feed
+`search_creators` powers faceted Discover. Feed ranking:
+`feed_for_you` / `feed_undiscovered`. Realtime: `drops` + `project_posts` on
+`supabase_realtime`.
+
+### Edge Functions (`supabase/functions/`)
+
+| Function | Role |
+|----------|------|
+| `passkey` | WebAuthn |
+| `bunny-upload` / `bunny-sign` / `bunny-live` | Media upload, signed URLs, live media helpers |
+| `watermark` / `watermark-detect` | Forensic watermark + optional C2PA forward |
+| `embed` | gte-small resonance embeddings |
+| `stripe-connect-onboard` / `stripe-tip` / `stripe-webhook` / `stripe-credit-topup` | Connect tips + cosmetic credit packs |
+| `oauth-start` / `oauth-callback` | Third-party OAuth links |
+| `ice-servers` | WebRTC ICE / TURN config |
+| `weekly-digest` | Opt-in Resend weekly digest |
+
+Shared helpers live under `_shared/`. There is **no** `push-send` function in-tree.
 
 ### Auth & media
 - **Auth:** passkey-first WebAuthn + password fallback. Anonymous disabled.
 - **Media:** Bunny public (post media) + Bunny secure (drops + Studio versions).
-  Legacy Supabase buckets (`media-public` avatars, `audio-assets`) still supported.
-  Uploads **stream** through `bunny-upload` (`duplex: "half"`, no buffering, ≤1 GB)
-  with client-side progress; objects serve with `accept-ranges` for streaming
-  playback. Bunny Stream/HLS transcode is planned (gated on a Stream library).
-- **Realtime feed:** `drops` + `project_posts` are in the `supabase_realtime`
-  publication; `FeedPage` subscribes to INSERTs for instant posting (RLS-governed).
-- **Library:** `UploadsLibrary` on the profile manages a creator's own drops
-  (rename/delete via owner RLS; feature via `set_featured_drop` +
-  `profiles.featured_drop_id`).
-- **C2PA:** `worker/c2pa` ready; gated on worker host secrets.
+  Legacy Supabase buckets (`media-public` avatars, `audio-assets`) still readable.
+  Uploads stream through `bunny-upload` (≤1 GB) with client progress.
+- **Library:** `UploadsLibrary` on profile (rename / delete / feature drop).
+- **C2PA:** `worker/c2pa` container; gated on `C2PA_WORKER_*` secrets.
 
-## Professions (verticals)
+## Professions & role class
 
-Four first-class professions map to the `categories` axis (migration `0016`):
-**Music Producers** (`music`), **Visual Artists** (`visual_art`), **Video
-Creators** (`film_video`), **Game Designers** (`game_dev`). Roles are scoped by
-category. A creator has a primary `profession` + optional `professions[]`
-(profile jsonb), set at onboarding, driving profile badges + the tailored default
-feed scope. `PROFESSIONS` catalog in `src/lib/profileFields.ts`. **Phase B:** art
-Projects render image posts as a gallery grid + lightbox (`ProjectView.tsx`), and the
-Project widget catalog gained per-profession connectors — Vimeo/Steam embeds,
-itch.io/ArtStation/Behance link cards (`src/lib/widgets.ts`).
-
-**Role Class (Phase O1, shipped).** A second identity axis admits creator-adjacent
-accounts (supporter/patron, booker/manager, curator, brand, educator) as real
-identities with structured intent — additive, flagged (`VITE_FEATURE_ROLE_CLASS`),
-guardrailed so it never outranks creator↔creator collab matches. `roleClass` lives
-on the profile jsonb (flows through `public_profile`); `apply_role_intent_onboarding`
-v4 persists it and adjacent users' seeks still feed `creator_seeks` via
-`sync_creator_graph` (migration `20260709_0038_role_class.sql`, `set_role_class`
-RPC). Onboarding branches at a "How do you fit in?" step; `ROLE_CLASSES` catalog +
-`isAdjacentClass` in `src/lib/profileFields.ts`; `RoleClassBadge` on profiles;
-adjacent classes default to the mixed "For you" feed. **Phase O2** (`collab_matches`
-v7, migration `20260709_0039`) makes role-class a matchmaking dimension: matches
-emit `role_class`, a modest `roleclass` demand signal feeds fit/confidence, and a
-guardrail demotes adjacent candidates below all creator candidates on a creator's
-deck (never outranks creator↔creator collabs). **Phase O3** adds a **commissions
-board**: `collab_posts.kind` (`collab`|`commission`) + `budget` (migration
-`20260709_0040`), Collabs/Commissions tabs on Opportunities, and a "Pitch" flow
-reusing `collab_applications` — the paid demand→creator loop. **Stripe Connect tips
-(O3b)** are built: `creator_payouts` + `tips` (migration `0041`), edge functions
-`stripe-connect-onboard` / `stripe-tip` (destination charge) / `stripe-webhook`
-(signature-verified), and `PayoutSetup` + `TipButton` in the UI. Behind
-`VITE_FEATURE_TIPS` (**on** in production / preview / development as of 2026-07);
-platform Stripe **Connect** (Express) must remain enabled for onboard → tip E2E.
-platform account. See `VYBZ_MASTERPLAN.md` §12.20.
+Four professions (`src/lib/profileFields.ts`): Music, Visual Art, Film/Video,
+Game Dev. **Role Class** (supporter, booker, curator, brand, educator, …) is a
+second identity axis (`VITE_FEATURE_ROLE_CLASS`) with matchmaking guardrails so
+adjacent accounts never outrank creator↔creator collabs. Commissions board +
+Stripe Connect tips (`VITE_FEATURE_TIPS`) are shipped.
 
 ## Matchmaking
 
-`collab_matches` v6 blends complementary roles, module disciplines, affinity,
-embeddings (includes `roleLabel` + `intents`), Space follows, and reputation,
-and returns an explainable 0–1 `confidence` read. Onboarding calls
-`apply_role_intent_onboarding` (role + intents + **explicit seeks** from the
-"who are you looking for?" step) so new creators get a module + seeks
-immediately. `sync_creator_graph` builds `creator_seeks` from module
-`wants_roles` ∪ explicit `profiles.profile.seekRoles` (affinity + declared).
-
-**Learning-to-rank (0029).** `match_feedback` snapshots a normalized signal vector
-(`match_signal_vector`) on every `connect`/`pass`/`accept`/`decline`.
-`tune_matchmaking_weights()` scales each signal's weight from those outcomes
-(support-shrunk, clamped to [0.4×, 2.0×] of the hand-tuned base) and writes them to
-`matchmaking_learning`. Weight lookup `mm_w()` resolves **admin override → learned →
-default**. Runs via nightly `pg_cron` (when available) or `/admin → Matchmaking → Run
-learning` (`run_match_learning` / `match_learning_report`).
+`collab_matches` (v7+) blends complementary roles, modules, affinity, embeddings,
+Project follows, reputation, and role-class signals with an explainable confidence.
+Learning-to-rank via `match_feedback` → `tune_matchmaking_weights()` /
+`matchmaking_learning` (cron or Admin → Matchmaking).
 
 ## Conventions
 
 Identity-first; RLS everywhere; definer RPCs; idempotent migrations; strict
 TypeScript (`npm run build` green); additive changes. Full rules in
-`VYBZ_MASTERPLAN.md` §9.
+`VYBZ_MASTERPLAN.md` §9. Release process in `VERSIONING.md`.

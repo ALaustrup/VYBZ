@@ -1,6 +1,6 @@
 # VYBZ — Security & Privacy
 
-_Astra Matrix, Inc._
+_Astra Matrix, Inc._ · **Beta-0A.1**
 
 How VYBZ handles accounts, sensitive data, and access control. VYBZ is
 **identity-first** — every account is a real creator — but it collects as little as
@@ -26,9 +26,11 @@ possible and protects it with Postgres Row-Level Security and definer-gated RPCs
 | `profiles` (full row) | owner only | owner only |
 | public profile fields | `public_profiles` / `public_profile()` | — |
 | `creator_roles` / `creator_seeks` | via definer RPCs | via `set_creator_roles` / module sync |
-| `drops` / Space posts | feed-scoped | author only |
+| `drops` / Project posts | feed-scoped | author only |
 | `assets` (secure Bunny paths) | signed / watermarked download | owner upload via Edge Fn |
+| Studio projects / versions | member-gated definer RPCs | members / owners |
 | `connections` / DMs | participants only | participants only |
+| tips / credit ledger | participant or owner RPCs | Stripe webhooks + Edge Fns |
 | staff / reports | admin/mod RPCs | staff only |
 
 ## Auth
@@ -42,12 +44,16 @@ possible and protects it with Postgres Row-Level Security and definer-gated RPCs
 ## Storage & media protection
 
 - **Avatars / public post media:** Supabase `media-public` (avatars) and Bunny
-  public CDN (Space post media).
+  public CDN (Project / feed post media).
 - **Protected originals (drops + Studio versions):** Bunny secure zone +
   token-auth pull zone; signed via `bunny-sign`; downloads via `watermark`
   (WAV forensic watermark when applicable) + provenance ledger events.
 - **C2PA Content Credentials:** optional forward from `watermark` when the
-  `worker/c2pa` host is configured.
+  `worker/c2pa` host is configured (self-signed cert OK for staging; CA-issued
+  for production validators).
+- **Payments:** Stripe secrets and webhook verification stay server-side
+  (`stripe-webhook`, Connect + credit top-up functions). Client never holds
+  service-role or Stripe secret keys.
 
 ## Reporting
 

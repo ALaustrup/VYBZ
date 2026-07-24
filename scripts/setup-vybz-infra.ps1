@@ -47,9 +47,13 @@ Write-Host "  Domain:   $($VYBZ.ProdDomain)"
 # ── Git / GitHub ─────────────────────────────────────────────────────────────
 Say "Git remotes"
 $remotes = (git remote -v 2>$null) -join "`n"
-if ($remotes -notmatch "(?i)origin.*(VYBZ|vybz|vyb-audio)") { Die "origin must point to $($VYBZ.GitHubRepo) (or legacy remote name)" }
-if ($remotes -notmatch "(?i)upstream.*myvybsocial") { Warn "upstream -> myvybsocial missing (add for cherry-picks): git remote add upstream https://github.com/ALaustrup/myvybsocial.git" }
-else { Ok "origin + upstream remotes configured" }
+if ($remotes -notmatch "(?i)origin.*(VYBZ|vybz)") { Die "origin must point to $($VYBZ.GitHubRepo)" }
+Ok "origin → $($VYBZ.GitHubRepo)"
+if ($remotes -match "(?i)upstream") {
+  Warn "Unexpected 'upstream' remote present — VYBZ uses origin only. Remove with: git remote remove upstream"
+} else {
+  Ok "no upstream remote (correct)"
+}
 
 $branch = git branch --show-current
 if ($branch -ne "main") { Warn "Not on main (currently: $branch)" } else { Ok "on main" }
@@ -106,7 +110,12 @@ if (-not $LocalOnly) {
     Ok "migrations synced"
 
     Say "Deploy Edge Functions"
-    $noJwt = @("email-code", "passkey", "push-send", "room-mod", "stripe-webhook", "name-drop-notify")
+    $noJwt = @(
+      "passkey", "bunny-upload", "bunny-sign", "bunny-live",
+      "watermark", "watermark-detect",
+      "stripe-webhook", "stripe-connect-onboard", "stripe-tip", "stripe-credit-topup",
+      "oauth-start", "oauth-callback", "ice-servers", "weekly-digest"
+    )
     Get-ChildItem supabase/functions -Directory | ForEach-Object {
       $name = $_.Name
       if ($name -eq "_shared") { return }

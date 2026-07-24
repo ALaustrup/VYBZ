@@ -8,10 +8,11 @@ material (samples, stems, one-shots, presets, MIDI, and full DAW / project files
 Art, video, and games remain optional secondary crafts. Owner: **Astra Matrix, Inc.**
 Canonical domain: **`vybz.cloud`** (legacy alias: `vybz.astramatrix.xyz`).
 
-**Status:** authoritative and current. This document was fully rewritten to match
-the real, shipped codebase after a clean-slate rebuild. If anything you have read
-elsewhere (old notes, prior drafts, commit history) conflicts with this file, **this
-file wins.**
+**Status:** authoritative for product trajectory. **Current release: Beta-0A.1**
+(see [`VERSIONING.md`](./VERSIONING.md) + [`CHANGELOG.md`](./CHANGELOG.md)).
+Technical map of the live tree: [`ARCHITECTURE.md`](./ARCHITECTURE.md). If this
+file conflicts with older notes or commit history, prefer this file + ARCHITECTURE
+for “what we are building,” and ARCHITECTURE / CHANGELOG for “what is shipped now.”
 
 > ### Correction of record (read once, then move on)
 > Early scaffolding briefly carried over unrelated product concepts from a prior
@@ -20,7 +21,8 @@ file wins.**
 > crisis "lifelines," random chat, AI companions, unrelated economies, and similar
 > off-mission domains were **removed** in a clean rebuild. **VYBZ has no anonymity
 > of any kind** — every account is a real, durable creator identity. Any statement
-> to the contrary is obsolete. Do not reintroduce those concepts.
+> to the contrary is obsolete. Do not reintroduce those concepts. The legacy
+> `myvybsocial` remote is **eradicated** — `origin` is `ALaustrup/VYBZ` only.
 
 **Two promises define every decision:** (1) **matchmaking precision no other
 platform can touch**, and (2) **the creative-expression + exchange unlock every
@@ -96,30 +98,26 @@ standard of economy for every string. Metadata/SEO uses **"Find Yours."** (no
 
 ---
 
-## 2. Current state — VYBZ v1 (shipped)
+## 2. Current state — Beta-0A (shipped)
 
-The clean rebuild delivered a working, identity-first v1. **This is the baseline; new
-work extends it.**
+**Beta-0A** is the closed-Alpha baseline on `main` (tag/`branch` `Beta-0A`). New
+work extends it under the Beta-NL[.P] scheme.
 
-**Shipped:**
-- **Identity + auth.** Email + password onboarding → username claim. No guest tier.
-  Passkey sign-in is a planned addition on top of this. Anonymous sign-in is disabled
-  at the project level.
-- **Creator profiles + identity editor.** Roles you *offer* and *seek* (with skill),
-  genres, DAWs, plugins, influences, tempo, keys, languages, bio, location,
-  open-to-work / remote-ok, and per-facet privacy.
-- **Precision matchmaking (`collab_matches`).** Complementary-role model blended with
-  genre/DAW/plugin/tempo/language overlap + semantic resonance, returning the "why"
-  and a 0–1 fit. Surfaced on **Connect** and as a **Spark** swipe deck.
-- **Opportunity board.** Post/browse open roles ("band seeking guitarist"); apply;
-  `my_opportunities` ranks openings for the roles you offer.
-- **Sound-first feed of drops.** Upload audio (any format, lossless preserved),
-  waveform preview, track cards, a **global always-on player** (single shared
-  `AudioBus`), seeded audio-reactive visualizers, Vyb/Fail, and embedded star ratings.
-- **Connections + 1:1 DMs** between creators who connect.
+**Shipped (high level):**
+- **Identity + auth.** Passkey-first WebAuthn + email/password; username claim;
+  role + intent (+ role class) onboarding. Anonymous sign-in disabled.
+- **Creator profiles + Projects** (on-profile microblogs / hubs) + **Studio**
+  (private collab rooms, versions, splits, credits, release batches).
+- **Precision matchmaking** on Connect + Spark; opportunities + commissions;
+  learning-to-rank weights.
+- **Sound-first feed**, New Drop editor, global player in the **full-bleed
+  bottom taskbar**, **Orb-first** reactivity (idle neochrome → uploader morph).
+- **Connections, DMs, Rooms, Live**, Bunny secure media, watermark + C2PA worker
+  path, Stripe Connect tips + credit top-ups, cosmetic store, weekly digest,
+  Codex/Legal.
 
-**Verified end-to-end** against the live database (two complementary creators produced
-a 100% mutual match; drop upload → player → rating → connect → DM all persist).
+Verified end-to-end paths are documented in §4.1 and §12.x. For the live route /
+Edge Function inventory, prefer [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
 ---
 
@@ -128,14 +126,15 @@ a 100% mutual match; drop upload → player → rating → connect → DM all pe
 ### 3.1 Stack
 - **Frontend:** Vite 6 + React 18 + TypeScript 5 (strict), Tailwind 3, `framer-motion`,
   `react-router-dom` 6, `lucide-react`. Path alias `@/` → `src/`. Installable PWA;
-  Capacitor (Android) target retained for later native packaging.
-- **Backend:** Supabase (Postgres 17 + Auth + Storage + Edge Functions). The client
-  uses the anon key + RLS only; privileged logic is `SECURITY DEFINER` RPCs.
+  Capacitor (Android) project present for Phase I packaging.
+- **Backend:** Supabase project `xixmneooyufbeftdfpcm` (Postgres + Auth + Storage +
+  Edge Functions). Client uses anon key + RLS only; privileged logic is
+  `SECURITY DEFINER` RPCs and Edge Functions.
 - **Audio:** a single global `AudioBus` (`src/lib/audioBus.ts`) — one shared
-  `AudioContext` → `AnalyserNode` chain — powers all playback and the reactive visuals.
+  `AudioContext` → `AnalyserNode` chain — powers playback, Orb FFT, and visuals.
 - **Build/lint:** `npm run build` = `tsc --noEmit && vite build`.
 
-### 3.2 Database (clean VYBZ schema — `supabase/migrations/20260709_*.sql`)
+### 3.2 Database (clean VYBZ schema — `supabase/migrations/`)
 Identity-first tables (RLS on all): `profiles` (+ owner-private `profile` jsonb of
 music facets, GIN-indexed; a `public_profiles` view + `public_profile()` RPC expose
 only sanitized public fields), `roles`/`genres`/`daws`/`plugins` (controlled
@@ -144,38 +143,41 @@ vocabularies), `creator_roles`/`creator_seeks` (the bipartite offer/seek core),
 tallied by trigger), `assets` (+ P2P swarm manifest columns designed in for the future
 swarm) + `track_ratings` (+ aggregate trigger) + `asset_downloads` (license chain),
 `connections` + `dm_threads`/`dm_messages`, and `collab_posts`/`collab_applications`.
-A trigger auto-creates a profile on signup.
+A trigger auto-creates a profile on signup. Later migrations add Projects/widgets,
+Studio versions, playback customization, live streams, tips, digests, OAuth, etc.
+(see `ARCHITECTURE.md`).
 
 **RPCs (definer, `search_path=public`, emit only aggregates/labels — never raw private
 facets):** `collab_matches`, `my_opportunities`, `set_creator_roles`,
 `my_creator_roles`, `creator_roles_for`, `public_profile`, `rate_track`,
-`request_asset_download`, `start_dm`, plus `jsonb_overlap_*` helpers.
+`request_asset_download`, `start_dm`, `digest_week_bundle`, plus `jsonb_overlap_*`
+helpers and staff/admin RPCs.
 
 ### 3.3 Frontend structure
 - **State:** `src/store/session.tsx` (`SessionProvider`/`useSession` — auth, profile,
   toast/celebrate). Player state is the `AudioBus` singleton via `usePlayer()`.
 - **Data:** `src/lib/api.ts` (all Supabase calls, typed).
-- **Design system (preserved from the fork — the one thing kept):** `src/index.css`
-  (the "Smoked Glass" tokens, glass panels, glow, buttons), `tailwind.config.js`, the
-  responsive shell (side rail / bottom nav) in `src/App.tsx`, and primitives
-  (`Brand`, `Toast`, `Confetti`, `EmptyState`, `Handle`, `DynamicBackground`, …).
-- **Clean audio modules:** `audioBus`, `waveform`, `TrackCard`, `Waveform`,
-  `TrackVisualizer`, `GlobalPlayer`; `profileFields.ts` is the single source of truth
-  for the music catalog + the matching-facet shape.
-- **Pages:** Feed (drops), Connect, Spark, Opportunities, Profile, Profile Edit,
-  User Profile, Messages.
+- **Shell & design:** `src/index.css` (Smoked Glass tokens), `tailwind.config.js`,
+  **full-bleed bottom dock** (`AppChrome` + `Taskbar` + `GlobalPlayer` + `OrbSphere`)
+  on every viewport — **no side rail**. Primitives: `Brand`, `Toast`, `Confetti`,
+  `EmptyState`, `Handle`, `DynamicBackground`, `GrainOverlay`, …
+- **Audio UI:** `audioBus`, waveform helpers, `TrackCard`, `Waveform`,
+  `TrackVisualizer`, `GlobalPlayer`, Orb morph via `playbackCustomization` /
+  uploader FX; `profileFields.ts` is the catalog + matching-facet source of truth.
+- **Pages:** Feed, Discover, Connect, Spark, Opportunities, Studio, Live, Messages,
+  Rooms, Profile (+ edit), User/Artist profiles, Store, Admin/Mod, Codex/Legal.
 
 ### 3.4 Infrastructure
-- **Supabase:** one VYBZ project (`xixmneooyufbeftdfpcm`), us-west-1. Anonymous sign-in
-  **off**; email enabled; `mailer_autoconfirm` on for alpha (turn on email
-  verification before public launch). Avatars still use `media-public`; protected
-  drops + Studio versions use **Bunny secure** (token-auth); Space post media uses
-  Bunny public CDN. Legacy `audio-assets` / `project-files` remain readable.
-- **Domain:** **`vybz.cloud`** (Vercel — provision DNS zone in dashboard). SEO/
-  canonical/manifest/passkey allow-list target it. Legacy alias
+- **Supabase:** VYBZ project `xixmneooyufbeftdfpcm`, us-west-1. Anonymous sign-in
+  **off**; email enabled. Prefer verified email + Resend custom SMTP before broad
+  public launch (`scripts/configure-resend-smtp.sh`). Avatars use `media-public`;
+  protected drops + Studio versions use **Bunny secure**; Project/feed post media
+  uses Bunny public CDN. Legacy `audio-assets` / `project-files` remain readable.
+- **Domain:** **`vybz.cloud`** on Vercel (`astramatrix/vybz`). Legacy alias
   `vybz.astramatrix.xyz` kept on the passkey host list during cutover.
-- **Edge Functions:** `embed` (gte-small resonance), `passkey` (WebAuthn, shipped),
-  `bunny-upload` / `bunny-sign`, `watermark` / `watermark-detect`. Off-mission legacy functions removed.
+- **Edge Functions:** see full inventory in [`ARCHITECTURE.md`](./ARCHITECTURE.md)
+  (passkey, Bunny, watermark, embed, Stripe, OAuth, ICE, weekly-digest, …).
+- **Git:** `origin` = `ALaustrup/VYBZ` only. No `upstream` remote.
 
 ---
 
@@ -190,7 +192,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **B. Matchmaking depth** ✅ | Role-affinity graph, skill-tier proximity, reputation, free `gte-small` resonance, production/agency matching. |
 | **C. Exchange + protection** ✅ | Download gating, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + verified; live hosting pending a reachable container host. |
 | **D. Projects & collab rooms** ✅ | Private project rooms, versioned handoffs, split sheets, release gate, **verified credits**. Next: discography surface + threaded per-project chat. |
-| **E. Signature reactivity** ✅ | Platform-wide audio-reactive border + seeded per-track visualizer library; user Auto/Full/Reduced effects control. |
+| **E. Signature reactivity** ✅ | Taskbar **Orb** (idle neochrome plasma → uploader morph/palette while playing) + seeded per-track visualizers; listener **Off / Soft / VYBZ Max**; viewport outline FX retired. |
 | **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
 | **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
 | **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
@@ -203,7 +205,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 ### 4.1 Development findings & environment constraints
 - **Seed cleanup (2026-07):** the demo/test accounts that seeded early matchmaking
   (bulk `@vybztest.com` + `@example.com` demo profiles) were **purged from the live
-  DB** — cascading their drops, Spaces, roles/seeks, connections and DMs — so VYBZ
+  DB** — cascading their drops, Projects, roles/seeks, connections and DMs — so VYBZ
   now carries only real creator identities. The owner account (`vybz`) was promoted
   to **admin**. Orphaned Bunny objects (not publicly reachable) can be swept later.
 - **DM live audio (H1) is implemented and correct**, but cannot be fully exercised in the CI/VM test environment: there is **no microphone**, and `getDisplayMedia` tab-audio capture is **silent** (no real audio output device to capture), so the visualizer/audible path has no signal to show here. Verified in-sandbox: the go-live control + source menu, graceful no-device error handling, `getDisplayMedia` capture → offer → "Calling…" panel + controls, clean build, no console errors. Two real bugs found + fixed during testing: (a) a `MediaStreamSource→Analyser` graph needs a destination sink or Chrome won't process it; (b) the listener needs an `<audio>` element to actually hear the remote stream. **Full 1:1 live audio (audible + visualizer + two-peer connect) should be validated on real devices.**
@@ -345,9 +347,9 @@ disciplines / shared genres+DAWs).
     file validates (`validation_state: "Valid"`) with the VYBZ assertions (creator,
     asset id, watermark id, license) **and the forensic watermark survives byte-for-byte**
     (C2PA writes a metadata chunk, not PCM). It runs in **Node/a container** (not the Deno
-    edge). Alpha activation = `docker compose up` on the VYBZ server + set the
+    edge). Staging activation = `docker compose up` on the VYBZ server + set the
     `C2PA_WORKER_URL`/`C2PA_WORKER_TOKEN` edge secrets; until then downloads deliver the
-    watermarked-only file (safe fallback). Self-signed ES256 cert for alpha; CA-issued
+    watermarked-only file (safe fallback). Self-signed ES256 cert for staging; CA-issued
     for production.
   - **Optional public anchoring** — periodically publish the ledger's Merkle root to a
     public timestamping service (RFC-3161 / OpenTimestamps) for independent,
@@ -367,12 +369,21 @@ disciplines / shared genres+DAWs).
 
 ## 7. Signature reactivity (Phase E)
 
-The `AudioBus` analyser already exists. Build: (1) **platform-wide audio-reactive
-borders** — a calm neon pulse born from low-end energy that radiates around the
-viewport during playback (respect `prefers-reduced-motion`; <3ms/frame budget); and
-(2) the **seeded per-track visualizer library** — every drop's visualizer derives from
-`hash(creator_id + asset_id)` so no two tracks ever look the same (a static seeded
-frame at rest, reactive while playing). Both are pure functions of the shared analyser.
+The `AudioBus` analyser drives:
+
+1. **Taskbar Orb** — primary reactive surface. Idle: slow neochrome plasma sphere.
+   Playing: eases into the drop’s `playback_customization` (palette + morph:
+   sphere / blob / bars / ring / liquid). On playback end, soft-blends back to idle.
+   Listener intensity **Off / Soft / VYBZ Max** (`display.ts`) scales amplitude +
+   chroma. Respect `prefers-reduced-motion`.
+2. **Seeded per-track visualizers** — every drop’s visualizer derives from
+   `hash(creator_id + asset_id)` so tracks stay unique (static seeded frame at rest,
+   reactive while playing).
+3. **Living background** — `DynamicBackground` still scales with FX intensity
+   (0 when Off / reduced).
+
+Viewport-wide neon borders (`ReactiveFrame`) are **retired** (stub remains for
+import stability only).
 
 ---
 
@@ -686,11 +697,11 @@ Made every surface feel like its own place without touching the mission or data:
   subtitle + accent hairline (applied to Feed/Connect/Discover/Studio).
 - **Depth:** whisper-quiet film-grain overlay (`GrainOverlay`).
 - **Motion:** staggered card reveals (`.reveal`) on Feed + Connect.
-- **Audio-reactive polish:** subtle-by-default intensity + a **Reactive intensity**
-  control (Subtle/Full) in profile settings. Viewport/card outlines retired —
-  reactivity concentrates on the **taskbar Orb** (morph modes from uploader
-  `playback_customization` + FFT bands). `DynamicBackground` still scales by
-  intensity (0 when effects reduced). _Env note (§4.1): validate on a real device._
+- **Audio-reactive polish:** **Off / Soft / VYBZ Max** intensity in profile
+  settings. Viewport/card outlines retired — reactivity concentrates on the
+  **taskbar Orb** (morph modes from uploader `playback_customization` + FFT bands).
+  `DynamicBackground` still scales by intensity (0 when effects Off / reduced).
+  _Env note (§4.1): validate on a real device._
 - **Residue:** purged off-mission wording (legacy economy / confession domains) in touched files.
 
 ### 12.11 Uploads/Library dashboard — Phase 3 ✅ (shipped 2026-07)
@@ -702,13 +713,13 @@ migration `0031` + `profiles.featured_drop_id`) that verifies ownership and
 headlines the chosen drop on the profile. Component: `UploadsLibrary`.
 _Verified end-to-end against the live DB (feature → rename → delete all persist)._
 _Follow-ups: purge the Bunny object on delete (edge `bunny-delete`); extend the
-Library to Space posts + Studio versions; surface the featured drop publicly._
+Library to Project posts + Studio versions; surface the featured drop publicly._
 
 ### 12.10 Media pipeline — Phase 2 ✅ (shipped 2026-07)
 Instant posting + large, high-quality media:
 - **Realtime feed** (migration `0030`): `drops` + `project_posts` added to the
   `supabase_realtime` publication; `FeedPage` subscribes to INSERTs and silently
-  reloads (debounced), so new drops/Space posts appear the instant they're posted —
+  reloads (debounced), so new drops/Project posts appear the instant they're posted —
   yours and others'. RLS still governs delivery (drops `using(true)`; posts gated
   on the non-archived parent project). _Verified: a server-side insert surfaced at
   the top of an idle feed with no refresh._

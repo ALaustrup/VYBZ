@@ -4,6 +4,9 @@
 > without detouring the active development plan. Ideas land here for analysis;
 > when one is ready, it graduates into a sequenced phase in `VYBZ_MASTERPLAN.md`.
 >
+> **Current platform release:** **Beta-0A.1** — see `VERSIONING.md` / `CHANGELOG.md`.
+> This backlog is not versioned per label; promote ideas into the masterplan when ready.
+>
 > **Ritual.** At each phase boundary (before starting the next phase) the agent
 > asks: *"Any new ideas to bank before we continue?"* New ideas are appended
 > below with a short analysis (fit / dependencies / guardrails / rough shape).

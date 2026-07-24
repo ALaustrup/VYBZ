@@ -148,10 +148,10 @@ export function BrandMark({
 }
 
 /**
- * The VYBZ wordmark. Uses the official artwork at `/brand/wordmark.svg`
- * (preferred) or `/brand/wordmark.png` once it's dropped into `public/brand/`.
- * Until then it falls back to a styled text lockup so the app always looks
- * intentional — never broken.
+ * The VYBZ wordmark. Prefers official artwork under `/brand/` when present
+ * (`logo.svg` / `logo-white.svg` / `logo-black.svg`). Until a dedicated
+ * `wordmark.svg` ships, call sites may also use the styled text lockup so the
+ * app never looks broken.
  */
 export function Wordmark({
   className,
@@ -164,10 +164,9 @@ export function Wordmark({
   imgClassName?: string;
   textClassName?: string;
 }) {
-  // Rendered as a styled gradient text lockup rather than an image: the legacy
-  // artwork spelled the old brand, and this guarantees the "VYBZ" wordmark reads
-  // correctly everywhere until official VYBZ artwork is dropped into
-  // `public/brand/`. Economical, professional, on-brand ("VYBZ: Find Yours.").
+  // Styled gradient text lockup when image artwork is not used at this call site.
+  // Official SVGs live under /brand/ (see public/brand/README.md).
+  // "VYBZ: Find Yours."
   void imgClassName;
   return (
     <span

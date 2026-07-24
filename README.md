@@ -13,18 +13,20 @@ creative discipline. Owner: **Astra Matrix, Inc.** Canonical domain:
 > plan, [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map, and
 > [`VERSIONING.md`](./VERSIONING.md) for Alpha → Beta-0A release labels.
 >
-> **Current release:** **Beta-0A** (see [`CHANGELOG.md`](./CHANGELOG.md)).
+> **Current release:** **Beta-0A.1** (see [`CHANGELOG.md`](./CHANGELOG.md)).
 
 ## What's shipped
 
-- **Passkey-first auth** with password fallback, then username claim → Role + Intent onboarding (optional avatar).
-- **Creator profiles** — role/intents mapped into `profile_modules` + complementary seeks for matchmaking; genres, DAWs, plugins, influences.
-- **Precision matchmaking** — `collab_matches` v5 (roles, modules, affinity, embeddings, Space follows, reputation) on **Connect** + **Spark**.
-- **Spaces** (public microblogs on your profile) and **Studio** (private collab rooms with versions, splits, credits).
-- **Sound-first feed** of drops + Space posts (audio / image / video / writing), discovery anti-popularity mode.
-- **Connections + DMs**, Rooms, Opportunities, Activity (accept/decline connections).
-- **Bunny-protected media** (secure originals + signed previews; forensic watermark path).
-- **Staff / mod** queue + rewards → **cosmetic store** (Lane B).
+- **Passkey-first auth** with password fallback, then username claim → Role + Intent onboarding (optional avatar / role class).
+- **Creator profiles** — role/intents mapped into `profile_modules` + complementary seeks; genres, DAWs, plugins, influences.
+- **Precision matchmaking** — `collab_matches` (roles, modules, affinity, embeddings, Project follows, reputation, role class) on **Connect** + **Spark**.
+- **Projects** (on-profile microblogs / hubs) and **Studio** (private collab rooms with versions, splits, credits, release batches).
+- **Sound-first feed** of drops + Project posts (audio / image / video / writing), discovery anti-popularity mode, New Drop editor with trim/convert.
+- **Full-bleed bottom taskbar** with integrated player + **Orb** (idle neochrome plasma → uploader morph while playing).
+- **Connections + DMs**, Rooms, Live, Opportunities (collabs / commissions), Activity.
+- **Bunny-protected media** (secure originals + signed previews; forensic watermark + optional C2PA path).
+- **Staff / mod** queue + rewards → **cosmetic store** + Stripe credit top-ups; **Stripe Connect tips**.
+- **Opt-in weekly digest** (Resend) with week stats + matches.
 - **Codex & Legal** — free industry templates + Terms / Privacy / DMCA / AUP.
 
 ## Local development
@@ -38,7 +40,7 @@ npm run dev
 Requires Node ≥ 20. Production deploys via Vercel project **`astramatrix/vybz`**
 (GitHub [`ALaustrup/VYBZ`](https://github.com/ALaustrup/VYBZ) → `main`). Canonical host: **vybz.cloud**
 (preview: `vybz-astramatrix.vercel.app`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-as project env vars. Auth redirect allowlist includes `https://vybz.cloud/**`.
+as project env vars (production Supabase ref: `xixmneooyufbeftdfpcm`). Auth redirect allowlist includes `https://vybz.cloud/**`.
 
 ## Scripts
 
@@ -49,6 +51,10 @@ as project env vars. Auth redirect allowlist includes `https://vybz.cloud/**`.
 | `npm run lint` | `tsc --noEmit` |
 | `scripts/deploy.sh` | Migrations + Edge Functions + Vercel |
 | `scripts/activate-vybz-domains.sh` | Point parked GoDaddy satellite domains at Vercel |
+| `scripts/configure-resend-smtp.sh` | Wire Resend SMTP via Management API |
+| `scripts/provision-stripe-vybz.sh` | Stripe secrets for Edge |
+| `scripts/provision-oauth-turn-tips.sh` | OAuth / TURN / tips provisioning |
+| `scripts/setup-vybz-infra.ps1` | Local Phase-0 infra orchestration (Windows) |
 
 ## Satellite domains
 

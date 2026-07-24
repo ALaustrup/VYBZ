@@ -3,6 +3,9 @@
 Drop sound files here and the platform plays them automatically. The logical
 name → path mapping lives in `src/lib/soundManifest.ts`.
 
+**Beta-0A status:** manifest keys exist; **no `.webm` files are shipped yet**.
+Missing files no-op gracefully (`primeAudio` / `playSound` never break the app).
+
 ## Formats — what to produce
 
 **Master / source:** WAV, 48 kHz, 24-bit. Keep these in your DAW; don't ship them.

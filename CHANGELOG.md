@@ -3,6 +3,14 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## Beta-0A.1 — 2026-07-24
+
+Documentation and ops alignment to the live Beta-0A platform.
+
+- Architecture, masterplan, AGENTS, README, SECURITY, VERSIONING, and C2PA worker docs refreshed for full-bleed taskbar, Orb-first FX, Projects/Studio naming, and full Edge Function inventory.
+- Infra scripts: `origin`-only Git checks; deploy JWT-exempt list matches live functions (removed ghost `push-send`).
+- Minor comment/brand/audio README corrections.
+
 ## Beta-0A — 2026-07-24
 
 First Beta baseline. Closes the Alpha era.
@@ -22,6 +30,6 @@ First Beta baseline. Closes the Alpha era.
 ## Alpha (historical)
 
 Everything prior to tag `Beta-0A` / commit baseline on `main` through
-`fa861ff` and earlier — including the MYVYB → VYBZ pivot, passkeys, Spaces /
+`fa861ff` and earlier — including the platform pivot, passkeys, Projects /
 Studio, matchmaking, Stripe Connect tips, weekly digest, New Drop editor, and
 Orb-first reactivity — is **Alpha**. No further Alpha labels will be cut.
