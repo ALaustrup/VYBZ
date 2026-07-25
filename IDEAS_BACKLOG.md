@@ -195,8 +195,12 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 ---
 
-#### 3. Live stream windows — audio-reactive + high-end visualizers 🟡
+#### 3. Live stream windows — audio-reactive + high-end visualizers ✅ **PARTIAL / SHIPPED**
 
+- **Shipped:** Social Top-3 + Live list `LiveTileStage` (DropStage ambient);
+  Watch page stage overlay via upgraded `LiveVisualizer` + SFU `onAnalyserStream`;
+  Soft/Max/Off; broadcast bezel on watch/tiles.
+- **Still open:** Host-chosen live FX packs; HLS-only audio path polish.
 - **What:** Live stream UI windows react to audio the same way the player does,
   with deep customization and top-tier visualizers.
 - **Fit:** Phase **G** live sessions + H1 DM live audio already touch WebRTC /

@@ -6,6 +6,7 @@ import {
 import { Avatar } from "@/components/Avatar";
 import { EmptyState } from "@/components/EmptyState";
 import { GoLiveSheet } from "@/components/GoLiveSheet";
+import { LiveTileStage, liveSeedFromId } from "@/components/LiveTileStage";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
@@ -87,29 +88,32 @@ export function SocialPage() {
                       key={s.id}
                       type="button"
                       onClick={() => navigate(`/live/${s.id}`)}
-                      className="broadcast-bezel group relative overflow-hidden mat-surface p-4 text-left transition active:scale-[0.99]"
+                      className="broadcast-bezel group relative overflow-hidden mat-surface p-0 text-left transition active:scale-[0.99]"
                     >
-                      <span className="absolute right-3 top-3 z-[3] rounded-md bg-wild/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                        Live
-                      </span>
-                      <div className="relative z-[1] flex items-center gap-3">
-                        <Avatar url={s.avatarUrl} name={s.username || s.displayName} id={s.hostId} size="md" />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-display text-[15px] font-semibold text-white">
-                            {s.username || s.displayName || "Creator"}
-                          </p>
-                          <p className="truncate text-[12px] text-white/50">
-                            {s.title || s.intent || "Ultra live"}
-                          </p>
+                      <div className="relative min-h-[7.5rem] p-4">
+                        <LiveTileStage seed={liveSeedFromId(s.hostId)} accent="#34f5a0" />
+                        <span className="absolute right-3 top-3 z-[3] rounded-md bg-wild/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                          Live
+                        </span>
+                        <div className="relative z-[1] flex items-center gap-3">
+                          <Avatar url={s.avatarUrl} name={s.username || s.displayName} id={s.hostId} size="md" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-display text-[15px] font-semibold text-white">
+                              {s.username || s.displayName || "Creator"}
+                            </p>
+                            <p className="truncate text-[12px] text-white/55">
+                              {s.title || s.intent || "Ultra live"}
+                            </p>
+                          </div>
                         </div>
+                        <p className="relative z-[1] mt-3 flex items-center gap-2 text-[11px] text-white/40">
+                          <Eye className="h-3 w-3" />{s.viewerCount}
+                          <span>·</span>
+                          <span>#{i + 1}</span>
+                          <span>·</span>
+                          <span>{timeAgo(s.startedAt)}</span>
+                        </p>
                       </div>
-                      <p className="relative z-[1] mt-3 flex items-center gap-2 text-[11px] text-white/35">
-                        <Eye className="h-3 w-3" />{s.viewerCount}
-                        <span>·</span>
-                        <span>#{i + 1}</span>
-                        <span>·</span>
-                        <span>{timeAgo(s.startedAt)}</span>
-                      </p>
                     </button>
                   ))}
                 </div>

@@ -116,6 +116,8 @@ export async function joinLiveSessionSfu(opts: {
   /** Host preview handoff; otherwise host will capture via LiveKit defaults. */
   localStream?: MediaStream | null;
   videoEl?: HTMLVideoElement | null;
+  /** MediaStream for LiveVisualizer (cloned audio/video tracks — do not stop). */
+  onAnalyserStream?: (stream: MediaStream | null) => void;
 }): Promise<LiveSfuSession> {
   const tokenRes = await mintLiveBroadcastToken(opts.sessionId, opts.canPublish);
   if (!tokenRes.configured || !tokenRes.url || !tokenRes.token) {
@@ -143,18 +145,39 @@ export async function joinLiveSessionSfu(opts: {
 
   const { room, disconnect: baseDisconnect } = conn;
   const localOwned: MediaStreamTrack[] = [];
+  const vizTracks = new Map<string, MediaStreamTrack>();
+
+  const publishViz = () => {
+    if (!opts.onAnalyserStream) return;
+    if (vizTracks.size === 0) {
+      opts.onAnalyserStream(null);
+      return;
+    }
+    opts.onAnalyserStream(new MediaStream([...vizTracks.values()]));
+  };
 
   try {
     const lk = await import("livekit-client");
 
     const attachRemote = (track: import("livekit-client").RemoteTrack) => {
-      if (!opts.videoEl) return;
-      if (track.kind === lk.Track.Kind.Video || track.kind === lk.Track.Kind.Audio) {
+      if (opts.videoEl && (track.kind === lk.Track.Kind.Video || track.kind === lk.Track.Kind.Audio)) {
         track.attach(opts.videoEl);
+      }
+      const media = track.mediaStreamTrack;
+      if (media && (track.kind === lk.Track.Kind.Audio || track.kind === lk.Track.Kind.Video)) {
+        vizTracks.set(media.id, media);
+        publishViz();
       }
     };
 
     room.on(lk.RoomEvent.TrackSubscribed, (track) => attachRemote(track));
+    room.on(lk.RoomEvent.TrackUnsubscribed, (track) => {
+      const media = track.mediaStreamTrack;
+      if (media) {
+        vizTracks.delete(media.id);
+        publishViz();
+      }
+    });
     for (const p of room.remoteParticipants.values()) {
       for (const pub of p.trackPublications.values()) {
         if (pub.track) attachRemote(pub.track);
@@ -170,7 +193,9 @@ export async function joinLiveSessionSfu(opts: {
                 ? lk.Track.Source.Camera
                 : lk.Track.Source.Microphone,
           });
+          vizTracks.set(mediaTrack.id, mediaTrack);
         }
+        publishViz();
         if (opts.videoEl) {
           opts.videoEl.srcObject = opts.localStream;
           opts.videoEl.muted = true;
@@ -180,10 +205,14 @@ export async function joinLiveSessionSfu(opts: {
         await room.localParticipant.setCameraEnabled(true);
         await room.localParticipant.setMicrophoneEnabled(true);
         const cam = room.localParticipant.getTrackPublication(lk.Track.Source.Camera);
+        const mic = room.localParticipant.getTrackPublication(lk.Track.Source.Microphone);
         if (opts.videoEl && cam?.track) {
           cam.track.attach(opts.videoEl);
           opts.videoEl.muted = true;
         }
+        if (cam?.track?.mediaStreamTrack) vizTracks.set(cam.track.mediaStreamTrack.id, cam.track.mediaStreamTrack);
+        if (mic?.track?.mediaStreamTrack) vizTracks.set(mic.track.mediaStreamTrack.id, mic.track.mediaStreamTrack);
+        publishViz();
       }
     }
 
@@ -193,6 +222,8 @@ export async function joinLiveSessionSfu(opts: {
       disconnect: async () => {
         localOwned.forEach((t) => t.stop());
         opts.localStream?.getTracks().forEach((t) => t.stop());
+        vizTracks.clear();
+        opts.onAnalyserStream?.(null);
         if (opts.videoEl) {
           opts.videoEl.srcObject = null;
           opts.videoEl.removeAttribute("src");

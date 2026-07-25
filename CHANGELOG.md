@@ -9,6 +9,7 @@ All notable platform releases are documented here. Product labels follow
 - **WebGL2 Orb** (`orbEngine`) + Canvas2D fallback; snappier analyser; Monitor Cue duck
 - **DropStage** compositor for drop banners (TrackVisualizer alias)
 - **Drop video/still backdrops** — New Drop upload → `playback_customization.backdropUrl`; Cover/Fit + dim; reactive overlay
+- **Live reactive tiles** — Social Top-3 / Live grid `LiveTileStage`; Watch SFU `LiveVisualizer` stage overlay
 - **Voice slot lights** G/Y/P on room voice + V-Dock `voiceSlots` sync
 - Material chrome: `mat-surface`, `cta-pill`, Social Top-3 `broadcast-bezel`, Spark `match-bloom`
 - [`docs/PRODUCTION_HARDENING.md`](./docs/PRODUCTION_HARDENING.md) — gates + Edge inventory

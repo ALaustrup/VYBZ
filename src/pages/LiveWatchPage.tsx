@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Loader2, MessageCircle, PhoneOff, Radio, Send, UserPlus } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
+import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { takeLivePreviewHandoff } from "@/lib/livePreviewHandoff";
@@ -20,6 +21,7 @@ export function LiveWatchPage() {
   const [chatOpen, setChatOpen] = useState(true);
   const [sending, setSending] = useState(false);
   const [sfuActive, setSfuActive] = useState(false);
+  const [vizStream, setVizStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const sfuRef = useRef<LiveSfuSession | null>(null);
@@ -71,6 +73,9 @@ export function LiveWatchPage() {
         audioMode: session.audioMode ?? "music",
         localStream: handoff,
         videoEl: videoRef.current,
+        onAnalyserStream: (stream) => {
+          if (!cancelled) setVizStream(stream);
+        },
       });
       if (cancelled) {
         await sfu.disconnect();
@@ -85,6 +90,7 @@ export function LiveWatchPage() {
         videoRef.current.muted = true;
         void videoRef.current.play().catch(() => {});
         setSfuActive(true);
+        setVizStream(handoff);
       } else if (!sfu.connected) {
         handoff?.getTracks().forEach((t) => t.stop());
       }
@@ -95,6 +101,7 @@ export function LiveWatchPage() {
       void sfuRef.current?.disconnect();
       sfuRef.current = null;
       setSfuActive(false);
+      setVizStream(null);
     };
   }, [session?.id, session?.status, session?.sfuProvider, session?.livekitRoom, session?.audioMode, isHost, id]);
 
@@ -104,6 +111,14 @@ export function LiveWatchPage() {
     if (!el || !session?.playbackHls || sfuActive) return;
     el.src = session.playbackHls;
     void el.play().catch(() => {});
+    const tryCapture = () => {
+      try {
+        const cap = (el as HTMLVideoElement & { captureStream?: () => MediaStream }).captureStream?.();
+        if (cap?.getAudioTracks().length) setVizStream(cap);
+      } catch { /* ignore */ }
+    };
+    el.addEventListener("playing", tryCapture);
+    return () => el.removeEventListener("playing", tryCapture);
   }, [session?.playbackHls, sfuActive]);
 
   async function send() {
@@ -158,7 +173,7 @@ export function LiveWatchPage() {
 
   return (
     <div className="relative flex h-full flex-col bg-ink-950">
-      <div className="relative min-h-0 flex-1 bg-black">
+      <div className={cx("relative min-h-0 flex-1 bg-black", !ended && hasVideo && "broadcast-bezel")}>
         <video
           ref={videoRef}
           className={cx(
@@ -170,9 +185,14 @@ export function LiveWatchPage() {
           autoPlay
           muted={isHost}
         />
+        {!ended && vizStream && (
+          <div className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen opacity-65">
+            <LiveVisualizer stream={vizStream} accent="#34f5a0" mode="stage" />
+          </div>
+        )}
         {(!hasVideo || ended) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
-            <Radio className={cx("h-10 w-10", ended ? "text-white/25" : "animate-pulse text-veil-300")} />
+            <Radio className={cx("h-10 w-10", ended ? "text-white/25" : "animate-pulse text-cyan-300")} />
             <p className="font-display text-lg font-semibold text-white">
               {ended ? "Stream ended" : isHost ? "You're live" : "Waiting for broadcast"}
             </p>
@@ -186,10 +206,10 @@ export function LiveWatchPage() {
           </div>
         )}
 
-        <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/70 to-transparent px-4 pb-10 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] bg-gradient-to-b from-black/70 to-transparent px-4 pb-10 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <div className="pointer-events-auto flex items-center gap-3">
             <button type="button" onClick={() => navigate("/social")} aria-label="Back"
-              className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-ink-950/50 backdrop-blur-md active:scale-90">
               <ArrowLeft className="h-4 w-4" />
             </button>
             <button type="button" onClick={() => navigate(`/u/${session.hostId}`)} className="flex min-w-0 flex-1 items-center gap-2.5">
