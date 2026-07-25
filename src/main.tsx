@@ -6,6 +6,13 @@ import { App } from "@/App";
 import { IntroSplash } from "@/components/IntroSplash";
 import { SessionProvider } from "@/store/session";
 import { primeAudio } from "@/lib/sound";
+/* Self-hosted — no Google CDN / CSP / network flake. */
+import "@fontsource/instrument-sans/400.css";
+import "@fontsource/instrument-sans/500.css";
+import "@fontsource/instrument-sans/600.css";
+import "@fontsource/instrument-sans/700.css";
+import "@fontsource/instrument-serif/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
 import "@/index.css";
 
 // Unlock the audio context on the first user gesture (a browser requirement).

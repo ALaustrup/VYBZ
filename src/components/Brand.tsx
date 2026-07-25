@@ -171,7 +171,7 @@ export function Wordmark({
   return (
     <span
       className={cx(
-        "select-none font-display font-black tracking-tight text-gradient",
+        "select-none font-display text-gradient",
         textClassName,
         className
       )}

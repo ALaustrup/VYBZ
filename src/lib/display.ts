@@ -69,10 +69,22 @@ export function getFxIntensityPref(): FxIntensity {
     // Migrate legacy Subtle / Full
     if (raw === "full") return "max";
     if (raw === "subtle") return "soft";
-    return "soft";
+    // Default Max — first visit should feel elite, not muted
+    return "max";
   } catch {
-    return "soft";
+    return "max";
   }
+}
+
+/** One-shot: lift older Soft defaults to Max after the Orb quality pass. */
+export function ensureEliteFxDefault() {
+  try {
+    if (localStorage.getItem("vybz.fxEliteV1")) return;
+    const raw = localStorage.getItem(FX_KEY);
+    if (raw === null || raw === "soft") localStorage.setItem(FX_KEY, "max");
+    localStorage.setItem("vybz.fxEliteV1", "1");
+    listeners.forEach((l) => l());
+  } catch { /* ignore */ }
 }
 
 /** Amplitude scalar for reactive canvases (0 when reduced or Off). */
@@ -80,9 +92,9 @@ export function getFxScale(): number {
   if (getReduceFx()) return 0;
   switch (getFxIntensityPref()) {
     case "off": return 0;
-    case "max": return 1.6;
+    case "max": return 1.85;
     case "soft":
-    default: return 0.55;
+    default: return 0.95;
   }
 }
 
@@ -91,9 +103,9 @@ export function getChromaBoost(): number {
   if (getReduceFx()) return 0;
   switch (getFxIntensityPref()) {
     case "off": return 0;
-    case "max": return 0.85;
+    case "max": return 1;
     case "soft":
-    default: return 0.35;
+    default: return 0.55;
   }
 }
 

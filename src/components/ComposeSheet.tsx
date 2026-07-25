@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
+import { useReduceFx } from "@/lib/display";
 import { AudioLines, Film, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -56,6 +58,7 @@ interface AudioState {
 
 export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClose: () => void; onPosted: () => void }) {
   const { showToast, celebrate } = useSession();
+  const reduce = useReduceFx();
   const [title, setTitle] = useState("");
   const [album, setAlbum] = useState("");
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e6));
@@ -321,11 +324,23 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     <AnimatePresence>
       {open && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={onClose} className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm" />
-          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl">
+          <motion.div
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={withReduce(reduce, { duration: 0.22 })}
+            onClick={onClose}
+            className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm"
+          />
+          <motion.div
+            variants={sheetVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={withReduce(reduce, springSoft)}
+            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
+          >
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>

@@ -55,7 +55,7 @@ export function NowPlayingWidget({
     <>
       <div
         className={cx(
-          "relative flex h-full min-w-0 max-w-[11.5rem] items-center gap-1.5 sm:max-w-[14rem] sm:gap-2",
+          "relative flex h-full min-w-0 max-w-[9.5rem] items-center gap-1 sm:max-w-[12rem] sm:gap-1.5",
           dimmed && "pointer-events-none opacity-40",
           className,
         )}
@@ -65,7 +65,7 @@ export function NowPlayingWidget({
           type="button"
           onClick={() => void toggle()}
           aria-label={p.playing ? "Pause" : "Play"}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition active:scale-90"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition active:scale-90"
           style={{ boxShadow: `0 0 18px -6px ${accent}` }}
         >
           {p.loading ? (

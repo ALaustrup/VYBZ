@@ -25,12 +25,12 @@ interface OrbSphereProps {
 }
 
 /** Compact hit target — spill canvas may be larger but is not clickable. */
-const HIT = 72;
-/** Drawing surface — headroom so Max morphs / aura never clip the canvas edge. */
-const DRAW = 200;
-const CORE_R = HIT * 0.34;
-/** Hard silhouette cap (leaves ~30% canvas margin for soft aura). */
-const MAX_R = DRAW * 0.28;
+const HIT = 48;
+/** Drawing surface — must stay under menu RING_R so aura never paints over icons. */
+const DRAW = 112;
+const CORE_R = HIT * 0.38;
+/** Hard silhouette cap (leaves margin for soft aura / corona). */
+const MAX_R = DRAW * 0.30;
 
 /** Idle neochrome plasma stops (cyan → mint → violet → magenta → electric). */
 const NEO = ["#00ffc8", "#5b8cff", "#c77dff", "#ff5d8f", "#00a1ff", "#34f5a0", "#ffe566"];
@@ -69,7 +69,8 @@ export function OrbSphere({
   );
   const { accent, seed, palette: pal, pulseScale, rimIntensity, specularFollow, fx } = visuals;
   const palKey = pal.join(",");
-  const live = playing && !!track && !calm;
+  // NEVER bake calm into live — hover/aim was zeroing reactivity for the whole Orb.
+  const live = playing && !!track;
 
   const frame = useRef({
     playing: playing && !!track,
@@ -113,14 +114,14 @@ export function OrbSphere({
   };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
     const wrap = wrapRef.current;
+    let canvas = canvasRef.current;
     if (!canvas || !wrap) return;
 
     // ── WebGL2 elite path (falls through to Canvas2D) ─────────────────────
     const gpu = createOrbEngine(canvas);
     if (gpu) {
-      const dpr0 = Math.min(2, window.devicePixelRatio || 1);
+      const dpr0 = Math.min(3, window.devicePixelRatio || 1);
       gpu.resize(DRAW, dpr0);
       let raf = 0;
       let t = 0;
@@ -128,13 +129,11 @@ export function OrbSphere({
       let liveBlend = frame.current.live ? 1 : 0;
       let hidden = document.hidden;
       const onVis = () => { hidden = document.hidden; };
-      const mid = DRAW / 2;
-      const ptr = { x: mid, y: mid, tx: mid, ty: mid, inside: false };
       const onMove = (e: PointerEvent) => {
         const r = wrap.getBoundingClientRect();
         const dx = e.clientX - (r.left + r.width / 2);
         const dy = e.clientY - (r.top + r.height / 2);
-        ptr.inside = Math.hypot(dx, dy) < r.width * 0.55;
+        void (Math.hypot(dx, dy) < r.width * 0.55);
       };
       window.addEventListener("pointermove", onMove);
       document.addEventListener("visibilitychange", onVis);
@@ -143,8 +142,10 @@ export function OrbSphere({
         if (!hidden) {
           const f = frame.current;
           t += 0.016;
-          const targetBlend = f.calm || f.monitorCue ? 0 : f.live ? 1 : 0;
-          const blendRate = f.calm || f.monitorCue ? 0.22 : f.live ? 0.1 : 0.038;
+          // Aim/hover must NOT kill liveBlend — that felt like "reactivity is broken".
+          // calm only softens morph in the shader; monitorCue still ducks FX.
+          const targetBlend = f.monitorCue ? 0 : f.live ? 1 : 0;
+          const blendRate = f.monitorCue ? 0.22 : f.live ? 0.14 : 0.045;
           liveBlend += (targetBlend - liveBlend) * blendRate;
           if (f.flash) flashA = 1;
           else flashA *= 0.88;
@@ -153,21 +154,22 @@ export function OrbSphere({
           const uploadColors = f.palKey.split(",").map((c) => vividHex(c, f.chroma));
           const neo = neoChromeAt(t);
           const colors = blendPalettes(neo, uploadColors, liveBlend);
-          const morphW = smoothstep(liveBlend, 0.12, 0.72);
-          const morph = morphW < 0.08 ? 0 : morphIdFromFx(f.fx);
+          const morphW = smoothstep(liveBlend, 0.08, 0.65);
+          const morph = morphW < 0.06 ? 0 : morphIdFromFx(f.fx);
+          // Boost perceived reactivity on soft intensity so Orb always "tracks"
+          const fxBoost = f.reduce ? 0 : Math.max(f.fxScale, f.live ? 0.75 : 0);
           gpu.draw({
             time: t,
             liveBlend,
-            calm: f.calm || f.monitorCue,
+            calm: f.calm,
             stickX: f.stickX,
             stickY: f.stickY,
-            fxScale: f.reduce ? 0 : f.fxScale,
-            flash: Math.max(flashA, rv.onset * 0.4 * liveBlend),
+            fxScale: fxBoost,
+            flash: Math.max(flashA, rv.onset * 0.55 * liveBlend, rv.beat * 0.25 * liveBlend),
             morph,
             palette: colors,
             rv,
           });
-          void ptr;
         }
         raf = requestAnimationFrame(drawGpu);
       };
@@ -181,12 +183,21 @@ export function OrbSphere({
     }
 
     // ── Canvas2D fallback ─────────────────────────────────────────────────
-    const ctx = canvas.getContext("2d");
+    // If a prior WebGL attempt claimed this canvas, swap a fresh node for 2D.
+    let ctx = canvas.getContext("2d");
+    if (!ctx) {
+      const fresh = document.createElement("canvas");
+      fresh.setAttribute("aria-hidden", "true");
+      fresh.className = canvas.className;
+      canvas.replaceWith(fresh);
+      canvas = fresh;
+      ctx = canvas.getContext("2d");
+    }
     if (!ctx) return;
 
     let dpr = 1;
     const resize = () => {
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      dpr = Math.min(3, window.devicePixelRatio || 1);
       canvas.width = Math.floor(DRAW * dpr);
       canvas.height = Math.floor(DRAW * dpr);
       canvas.style.width = `${DRAW}px`;
@@ -244,8 +255,8 @@ export function OrbSphere({
       const f = frame.current;
       t += 0.016;
 
-      const targetBlend = f.calm || f.monitorCue ? 0 : f.live ? 1 : 0;
-      const blendRate = f.calm || f.monitorCue ? 0.22 : f.live ? 0.1 : 0.038;
+      const targetBlend = f.monitorCue ? 0 : f.live ? 1 : 0;
+      const blendRate = f.monitorCue ? 0.22 : f.live ? 0.14 : 0.045;
       liveBlend += (targetBlend - liveBlend) * blendRate;
       if (Math.abs(liveBlend - targetBlend) < 0.002) liveBlend = targetBlend;
 
@@ -258,22 +269,21 @@ export function OrbSphere({
       if (f.flash) flashA = 1;
       else flashA *= 0.88;
 
-      // Keep analysing while a track plays (even if calm) so joystick ring can share beat.
+      // Keep analysing while a track plays (even during joystick aim) so Orb tracks audio.
       const analysing = !f.reduce && f.fxScale > 0.02 && f.playing && !f.monitorCue;
       const rv = sampleReactiveFrame(analysing);
-      const reactive = analysing && !f.calm && f.live;
-      // Soft ducks amplitude further; Max lets onset/beat punch through
-      const ampCap = Math.min(1.35, f.fxScale);
-      const softGate = ampCap < 0.8 ? 0.72 : 1;
+      const reactive = analysing && f.live;
+      const ampCap = Math.min(1.85, Math.max(f.fxScale, reactive ? 0.8 : 0));
+      const softGate = ampCap < 0.8 ? 0.92 : 1.05;
 
       const drive = reactive
-        ? (rv.bass * 0.42 + rv.sub * 0.35 + rv.level * 0.38 + rv.beat * 0.55 + rv.onset * 0.35) *
+        ? (rv.bass * 0.55 + rv.sub * 0.42 + rv.level * 0.48 + rv.beat * 0.85 + rv.onset * 0.55) *
           ampCap *
           softGate *
-          (0.45 + f.pulseScale * 1.25)
+          (0.55 + f.pulseScale * 1.35)
         : 0;
-      const pulse = Math.min(1.05, drive) * liveBlend;
-      const R = Math.min(CORE_R + pulse * (5 + ampCap * 4) + rv.beat * 2.2 * liveBlend, MAX_R);
+      const pulse = Math.min(1.25, drive) * liveBlend;
+      const R = Math.min(CORE_R + pulse * (6.5 + ampCap * 5) + rv.beat * 3.2 * liveBlend, MAX_R);
 
       // Sub squash — kick “weight” without leaving canvas
       const squashY = 1 - rv.sub * 0.07 * liveBlend * ampCap;
@@ -496,7 +506,10 @@ export function OrbSphere({
       aria-label={ariaLabel ?? (open ? "Close actions" : "Open actions")}
       aria-expanded={open}
       className={cx(
-        "relative z-10 grid h-[72px] w-[72px] place-items-center rounded-full outline-none touch-none focus-visible:ring-2 focus-visible:ring-veil-400/60",
+        "relative z-10 grid h-[48px] w-[48px] place-items-center rounded-full outline-none touch-none focus-visible:ring-2 focus-visible:ring-veil-400/60",
+        // Soft plate if canvas fails — keep small so it doesn’t read as a fat button
+        "bg-[radial-gradient(circle_at_45%_40%,rgba(0,255,200,0.42),rgba(91,140,255,0.22)_48%,transparent_70%)]",
+        "shadow-[0_0_18px_-4px_rgba(0,255,200,0.4)]",
         className,
       )}
     >

@@ -150,9 +150,9 @@ function ensureGraph() {
     ctx = new AC({ latencyHint: "playback" });
     sourceNode = ctx.createMediaElementSource(audioEl);
     analyser = ctx.createAnalyser();
-    // Larger FFT + lighter smoothing → snappier Orb / visualizer coupling
+    // Larger FFT + light smoothing → snappy Orb / DropStage coupling
     analyser.fftSize = 2048;
-    analyser.smoothingTimeConstant = 0.55;
+    analyser.smoothingTimeConstant = 0.32;
     gain = ctx.createGain();
     gain.gain.value = snapshot.muted ? 0 : snapshot.volume;
     sourceNode.connect(analyser);

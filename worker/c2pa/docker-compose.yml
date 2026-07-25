@@ -1,4 +1,4 @@
-# VYBZ C2PA worker — deploy on 51.210.209.112 (staging / production host).
+# VYBZ C2PA worker — optional; deploy on any Docker host you control (no VYBZ VPS).
 #   WORKER_TOKEN=<secret> docker compose up -d --build
 # The signing cert is auto-generated (self-signed, staging) into the c2pa-certs volume
 # on first boot. Replace with a CA-issued cert for production.

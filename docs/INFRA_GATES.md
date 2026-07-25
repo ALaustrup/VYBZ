@@ -2,7 +2,7 @@
 
 _Astra Matrix, Inc._ · Companion to [`PRODUCTION_HARDENING.md`](./PRODUCTION_HARDENING.md)
 
-These gates are **explicit production blockers**. Do not fake-ship by inventing credentials. The app already degrades gracefully:
+These gates are **explicit production blockers**. Do not fake-ship. The app degrades gracefully:
 
 | Gate | Without secrets | With secrets |
 |------|-----------------|--------------|
@@ -15,26 +15,42 @@ Client probes (no side effects):
 - `POST bunny-live` `{ "action": "status" }` → `{ configured }`
 - Admin → **Infra** tab · Go Live sheet status strip · `api.fetchInfraGates()`
 
+VYBZ runs on **Vercel + Supabase + Bunny** — there is **no VYBZ-owned VPS**. TURN must be a **managed** provider (or a host you explicitly choose later).
+
 ---
 
-## 1. TURN on `51.210.209.112` (or managed TURN)
+## 1. TURN (managed) — ExpressTURN free
 
-Recommended: **coturn** behind UDP/TCP `3478` + TLS `5349`.
+**Endpoint:** `free.expressturn.com:3478`  
+Sign up → copy long-term username + password from the ExpressTURN dashboard.  
+Never commit credentials; never put them in `VITE_*`.
 
-1. Install and configure coturn with a long random shared secret / static user.
-2. Open firewall: `3478/udp`, `3478/tcp`, relay port range (e.g. `49152–65535/udp`).
-3. Set Supabase Edge secrets on project `xixmneooyufbeftdfpcm`:
+### Set Edge secrets (project `xixmneooyufbeftdfpcm`)
 
 ```bash
-# Example shapes — use your real host + credentials
-supabase secrets set \
-  TURN_URLS="turn:turn.vybz.cloud:3478?transport=udp,turn:turn.vybz.cloud:3478?transport=tcp" \
-  TURN_USERNAME="vybz" \
-  TURN_CREDENTIAL="<long-random>"
+export SUPABASE_ACCESS_TOKEN=sbp_...   # https://supabase.com/dashboard/account/tokens
+
+export TURN_URLS='turn:free.expressturn.com:3478?transport=udp,turn:free.expressturn.com:3478?transport=tcp'
+export TURN_USERNAME='<from ExpressTURN dashboard>'
+export TURN_CREDENTIAL='<from ExpressTURN dashboard>'
+
+bash scripts/set-turn-edge-secrets.sh
 ```
 
-4. Redeploy is not required for secrets; call `ice-servers` once signed-in and confirm `turnConfigured: true`.
-5. Smoke: room voice / 1:1 cam from a cellular + strict-NAT peer.
+Or one-liner:
+
+```bash
+npx supabase secrets set --project-ref xixmneooyufbeftdfpcm \
+  "TURN_URLS=turn:free.expressturn.com:3478?transport=udp,turn:free.expressturn.com:3478?transport=tcp" \
+  "TURN_USERNAME=..." \
+  "TURN_CREDENTIAL=..."
+```
+
+Redeploy is **not** required for Edge secrets. Verify: Admin → Infra → **TURN ready**.
+
+Smoke: room voice / 1:1 cam from cellular + Wi‑Fi NAT.
+
+**Note:** Free managed TURN is shared capacity. Upgrade ExpressTURN (or another provider) if you outgrow the free tier. If credentials are ever pasted into chat/logs, rotate them in the ExpressTURN dashboard and re-run `secrets set`.
 
 ---
 

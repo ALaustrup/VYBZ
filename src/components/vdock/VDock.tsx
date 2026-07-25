@@ -30,7 +30,7 @@ type DragState = {
   y: number;
 };
 
-/** V-Dock — pins, widgets (any creative craft), Now Playing, Orb (immovable). */
+/** V-Dock — pins, widgets, Now Playing (flank Orb), Orb fixed dead-center. */
 export function VDock({ onCompose }: { onCompose: () => void }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export function VDock({ onCompose }: { onCompose: () => void }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty("--dock-reserve", "6.25rem");
+    root.style.setProperty("--dock-reserve", "5.75rem");
     return () => { root.style.removeProperty("--dock-reserve"); };
   }, []);
 
@@ -171,10 +171,14 @@ export function VDock({ onCompose }: { onCompose: () => void }) {
   };
 
   return (
-    <div className="group/vdock pointer-events-none flex w-full overflow-visible pb-[max(0.35rem,env(safe-area-inset-bottom))]">
+    <div className="group/vdock pointer-events-none relative flex w-full overflow-visible pb-[max(0.35rem,env(safe-area-inset-bottom))]">
+      {/*
+        Glass bar holds pins / Now Playing only. Orb is a SIBLING above the glass —
+        backdrop-filter on .glass clips overflowing canvas aura if Orb is nested inside.
+      */}
       <div
         className={cx(
-          "pointer-events-auto glass relative mx-0 flex w-full max-w-none flex-col overflow-visible",
+          "pointer-events-auto glass relative mx-0 flex w-full max-w-none flex-col overflow-hidden",
           "rounded-none border-x-0 border-b-0 border-transparent",
           "shadow-[0_18px_50px_-28px_rgba(0,0,0,0.95)]",
           editing && "ring-1 ring-veil-400/35",
@@ -191,33 +195,34 @@ export function VDock({ onCompose }: { onCompose: () => void }) {
 
         <DockPlaybackProgress />
 
-        <div
-          className={cx(
-            "relative grid h-[72px] w-full items-stretch px-[max(0.15rem,env(safe-area-inset-left))] pr-[max(0.15rem,env(safe-area-inset-right))] sm:h-[76px]",
-            hasTrack
-              ? "grid-cols-[minmax(0,1fr)_auto_auto_minmax(0,1fr)]"
-              : "grid-cols-[1fr_auto_1fr]",
-          )}
-        >
-          <VDockItemRow side="left" {...rowProps} />
-
-          {hasTrack && (
-            <div className="relative z-10 flex min-w-0 items-center border-x border-white/[0.06] px-1.5 sm:px-2">
-              <NowPlayingWidget dimmed={editing} />
+        <div className="relative grid h-[64px] w-full grid-cols-2 items-stretch px-[max(0.15rem,env(safe-area-inset-left))] pr-[max(0.15rem,env(safe-area-inset-right))] sm:h-[68px]">
+          <div className="vdock-side relative z-10 flex min-w-0 items-center gap-1 pr-[2.25rem]">
+            <div className="min-w-0 flex-1">
+              <VDockItemRow side="left" {...rowProps} />
             </div>
-          )}
-
-          <div
-            ref={orbZoneRef}
-            className={cx(
-              "relative z-20 flex shrink-0 items-center justify-center overflow-visible px-1",
-              editing && "pointer-events-none opacity-40",
+            {hasTrack && (
+              <div className="relative z-10 flex shrink-0 items-center border-l border-white/[0.06] pl-1.5 sm:pl-2">
+                <NowPlayingWidget dimmed={editing} />
+              </div>
             )}
-          >
-            <OrbJoystick actions={actions} disabled={editing} />
           </div>
 
-          <VDockItemRow side="right" {...rowProps} />
+          <div className="vdock-side relative z-10 flex min-w-0 items-center pl-[2.25rem]">
+            <VDockItemRow side="right" {...rowProps} />
+          </div>
+        </div>
+      </div>
+
+      {/* Dead-center of the dock row — sibling of glass so aura/menu never clip */}
+      <div
+        ref={orbZoneRef}
+        className={cx(
+          "pointer-events-none absolute inset-x-0 bottom-[max(0.35rem,env(safe-area-inset-bottom))] z-40 flex h-[64px] items-center justify-center overflow-visible sm:h-[68px]",
+          editing && "opacity-40",
+        )}
+      >
+        <div className={cx("pointer-events-auto", editing && "pointer-events-none")}>
+          <OrbJoystick actions={actions} disabled={editing} />
         </div>
       </div>
 

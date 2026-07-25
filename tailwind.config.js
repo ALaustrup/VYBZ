@@ -55,32 +55,22 @@ export default {
         },
       },
       fontFamily: {
-        // Device-native stacks so type renders in each platform's optimal UI
-        // font: SF Pro on Apple, Segoe UI on Windows, Roboto on Android. Sharp,
-        // familiar, premium — and zero web-font network cost.
+        // Instrument pair — elegant display serif + crisp UI sans (no Inter/Roboto).
         display: [
-          "-apple-system",
-          "BlinkMacSystemFont",
-          '"SF Pro Display"',
-          '"Segoe UI"',
-          "Roboto",
-          '"Helvetica Neue"',
-          "Arial",
-          "sans-serif",
+          '"Instrument Serif"',
+          "Georgia",
+          '"Times New Roman"',
+          "serif",
         ],
         body: [
-          "-apple-system",
-          "BlinkMacSystemFont",
-          '"SF Pro Text"',
-          '"Segoe UI"',
-          "Roboto",
-          '"Helvetica Neue"',
-          "Arial",
+          '"Instrument Sans"',
+          "ui-sans-serif",
+          "system-ui",
           "sans-serif",
         ],
       },
       letterSpacing: {
-        tightish: "-0.01em",
+        tightish: "-0.015em",
       },
       // Bare `border` (no color class) falls back to the frosted glass hairline
       // instead of currentColor — keeps stray borders on-theme automatically.

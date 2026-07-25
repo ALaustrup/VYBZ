@@ -32,7 +32,7 @@ _Astra Matrix, Inc._ · Companion to [`SECURITY.md`](../SECURITY.md) · Infra ga
 
 | Gate | Why blocked | Unblock when | Probe |
 |------|-------------|--------------|-------|
-| **TURN** | 1:1 cam / strict NAT reliability | Provision TURN + `ice-servers` secrets | Admin → Infra · Go Live strip |
+| **TURN** | 1:1 cam / strict NAT reliability | Managed TURN (ExpressTURN) + `TURN_*` Edge secrets | Admin → Infra · Go Live strip |
 | **Bunny Stream live ingest** | True 1:N HLS broadcast at scale | Confirm plan + `BUNNY_STREAM_*` secrets | Admin → Infra · `bunny-live` status |
 | **8K / TUS resumable** | Multi-GB masters | Bunny TUS + raised caps + cost policy | — |
 | **V¢ cash-out** | Money transmission / KYC | Legal counsel; prefer closed-loop forever | — |

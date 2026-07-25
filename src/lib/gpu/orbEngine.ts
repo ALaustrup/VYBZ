@@ -70,12 +70,13 @@ void main(){
   uv.x *= 1.0 - u_sub * 0.08 * u_live;
 
   float t = u_time;
-  float amp = clamp(u_fx, 0.0, 1.6);
-  float live = clamp(u_live * (1.0 - u_calm), 0.0, 1.0);
+  float amp = clamp(u_fx, 0.0, 2.0);
+  // calm softens aim morph only — never zeros audio live (that felt "broken")
+  float live = clamp(u_live * mix(1.0, 0.78, u_calm), 0.0, 1.0);
 
   float ang = atan(uv.y, uv.x);
   float sp = spectrumAt(ang + 3.14159);
-  float r0 = 0.34 + (u_bass * 0.04 + u_beat * 0.05 + u_level * 0.03) * amp * live;
+  float r0 = 0.36 + (u_bass * 0.07 + u_beat * 0.09 + u_level * 0.055 + u_onset * 0.04) * amp * live;
 
   // Morph warp
   float warp = 0.0;
@@ -97,21 +98,24 @@ void main(){
     d = abs(length(uv) - mix(r0, (r0 + inner) * 0.5, 0.35)) - (r0 - inner) * 0.35;
   }
 
-  // Soft aura
-  float aura = exp(-max(d, 0.0) * 6.5) * (0.35 + 0.4 * live + u_beat * 0.25 * live);
+  // Soft aura — richer idle presence so the Orb never reads as a flat chip
+  float aura = exp(-max(d, 0.0) * 5.8) * (0.48 + 0.55 * live + u_beat * 0.4 * live);
   // Corona spokes
   float corona = 0.0;
-  if (live > 0.2 && amp > 0.2) {
-    float spoke = pow(sp, 1.35) * smoothstep(0.55, 0.2, length(uv)) * smoothstep(0.15, 0.45, length(uv));
-    corona = spoke * (0.55 + amp * 0.45) * live;
+  if (live > 0.12 && amp > 0.15) {
+    float spoke = pow(sp, 1.2) * smoothstep(0.6, 0.18, length(uv)) * smoothstep(0.12, 0.48, length(uv));
+    corona = spoke * (0.75 + amp * 0.65) * live;
   }
 
-  // Idle plasma field
+  // Idle plasma field — always alive, even before play
   float plasma = 0.0;
-  if (live < 0.95) {
-    float n1 = noise(uv * 3.2 + t * 0.25);
-    float n2 = noise(uv * 6.0 - t * 0.18);
-    plasma = smoothstep(0.55, 0.15, length(uv)) * (0.35 + 0.45 * n1 + 0.25 * n2) * (1.0 - live);
+  {
+    float n1 = noise(uv * 3.2 + t * 0.28);
+    float n2 = noise(uv * 6.0 - t * 0.2);
+    float n3 = noise(uv * 11.0 + t * 0.12);
+    float idlePlasma = smoothstep(0.58, 0.12, length(uv)) * (0.42 + 0.5 * n1 + 0.28 * n2 + 0.18 * n3);
+    float livePlasma = smoothstep(0.5, 0.1, length(uv)) * (0.2 + 0.35 * n2) * live * amp;
+    plasma = idlePlasma * (1.0 - live * 0.65) + livePlasma;
   }
 
   // Neochrome / uploader palette blend
@@ -124,7 +128,7 @@ void main(){
   vec3 col = mix(idle, liveCol, live);
 
   float fill = smoothstep(0.02, -0.01, d);
-  float rim = smoothstep(0.04, 0.0, abs(d) - 0.01);
+  float rim = smoothstep(0.045, 0.0, abs(d) - 0.008) * (0.55 + u_beat * 0.35 * live);
 
   // Specular + flash
   vec2 specP = uv - vec2(-0.12, -0.18) + vec2(u_centroid - 0.45, -u_high * 0.1) * live * 0.2;
@@ -132,105 +136,37 @@ void main(){
 
   // Internal filaments
   float fil = 0.0;
-  if (live > 0.3 && amp > 0.35) {
-    float a2 = ang + t * (1.2 + u_centroid);
+  if (live > 0.25 && amp > 0.25) {
     float rr = length(uv);
-    fil = smoothstep(0.08, 0.0, abs(rr - (0.18 + sp * 0.14))) * (0.25 + u_presence_dummy());
+    fil = smoothstep(0.08, 0.0, abs(rr - (0.18 + sp * 0.14))) * (0.28 + u_mid);
   }
 
   // Beat ring
   float beatRing = 0.0;
-  if (u_beat > 0.15 && live > 0.35) {
-    float br = abs(length(uv) - (r0 * (1.15 + u_beat * 0.35)));
-    beatRing = exp(-br * 40.0) * u_beat * live;
+  if (u_beat > 0.12 && live > 0.25) {
+    float br = abs(length(uv) - (r0 * (1.15 + u_beat * 0.4)));
+    beatRing = exp(-br * 36.0) * u_beat * live * 1.35;
   }
 
-  vec3 rgb = col * (fill * 0.95 + aura * 0.65 + corona * 0.85 + plasma * 0.55);
+  vec3 rgb = col * (fill * 0.95 + aura * 0.75 + corona * 0.95 + plasma * 0.7);
+  rgb += mix(col, vec3(1.0), 0.5) * rim * fill;
   rgb += vec3(1.0) * spec * fill;
   rgb += u_c3 * fil * live;
-  rgb += mix(u_c0, vec3(1.0), 0.4) * beatRing * 1.2;
-  rgb += vec3(1.0) * u_flash * 0.35 * fill;
+  rgb += mix(u_c0, vec3(1.0), 0.4) * beatRing * 1.45;
+  rgb += vec3(1.0) * u_flash * 0.4 * fill;
 
   // High shimmer motes
-  if (live > 0.4 && u_high > 0.1 && amp > 0.45) {
+  if (live > 0.3 && u_high > 0.08 && amp > 0.35) {
     float m = hash(floor(uv * 40.0 + t * 2.0));
-    float mote = step(0.92, m) * smoothstep(0.45, 0.1, length(uv)) * u_high * amp;
-    rgb += mix(u_c1, vec3(1.0), 0.3) * mote * 1.4;
+    float mote = step(0.9, m) * smoothstep(0.48, 0.1, length(uv)) * u_high * amp;
+    rgb += mix(u_c1, vec3(1.0), 0.3) * mote * 1.6;
   }
 
-  float alpha = clamp(fill + aura * 0.85 + corona * 0.7 + plasma * 0.5 + beatRing * 0.6, 0.0, 1.0);
-  // Soft edge
-  alpha *= smoothstep(0.72, 0.35, length(uv));
+  float alpha = clamp(fill + aura * 0.95 + corona * 0.85 + plasma * 0.7 + beatRing * 0.75, 0.0, 1.0);
+  alpha *= smoothstep(0.82, 0.32, length(uv));
   fragColor = vec4(rgb, alpha);
 }
-
-// stub replaced below — u_presence as uniform instead
-float u_presence_dummy(){ return u_mid; }
 `;
-
-// Fix shader: remove bogus function, use u_mid directly
-const FS_FIXED = FS.replace(
-  `fil = smoothstep(0.08, 0.0, abs(rr - (0.18 + sp * 0.14))) * (0.25 + u_presence_dummy());
-  }
-
-  // Beat ring
-  float beatRing = 0.0;
-  if (u_beat > 0.15 && live > 0.35) {
-    float br = abs(length(uv) - (r0 * (1.15 + u_beat * 0.35)));
-    beatRing = exp(-br * 40.0) * u_beat * live;
-  }
-
-  vec3 rgb = col * (fill * 0.95 + aura * 0.65 + corona * 0.85 + plasma * 0.55);
-  rgb += vec3(1.0) * spec * fill;
-  rgb += u_c3 * fil * live;
-  rgb += mix(u_c0, vec3(1.0), 0.4) * beatRing * 1.2;
-  rgb += vec3(1.0) * u_flash * 0.35 * fill;
-
-  // High shimmer motes
-  if (live > 0.4 && u_high > 0.1 && amp > 0.45) {
-    float m = hash(floor(uv * 40.0 + t * 2.0));
-    float mote = step(0.92, m) * smoothstep(0.45, 0.1, length(uv)) * u_high * amp;
-    rgb += mix(u_c1, vec3(1.0), 0.3) * mote * 1.4;
-  }
-
-  float alpha = clamp(fill + aura * 0.85 + corona * 0.7 + plasma * 0.5 + beatRing * 0.6, 0.0, 1.0);
-  // Soft edge
-  alpha *= smoothstep(0.72, 0.35, length(uv));
-  fragColor = vec4(rgb, alpha);
-}
-
-// stub replaced below — u_presence as uniform instead
-float u_presence_dummy(){ return u_mid; }
-`,
-  `fil = smoothstep(0.08, 0.0, abs(rr - (0.18 + sp * 0.14))) * (0.25 + u_mid);
-  }
-
-  // Beat ring
-  float beatRing = 0.0;
-  if (u_beat > 0.15 && live > 0.35) {
-    float br = abs(length(uv) - (r0 * (1.15 + u_beat * 0.35)));
-    beatRing = exp(-br * 40.0) * u_beat * live;
-  }
-
-  vec3 rgb = col * (fill * 0.95 + aura * 0.65 + corona * 0.85 + plasma * 0.55);
-  rgb += vec3(1.0) * spec * fill;
-  rgb += u_c3 * fil * live;
-  rgb += mix(u_c0, vec3(1.0), 0.4) * beatRing * 1.2;
-  rgb += vec3(1.0) * u_flash * 0.35 * fill;
-
-  // High shimmer motes
-  if (live > 0.4 && u_high > 0.1 && amp > 0.45) {
-    float m = hash(floor(uv * 40.0 + t * 2.0));
-    float mote = step(0.92, m) * smoothstep(0.45, 0.1, length(uv)) * u_high * amp;
-    rgb += mix(u_c1, vec3(1.0), 0.3) * mote * 1.4;
-  }
-
-  float alpha = clamp(fill + aura * 0.85 + corona * 0.7 + plasma * 0.5 + beatRing * 0.6, 0.0, 1.0);
-  alpha *= smoothstep(0.72, 0.35, length(uv));
-  fragColor = vec4(rgb, alpha);
-}
-`,
-);
 
 export type OrbGpuFrame = {
   time: number;
@@ -262,9 +198,18 @@ export type OrbEngine = {
 };
 
 export function createOrbEngine(canvas: HTMLCanvasElement): OrbEngine | null {
+  // Probe on a disposable canvas first. Claiming webgl2 on the real canvas and
+  // then failing the shader permanently blocks Canvas2D fallback (blank Orb).
+  const probe = document.createElement("canvas");
+  const probeGl = createGl(probe);
+  if (!probeGl) return null;
+  const probeProg = linkProgram(probeGl, VS, FS);
+  if (!probeProg) return null;
+  probeGl.deleteProgram(probeProg);
+
   const gl = createGl(canvas);
   if (!gl) return null;
-  const prog = linkProgram(gl, VS, FS_FIXED);
+  const prog = linkProgram(gl, VS, FS);
   if (!prog) return null;
   const vao = fullscreenQuad(gl);
   const specTex = createSpectrumTexture(gl);

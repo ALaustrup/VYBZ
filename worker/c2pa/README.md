@@ -18,21 +18,21 @@ Deno edge**.
   `C2PA_WORKER_*` secrets are set, downloads deliver watermarked-only files
   (safe fallback).
 
-## Deploy (staging / production host)
+## Deploy (optional — needs a Docker host you control)
+VYBZ itself has **no owned VPS**. This worker is optional; only deploy if you
+add a container host later (Fly.io, Railway, a VPS you choose, etc.).
 ```bash
-# On 51.210.209.112 (Docker + Docker Compose installed):
 git clone <repo> && cd worker/c2pa
 WORKER_TOKEN="$(openssl rand -hex 24)" docker compose up -d --build
 # A self-signed signing cert is generated into the c2pa-certs volume on first boot.
 # Verify:  curl -sf -X POST localhost:8787/sign -H "Authorization: Bearer $WORKER_TOKEN" ...
 ```
-Put it behind the existing Nginx (or expose `:8787` only on a private network).
 Keep `WORKER_TOKEN` and the signing key server-side only.
 
 ## Activate the chain (watermark → C2PA)
 Set two Supabase edge secrets, then downloads are watermarked **and** C2PA-signed:
 ```bash
-supabase secrets set C2PA_WORKER_URL="http://51.210.209.112:8787" \
+supabase secrets set C2PA_WORKER_URL="https://<your-c2pa-host>" \
                      C2PA_WORKER_TOKEN="<the WORKER_TOKEN>" \
                      --project-ref xixmneooyufbeftdfpcm
 ```

@@ -41,9 +41,10 @@ require() { [ -n "${!1:-}" ] || die "Missing env: $1"; }
 
 require SUPABASE_ACCESS_TOKEN
 
-: "${TURN_URLS:=turn:openrelay.metered.ca:80,turn:openrelay.metered.ca:443,turn:openrelay.metered.ca:443?transport=tcp}"
-: "${TURN_USERNAME:=openrelayproject}"
-: "${TURN_CREDENTIAL:=openrelayproject}"
+# Prefer ExpressTURN free — require real dashboard creds (no invented defaults).
+: "${TURN_URLS:=turn:free.expressturn.com:3478?transport=udp,turn:free.expressturn.com:3478?transport=tcp}"
+: "${TURN_USERNAME:=}"
+: "${TURN_CREDENTIAL:=}"
 : "${STRIPE_TIP_FEE_BPS:=0}"
 
 add_vite() {
@@ -55,20 +56,24 @@ add_vite() {
 
 case "$PHASE" in
   turn)
-    say "Setting TURN + APP_URL (DM live + Swarm ICE)"
+    require TURN_USERNAME
+    require TURN_CREDENTIAL
+    say "Setting TURN + APP_URL (managed TURN → ice-servers)"
     npx supabase secrets set \
       --project-ref "$REF" \
       "TURN_URLS=$TURN_URLS" \
       "TURN_USERNAME=$TURN_USERNAME" \
       "TURN_CREDENTIAL=$TURN_CREDENTIAL" \
       "APP_URL=$APP_URL"
-    ok "TURN secrets set (Open Relay default — replace with coturn on 51.210.209.112 when SSH works)"
+    ok "TURN secrets set (ExpressTURN / managed)"
     ;;
   oauth|all)
     require SPOTIFY_CLIENT_ID
     require SPOTIFY_CLIENT_SECRET
     : "${OAUTH_STATE_SECRET:=$SPOTIFY_CLIENT_SECRET}"
 
+    require TURN_USERNAME
+    require TURN_CREDENTIAL
     say "Setting Supabase Edge secrets (OAuth + TURN + APP_URL)"
     npx supabase secrets set \
       --project-ref "$REF" \
@@ -117,7 +122,7 @@ esac
 
 printf "\n\033[1;32mDone (PHASE=%s).\033[0m\n" "$PHASE"
 echo "  • Spotify redirect: https://${REF}.supabase.co/functions/v1/oauth-callback"
-echo "  • Open Relay TURN is shared/free — replace with coturn on 51.210.209.112 when SSH is available"
+echo "  • TURN is managed (e.g. ExpressTURN free) — no VYBZ VPS required"
 echo "  • Confirm Stripe Connect before creators run PayoutSetup"
 echo "  • Smoke: Spotify widget · DM jam behind NAT · Tip a musician"
 echo "  • UI: Studio Glass + music-first copy — tips/swarm/live surfaces already aligned"

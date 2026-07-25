@@ -13,6 +13,8 @@ import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { VDock } from "@/components/vdock/VDock";
 import { AppChrome } from "@/components/shell/AppChrome";
+import { ensureEliteFxDefault } from "@/lib/display";
+import { pageEnter } from "@/lib/motion";
 import { BRAND_ACCENT, BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
@@ -58,6 +60,7 @@ export function App() {
     const root = document.documentElement;
     root.style.setProperty("--accent-rgb", BRAND_ACCENT);
     root.classList.add("accent-fade");
+    ensureEliteFxDefault();
   }, []);
 
   const [onboarded, setOnboarded] = useState(false);
@@ -87,7 +90,13 @@ export function App() {
 
   const routes = (
     <ErrorBoundary key={location.pathname}>
-      <motion.div key={location.pathname} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.24, ease: "easeOut" }} className="h-full">
+      <motion.div
+        key={location.pathname}
+        initial={pageEnter.initial}
+        animate={pageEnter.animate}
+        transition={pageEnter.transition}
+        className="h-full"
+      >
       <Routes location={location}>
         <Route path="/" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />

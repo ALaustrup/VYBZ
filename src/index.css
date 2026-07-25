@@ -15,11 +15,11 @@
 
     /* App shell tokens — chrome heights + stage padding (3A/3E). */
     --app-bar-h: 3.25rem;
-    --taskbar-h: 5.5rem; /* legacy alias — prefer --vdock-h */
-    --vdock-h: 5.5rem;
+    --taskbar-h: 5.25rem; /* legacy alias — prefer --vdock-h */
+    --vdock-h: 5.25rem;
     --player-h: 0px;
     --dock-gap: 0.2rem;
-    --dock-reserve: 6.25rem;
+    --dock-reserve: 5.75rem;
     --rail-w: 5.75rem;
     --stage-pad-x: 1rem;
 
@@ -88,16 +88,30 @@
   }
 
   body {
-    @apply bg-ink-950 text-white font-body antialiased;
-    /* Prevent the rubber-band overscroll that breaks the swipe feel on mobile. */
+    @apply bg-ink-950 text-white antialiased;
+    /* Explicit family — Tailwind token alone was easy to miss vs system UI. */
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;
-    /* Editorial readability: a touch more line height + optical kerning. */
-    line-height: 1.5;
+    line-height: 1.55;
+    letter-spacing: -0.014em;
     font-kerning: normal;
+    font-feature-settings: "ss01" 1, "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /*
+   * Display — Instrument Serif only ships 400. Keep weight at 400 so the browser
+   * does not fall through to a bold sans; true serif is the unmistakable change.
+   */
+  .font-display,
+  h1, h2, h3 {
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.025em;
+    font-feature-settings: "kern" 1, "liga" 1;
   }
 
   /* Respect users who prefer fewer animations. */
@@ -159,6 +173,14 @@
     @apply pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center overflow-visible;
   }
 
+  /* Orb focus: dim dock flanks so the surrounding menu ring reads vivid */
+  .vdock-side {
+    transition: opacity 0.28s ease;
+  }
+  html[data-orb-focus] .vdock-side {
+    opacity: 0.28;
+  }
+
   /* Frosted dark-glass panel used by nav and overlays. Static hairline —
      audio reactivity lives on the V-Dock Orb, not chrome borders. */
   .glass {
@@ -202,8 +224,8 @@
   /* Consistent eyebrow / section label — editorial, quiet, uniform across pages.
      A wider track gives it the precise, industrial cadence. */
   .eyebrow {
-    @apply text-[11px] font-semibold uppercase text-white/45;
-    letter-spacing: 0.2em;
+    @apply font-body text-[11px] font-semibold uppercase text-white/45;
+    letter-spacing: 0.18em;
   }
 
   /* ---- Material surfaces --------------------------------------------------- */

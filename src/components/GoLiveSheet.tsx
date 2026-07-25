@@ -4,7 +4,9 @@ import { Camera, Loader2, Monitor, Radio, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { useReduceFx } from "@/lib/display";
 import { setLivePreviewHandoff } from "@/lib/livePreviewHandoff";
+import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { cx } from "@/lib/utils";
 import type { LiveSource } from "@/types";
 
@@ -16,6 +18,7 @@ import type { LiveSource } from "@/types";
 export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const { showToast, profile } = useSession();
+  const reduce = useReduceFx();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const handedOff = useRef(false);
@@ -119,11 +122,23 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
     <AnimatePresence>
       {open && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={onClose} className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm" />
-          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl">
+          <motion.div
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={withReduce(reduce, { duration: 0.22 })}
+            onClick={onClose}
+            className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm"
+          />
+          <motion.div
+            variants={sheetVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={withReduce(reduce, springSoft)}
+            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-md flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
+          >
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
             <div className="flex items-center justify-between px-5 py-3">
               <div>

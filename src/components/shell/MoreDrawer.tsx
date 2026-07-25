@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useSession } from "@/store/session";
 import { useReduceFx } from "@/lib/display";
+import { drawerVariants, overlayVariants, springDrawer, withReduce } from "@/lib/motion";
 import { cx } from "@/lib/utils";
 
 type MoreItem = {
@@ -94,10 +95,11 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
       {open && (
         <>
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduce ? 0.01 : 0.18 }}
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={withReduce(reduce, { duration: 0.18 })}
             className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
             onClick={onClose}
             aria-hidden
@@ -106,10 +108,11 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             role="dialog"
             aria-modal="true"
             aria-label="More"
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={reduce ? { duration: 0.01 } : { type: "spring", stiffness: 380, damping: 36 }}
+            variants={drawerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={withReduce(reduce, springDrawer)}
             className="mat-surface-strong fixed inset-y-0 right-0 z-[70] flex w-[min(100%,22rem)] flex-col border-l border-white/10"
           >
             <div className="border-b border-[var(--hairline)] px-4 pb-3 pt-[max(0.85rem,env(safe-area-inset-top))]">
