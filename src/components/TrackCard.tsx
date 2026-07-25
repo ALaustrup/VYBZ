@@ -116,7 +116,16 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   return (
     <div className={cx("group relative overflow-hidden rounded-2xl bg-ink-900/60 shadow-card backdrop-blur-sm", className)}>
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
-        <div className="absolute inset-0"><TrackVisualizer seed={d.seed} accent={accent} active={playing} /></div>
+        <div className="absolute inset-0">
+          <TrackVisualizer
+            seed={d.seed}
+            accent={accent}
+            active={playing}
+            backdropUrl={d.playbackCustomization?.backdropUrl}
+            backdropFit={d.playbackCustomization?.backdropFit}
+            backdropDim={d.playbackCustomization?.backdropDim}
+          />
+        </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950/70" />
         {d.lossless && (
           <span className="absolute right-2.5 top-2.5 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white/90 backdrop-blur">Lossless</span>

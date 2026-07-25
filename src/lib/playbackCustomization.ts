@@ -17,6 +17,15 @@ export interface PlaybackCustomization {
   };
   /** Optional visual seed override (falls back to drops.seed). */
   seed?: number;
+  /**
+   * Public CDN URL for drop banner video/image backdrop (Bunny `kind=post`).
+   * Composited under DropStage reactive layer — never blocks play/scrub.
+   */
+  backdropUrl?: string;
+  /** How the backdrop fills the banner (default cover = auto-fit). */
+  backdropFit?: "cover" | "contain";
+  /** Dim the backdrop 0..1 so reactive FX stay readable (default ~0.35). */
+  backdropDim?: number;
 }
 
 export interface ResolvedPlaybackVisuals {
@@ -55,6 +64,11 @@ export function parsePlaybackCustomization(raw: unknown): PlaybackCustomization 
     if (Object.keys(orbEffects).length) out.orbEffects = orbEffects;
   }
   if (typeof o.seed === "number" && Number.isFinite(o.seed)) out.seed = Math.floor(o.seed);
+  if (typeof o.backdropUrl === "string" && /^https?:\/\//i.test(o.backdropUrl.trim())) {
+    out.backdropUrl = o.backdropUrl.trim();
+  }
+  if (o.backdropFit === "cover" || o.backdropFit === "contain") out.backdropFit = o.backdropFit;
+  if (typeof o.backdropDim === "number") out.backdropDim = clamp01(o.backdropDim);
   return out;
 }
 
@@ -64,6 +78,9 @@ export function buildPlaybackCustomization(partial: PlaybackCustomization, fx: P
   if (partial.orbPalette?.length) out.orbPalette = partial.orbPalette.slice(0, 4);
   if (partial.orbEffects) out.orbEffects = { ...partial.orbEffects };
   if (typeof partial.seed === "number") out.seed = partial.seed;
+  if (partial.backdropUrl) out.backdropUrl = partial.backdropUrl;
+  if (partial.backdropFit) out.backdropFit = partial.backdropFit;
+  if (typeof partial.backdropDim === "number") out.backdropDim = clamp01(partial.backdropDim);
   return out;
 }
 

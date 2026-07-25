@@ -147,8 +147,15 @@ function NowPlayingExpanded({ open, onClose }: { open: boolean; onClose: () => v
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[75] flex flex-col bg-ink-950/95 backdrop-blur-2xl"
         >
-          <div className="absolute inset-0 opacity-60">
-            <TrackVisualizer seed={p.track.seed ?? 1} accent={accent} active={p.playing} />
+          <div className="absolute inset-0 opacity-70">
+            <TrackVisualizer
+              seed={p.track.seed ?? 1}
+              accent={accent}
+              active={p.playing}
+              backdropUrl={p.track.playback?.backdropUrl}
+              backdropFit={p.track.playback?.backdropFit}
+              backdropDim={p.track.playback?.backdropDim}
+            />
           </div>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink-950/60 via-transparent to-ink-950/90" />
 

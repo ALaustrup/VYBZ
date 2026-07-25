@@ -146,8 +146,13 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 ---
 
-#### 1. High-quality visualizer backdrops on New Drop (upload + crop + reactive editor) 🟡🟢
+#### 1. High-quality visualizer backdrops on New Drop (upload + crop + reactive editor) ✅ **PARTIAL / SHIPPED**
 
+- **Shipped:** Compose → upload video/still via Bunny public CDN → stored on
+  `playback_customization.backdropUrl` (+ fit/dim). DropStage composites under
+  reactive WebGL/Canvas layer; TrackCard + GlobalPlayer pass through. Cover/Fit
+  + dim controls. Off/Soft/Max + reduce-motion respected.
+- **Still open:** Pop-out visual editor; interactive spatial crop; Live tile reuse.
 - **What:** During New Drop, upload a high-quality **video backdrop** that fills
   the audio-player / track banner (where the seeded visualizer lives today).
   Include user or auto **crop/fit** so every video matches the banner aspect.

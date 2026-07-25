@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AudioLines, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
+import { AudioLines, Film, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Waveform } from "@/components/Waveform";
@@ -39,6 +39,9 @@ const FX_OPTIONS: { id: PostFx; label: string }[] = [
 ];
 const PREVIEW_ID = "compose-preview";
 const MAX_AUDIO_BYTES = 1024 * 1024 * 1024;
+/** Short loop / still for DropStage — public CDN via bunny-upload kind=post. */
+const MAX_BACKDROP_BYTES = 80 * 1024 * 1024;
+const BACKDROP_ACCEPT = "video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp";
 function prettyBytes(n: number): string {
   if (n >= 1024 ** 3) return `${(n / 1024 ** 3).toFixed(1)} GB`;
   if (n >= 1024 ** 2) return `${(n / 1024 ** 2).toFixed(0)} MB`;
@@ -70,6 +73,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [pulseScale, setPulseScale] = useState(0.55);
   const [rimIntensity, setRimIntensity] = useState(0.5);
   const [specularFollow, setSpecularFollow] = useState(true);
+  const [backdropFile, setBackdropFile] = useState<File | null>(null);
+  const [backdropPreview, setBackdropPreview] = useState<string | null>(null);
+  const [backdropFit, setBackdropFit] = useState<"cover" | "contain">("cover");
+  const [backdropDim, setBackdropDim] = useState(0.35);
   const [trim, setTrim] = useState<TrimRange>({ startSec: 0, endSec: 0 });
   const [exportFormat, setExportFormat] = useState<ExportFormat>("original");
   const [decoding, setDecoding] = useState(false);
@@ -79,6 +86,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [id3Meta, setId3Meta] = useState<{ genre?: string | null; year?: number | null }>({});
   const [artworkUrl, setArtworkUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const backdropRef = useRef<HTMLInputElement>(null);
   const player = usePlayer();
   const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
   const previewProgress = player.track?.id === PREVIEW_ID && (player.duration || audio?.duration)
@@ -92,8 +100,12 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       orbPalette,
       reactiveStyle: fx,
       orbEffects: { pulseScale, rimIntensity, specularFollow },
+      // Preview uses object URL; real CDN URL is set at post time
+      backdropUrl: backdropPreview ?? undefined,
+      backdropFit,
+      backdropDim,
     }, fx);
-  }, [paletteId, customPalette, fx, pulseScale, rimIntensity, specularFollow]);
+  }, [paletteId, customPalette, fx, pulseScale, rimIntensity, specularFollow, backdropPreview, backdropFit, backdropDim]);
 
   useEffect(() => {
     if (open) {
@@ -102,6 +114,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       setFx("glow"); setAudience("public"); setCreditedArtist("");
       setPaletteId("veil"); setCustomPalette(null);
       setPulseScale(0.55); setRimIntensity(0.5); setSpecularFollow(true);
+      setBackdropFile(null);
+      setBackdropFit("cover"); setBackdropDim(0.35);
+      setBackdropPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
       setTrim({ startSec: 0, endSec: 0 }); setExportFormat("original");
       setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
       setId3Meta({}); setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
@@ -111,6 +126,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   useEffect(() => () => {
     if (artworkUrl) URL.revokeObjectURL(artworkUrl);
   }, [artworkUrl]);
+
+  useEffect(() => () => {
+    if (backdropPreview) URL.revokeObjectURL(backdropPreview);
+  }, [backdropPreview]);
 
   useEffect(() => {
     if (!open || player.track?.id !== PREVIEW_ID) return;
@@ -189,6 +208,38 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     });
   }
 
+  function handleBackdrop(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_BACKDROP_BYTES) {
+      showToast(`Backdrop max is ${prettyBytes(MAX_BACKDROP_BYTES)}.`);
+      return;
+    }
+    const ok =
+      file.type.startsWith("video/") ||
+      file.type === "image/jpeg" ||
+      file.type === "image/png" ||
+      file.type === "image/webp";
+    if (!ok) {
+      showToast("Use MP4/WebM video or JPG/PNG/WebP still.");
+      return;
+    }
+    setBackdropFile(file);
+    setBackdropPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function clearBackdrop() {
+    setBackdropFile(null);
+    setBackdropPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }
+
   async function post() {
     if (!audio || posting) return;
     setPosting(true);
@@ -204,21 +255,41 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
         baseName: title || audio.file.name,
       });
       const uploadExt = prepared.format || "wav";
-      const path = await api.uploadAudio(prepared.file, uploadExt, setProgress);
-      setProgress(null);
+      const path = await api.uploadAudio(prepared.file, uploadExt, (pct) => {
+        setProgress(backdropFile ? Math.round(pct * 0.7) : pct);
+      });
       if (!path) { showToast("Upload failed — check your connection."); return; }
+
+      let backdropUrl: string | undefined;
+      if (backdropFile) {
+        setProgress(70);
+        backdropUrl = await api.uploadPostMedia(backdropFile, (pct) => {
+          setProgress(70 + Math.round(pct * 0.28));
+        });
+      }
+      setProgress(null);
+
       const peaks = audio.peaks;
       const [sha256, fingerprint] = await Promise.all([
         sha256Hex(prepared.file).catch(() => undefined),
         acousticSignature(peaks).catch(() => undefined),
       ]);
+      const playbackFinal = buildPlaybackCustomization({
+        ...playback,
+        backdropUrl,
+        backdropFit: backdropUrl ? backdropFit : undefined,
+        backdropDim: backdropUrl ? backdropDim : undefined,
+      }, fx);
+      // Don't persist blob: preview URLs
+      if (playbackFinal.backdropUrl?.startsWith("blob:")) delete playbackFinal.backdropUrl;
+
       const drop = await api.createDrop({
         title: title.trim() || undefined, seed, assetKind: kind, audioUrl: path,
         waveform: peaks, durationSec: prepared.durationSec, bpm: bpm ? Number(bpm) : undefined,
         musicalKey: musicalKey || undefined, audioFormat: prepared.format,
         sampleRate: prepared.sampleRate || undefined,
         lossless: prepared.lossless, license, sha256, fingerprint, fx, audience,
-        playbackCustomization: playback,
+        playbackCustomization: playbackFinal,
         creditedArtist: creditedArtist.trim() || undefined,
         album: album.trim() || undefined,
         releaseType,
@@ -405,6 +476,54 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     <input value={album} onChange={(e) => setAlbum(e.target.value.slice(0, 80))}
                       placeholder="Leave blank for Single"
                       className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
+                    <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
+                      <Film className="h-3.5 w-3.5 text-cyan-200" /> Banner backdrop
+                    </p>
+                    <p className="mb-3 text-[11px] text-white/40">
+                      Optional video or still that fills the drop banner. Reactive FX layer on top — never blocks play. Short loops work best.
+                    </p>
+                    <input ref={backdropRef} type="file" accept={BACKDROP_ACCEPT} className="hidden" onChange={handleBackdrop} />
+                    {backdropPreview ? (
+                      <div className="mb-3 overflow-hidden rounded-xl border border-white/10">
+                        <div className="relative aspect-[16/7] bg-ink-950">
+                          {backdropFile?.type.startsWith("video/") ? (
+                            <video src={backdropPreview} muted loop playsInline autoPlay
+                              className={cx("absolute inset-0 h-full w-full", backdropFit === "contain" ? "object-contain" : "object-cover")} />
+                          ) : (
+                            <img src={backdropPreview} alt=""
+                              className={cx("absolute inset-0 h-full w-full", backdropFit === "contain" ? "object-contain" : "object-cover")} />
+                          )}
+                          <div className="pointer-events-none absolute inset-0" style={{ background: `rgba(6,8,16,${backdropDim})` }} />
+                        </div>
+                        <div className="flex items-center gap-2 border-t border-white/10 px-2.5 py-2">
+                          <button type="button" onClick={() => setBackdropFit("cover")}
+                            className={cx("rounded-full px-2.5 py-1 text-[11px] font-medium", backdropFit === "cover" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50")}>
+                            Cover
+                          </button>
+                          <button type="button" onClick={() => setBackdropFit("contain")}
+                            className={cx("rounded-full px-2.5 py-1 text-[11px] font-medium", backdropFit === "contain" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50")}>
+                            Fit
+                          </button>
+                          <label className="ml-auto flex items-center gap-2 text-[11px] text-white/45">
+                            Dim
+                            <input type="range" min={0} max={70} value={Math.round(backdropDim * 100)}
+                              onChange={(e) => setBackdropDim(Number(e.target.value) / 100)}
+                              className="h-1.5 w-20 accent-cyan-300" />
+                          </label>
+                          <button type="button" onClick={clearBackdrop} className="rounded-full p-1.5 text-white/45 hover:text-white" aria-label="Remove backdrop">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button type="button" onClick={() => backdropRef.current?.click()}
+                        className="mb-1 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-white/[0.03] py-3 text-[12px] font-medium text-white/60 transition hover:border-cyan-300/35 hover:text-white/85">
+                        <Film className="h-3.5 w-3.5" /> Add video or still
+                      </button>
+                    )}
                   </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">

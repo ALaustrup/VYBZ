@@ -386,7 +386,8 @@ The `AudioBus` analyser drives:
    Phase 1 + beat-pulsed sectors; reduce-motion / Off calm.
 2. **DropStage** — shared WebGL2 drop banner (`dropStageEngine.ts` /
    `DropStage.tsx`) for TrackCard / GlobalPlayer; seeded Canvas2D fallback;
-   video backdrop slot reserved for Reactive Media #1.
+   **uploader video/still backdrops** via `playback_customization.backdropUrl`
+   (Bunny public upload from New Drop; Cover/Fit + dim).
 3. **Material chrome** — `mat-surface` / `cta-pill` / `broadcast-bezel` /
    `match-bloom` / `stage-empty` (Social Top-3, Spark, More, V-Dock tray).
 4. **Living background** — `DynamicBackground` still scales with FX intensity

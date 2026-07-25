@@ -11,12 +11,16 @@ interface DropStageProps {
   /** True when this drop is the audible focus. */
   active?: boolean;
   className?: string;
-  /** Optional future video backdrop element (Reactive Media #1). */
+  /** Public CDN video/image under the reactive layer. */
   backdropUrl?: string | null;
+  backdropFit?: "cover" | "contain";
+  /** 0..1 dim over backdrop (uploader default ~0.35). */
+  backdropDim?: number;
 }
 
 /**
- * Full-bleed drop banner compositor — WebGL2 reactive field + seeded fallback.
+ * Full-bleed drop banner compositor — optional video/still backdrop +
+ * WebGL2 reactive field (Canvas2D seeded fallback).
  * Never intercepts pointer events (play/scrub/Orb stay on top).
  */
 export function DropStage({
@@ -25,10 +29,23 @@ export function DropStage({
   active = false,
   className,
   backdropUrl = null,
+  backdropFit = "cover",
+  backdropDim = 0.35,
 }: DropStageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReduceFx();
   const fxScale = useFxScale();
+  const hasBackdrop = !!backdropUrl;
+  const looksLikeImage = !!backdropUrl && /\.(jpe?g|png|webp|gif)(\?|$)/i.test(backdropUrl);
+
+  // Keep video in sync with active playback (save battery when paused)
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (active && !reduce) void v.play().catch(() => {});
+    else v.pause();
+  }, [active, reduce, backdropUrl]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -37,6 +54,7 @@ export function DropStage({
     const palette = [...paletteFor(seed)];
     if (accent) palette[0] = accent;
 
+    // With a backdrop, Soft/Max still drive the overlay; Off / reduce = calm veil only
     const gpu = !reduce ? createDropStageEngine(canvas) : null;
     if (gpu) {
       let raf = 0;
@@ -58,21 +76,22 @@ export function DropStage({
         const animate = active && !reduce && fxScale > 0.02;
         t += animate ? 0.016 : 0.004;
         const rv = sampleReactiveFrame(animate);
+        // Scale FX down slightly when a backdrop is present so video stays visible
+        const stageFx = (reduce ? 0 : fxScale) * (hasBackdrop ? 0.72 : 1);
         gpu.draw({
           time: t,
           active: animate,
-          fxScale: reduce ? 0 : fxScale,
+          fxScale: stageFx,
           seed: seed >>> 0,
           palette,
           rv,
         });
         if (animate || t < 0.5) raf = requestAnimationFrame(loop);
         else {
-          // One calm frame when idle — cheap
           gpu.draw({
             time: t,
             active: false,
-            fxScale: 0,
+            fxScale: hasBackdrop ? 0.15 : 0,
             seed: seed >>> 0,
             palette,
             rv: sampleReactiveFrame(false),
@@ -88,7 +107,7 @@ export function DropStage({
       };
     }
 
-    // Canvas2D seeded fallback (legacy TrackVisualizer styles)
+    // Canvas2D seeded fallback
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const freq = new Uint8Array(frequencyBinCount());
@@ -124,7 +143,13 @@ export function DropStage({
       const b = animate ? sampleReactiveFrame(true) : sampleReactiveFrame(false);
       const pulse = reduce ? 0.12 : 0.1 + b.level * 0.85 + b.beat * 0.35;
       ctx.clearRect(0, 0, w, h);
+      if (hasBackdrop) {
+        // Light veil only — video/image carries the stage
+        ctx.fillStyle = `rgba(6,8,16,${0.12 + pulse * 0.08})`;
+        ctx.fillRect(0, 0, w, h);
+      }
       ctx.globalCompositeOperation = "lighter";
+      const alphaMul = hasBackdrop ? 0.55 : 1;
       if (style === 0) {
         for (let r = 0; r < rings; r++) {
           const base = (Math.min(w, h) / 2) * (0.28 + (r / rings) * 0.6);
@@ -138,7 +163,7 @@ export function DropStage({
             a === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
           }
           ctx.closePath();
-          ctx.strokeStyle = hexA(palette[r % 3], 0.08 + pulse * 0.12);
+          ctx.strokeStyle = hexA(palette[r % 3], (0.08 + pulse * 0.12) * alphaMul);
           ctx.lineWidth = 1 + pulse * 1.8;
           ctx.stroke();
         }
@@ -153,7 +178,7 @@ export function DropStage({
           const bw = w / N - 2;
           for (const dir of [-1, 1] as const) {
             const x = w / 2 + dir * (i + 0.5) * (bw + 2) - bw / 2;
-            ctx.fillStyle = hexA(palette[i % 3], 0.35 + v * 0.4);
+            ctx.fillStyle = hexA(palette[i % 3], (0.35 + v * 0.4) * alphaMul);
             ctx.fillRect(x, h - bh, bw, bh);
           }
         }
@@ -162,13 +187,13 @@ export function DropStage({
           const ang = t * (0.4 + i * 0.05) + i;
           const x = w / 2 + Math.cos(ang) * w * 0.28 * (1 + b.bass * 0.4);
           const y = h / 2 + Math.sin(ang) * h * 0.28;
-          ctx.fillStyle = hexA(palette[i % 3], 0.35 + b.level * 0.3);
+          ctx.fillStyle = hexA(palette[i % 3], (0.35 + b.level * 0.3) * alphaMul);
           ctx.beginPath();
           ctx.arc(x, y, 2 + b.beat * 4, 0, Math.PI * 2);
           ctx.fill();
         }
       } else {
-        ctx.strokeStyle = hexA(palette[0], 0.2 + pulse * 0.3);
+        ctx.strokeStyle = hexA(palette[0], (0.2 + pulse * 0.3) * alphaMul);
         ctx.lineWidth = 1.5 + pulse * 2;
         ctx.beginPath();
         for (let x = 0; x <= w; x += 6) {
@@ -186,21 +211,48 @@ export function DropStage({
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [seed, accent, active, reduce, fxScale]);
+  }, [seed, accent, active, reduce, fxScale, hasBackdrop]);
+
+  const fitClass = backdropFit === "contain" ? "object-contain" : "object-cover";
+  // When FX Off / reduce-motion, show more of the backdrop (less dim)
+  const dim = reduce || fxScale < 0.02
+    ? Math.min(backdropDim, 0.2)
+    : backdropDim;
 
   return (
     <div className={cx("pointer-events-none absolute inset-0 overflow-hidden", className)} aria-hidden>
       {backdropUrl && (
-        <video
-          src={backdropUrl}
-          muted
-          loop
-          playsInline
-          autoPlay
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+        looksLikeImage ? (
+          <img
+            src={backdropUrl}
+            alt=""
+            className={cx("absolute inset-0 h-full w-full bg-ink-950", fitClass)}
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            src={backdropUrl}
+            muted
+            loop
+            playsInline
+            autoPlay={active}
+            className={cx("absolute inset-0 h-full w-full bg-ink-950", fitClass)}
+          />
+        )
+      )}
+      {backdropUrl && (
+        <div
+          className="absolute inset-0"
+          style={{ background: `rgba(6, 8, 16, ${dim})` }}
         />
       )}
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        className={cx(
+          "absolute inset-0 h-full w-full",
+          hasBackdrop && (reduce || fxScale < 0.02) && "opacity-40",
+        )}
+      />
     </div>
   );
 }
