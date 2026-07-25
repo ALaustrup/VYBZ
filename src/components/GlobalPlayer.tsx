@@ -32,7 +32,7 @@ function fmt(s: number): string {
 }
 
 /**
- * Compact now-playing **widget** for the unified taskbar row (not a second bar).
+ * Compact now-playing **widget** for the unified V-Dock row (not a second bar).
  * Tap title / art area to expand; transport stays inline beside the Orb.
  */
 export function NowPlayingWidget({

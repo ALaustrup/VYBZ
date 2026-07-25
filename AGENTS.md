@@ -2,7 +2,7 @@
 
 ## Project direction
 
-This repository is **VYBZ** (npm package `vybz-app`, GitHub `ALaustrup/VYBZ`) — an identity-first music collaboration + sample/project-file exchange network owned by **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
+This repository is **VYBZ** (npm package `vybz-app`, GitHub `ALaustrup/VYBZ`) — an identity-first collaboration + creative-exchange network for **all creators**, with deep focus on music tools and concepts, owned by **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**. Do not treat the product as music/audio-exclusive; V-Dock widgets and matchmaking surfaces should stay open to any creative craft.
 
 Authoritative sources of truth (in order when they conflict):
 
@@ -32,7 +32,7 @@ Authoritative sources of truth (in order when they conflict):
 - Supabase is **required** to boot the app: set `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` in `.env.local` (copy from `.env.example`). Without them the UI shows a backend-not-configured gate.
 - **Production Supabase project ref:** `xixmneooyufbeftdfpcm` (this **is** VYBZ). Point local/preview env at that project (or a dedicated VYBZ staging project) — never at an unrelated legacy app’s database.
 - All secrets (OpenAI, Resend, Stripe, LiveKit, service-role keys) live only in Supabase Edge Functions / server env, never in the client (masterplan §11).
-- Shell chrome is a **full-bleed bottom taskbar + Orb** on all viewports (no desktop side rail). Audio reactivity is Orb-first (`OrbSphere`); intensity prefs are Off / Soft / VYBZ Max.
+- Shell chrome is a **full-bleed bottom V-Dock + Orb** on all viewports (no desktop side rail). Reactivity is Orb-first (`OrbSphere`); intensity prefs are Off / Soft / VYBZ Max. Widgets may serve any creative workflow — music-led defaults are not a ceiling.
 - There is **no automated test framework** in this repo (no `npm test`, no app `*.test.*` files). Correctness is enforced by `tsc`/`npm run build` plus manual smoke testing.
 
 ### React chunking (do not regress)

@@ -13,7 +13,7 @@ const STEPS = [
   {
     icon: CircleDot,
     title: "The Orb",
-    body: "Tap the sphere to create — New drop, Go live, Spark, or Messages. Hold any taskbar pin to rearrange; use the gear to add or remove hubs.",
+    body: "Hold and drag the Orb like a joystick for Drop, Live, Spark, or Messages. Hold any V-Dock pin to rearrange pins and widgets.",
   },
   {
     icon: Sparkles,
@@ -22,7 +22,7 @@ const STEPS = [
   },
 ];
 
-/** Shown once after onboarding — three tips for the orb taskbar era. */
+/** Shown once after onboarding — three tips for the Orb + V-Dock era. */
 export function WelcomeTutorial() {
   const { profile } = useSession();
   const hasRole = !!(profile?.profile?.role || profile?.profile?.roleLabel);

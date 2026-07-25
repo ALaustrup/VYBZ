@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, type PointerEvent as ReactPointerEvent } from "react";
-import { readBands, readFrequencies, frequencyBinCount, usePlayer } from "@/lib/audioBus";
+import { usePlayer } from "@/lib/audioBus";
 import { useChromaBoost, useFxScale, useReduceFx } from "@/lib/display";
 import { resolvePlaybackVisuals } from "@/lib/playbackCustomization";
+import { sampleReactiveFrame, type ReactiveVisualFrame } from "@/lib/reactiveVisualRuntime";
+import { getWidgetPrefs } from "@/lib/vdock/widgetPrefs";
 import { cx } from "@/lib/utils";
 import type { PostFx } from "@/types";
 
@@ -33,8 +35,8 @@ const MAX_R = DRAW * 0.28;
 const NEO = ["#00ffc8", "#5b8cff", "#c77dff", "#ff5d8f", "#00a1ff", "#34f5a0", "#ffe566"];
 
 /**
- * Canvas Orb — idle neochrome sphere; while playing, uploader morph + palette.
- * Softly blends back to idle when playback stops (blend state survives prop churn).
+ * Canvas Orb — idle neochrome sphere; while playing, uploader morph + palette
+ * driven by `sampleReactiveFrame` (bands / onset / beat / spectrum).
  */
 export function OrbSphere({
   open,
@@ -68,8 +70,8 @@ export function OrbSphere({
   const palKey = pal.join(",");
   const live = playing && !!track && !calm;
 
-  // Mutable frame inputs — keep the RAF loop alive without resetting liveBlend.
   const frame = useRef({
+    playing: playing && !!track,
     live,
     open,
     flash,
@@ -86,8 +88,10 @@ export function OrbSphere({
     palKey,
     accent,
     seed,
+    monitorCue: false,
   });
   frame.current = {
+    playing: playing && !!track,
     live,
     open,
     flash,
@@ -104,6 +108,7 @@ export function OrbSphere({
     palKey,
     accent,
     seed,
+    monitorCue: getWidgetPrefs().monitorCue,
   };
 
   useEffect(() => {
@@ -112,7 +117,6 @@ export function OrbSphere({
     if (!canvas || !wrap) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const freq = new Uint8Array(frequencyBinCount());
 
     let dpr = 1;
     const resize = () => {
@@ -161,8 +165,6 @@ export function OrbSphere({
     let raf = 0;
     let t = 0;
     let flashA = 0;
-    let bassEma = 0;
-    let pop = 0;
     /** 0 = idle plasma sphere, 1 = uploader live form */
     let liveBlend = frame.current.live ? 1 : 0;
     let hidden = document.hidden;
@@ -176,13 +178,11 @@ export function OrbSphere({
       const f = frame.current;
       t += 0.016;
 
-      // Ease toward live (uploader) or idle (default sphere). Calm = joystick hover/aim.
-      const targetBlend = f.calm ? 0 : f.live ? 1 : 0;
-      const blendRate = f.calm ? 0.22 : f.live ? 0.09 : 0.038;
+      const targetBlend = f.calm || f.monitorCue ? 0 : f.live ? 1 : 0;
+      const blendRate = f.calm || f.monitorCue ? 0.22 : f.live ? 0.1 : 0.038;
       liveBlend += (targetBlend - liveBlend) * blendRate;
       if (Math.abs(liveBlend - targetBlend) < 0.002) liveBlend = targetBlend;
 
-      // Stick throw offsets the body (top-down joystick feel)
       const stickPx = HIT * 0.55;
       const stickCx = mid + f.stickX * stickPx;
       const stickCy = mid + f.stickY * stickPx;
@@ -192,46 +192,61 @@ export function OrbSphere({
       if (f.flash) flashA = 1;
       else flashA *= 0.88;
 
-      const reactive = !f.reduce && f.fxScale > 0.02 && !f.calm;
-      const bands = f.live && reactive
-        ? readBands()
-        : { bass: 0, mid: 0, high: 0, level: 0 };
-      if (f.live && reactive) readFrequencies(freq);
-      else freq.fill(0);
+      // Keep analysing while a track plays (even if calm) so joystick ring can share beat.
+      const analysing = !f.reduce && f.fxScale > 0.02 && f.playing && !f.monitorCue;
+      const rv = sampleReactiveFrame(analysing);
+      const reactive = analysing && !f.calm && f.live;
+      // Soft ducks amplitude further; Max lets onset/beat punch through
+      const ampCap = Math.min(1.35, f.fxScale);
+      const softGate = ampCap < 0.8 ? 0.72 : 1;
 
-      bassEma += (bands.bass - bassEma) * 0.14;
-      const transient = Math.max(0, bands.bass - bassEma * 1.15);
-      pop = Math.max(pop * 0.86, transient * 2.4);
-
-      // Cap amplitude so Max intensity never pushes silhouette past MAX_R
-      const ampCap = Math.min(1.15, f.fxScale);
-      const drive = f.live && reactive
-        ? (bands.bass * 0.5 + bands.level * 0.4 + pop * 0.55) * ampCap * (0.4 + f.pulseScale * 1.2)
+      const drive = reactive
+        ? (rv.bass * 0.42 + rv.sub * 0.35 + rv.level * 0.38 + rv.beat * 0.55 + rv.onset * 0.35) *
+          ampCap *
+          softGate *
+          (0.45 + f.pulseScale * 1.25)
         : 0;
-      const pulse = Math.min(0.95, drive) * liveBlend;
-      const R = Math.min(CORE_R + pulse * (4 + ampCap * 3), MAX_R);
-      const cx = stickCx;
-      const cy = stickCy;
+      const pulse = Math.min(1.05, drive) * liveBlend;
+      const R = Math.min(CORE_R + pulse * (5 + ampCap * 4) + rv.beat * 2.2 * liveBlend, MAX_R);
+
+      // Sub squash — kick “weight” without leaving canvas
+      const squashY = 1 - rv.sub * 0.07 * liveBlend * ampCap;
+      const squashX = 1 + rv.sub * 0.05 * liveBlend * ampCap;
 
       const uploadColors = f.palKey.split(",").map((c) => vividHex(c, f.chroma));
       const neo = neoChromeAt(t);
       const colors = blendPalettes(neo, uploadColors, liveBlend);
       const uploadMorph = morphMode(f.fx);
-      // Continuous morph weight — pure sphere when idle / blending out
       const morphW = smoothstep(liveBlend, 0.12, 0.72);
       const morph: Morph = morphW < 0.08 ? "sphere" : uploadMorph;
 
+      // Specular drifts toward spectral brightness while live
+      if (reactive && liveBlend > 0.4) {
+        ptr.tx += (mid + (rv.centroid - 0.45) * R * 0.9 - ptr.tx) * 0.04;
+        ptr.ty += (mid - R * 0.22 - rv.high * R * 0.15 - ptr.ty) * 0.04;
+      }
+
       ctx.clearRect(0, 0, DRAW, DRAW);
 
-      // Soft aura — always inside canvas
-      const auraR = Math.min(R * (1.28 + pulse * 0.15), DRAW * 0.42);
+      ctx.save();
+      ctx.translate(stickCx, stickCy);
+      ctx.scale(squashX, squashY);
+      const cx = 0;
+      const cy = 0;
+
+      // Soft aura
+      const auraR = Math.min(R * (1.32 + pulse * 0.18 + rv.beat * 0.12), DRAW * 0.44);
       if (!f.reduce && (ptr.inside || f.open || liveBlend > 0.02 || liveBlend < 0.98)) {
-        const rim = ctx.createRadialGradient(cx, cy, R * 0.4, cx, cy, auraR);
+        const rim = ctx.createRadialGradient(cx, cy, R * 0.35, cx, cy, auraR);
         const idleA = (0.14 + 0.08 * Math.sin(t * 0.55)) * (1 - liveBlend);
-        const liveA = liveBlend * (0.06 + pulse * 0.2) * (0.4 + f.rimIntensity * 1.1) * Math.min(1, Math.max(0.35, ampCap));
+        const liveA =
+          liveBlend *
+          (0.07 + pulse * 0.22 + rv.beat * 0.14) *
+          (0.4 + f.rimIntensity * 1.15) *
+          Math.min(1, Math.max(0.35, ampCap));
         const rimA = idleA + liveA;
         rim.addColorStop(0, hexA(colors[0], rimA));
-        rim.addColorStop(0.55, hexA(colors[1], rimA * 0.4));
+        rim.addColorStop(0.55, hexA(colors[1], rimA * 0.42));
         rim.addColorStop(1, hexA(colors[2], 0));
         ctx.fillStyle = rim;
         ctx.beginPath();
@@ -239,24 +254,46 @@ export function OrbSphere({
         ctx.fill();
       }
 
+      // Spectrum corona — outside silhouette so playback is obviously tracked
+      if (reactive && liveBlend > 0.25 && ampCap > 0.25) {
+        drawSpectrumCorona(ctx, cx, cy, R, rv, colors, ampCap * liveBlend, f.fxScale);
+      }
+
+      // Beat shock ring
+      if (reactive && rv.beat > 0.18 && liveBlend > 0.4) {
+        ctx.strokeStyle = hexA(colors[0], (0.12 + rv.beat * 0.35) * liveBlend);
+        ctx.lineWidth = 1.2 + rv.beat * 1.8;
+        ctx.beginPath();
+        ctx.arc(cx, cy, Math.min(R * (1.15 + rv.beat * 0.35), MAX_R * 1.35), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
       const morphPulse = pulse * morphW;
       const morphScale = ampCap * morphW;
 
       ctx.save();
-      pathMorph(ctx, morph, cx, cy, R, t, bands, freq, morphPulse, morphScale, morphW);
+      pathMorph(ctx, morph, cx, cy, R, t, rv, morphPulse, morphScale, morphW);
       ctx.clip();
 
-      const body = ctx.createRadialGradient(ptr.x, ptr.y, R * 0.05, cx, cy, R * 1.05);
-      body.addColorStop(0, flashA > 0.05 ? `rgba(255,255,255,${0.95 * flashA + 0.55})` : "#f8fbff");
+      const body = ctx.createRadialGradient(
+        ptr.x - stickCx,
+        ptr.y - stickCy,
+        R * 0.05,
+        cx,
+        cy,
+        R * 1.05,
+      );
+      const flashBoost = flashA > 0.05 ? flashA : rv.onset * 0.45 * liveBlend;
+      body.addColorStop(0, flashBoost > 0.05 ? `rgba(255,255,255,${0.9 * flashBoost + 0.5})` : "#f8fbff");
       body.addColorStop(0.28, hexA(colors[0], 0.95));
       body.addColorStop(0.62, hexA(colors[1], 1));
       body.addColorStop(1, hexA(colors[2], 0.92));
       ctx.fillStyle = body;
-      ctx.fillRect(0, 0, DRAW, DRAW);
+      ctx.fillRect(-DRAW, -DRAW, DRAW * 2, DRAW * 2);
 
       // Idle neochrome plasma filaments
       if (liveBlend < 0.9 && !f.reduce) {
-        const plasmaA = 0.28 * (1 - liveBlend);
+        const plasmaA = 0.3 * (1 - liveBlend);
         ctx.globalAlpha = plasmaA;
         for (let layer = 0; layer < 3; layer++) {
           const speed = 0.28 + layer * 0.12;
@@ -264,8 +301,8 @@ export function OrbSphere({
           ctx.strokeStyle = hexA(colors[(layer + Math.floor(t * 0.4)) % colors.length], 0.55 + layer * 0.12);
           ctx.lineWidth = 1.05 + layer * 0.25;
           ctx.beginPath();
-          for (let i = 0; i <= 48; i++) {
-            const a = (i / 48) * Math.PI * 2 + t * speed + layer;
+          for (let i = 0; i <= 52; i++) {
+            const a = (i / 52) * Math.PI * 2 + t * speed + layer;
             const wob =
               Math.sin(a * (2 + layer) + t * (0.6 + layer * 0.2)) * (1.6 + layer) +
               Math.cos(a * 3 - t * 0.45) * (0.8 + layer * 0.4);
@@ -277,7 +314,6 @@ export function OrbSphere({
           ctx.closePath();
           ctx.stroke();
         }
-        // Soft inner bloom that drifts hue with neo
         const bloom = ctx.createRadialGradient(cx, cy, R * 0.1, cx, cy, R * 0.85);
         bloom.addColorStop(0, hexA(colors[0], 0.22 * (1 - liveBlend)));
         bloom.addColorStop(0.55, hexA(colors[1], 0.1 * (1 - liveBlend)));
@@ -289,28 +325,52 @@ export function OrbSphere({
         ctx.fill();
       }
 
-      const spec = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, R * 0.45);
-      spec.addColorStop(0, `rgba(255,255,255,${0.55 + flashA * 0.4})`);
+      // Live internal filaments — mid/high weave
+      if (reactive && morphW > 0.35 && !f.reduce && ampCap > 0.4) {
+        ctx.globalAlpha = 0.22 + rv.presence * 0.25;
+        ctx.strokeStyle = hexA(colors[Math.floor(t * 3) % colors.length], 0.7);
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        const spins = 36;
+        for (let i = 0; i <= spins; i++) {
+          const a = (i / spins) * Math.PI * 2 + t * (1.2 + rv.centroid);
+          const fi = Math.floor((i / spins) * rv.spectrum.length) % Math.max(1, rv.spectrum.length);
+          const v = (rv.spectrum[fi] || 0) / 255;
+          const rr = R * (0.28 + v * 0.42 * ampCap);
+          const x = cx + Math.cos(a) * rr;
+          const y = cy + Math.sin(a * (1.05 + rv.high * 0.2)) * rr * 0.78;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      const sx = ptr.x - stickCx;
+      const sy = ptr.y - stickCy;
+      const spec = ctx.createRadialGradient(sx, sy, 0, sx, sy, R * 0.45);
+      spec.addColorStop(0, `rgba(255,255,255,${0.55 + flashA * 0.4 + rv.onset * 0.25 * liveBlend})`);
       spec.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = spec;
-      ctx.fillRect(0, 0, DRAW, DRAW);
+      ctx.fillRect(-DRAW, -DRAW, DRAW * 2, DRAW * 2);
 
-      if (f.live && reactive && morphW > 0.55 && morph === "bars") {
-        const n = 12;
+      if (reactive && morphW > 0.55 && morph === "bars") {
+        const n = 14;
         for (let i = 0; i < n; i++) {
-          const v = (freq[Math.floor((i / n) * freq.length)] || 0) / 255;
-          const bh = Math.min(R * 0.85, (4 + v * R * (1.1 + ampCap * 0.3)) * Math.max(0.35, ampCap));
-          const x = cx - R * 0.7 + (i / (n - 1)) * R * 1.4;
-          ctx.fillStyle = hexA(colors[i % colors.length], 0.4 + v * 0.5);
-          ctx.fillRect(x - 1.4, cy + R * 0.35 - bh, 2.8, bh);
+          const v = (rv.spectrum[Math.floor((i / n) * rv.spectrum.length)] || 0) / 255;
+          const bh = Math.min(R * 0.9, (4 + v * R * (1.2 + ampCap * 0.35)) * Math.max(0.35, ampCap));
+          const x = cx - R * 0.72 + (i / (n - 1)) * R * 1.44;
+          ctx.fillStyle = hexA(colors[i % colors.length], 0.42 + v * 0.5);
+          ctx.fillRect(x - 1.5, cy + R * 0.35 - bh, 3, bh);
         }
-      } else if (f.live && reactive && morphW > 0.55 && morph === "liquid") {
-        ctx.strokeStyle = hexA(colors[Math.floor(t * 2) % colors.length], 0.35 + pulse * 0.4);
-        ctx.lineWidth = 1.25;
+      } else if (reactive && morphW > 0.55 && morph === "liquid") {
+        ctx.strokeStyle = hexA(colors[Math.floor(t * 2) % colors.length], 0.35 + pulse * 0.45);
+        ctx.lineWidth = 1.3;
         ctx.beginPath();
-        for (let i = 0; i < 28; i++) {
-          const a = (i / 28) * Math.PI * 2 + t * 1.1;
-          const wob = Math.sin(a * 3 + bands.mid * 10) * (2 + pulse * 4 * ampCap);
+        for (let i = 0; i < 32; i++) {
+          const a = (i / 32) * Math.PI * 2 + t * 1.15;
+          const wob = Math.sin(a * 3 + rv.mid * 10) * (2 + pulse * 4.5 * ampCap) + rv.onset * 3;
           const rr = Math.min(R * 0.55 + wob, MAX_R * 0.8);
           const x = cx + Math.cos(a) * rr;
           const y = cy + Math.sin(a * 1.2) * (rr * 0.55);
@@ -320,12 +380,30 @@ export function OrbSphere({
         ctx.closePath();
         ctx.stroke();
       }
-      ctx.restore();
 
-      ctx.strokeStyle = hexA("#ffffff", 0.14 + (ptr.inside ? 0.18 : 0) + pulse * 0.12);
+      // High shimmer motes
+      if (reactive && rv.high > 0.12 && ampCap > 0.5 && morphW > 0.4) {
+        const motes = Math.floor(4 + rv.high * 8 * ampCap);
+        for (let i = 0; i < motes; i++) {
+          const a = t * 2.4 + i * 1.7 + rv.centroid * 4;
+          const rr = R * (0.35 + ((i * 17) % 10) / 10 * 0.5);
+          const x = cx + Math.cos(a) * rr;
+          const y = cy + Math.sin(a * 1.3) * rr * 0.75;
+          ctx.fillStyle = hexA(colors[i % colors.length], 0.15 + rv.high * 0.35);
+          ctx.beginPath();
+          ctx.arc(x, y, 0.8 + rv.onset * 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      ctx.restore(); // clip
+
+      ctx.strokeStyle = hexA("#ffffff", 0.14 + (ptr.inside ? 0.18 : 0) + pulse * 0.14 + rv.beat * 0.1);
       ctx.lineWidth = 1.15;
-      pathMorph(ctx, morph, cx, cy, R, t, bands, freq, morphPulse, morphScale, morphW);
+      pathMorph(ctx, morph, cx, cy, R, t, rv, morphPulse, morphScale, morphW);
       ctx.stroke();
+
+      ctx.restore(); // squash / stick
 
       raf = requestAnimationFrame(draw);
     };
@@ -379,6 +457,40 @@ function morphMode(fx: PostFx): Morph {
   }
 }
 
+function drawSpectrumCorona(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  R: number,
+  rv: ReactiveVisualFrame,
+  colors: string[],
+  strength: number,
+  fxScale: number,
+) {
+  const spokes = fxScale >= 1 ? 48 : 28;
+  const outer = Math.min(R * (1.55 + rv.beat * 0.2), DRAW * 0.46);
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < spokes; i++) {
+    const a = (i / spokes) * Math.PI * 2 - Math.PI / 2;
+    const fi = Math.floor((i / spokes) * rv.spectrum.length) % Math.max(1, rv.spectrum.length);
+    const v = (rv.spectrum[fi] || 0) / 255;
+    const len = (v * (outer - R) * (0.55 + strength * 0.55)) * (0.35 + strength);
+    if (len < 0.6) continue;
+    const x0 = cx + Math.cos(a) * (R * 1.02);
+    const y0 = cy + Math.sin(a) * (R * 1.02);
+    const x1 = cx + Math.cos(a) * (R * 1.02 + len);
+    const y1 = cy + Math.sin(a) * (R * 1.02 + len);
+    ctx.strokeStyle = hexA(colors[i % colors.length], (0.14 + v * 0.45) * strength);
+    ctx.lineWidth = fxScale >= 1 ? 1.35 : 1.05;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function neoChromeAt(t: number): string[] {
   const n = NEO.length;
   const speed = 0.09;
@@ -412,22 +524,25 @@ function pathMorph(
   cy: number,
   R: number,
   t: number,
-  bands: { bass: number; mid: number; high: number; level: number },
-  freq: Uint8Array,
+  rv: ReactiveVisualFrame,
   pulse: number,
   fxScale: number,
   morphW: number,
 ) {
   ctx.beginPath();
-  // Near-idle: always a clean sphere
+  const freq = rv.spectrum;
   if (morph === "sphere" || morph === "bars" || morphW < 0.12) {
-    if (fxScale > 0.85 && pulse > 0.12 && morphW > 0.35) {
-      const n = 36;
+    // Always FFT-warp silhouette when reactive enough — “obviously tracks” the drop
+    if (pulse > 0.04 && morphW > 0.2 && fxScale > 0.2) {
+      const n = 42;
       for (let i = 0; i <= n; i++) {
         const a = (i / n) * Math.PI * 2;
         const fi = Math.floor((i / n) * freq.length) % Math.max(1, freq.length);
         const f = (freq[fi] || 0) / 255;
-        const warp = f * pulse * (1.8 + fxScale * 1.6) * morphW;
+        const warp =
+          f * pulse * (2.4 + fxScale * 2.2) * morphW +
+          rv.beat * 1.6 * morphW +
+          rv.onset * 1.2 * morphW;
         const rr = Math.min(R + warp, MAX_R);
         const x = cx + Math.cos(a) * rr;
         const y = cy + Math.sin(a) * rr;
@@ -441,21 +556,26 @@ function pathMorph(
     return;
   }
   if (morph === "ring") {
-    const inner = R * (0.55 - pulse * 0.08 * morphW);
+    const inner = R * (0.55 - pulse * 0.1 * morphW - rv.beat * 0.04);
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.arc(cx, cy, Math.max(4, inner), 0, Math.PI * 2, true);
     return;
   }
-  const n = 48;
-  const amp = (0.4 + Math.min(fxScale, 1) * 0.35) * morphW;
+  const n = 52;
+  const amp = (0.45 + Math.min(fxScale, 1.2) * 0.4) * morphW;
   for (let i = 0; i <= n; i++) {
     const a = (i / n) * Math.PI * 2;
     const fi = Math.floor((i / n) * freq.length) % Math.max(1, freq.length);
     const f = (freq[fi] || 0) / 255;
     const warp =
       morph === "liquid"
-        ? Math.sin(a * 4 + t * 2.2) * (1.6 + bands.high * 3.5) * amp + f * 3 * pulse * amp
-        : Math.sin(a * 3 + t * 1.6 + bands.bass * 2) * (2 + pulse * 3.2) * amp + bands.mid * 2.2 * amp + f * 2 * pulse;
+        ? Math.sin(a * 4 + t * 2.2) * (1.6 + rv.high * 4) * amp +
+          f * 3.4 * pulse * amp +
+          rv.onset * 2.2 * amp
+        : Math.sin(a * 3 + t * 1.6 + rv.bass * 2.4) * (2 + pulse * 3.6) * amp +
+          rv.mid * 2.4 * amp +
+          f * 2.4 * pulse +
+          rv.beat * 1.8 * amp;
     const rr = Math.min(R + warp, MAX_R);
     const x = cx + Math.cos(a) * rr;
     const y = cy + Math.sin(a) * rr;
@@ -521,7 +641,7 @@ function vividHex(hex: string, boost: number): string {
 
 function hexA(hex: string, a: number): string {
   const m = hex.replace("#", "");
-  if (m.length < 6) return `rgba(168,124,248,${a})`;
+  if (m.length < 6) return `rgba(0,161,255,${a})`;
   const r = parseInt(m.slice(0, 2), 16);
   const g = parseInt(m.slice(2, 4), 16);
   const b = parseInt(m.slice(4, 6), 16);

@@ -6,7 +6,7 @@ import { cx } from "@/lib/utils";
 
 /**
  * You controls — avatar + unread activity bell.
- * Inline for ContextualAppBar; primary nav remains on the Taskbar.
+ * Inline for ContextualAppBar; primary nav remains on the V-Dock.
  */
 export function YouChip() {
   const { profile, unread } = useSession();

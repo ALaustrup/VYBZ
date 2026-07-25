@@ -2,7 +2,9 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbSphere } from "@/components/taskbar/OrbSphere";
 import { DEFAULT_ORB_ACTIONS, OrbFan, type OrbFanAction } from "@/components/taskbar/OrbFan";
+import { usePlayer } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
+import { sampleReactiveFrame } from "@/lib/reactiveVisualRuntime";
 import { cx } from "@/lib/utils";
 
 /** Stick deadzone (normalized 0..1). Below = no sector. */
@@ -72,6 +74,7 @@ interface OrbJoystickProps {
  */
 export function OrbJoystick({ actions, disabled }: OrbJoystickProps) {
   const reduce = useReduceFx();
+  const { playing } = usePlayer();
   const zoneRef = useRef<HTMLDivElement>(null);
   const [fanOpen, setFanOpen] = useState(false);
   const [flash, setFlash] = useState(false);
@@ -79,8 +82,25 @@ export function OrbJoystick({ actions, disabled }: OrbJoystickProps) {
   const [aiming, setAiming] = useState(false);
   const [stick, setStick] = useState({ x: 0, y: 0 });
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [beatPulse, setBeatPulse] = useState(0);
   const activeRef = useRef<string | null>(null);
   const aimingRef = useRef(false);
+
+  // Soft audio pulse on the sector ring while aiming / hovering (Orb stays calm)
+  useEffect(() => {
+    if (reduce || (!hovering && !aiming) || !playing) {
+      setBeatPulse(0);
+      return;
+    }
+    let raf = 0;
+    const tick = () => {
+      const f = sampleReactiveFrame(true);
+      setBeatPulse(f.beat * 0.08 + f.level * 0.03);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [reduce, hovering, aiming, playing]);
 
   const list = actions.length ? actions : DEFAULT_ORB_ACTIONS.map((a) => ({ ...a, run: () => {} }));
   const calm = !reduce && (hovering || aiming);
@@ -210,8 +230,9 @@ export function OrbJoystick({ actions, disabled }: OrbJoystickProps) {
           >
             {list.map((action) => {
               const ang = ACTION_ANGLES[action.id] ?? 0;
-              const x = Math.cos(ang) * RING_R;
-              const y = Math.sin(ang) * RING_R;
+              const ring = RING_R * (1 + beatPulse);
+              const x = Math.cos(ang) * ring;
+              const y = Math.sin(ang) * ring;
               const on = activeId === action.id;
               const Icon = action.icon;
               return (
@@ -220,7 +241,7 @@ export function OrbJoystick({ actions, disabled }: OrbJoystickProps) {
                   className="absolute flex w-[4.5rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5"
                   style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}
                   animate={{
-                    scale: on ? 1.12 : aiming ? 0.92 : 0.88,
+                    scale: (on ? 1.12 : aiming ? 0.92 : 0.88) + beatPulse * 0.35,
                     opacity: on ? 1 : aiming ? 0.55 : 0.4,
                   }}
                 >

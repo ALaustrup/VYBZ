@@ -71,7 +71,7 @@ function canSee(item: MoreItem, role: string, isAdmin: boolean): boolean {
 }
 
 /**
- * Secondary navigation drawer (3C). Keeps the taskbar clean — overflow
+ * Secondary navigation drawer (3C). Keeps the V-Dock clean — overflow
  * destinations live here behind the AppBar menu control.
  */
 export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {

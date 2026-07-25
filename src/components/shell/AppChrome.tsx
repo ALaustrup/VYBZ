@@ -2,15 +2,15 @@ import type { ReactNode } from "react";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 
 /**
- * App chrome: sticky app bar, scroll stage, and a fixed bottom dock overlay
- * (taskbar + integrated player). Same layout on mobile and desktop — no side rail.
+ * App chrome: sticky app bar, scroll stage, and fixed V-Dock overlay
+ * (pins + widgets + Now Playing + Orb). Same layout on mobile and desktop.
  */
 export function AppChrome({
   stage,
   dock,
 }: {
   stage: ReactNode;
-  /** Always-visible bottom chrome (taskbar + player). */
+  /** Always-visible bottom chrome (V-Dock). */
   dock: ReactNode;
 }) {
   return (
@@ -21,7 +21,7 @@ export function AppChrome({
           <div className="app-stage-inner">{stage}</div>
         </main>
       </div>
-      <div className="app-dock" role="complementary" aria-label="Playback and navigation">
+      <div className="app-dock" role="complementary" aria-label="V-Dock">
         {dock}
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { frequencyBinCount, readFrequencies, readBands } from "@/lib/audioBus";
+import { frequencyBinCount, readFrequencies } from "@/lib/audioBus";
+import { sampleReactiveFrame } from "@/lib/reactiveVisualRuntime";
 import { paletteFor, cx } from "@/lib/utils";
 import { useReduceFx } from "@/lib/display";
 
@@ -70,9 +71,12 @@ export function TrackVisualizer({ seed, accent = "#a87cf8", active = false, clas
     const frame = () => {
       const animate = active && !reduce;
       t += animate ? 0.016 : 0;
-      let bass = 0, mid = 0, high = 0, level = 0;
-      if (active) { const b = readBands(); bass = b.bass; mid = b.mid; high = b.high; level = b.level; }
-      const pulse = reduce ? 0.12 : 0.1 + level * 0.9;
+      let bass = 0, mid = 0, high = 0, level = 0, beat = 0;
+      if (active) {
+        const b = sampleReactiveFrame(true);
+        bass = b.bass; mid = b.mid; high = b.high; level = b.level; beat = b.beat;
+      }
+      const pulse = reduce ? 0.12 : 0.1 + level * 0.85 + beat * 0.35;
 
       ctx.clearRect(0, 0, w, h);
       const bg = ctx.createRadialGradient(w / 2, h * 0.55, 0, w / 2, h * 0.55, Math.max(w, h) * 0.75);

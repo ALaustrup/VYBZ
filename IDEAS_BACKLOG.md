@@ -179,34 +179,16 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 ---
 
-#### 2. Taskbar Orb — highest-quality audio-reactive visualization 🟢🟡
+#### 2. V-Dock Orb — highest-quality audio-reactive visualization ◑ **PARTIAL**
 
-- **What:** Raise Orb visual stimulation and **true audio reactivity** far above
-  today’s mediocre customization options (idle plasma + morph/palette are a
-  start; FFT coupling feels weak).
-- **Fit:** Core Phase **E** surface (`OrbSphere` + `AudioBus` analyser). Cosmetics
-  store already contemplates “audio-reactive frame/visualizer packs” (Lane B).
-  **#4** also wants “Go Live” from an Orb pop-out — Orb stays identity + entry,
-  not a second player.
-- **Dependencies:**
-  - Richer band mapping (bass / mid / high / onset / beat proxy) from existing
-    analyser — no new infra 🟢
-  - Optional GPU path (WebGL/WebGPU) with canvas2d fallback 🟡
-  - Thermal/battery Soft profile on mobile 🟢 (prefs exist)
-  - Cosmetic pack SKUs later (Lane B) — not required for quality jump 🟢
-- **Guardrails:**
-  - Orb remains the **taskbar identity** — never a second player chrome.
-  - Idle state stays beautiful when nothing plays; playing state must *obviously*
-    track the current drop (side-by-side A/B with today’s morph).
-  - Accessibility: reduce-motion / Off intensity still respected.
-  - Avoid purple-glow / “AI default” aesthetics; stay on VYBZ glass + uploader
-    palette when a track is playing.
-- **Rough shape:** moderate FE-only first (analyser → shader/params). Promote
-  with **#1** as shared reactive runtime; Orb is the flagship proving ground
-  before Live (#3 / #4) reuses the same engine.
-- **Orchestration note:** Define a single `ReactiveVisualRuntime` contract
-  (bands, energy, beat, seed, palette) consumed by Orb, drop backdrop, Live
-  tiles — prevents three divergent visualizers.
+- **Shipped (FE):** `reactiveVisualRuntime.ts` + Orb spectrum corona / beat ring /
+  FFT silhouette / sub squash; snappier analyser (`fftSize` 2048, smoother 0.55);
+  joystick ring beat pulse; TrackVisualizer consumes same frame; Monitor Cue ducks
+  Orb. Shared contract ready for drop backdrops + Live tiles.
+- **Still open:** Optional WebGL/WebGPU path; cosmetic visualizer pack SKUs
+  (Lane B); deeper A/B polish vs seed morphs.
+- **Guardrails:** Orb stays V-Dock identity — never a second player; Off / Soft /
+  Max + reduce-motion; uploader palette while playing; creatively open (any drop).
 
 ---
 
@@ -372,26 +354,99 @@ Ways to make VYBZ feel unmistakably high-end without clutter:
 
 ---
 
-### 2026-07-24 — Taskbar Widgets system 🟢🟡
+### 2026-07-24 — V-Dock Widgets system ✅ **PROMOTED / SHIPPED**
 
-#### Dock widgets beside pins (Orb locked) 🟢🟡
-- **What:** Beyond app pins, users place **widgets** on the left/right taskbar
-  rails — compact utilities (volume/FX, V¢ chip, unread, quick-record, Bridge
-  sync status, metronome, etc.) that expand on tap. Pins = navigation; widgets =
-  tools. **Orb is immovable** and never a pin/widget slot.
-- **Shipped seed:** **Now Playing** is the first system widget — fused into the
-  single unified dock row (no second player bar). Appears when a track is queued;
-  expands to full-screen now-playing. Not user-removable while active.
-- **Fit:** Extends today’s pin customize (long-press jiggle + catalog tray).
-  Widget defs would live beside `PIN_CATALOG` with a `kind: "pin" | "widget"`
-  union and stricter size budgets (1–2 slot widths).
-- **Dependencies:** Pin edit UX ✅. Now Playing widget ✅. Other widget data
-  sources (AudioBus FX, session, repos Bridge) 🟡. Persist layout later.
+#### V-Dock widgets beside pins (Orb locked) ✅
+- **Naming:** Bottom chrome is **V-Dock** (not “taskbar”).
+- **What:** Pins navigate; widgets are tools on left/right rails. Orb immovable.
+- **Audience:** VYBZ is for **all creators**. Music-related widgets lead the first
+  catalog, but widgets are **creatively unbounded** — capture, timers, presence,
+  licensing, live, V¢, and future chips can serve visual, film, games, writing,
+  design, performance, and hybrid crafts just as well as audio. Never copy or
+  gate widgets as “musicians only.”
+- **Shipped:** Full widget catalog from the concept bank + Now Playing system
+  widget + customize tray (pins + widgets). Layout key `vybz.vdockLayout`
+  (migrates `vybz.taskbarPins`).
+- **Code:** `src/components/vdock/*`, `src/lib/vdock/*`.
 
-- **Guardrails:** No pay-to-win widgets; Off/Soft/Max still caps motion; widgets
-  must not steal Orb hit target; max density so rails stay tappable (44px).
-- **Rough shape:** moderate. Promote with **“taskbar widgets — start”** after
-  pin edit UX is validated.
+##### Widget concept bank (brainstorm 2026-07-24)
+
+Music-led seed set (not an exclusive list). By **job**, tagged **Go** (phone /
+transit / couch) vs **Studio** (desk / DAW / any craft station).
+★ = highest leverage for VYBZ match + exchange DNA.
+
+**A. Capture & continuity**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| ★ Quick Capture | ● | ● | One-tap hum/voice/room tone → draft drop or repo WIP. |
+| Session Timer | ○ | ● | Focus block + soft “save / commit?” nudge. |
+| Clipboard Stem | ○ | ● | Last stem meta (BPM, key, license) one-tap re-share. |
+| Idea Scratch | ● | ● | 1-line hook note tied to current track seed. |
+
+**B. Tuning & craft**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| ★ Metronome + Tap Tempo | ● | ● | Pulse + tap BPM stamps captures / commits. |
+| Key / Scale Chip | ● | ● | Active project key; cycle modes; stamp handoffs. |
+| Tuning Fork / Ref Tone | ● | ● | A440 (or project ref) for pitch checks. |
+| FX Intensity | ● | ● | Off / Soft / VYBZ Max without leaving dock. |
+| Monitor Cue | ○ | ● | Duck Orb morph / UI blips while tracking. |
+
+**C. Collab & matchmaking**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| ★ Open to Work pulse | ● | ● | Toggle seeking/offering without full profile edit. |
+| ★ Match Radar | ● | ○ | Fresh high-fit match count → Connect/Spark. |
+| Collab Invite Queue | ● | ● | Accept invites from the dock. |
+| Role Badge | ● | ● | “I am / I need” always visible. |
+| Nearby / Scene | ● | ○ | Soft city/scene tag — never creepy precision. |
+
+**D. Exchange, repos & Bridge**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| ★ Bridge Watch | ○ | ● | Folder sync health / last commit / conflict. |
+| Repo Pulse | ● | ● | Unread MR on active Music Repo → Studio. |
+| Handoff Ready | ○ | ● | Stems + dawproject package status for partners. |
+| License Stamp | ● | ● | Default license for next share. |
+| Watermark Trust | ● | ○ | Verified shimmer on last ledger-signed download. |
+
+**E. Social Live & rooms**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| ★ Go Live arm | ● | ● | Preflight → Orb Go Live; on-air pulse. |
+| Room Voice slots | ● | ● | Mini G/Y/P occupancy (ties to voice-slot idea). |
+| Top Live peek | ● | ○ | One of Top 3 lives without leaving dock. |
+| Listen-together | ● | ● | Hosting / following chip in room sync. |
+
+**F. Money & closed-loop value**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| V¢ Balance | ● | ● | Dock chip + top-up (balance already in More). |
+| Tip jar pulse | ● | ○ | Soft tip activity — never pay-to-match. |
+| Listing heat | ● | ● | Interest on active repo listing. |
+
+**G. Comms & presence**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| Unread stack | ● | ● | DMs + activity fused; long-press filters. |
+| DM Quick Reply | ● | ○ | Opt-in only — easy to get wrong. |
+| Studio presence | ○ | ● | Who’s in your active project room. |
+
+**H. Session sanity**
+| Widget | Go | Studio | Value |
+|--------|----|--------|--------|
+| Ear Break | ○ | ● | 50/10 timer; gentle Orb dim — hearing longevity. |
+| Level Guard | ○ | ● | Best-effort hot-output warning (browser-limited). |
+| Night craft | ● | ● | Soft FX + calmer chrome for late sessions. |
+
+##### Recommended first ship slice
+1. Metronome + Tap Tempo  
+2. Open to Work pulse  
+3. Bridge Watch *or* Repo Pulse  
+4. V¢ chip  
+5. Keep Now Playing as locked system widget when active  
+
+Defer: Nearby/Scene, DM Quick Reply, Level Guard, Tip jar.
 
 ---
 
@@ -404,7 +459,7 @@ Ways to make VYBZ feel unmistakably high-end without clutter:
 | **Orb Joystick** | 2026-07-24 | ✅ Phase 1 promoted; Phase 2 WebGL later |
 | **Voice slot lights** | 2026-07-24 A | After Orb P1; LiveKit speaking events |
 | **Premium surface** | 2026-07-24 B | Incremental polish slices |
-| **Taskbar widgets** | 2026-07-24 | After pin edit UX; Orb stays locked |
+| **V-Dock widgets** | 2026-07-24 | ✅ Shipped catalog + Now Playing; deepen wiring over time |
 
 ---
 

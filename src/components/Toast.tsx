@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useSession } from "@/store/session";
 
-/** Transient, non-blocking status message anchored above the bottom taskbar dock. */
+/** Transient, non-blocking status message anchored above the bottom V-Dock. */
 export function Toast() {
   const { toast } = useSession();
   return (

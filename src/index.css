@@ -15,7 +15,8 @@
 
     /* App shell tokens — chrome heights + stage padding (3A/3E). */
     --app-bar-h: 3.25rem;
-    --taskbar-h: 5.5rem;
+    --taskbar-h: 5.5rem; /* legacy alias — prefer --vdock-h */
+    --vdock-h: 5.5rem;
     --player-h: 0px;
     --dock-gap: 0.2rem;
     --dock-reserve: 6.25rem;
@@ -102,7 +103,7 @@
 }
 
 @layer components {
-  /* ── App shell — single column; taskbar is a fixed bottom overlay ───────── */
+  /* ── App shell — single column; V-Dock is a fixed bottom overlay ────────── */
   .app-shell {
     @apply relative mx-auto flex h-[100dvh] w-full max-w-6xl flex-col overflow-hidden;
   }
@@ -149,7 +150,7 @@
   }
 
   /* Frosted dark-glass panel used by nav and overlays. Static hairline —
-     audio reactivity lives on the taskbar Orb, not chrome borders. */
+     audio reactivity lives on the V-Dock Orb, not chrome borders. */
   .glass {
     @apply bg-white/[0.05];
     border: 1px solid var(--hairline);
@@ -424,17 +425,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .bell-alert { animation: vybz-bell-pulse 2.2s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .bell-alert { animation: none; } .nav-item:hover { transform: none; } }
 
-/* Taskbar edit mode — light phone-home-screen jiggle */
+/* V-Dock edit mode — light phone-home-screen jiggle */
 @keyframes vybz-pin-jiggle {
   0%, 100% { transform: rotate(-1.4deg); }
   50% { transform: rotate(1.4deg); }
 }
+.vdock-pin-jiggle,
 .taskbar-pin-jiggle {
   animation: vybz-pin-jiggle 0.28s ease-in-out infinite;
   transform-origin: 50% 60%;
 }
+.vdock-pin-jiggle:nth-child(even),
 .taskbar-pin-jiggle:nth-child(even) { animation-delay: -0.14s; }
-@media (prefers-reduced-motion: reduce) { .taskbar-pin-jiggle { animation: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .vdock-pin-jiggle,
+  .taskbar-pin-jiggle { animation: none; }
+}
 
 /* ── VYBZ audio-reactive brand mark: painted radial halo behind the icon ───── */
 .vybz-mark-halo {

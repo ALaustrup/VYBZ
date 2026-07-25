@@ -2,11 +2,14 @@
 
 > ## **VYBZ: Find Yours.**
 
-**Product:** VYBZ is the next-generation, **identity-first** platform for **music
-collaboration** and precision matchmaking — plus frictionless exchange of raw creative
-material (samples, stems, one-shots, presets, MIDI, and full DAW / project files).
-Art, video, and games remain optional secondary crafts. Owner: **Astra Matrix, Inc.**
-Canonical domain: **`vybz.cloud`** (legacy alias: `vybz.astramatrix.xyz`).
+**Product:** VYBZ is the next-generation, **identity-first** platform for **all
+creators** — with a deep focus on music collaboration, precision matchmaking, and
+frictionless exchange of raw creative material (samples, stems, one-shots, presets,
+MIDI, DAW / project files, and whatever else creators ship). Music tools and concepts
+lead the product surface; **the network itself stays open-minded and accepting of
+every creative type** (visual, film, games, writing, design, performance, hybrid
+practices, and more). Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**
+(legacy alias: `vybz.astramatrix.xyz`).
 
 **Status:** authoritative for product trajectory. **Current release: Beta-0B**
 (see [`VERSIONING.md`](./VERSIONING.md) + [`CHANGELOG.md`](./CHANGELOG.md)).
@@ -33,12 +36,16 @@ doesn't serve one of those two promises, it doesn't ship.
 
 ## 0. What VYBZ IS (and is NOT)
 
-**VYBZ is a next-generation social + collaboration network for musicians and
-producers.** Its single reason to exist is **precision matchmaking between creators
-and whatever they are looking for**, plus a **protected, frictionless exchange of
-raw creative materials**.
+**VYBZ is a next-generation social + collaboration network for creators of every
+kind**, with music-related craft as the sharpest toolkit and vocabulary. Its single
+reason to exist is **precision matchmaking between creators and whatever they are
+looking for**, plus a **protected, frictionless exchange of raw creative materials**.
 
 **It IS:**
+- **For all creators.** Not music/sound/audio exclusive. We serve the greater
+  creative good — open-minded and accepting of every creative type. Focus and
+  depth land on music-related tools and concepts; identity, matchmaking, exchange,
+  Social Live, V-Dock, and widgets must remain usable and expandable for any craft.
 - **Identity-first.** Every creator is a real, named account (email + passkey). Your
   username, roles, catalog, and reputation are your identity across VYBZ.
 - **Open to the whole creative economy — as real identities with intent.** Alongside
@@ -111,8 +118,8 @@ music VCS). Labels follow the Beta-NL[.P] scheme in [`VERSIONING.md`](./VERSIONI
   splits, verified credits, release batches).
 - **Precision matchmaking** on Connect + Spark; opportunities + commissions;
   learning-to-rank weights.
-- **Sound-first feed**, New Drop editor, global player in the **full-bleed
-  bottom taskbar**, **Orb-first** reactivity (idle neochrome → uploader morph).
+- **Sound-first feed**, New Drop editor, global player in the full-bleed
+  bottom **V-Dock**, **Orb-first** reactivity (idle neochrome → uploader morph).
 - **Connections, DMs, Rooms, Live**, Bunny secure media (incl. `repo-blobs`),
   watermark + C2PA worker path, Stripe Connect tips + credit top-ups, cosmetic
   store, weekly digest, Codex/Legal.
@@ -159,7 +166,7 @@ helpers and staff/admin RPCs.
   toast/celebrate). Player state is the `AudioBus` singleton via `usePlayer()`.
 - **Data:** `src/lib/api.ts` (all Supabase calls, typed).
 - **Shell & design:** `src/index.css` (Smoked Glass tokens), `tailwind.config.js`,
-  **full-bleed bottom dock** (`AppChrome` + `Taskbar` + `GlobalPlayer` + `OrbSphere`)
+  **full-bleed bottom V-Dock** (`AppChrome` + `VDock` + `GlobalPlayer` + `OrbSphere`)
   on every viewport — **no side rail**. Primitives: `Brand`, `Toast`, `Confetti`,
   `EmptyState`, `Handle`, `DynamicBackground`, `GrainOverlay`, …
 - **Audio UI:** `audioBus`, waveform helpers, `TrackCard`, `Waveform`,
@@ -193,7 +200,7 @@ manually verified, and it strengthens matchmaking or the exchange.
 | **B. Matchmaking depth** ✅ | Role-affinity graph, skill-tier proximity, reputation, free `gte-small` resonance, production/agency matching. |
 | **C. Exchange + protection** ✅ | Download gating, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + verified; live hosting pending a reachable container host. |
 | **D. Projects & collab rooms** ✅ | Private project rooms, versioned handoffs, split sheets, release gate, **verified credits**. Next: discography surface + threaded per-project chat. |
-| **E. Signature reactivity** ✅ | Taskbar **Orb** (idle neochrome → uploader morph) + visualizers; **Off / Soft / VYBZ Max**. **Orb Joystick Phase 1** ✅ — hover calms to default sphere; hold+drag stick selects Drop/Live/Spark/Messages; magnetic snap + haptics; fan chips remain for reduced-motion. Phase 2 WebGL morph later. |
+| **E. Signature reactivity** ✅ | **V-Dock** + **Orb** (Joystick Phase 1 ✅; **reactive runtime** ✅ — onset/beat/spectrum corona; analyser snappier). **Off / Soft / VYBZ Max**. Monitor-cue ducks Orb. Widget catalog shipped (creatively unbounded). WebGL Orb morph still later. |
 | **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
 | **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
 | **O. Unified Social Live** ✅ | One public ultra-low-latency live tier + premium V¢ text/voice rooms. Phases 1–3 ✅. **Phase 4** room voice UI (LiveKit) + V¢ renewals cron ops ✅. |
@@ -373,15 +380,20 @@ disciplines / shared genres+DAWs).
 
 The `AudioBus` analyser drives:
 
-1. **Taskbar Orb** — primary reactive surface. Idle: slow neochrome plasma sphere.
+1. **V-Dock Orb** — primary reactive surface. Idle: slow neochrome plasma sphere.
    Playing: eases into the drop’s `playback_customization` (palette + morph:
-   sphere / blob / bars / ring / liquid). On playback end, soft-blends back to idle.
+   sphere / blob / bars / ring / liquid) driven by **`sampleReactiveFrame`**
+   (`reactiveVisualRuntime.ts`: sub/bass/mid/presence/high, centroid, flux,
+   onset, beat + spectrum). Visual upgrades: FFT silhouette warp, spectrum
+   corona, beat shock ring, sub squash, high shimmer, live filaments. On
+   playback end, soft-blends back to idle. **Monitor Cue** widget ducks morph.
    Listener intensity **Off / Soft / VYBZ Max** (`display.ts`) scales amplitude +
    chroma. Respect `prefers-reduced-motion`.
    **Joystick (Phase 1):** hover/aim calms morph to the default sphere; hold and
    drag like a top-down gamepad stick toward cardinal actions (Drop / Live /
-   Spark / Messages); magnetic sector snap + optional haptic; release to run.
-   Reduced-motion keeps the legacy fan chip tray (`OrbFan`).
+   Spark / Messages); magnetic sector snap + optional haptic; release to run;
+   sector ring soft-pulses to the beat while aiming. Reduced-motion keeps
+   `OrbFan`. WebGL morph path remains optional later.
 2. **Seeded per-track visualizers** — every drop’s visualizer derives from
    `hash(creator_id + asset_id)` so tracks stay unique (static seeded frame at rest,
    reactive while playing).
@@ -705,7 +717,7 @@ Made every surface feel like its own place without touching the mission or data:
 - **Motion:** staggered card reveals (`.reveal`) on Feed + Connect.
 - **Audio-reactive polish:** **Off / Soft / VYBZ Max** intensity in profile
   settings. Viewport/card outlines retired — reactivity concentrates on the
-  **taskbar Orb** (morph modes from uploader `playback_customization` + FFT bands).
+  **V-Dock Orb** (morph modes from uploader `playback_customization` + FFT bands).
   `DynamicBackground` still scales by intensity (0 when effects Off / reduced).
   _Env note (§4.1): validate on a real device._
 - **Residue:** purged off-mission wording (legacy economy / confession domains) in touched files.

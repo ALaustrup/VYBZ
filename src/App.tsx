@@ -11,7 +11,7 @@ import { ComposeSheet } from "@/components/ComposeSheet";
 import { BulkUploadSheet } from "@/components/BulkUploadSheet";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
-import { Taskbar } from "@/components/taskbar/Taskbar";
+import { VDock } from "@/components/vdock/VDock";
 import { AppChrome } from "@/components/shell/AppChrome";
 import { BRAND_ACCENT, BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
 import { Toast } from "@/components/Toast";
@@ -130,7 +130,7 @@ export function App() {
         stage={routes}
         dock={(
           <ErrorBoundary>
-            <Taskbar onCompose={() => setComposeOpen(true)} />
+            <VDock onCompose={() => setComposeOpen(true)} />
           </ErrorBoundary>
         )}
       />
