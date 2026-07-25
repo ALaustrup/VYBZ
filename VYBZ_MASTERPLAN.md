@@ -380,24 +380,16 @@ disciplines / shared genres+DAWs).
 
 The `AudioBus` analyser drives:
 
-1. **V-Dock Orb** — primary reactive surface. Idle: slow neochrome plasma sphere.
-   Playing: eases into the drop’s `playback_customization` (palette + morph:
-   sphere / blob / bars / ring / liquid) driven by **`sampleReactiveFrame`**
-   (`reactiveVisualRuntime.ts`: sub/bass/mid/presence/high, centroid, flux,
-   onset, beat + spectrum). Visual upgrades: FFT silhouette warp, spectrum
-   corona, beat shock ring, sub squash, high shimmer, live filaments. On
-   playback end, soft-blends back to idle. **Monitor Cue** widget ducks morph.
-   Listener intensity **Off / Soft / VYBZ Max** (`display.ts`) scales amplitude +
-   chroma. Respect `prefers-reduced-motion`.
-   **Joystick (Phase 1):** hover/aim calms morph to the default sphere; hold and
-   drag like a top-down gamepad stick toward cardinal actions (Drop / Live /
-   Spark / Messages); magnetic sector snap + optional haptic; release to run;
-   sector ring soft-pulses to the beat while aiming. Reduced-motion keeps
-   `OrbFan`. WebGL morph path remains optional later.
-2. **Seeded per-track visualizers** — every drop’s visualizer derives from
-   `hash(creator_id + asset_id)` so tracks stay unique (static seeded frame at rest,
-   reactive while playing).
-3. **Living background** — `DynamicBackground` still scales with FX intensity
+1. **V-Dock Orb** — **WebGL2 SDF engine** (`src/lib/gpu/orbEngine.ts`) with
+   Canvas2D fallback. Idle neochrome → uploader palette/morph via
+   `sampleReactiveFrame`. Soft/Max budgets; Monitor Cue ducks morph; Joystick
+   Phase 1 + beat-pulsed sectors; reduce-motion / Off calm.
+2. **DropStage** — shared WebGL2 drop banner (`dropStageEngine.ts` /
+   `DropStage.tsx`) for TrackCard / GlobalPlayer; seeded Canvas2D fallback;
+   video backdrop slot reserved for Reactive Media #1.
+3. **Material chrome** — `mat-surface` / `cta-pill` / `broadcast-bezel` /
+   `match-bloom` / `stage-empty` (Social Top-3, Spark, More, V-Dock tray).
+4. **Living background** — `DynamicBackground` still scales with FX intensity
    (0 when Off / reduced).
 
 Viewport-wide neon borders (`ReactiveFrame`) are **retired** (stub remains for

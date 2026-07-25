@@ -3,12 +3,17 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
-## Beta-0B.1 (in progress) — Music Repos R5 + Unified Social Live
+## Beta-0B.1 — 2026-07-25 — Elite Reactive Campaign
 
-- DAWproject / stem-pack / bounce detection on folder walk; commit `meta` flags
-- History **Handoff** panel — honest export hints (no bit-perfect `.als` merge claims)
-- File tree highlights for `.dawproject`, `Stems/`, and bounce paths
-- **Unified Social Live Phase 1–2:** premium rooms + V¢ ledger; LiveKit token Edge Fn + SFU fields; Bunny remains VOD offload
+- **V-Dock** widgets catalog + Now Playing system widget (prior); naming locked
+- **WebGL2 Orb** (`orbEngine`) + Canvas2D fallback; snappier analyser; Monitor Cue duck
+- **DropStage** compositor for drop banners (TrackVisualizer alias)
+- **Voice slot lights** G/Y/P on room voice + V-Dock `voiceSlots` sync
+- Material chrome: `mat-surface`, `cta-pill`, Social Top-3 `broadcast-bezel`, Spark `match-bloom`
+- [`docs/PRODUCTION_HARDENING.md`](./docs/PRODUCTION_HARDENING.md) — gates + Edge inventory
+
+### Also in 0B.1 line
+- Music Repos R5 handoff hints; Unified Social Live Phases 1–4 (schema, LiveKit, Social hub, room voice)
 
 ## Beta-0B — 2026-07-24 — Music Repos
 

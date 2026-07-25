@@ -16,11 +16,11 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 px-6 py-14 text-center">
-      <Icon className="h-6 w-6 text-white/25" />
-      <p className="font-display text-base font-semibold text-white">{title}</p>
-      <p className="max-w-xs text-sm leading-relaxed text-white/45">{body}</p>
-      {action}
+    <div className="stage-empty gap-3 py-14">
+      <Icon className="relative z-[1] h-6 w-6 text-cyan-200/40" />
+      <p className="relative z-[1] font-display text-base font-semibold text-white">{title}</p>
+      <p className="relative z-[1] max-w-xs text-sm leading-relaxed text-white/45">{body}</p>
+      {action ? <div className="relative z-[1]">{action}</div> : null}
     </div>
   );
 }

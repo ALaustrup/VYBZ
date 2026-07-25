@@ -4,6 +4,8 @@
  */
 
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabase } from "@/lib/supabase";
+import type { VoiceSlotSnapshot } from "@/lib/voiceSlots";
+import { EMPTY_VOICE_SLOTS, VoiceSlotManager } from "@/lib/voiceSlots";
 
 export type LivekitTokenResponse = {
   configured: boolean;
@@ -227,6 +229,10 @@ export async function joinRoomVoiceSfu(opts: {
   /** Optional host element for remote audio elements. */
   audioHost?: HTMLElement | null;
   onParticipantCount?: (n: number) => void;
+  /** Tricolor G/Y/P occupancy from LiveKit speaking activity. */
+  onVoiceSlots?: (slots: VoiceSlotSnapshot) => void;
+  /** Map LiveKit identity → display name (defaults to identity). */
+  resolveName?: (identity: string) => string;
 }): Promise<RoomVoiceSession> {
   const tokenRes = await mintRoomVoiceToken(opts.roomId, opts.canPublish !== false);
   if (!tokenRes.configured || !tokenRes.url || !tokenRes.token) {
@@ -259,12 +265,20 @@ export async function joinRoomVoiceSfu(opts: {
   const { room, disconnect: baseDisconnect } = conn;
   let muted = false;
   const attached = new Set<HTMLMediaElement>();
+  const slots = new VoiceSlotManager();
+  let slotTimer: number | null = null;
 
   try {
     const lk = await import("livekit-client");
+    const nameOf = (identity: string, fallback?: string | null) =>
+      opts.resolveName?.(identity) || fallback || identity.slice(0, 8);
 
     const bumpCount = () => {
       opts.onParticipantCount?.(room.numParticipants);
+    };
+
+    const publishSlots = () => {
+      opts.onVoiceSlots?.(slots.tick(Date.now()));
     };
 
     const attachAudio = (track: import("livekit-client").RemoteTrack) => {
@@ -281,7 +295,26 @@ export async function joinRoomVoiceSfu(opts: {
     });
     room.on(lk.RoomEvent.TrackUnsubscribed, () => bumpCount());
     room.on(lk.RoomEvent.ParticipantConnected, bumpCount);
-    room.on(lk.RoomEvent.ParticipantDisconnected, bumpCount);
+    room.on(lk.RoomEvent.ParticipantDisconnected, (p) => {
+      bumpCount();
+      // Force-expire disconnected identities
+      slots.noteSpeaking(p.identity, nameOf(p.identity, p.name), Date.now() - 10_000);
+      publishSlots();
+    });
+    room.on(lk.RoomEvent.ActiveSpeakersChanged, (speakers) => {
+      const now = Date.now();
+      for (const p of speakers) {
+        if (p.isSpeaking || (p.audioLevel ?? 0) > 0.02) {
+          slots.noteSpeaking(p.identity, nameOf(p.identity, p.name), now);
+        }
+      }
+      // Local mic activity when unmuted
+      const local = room.localParticipant;
+      if (!muted && (local.isSpeaking || (local.audioLevel ?? 0) > 0.02)) {
+        slots.noteSpeaking(local.identity, nameOf(local.identity, local.name), now);
+      }
+      publishSlots();
+    });
 
     for (const p of room.remoteParticipants.values()) {
       for (const pub of p.trackPublications.values()) {
@@ -295,6 +328,8 @@ export async function joinRoomVoiceSfu(opts: {
       muted = true;
     }
     bumpCount();
+    opts.onVoiceSlots?.(EMPTY_VOICE_SLOTS);
+    slotTimer = window.setInterval(publishSlots, 250);
 
     const session: RoomVoiceSession = {
       configured: true,
@@ -306,6 +341,10 @@ export async function joinRoomVoiceSfu(opts: {
         await room.localParticipant.setMicrophoneEnabled(!next);
       },
       disconnect: async () => {
+        if (slotTimer != null) window.clearInterval(slotTimer);
+        slotTimer = null;
+        slots.reset();
+        opts.onVoiceSlots?.(EMPTY_VOICE_SLOTS);
         attached.forEach((el) => {
           el.remove();
         });

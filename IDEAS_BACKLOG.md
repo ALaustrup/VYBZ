@@ -179,16 +179,14 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 ---
 
-#### 2. V-Dock Orb — highest-quality audio-reactive visualization ◑ **PARTIAL**
+#### 2. V-Dock Orb — highest-quality audio-reactive visualization ✅ **PROMOTED / SHIPPED (WebGL2)**
 
-- **Shipped (FE):** `reactiveVisualRuntime.ts` + Orb spectrum corona / beat ring /
-  FFT silhouette / sub squash; snappier analyser (`fftSize` 2048, smoother 0.55);
-  joystick ring beat pulse; TrackVisualizer consumes same frame; Monitor Cue ducks
-  Orb. Shared contract ready for drop backdrops + Live tiles.
-- **Still open:** Optional WebGL/WebGPU path; cosmetic visualizer pack SKUs
-  (Lane B); deeper A/B polish vs seed morphs.
-- **Guardrails:** Orb stays V-Dock identity — never a second player; Off / Soft /
-  Max + reduce-motion; uploader palette while playing; creatively open (any drop).
+- **Shipped:** WebGL2 SDF Orb (`orbEngine.ts`) + Canvas2D fallback; DropStage
+  compositor for banners; shared `ReactiveRenderContext`; material chrome tokens;
+  voice slot lights. Soft/Max + reduce-motion respected.
+- **Still open:** WebGPU/WGSL path; video backdrop upload (#1); cosmetic packs
+  (Lane B); Live tile reuse (#3).
+- **Guardrails:** Orb stays V-Dock identity; creatively open (any drop).
 
 ---
 
@@ -313,7 +311,9 @@ text+voice rooms** monetized via recurring **V¢** — analysis only until promo
 
 ### 2026-07-24 — Voice slot lights + premium polish cluster 🟢
 
-#### A. Tricolor voice occupancy lights (rooms) 🟢
+#### A. Tricolor voice occupancy lights (rooms) ✅ **SHIPPED**
+- **Shipped:** `VoiceSlotManager` + LiveKit `ActiveSpeakersChanged` → G/Y/P on
+  `RoomPage` VoiceBar + message authors; syncs V-Dock `voiceSlots` widget.
 - **What:** In voice rooms, glowing status dots beside display names show who is
   speaking and **slot order** (max **3** concurrent voices):
   - **Green** = 1st active speaker (earliest still-talking)
@@ -457,8 +457,8 @@ Defer: Nearby/Scene, DM Quick Reply, Level Guard, Tip jar.
 | **Reactive Media** | #1 + #2 (+ #3) | FE-heavy; shared runtime; unblocks Live aesthetics |
 | **Unified Social Live** | #4 → Phase **O** | Phases 1–4 ✅ (schema, SFU, Social hub, room voice) |
 | **Orb Joystick** | 2026-07-24 | ✅ Phase 1 promoted; Phase 2 WebGL later |
-| **Voice slot lights** | 2026-07-24 A | After Orb P1; LiveKit speaking events |
-| **Premium surface** | 2026-07-24 B | Incremental polish slices |
+| **Voice slot lights** | 2026-07-24 A | ✅ Shipped with LiveKit ActiveSpeakers |
+| **Premium surface** | 2026-07-24 B | ◑ Material tokens + Social/Spark/More/V-Dock |
 | **V-Dock widgets** | 2026-07-24 | ✅ Shipped catalog + Now Playing; deepen wiring over time |
 
 ---

@@ -136,7 +136,7 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
       initial={false} animate={{ scale: 1 - depth * 0.04, y: depth * 14 }}
       exit={{ x: (x.get() >= 0 ? 1 : -1) * 600, opacity: 0, transition: { duration: 0.32 } }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-      <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-white/10 shadow-card" style={{ background: gradientFor(c.userId) }}>
+      <div className="match-bloom relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-white/10 shadow-[var(--mat-depth)]" style={{ background: gradientFor(c.userId) }}>
         <div className="pointer-events-none absolute inset-0 flex items-start justify-end p-4 opacity-20"><span className="font-display text-[10rem] font-black leading-none text-white">{name.charAt(0).toUpperCase()}</span></div>
         {active && <>
           <motion.div style={{ opacity: connectOp, rotate: -12 }} className="pointer-events-none absolute left-6 top-10 flex items-center gap-1.5 rounded-2xl border-2 border-feel px-4 py-2 font-display text-2xl font-bold uppercase text-feel"><UserPlus className="h-6 w-6" /> Connect</motion.div>
@@ -145,8 +145,10 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
         <div className="relative mt-auto flex flex-col gap-2.5 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-5 pt-16">
           <div className="flex items-end justify-between gap-2">
             <button onClick={onOpen} className="font-display text-2xl font-bold text-white">{name}</button>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-sm font-semibold text-white/70">{Math.round(c.fit * 100)}% fit</span>
+            <div className="relative z-[1] flex flex-col items-end gap-1">
+              <span className="relative overflow-hidden rounded-full border border-cyan-300/30 bg-black/35 px-2.5 py-0.5 font-display text-sm font-semibold text-cyan-100 shadow-[0_0_24px_-6px_rgba(0,255,200,0.55)]">
+                <span className="relative z-[1]">{Math.round(c.fit * 100)}% fit</span>
+              </span>
               {(() => { const r = confidenceRead(c.confidence); return (
                 <span className={`flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold ${r.tone}`}>
                   <span className="h-1.5 w-1.5 rounded-full bg-current" /> {r.label}
@@ -174,9 +176,9 @@ function SparkCard({ c, depth, onAct, onOpen }: { c: CollabMatch; depth: number;
           )}
         </div>
         {active && (
-          <div className="absolute inset-x-0 bottom-0 flex translate-y-1/2 items-center justify-center gap-5">
-            <button onClick={() => onAct(c, false)} aria-label="Pass" className="flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-ink-900 text-white/70 shadow-lg active:scale-90"><X className="h-6 w-6" /></button>
-            <button onClick={() => onAct(c, true)} aria-label="Connect" className="flex h-16 w-16 items-center justify-center rounded-full bg-feel text-black shadow-glow-feel active:scale-90"><UserPlus className="h-7 w-7" /></button>
+          <div className="absolute inset-x-0 bottom-0 z-[2] flex translate-y-1/2 items-center justify-center gap-5">
+            <button onClick={() => onAct(c, false)} aria-label="Pass" className="flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-ink-950/90 text-white/70 shadow-[var(--mat-specular),var(--mat-depth)] active:scale-90"><X className="h-6 w-6" /></button>
+            <button onClick={() => onAct(c, true)} aria-label="Connect" className="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-300/40 bg-gradient-to-b from-emerald-300 to-teal-400 text-ink-950 shadow-[0_12px_32px_-12px_rgba(52,245,160,0.75)] active:scale-90"><UserPlus className="h-7 w-7" /></button>
           </div>
         )}
       </div>

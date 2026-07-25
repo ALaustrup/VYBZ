@@ -1,7 +1,7 @@
 // ── Surface theming ──────────────────────────────────────────────────────────
-// Studio Glass: one brand violet everywhere (the sign-in accent). Surfaces keep
-// a label for quiet titles; living background stays on the calm aurora wash so
-// the product reads as one place — not a rainbow of themed tabs.
+// Identity accent stays brand-locked for chrome continuity. Elite reactive
+// surfaces (Orb / DropStage) prefer uploader palettes + cyan/mint neon — never
+// generic purple-glow SaaS cards. Labels stay quiet; one living backdrop.
 
 export interface SurfaceTheme {
   id: string;

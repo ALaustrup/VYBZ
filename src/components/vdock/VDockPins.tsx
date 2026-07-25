@@ -235,7 +235,7 @@ export function VDockTray({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="pointer-events-auto absolute bottom-[calc(100%+0.65rem)] left-1/2 z-40 w-[min(100vw-1rem,28rem)] -translate-x-1/2 overflow-hidden rounded-3xl border border-white/12 bg-ink-900/92 shadow-[0_20px_50px_-24px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
+          className="mat-surface-strong pointer-events-auto absolute bottom-[calc(100%+0.65rem)] left-1/2 z-40 w-[min(100vw-1rem,28rem)] -translate-x-1/2 overflow-hidden rounded-3xl"
           data-vdock-tray
         >
           <div className="flex items-start justify-between gap-3 border-b border-[var(--hairline)] px-4 py-3">
@@ -246,7 +246,7 @@ export function VDockTray({
                 Orb stays.
               </p>
             </div>
-            <button type="button" onClick={onDone} className="flex h-8 shrink-0 items-center gap-1 rounded-full border border-veil-400/40 bg-veil-500/25 px-3 text-[12px] font-semibold text-white">
+            <button type="button" onClick={onDone} className="cta-pill h-8 shrink-0 !text-[12px]">
               <Check className="h-3.5 w-3.5" /> Done
             </button>
           </div>

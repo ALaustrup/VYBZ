@@ -22,6 +22,16 @@
     --dock-reserve: 6.25rem;
     --rail-w: 5.75rem;
     --stage-pad-x: 1rem;
+
+    /* Elite material system — specular glass, not cookie-cutter cards */
+    --mat-fill: rgba(8, 12, 22, 0.72);
+    --mat-fill-strong: rgba(6, 10, 18, 0.92);
+    --mat-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+    --mat-press: 0 1px 0 rgba(0, 0, 0, 0.45);
+    --mat-depth: 0 18px 48px -28px rgba(0, 0, 0, 0.92);
+    --neon-cyan: 0 255 200;
+    --neon-mint: 52 245 160;
+    --neon-electric: 0 161 255;
   }
 
   @media (min-width: 640px) {
@@ -196,10 +206,89 @@
     letter-spacing: 0.2em;
   }
 
+  /* ---- Material surfaces --------------------------------------------------- */
+  .mat-surface {
+    background: var(--mat-fill);
+    border: 1px solid var(--hairline);
+    box-shadow: var(--mat-specular), var(--mat-depth);
+    backdrop-filter: blur(22px) saturate(1.45);
+    -webkit-backdrop-filter: blur(22px) saturate(1.45);
+  }
+  .mat-surface-strong {
+    background: var(--mat-fill-strong);
+    border: 1px solid var(--hairline-strong);
+    box-shadow: var(--mat-specular), var(--mat-depth);
+    backdrop-filter: blur(28px) saturate(1.5);
+    -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  }
+  .cta-pill {
+    @apply relative inline-flex select-none items-center justify-center gap-1.5
+      rounded-full px-3 py-1.5 font-display text-xs font-semibold text-white
+      transition active:scale-[0.97];
+    border: 1px solid rgba(var(--neon-cyan), 0.35);
+    background: linear-gradient(180deg, rgba(var(--neon-electric), 0.22), rgba(255, 255, 255, 0.04));
+    box-shadow: var(--mat-specular), 0 10px 28px -16px rgba(var(--neon-electric), 0.55);
+  }
+  .broadcast-bezel {
+    position: relative;
+    border-radius: 1.15rem;
+    isolation: isolate;
+  }
+  .broadcast-bezel::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--neon-cyan), 0.75),
+      rgba(var(--neon-electric), 0.35),
+      rgba(255, 93, 143, 0.45),
+      rgba(var(--neon-mint), 0.55)
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.85;
+    animation: bezel-shift 4.5s linear infinite;
+  }
+  @keyframes bezel-shift {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(40deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .broadcast-bezel::before { animation: none; }
+  }
+  .match-bloom {
+    position: relative;
+  }
+  .match-bloom::after {
+    content: "";
+    position: absolute;
+    inset: -30% -10%;
+    background: radial-gradient(
+      ellipse at 70% 20%,
+      rgba(var(--neon-cyan), 0.28),
+      rgba(var(--neon-electric), 0.08) 40%,
+      transparent 68%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+  .stage-empty {
+    @apply relative flex flex-col items-center justify-center px-6 text-center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(var(--neon-electric), 0.12), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(var(--neon-mint), 0.08), transparent 50%);
+  }
+
   /* ---- Glass buttons ---------------------------------------------------------
-     A single shared button system with a frosted-glass base so every CTA reads
-     as premium dark glass: a crisp top highlight, a soft blur, and a firm press.
-     Accents (orange for primary) come from a translucent tint + hairline. */
+     Intentional material CTAs — not generic SaaS pills. Prefer .cta-pill on
+     high-traffic chrome; .btn retained for denser forms. */
   .btn {
     @apply relative inline-flex select-none items-center justify-center gap-2
       rounded-xl px-4 py-3 font-display text-sm font-semibold
@@ -209,6 +298,7 @@
       disabled:hover:translate-y-0;
     backdrop-filter: blur(16px) saturate(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow: var(--mat-specular);
   }
   /* Primary — neutral dark-glass action that glows the current page's accent.
      White text, a faint accent tint + accent hairline, so CTAs feel premium and
@@ -424,6 +514,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .bell-alert { animation: vybz-bell-pulse 2.2s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .bell-alert { animation: none; } .nav-item:hover { transform: none; } }
+
+@keyframes voice-slot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.35); opacity: 0.85; }
+}
+.voice-slot-pulse { animation: voice-slot-pulse 1.1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .voice-slot-pulse { animation: none; } }
 
 /* V-Dock edit mode — light phone-home-screen jiggle */
 @keyframes vybz-pin-jiggle {

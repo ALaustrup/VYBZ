@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { usePlayer } from "@/lib/audioBus";
 import { useChromaBoost, useFxScale, useReduceFx } from "@/lib/display";
+import { createOrbEngine, morphIdFromFx } from "@/lib/gpu/orbEngine";
 import { resolvePlaybackVisuals } from "@/lib/playbackCustomization";
 import { sampleReactiveFrame, type ReactiveVisualFrame } from "@/lib/reactiveVisualRuntime";
 import { getWidgetPrefs } from "@/lib/vdock/widgetPrefs";
@@ -115,6 +116,71 @@ export function OrbSphere({
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
+
+    // ── WebGL2 elite path (falls through to Canvas2D) ─────────────────────
+    const gpu = createOrbEngine(canvas);
+    if (gpu) {
+      const dpr0 = Math.min(2, window.devicePixelRatio || 1);
+      gpu.resize(DRAW, dpr0);
+      let raf = 0;
+      let t = 0;
+      let flashA = 0;
+      let liveBlend = frame.current.live ? 1 : 0;
+      let hidden = document.hidden;
+      const onVis = () => { hidden = document.hidden; };
+      const mid = DRAW / 2;
+      const ptr = { x: mid, y: mid, tx: mid, ty: mid, inside: false };
+      const onMove = (e: PointerEvent) => {
+        const r = wrap.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        ptr.inside = Math.hypot(dx, dy) < r.width * 0.55;
+      };
+      window.addEventListener("pointermove", onMove);
+      document.addEventListener("visibilitychange", onVis);
+
+      const drawGpu = () => {
+        if (!hidden) {
+          const f = frame.current;
+          t += 0.016;
+          const targetBlend = f.calm || f.monitorCue ? 0 : f.live ? 1 : 0;
+          const blendRate = f.calm || f.monitorCue ? 0.22 : f.live ? 0.1 : 0.038;
+          liveBlend += (targetBlend - liveBlend) * blendRate;
+          if (f.flash) flashA = 1;
+          else flashA *= 0.88;
+          const analysing = !f.reduce && f.fxScale > 0.02 && f.playing && !f.monitorCue;
+          const rv = sampleReactiveFrame(analysing);
+          const uploadColors = f.palKey.split(",").map((c) => vividHex(c, f.chroma));
+          const neo = neoChromeAt(t);
+          const colors = blendPalettes(neo, uploadColors, liveBlend);
+          const morphW = smoothstep(liveBlend, 0.12, 0.72);
+          const morph = morphW < 0.08 ? 0 : morphIdFromFx(f.fx);
+          gpu.draw({
+            time: t,
+            liveBlend,
+            calm: f.calm || f.monitorCue,
+            stickX: f.stickX,
+            stickY: f.stickY,
+            fxScale: f.reduce ? 0 : f.fxScale,
+            flash: Math.max(flashA, rv.onset * 0.4 * liveBlend),
+            morph,
+            palette: colors,
+            rv,
+          });
+          void ptr;
+        }
+        raf = requestAnimationFrame(drawGpu);
+      };
+      raf = requestAnimationFrame(drawGpu);
+      return () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("pointermove", onMove);
+        document.removeEventListener("visibilitychange", onVis);
+        gpu.destroy();
+      };
+    }
+
+    // ── Canvas2D fallback ─────────────────────────────────────────────────
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 

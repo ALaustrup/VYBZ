@@ -5,7 +5,10 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { usePlayer, getSnapshot, playTrack, seek, pause, toggle } from "@/lib/audioBus";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
+import { VoiceSlotDot } from "@/components/VoiceSlotDot";
 import { joinRoomVoiceSfu, type RoomVoiceSession } from "@/lib/livekitSfu";
+import { patchWidgetPrefs } from "@/lib/vdock/widgetPrefs";
+import { EMPTY_VOICE_SLOTS, type VoiceSlotSnapshot } from "@/lib/voiceSlots";
 import { cx } from "@/lib/utils";
 import type { Room, RoomMessage, RoomPresence } from "@/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -55,6 +58,7 @@ function VoiceBar({
   muted,
   busy,
   speakers,
+  slots,
   onJoin,
   onLeave,
   onToggleMute,
@@ -63,6 +67,7 @@ function VoiceBar({
   muted: boolean;
   busy: boolean;
   speakers: number;
+  slots: VoiceSlotSnapshot;
   onJoin: () => void;
   onLeave: () => void;
   onToggleMute: () => void;
@@ -76,34 +81,49 @@ function VoiceBar({
           type="button"
           disabled={busy}
           onClick={onJoin}
-          className="shrink-0 rounded-full bg-veil-500 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-40"
+          className="cta-pill shrink-0 disabled:opacity-40"
         >
           {busy ? "Joining…" : "Join voice"}
         </button>
       </div>
     );
   }
+  const occupied = [slots.green, slots.yellow, slots.pink].filter(Boolean);
   return (
-    <div className="mx-4 mb-1 flex items-center gap-2 rounded-xl border border-veil-400/35 bg-veil-500/[0.12] px-3 py-2">
-      <Mic className={cx("h-4 w-4 shrink-0", muted ? "text-white/35" : "animate-pulse text-veil-100")} />
-      <span className="min-w-0 flex-1 truncate text-sm text-white/85">
-        In voice · {speakers} {speakers === 1 ? "person" : "people"}
-      </span>
-      <button
-        type="button"
-        onClick={onToggleMute}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white active:scale-95"
-        aria-label={muted ? "Unmute" : "Mute"}
-      >
-        {muted ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
-      </button>
-      <button
-        type="button"
-        onClick={onLeave}
-        className="flex h-8 items-center gap-1 rounded-full bg-wild/80 px-2.5 text-xs font-semibold text-white active:scale-95"
-      >
-        <PhoneOff className="h-3 w-3" /> Leave
-      </button>
+    <div className="mx-4 mb-1 space-y-1.5 rounded-xl border border-white/12 bg-ink-950/50 px-3 py-2 backdrop-blur-md">
+      <div className="flex items-center gap-2">
+        <Mic className={cx("h-4 w-4 shrink-0", muted ? "text-white/35" : "text-emerald-300")} />
+        <span className="min-w-0 flex-1 truncate text-sm text-white/85">
+          In voice · {speakers} {speakers === 1 ? "person" : "people"}
+        </span>
+        <button
+          type="button"
+          onClick={onToggleMute}
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-white/[0.06] text-white active:scale-95"
+          aria-label={muted ? "Unmute" : "Mute"}
+        >
+          {muted ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+        </button>
+        <button
+          type="button"
+          onClick={onLeave}
+          className="flex h-8 items-center gap-1 rounded-full border border-wild/40 bg-wild/25 px-2.5 text-xs font-semibold text-white active:scale-95"
+        >
+          <PhoneOff className="h-3 w-3" /> Leave
+        </button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 pl-6 text-[11px] text-white/55">
+        {(["green", "yellow", "pink"] as const).map((c) => {
+          const sp = slots[c];
+          return (
+            <span key={c} className="inline-flex items-center gap-1">
+              <VoiceSlotDot color={c} pulse={!!sp} title={sp ? `${c}: ${sp.name}` : `${c} open`} />
+              <span className="max-w-[5.5rem] truncate">{sp?.name ?? "—"}</span>
+            </span>
+          );
+        })}
+        {occupied.length === 0 && <span className="text-white/35">Waiting for speakers…</span>}
+      </div>
     </div>
   );
 }
@@ -125,7 +145,10 @@ export function RoomPage() {
   const [voiceMuted, setVoiceMuted] = useState(false);
   const [voiceBusy, setVoiceBusy] = useState(false);
   const [voiceSpeakers, setVoiceSpeakers] = useState(0);
+  const [voiceSlots, setVoiceSlots] = useState<VoiceSlotSnapshot>(EMPTY_VOICE_SLOTS);
   const [subBusy, setSubBusy] = useState(false);
+  const onlineRef = useRef<RoomPresence[]>([]);
+  useEffect(() => { onlineRef.current = online; }, [online]);
   const endRef = useRef<HTMLDivElement>(null);
   const audioHostRef = useRef<HTMLDivElement>(null);
   const voiceRef = useRef<RoomVoiceSession | null>(null);
@@ -224,6 +247,21 @@ export function RoomPage() {
         roomId: id,
         audioHost: audioHostRef.current,
         onParticipantCount: (n) => setVoiceSpeakers(n),
+        resolveName: (identity) => {
+          if (identity === userId) return profile?.username ?? "You";
+          const hit = onlineRef.current.find((p) => p.userId === identity);
+          return hit?.username ?? identity.slice(0, 8);
+        },
+        onVoiceSlots: (snap) => {
+          setVoiceSlots(snap);
+          patchWidgetPrefs({
+            voiceSlots: {
+              green: snap.green?.name ?? null,
+              yellow: snap.yellow?.name ?? null,
+              pink: snap.pink?.name ?? null,
+            },
+          });
+        },
       });
       if (!session.connected) {
         showToast(session.error === "forbidden" ? "No access to voice" : "Voice unavailable");
@@ -244,6 +282,8 @@ export function RoomPage() {
     setVoiceConnected(false);
     setVoiceMuted(false);
     setVoiceSpeakers(0);
+    setVoiceSlots(EMPTY_VOICE_SLOTS);
+    patchWidgetPrefs({ voiceSlots: { green: null, yellow: null, pink: null } });
   }
 
   async function toggleMute() {
@@ -305,6 +345,7 @@ export function RoomPage() {
               muted={voiceMuted}
               busy={voiceBusy}
               speakers={voiceSpeakers}
+              slots={voiceSlots}
               onJoin={() => void joinVoice()}
               onLeave={() => void leaveVoice()}
               onToggleMute={() => void toggleMute()}
@@ -341,7 +382,10 @@ export function RoomPage() {
             return (
               <div key={m.id} className={cx("flex flex-col", m.mine ? "items-end" : "items-start")}>
                 {!grouped && (
-                  <span className="mb-0.5 px-1 text-[11px] text-white/40">
+                  <span className="mb-0.5 flex items-center gap-1.5 px-1 text-[11px] text-white/40">
+                    {voiceSlots.byId[m.senderId] && (
+                      <VoiceSlotDot color={voiceSlots.byId[m.senderId]} title="Active voice slot" />
+                    )}
                     {m.mine ? "You" : (m.senderName ?? "creator")} · {fmtTime(m.createdAt)}
                   </span>
                 )}

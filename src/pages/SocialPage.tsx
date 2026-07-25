@@ -47,10 +47,10 @@ export function SocialPage() {
   useRegisterAppBar({
     actions: (
       <>
-        <button type="button" onClick={() => setCreating(true)} className="btn btn-ghost h-9 px-3 py-0 text-xs">
+        <button type="button" onClick={() => setCreating(true)} className="cta-pill h-9 !bg-white/[0.06]">
           <Plus className="h-3.5 w-3.5" /> Room
         </button>
-        <button type="button" onClick={() => setGoLive(true)} className="btn btn-primary h-9 px-3.5 py-0 text-xs">
+        <button type="button" onClick={() => setGoLive(true)} className="cta-pill h-9">
           <Radio className="h-3.5 w-3.5" /> Go live
         </button>
       </>
@@ -87,12 +87,12 @@ export function SocialPage() {
                       key={s.id}
                       type="button"
                       onClick={() => navigate(`/live/${s.id}`)}
-                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-transparent p-4 text-left transition hover:border-veil-400/40 active:scale-[0.99]"
+                      className="broadcast-bezel group relative overflow-hidden mat-surface p-4 text-left transition active:scale-[0.99]"
                     >
-                      <span className="absolute right-3 top-3 rounded-md bg-wild/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                      <span className="absolute right-3 top-3 z-[3] rounded-md bg-wild/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
                         Live
                       </span>
-                      <div className="flex items-center gap-3">
+                      <div className="relative z-[1] flex items-center gap-3">
                         <Avatar url={s.avatarUrl} name={s.username || s.displayName} id={s.hostId} size="md" />
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-display text-[15px] font-semibold text-white">
@@ -103,7 +103,7 @@ export function SocialPage() {
                           </p>
                         </div>
                       </div>
-                      <p className="mt-3 flex items-center gap-2 text-[11px] text-white/35">
+                      <p className="relative z-[1] mt-3 flex items-center gap-2 text-[11px] text-white/35">
                         <Eye className="h-3 w-3" />{s.viewerCount}
                         <span>·</span>
                         <span>#{i + 1}</span>

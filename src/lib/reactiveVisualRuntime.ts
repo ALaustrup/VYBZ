@@ -30,6 +30,17 @@ export interface ReactiveVisualFrame {
   spectrum: Uint8Array;
 }
 
+/** Extended contract for Orb / DropStage / Live tiles (same analyser, shared look). */
+export interface ReactiveRenderContext {
+  frame: ReactiveVisualFrame;
+  seed: number;
+  palette: string[];
+  /** 0 sphere · 1 blob · 2 bars · 3 ring · 4 liquid */
+  morphId: number;
+  fxScale: number;
+  liveBlend: number;
+}
+
 const EMPTY: Omit<ReactiveVisualFrame, "spectrum"> = {
   bass: 0,
   mid: 0,

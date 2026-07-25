@@ -1,6 +1,6 @@
 # VYBZ — Security & Privacy
 
-_Astra Matrix, Inc._ · **Beta-0B**
+_Astra Matrix, Inc._ · **Beta-0B.1**
 
 How VYBZ handles accounts, sensitive data, and access control. VYBZ is
 **identity-first** — every account is a real creator — but it collects as little as
@@ -54,6 +54,12 @@ possible and protects it with Postgres Row-Level Security and definer-gated RPCs
 - **Payments:** Stripe secrets and webhook verification stay server-side
   (`stripe-webhook`, Connect + credit top-up functions). Client never holds
   service-role or Stripe secret keys.
+
+## Production hardening
+
+See [`docs/PRODUCTION_HARDENING.md`](./docs/PRODUCTION_HARDENING.md) for the
+release checklist, Edge inventory, and **explicit infra/legal gates** that must
+not be pretend-shipped (TURN, Bunny live ingest, 8K TUS, V¢ cash-out).
 
 ## Reporting
 

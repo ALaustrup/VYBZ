@@ -108,7 +108,7 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={reduce ? { duration: 0.01 } : { type: "spring", stiffness: 380, damping: 36 }}
-            className="fixed inset-y-0 right-0 z-[70] flex w-[min(100%,22rem)] flex-col border-l border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
+            className="mat-surface-strong fixed inset-y-0 right-0 z-[70] flex w-[min(100%,22rem)] flex-col border-l border-white/10"
           >
             <div className="border-b border-[var(--hairline)] px-4 pb-3 pt-[max(0.85rem,env(safe-area-inset-top))]">
               <div className="flex items-center justify-between">
@@ -117,20 +117,20 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                   <p className="text-[12px] text-white/40">Secondary destinations</p>
                 </div>
                 <button type="button" aria-label="Close" onClick={onClose}
-                  className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-white/[0.06] active:scale-90">
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <button
                 type="button"
                 onClick={() => go("/store")}
-                className="mt-3 flex w-full items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-left transition hover:bg-white/[0.06] active:scale-[0.99]"
+                className="mat-surface mt-3 flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-left transition active:scale-[0.99]"
                 aria-label={`V¢ balance ${vc}. Top up.`}
               >
                 <span className="font-display text-[15px] font-semibold tracking-tight text-white">
-                  {vc.toLocaleString()} <span className="text-veil-200">V¢</span>
+                  {vc.toLocaleString()} <span className="text-cyan-200">V¢</span>
                 </span>
-                <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full bg-veil-500/25 text-veil-100 ring-1 ring-veil-400/35">
+                <span className="ml-auto flex h-7 w-7 items-center justify-center rounded-full border border-cyan-300/35 bg-cyan-400/15 text-cyan-100">
                   <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
                 </span>
               </button>
@@ -154,10 +154,10 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                               onClick={() => go(item.to)}
                               className={cx(
                                 "flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition",
-                                "bg-white/[0.03] hover:bg-white/[0.07] active:scale-[0.99]",
+                                "border border-transparent hover:border-white/10 hover:bg-white/[0.05] active:scale-[0.99]",
                               )}
                             >
-                              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.05] text-veil-200">
+                              <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan-100/90">
                                 <Icon className="h-4 w-4" />
                               </span>
                               <span className="min-w-0 flex-1 truncate text-[14px] font-medium text-white/85">
