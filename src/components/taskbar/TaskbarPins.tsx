@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Plus, Settings2, X } from "lucide-react";
+import { Check } from "lucide-react";
 import { useSession } from "@/store/session";
 import {
-  MAX_SIDE,
+  MAX_LEFT,
+  MAX_RIGHT,
   PIN_BY_ID,
   catalogForRole,
   pinIsActive,
-  setTaskbarPins,
   useTaskbarPins,
   type PinId,
   type PinSide,
@@ -30,7 +30,6 @@ export function TaskbarPinRow({
   onLongPressEnter,
   draggingId,
   onDragStart,
-  /** Flatten into parent flex for even spacing across the full bar. */
   spread = false,
 }: {
   side: PinSide;
@@ -47,6 +46,7 @@ export function TaskbarPinRow({
   const saved = useTaskbarPins();
   const ids = (draft ?? saved)[side];
   const vertical = orientation === "vertical";
+  const max = side === "left" ? MAX_LEFT : MAX_RIGHT;
 
   return (
     <div
@@ -62,7 +62,17 @@ export function TaskbarPinRow({
             ),
       )}
       data-taskbar-side={side}
+      data-taskbar-drop={side}
     >
+      {editing && ids.length === 0 && (
+        <div
+          data-pin-slot={`${side}-0`}
+          data-pin-drop-empty={side}
+          className="mx-1 flex h-full min-h-[44px] w-full flex-1 items-center justify-center rounded-2xl border border-dashed border-white/20 text-[10px] font-medium text-white/35"
+        >
+          Drop here · max {max}
+        </div>
+      )}
       {ids.map((id, index) => {
         const pin = PIN_BY_ID[id];
         if (!pin) return null;
@@ -107,12 +117,12 @@ export function TaskbarPinRow({
         if (editing) {
           return (
             <button
-              key={id}
+              key={`${side}-${id}-${index}`}
               type="button"
               data-pin-slot={`${side}-${index}`}
               data-pin-id={id}
               aria-label={`Move ${pin.label}`}
-              title={pin.label}
+              title={`${pin.label} — drag to reorder, drag off to remove`}
               className={className}
               onPointerDown={(e) => {
                 if (e.button !== 0) return;
@@ -187,7 +197,7 @@ function PinNavItem({
         armed.current = false;
         timer.current = window.setTimeout(() => {
           armed.current = true;
-          try { navigator.vibrate?.(10); } catch { /* ignore */ }
+          try { navigator.vibrate?.(12); } catch { /* ignore */ }
           onLongPressEnter(slot);
         }, LONG_PRESS_MS);
       }}
@@ -206,7 +216,6 @@ function PinNavItem({
         }
       }}
       onContextMenu={(e) => {
-        // Long-press customize on touch / right-click shouldn't open the browser menu.
         if (onLongPressEnter) e.preventDefault();
       }}
     >
@@ -215,81 +224,21 @@ function PinNavItem({
   );
 }
 
-export function TaskbarCustomizeButton({
-  rail = false,
-  onOpen,
-}: {
-  rail?: boolean;
-  onOpen: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label="Customize taskbar"
-      onClick={onOpen}
-      className={cx(
-        "absolute z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/12 bg-ink-900/85 text-white/55 transition hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-veil-400/50",
-        rail ? "right-1 top-1" : "-top-2.5 right-2",
-      )}
-    >
-      <Settings2 className="h-3.5 w-3.5" />
-    </button>
-  );
-}
-
-export function TaskbarEditChrome({
-  rail,
-  onDone,
-  onAdd,
-}: {
-  rail: boolean;
-  onDone: () => void;
-  onAdd: () => void;
-}) {
-  return (
-    <div
-      className={cx(
-        "z-30 flex items-center gap-2",
-        rail
-          ? "mb-2 w-full justify-center px-1"
-          : "absolute -top-10 left-1/2 flex -translate-x-1/2",
-      )}
-    >
-      <button
-        type="button"
-        onClick={onAdd}
-        className="flex h-8 items-center gap-1 rounded-full border border-white/12 bg-ink-900/90 px-3 text-[12px] font-semibold text-white/80 backdrop-blur-md"
-      >
-        <Plus className="h-3.5 w-3.5" /> Add
-      </button>
-      <button
-        type="button"
-        onClick={onDone}
-        className="flex h-8 items-center gap-1 rounded-full border border-veil-400/40 bg-veil-500/25 px-3 text-[12px] font-semibold text-white backdrop-blur-md"
-      >
-        <Check className="h-3.5 w-3.5" /> Done
-      </button>
-    </div>
-  );
-}
-
-export function PinCustomizeSheet({
+/** Edit-mode tray — full catalog; drag icons onto the taskbar. Orb stays fixed. */
+export function TaskbarPinTray({
   open,
-  onClose,
   draft,
-  onApply,
+  draggingId,
+  onDone,
+  onCatalogDragStart,
 }: {
   open: boolean;
-  onClose: () => void;
-  /** When provided (edit mode), Save applies to draft instead of localStorage immediately. */
-  draft?: TaskbarPinsState | null;
-  onApply?: (next: TaskbarPinsState) => void;
+  draft: TaskbarPinsState | null;
+  draggingId?: PinId | null;
+  onDone: () => void;
+  onCatalogDragStart: (id: PinId, point: { x: number; y: number }) => void;
 }) {
   const { profile } = useSession();
-  const saved = useTaskbarPins();
-  const seed = draft ?? saved;
-  const [left, setLeft] = useState<PinId[]>(seed.left);
-  const [right, setRight] = useState<PinId[]>(seed.right);
   const catalog = useMemo(
     () =>
       catalogForRole({
@@ -298,115 +247,68 @@ export function PinCustomizeSheet({
       }),
     [profile],
   );
-
-  useEffect(() => {
-    if (!open) return;
-    const s = draft ?? saved;
-    setLeft([...s.left]);
-    setRight([...s.right]);
-  }, [open, draft, saved.left, saved.right]);
-
-  function toggle(side: PinSide, id: PinId) {
-    const set = side === "left" ? setLeft : setRight;
-    const cur = side === "left" ? left : right;
-    const other = side === "left" ? right : left;
-    if (cur.includes(id)) {
-      set(cur.filter((x) => x !== id));
-      return;
-    }
-    if (cur.length >= MAX_SIDE) return;
-    if (other.includes(id)) {
-      if (side === "left") setRight(other.filter((x) => x !== id));
-      else setLeft(other.filter((x) => x !== id));
-    }
-    set([...cur, id]);
-  }
-
-  function save() {
-    const next = { left, right };
-    if (onApply) onApply(next);
-    else setTaskbarPins(next);
-    onClose();
-  }
+  const pinned = new Set([...(draft?.left ?? []), ...(draft?.right ?? [])]);
 
   return (
     <AnimatePresence>
       {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm"
-            onClick={onClose}
-          />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[70] mx-auto max-h-[85dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border-t border-white/10 bg-ink-900/95 p-5 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-card backdrop-blur-2xl"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-display text-lg font-semibold text-white">Customize taskbar</h2>
-                <p className="text-[12px] text-white/45">
-                  Up to {MAX_SIDE} pins per side. Hold a pin on the bar to rearrange.
-                </p>
-              </div>
-              <button type="button" aria-label="Close" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full glass">
-                <X className="h-4 w-4" />
-              </button>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 12 }}
+          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          className="pointer-events-auto absolute bottom-[calc(100%+0.65rem)] left-1/2 z-40 w-[min(100vw-1rem,26rem)] -translate-x-1/2 overflow-hidden rounded-3xl border border-white/12 bg-ink-900/92 shadow-[0_20px_50px_-24px_rgba(0,0,0,0.95)] backdrop-blur-2xl"
+          data-taskbar-tray
+        >
+          <div className="flex items-start justify-between gap-3 border-b border-[var(--hairline)] px-4 py-3">
+            <div className="min-w-0">
+              <h2 className="font-display text-[15px] font-semibold text-white">Customize taskbar</h2>
+              <p className="mt-0.5 text-[11px] leading-snug text-white/45">
+                Drag onto left (max {MAX_LEFT}) or right (max {MAX_RIGHT}). Drag a pin off the bar to remove.
+                Orb stays.
+              </p>
             </div>
-
-            <SideEditor title="Left" ids={left} catalog={catalog} onToggle={(id) => toggle("left", id)} />
-            <SideEditor title="Right" ids={right} catalog={catalog} onToggle={(id) => toggle("right", id)} />
-
-            <button type="button" onClick={save} className="btn btn-primary mt-4 w-full py-3">
-              <Check className="h-4 w-4" /> Save pins
+            <button
+              type="button"
+              onClick={onDone}
+              className="flex h-8 shrink-0 items-center gap-1 rounded-full border border-veil-400/40 bg-veil-500/25 px-3 text-[12px] font-semibold text-white"
+            >
+              <Check className="h-3.5 w-3.5" /> Done
             </button>
-          </motion.div>
-        </>
+          </div>
+          <div className="no-scrollbar grid max-h-[42dvh] grid-cols-4 gap-2 overflow-y-auto p-3 sm:grid-cols-5">
+            {catalog.map((p) => {
+              const Icon = p.icon;
+              const on = pinned.has(p.id);
+              const dim = draggingId === p.id;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  data-catalog-pin={p.id}
+                  title={on ? `${p.label} (on bar)` : `Add ${p.label}`}
+                  className={cx(
+                    "flex flex-col items-center gap-1 rounded-2xl border px-1.5 py-2.5 touch-none select-none transition active:scale-95",
+                    on
+                      ? "border-veil-400/40 bg-veil-500/15 text-white"
+                      : "border-white/10 bg-white/[0.03] text-white/70 hover:bg-white/[0.06] hover:text-white",
+                    dim && "opacity-35",
+                  )}
+                  onPointerDown={(e) => {
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    onCatalogDragStart(p.id, { x: e.clientX, y: e.clientY });
+                  }}
+                >
+                  <Icon className="h-5 w-5" style={{ color: on ? undefined : undefined }} />
+                  <span className="w-full truncate text-center text-[9px] font-semibold">{p.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function SideEditor({
-  title,
-  ids,
-  catalog,
-  onToggle,
-}: {
-  title: string;
-  ids: PinId[];
-  catalog: ReturnType<typeof catalogForRole>;
-  onToggle: (id: PinId) => void;
-}) {
-  return (
-    <div className="mb-4">
-      <p className="eyebrow mb-2">{title} · {ids.length}/{MAX_SIDE}</p>
-      <div className="flex flex-wrap gap-2">
-        {catalog.map((p) => {
-          const on = ids.includes(p.id);
-          const Icon = p.icon;
-          return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => onToggle(p.id)}
-              className={cx(
-                "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-medium transition",
-                on ? "border-veil-400/50 bg-veil-500/20 text-white" : "border-white/10 bg-white/[0.03] text-white/50 hover:text-white/80",
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {p.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
   );
 }
 
@@ -430,7 +332,40 @@ export function nearestPinSlot(x: number, y: number, exclude?: PinSlot): PinSlot
       best = { side, index };
     }
   });
-  // Snap radius ~ 72px
-  if (bestDist > 72 * 72) return null;
+  if (bestDist > 88 * 88) return null;
   return best;
+}
+
+/** Prefer a pin slot; else the left/right drop rail under the pointer. */
+export function nearestDropTarget(
+  x: number,
+  y: number,
+  exclude?: PinSlot,
+): PinSlot | null {
+  const slot = nearestPinSlot(x, y, exclude);
+  if (slot) return slot;
+
+  const sides = document.querySelectorAll<HTMLElement>("[data-taskbar-drop]");
+  for (const el of sides) {
+    const side = el.dataset.taskbarDrop as PinSide | undefined;
+    if (!side) continue;
+    const r = el.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top - 12 && y <= r.bottom + 12) {
+      const count = el.querySelectorAll("[data-pin-id]").length;
+      return { side, index: count };
+    }
+  }
+  return null;
+}
+
+/** True if point is over the taskbar pin rails (not the catalog tray). */
+export function pointOverTaskbar(x: number, y: number): boolean {
+  const sides = document.querySelectorAll<HTMLElement>("[data-taskbar-drop]");
+  for (const el of sides) {
+    const r = el.getBoundingClientRect();
+    if (x >= r.left - 8 && x <= r.right + 8 && y >= r.top - 20 && y <= r.bottom + 20) {
+      return true;
+    }
+  }
+  return false;
 }

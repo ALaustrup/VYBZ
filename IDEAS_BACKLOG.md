@@ -372,6 +372,26 @@ Ways to make VYBZ feel unmistakably high-end without clutter:
 
 ---
 
+### 2026-07-24 — Taskbar Widgets system 🟢🟡
+
+#### Dock widgets beside pins (Orb locked) 🟢🟡
+- **What:** Beyond app pins, users place **widgets** on the left/right taskbar
+  rails — compact utilities (volume/FX, V¢ chip, unread, quick-record, Bridge
+  sync status, metronome, etc.) that expand on tap. Pins = navigation; widgets =
+  tools. **Orb is immovable** and never a pin/widget slot.
+- **Fit:** Extends today’s pin customize (long-press jiggle + catalog tray).
+  Widget defs would live beside `PIN_CATALOG` with a `kind: "pin" | "widget"`
+  union and stricter size budgets (1–2 slot widths).
+- **Dependencies:** Pin edit UX ✅ (this session). Per-widget data sources
+  (AudioBus, session, repos Bridge) 🟡. Persist layout in localStorage → later
+  profile sync.
+- **Guardrails:** No pay-to-win widgets; Off/Soft/Max still caps motion; widgets
+  must not steal Orb hit target; max density so rails stay tappable (44px).
+- **Rough shape:** moderate. Promote with **“taskbar widgets — start”** after
+  pin edit UX is validated.
+
+---
+
 ### Suggested packaging when promoting
 
 | Package | Ideas | When |
@@ -381,6 +401,7 @@ Ways to make VYBZ feel unmistakably high-end without clutter:
 | **Orb Joystick** | 2026-07-24 | ✅ Phase 1 promoted; Phase 2 WebGL later |
 | **Voice slot lights** | 2026-07-24 A | After Orb P1; LiveKit speaking events |
 | **Premium surface** | 2026-07-24 B | Incremental polish slices |
+| **Taskbar widgets** | 2026-07-24 | After pin edit UX; Orb stays locked |
 
 ---
 

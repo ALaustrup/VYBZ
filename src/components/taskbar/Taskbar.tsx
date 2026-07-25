@@ -5,15 +5,16 @@ import { GlobalPlayer } from "@/components/GlobalPlayer";
 import { DEFAULT_ORB_ACTIONS, type OrbFanAction } from "@/components/taskbar/OrbFan";
 import { OrbJoystick } from "@/components/taskbar/OrbJoystick";
 import {
-  PinCustomizeSheet,
-  TaskbarCustomizeButton,
-  TaskbarEditChrome,
   TaskbarPinRow,
-  nearestPinSlot,
+  TaskbarPinTray,
+  nearestDropTarget,
+  pointOverTaskbar,
 } from "@/components/taskbar/TaskbarPins";
 import {
   PIN_BY_ID,
   getTaskbarPins,
+  insertPin,
+  removePin,
   reorderPin,
   setTaskbarPins,
   useTaskbarPins,
@@ -25,6 +26,13 @@ import { usePlayer } from "@/lib/audioBus";
 import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 
+type DragState = {
+  id: PinId;
+  from: PinSlot | "catalog";
+  x: number;
+  y: number;
+};
+
 /** Bottom-centered taskbar — pins + Orb + integrated player (mobile = desktop). */
 export function Taskbar({ onCompose }: { onCompose: () => void }) {
   const { pathname } = useLocation();
@@ -34,20 +42,13 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   const saved = useTaskbarPins();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<TaskbarPinsState | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [drag, setDrag] = useState<{
-    id: PinId;
-    from: PinSlot;
-    x: number;
-    y: number;
-  } | null>(null);
+  const [drag, setDrag] = useState<DragState | null>(null);
   const orbZoneRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const pins = draft ?? saved;
   const playing = !!track;
 
   useEffect(() => {
-    // Reserve stage space under the fixed dock (player strip grows the dock).
     const root = document.documentElement;
     root.style.setProperty("--dock-reserve", playing ? "9.75rem" : "6.25rem");
     return () => {
@@ -69,13 +70,13 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
     const base = seed ?? getTaskbarPins();
     setDraft({ left: [...base.left], right: [...base.right] });
     setEditing(true);
+    try { navigator.vibrate?.([8, 30, 8]); } catch { /* ignore */ }
   }
 
   function discardEdit() {
     setEditing(false);
     setDraft(null);
     setDrag(null);
-    setSheetOpen(false);
   }
 
   function finishEdit() {
@@ -83,19 +84,6 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
     setEditing(false);
     setDraft(null);
     setDrag(null);
-    setSheetOpen(false);
-  }
-
-  function openCatalog() {
-    setSheetOpen(true);
-  }
-
-  function applyCatalog(next: TaskbarPinsState) {
-    if (editing) {
-      setDraft({ left: [...next.left], right: [...next.right] });
-    } else {
-      setTaskbarPins(next);
-    }
   }
 
   function onLongPressEnter(_slot: PinSlot) {
@@ -109,6 +97,11 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
     setDrag({ id, from: slot, x: point.x, y: point.y });
   }
 
+  function onCatalogDragStart(id: PinId, point: { x: number; y: number }) {
+    if (!draft) return;
+    setDrag({ id, from: "catalog", x: point.x, y: point.y });
+  }
+
   function onDragMove(point: { x: number; y: number }) {
     setDrag((d) => (d ? { ...d, x: point.x, y: point.y } : null));
   }
@@ -116,9 +109,31 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   function onDragEnd(point: { x: number; y: number }) {
     setDrag((current) => {
       if (!current) return null;
-      const target = nearestPinSlot(point.x, point.y, current.from);
-      if (target && (target.side !== current.from.side || target.index !== current.from.index)) {
-        setDraft((d) => (d ? reorderPin(d, current.from, target) : d));
+      const overBar = pointOverTaskbar(point.x, point.y);
+      const exclude = current.from === "catalog" ? undefined : current.from;
+      const target = nearestDropTarget(point.x, point.y, exclude);
+
+      if (current.from === "catalog") {
+        if (target) {
+          setDraft((d) => (d ? insertPin(d, current.id, target) : d));
+          try { navigator.vibrate?.(8); } catch { /* ignore */ }
+        }
+        return null;
+      }
+
+      // Dragged off the taskbar → remove
+      if (!overBar && !target) {
+        setDraft((d) => (d ? removePin(d, current.from as PinSlot) : d));
+        try { navigator.vibrate?.(6); } catch { /* ignore */ }
+        return null;
+      }
+
+      if (
+        target &&
+        (target.side !== current.from.side || target.index !== current.from.index)
+      ) {
+        setDraft((d) => (d ? reorderPin(d, current.from as PinSlot, target) : d));
+        try { navigator.vibrate?.(8); } catch { /* ignore */ }
       }
       return null;
     });
@@ -150,6 +165,7 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   }));
 
   const ghost = drag ? PIN_BY_ID[drag.id] : null;
+  const removingHint = !!(drag && drag.from !== "catalog" && !pointOverTaskbar(drag.x, drag.y));
 
   const pinProps = {
     pathname,
@@ -173,8 +189,13 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
           editing && "ring-1 ring-veil-400/35",
         )}
       >
-        {editing && <TaskbarEditChrome rail={false} onDone={finishEdit} onAdd={openCatalog} />}
-        {!editing && <TaskbarCustomizeButton rail={false} onOpen={openCatalog} />}
+        <TaskbarPinTray
+          open={editing}
+          draft={draft}
+          draggingId={drag?.id ?? null}
+          onDone={finishEdit}
+          onCatalogDragStart={onCatalogDragStart}
+        />
 
         <GlobalPlayer />
 
@@ -195,19 +216,15 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
         </div>
       </div>
 
-      <PinCustomizeSheet
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        draft={editing ? draft : null}
-        onApply={applyCatalog}
-      />
-
       {ghost && drag && (
         <div
-          className="pointer-events-none fixed z-[80] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-2xl border border-veil-400/40 bg-ink-900/90 text-white shadow-card backdrop-blur-md"
+          className={cx(
+            "pointer-events-none fixed z-[80] flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-2xl border bg-ink-900/90 text-white shadow-card backdrop-blur-md",
+            removingHint ? "border-wild/60 scale-90 opacity-70" : "border-veil-400/40",
+          )}
           style={{ left: drag.x, top: drag.y }}
         >
-          <ghost.icon className="h-5 w-5 text-veil-200" />
+          <ghost.icon className={cx("h-5 w-5", removingHint ? "text-wild" : "text-veil-200")} />
         </div>
       )}
     </div>
