@@ -25,6 +25,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
   const [previewing, setPreviewing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [gates, setGates] = useState<api.InfraGatesStatus | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -35,7 +36,10 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       setSource("camera");
       setErr(null);
       setBusy(false);
+      setGates(null);
+      return;
     }
+    void api.fetchInfraGates().then(setGates);
   }, [open]);
 
   useEffect(() => {
@@ -168,6 +172,22 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                 className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
 
               {err && <p className="text-xs font-medium text-wild">{err}</p>}
+              {gates && (
+                <ul className="space-y-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-[11px] text-white/50">
+                  <li>
+                    <span className={gates.turnConfigured ? "text-emerald-300/90" : "text-amber-200/80"}>
+                      {gates.turnConfigured ? "TURN ready" : "TURN not provisioned"}
+                    </span>
+                    {" — "}STUN always on; TURN unlocks strict-NAT 1:1 reliability.
+                  </li>
+                  <li>
+                    <span className={gates.bunnyLiveConfigured ? "text-emerald-300/90" : "text-amber-200/80"}>
+                      {gates.bunnyLiveConfigured ? "Bunny Stream ready" : "Bunny Stream not configured"}
+                    </span>
+                    {" — "}OBS RTMP / HLS only when Stream library secrets exist.
+                  </li>
+                </ul>
+              )}
               <p className="text-[11px] leading-relaxed text-white/35">
                 Public ultra tier for all creators — expires after 24 hours. In-app publish uses LiveKit when configured; OBS RTMP remains optional for Bunny HLS/VOD.
               </p>

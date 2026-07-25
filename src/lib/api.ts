@@ -384,6 +384,61 @@ export async function deletePost(id: string): Promise<void> {
   if (error) throw error;
 }
 
+/** Soft boolean delete for Library UI (RLS enforces ownership). */
+export async function deleteMyPost(id: string): Promise<boolean> {
+  try {
+    await deletePost(id);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Rename one of your own project posts (RLS enforces ownership). */
+export async function updatePostTitle(id: string, title: string): Promise<boolean> {
+  const { error } = await db().from("project_posts").update({ title: title.trim() || null }).eq("id", id);
+  return !error;
+}
+
+/**
+ * All project posts authored by the signed-in user (Library — Posts tab).
+ * Joins project meta for navigation / accent; likes left at 0 (manage, not social).
+ */
+export async function myProjectPosts(limit = 80): Promise<FeedPost[]> {
+  const me = await currentUserId();
+  if (!me) return [];
+  const { data, error } = await db()
+    .from("project_posts")
+    .select("id,kind,title,body,media_url,link_url,created_at,fx,project_id,user_id, projects(id,name,kind,accent)")
+    .eq("user_id", me)
+    .is("hidden_at", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  const username = (await usernamesFor([me])).get(me) ?? null;
+  return (data as any[]).map((r) => {
+    const proj = Array.isArray(r.projects) ? r.projects[0] : r.projects;
+    return {
+      id: r.id,
+      kind: r.kind,
+      title: r.title ?? null,
+      body: r.body ?? null,
+      mediaUrl: r.media_url ?? null,
+      linkUrl: r.link_url ?? null,
+      createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+      fx: r.fx ?? null,
+      projectId: r.project_id,
+      projectName: proj?.name ?? "Project",
+      projectKind: proj?.kind ?? "general",
+      accent: proj?.accent ?? null,
+      authorId: r.user_id,
+      authorUsername: username,
+      likes: 0,
+      liked: false,
+    } as FeedPost;
+  });
+}
+
 export async function addProjectLink(input: LinkInput): Promise<string> {
   const uid = await currentUserId();
   if (!uid) throw new Error("Not signed in");
@@ -938,23 +993,71 @@ export async function swarmAssetManifest(assetId: string): Promise<{
 }
 
 /** ICE servers for WebRTC (STUN + optional TURN from edge secrets). */
-let iceCache: { at: number; servers: RTCIceServer[] } | null = null;
+let iceCache: { at: number; servers: RTCIceServer[]; turnConfigured: boolean } | null = null;
 export async function fetchIceServers(): Promise<RTCIceServer[]> {
+  const status = await fetchIceStatus();
+  return status.iceServers;
+}
+
+export async function fetchIceStatus(): Promise<{ iceServers: RTCIceServer[]; turnConfigured: boolean }> {
   const now = Date.now();
-  if (iceCache && now - iceCache.at < 8 * 60_000) return iceCache.servers;
+  if (iceCache && now - iceCache.at < 8 * 60_000) {
+    return { iceServers: iceCache.servers, turnConfigured: iceCache.turnConfigured };
+  }
   const fallback: RTCIceServer[] = [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
   ];
   try {
     const { data, error } = await db().functions.invoke("ice-servers", { body: {} });
-    if (error || !(data as any)?.iceServers) return fallback;
+    if (error || !(data as any)?.iceServers) {
+      return { iceServers: fallback, turnConfigured: false };
+    }
     const servers = (data as any).iceServers as RTCIceServer[];
-    iceCache = { at: now, servers };
-    return servers;
+    const turnConfigured = !!(data as any).turnConfigured;
+    iceCache = { at: now, servers, turnConfigured };
+    return { iceServers: servers, turnConfigured };
   } catch {
-    return fallback;
+    return { iceServers: fallback, turnConfigured: false };
   }
+}
+
+/** Bunny Stream live ingest readiness (edge secrets; no create side-effects). */
+export async function fetchBunnyLiveStatus(): Promise<{ configured: boolean }> {
+  try {
+    const { data: sess } = await db().auth.getSession();
+    const token = sess.session?.access_token;
+    if (!token || !SUPABASE_URL) return { configured: false };
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/bunny-live`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: SUPABASE_ANON_KEY ?? "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action: "status" }),
+    });
+    const body = await res.json().catch(() => ({}));
+    return { configured: !!(body as { configured?: boolean }).configured };
+  } catch {
+    return { configured: false };
+  }
+}
+
+export interface InfraGatesStatus {
+  turnConfigured: boolean;
+  bunnyLiveConfigured: boolean;
+  checkedAt: number;
+}
+
+/** Combined infra readiness for Go Live / Admin (never invents credentials). */
+export async function fetchInfraGates(): Promise<InfraGatesStatus> {
+  const [ice, bunny] = await Promise.all([fetchIceStatus(), fetchBunnyLiveStatus()]);
+  return {
+    turnConfigured: ice.turnConfigured,
+    bunnyLiveConfigured: bunny.configured,
+    checkedAt: Date.now(),
+  };
 }
 
 let _roleLabelCache: Map<string, string> | null = null;

@@ -66,12 +66,14 @@ Trust & Safety must-have.
 - **Dependency:** Bunny Stream library (already noted as gated in §4.1).
 - **Guardrails:** per-uploader storage awareness (cost); format/size validation.
 
-#### 4. Uploader-managed content library (all media) 🟢
+#### 4. Uploader-managed content library (all media) 🟢 ✅ SHIPPED 2026-07
 - **What:** original uploader can manage everything they've uploaded.
 - **Fit:** the **Uploads/Library dashboard** (Phase 3) already does this for drops
   (rename / feature / delete). Generalize it to video + all content kinds — mostly
   an extension, not new infra.
 - **Rough shape:** small–moderate; do alongside #3's video work.
+- **✅ Shipped (2026-07):** `/library` — Drops + Posts + Stages tabs; V-Dock pin /
+  More drawer; Profile → Library.
 
 #### 5. Universal one-tap "report illegal content" flag 🟢 ⚑ ✅ SHIPPED 2026-07
 - **What:** a simple, optional flag/report button on **every** piece of uploaded

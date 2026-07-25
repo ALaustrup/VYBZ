@@ -40,6 +40,7 @@ const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }>
   { test: (p) => p.startsWith("/store"), id: "store", label: "Store" },
   { test: (p) => p.startsWith("/activity"), id: "activity", label: "Activity" },
   { test: (p) => p.startsWith("/admin") || p.startsWith("/mod") || p.startsWith("/apply-mod"), id: "staff", label: "Staff" },
+  { test: (p) => p.startsWith("/library"), id: "library", label: "Library" },
   { test: (p) => p.startsWith("/profile") || p.startsWith("/u/") || p.startsWith("/artist/"), id: "you", label: "You" },
   { test: (p) => p.startsWith("/p/"), id: "space", label: "Project" },
   { test: (p) => p.startsWith("/codex") || p.startsWith("/legal"), id: "codex", label: "Codex" },
@@ -85,6 +86,7 @@ export function modeForPath(pathname: string): AppMode {
   }
   if (
     pathname.startsWith("/profile") ||
+    pathname.startsWith("/library") ||
     pathname.startsWith("/u/") ||
     pathname.startsWith("/artist/") ||
     pathname.startsWith("/messages") ||

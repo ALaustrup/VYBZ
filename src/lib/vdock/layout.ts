@@ -19,6 +19,7 @@ import {
   FolderGit2,
   Gauge,
   Hash,
+  Images,
   KeyRound,
   Lightbulb,
   MessageSquare,
@@ -48,7 +49,7 @@ import {
 export type PinId =
   | "feed" | "connect" | "collabs" | "social" | "live" | "messages" | "profile"
   | "activity" | "discover" | "spark" | "opportunities" | "store" | "codex"
-  | "rooms" | "mod" | "admin";
+  | "rooms" | "library" | "mod" | "admin";
 
 export interface PinDef {
   id: PinId;
@@ -75,6 +76,7 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "store", label: "Store", to: "/store", icon: Store },
   { id: "codex", label: "Codex", to: "/codex", icon: ScrollText },
   { id: "rooms", label: "Rooms", to: "/rooms", icon: Hash },
+  { id: "library", label: "Library", to: "/library", icon: Images },
   { id: "mod", label: "Moderate", to: "/mod", icon: Shield, staff: "mod" },
   { id: "admin", label: "Admin", to: "/admin", icon: ShieldCheck, staff: "admin" },
 ];

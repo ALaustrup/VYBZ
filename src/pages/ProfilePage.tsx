@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, ScrollText,
-  ShieldCheck, Shield, Bug, AudioLines, ChevronRight, MoreHorizontal, X,
+  ShieldCheck, Shield, Bug, AudioLines, ChevronRight, Images, MoreHorizontal, X,
 } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
@@ -113,7 +113,16 @@ export function ProfilePage() {
         <Discography credits={credits} isOwner />
       </div>
 
-      <p className="eyebrow mb-2 flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
+      <div className="mb-2 flex items-center justify-between">
+        <p className="eyebrow flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
+        <button
+          type="button"
+          onClick={() => navigate("/library")}
+          className="flex items-center gap-1 text-[12px] font-semibold text-veil-200/80 hover:text-white active:scale-95"
+        >
+          <Images className="h-3.5 w-3.5" /> Library
+        </button>
+      </div>
       {loading ? (
         <div className="mb-4 flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
       ) : (

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Bell,
+  Images,
   MessageSquare,
   Plus,
   Radio,
@@ -39,6 +40,7 @@ const MORE_SECTIONS: MoreSection[] = [
     id: "workspace",
     label: "Workspace",
     items: [
+      { id: "library", label: "Library", to: "/library", icon: Images },
       { id: "social", label: "Social", to: "/social", icon: Radio },
       { id: "rooms", label: "Rooms", to: "/rooms", icon: MessageSquare },
       { id: "store", label: "Store", to: "/store", icon: Store },

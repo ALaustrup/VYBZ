@@ -2,6 +2,7 @@
 //
 // Provisions Bunny Stream *live* objects for VYBZ public creator streams.
 // Actions (POST JSON):
+//   status             → { configured, libraryIdSet, apiKeySet }  (works without secrets)
 //   create  { title }  → { guid, playbackHls, rtmpUrl, streamKey }
 //   end     { guid }   → { ok: true }
 //
@@ -59,12 +60,21 @@ Deno.serve(async (req: Request) => {
   const { data: auth, error: authErr } = await admin.auth.getUser(jwt);
   if (authErr || !auth?.user?.id) return json({ error: "unauthorized" }, 401);
 
+  const body = await req.json().catch(() => ({}));
+  const action = body.action as string;
+
+  // Probe without creating — works even when Stream secrets are absent.
+  if (action === "status") {
+    return json({
+      configured: !!(LIBRARY_ID && API_KEY),
+      libraryIdSet: !!LIBRARY_ID,
+      apiKeySet: !!API_KEY,
+    });
+  }
+
   if (!LIBRARY_ID || !API_KEY) {
     return json({ error: "bunny_stream_not_configured", configured: false }, 503);
   }
-
-  const body = await req.json().catch(() => ({}));
-  const action = body.action as string;
 
   if (action === "create") {
     const title = typeof body.title === "string" && body.title.trim()
