@@ -379,12 +379,15 @@ Ways to make VYBZ feel unmistakably high-end without clutter:
   rails — compact utilities (volume/FX, V¢ chip, unread, quick-record, Bridge
   sync status, metronome, etc.) that expand on tap. Pins = navigation; widgets =
   tools. **Orb is immovable** and never a pin/widget slot.
+- **Shipped seed:** **Now Playing** is the first system widget — fused into the
+  single unified dock row (no second player bar). Appears when a track is queued;
+  expands to full-screen now-playing. Not user-removable while active.
 - **Fit:** Extends today’s pin customize (long-press jiggle + catalog tray).
   Widget defs would live beside `PIN_CATALOG` with a `kind: "pin" | "widget"`
   union and stricter size budgets (1–2 slot widths).
-- **Dependencies:** Pin edit UX ✅ (this session). Per-widget data sources
-  (AudioBus, session, repos Bridge) 🟡. Persist layout in localStorage → later
-  profile sync.
+- **Dependencies:** Pin edit UX ✅. Now Playing widget ✅. Other widget data
+  sources (AudioBus FX, session, repos Bridge) 🟡. Persist layout later.
+
 - **Guardrails:** No pay-to-win widgets; Off/Soft/Max still caps motion; widgets
   must not steal Orb hit target; max density so rails stay tappable (44px).
 - **Rough shape:** moderate. Promote with **“taskbar widgets — start”** after

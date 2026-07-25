@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
-import { GlobalPlayer } from "@/components/GlobalPlayer";
+import { DockPlaybackProgress, NowPlayingWidget } from "@/components/GlobalPlayer";
 import { DEFAULT_ORB_ACTIONS, type OrbFanAction } from "@/components/taskbar/OrbFan";
 import { OrbJoystick } from "@/components/taskbar/OrbJoystick";
 import {
@@ -46,15 +46,16 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
   const orbZoneRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const pins = draft ?? saved;
-  const playing = !!track;
+  const hasTrack = !!track;
 
   useEffect(() => {
+    // Single unified dock height (player is an inline widget, not a second bar).
     const root = document.documentElement;
-    root.style.setProperty("--dock-reserve", playing ? "9.75rem" : "6.25rem");
+    root.style.setProperty("--dock-reserve", "6.25rem");
     return () => {
       root.style.removeProperty("--dock-reserve");
     };
-  }, [playing]);
+  }, []);
 
   useEffect(() => {
     if (!editing) return;
@@ -197,10 +198,23 @@ export function Taskbar({ onCompose }: { onCompose: () => void }) {
           onCatalogDragStart={onCatalogDragStart}
         />
 
-        <GlobalPlayer />
+        <DockPlaybackProgress />
 
-        <div className="relative grid h-[72px] w-full grid-cols-[1fr_auto_1fr] items-stretch px-[max(0.15rem,env(safe-area-inset-left))] pr-[max(0.15rem,env(safe-area-inset-right))] sm:h-[76px]">
+        <div
+          className={cx(
+            "relative grid h-[72px] w-full items-stretch px-[max(0.15rem,env(safe-area-inset-left))] pr-[max(0.15rem,env(safe-area-inset-right))] sm:h-[76px]",
+            hasTrack
+              ? "grid-cols-[minmax(0,1fr)_auto_auto_minmax(0,1fr)]"
+              : "grid-cols-[1fr_auto_1fr]",
+          )}
+        >
           <TaskbarPinRow side="left" {...pinProps} spread />
+
+          {hasTrack && (
+            <div className="relative z-10 flex min-w-0 items-center border-x border-white/[0.06] px-1.5 sm:px-2">
+              <NowPlayingWidget dimmed={editing} />
+            </div>
+          )}
 
           <div
             ref={orbZoneRef}
