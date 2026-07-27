@@ -1,39 +1,45 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, AudioLines, Check, CircleDot, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Home, CircleDot, Sparkles } from "lucide-react";
 import { useSession } from "@/store/session";
+import { needsIntentMixIntake } from "@/lib/intentMix";
 import { cx } from "@/lib/utils";
 
 const STEPS = [
   {
-    icon: AudioLines,
-    title: "Home",
-    body: "Home is your drop stream. Play anything — the orb and borders react to the sound.",
+    icon: Home,
+    title: "Your Home",
+    body: "Home is your living canvas — alerts, people, and Focus. Customize it; it blooms with what you’re open to.",
   },
   {
     icon: CircleDot,
-    title: "The Orb",
-    body: "Hold and drag the Orb like a joystick for Drop, Live, Spark, or Messages. Hold any V-Dock pin to rearrange pins and widgets.",
+    title: "The Orb & Dock",
+    body: "Hold and drag the Orb for Drop, Live, Spark, or Messages. Hold any dock pin to rearrange — keep it minimal.",
   },
   {
     icon: Sparkles,
-    title: "Find collaborators",
-    body: "Open Network for ranked matches, Spark mode, Jobs, and Search. The Orb’s Spark is a shortcut into that same deck.",
+    title: "Find people",
+    body: "Spark for vibes & dates, Network for collabs, Messages for free DM / voice / cam. Never paywalled.",
   },
 ];
 
-/** Shown once after onboarding — three tips for the Orb + V-Dock era. */
+/** Shown once after onboarding — Living Home era. */
 export function WelcomeTutorial() {
   const { profile } = useSession();
-  const hasRole = !!(profile?.profile?.role || profile?.profile?.roleLabel);
+  const ready = !!profile?.username && !needsIntentMixIntake(profile?.profile);
   const [seen, setSeen] = useState(() => {
-    try { return localStorage.getItem("vybz.tutorial.v2") === "1" || localStorage.getItem("vybz.tutorial.v1") === "1"; } catch { return true; }
+    try {
+      return localStorage.getItem("vybz.tutorial.v3") === "1"
+        || localStorage.getItem("vybz.tutorial.v2") === "1"
+        || localStorage.getItem("vybz.tutorial.v1") === "1";
+    } catch { return true; }
   });
   const [step, setStep] = useState(0);
-  if (seen || !profile?.username || !hasRole) return null;
+  if (seen || !ready) return null;
 
   const done = () => {
     try {
+      localStorage.setItem("vybz.tutorial.v3", "1");
       localStorage.setItem("vybz.tutorial.v2", "1");
       localStorage.setItem("vybz.tutorial.v1", "1");
     } catch { /* ignore */ }
@@ -56,7 +62,7 @@ export function WelcomeTutorial() {
             {STEPS.map((_, i) => <span key={i} className={cx("h-1.5 rounded-full transition-all", i === step ? "w-5 bg-veil-400" : "w-1.5 bg-white/20")} />)}
           </div>
           <button type="button" onClick={() => (last ? done() : setStep(step + 1))} className="btn btn-primary mt-5 w-full py-3.5 text-[15px]">
-            {last ? <>Start creating <Check className="h-4 w-4" /></> : <>Next <ArrowRight className="h-4 w-4" /></>}
+            {last ? <>Enter Home <Check className="h-4 w-4" /></> : <>Next <ArrowRight className="h-4 w-4" /></>}
           </button>
           {!last && <button type="button" onClick={done} className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70">Skip</button>}
         </motion.div>

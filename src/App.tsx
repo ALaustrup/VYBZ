@@ -22,7 +22,9 @@ import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BrandLockup } from "@/components/Brand";
+import { LivingHomePage } from "@/pages/LivingHomePage";
 import { FeedPage } from "@/pages/FeedPage";
+import { needsIntentMixIntake } from "@/lib/intentMix";
 import { ConnectPage } from "@/pages/ConnectPage";
 import { SparkPage } from "@/pages/SparkPage";
 import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
@@ -74,7 +76,7 @@ export function App() {
 
   const [onboarded, setOnboarded] = useState(false);
   const authed = !!userId && !!profile?.username;
-  const hasRole = !!(profile?.profile?.role || profile?.profile?.roleLabel);
+  const needsMix = needsIntentMixIntake(profile?.profile);
 
   if (!backendEnabled) {
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
@@ -88,7 +90,7 @@ export function App() {
     return <><DynamicBackground variant={BRAND_BG} /><UsernameSetup /></>;
   }
 
-  if (!isPublicDoc && authed && !hasRole && !onboarded) {
+  if (!isPublicDoc && authed && needsMix && !onboarded) {
     return (
       <>
         <DynamicBackground variant={BRAND_BG} />
@@ -107,9 +109,10 @@ export function App() {
         className="h-full"
       >
       <Routes location={location}>
-        <Route path="/" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
+        <Route path="/" element={<LivingHomePage />} />
+        <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/activity" element={<Navigate to="/profile?tab=live" replace />} />
+        <Route path="/activity" element={<Navigate to="/" replace />} />
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/spark" element={<SparkPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />

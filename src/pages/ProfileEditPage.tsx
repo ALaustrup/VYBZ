@@ -11,6 +11,7 @@ import {
   INTERESTS, MEETUP_INTENTS, SEX_OPTIONS, CHOICE_FIELDS, MAX_INTERESTS,
   hasRomanticLookingFor, isAdultBirthYear, ageFromBirthYear,
 } from "@/lib/profileFields";
+import { resolveIntentMix, showCreateFacets, sealIntentMixPrivacy } from "@/lib/intentMix";
 import { cx } from "@/lib/utils";
 import type { ProfileDetails } from "@/types";
 
@@ -47,6 +48,7 @@ export function ProfileEditPage() {
   const [seeks, setSeeks] = useState<string[]>([]);
   const [profession, setProfession] = useState<string | null>(null);
   const [secondaries, setSecondaries] = useState<string[]>([]);
+  const [createExpanded, setCreateExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -68,6 +70,7 @@ export function ProfileEditPage() {
     setShareLocation(f.shareLocation !== false);
     setProfession(f.profession ?? null);
     setSecondaries((f.professions ?? []).filter((p) => p !== (f.profession ?? null)));
+    setCreateExpanded(!!resolveIntentMix(f).createExpanded || showCreateFacets(f));
     api.getMyRoles().then((r) => { setOffers(r.offers.map((o) => o.roleId)); setSeeks(r.seeks.map((s) => s.roleId)); });
   }, [profile]);
 
@@ -121,6 +124,7 @@ export function ProfileEditPage() {
     setBusy(true);
     const amin = prefAgeMin.trim() ? Number(prefAgeMin.trim()) : undefined;
     const amax = prefAgeMax.trim() ? Number(prefAgeMax.trim()) : undefined;
+    const prevMix = resolveIntentMix(profile?.profile);
     const details: ProfileDetails = {
       ...(profile?.profile ?? {}),
       genres, daws, plugins, influences: influences.trim() || undefined, openToWork, remoteOk,
@@ -136,6 +140,11 @@ export function ProfileEditPage() {
         profession ?? PRIMARY_PROFESSION,
         ...secondaries.filter((p) => p !== (profession ?? PRIMARY_PROFESSION)),
       ],
+      intentMix: {
+        ...prevMix,
+        createExpanded: createExpanded || prevMix.pillars.includes("create"),
+        completedAt: prevMix.completedAt ?? new Date().toISOString(),
+      },
     };
     await api.updateMyProfile({
       bio: bio.trim(),
@@ -143,7 +152,7 @@ export function ProfileEditPage() {
       lat,
       lng,
       avatarUrl: avatarUrl ?? undefined,
-      profile: details,
+      profile: sealIntentMixPrivacy(details),
     });
     await api.setMyRoles(offers.map((r) => ({ roleId: r, skill: 3 })), seeks.map((r) => ({ roleId: r, priority: 1 })));
     try { await moduleSaveRef.current?.(); } catch { /* module attrs optional */ }
@@ -290,77 +299,94 @@ export function ProfileEditPage() {
           <Toggle label="Show sex on vibe cards" on={shareSex} onClick={() => setShareSex((v) => !v)} />
         </Section>
 
-        <Section title="Craft">
-          <p className="text-[12px] text-white/40">Music is the default lane for Feed and Find. Other crafts are optional secondaries.</p>
-          <div className="flex flex-wrap gap-1.5">
-            {PROFESSIONS.filter((p) => p.id === "music").map((p) => (
-              <Chip
-                key={p.id}
-                label={p.label}
-                on={profession === p.id || !profession}
-                onClick={() => {
-                  setProfession("music");
-                  setSecondaries((s) => s.filter((x) => x !== "music"));
-                }}
-              />
-            ))}
-            {PROFESSIONS.filter((p) => p.id !== "music").map((p) => (
-              <Chip
-                key={p.id}
-                label={p.label}
-                on={profession === p.id}
-                onClick={() => {
-                  setProfession((cur) => (cur === p.id ? "music" : p.id));
-                  setSecondaries((s) => s.filter((x) => x !== p.id));
-                }}
-              />
-            ))}
-          </div>
-          <p className="pt-1 text-[11px] uppercase tracking-wide text-white/35">Also work in (optional)</p>
-          <div className="flex flex-wrap gap-1.5">
-            {PROFESSIONS.filter((p) => p.id !== (profession ?? "music")).map((p) => (
-              <Chip
-                key={p.id}
-                label={p.label}
-                on={secondaries.includes(p.id)}
-                onClick={() => tog(secondaries, setSecondaries, p.id, 3)}
-              />
-            ))}
-          </div>
-        </Section>
+        {!createExpanded ? (
+          <Section title="Create">
+            <p className="text-[12px] text-white/40">
+              Craft, genres, and tools stay tucked away until you want them — connection first, Create when you&apos;re ready.
+            </p>
+            <button
+              type="button"
+              onClick={() => setCreateExpanded(true)}
+              className="btn btn-ghost mt-1 w-full py-2.5 text-sm"
+            >
+              I also create
+            </button>
+          </Section>
+        ) : (
+          <>
+            <Section title="Craft">
+              <p className="text-[12px] text-white/40">Music is the default lane for Drops and Network. Other crafts are optional secondaries.</p>
+              <div className="flex flex-wrap gap-1.5">
+                {PROFESSIONS.filter((p) => p.id === "music").map((p) => (
+                  <Chip
+                    key={p.id}
+                    label={p.label}
+                    on={profession === p.id || !profession}
+                    onClick={() => {
+                      setProfession("music");
+                      setSecondaries((s) => s.filter((x) => x !== "music"));
+                    }}
+                  />
+                ))}
+                {PROFESSIONS.filter((p) => p.id !== "music").map((p) => (
+                  <Chip
+                    key={p.id}
+                    label={p.label}
+                    on={profession === p.id}
+                    onClick={() => {
+                      setProfession((cur) => (cur === p.id ? "music" : p.id));
+                      setSecondaries((s) => s.filter((x) => x !== p.id));
+                    }}
+                  />
+                ))}
+              </div>
+              <p className="pt-1 text-[11px] uppercase tracking-wide text-white/35">Also work in (optional)</p>
+              <div className="flex flex-wrap gap-1.5">
+                {PROFESSIONS.filter((p) => p.id !== (profession ?? "music")).map((p) => (
+                  <Chip
+                    key={p.id}
+                    label={p.label}
+                    on={secondaries.includes(p.id)}
+                    onClick={() => tog(secondaries, setSecondaries, p.id, 3)}
+                  />
+                ))}
+              </div>
+            </Section>
 
-        <Section title="I bring (roles you offer)">
-          {ROLE_FAMILIES.map((fam) => (
-            <div key={fam.id} className="space-y-1.5">
-              <p className="text-[10px] uppercase tracking-wide text-white/35">{fam.label}</p>
-              <Chips options={ROLES.filter((r) => r.family === fam.id)} selected={offers} onToggle={(id) => tog(offers, setOffers, id)} tone="feel" />
-            </div>
-          ))}
-        </Section>
+            <Section title="I bring (roles you offer)">
+              {ROLE_FAMILIES.map((fam) => (
+                <div key={fam.id} className="space-y-1.5">
+                  <p className="text-[10px] uppercase tracking-wide text-white/35">{fam.label}</p>
+                  <Chips options={ROLES.filter((r) => r.family === fam.id)} selected={offers} onToggle={(id) => tog(offers, setOffers, id)} tone="feel" />
+                </div>
+              ))}
+            </Section>
 
-        <Section title="Looking for (roles you seek)">
-          {ROLE_FAMILIES.map((fam) => (
-            <div key={fam.id} className="space-y-1.5">
-              <p className="text-[10px] uppercase tracking-wide text-white/35">{fam.label}</p>
-              <Chips options={ROLES.filter((r) => r.family === fam.id)} selected={seeks} onToggle={(id) => tog(seeks, setSeeks, id)} tone="aqua" />
-            </div>
-          ))}
-        </Section>
+            <Section title="Looking for (roles you seek)">
+              {ROLE_FAMILIES.map((fam) => (
+                <div key={fam.id} className="space-y-1.5">
+                  <p className="text-[10px] uppercase tracking-wide text-white/35">{fam.label}</p>
+                  <Chips options={ROLES.filter((r) => r.family === fam.id)} selected={seeks} onToggle={(id) => tog(seeks, setSeeks, id)} tone="aqua" />
+                </div>
+              ))}
+            </Section>
 
-        <Section title="Discipline details">
-          <p className="text-[12px] text-white/40">Optional for art / video / games secondaries — software, styles, engines.</p>
-          <ModuleAttrsEditor offerRoleIds={offers} saveRef={moduleSaveRef} />
-        </Section>
+            <Section title="Discipline details">
+              <p className="text-[12px] text-white/40">Optional for art / video / games secondaries — software, styles, engines.</p>
+              <ModuleAttrsEditor offerRoleIds={offers} saveRef={moduleSaveRef} />
+            </Section>
 
-        <Section title="Genres">
-          <div className="flex flex-wrap gap-1.5">{GENRES.map((g) => <Chip key={g} label={g} on={genres.includes(g)} onClick={() => tog(genres, setGenres, g, 8)} tone="veil" />)}</div>
-        </Section>
-        <Section title="DAWs">
-          <div className="flex flex-wrap gap-1.5">{DAWS.map((d) => <Chip key={d.id} label={d.label} on={daws.includes(d.id)} onClick={() => tog(daws, setDaws, d.id)} tone="veil" />)}</div>
-        </Section>
-        <Section title="Plugins">
-          <div className="flex flex-wrap gap-1.5">{PLUGINS.map((p) => <Chip key={p.id} label={p.label} on={plugins.includes(p.id)} onClick={() => tog(plugins, setPlugins, p.id, 20)} tone="veil" />)}</div>
-        </Section>
+            <Section title="Genres">
+              <div className="flex flex-wrap gap-1.5">{GENRES.map((g) => <Chip key={g} label={g} on={genres.includes(g)} onClick={() => tog(genres, setGenres, g, 8)} tone="veil" />)}</div>
+            </Section>
+            <Section title="DAWs">
+              <div className="flex flex-wrap gap-1.5">{DAWS.map((d) => <Chip key={d.id} label={d.label} on={daws.includes(d.id)} onClick={() => tog(daws, setDaws, d.id)} tone="veil" />)}</div>
+            </Section>
+            <Section title="Plugins">
+              <div className="flex flex-wrap gap-1.5">{PLUGINS.map((p) => <Chip key={p.id} label={p.label} on={plugins.includes(p.id)} onClick={() => tog(plugins, setPlugins, p.id, 20)} tone="veil" />)}</div>
+            </Section>
+          </>
+        )}
       </div>
     </div>
   );

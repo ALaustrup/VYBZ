@@ -12,7 +12,8 @@ export interface ChromeDef {
 }
 
 export function chromeForPath(pathname: string): ChromeDef {
-  if (pathname === "/") return { title: "Home", subtitle: "Drops from the network" };
+  if (pathname === "/") return { title: "Home", subtitle: "Your living canvas" };
+  if (pathname.startsWith("/feed")) return { title: "Drops", subtitle: "Sound from the network" };
   if (pathname.startsWith("/discover")) {
     return { title: "Network", subtitle: "Search by craft, role, genre, DAW & place" };
   }

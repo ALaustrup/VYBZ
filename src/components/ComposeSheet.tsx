@@ -69,6 +69,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [bpm, setBpm] = useState("");
   const [musicalKey, setMusicalKey] = useState("");
   const [license, setLicense] = useState("collab-only");
+  const [ownershipClaim, setOwnershipClaim] = useState(false);
   const [fx, setFx] = useState<PostFx>("glow");
   const [audience, setAudience] = useState<PostAudience>("public");
   const [creditedArtist, setCreditedArtist] = useState("");
@@ -115,6 +116,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     if (open) {
       setTitle(""); setAlbum(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
       setKind("track"); setReleaseType("original"); setBpm(""); setMusicalKey(""); setLicense("collab-only");
+      setOwnershipClaim(false);
       setFx("glow"); setAudience("public"); setCreditedArtist("");
       setPaletteId("veil"); setCustomPalette(null);
       setPulseScale(0.55); setRimIntensity(0.5); setSpecularFollow(true);
@@ -248,6 +250,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
 
   async function post() {
     if (!audio || posting) return;
+    if (!ownershipClaim) {
+      showToast("Confirm you own or are licensed to upload this audio.");
+      return;
+    }
     setPosting(true);
     setProgress(0);
     try {
@@ -343,6 +349,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             exit="exit"
             transition={withReduce(reduce, springSoft)}
             className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
+            data-dark-stage
           >
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
@@ -470,6 +477,22 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       {[id3Meta.genre, id3Meta.year].filter(Boolean).join(" · ")}
                     </p>
                   )}
+                  <div>
+                    <p className="eyebrow mb-2">Ownership</p>
+                    <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={ownershipClaim}
+                        onChange={(e) => setOwnershipClaim(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 rounded border-white/30"
+                      />
+                      <span className="text-[12px] leading-snug text-white/70">
+                        I own this audio or have a license to upload it. I understand VYBZ may remove
+                        infringing material and terminate repeat infringers (see{" "}
+                        <a href="/legal/dmca" className="text-veil-200 underline" onClick={(e) => e.stopPropagation()}>DMCA</a>).
+                      </span>
+                    </label>
+                  </div>
                   <div>
                     <p className="eyebrow mb-2">Exchange license</p>
                     <div className="flex gap-4">
@@ -628,7 +651,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                   </div>
                 </div>
               )}
-              <button type="button" onClick={post} disabled={!audio || posting} className="btn btn-primary w-full py-3.5">
+              <button type="button" onClick={post} disabled={!audio || posting || !ownershipClaim} className="btn btn-primary w-full py-3.5 disabled:opacity-50">
                 {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Release your drop</>}
               </button>
             </div>

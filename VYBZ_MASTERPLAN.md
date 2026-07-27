@@ -89,6 +89,9 @@ actually live inside the product.
 - **Three coequal pillars** (see §4): Love & Meetup · Social & Presence · Create & Pro.
 - **A free connection stack:** private messaging, cam-to-cam, private voice — unlimited,
   uncapped, never gated (see §8).
+- **Living Home (Concept F):** `/` is the user’s **Living Profile Wall** — a MySpace-soul
+  personal canvas (you, alerts, people, optional soundtrack/stage) that blooms with
+  Intent Mix, not a generic product catalog or Studio-first dock (see §3.4).
 - **Cosmetics-primary monetization:** optional profile enhancement packages that help
   someone *stand out visually* because they want to — never because matching is broken
   without them (see §10).
@@ -163,14 +166,14 @@ These are constitutional. Features that violate them are bugs, not roadmap items
 
 ```text
 Signup (identity)
-  → Profile (optional richness; photo accelerates trust)
-    → Social Score starts as soon as signal exists
-      → Matchable to others early (minimum viable signal)
-        → Explore any pillar freely
-          → Behavior deepens Social Score
-            → Feed vibe cards + Spark + Connect attune
+  → Soft Intent Mix intake (multi-select; skip OK)
+    → Living Home Wall blooms (modules sized by mix)
+      → Profile richness optional; Social Score starts as signal exists
+        → Matchable early (minimum viable signal)
+          → Explore any pillar via Focus / rooms (Feed, Spark, Studio…)
+            → Behavior deepens mix + Social Score
               → Free DM / cam / voice
-                → Deeper engagement → better score → better matches
+                → Deeper engagement → better curation → better matches
 ```
 
 ### 3.1 Canonical story (template for every connection type)
@@ -202,6 +205,40 @@ climbing partner, study buddy, cofounder, creative collaborator.
 Users do **not** have to declare “dating XOR collab” at the door. Optional soft
 declarations (“open to dating,” “open to collabs,” “looking for hiking partners”)
 **accelerate** scoring and filter decks — they are accelerators, not walls.
+
+### 3.4 Living Home — Concept F (locked)
+
+**North-star articulation:** VYBZ is the ultimate **canvas for connection** — one real
+identity whose home blooms into a uniquely curated masterpiece of that person’s desires
+and needs (dates, friendship, IRL, collab, presence), without forcing a single use-case
+or spawning alternate public “identities.”
+
+**Ship target = Hybrid Living Profile (Concept F):**
+
+1. **`/` = Living Home Wall** (not a generic global Feed as the front door). Hero = you
+   (avatar, Focus chips, short vibe line) + Customize. Primary surface = chronological
+   **Wall** (messages, matches, applications, live pulses, friend drops) — MySpace-soul
+   alerts-on-the-profile, modern media underneath.
+2. **Under the fold = Intent Mix modules** (Pulse Board lite): Love / Social / Create
+   columns or cards **sized or collapsed by Intent Mix**. Dating-first users never eat a
+   Studio wall on day one; mixed users get both without XOR.
+3. **Dock is earned:** default **3–5** pins from Intent Mix (e.g. Home · Spark · Messages
+   · You). Metronome, VC balance, collabs, open-to-work, etc. unlock via Customize Dock
+   or Create weight — not day-one chrome.
+4. **Customize** = cosmetics + module toggles + optional soundtrack/stage — flair and
+   layout, never paywalled matching (L4/L5).
+5. **Public `/u/:id`** = privacy-gated cut of the same living canvas (storefront of a
+   real person).
+6. **Feed / Discover / Spark / Studio / Live** remain first-class **rooms you enter**
+   from Home or dock — they are not abolished; they stop being the default overwhelm.
+
+**Intent Mix (companion lock):** soft multi-select intake seeds pillar weights; progressive
+disclosure hides Create facets until Create weight or explicit expand; Focus control
+changes ranking/chrome, never username or trust graph. **No swappable public identities.**
+
+**Prerequisite / parallel:** day-theme contrast audit (`data-dark-stage` / surface tokens)
+so dark panels stay readable. Upload ownership claims + DMCA ops remain the Create-legality
+layer when media tools appear.
 
 ---
 
@@ -663,6 +700,25 @@ Finish incomplete Create rails inside Social Score (not greenfield sonic vectors
 **Still later / additive:** sonic/audio embeddings, commission escrow, C2PA production
 host, Bridge Watch live health, plugin scanner.
 
+### Phase 6 — Living Home + Intent Mix (Concept F) · ✅
+
+1. Soft Intent Mix intake (multi-select; skip OK); progressive Create disclosure.
+2. `/` becomes Living Profile Wall (alerts + you + Crew); Feed relocates to `/feed`
+   as an entered room (Drops).
+3. Intent-aware default dock (≤5 pins); Customize Dock for the rest.
+4. Under-fold pulse modules sized by mix; Focus control (Love / Meetup / Create / For you).
+5. Contrast audit (`data-dark-stage` on dark panels) + upload ownership claim gate
+   (Compose + Bulk upload).
+6. Public profile shows privacy-gated living canvas cut (“Open to” chips; no Focus leak).
+
+**Delivered:** `intentMix` jsonb on profile · `RoleIntentOnboarding` soft multi-select ·
+`LivingHomePage` at `/` · `FeedPage` at `/feed` · dock seed via `applyDockSeed` ·
+progressive Create on `ProfileEditPage` · ownership claim on compose paths · public
+“Open to” strip on `UserProfilePage`.
+
+**DoD story:** Dating-first signup → Home feels personal, not a DAW catalog; dock is
+tiny; Wall shows messages/matches; user can later expand Create without a second identity.
+
 ### Later / infra
 
 - P2P swarm (Phase H legacy), Capacitor packaging, Codex library, brand system polish,
@@ -769,11 +825,12 @@ Use this as the exit criteria for “doctrine complete / ready to expand”:
 - [x] Canonical user story documented
 - [x] Cosmetics-primary monetization locked
 - [x] Free connection stack locked
+- [x] Living Home Concept F + Intent Mix locked (§3.4) and Phase 6 delivered
 - [x] Social Score umbrella specified
 - [x] Feed vibe cards specified
 - [x] Safety / anti-fake specified
 - [x] Agent entry docs (`AGENTS.md`) synced
-- [ ] Legal pages queued for copy update
+- [ ] Legal pages queued for copy update (incl. upload warranty / DMCA ops polish)
 
 ### Engineering contracts (must exist before Phase 1 merge)
 - [ ] Profile signal + privacy model migration plan
@@ -789,7 +846,8 @@ Use this as the exit criteria for “doctrine complete / ready to expand”:
 ## 19. North star
 
 VYBZ is where real people find real vibes — a date, a hiking partner, a bandmate, a
-friend at 1 a.m. — with precision matchmaking, a free path to every conversation medium,
-and optional flair for those who want to shine.
+friend at 1 a.m. — on a **Living Home canvas** that curates to who they are becoming,
+with precision matchmaking, a free path to every conversation medium, and optional flair
+for those who want to shine.
 
 **Identity-first. Vibes-matched. Free to connect. Find Yours.**

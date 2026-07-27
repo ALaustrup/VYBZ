@@ -10,6 +10,8 @@ VYBZ matches real people for romance, friendship, meetup/activity partnership, c
 collaboration, and professional fit under one durable identity. Create/pro tools (music-led
 depth, drops, Studio, exchange) remain a coequal pillar — not the only door. Connection
 (matching, DMs, cam, voice) stays free forever; primary monetization is optional cosmetics.
+**Home doctrine (locked):** Living Profile Wall (Concept F) + Intent Mix — `/` is the user’s
+personal canvas; dock stays minimal; no swappable public identities (masterplan §3.4 / Phase 6).
 
 Authoritative sources of truth (in order when they conflict):
 
@@ -21,7 +23,8 @@ Authoritative sources of truth (in order when they conflict):
 6. [`CHANGELOG.md`](./CHANGELOG.md) — shipped release notes
 
 **Current release label:** read `package.json` → `vybz.release` (Beta-0B line).  
-**Doctrine target:** Vibes expansion toward **Beta-1A** per the masterplan.
+**Doctrine target:** Vibes expansion toward **Beta-1A** — Phase 6 Living Home + Intent Mix
+(Concept F) is shipped; follow masterplan §12 for the next numbered phase.
 
 Hard laws (see masterplan §2): no anonymity, no ads, no connection paywalls, no
 pay-to-win match ranking, safety never paid.

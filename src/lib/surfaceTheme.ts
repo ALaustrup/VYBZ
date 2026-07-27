@@ -26,6 +26,7 @@ export const DEFAULT_SURFACE: SurfaceTheme = {
 
 const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }> = [
   { test: (p) => p === "/", id: "home", label: "Home" },
+  { test: (p) => p.startsWith("/feed"), id: "feed", label: "Drops" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover" },
   { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities" },

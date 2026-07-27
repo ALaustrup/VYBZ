@@ -72,6 +72,20 @@ export interface ProfileDetails {
   /** Preferred match age range (private — never on public_profile). */
   prefAgeMin?: number;
   prefAgeMax?: number;
+  /**
+   * Phase 6 — Intent Mix on one identity (Concept F).
+   * Soft pillar weights + Focus; never a second public persona.
+   * Always listed in `_hidden` so Focus/weights never leak via public_profile.
+   */
+  intentMix?: {
+    pillars?: Array<"love" | "meetup" | "social" | "create">;
+    weights?: Partial<Record<"love" | "meetup" | "social" | "create", number>>;
+    focus?: "love" | "meetup" | "create" | "for_you";
+    completedAt?: string;
+    createExpanded?: boolean;
+  };
+  /** Keys stripped by `public_profile` RPC (privacy facets). */
+  _hidden?: string[];
 }
 
 export interface Profile {

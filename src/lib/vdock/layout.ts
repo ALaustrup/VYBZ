@@ -19,6 +19,7 @@ import {
   FolderGit2,
   Gauge,
   Hash,
+  Home,
   Images,
   KeyRound,
   Lightbulb,
@@ -47,7 +48,7 @@ import {
 // ── Pins (nav) ───────────────────────────────────────────────────────────────
 
 export type PinId =
-  | "feed" | "connect" | "collabs" | "social" | "live" | "messages" | "profile"
+  | "feed" | "drops" | "connect" | "collabs" | "social" | "live" | "messages" | "profile"
   | "activity" | "discover" | "spark" | "opportunities" | "store" | "codex"
   | "rooms" | "library" | "mod" | "admin";
 
@@ -62,7 +63,8 @@ export interface PinDef {
 }
 
 export const PIN_CATALOG: PinDef[] = [
-  { id: "feed", label: "Home", to: "/", icon: AudioLines, end: true },
+  { id: "feed", label: "Home", to: "/", icon: Home, end: true },
+  { id: "drops", label: "Drops", to: "/feed", icon: AudioLines },
   { id: "connect", label: "Network", to: "/connect", icon: Users },
   { id: "collabs", label: "Studio", to: "/projects", icon: FolderGit2 },
   { id: "social", label: "Social", to: "/social", icon: Users },
@@ -73,7 +75,7 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "discover", label: "Discover", to: "/discover", icon: Search },
   { id: "spark", label: "Spark", to: "/spark", icon: Sparkles },
   { id: "opportunities", label: "Opportunities", to: "/opportunities", icon: FolderGit2 },
-  { id: "store", label: "Store", to: "/store", icon: Store },
+  { id: "store", label: "Flair", to: "/store", icon: Store },
   { id: "codex", label: "Codex", to: "/codex", icon: ScrollText },
   { id: "rooms", label: "Rooms", to: "/rooms", icon: Hash },
   { id: "library", label: "Library", to: "/library", icon: Images },
@@ -162,15 +164,10 @@ export const MAX_SIDE = MAX_LEFT;
 export const DEFAULT_LAYOUT: VDockLayout = {
   left: [
     { kind: "pin", id: "feed" },
-    { kind: "pin", id: "connect" },
-    { kind: "pin", id: "collabs" },
-    { kind: "widget", id: "metronome" },
+    { kind: "pin", id: "spark" },
   ],
   right: [
-    { kind: "widget", id: "openToWork" },
-    { kind: "pin", id: "social" },
     { kind: "pin", id: "messages" },
-    { kind: "widget", id: "vcBalance" },
     { kind: "pin", id: "profile" },
   ],
 };

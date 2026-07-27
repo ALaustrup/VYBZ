@@ -89,6 +89,24 @@ export function UserProfilePage() {
 
       {p.bio && <p className="mb-3 text-sm leading-relaxed text-white/65">{p.bio}</p>}
 
+      {/* Living canvas cut — public-safe vibes only (no Focus / private prefs). */}
+      {(f.lookingFor?.length || f.meetupIntents?.length || f.interests?.length) ? (
+        <div className="mb-4 rounded-2xl border border-white/8 bg-white/[0.03] p-3">
+          <p className="eyebrow mb-2">Open to</p>
+          <div className="flex flex-wrap gap-1.5">
+            {(f.lookingFor ?? []).map((x) => (
+              <span key={`lf-${x}`} className="rounded-full bg-feel/15 px-2.5 py-1 text-[11px] font-medium text-feel/90 ring-1 ring-feel/25">{x}</span>
+            ))}
+            {(f.meetupIntents ?? []).map((x) => (
+              <span key={`mu-${x}`} className="rounded-full bg-aqua/15 px-2.5 py-1 text-[11px] font-medium text-aqua/90 ring-1 ring-aqua/25">{x}</span>
+            ))}
+            {(f.interests ?? []).slice(0, 8).map((x) => (
+              <span key={`in-${x}`} className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-white/60 ring-1 ring-white/10">{x}</span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {!isMe && (
         <div className="mb-4">
           <FreeConnectActions peerId={id} peerName={p.username} variant="bar" />
@@ -105,10 +123,7 @@ export function UserProfilePage() {
         {p.offers.length > 0 && <Row icon={<Sparkles className="h-3.5 w-3.5 text-white/35" />} label="Brings" items={p.offers} />}
         {p.seeks.length > 0 && <Row icon={<Target className="h-3.5 w-3.5 text-white/35" />} label="Seeks" items={p.seeks} />}
         {f.genres?.length ? <Row label="Genres" items={f.genres} /> : null}
-        {/* Public vibes only — romantic prefs / birthYear / age range never leak via public_profile */}
-        {f.interests?.length ? <Row label="Interests" items={f.interests} /> : null}
-        {f.meetupIntents?.length ? <Row label="Meetup" items={f.meetupIntents} /> : null}
-        {f.lookingFor?.length ? <Row label="Looking for" items={f.lookingFor} /> : null}
+        {/* Romantic prefs / birthYear / age / Focus never marketed here beyond Open to chips */}
       </div>
 
       <AffiliateLinks userId={id} editable={isMe} />

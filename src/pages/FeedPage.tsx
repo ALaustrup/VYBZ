@@ -16,7 +16,7 @@ type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: 
 type Mode = "discovery" | "latest";
 type Layout = "comfortable" | "grid";
 
-/** Home feed — vibe discovery cards + drops. */
+/** Drops feed — vibe discovery cards + network sound. */
 export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId } = useSession();
   const navigate = useNavigate();
