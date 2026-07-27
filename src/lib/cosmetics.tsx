@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import * as api from "@/lib/api";
+import { cx } from "@/lib/utils";
 import type { Cosmetic, CosmeticData } from "@/types";
 
-export interface ResolvedCosmetics { accent?: CosmeticData; flair?: CosmeticData }
+export interface ResolvedCosmetics {
+  accent?: CosmeticData;
+  flair?: CosmeticData;
+  frame?: CosmeticData;
+  backdrop?: CosmeticData;
+}
 
 /** Resolve a profile's equipped {category: id} map to renderable cosmetic data. */
 export function resolveCosmetics(equipped: Record<string, string> | undefined, catalog: Cosmetic[]): ResolvedCosmetics {
@@ -36,6 +42,39 @@ export function Flair({ data, className = "" }: { data?: CosmeticData; className
     <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${className}`}
       style={{ color, background: `${color}22`, boxShadow: `inset 0 0 0 1px ${color}55` }}>
       {data.icon && <span aria-hidden>{data.icon}</span>}{data.label}
+    </span>
+  );
+}
+
+/** Optional frame ring + accent wash around an avatar (visual only). */
+export function CosmeticAvatarShell({
+  accent,
+  frame,
+  className,
+  children,
+}: {
+  accent?: CosmeticData;
+  frame?: CosmeticData;
+  className?: string;
+  children: ReactNode;
+}) {
+  const ring = frame?.ring;
+  const ringW = frame?.ringW ?? 2;
+  const [c0, c1] = accentGradient(accent, ["transparent", "transparent"]);
+  const hasAccent = !!(accent?.c0 && accent?.c1);
+  return (
+    <span
+      className={cx("relative inline-flex shrink-0", className)}
+      style={ring ? { boxShadow: `0 0 0 ${ringW}px ${ring}` , borderRadius: "1rem" } : undefined}
+    >
+      {hasAccent && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -inset-1 -z-10 rounded-[1.15rem] opacity-70 blur-[6px]"
+          style={{ background: `linear-gradient(135deg, ${c0}, ${c1})` }}
+        />
+      )}
+      {children}
     </span>
   );
 }

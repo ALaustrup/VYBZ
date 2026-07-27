@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle, Target, UserPlus, X } from "lucide-react";
 import * as api from "@/lib/api";
+import { openFreeDm } from "@/lib/freeConnect";
+import { useMessagePopout } from "@/lib/messagePopout";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
 import { confidenceRead } from "@/lib/confidence";
@@ -37,6 +39,7 @@ function readDismissed(): boolean {
  */
 export function FeedHero() {
   const navigate = useNavigate();
+  const { openThread } = useMessagePopout();
   const { profile, showToast } = useSession();
   const [matches, setMatches] = useState<CollabMatch[] | null>(null);
   const reduce = useReduceFx();
@@ -101,7 +104,17 @@ export function FeedHero() {
                     </p>
                   </div>
                   <button type="button" onClick={() => connect(m)} aria-label="Connect" className="btn btn-ghost h-8 w-8 p-0"><UserPlus className="h-3.5 w-3.5" /></button>
-                  <button type="button" onClick={async () => { const t = await api.startDm(m.userId); if (t) navigate(`/messages/${t}`); }} aria-label="Message" className="btn btn-primary h-8 w-8 p-0"><MessageCircle className="h-3.5 w-3.5" /></button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const ok = await openFreeDm(m.userId, openThread);
+                      if (!ok) showToast("Couldn't open message");
+                    }}
+                    aria-label="Message — free"
+                    className="btn btn-primary h-8 w-8 p-0"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               );
             })}

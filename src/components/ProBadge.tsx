@@ -23,7 +23,26 @@ export function isPro(profile?: ProfileDetails | null): boolean {
 
 /** Soft bump constants for Pro (hints / limits — not hard locks). */
 export const PRO_SOFT = {
-  discoverFilterHint: "Pro unlocks denser filter presets — coming soon.",
+  discoverFilterHint: "Pro soft-filters denser discovery presets when available.",
   uploadSoftLimitMb: 80,
   freeUploadSoftLimitMb: 40,
 } as const;
+
+/** Soft upload ceiling in bytes — warn above this, never block the upload. */
+export function softUploadLimitBytes(profile?: ProfileDetails | null): number {
+  const mb = isPro(profile) ? PRO_SOFT.uploadSoftLimitMb : PRO_SOFT.freeUploadSoftLimitMb;
+  return mb * 1024 * 1024;
+}
+
+/** Human hint when a file exceeds the soft ceiling (upload still proceeds). */
+export function softUploadHint(fileBytes: number, profile?: ProfileDetails | null): string | null {
+  if (!FLAGS.pro) return null;
+  const limit = softUploadLimitBytes(profile);
+  if (fileBytes <= limit) return null;
+  const mb = Math.round(fileBytes / (1024 * 1024));
+  const softMb = isPro(profile) ? PRO_SOFT.uploadSoftLimitMb : PRO_SOFT.freeUploadSoftLimitMb;
+  if (isPro(profile)) {
+    return `${mb} MB is above the Pro soft hint (${softMb} MB) — upload continues; large files may take longer.`;
+  }
+  return `${mb} MB is above the free soft hint (${softMb} MB) — upload continues. Pro raises the soft hint to ${PRO_SOFT.uploadSoftLimitMb} MB (never a hard lock).`;
+}

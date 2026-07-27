@@ -47,7 +47,7 @@ export function NowPlayingWidget({
   const [expanded, setExpanded] = useState(false);
   if (!p.track) return null;
 
-  const accent = p.track.accent ?? "#a87cf8";
+  const accent = p.track.accent ?? "#00C2FF";
   const dur = p.duration || p.track.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
 
@@ -55,7 +55,7 @@ export function NowPlayingWidget({
     <>
       <div
         className={cx(
-          "relative flex h-full min-w-0 max-w-[9.5rem] items-center gap-1 sm:max-w-[12rem] sm:gap-1.5",
+          "relative flex h-full min-w-0 items-center gap-0.5",
           dimmed && "pointer-events-none opacity-40",
           className,
         )}
@@ -64,9 +64,10 @@ export function NowPlayingWidget({
         <button
           type="button"
           onClick={() => void toggle()}
+          data-tip={p.playing ? "Pause" : "Play"}
           aria-label={p.playing ? "Pause" : "Play"}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition active:scale-90"
-          style={{ boxShadow: `0 0 18px -6px ${accent}` }}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-paper-100 text-paper-900 ring-1 ring-paper-900/10 transition active:scale-90"
+          style={{ boxShadow: `0 0 16px -6px ${accent}` }}
         >
           {p.loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -80,13 +81,14 @@ export function NowPlayingWidget({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="min-w-0 flex-1 text-left"
-          aria-label="Open now playing"
+          data-tip={p.track.title}
+          aria-label={`Now playing: ${p.track.title}`}
+          className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-paper-900 ring-1 ring-paper-900/10 transition active:scale-90"
         >
-          <span className="block truncate text-[11px] font-semibold leading-tight text-white sm:text-[12px]">
-            {p.track.title}
-          </span>
-          <span className="mt-0.5 block h-0.5 overflow-hidden rounded-full bg-white/10">
+          <span
+            className="absolute inset-x-1.5 bottom-1 h-0.5 overflow-hidden rounded-full bg-paper-900/10"
+            aria-hidden
+          >
             <span
               className="block h-full origin-left rounded-full"
               style={{
@@ -95,14 +97,16 @@ export function NowPlayingWidget({
               }}
             />
           </span>
+          <span className="text-[10px] font-bold tracking-tight" style={{ color: accent }}>NP</span>
         </button>
 
         {p.queueLength > 1 && (
           <button
             type="button"
             onClick={next}
+            data-tip="Next"
             aria-label="Next"
-            className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/55 transition hover:text-white active:scale-90 sm:flex"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-paper-900/45 transition hover:bg-paper-100 hover:text-paper-900 active:scale-90"
           >
             <SkipForward className="h-3.5 w-3.5" />
           </button>
@@ -118,7 +122,7 @@ export function NowPlayingWidget({
 export function DockPlaybackProgress() {
   const p = usePlayer();
   if (!p.track) return null;
-  const accent = p.track.accent ?? "#a87cf8";
+  const accent = p.track.accent ?? "#00C2FF";
   const dur = p.duration || p.track.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
   return (
@@ -146,6 +150,7 @@ function NowPlayingExpanded({ open, onClose }: { open: boolean; onClose: () => v
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[75] flex flex-col bg-ink-950/95 backdrop-blur-2xl"
+          data-dark-stage
         >
           <div className="absolute inset-0 opacity-70">
             <TrackVisualizer

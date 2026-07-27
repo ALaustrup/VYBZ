@@ -3,35 +3,36 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    color-scheme: dark;
-    /* Brand violet — locked app-wide (sign-in Studio Glass). Do not retheme per route. */
-    --accent-rgb: 168 124 248;
-    /* The one frosted hairline. Every translucent-white outline collapses to
-       this so panels read as glass (depth comes from blur + shadow + the inset
-       top sheen), never as white-outlined boxes. Tuned faint on purpose. */
-    --hairline: rgba(255, 255, 255, 0.055);
-    --hairline-strong: rgba(255, 255, 255, 0.1);
+  :root,
+  [data-theme="day"] {
+    color-scheme: light;
+    /* Electric cyan — vivid, locked app-wide. */
+    --accent-rgb: 0 194 255;
+    --coral-rgb: 255 77 46;
+    --hairline: rgba(15, 30, 70, 0.10);
+    --hairline-strong: rgba(15, 30, 70, 0.18);
+    --fg: 15 23 42;
+    --fg-muted: 15 23 42;
 
-    /* App shell tokens — chrome heights + stage padding (3A/3E). */
+    /* App shell tokens */
     --app-bar-h: 3.25rem;
-    --taskbar-h: 5.25rem; /* legacy alias — prefer --vdock-h */
-    --vdock-h: 5.25rem;
+    --taskbar-h: 4.75rem;
+    --vdock-h: 4.75rem;
     --player-h: 0px;
-    --dock-gap: 0.2rem;
-    --dock-reserve: 5.75rem;
+    --dock-gap: 0.35rem;
+    --dock-reserve: 5.5rem;
     --rail-w: 5.75rem;
     --stage-pad-x: 1rem;
 
-    /* Elite material system — specular glass, not cookie-cutter cards */
-    --mat-fill: rgba(8, 12, 22, 0.72);
-    --mat-fill-strong: rgba(6, 10, 18, 0.92);
-    --mat-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
-    --mat-press: 0 1px 0 rgba(0, 0, 0, 0.45);
-    --mat-depth: 0 18px 48px -28px rgba(0, 0, 0, 0.92);
-    --neon-cyan: 0 255 200;
-    --neon-mint: 52 245 160;
-    --neon-electric: 0 161 255;
+    /* Bright material — opaque enough to read, sharp enough to feel Hi-DPI */
+    --mat-fill: rgba(255, 255, 255, 0.82);
+    --mat-fill-strong: rgba(255, 255, 255, 0.94);
+    --mat-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+    --mat-press: 0 1px 0 rgba(15, 30, 70, 0.06);
+    --mat-depth: 0 20px 48px -28px rgba(15, 40, 90, 0.28);
+    --neon-cyan: 0 194 255;
+    --neon-mint: 0 214 143;
+    --neon-electric: 0 194 255;
   }
 
   @media (min-width: 640px) {
@@ -88,29 +89,33 @@
   }
 
   body {
-    @apply bg-ink-950 text-white antialiased;
-    /* Explicit family — Tailwind token alone was easy to miss vs system UI. */
-    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    @apply antialiased;
+    background-color: #f7f9ff;
+    color: #0f172a;
+    /* Lexend — high x-height + reading-proficiency research; full weights for UI. */
+    font-family: Lexend, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
     overscroll-behavior: none;
     -webkit-tap-highlight-color: transparent;
     text-rendering: optimizeLegibility;
-    line-height: 1.55;
-    letter-spacing: -0.014em;
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
     font-kerning: normal;
-    font-feature-settings: "ss01" 1, "kern" 1, "liga" 1;
+    font-feature-settings: "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   /*
-   * Display — Instrument Serif only ships 400. Keep weight at 400 so the browser
-   * does not fall through to a bold sans; true serif is the unmistakable change.
+   * Display — Atkinson Hyperlegible (Braille Institute).
+   * Distinct glyphs stay clear on phone-sized names, titles, and CTAs.
    */
   .font-display,
   h1, h2, h3 {
-    font-family: "Instrument Serif", Georgia, "Times New Roman", serif !important;
-    font-weight: 400 !important;
-    letter-spacing: -0.025em;
+    font-family: "Atkinson Hyperlegible", Lexend, ui-sans-serif, system-ui, sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.005em;
+    line-height: 1.25;
     font-feature-settings: "kern" 1, "liga" 1;
   }
 
@@ -137,10 +142,12 @@
   }
 
   .app-bar {
-    @apply relative z-40 shrink-0 border-b border-white/[0.06] bg-ink-950/55;
+    @apply relative z-40 shrink-0 bg-white/75;
+    color: #0f172a;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
     padding-top: env(safe-area-inset-top);
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.35);
+    -webkit-backdrop-filter: blur(20px) saturate(1.35);
   }
 
   .app-bar-inner {
@@ -173,83 +180,108 @@
     @apply pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center overflow-visible;
   }
 
-  /* Orb focus: dim dock flanks so the surrounding menu ring reads vivid */
   .vdock-side {
-    transition: opacity 0.28s ease;
-  }
-  html[data-orb-focus] .vdock-side {
-    opacity: 0.28;
+    transition: opacity 0.2s ease;
   }
 
-  /* Frosted dark-glass panel used by nav and overlays. Static hairline —
-     audio reactivity lives on the V-Dock Orb, not chrome borders. */
+  /* Bright translucent panels — readable, high-res, not muddy dark glass. */
   .glass {
-    @apply bg-white/[0.05];
+    @apply bg-white/80;
+    color: #0f172a;
     border: 1px solid var(--hairline);
-    backdrop-filter: blur(22px) saturate(1.5);
-    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.45);
+    -webkit-backdrop-filter: blur(22px) saturate(1.45);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
-      0 18px 40px -28px rgba(0, 0, 0, 0.9);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 18px 40px -28px rgba(15, 40, 90, 0.22);
   }
 
-  /* A heavier panel for cards/sheets that hold dense content. */
   .glass-panel {
-    @apply rounded-3xl bg-ink-900/55;
-    border: 1px solid var(--hairline);
-    backdrop-filter: blur(26px) saturate(1.6);
-    -webkit-backdrop-filter: blur(26px) saturate(1.6);
+    @apply rounded-3xl bg-white/90;
+    color: #0f172a;
+    border: 1px solid var(--hairline-strong);
+    backdrop-filter: blur(26px) saturate(1.5);
+    -webkit-backdrop-filter: blur(26px) saturate(1.5);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.07),
-      0 24px 60px -34px rgba(0, 0, 0, 0.92);
+      inset 0 1px 0 0 rgba(255, 255, 255, 1),
+      0 28px 60px -34px rgba(15, 40, 90, 0.3);
   }
 
-  /* Headline treatment — crisp white text that quietly glows the current page's
-     accent. Keeps titles legible and neutral while carrying a hint of the page
-     color (per the "white text that glows the page's icon color" direction). */
   .text-gradient {
-    @apply text-white;
-    text-shadow:
-      0 0 18px rgb(var(--accent-rgb) / 0.45),
-      0 0 38px rgb(var(--accent-rgb) / 0.22);
+    color: #0f172a;
+    text-shadow: 0 0 24px rgb(var(--accent-rgb) / 0.35);
   }
 
-  /* Standalone accent glow for any white/black title that opts in. */
   .glow-accent {
-    text-shadow:
-      0 0 16px rgb(var(--accent-rgb) / 0.5),
-      0 0 34px rgb(var(--accent-rgb) / 0.25);
+    text-shadow: 0 0 20px rgb(var(--accent-rgb) / 0.4);
   }
 
-  /* Consistent eyebrow / section label — editorial, quiet, uniform across pages.
-     A wider track gives it the precise, industrial cadence. */
   .eyebrow {
-    @apply font-body text-[11px] font-semibold uppercase text-white/45;
-    letter-spacing: 0.18em;
+    @apply text-[11px] font-semibold uppercase;
+    font-family: "Atkinson Hyperlegible", Lexend, ui-sans-serif, system-ui, sans-serif;
+    color: rgb(15 23 42 / 0.45);
+    letter-spacing: 0.14em;
+  }
+
+  /* Hover labels — platform-wide mouse-over naming (dock, icons, chrome). */
+  [data-tip] {
+    position: relative;
+  }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 0.45rem);
+    transform: translateX(-50%) translateY(4px);
+    padding: 0.28rem 0.55rem;
+    border-radius: 0.45rem;
+    background: rgb(15 23 42 / 0.92);
+    color: #fff;
+    font-family: "Atkinson Hyperlegible", Lexend, ui-sans-serif, system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 80;
+    box-shadow: 0 10px 24px -12px rgba(15, 30, 70, 0.55);
+    transition: opacity 120ms ease, transform 120ms ease;
+  }
+  [data-tip]:hover::after,
+  [data-tip]:focus-visible::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  @media (hover: none) {
+    [data-tip]:hover::after { opacity: 0; }
   }
 
   /* ---- Material surfaces --------------------------------------------------- */
   .mat-surface {
     background: var(--mat-fill);
+    color: rgb(var(--fg));
     border: 1px solid var(--hairline);
     box-shadow: var(--mat-specular), var(--mat-depth);
-    backdrop-filter: blur(22px) saturate(1.45);
-    -webkit-backdrop-filter: blur(22px) saturate(1.45);
+    backdrop-filter: blur(22px) saturate(1.4);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
   }
   .mat-surface-strong {
     background: var(--mat-fill-strong);
+    color: rgb(var(--fg));
     border: 1px solid var(--hairline-strong);
     box-shadow: var(--mat-specular), var(--mat-depth);
-    backdrop-filter: blur(28px) saturate(1.5);
-    -webkit-backdrop-filter: blur(28px) saturate(1.5);
+    backdrop-filter: blur(28px) saturate(1.45);
+    -webkit-backdrop-filter: blur(28px) saturate(1.45);
   }
   .cta-pill {
     @apply relative inline-flex select-none items-center justify-center gap-1.5
-      rounded-full px-3 py-1.5 font-display text-xs font-semibold text-white
+      rounded-xl px-3.5 py-1.5 font-body text-xs font-semibold text-white
       transition active:scale-[0.97];
-    border: 1px solid rgba(var(--neon-cyan), 0.35);
-    background: linear-gradient(180deg, rgba(var(--neon-electric), 0.22), rgba(255, 255, 255, 0.04));
-    box-shadow: var(--mat-specular), 0 10px 28px -16px rgba(var(--neon-electric), 0.55);
+    border: 1px solid rgb(var(--accent-rgb) / 0.35);
+    background: linear-gradient(180deg, rgb(var(--accent-rgb) / 0.95), rgb(0 160 220));
+    box-shadow: var(--mat-specular), 0 12px 28px -14px rgb(var(--accent-rgb) / 0.55);
   }
   .broadcast-bezel {
     position: relative;
@@ -327,47 +359,43 @@
      on-theme without flooding the UI with one loud color. */
   .btn-primary {
     @apply border text-white shadow-btn-primary;
-    border-color: rgb(var(--accent-rgb) / 0.4);
+    border-color: rgb(var(--accent-rgb) / 0.55);
     background-image: linear-gradient(
       180deg,
-      rgb(var(--accent-rgb) / 0.16) 0%,
-      rgba(255, 255, 255, 0.04) 100%
+      rgb(var(--accent-rgb) / 1) 0%,
+      rgb(0 160 220) 100%
     );
   }
   .btn-primary:hover {
-    border-color: rgb(var(--accent-rgb) / 0.65);
-    background-image: linear-gradient(
-      180deg,
-      rgb(var(--accent-rgb) / 0.24) 0%,
-      rgba(255, 255, 255, 0.06) 100%
-    );
+    border-color: rgb(var(--accent-rgb) / 0.8);
+    filter: brightness(1.05);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
-      0 12px 28px -14px rgb(var(--accent-rgb) / 0.7),
-      0 0 24px -6px rgb(var(--accent-rgb) / 0.45);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+      0 14px 30px -12px rgb(var(--accent-rgb) / 0.65);
   }
-  /* Neutral glass — secondary action (kept as .btn-steel for back-compat). */
   .btn-steel {
-    @apply bg-white/[0.06] text-white shadow-btn-solid;
+    @apply shadow-btn-solid;
+    background-color: #eef3ff;
+    color: #0f172a;
     border: 1px solid var(--hairline);
   }
   .btn-steel:hover {
-    @apply bg-white/[0.1];
+    @apply bg-white;
+    color: #0f172a;
     border-color: var(--hairline-strong);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-      0 10px 22px -12px rgba(0, 0, 0, 0.85),
-      0 0 18px -6px rgb(var(--accent-rgb) / 0.3);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 12px 24px -14px rgba(15, 40, 90, 0.25);
   }
-  /* Ghost — quiet hairline glass that still feels deliberate. */
   .btn-ghost {
-    @apply bg-white/[0.05] text-white/85;
+    @apply bg-white/70;
+    color: rgb(15 23 42 / 0.85);
     border: 1px solid var(--hairline);
   }
   .btn-ghost:hover {
-    @apply bg-white/[0.09];
-    border-color: rgb(var(--accent-rgb) / 0.4);
-    box-shadow: 0 0 18px -8px rgb(var(--accent-rgb) / 0.5);
+    @apply bg-white;
+    color: #0f172a;
+    border-color: rgb(var(--accent-rgb) / 0.45);
   }
   /* Danger — destructive confirmations (red glass). */
   .btn-danger {
@@ -645,19 +673,77 @@ button, a { -webkit-tap-highlight-color: transparent; }
   line-height: 1.65;
 }
 .codex-prose h1 { @apply font-display; font-size: 1.5rem; font-weight: 800; color: #fff; margin: 0 0 0.5rem; }
-.codex-prose h2 { @apply font-display; font-size: 1.05rem; font-weight: 700; color: #fff; margin: 1.4rem 0 0.5rem; padding-top: 0.6rem; border-top: 1px solid var(--hairline); }
-.codex-prose h3 { font-size: 0.95rem; font-weight: 700; color: rgba(255,255,255,0.92); margin: 1rem 0 0.35rem; }
+.codex-prose h2 { @apply font-display; font-size: 1.05rem; font-weight: 700; color: rgb(15 23 42); margin: 1.4rem 0 0.5rem; padding-top: 0.6rem; border-top: 1px solid var(--hairline); }
+.codex-prose h3 { font-size: 0.95rem; font-weight: 700; color: rgb(15 23 42 / 0.92); margin: 1rem 0 0.35rem; }
 .codex-prose p { margin: 0.6rem 0; }
-.codex-prose strong { color: #fff; font-weight: 700; }
-.codex-prose em { color: rgba(255,255,255,0.55); }
+.codex-prose strong { color: rgb(15 23 42); font-weight: 700; }
+.codex-prose em { color: rgb(15 23 42 / 0.55); }
 .codex-prose a { color: rgb(var(--accent-rgb)); text-decoration: underline; }
 .codex-prose ul, .codex-prose ol { margin: 0.5rem 0 0.8rem; padding-left: 1.3rem; }
 .codex-prose li { margin: 0.25rem 0; }
 .codex-prose ul { list-style: disc; }
 .codex-prose ol { list-style: decimal; }
 .codex-prose hr { border: none; border-top: 1px solid var(--hairline); margin: 1.5rem 0; }
-.codex-prose code { background: rgba(255,255,255,0.08); padding: 0.05rem 0.35rem; border-radius: 0.35rem; font-size: 0.85em; }
-.codex-prose blockquote { border-left: 2px solid rgb(var(--accent-rgb) / 0.5); margin: 0.8rem 0; padding: 0.2rem 0 0.2rem 0.9rem; color: rgba(255,255,255,0.6); }
+.codex-prose code { background: rgb(15 23 42 / 0.06); padding: 0.05rem 0.35rem; border-radius: 0.35rem; font-size: 0.85em; }
+.codex-prose blockquote { border-left: 2px solid rgb(var(--accent-rgb) / 0.5); margin: 0.8rem 0; padding: 0.2rem 0 0.2rem 0.9rem; color: rgb(15 23 42 / 0.6); }
 .codex-prose table { width: 100%; border-collapse: collapse; margin: 0.9rem 0; font-size: 12px; display: block; overflow-x: auto; }
 .codex-prose th, .codex-prose td { border: 1px solid var(--hairline-strong); padding: 6px 8px; text-align: left; vertical-align: top; }
-.codex-prose th { background: rgba(255,255,255,0.05); color: #fff; font-weight: 600; }
+.codex-prose th { background: rgb(15 23 42 / 0.04); color: rgb(15 23 42); font-weight: 600; }
+
+/* ── Day theme: light chrome uses ink type; dark stages keep white ─────────── */
+[data-theme="day"] .text-white { color: rgb(15 23 42) !important; }
+[data-theme="day"] .text-white\/95 { color: rgb(15 23 42 / 0.95) !important; }
+[data-theme="day"] .text-white\/90 { color: rgb(15 23 42 / 0.9) !important; }
+[data-theme="day"] .text-white\/85 { color: rgb(15 23 42 / 0.85) !important; }
+[data-theme="day"] .text-white\/80 { color: rgb(15 23 42 / 0.8) !important; }
+[data-theme="day"] .text-white\/75 { color: rgb(15 23 42 / 0.75) !important; }
+[data-theme="day"] .text-white\/70 { color: rgb(15 23 42 / 0.7) !important; }
+[data-theme="day"] .text-white\/60 { color: rgb(15 23 42 / 0.6) !important; }
+[data-theme="day"] .text-white\/55 { color: rgb(15 23 42 / 0.55) !important; }
+[data-theme="day"] .text-white\/50 { color: rgb(15 23 42 / 0.5) !important; }
+[data-theme="day"] .text-white\/45 { color: rgb(15 23 42 / 0.45) !important; }
+[data-theme="day"] .text-white\/40 { color: rgb(15 23 42 / 0.4) !important; }
+[data-theme="day"] .text-white\/35 { color: rgb(15 23 42 / 0.35) !important; }
+[data-theme="day"] .text-white\/30 { color: rgb(15 23 42 / 0.3) !important; }
+[data-theme="day"] .text-white\/25 { color: rgb(15 23 42 / 0.25) !important; }
+[data-theme="day"] .text-white\/20 { color: rgb(15 23 42 / 0.2) !important; }
+[data-theme="day"] .placeholder\:text-white\/40::placeholder { color: rgb(15 23 42 / 0.4) !important; }
+[data-theme="day"] .placeholder\:text-white\/50::placeholder { color: rgb(15 23 42 / 0.5) !important; }
+
+/* Solid accent fills always keep white glyphs */
+[data-theme="day"] .btn-primary,
+[data-theme="day"] .cta-pill,
+[data-theme="day"] .bg-wild,
+[data-theme="day"] .bg-coral-500,
+[data-theme="day"] .bg-veil-500,
+[data-theme="day"] [data-solid-accent] { color: #fff !important; }
+
+/*
+ * Dark media / stages: restore every common white opacity so TrackCards,
+ * expanded player, intro, and black overlays stay legible.
+ */
+[data-theme="day"] [data-dark-stage],
+[data-theme="day"] .vybz-intro {
+  color: #fff;
+}
+[data-theme="day"] [data-dark-stage] .text-white { color: #fff !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/95 { color: rgb(255 255 255 / 0.95) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/90 { color: rgb(255 255 255 / 0.9) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/85 { color: rgb(255 255 255 / 0.85) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/80 { color: rgb(255 255 255 / 0.8) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/75 { color: rgb(255 255 255 / 0.75) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/70 { color: rgb(255 255 255 / 0.7) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/60 { color: rgb(255 255 255 / 0.6) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/55 { color: rgb(255 255 255 / 0.55) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/50 { color: rgb(255 255 255 / 0.5) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/45 { color: rgb(255 255 255 / 0.45) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/40 { color: rgb(255 255 255 / 0.4) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/35 { color: rgb(255 255 255 / 0.35) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/30 { color: rgb(255 255 255 / 0.3) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/25 { color: rgb(255 255 255 / 0.25) !important; }
+[data-theme="day"] [data-dark-stage] .text-white\/20 { color: rgb(255 255 255 / 0.2) !important; }
+
+/* Dock hover labels always above chrome */
+[data-vdock] [data-tip]::after {
+  z-index: 90;
+}

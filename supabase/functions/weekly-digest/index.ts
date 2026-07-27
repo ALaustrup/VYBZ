@@ -221,7 +221,7 @@ function buildEmail(opts: {
       </p>`
     : "";
 
-  const html = `<!doctype html><html><body style="margin:0;background:#0c0c10;color:#f4f4f5;font-family:ui-sans-serif,system-ui,sans-serif;">
+  const html = `<!doctype html><html><body style="margin:0;background:#0c0c10;color:#f4f4f5;font-family:Lexend,Atkinson Hyperlegible,ui-sans-serif,system-ui,sans-serif;">
   <div style="max-width:520px;margin:0 auto;padding:28px 20px;">
     <p style="letter-spacing:0.12em;text-transform:uppercase;font-size:11px;color:#a87cf8;margin:0 0 8px;">VYBZ</p>
     <h1 style="font-size:22px;margin:0 0 8px;color:#fff;">Your VYBZ week</h1>

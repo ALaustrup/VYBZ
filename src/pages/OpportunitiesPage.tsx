@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Briefcase, Check, DollarSign, Loader2, Plus, Sparkles, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Briefcase, Check, DollarSign, Inbox, Loader2, Plus, Sparkles, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { NetworkModes } from "@/components/network/NetworkModes";
@@ -9,7 +10,7 @@ import { ROLES, GENRES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
 import type { Opportunity } from "@/types";
 
-type BrowseTab = "for_you" | "collab" | "commission";
+type BrowseTab = "for_you" | "collab" | "commission" | "inbox";
 type PostKind = "collab" | "commission";
 
 export function OpportunitiesPage() {
@@ -18,14 +19,25 @@ export function OpportunitiesPage() {
   const [loading, setLoading] = useState(true);
   const [composing, setComposing] = useState(false);
   const [tab, setTab] = useState<BrowseTab>("for_you");
+  const [pendingCount, setPendingCount] = useState(0);
 
   async function load(t: BrowseTab) {
     setLoading(true);
+    if (t === "inbox") {
+      setLoading(false);
+      return;
+    }
     if (t === "for_you") setItems(await api.myOpportunities(50));
     else setItems(await api.listOpportunities(50, t));
     setLoading(false);
   }
   useEffect(() => { void load(tab); }, [tab]);
+
+  useEffect(() => {
+    void api.myOpportunityInbox().then((rows) => {
+      setPendingCount(rows.filter((r) => r.status === "pending").length);
+    }).catch(() => undefined);
+  }, [tab, composing]);
 
   useRegisterAppBar({
     actions: (
@@ -49,30 +61,36 @@ export function OpportunitiesPage() {
     <div className="flex h-full flex-col">
       <div className="px-1 pt-2">
         <NetworkModes />
-        <div className="mb-1 flex gap-5">
+        <div className="mb-1 flex gap-5 overflow-x-auto">
           {([
             { id: "for_you" as const, label: "For you", icon: Sparkles },
             { id: "collab" as const, label: "Open roles", icon: Briefcase },
             { id: "commission" as const, label: "Commissions", icon: DollarSign },
+            { id: "inbox" as const, label: "Inbox", icon: Inbox },
           ]).map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
               className={cx(
-                "relative flex items-center gap-1 pb-2.5 text-[13px] font-medium transition",
+                "relative flex shrink-0 items-center gap-1 pb-2.5 text-[13px] font-medium transition",
                 tab === t.id ? "text-white" : "text-white/40 hover:text-white/70",
               )}
             >
               <t.icon className="h-3.5 w-3.5" />
               {t.label}
+              {t.id === "inbox" && pendingCount > 0 && (
+                <span className="rounded-full bg-veil-500/30 px-1.5 text-[10px] font-bold text-veil-100">{pendingCount}</span>
+              )}
               {tab === t.id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
             </button>
           ))}
         </div>
       </div>
       <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
-        {loading ? (
+        {tab === "inbox" ? (
+          <PosterInbox onPendingChange={setPendingCount} />
+        ) : loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
         ) : items.length === 0 ? (
           tab === "for_you" ? (
@@ -150,6 +168,115 @@ export function OpportunitiesPage() {
   );
 }
 
+function PosterInbox({ onPendingChange }: { onPendingChange: (n: number) => void }) {
+  const { showToast } = useSession();
+  const navigate = useNavigate();
+  const [rows, setRows] = useState<api.OpportunityApplication[] | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const list = await api.myOpportunityInbox();
+    setRows(list);
+    onPendingChange(list.filter((r) => r.status === "pending").length);
+  }, [onPendingChange]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  async function respond(row: api.OpportunityApplication, accept: boolean) {
+    const key = `${row.postId}:${row.applicantId}`;
+    setBusy(key);
+    try {
+      const r = await api.respondOpportunityApplication(row.postId, row.applicantId, accept);
+      showToast(accept ? "Accepted — DM opened" : "Declined");
+      if (accept && r.threadId) navigate(`/messages/${r.threadId}`);
+      await load();
+    } catch (e) {
+      showToast((e as Error).message || "Couldn't update application.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function markFilled(postId: string) {
+    try {
+      await api.closeOpportunity(postId, "filled");
+      showToast("Marked filled");
+      await load();
+    } catch (e) {
+      showToast((e as Error).message || "Couldn't update post.");
+    }
+  }
+
+  if (rows === null) {
+    return <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>;
+  }
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        icon={Inbox}
+        title="No applications yet"
+        body="When people apply or pitch your posts, they land here. Accept opens a free DM — never a paywall."
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-[12px] text-white/40">
+        Review pitches on your posts. Accept starts a free message thread.
+      </p>
+      {rows.map((row) => {
+        const key = `${row.postId}:${row.applicantId}`;
+        return (
+          <div key={key} className="rounded-2xl border border-white/8 bg-white/[0.03] p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-display font-semibold text-white">{row.postTitle}</p>
+                <p className="mt-0.5 text-xs text-white/45">
+                  {row.postKind === "commission" ? "Commission" : "Collab"} · @{row.applicantUsername ?? "creator"}
+                  {" · "}{row.status}
+                </p>
+              </div>
+              {row.status === "pending" && row.postStatus === "open" && (
+                <button
+                  type="button"
+                  onClick={() => void markFilled(row.postId)}
+                  className="shrink-0 text-[11px] font-semibold text-white/40 hover:text-white/70"
+                >
+                  Mark filled
+                </button>
+              )}
+            </div>
+            {row.message && <p className="mt-2 text-sm text-white/70">{row.message}</p>}
+            {row.status === "pending" ? (
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  disabled={busy === key}
+                  onClick={() => void respond(row, true)}
+                  className="btn btn-primary h-8 flex-1 py-0 text-xs disabled:opacity-50"
+                >
+                  {busy === key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Check className="h-3.5 w-3.5" /> Accept</>}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy === key}
+                  onClick={() => void respond(row, false)}
+                  className="btn btn-ghost h-8 flex-1 py-0 text-xs disabled:opacity-50"
+                >
+                  <X className="h-3.5 w-3.5" /> Decline
+                </button>
+              </div>
+            ) : (
+              <p className="mt-2 text-[12px] font-medium text-white/50 capitalize">{row.status}</p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function PostForm({
   initialKind,
   onClose,
@@ -205,7 +332,7 @@ function PostForm({
           <h2 className="font-display text-lg font-bold text-gradient">
             {isCommission ? "Post a commission" : "Post an opportunity"}
           </h2>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full glass">
+          <button type="button" onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full glass">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -221,13 +348,9 @@ function PostForm({
               )}
             >
               {k === "collab" ? (
-                <>
-                  <Briefcase className="h-4 w-4" /> Collab
-                </>
+                <><Briefcase className="h-4 w-4" /> Collab</>
               ) : (
-                <>
-                  <DollarSign className="h-4 w-4" /> Commission
-                </>
+                <><DollarSign className="h-4 w-4" /> Commission</>
               )}
             </button>
           ))}
@@ -242,9 +365,7 @@ function PostForm({
             className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white"
           >
             {ROLES.map((r) => (
-              <option key={r.id} value={r.id} className="bg-ink-900">
-                {r.label}
-              </option>
+              <option key={r.id} value={r.id} className="bg-ink-900">{r.label}</option>
             ))}
           </select>
           <input

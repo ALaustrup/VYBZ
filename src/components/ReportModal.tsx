@@ -9,6 +9,8 @@ const REASONS: { id: ReportReason; label: string }[] = [
   { id: "spam", label: "Spam" },
   { id: "harassment", label: "Harassment" },
   { id: "hate", label: "Hate / abuse" },
+  { id: "catfish", label: "Catfish / fake" },
+  { id: "underage", label: "Underage" },
   { id: "nsfw", label: "NSFW" },
   { id: "impersonation", label: "Impersonation" },
   { id: "misinformation", label: "Misinformation" },

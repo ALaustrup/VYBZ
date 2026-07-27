@@ -44,8 +44,8 @@ const MORE_SECTIONS: MoreSection[] = [
       { id: "library", label: "Library", to: "/library", icon: Images },
       { id: "social", label: "Social", to: "/social", icon: Radio },
       { id: "rooms", label: "Rooms", to: "/rooms", icon: MessageSquare },
-      { id: "store", label: "Store", to: "/store", icon: Store },
-      { id: "activity", label: "Activity", to: "/activity", icon: Bell },
+      { id: "store", label: "Flair", to: "/store", icon: Store },
+      { id: "activity", label: "Live feed", to: "/profile?tab=live", icon: Bell },
     ],
   },
   {
@@ -113,7 +113,7 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             animate="visible"
             exit="exit"
             transition={withReduce(reduce, springDrawer)}
-            className="mat-surface-strong fixed inset-y-0 right-0 z-[70] flex w-[min(100%,22rem)] flex-col border-l border-white/10"
+            className="mat-surface-strong fixed inset-y-0 right-0 z-[70] flex w-[min(100%,22rem)] flex-col border-l border-paper-900/10"
           >
             <div className="border-b border-[var(--hairline)] px-4 pb-3 pt-[max(0.85rem,env(safe-area-inset-top))]">
               <div className="flex items-center justify-between">

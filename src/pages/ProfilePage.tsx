@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Loader2, LogOut, Pencil, Sparkles, Star, Target, Users, ScrollText,
   ShieldCheck, Shield, Bug, AudioLines, ChevronRight, Images, MoreHorizontal, X,
+  Bell, Inbox,
 } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
+import { ProfileLiveFeed } from "@/components/profile/ProfileLiveFeed";
+import { ProfileInbox } from "@/components/profile/ProfileInbox";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
@@ -23,13 +26,19 @@ import { swarmSeedOptIn, setSwarmSeedOptIn } from "@/lib/swarm";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
-import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
+import { useResolvedCosmetics, Flair, CosmeticAvatarShell } from "@/lib/cosmetics";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import type { Drop, CreatorStats, Credit } from "@/types";
 
+type DashTab = "live" | "inbox" | "you";
+
 export function ProfilePage() {
-  const { profile, userId, signOut, refreshProfile } = useSession();
+  const { profile, userId, signOut, refreshProfile, unread } = useSession();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const tab = (["live", "inbox", "you"].includes(params.get("tab") ?? "")
+    ? (params.get("tab") as DashTab)
+    : "live");
   const [roles, setRoles] = useState<{ offers: string[]; seeks: string[] }>({ offers: [], seeks: [] });
   const [drops, setDrops] = useState<Drop[]>([]);
   const [stats, setStats] = useState<CreatorStats | null>(null);
@@ -37,6 +46,14 @@ export function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [bugOpen, setBugOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  function setTab(next: DashTab) {
+    setParams((prev) => {
+      const p = new URLSearchParams(prev);
+      p.set("tab", next);
+      return p;
+    }, { replace: true });
+  }
 
   useEffect(() => {
     if (!userId) return;
@@ -46,8 +63,8 @@ export function ProfilePage() {
   }, [userId]);
 
   useRegisterAppBar({
-    title: profile?.username ? `@${profile.username}` : "You",
-    subtitle: profile?.profile?.roleLabel || undefined,
+    title: profile?.username ? `@${profile.username}` : "Dashboard",
+    subtitle: tab === "live" ? "Live feed" : tab === "inbox" ? "Inbox" : (profile?.profile?.roleLabel || "You"),
     actions: (
       <>
         <button type="button" onClick={() => navigate("/profile/edit")} aria-label="Edit"
@@ -64,7 +81,7 @@ export function ProfilePage() {
         </button>
       </>
     ),
-  }, [profile?.username, profile?.profile?.roleLabel, signOut, navigate, settingsOpen]);
+  }, [profile?.username, profile?.profile?.roleLabel, signOut, navigate, settingsOpen, tab]);
 
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   if (!profile) return null;
@@ -73,7 +90,9 @@ export function ProfilePage() {
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5">
       <div className="mb-3 flex items-start gap-3">
-        <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
+        <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
+          <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
+        </CosmeticAvatarShell>
         <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex flex-wrap items-center gap-2">
             <Flair data={cosmetics.flair} />
@@ -81,64 +100,100 @@ export function ProfilePage() {
             <RoleClassBadge roleClass={facets.roleClass} />
             <ProBadge profile={facets} />
           </div>
+          <p className="mt-1.5 text-[12px] text-white/45">Your private VYBZ dashboard</p>
+        </div>
+      </div>
+
+      <div className="mb-4 flex gap-1 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+        {([
+          { id: "live" as const, label: "Live", icon: Bell, badge: unread },
+          { id: "inbox" as const, label: "Inbox", icon: Inbox },
+          { id: "you" as const, label: "You", icon: Users },
+        ]).map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={cx(
+              "relative flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 text-[12px] font-semibold transition",
+              tab === t.id ? "bg-white/10 text-white" : "text-white/45 hover:text-white/70",
+            )}
+          >
+            <t.icon className="h-3.5 w-3.5" />
+            {t.label}
+            {"badge" in t && typeof t.badge === "number" && t.badge > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-veil-400 px-1 text-[9px] font-bold text-ink-950">
+                {t.badge > 9 ? "9+" : t.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {tab === "live" && <ProfileLiveFeed />}
+      {tab === "inbox" && <ProfileInbox />}
+      {tab === "you" && (
+        <>
+          {profile.bio && <p className="mb-3 text-sm leading-relaxed text-white/60">{profile.bio}</p>}
+
+          {(roles.offers.length > 0 || roles.seeks.length > 0 || facets.genres?.length) && (
+            <div className="mb-4 space-y-1 text-[13px] text-white/55">
+              {roles.offers.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">I bring </span>{roles.offers.join(" · ")}</p>}
+              {roles.seeks.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">Seeking </span>{roles.seeks.join(" · ")}</p>}
+              {facets.genres?.length ? <p><span className="text-[11px] uppercase tracking-wider text-white/35">Genres </span>{facets.genres.join(" · ")}</p> : null}
+            </div>
+          )}
+
+          {(roles.offers.length === 0 && roles.seeks.length === 0) && (
+            <button type="button" onClick={() => navigate("/profile/edit")} className="mb-4 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-2.5 text-left">
+              <Target className="h-4 w-4 shrink-0 text-veil-300" />
+              <p className="text-[13px] text-white/55">Add roles you bring and seek for better matches.</p>
+              <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-white/30" />
+            </button>
+          )}
+
           {stats && (
-            <p className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-white/40">
+            <p className="mb-3 flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-white/40">
               {stats.reputation >= 0.5 && <span className="flex items-center gap-1 text-white/60"><Star className="h-3 w-3" /> Proven</span>}
               <span>{stats.drops} drops</span>
               {stats.connections > 0 && <span className="flex items-center gap-1"><Users className="h-3 w-3" />{stats.connections}</span>}
             </p>
           )}
-        </div>
-      </div>
 
-      {profile.bio && <p className="mb-3 text-sm leading-relaxed text-white/60">{profile.bio}</p>}
+          <div className="mb-4">
+            <Discography credits={credits} isOwner />
+          </div>
 
-      {(roles.offers.length > 0 || roles.seeks.length > 0 || facets.genres?.length) && (
-        <div className="mb-4 space-y-1 text-[13px] text-white/55">
-          {roles.offers.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">I bring </span>{roles.offers.join(" · ")}</p>}
-          {roles.seeks.length > 0 && <p><span className="text-[11px] uppercase tracking-wider text-white/35">Seeking </span>{roles.seeks.join(" · ")}</p>}
-          {facets.genres?.length ? <p><span className="text-[11px] uppercase tracking-wider text-white/35">Genres </span>{facets.genres.join(" · ")}</p> : null}
-        </div>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="eyebrow flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
+            <button
+              type="button"
+              onClick={() => navigate("/library")}
+              className="flex items-center gap-1 text-[12px] font-semibold text-veil-200/80 hover:text-white active:scale-95"
+            >
+              <Images className="h-3.5 w-3.5" /> Library
+            </button>
+          </div>
+          {loading ? (
+            <div className="mb-4 flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
+          ) : (
+            <div className="mb-4">
+              <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
+            </div>
+          )}
+
+          <div className="mb-4">
+            <ArtistRoster userId={userId!} editable drops={drops} />
+          </div>
+
+          <div className="mb-4">
+            <p className="eyebrow mb-2">Projects</p>
+            <ProjectsPanel userId={userId!} editable />
+          </div>
+        </>
       )}
-
-      {(roles.offers.length === 0 && roles.seeks.length === 0) && (
-        <button type="button" onClick={() => navigate("/profile/edit")} className="mb-4 flex w-full items-center gap-3 border-y border-[var(--hairline)] py-2.5 text-left">
-          <Target className="h-4 w-4 shrink-0 text-veil-300" />
-          <p className="text-[13px] text-white/55">Add roles you bring and seek for better matches.</p>
-          <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-white/30" />
-        </button>
-      )}
-
-      <div className="mb-4">
-        <Discography credits={credits} isOwner />
-      </div>
-
-      <div className="mb-2 flex items-center justify-between">
-        <p className="eyebrow flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Drops</p>
-        <button
-          type="button"
-          onClick={() => navigate("/library")}
-          className="flex items-center gap-1 text-[12px] font-semibold text-veil-200/80 hover:text-white active:scale-95"
-        >
-          <Images className="h-3.5 w-3.5" /> Library
-        </button>
-      </div>
-      {loading ? (
-        <div className="mb-4 flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
-      ) : (
-        <div className="mb-4">
-          <UploadsLibrary initialDrops={drops} featuredId={profile.featuredDropId} onFeaturedChange={refreshProfile} />
-        </div>
-      )}
-
-      <div className="mb-4">
-        <ArtistRoster userId={userId!} editable drops={drops} />
-      </div>
-
-      <div className="mb-4">
-        <p className="eyebrow mb-2">Projects</p>
-        <ProjectsPanel userId={userId!} editable />
-      </div>
 
       <AnimatePresence>
         {settingsOpen && (
@@ -181,7 +236,7 @@ export function ProfilePage() {
                 )}
                 <PasskeysCard />
                 <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
-                  <LinkRow icon={Sparkles} title="Cosmetic store" body="Accents & flair" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
+                  <LinkRow icon={Sparkles} title="Flair" body="Profile Enhancement — looks only" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
                   <LinkRow icon={ScrollText} title="Codex & Legal" body="Contracts, Terms, Privacy" onClick={() => { setSettingsOpen(false); navigate("/codex"); }} />
                   {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
                     <LinkRow icon={Shield} title="Moderate" body="Report queue" onClick={() => { setSettingsOpen(false); navigate("/mod"); }} />

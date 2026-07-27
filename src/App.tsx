@@ -16,6 +16,8 @@ import { AppChrome } from "@/components/shell/AppChrome";
 import { ensureEliteFxDefault } from "@/lib/display";
 import { pageEnter } from "@/lib/motion";
 import { BRAND_ACCENT, BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
+import { useResolvedCosmetics } from "@/lib/cosmetics";
+import { BG_VARIANTS } from "@/lib/backgrounds";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -30,7 +32,8 @@ import { UserProfilePage } from "@/pages/UserProfilePage";
 import { ProjectPage } from "@/pages/ProjectPage";
 import { MessagesPage } from "@/pages/MessagesPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
-import { NotificationsPage } from "@/pages/NotificationsPage";
+import { MessagePopoutProvider } from "@/lib/messagePopout";
+import { MessagePopoutHost } from "@/components/MessagePopout";
 import { ProjectsPage } from "@/pages/ProjectsPage";
 import { ProjectRoomPage } from "@/pages/ProjectRoomPage";
 import { RoomsPage } from "@/pages/RoomsPage";
@@ -55,6 +58,12 @@ export function App() {
   const [bulkOpen, setBulkOpen] = useState(false);
   const location = useLocation();
   const surface = surfaceForPath(location.pathname);
+  const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
+  const equippedScene = cosmetics.backdrop?.bg;
+  const shellBg =
+    equippedScene && BG_VARIANTS.some((v) => v.id === equippedScene)
+      ? equippedScene
+      : surface.bg;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -100,7 +109,7 @@ export function App() {
       <Routes location={location}>
         <Route path="/" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/activity" element={<NotificationsPage />} />
+        <Route path="/activity" element={<Navigate to="/profile?tab=live" replace />} />
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/spark" element={<SparkPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
@@ -133,10 +142,10 @@ export function App() {
   );
 
   return (
-    <>
-      <DynamicBackground variant={surface.bg} />
+    <MessagePopoutProvider>
+      <DynamicBackground variant={shellBg} />
       <GrainOverlay />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
       <AppChrome
         stage={routes}
         dock={(
@@ -147,10 +156,11 @@ export function App() {
       />
       <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
       <BulkUploadSheet open={bulkOpen} onClose={() => setBulkOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+      <MessagePopoutHost />
       <ReactiveFrame />
       <WelcomeTutorial />
       <Toast /><Confetti />
-    </>
+    </MessagePopoutProvider>
   );
 }
 
@@ -159,11 +169,11 @@ function PublicDocShell() {
   return (
     <>
       <DynamicBackground variant={BRAND_BG} />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-ink-950/60" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
       <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
-        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-white/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <NavLink to="/codex"><BrandLockup height="h-7" /></NavLink>
-          <span className="ml-auto hidden text-xs text-white/45 sm:block">Codex · Astra Matrix, Inc.</span>
+          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex · Astra Matrix, Inc.</span>
           <NavLink to="/" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
         </header>
         <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">

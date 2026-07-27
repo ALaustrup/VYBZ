@@ -27,6 +27,7 @@ const MOVE_CANCEL_PX = 8;
 export function VDockItemRow({
   side,
   pathname,
+  search = "",
   unread,
   editing = false,
   draft,
@@ -36,6 +37,7 @@ export function VDockItemRow({
 }: {
   side: DockSide;
   pathname: string;
+  search?: string;
   unread: number;
   editing?: boolean;
   draft?: VDockLayout;
@@ -89,12 +91,12 @@ export function VDockItemRow({
         const pin = PIN_BY_ID[item.id];
         if (!pin) return null;
         const Icon = pin.icon;
-        const active = !editing && pinIsActive(pin, pathname);
-        const showBadge = !editing && pin.badgeUnread && unread > 0 && pathname !== "/activity";
+        const active = !editing && pinIsActive(pin, pathname, search);
+        const showBadge = !editing && pin.badgeUnread && unread > 0 && !pathname.startsWith("/profile");
 
         const className = cx(
-          "relative flex h-full min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-0.5 py-1 transition touch-none select-none",
-          editing ? "vdock-pin-jiggle text-white/80" : active ? "text-white" : "text-white/45 hover:text-white/80",
+          "relative flex h-full min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center rounded-2xl px-0.5 py-1 transition touch-none select-none",
+          editing ? "vdock-pin-jiggle text-paper-900/80" : active ? "text-paper-900" : "text-paper-900/40 hover:text-paper-900/80",
           isDragging && "opacity-30",
         );
 
@@ -103,20 +105,17 @@ export function VDockItemRow({
             {active && (
               <motion.span
                 layoutId="vdock-pin-active"
-                className="absolute inset-0 rounded-2xl bg-veil-500/14 ring-1 ring-veil-400/35"
+                className="absolute inset-1 rounded-xl bg-veil-500/15 ring-1 ring-veil-400/40"
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />
             )}
             <span className="relative z-10">
-              <Icon className={cx("h-[18px] w-[18px]", active && "text-veil-200")} />
+              <Icon className={cx("h-5 w-5", active && "text-[#00C2FF]")} strokeWidth={active ? 2.35 : 2} />
               {showBadge && (
                 <span className="absolute -right-2 -top-1.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-wild px-0.5 text-[8px] font-bold text-white">
                   {unread > 9 ? "9+" : unread}
                 </span>
               )}
-            </span>
-            <span className={cx("relative z-10 hidden text-[9px] font-semibold sm:block", active ? "text-white/90" : "text-white/40")}>
-              {pin.label}
             </span>
           </>
         );
@@ -149,6 +148,7 @@ export function VDockItemRow({
             end={!!pin.end}
             label={pin.label}
             className={className}
+            tip={pin.label}
             slot={slot}
             onLongPressEnter={onLongPressEnter}
           >
@@ -161,9 +161,9 @@ export function VDockItemRow({
 }
 
 function PinNavItem({
-  to, end, label, className, slot, onLongPressEnter, children,
+  to, end, label, tip, className, slot, onLongPressEnter, children,
 }: {
-  to: string; end: boolean; label: string; className: string; slot: DockSlot;
+  to: string; end: boolean; label: string; tip?: string; className: string; slot: DockSlot;
   onLongPressEnter?: (slot: DockSlot) => void; children: ReactNode;
 }) {
   const timer = useRef<number | null>(null);
@@ -177,7 +177,7 @@ function PinNavItem({
   }
   return (
     <NavLink
-      to={to} end={end} aria-label={label} title={label} className={className} draggable={false}
+      to={to} end={end} aria-label={label} title={label} data-tip={tip || label} className={className} draggable={false}
       onPointerDown={(e) => {
         if (e.button !== 0 || !onLongPressEnter) return;
         start.current = { x: e.clientX, y: e.clientY };

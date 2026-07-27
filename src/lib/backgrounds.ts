@@ -16,17 +16,16 @@ export interface BgVariant {
 }
 
 export const BG_VARIANTS: BgVariant[] = [
-  { id: "aurora", label: "Slate", colors: ["#3a3f4b", "#4a5161", "#2b2f39"], premium: false, price: 0 },
-  // Colourful surface backdrops (also cosmetic unlocks). Used per-surface so
-  // Feed / Connect / Studio / Store each get their own living background.
-  { id: "ember", label: "Ember", colors: ["#ff7a18", "#b3263f", "#7129e6"], premium: true, price: 120 },
-  { id: "tide", label: "Tide", colors: ["#14b8a6", "#2563eb", "#7129e6"], premium: true, price: 120 },
-  { id: "ink", label: "Ink Smoke", colors: ["#4b5165", "#6b7280", "#3a3f55"], premium: true, price: 120 },
-  { id: "rose", label: "Rosewater", colors: ["#ff5d8f", "#c77dff", "#7129e6"], premium: true, price: 120 },
-  { id: "nebula", label: "Nebula", colors: ["#a855f7", "#ec4899", "#22d3ee"], premium: true, price: 0, exclusive: true },
+  { id: "daybreak", label: "Daybreak", colors: ["#00C2FF", "#FF4D2E", "#00D68F"], premium: false, price: 0 },
+  { id: "aurora", label: "Daybreak", colors: ["#00C2FF", "#FF4D2E", "#5EEAD4"], premium: false, price: 0 },
+  { id: "ember", label: "Ember", colors: ["#FF7A18", "#FF4D2E", "#FFB020"], premium: true, price: 120 },
+  { id: "tide", label: "Tide", colors: ["#00C2FF", "#2563EB", "#14B8A6"], premium: true, price: 120 },
+  { id: "ink", label: "Mist", colors: ["#7DD3FC", "#A5B4FC", "#67E8F9"], premium: true, price: 120 },
+  { id: "rose", label: "Coral", colors: ["#FF6B4A", "#FF5D8F", "#FBBF24"], premium: true, price: 120 },
+  { id: "nebula", label: "Signal", colors: ["#00C2FF", "#FF4D2E", "#A3E635"], premium: true, price: 0, exclusive: true },
 ];
 
-export const DEFAULT_BG = "aurora";
+export const DEFAULT_BG = "daybreak";
 
 const MAP: Record<string, BgVariant> = Object.fromEntries(
   BG_VARIANTS.map((v) => [v.id, v])

@@ -7,8 +7,10 @@ const on = (v: unknown) => ["on", "true", "1"].includes(String(v ?? "").toLowerC
 export const FLAGS = {
   /** Phase O1 — creator-adjacent Role Class onboarding + badges + feed split. */
   roleClass: !off(import.meta.env.VITE_FEATURE_ROLE_CLASS),
-  /** Phase O3b — Stripe Connect tips. OFF until Connect is enabled on the platform. */
+  /** Phase O3b — Stripe Connect tips. Opt-in; secondary to cosmetics (Phase 4). */
   tips: on(import.meta.env.VITE_FEATURE_TIPS),
+  /** Paid live visibility boost — forbidden as core model; stub stays OFF. */
+  liveBoost: on(import.meta.env.VITE_FEATURE_LIVE_BOOST),
   /** Phase C3 — Spotify for Artists OAuth connector. */
   oauthSpotify: on(import.meta.env.VITE_FEATURE_OAUTH_SPOTIFY),
   /** Phase H — encrypted-chunk WebRTC swarm (CDN fallback always available). */

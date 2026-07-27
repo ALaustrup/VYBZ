@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Bug, Layers, Loader2, Radio, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles, Wifi } from "lucide-react";
+import { Bug, Layers, Loader2, Radio, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles, Wifi, Coins, Scale } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
-import type { AdminMember, BugReport, BugStatus, DisciplineCategory, MatchWeights, MatchLearningReport, PendingDiscipline, WeightDef, StaffMember, StaffAction, ModApplicationRow, PlatformRole } from "@/types";
+import type { AdminMember, BugReport, BugStatus, DisciplineCategory, MatchWeights, MatchLearningReport, PendingDiscipline, WeightDef, StaffMember, StaffAction, ModApplicationRow, PlatformRole, AdminCosmeticStats, AdminMatchFairness } from "@/types";
 
 const WEIGHTS: WeightDef[] = [
   { key: "shared_discipline", label: "Shared discipline", def: 4.0 },
@@ -29,7 +29,7 @@ const WEIGHTS: WeightDef[] = [
 
 const WEIGHT_LABELS: Record<string, string> = Object.fromEntries(WEIGHTS.map((w) => [w.key, w.label]));
 
-type Tab = "members" | "staff" | "applications" | "disciplines" | "matchmaking" | "bugs" | "infra";
+type Tab = "members" | "staff" | "applications" | "disciplines" | "matchmaking" | "flair" | "bugs" | "infra";
 
 export function AdminPage() {
   const { profile } = useSession();
@@ -45,6 +45,7 @@ export function AdminPage() {
         <TabBtn on={tab === "applications"} onClick={() => setTab("applications")} icon={<UserPlus className="h-3.5 w-3.5" />} label="Applications" />
         <TabBtn on={tab === "disciplines"} onClick={() => setTab("disciplines")} icon={<Layers className="h-3.5 w-3.5" />} label="Disciplines" />
         <TabBtn on={tab === "matchmaking"} onClick={() => setTab("matchmaking")} icon={<SlidersHorizontal className="h-3.5 w-3.5" />} label="Matchmaking" />
+        <TabBtn on={tab === "flair"} onClick={() => setTab("flair")} icon={<Coins className="h-3.5 w-3.5" />} label="Flair" />
         <TabBtn on={tab === "bugs"} onClick={() => setTab("bugs")} icon={<Bug className="h-3.5 w-3.5" />} label="Bug reports" />
         <TabBtn on={tab === "infra"} onClick={() => setTab("infra")} icon={<Wifi className="h-3.5 w-3.5" />} label="Infra" />
       </div>
@@ -54,6 +55,7 @@ export function AdminPage() {
         {tab === "applications" && <ApplicationsTab />}
         {tab === "disciplines" && <DisciplinesTab />}
         {tab === "matchmaking" && <MatchmakingTab />}
+        {tab === "flair" && <FlairFairnessTab />}
         {tab === "bugs" && <BugsTab />}
         {tab === "infra" && <InfraTab />}
       </div>
@@ -431,6 +433,125 @@ function BugsTab() {
 
 function FilterChip({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
   return <button onClick={onClick} className={cx("rounded-full px-3 py-1.5 text-[12px] font-semibold capitalize transition active:scale-95", on ? "bg-veil-500/25 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55 hover:text-white/85")}>{label}</button>;
+}
+
+/** Phase 4 — cosmetic conversion + free-vs-owner match fairness (no pay-to-win). */
+function FlairFairnessTab() {
+  const [stats, setStats] = useState<AdminCosmeticStats | null | undefined>(undefined);
+  const [fair, setFair] = useState<AdminMatchFairness | null | undefined>(undefined);
+  const [days, setDays] = useState(14);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setBusy(true);
+    const [s, f] = await Promise.all([api.adminCosmeticStats(), api.adminMatchFairness(days)]);
+    setStats(s);
+    setFair(f);
+    setBusy(false);
+  }, [days]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  if (stats === undefined || fair === undefined) return <Spinner />;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-lg font-semibold text-white">Flair & fairness</p>
+          <p className="mt-1 text-[13px] text-white/45">
+            Primary revenue is Profile Enhancement. Match rates must not favor cosmetic owners (L4).
+          </p>
+        </div>
+        <button type="button" onClick={() => void load()} disabled={busy}
+          className="rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-semibold text-white/70 active:scale-95">
+          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Refresh"}
+        </button>
+      </div>
+
+      {!stats ? (
+        <p className="text-sm text-white/45">Could not load conversion stats (admin RPC).</p>
+      ) : (
+        <div className="space-y-2">
+          <p className="eyebrow">Conversion (7d)</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <StatCard label="Buyers" value={String(stats.purchases.uniqueBuyers7d)} />
+            <StatCard label="Purchases" value={String(stats.purchases.purchases7d)} />
+            <StatCard label="Packages" value={String(stats.purchases.packagePurchases7d)} />
+            <StatCard label="Items" value={String(stats.purchases.itemPurchases7d)} />
+            <StatCard label="Credits spent" value={String(stats.purchases.creditsSpent7d)} />
+            <StatCard label="Owners total" value={String(stats.purchases.ownersTotal)} />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <StatCard label="Top-ups paid" value={String(stats.topups.paidCount)} />
+            <StatCard label="Revenue" value={`$${(stats.topups.revenueCents / 100).toFixed(2)}`} />
+            <StatCard label="Credits issued" value={String(stats.topups.creditsIssued)} />
+          </div>
+          {stats.doctrine && <p className="text-[11px] text-white/35">{stats.doctrine}</p>}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="eyebrow flex items-center gap-1.5"><Scale className="h-3.5 w-3.5" /> Match fairness</p>
+          <select
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[12px] text-white/70"
+          >
+            <option value={7}>7 days</option>
+            <option value={14}>14 days</option>
+            <option value={30}>30 days</option>
+          </select>
+        </div>
+        {!fair ? (
+          <p className="text-sm text-white/45">Could not load fairness guardrail.</p>
+        ) : (
+          <>
+            <div className={cx(
+              "rounded-2xl border p-3",
+              fair.alert ? "border-amber-400/40 bg-amber-400/[0.08]" : "border-feel/30 bg-feel/[0.06]",
+            )}>
+              <div className="flex items-center gap-2">
+                <Badge tone={fair.alert ? "bg-amber-400/20 text-amber-300" : "bg-feel/20 text-feel"}>
+                  {fair.alert ? "alert" : "ok"}
+                </Badge>
+                <p className="text-[13px] text-white/80">
+                  {fair.cosmeticsExcludedInScores
+                    ? "Scores exclude cosmetics"
+                    : "WARNING: cosmeticsExcluded missing on scores"}
+                </p>
+              </div>
+              <p className="mt-1.5 text-[12px] text-white/50">{fair.note || "Free vs cosmetic-owner mutual rates."}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <StatCard label="Free users" value={String(fair.freeUsers)} />
+              <StatCard label="Cosmetic owners" value={String(fair.cosmeticOwners)} />
+              <StatCard label="Likes (free)" value={String(fair.likesFree)} />
+              <StatCard label="Likes (owners)" value={String(fair.likesOwners)} />
+              <StatCard label="Mutual / like free" value={fair.mutualPerLikeFree != null ? fair.mutualPerLikeFree.toFixed(3) : "—"} />
+              <StatCard label="Mutual / like owners" value={fair.mutualPerLikeOwners != null ? fair.mutualPerLikeOwners.toFixed(3) : "—"} />
+            </div>
+            {fair.deltaMutualRate != null && (
+              <p className="text-[12px] text-white/45">
+                Δ mutual rate (owners − free): {fair.deltaMutualRate >= 0 ? "+" : ""}{fair.deltaMutualRate.toFixed(3)}
+                {fair.alert ? " — investigate ranking bias" : ""}
+              </p>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
+      <p className="text-[11px] text-white/40">{label}</p>
+      <p className="mt-0.5 font-display text-lg font-semibold text-white">{value}</p>
+    </div>
+  );
 }
 
 /** Live readiness for TURN + Bunny Stream — secrets stay server-side. */

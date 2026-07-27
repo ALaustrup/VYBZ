@@ -2,812 +2,794 @@
 
 > ## **VYBZ: Find Yours.**
 
-**Product:** VYBZ is the next-generation, **identity-first** platform for **all
-creators** — with a deep focus on music collaboration, precision matchmaking, and
-frictionless exchange of raw creative material (samples, stems, one-shots, presets,
-MIDI, DAW / project files, and whatever else creators ship). Music tools and concepts
-lead the product surface; **the network itself stays open-minded and accepting of
-every creative type** (visual, film, games, writing, design, performance, hybrid
-practices, and more). Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**
-(legacy alias: `vybz.astramatrix.xyz`).
+**Product:** VYBZ is the next-generation, **identity-first**, **vibes-based genuine
+connection platform**. It exists to make real human connection discoverable —
+romance, friendship, hangouts, activity partners, creative collaboration, and
+professional fit — without ads, without subscription traps, and without paywalling
+the ability to meet or talk to people.
 
-**Status:** authoritative for product trajectory. **Current release: Beta-0B**
-(see [`VERSIONING.md`](./VERSIONING.md) + [`CHANGELOG.md`](./CHANGELOG.md)).
-Technical map of the live tree: [`ARCHITECTURE.md`](./ARCHITECTURE.md). If this
-file conflicts with older notes or commit history, prefer this file + ARCHITECTURE
-for “what we are building,” and ARCHITECTURE / CHANGELOG for “what is shipped now.”
+**Owner:** Astra Matrix, Inc.  
+**Canonical domain:** [`vybz.cloud`](https://vybz.cloud) (legacy alias: `vybz.astramatrix.xyz`).  
+**GitHub:** `ALaustrup/VYBZ` (`origin` only — no legacy remotes).
+
+**Status:** This file is the **authoritative source of truth** for product trajectory.
+Technical map of the live tree: [`ARCHITECTURE.md`](./ARCHITECTURE.md). Release labels:
+[`VERSIONING.md`](./VERSIONING.md) + [`CHANGELOG.md`](./CHANGELOG.md). Security rules:
+[`SECURITY.md`](./SECURITY.md). Parked ideas: [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md).
+
+**Doctrine era:** **Vibes** — generation target **Beta-1A** (expansion on the Beta-0B
+foundation). Until Beta-1A ships, live code may still skew creator-collab-first; **this
+document wins** when code or older brand notes conflict.
 
 > ### Correction of record (read once, then move on)
-> Early scaffolding briefly carried over unrelated product concepts from a prior
-> experiment. That was a mistake: **only a thin visual layout sketch was ever meant
-> to carry over — nothing else.** Anonymous/guest accounts, confessions, dating,
-> crisis "lifelines," random chat, AI companions, unrelated economies, and similar
-> off-mission domains were **removed** in a clean rebuild. **VYBZ has no anonymity
-> of any kind** — every account is a real, durable creator identity. Any statement
-> to the contrary is obsolete. Do not reintroduce those concepts. The legacy
-> `myvybsocial` remote is **eradicated** — `origin` is `ALaustrup/VYBZ` only.
+>
+> VYBZ inherited a creator-collab spine (matchmaking, drops, Studio, DMs, Live,
+> cosmetics). That spine is **kept and expanded** — it is not discarded.
+>
+> An earlier doctrine briefly banned dating and other “off-mission” social domains.
+> **That ban is revoked.** Love, meetup, friendship, and activity partnership are
+> first-class pillars alongside create/pro. What remains permanently banned:
+> **anonymity of any kind**, guest/ephemeral aliases, confessions-as-product, AI
+> companions as substitute people, ads, and paywalled connection.
+>
+> Early scaffolding briefly carried unrelated concepts from a prior experiment.
+> Anonymous/guest accounts and crisis “lifelines” stay out. The legacy `myvybsocial`
+> remote is eradicated — `origin` is `ALaustrup/VYBZ` only.
 
-**Two promises define every decision:** (1) **matchmaking precision no other
-platform can touch**, and (2) **the creative-expression + exchange unlock every
-creator has dreamed of** — delivered professionally, never childishly. If a feature
-doesn't serve one of those two promises, it doesn't ship.
+**Three promises define every decision:**
+
+1. **Genuine connection** — people find people who actually fit their vibes and goals.
+2. **Matchmaking precision** — Social Score + complementary signals no other platform
+   can casually copy.
+3. **Freedom to connect** — messaging, cam, and voice stay free forever; cosmetics are
+   optional flair, never a tollbooth.
+
+If a feature doesn’t serve those promises, it doesn’t ship.
 
 ---
 
 ## 0. What VYBZ IS (and is NOT)
 
-**VYBZ is a next-generation social + collaboration network for creators of every
-kind**, with music-related craft as the sharpest toolkit and vocabulary. Its single
-reason to exist is **precision matchmaking between creators and whatever they are
-looking for**, plus a **protected, frictionless exchange of raw creative materials**.
+### 0.1 Mission
 
-**It IS:**
-- **For all creators.** Not music/sound/audio exclusive. We serve the greater
-  creative good — open-minded and accepting of every creative type. Focus and
-  depth land on music-related tools and concepts; identity, matchmaking, exchange,
-  Social Live, V-Dock, and widgets must remain usable and expandable for any craft.
-- **Identity-first.** Every creator is a real, named account (email + passkey). Your
-  username, roles, catalog, and reputation are your identity across VYBZ.
-- **Open to the whole creative economy — as real identities with intent.** Alongside
-  creators, VYBZ admits **creator-adjacent** accounts via a first-class **Role Class**
-  axis: supporters/patrons, bookers/managers, curators, brands, and educators/students.
-  They are *not* a passive consumer tier — every account carries structured **intent**
-  and feeds matchmaking (a booker seeking a vocalist ↔ a vocalist open-to-work is the
-  engine's existing shape). Admitting the demand side widens matchmaking surface area
-  for creators; it never dilutes creator↔creator collab quality (see §12.20).
-- A **complementary-role matching engine.** A drummer seeking a pianist is matched to
-  pianists seeking drummers; a vocalist seeking a band to bands seeking a vocalist; a
-  rapper seeking a beatmaker to beatmakers seeking a rapper — **every direction of
-  every pairing, in both directions, with high precision.** Matchmaking is always the
-  first-class citizen: every data point, upload, and interaction should feed it.
-- A **workbench exchange.** Trade samples, stems, MIDI, presets, and **project files
-  for every major DAW** (Ableton `.als`, FL Studio `.flp`, Logic `.logicx`, Pro Tools
-  `.ptx`, Reaper `.rpp`, Studio One `.song`, Bitwig `.bwproject`, Cubase `.cpr`,
-  Reason, GarageBand) — to *build together*, not to sell.
-- A **sound-first social feed of "drops"** — sample/clip/stem/track uploads with
-  public review, comments, Vyb/Fail taste signals, and an embedded star rating.
-- A **collaboration graph:** connections, 1:1 DMs, opportunity boards, and (roadmap)
-  collab rooms, versioned project handoffs, split sheets, and credits.
-- A **protected exchange** (roadmap): audio safeguarded against theft via encrypted
-  transport, per-recipient forensic watermarking, and a provenance registry.
-- A **living, audio-reactive canvas** (roadmap): the UI reacts in real time to
-  playback, plus per-track generative visualizers unique to every drop.
-- A **VST-aware network:** plugins are a first-class profile facet and matchmaking
-  signal — the tools creators use become the vocabulary they connect through.
+Genuine connection is hard to find. VYBZ solves that problem.
 
-**It is NOT:**
-- **Not anonymous.** There is no guest tier, no ephemeral alias, no "post anonymously."
-- **Not "the next SoundCloud."** It is not a passive streaming/consumption platform and
-  not a store. Discovery exists **only** to make a connection or a collaboration happen —
-  including with creator-adjacent participants (patrons, bookers, curators), who join to
-  *act* (support, book, commission, curate), never merely to scroll.
-- Not a label, DSP, beat marketplace, dating app, or social-feed-for-its-own-sake.
+Users sign up, build the profile they want (sharing only what they choose), and
+immediately begin feeding **Social Score** — the living vector of who they are and what
+they’re seeking. The platform matches them to opportunities in whatever direction their
+life (and their behavior) takes them: a hiking partner within 100 miles, a date, a
+bandmate, a mentor, a roommate-to-be, a cofounder, a late-night voice chat friend.
 
-**Brand voice:** copy is **minimal**, always geared to *finding collabs and sharing
-material with the creators seeking them*. The tagline **"VYBZ: Find Yours."** is the
-standard of economy for every string. Metadata/SEO uses **"Find Yours."** (no
-`VYBZ:` prefix). Corporate line: `© <year> Astra Matrix, Inc. All rights reserved.`
+**We are already ~80% done.** The vibes expansion is additive on the shipped identity,
+feed, Spark/Connect, DMs, Live/WebRTC, Projects/Studio, and cosmetics foundation. It is
+**not** a greenfield rebuild.
+
+### 0.2 The Vibes thesis
+
+“Vibes” is the unifying product metaphor: emotional atmosphere, interpersonal chemistry,
+shared energy, aesthetic feel, “we just click,” creative resonance. VYBZ detects,
+cultivates, and matches vibes between **real people**.
+
+**Find Yours** means: find the people, rooms, projects, dates, friendships, and
+professional fits that match *your* vibes — as revealed by profile signal and how you
+actually live inside the product.
+
+### 0.3 It IS
+
+- **A genuine-connection network** for modern loneliness and modern ambition — romance,
+  friendship, activity partners, creative collab, and professional fit under one real
+  identity.
+- **Identity-first.** Every account is a durable human (email + passkey). No guests, no
+  ephemeral aliases, no “post anonymously.”
+- **Profile-first.** Users design their perfect profile at their own pace. Matching can
+  begin the moment meaningful signal exists — not after a forced mode picker or a
+  paywall.
+- **Explore-and-learn.** No forced “I am here for dating XOR collab” wall at signup.
+  Soft declarations accelerate scoring; behavior and profile fill-in do the rest.
+- **Three coequal pillars** (see §4): Love & Meetup · Social & Presence · Create & Pro.
+- **A free connection stack:** private messaging, cam-to-cam, private voice — unlimited,
+  uncapped, never gated (see §8).
+- **Cosmetics-primary monetization:** optional profile enhancement packages that help
+  someone *stand out visually* because they want to — never because matching is broken
+  without them (see §10).
+- **A precision Social Score engine** that personalizes feed, Spark, Connect, and
+  suggestions (see §6).
+- **Still a world-class create/pro workbench** for people who come for collaboration:
+  drops, Projects, Studio / Music Repos, exchange protection, role/seek complementarity
+  — now as one pillar among equals, not the only door.
+
+### 0.4 It is NOT
+
+- **Not anonymous.** Ever.
+- **Not an ad farm.** Zero advertising inventory. Zero sponsored “matches.”
+- **Not a subscription dating trap.** No “upgrade to message,” no “see who liked you for
+  $29.99,” no competitive edging that lets paid users steal matches from free users as
+  the business model.
+- **Not fake-account friendly.** Bots, catfish farms, and disposable spam identities are
+  treated as existential threats (see §9).
+- **Not “SoundCloud with a swipe deck.”** Discovery exists to create **connection**, not
+  endless passive scroll vanity.
+- **Not a rebuild.** We expand the foundation; we do not throw away working auth, media,
+  match RPCs, DMs, or Live paths.
+
+### 0.5 Brand voice
+
+Copy stays **minimal** and human. Tagline: **"VYBZ: Find Yours."**  
+Metadata/SEO: **"Find Yours."** (no `VYBZ:` prefix).  
+Corporate: `© <year> Astra Matrix, Inc. All rights reserved.`
+
+Tone: honest, warm, adult, never childish, never predatory (“lure into sub”). Every
+string should feel like an invitation to a real person — not a funnel.
 
 ---
 
 ## 1. How to use this document
 
-1. Read §0, §2 (current state), and §3 (architecture) before writing code.
-2. The matchmaking engine (§5) is the heart of the product — highest value, highest
-   rigor. §5.4 is the standing enhancement roadmap.
-3. Obey the **Development Rules** (§9) on every change.
-4. Everything is **additive and reversible**. Never break a working feature to add one.
-5. `npm run build` (which runs `tsc --noEmit`) must pass with zero errors before commit.
-6. **Idea save points:** raw owner ideas are banked in `IDEAS_BACKLOG.md` between
-   phases (the agent asks for new ideas at each phase boundary). Ideas graduate
-   into a sequenced phase here only when promoted — the backlog never blocks the
-   active plan.
+1. Read §0–§3 (mission, laws, loop) before writing product code.
+2. Treat §5–§10 as **requirement contracts** — expansion work must satisfy them before
+   claiming a phase done.
+3. Obey **Development Rules** (§14) on every change.
+4. Prefer [`ARCHITECTURE.md`](./ARCHITECTURE.md) for live route / Edge Function /
+   table inventory; prefer this file for *why* and *what must be true*.
+5. Everything is **additive and reversible**. Never break a working feature to add one.
+6. `npm run lint` and `npm run build` must pass with zero errors before commit.
+7. **Expansion freeze rule:** do not begin a new expansion phase until the requirements
+   for that phase in §12 are specified here (they are) and the prior phase’s Definition
+   of Done is met.
+8. Raw owner ideas bank in `IDEAS_BACKLOG.md`; they graduate here when promoted.
 
 ---
 
-## 2. Current state — Beta-0B (shipped)
+## 2. Hard product laws (non-negotiable)
 
-**Beta-0B** extends the Beta-0A baseline with **Music Repos** (Studio → GitHub-like
-music VCS). Labels follow the Beta-NL[.P] scheme in [`VERSIONING.md`](./VERSIONING.md).
+These are constitutional. Features that violate them are bugs, not roadmap items.
 
-**Shipped (high level):**
-- **Identity + auth.** Passkey-first WebAuthn + email/password; username claim;
-  role + intent (+ role class) onboarding. Anonymous sign-in disabled.
-- **Creator profiles + Projects** (on-profile microblogs / hubs) + **Studio /
-  Music Repos** (CAS commits, branches/MRs, credit listings, Bridge watch,
-  splits, verified credits, release batches).
-- **Precision matchmaking** on Connect + Spark; opportunities + commissions;
-  learning-to-rank weights.
-- **Sound-first feed**, New Drop editor, global player in the full-bleed
-  bottom **V-Dock**, **Orb-first** reactivity (idle neochrome → uploader morph).
-- **Connections, DMs, Rooms, Live**, Bunny secure media (incl. `repo-blobs`),
-  watermark + C2PA worker path, Stripe Connect tips + credit top-ups, cosmetic
-  store, weekly digest, Codex/Legal.
-
-Verified end-to-end paths are documented in §4.1 and §12.x. For the live route /
-Edge Function inventory, prefer [`ARCHITECTURE.md`](./ARCHITECTURE.md).
-
----
-
-## 3. Architecture & conventions
-
-### 3.1 Stack
-- **Frontend:** Vite 6 + React 18 + TypeScript 5 (strict), Tailwind 3, `framer-motion`,
-  `react-router-dom` 6, `lucide-react`. Path alias `@/` → `src/`. Installable PWA;
-  Capacitor (Android) project present for Phase I packaging.
-- **Backend:** Supabase project `xixmneooyufbeftdfpcm` (Postgres + Auth + Storage +
-  Edge Functions). Client uses anon key + RLS only; privileged logic is
-  `SECURITY DEFINER` RPCs and Edge Functions.
-- **Audio:** a single global `AudioBus` (`src/lib/audioBus.ts`) — one shared
-  `AudioContext` → `AnalyserNode` chain — powers playback, Orb FFT, and visuals.
-- **Build/lint:** `npm run build` = `tsc --noEmit && vite build`.
-
-### 3.2 Database (clean VYBZ schema — `supabase/migrations/`)
-Identity-first tables (RLS on all): `profiles` (+ owner-private `profile` jsonb of
-music facets, GIN-indexed; a `public_profiles` view + `public_profile()` RPC expose
-only sanitized public fields), `roles`/`genres`/`daws`/`plugins` (controlled
-vocabularies), `creator_roles`/`creator_seeks` (the bipartite offer/seek core),
-`profile_embeddings` (pgvector, server-written), `drops` + `reactions` (feed + taste,
-tallied by trigger), `assets` (+ P2P swarm manifest columns designed in for the future
-swarm) + `track_ratings` (+ aggregate trigger) + `asset_downloads` (license chain),
-`connections` + `dm_threads`/`dm_messages`, and `collab_posts`/`collab_applications`.
-A trigger auto-creates a profile on signup. Later migrations add Projects/widgets,
-Studio versions, playback customization, live streams, tips, digests, OAuth, etc.
-(see `ARCHITECTURE.md`).
-
-**RPCs (definer, `search_path=public`, emit only aggregates/labels — never raw private
-facets):** `collab_matches`, `my_opportunities`, `set_creator_roles`,
-`my_creator_roles`, `creator_roles_for`, `public_profile`, `rate_track`,
-`request_asset_download`, `start_dm`, `digest_week_bundle`, plus `jsonb_overlap_*`
-helpers and staff/admin RPCs.
-
-### 3.3 Frontend structure
-- **State:** `src/store/session.tsx` (`SessionProvider`/`useSession` — auth, profile,
-  toast/celebrate). Player state is the `AudioBus` singleton via `usePlayer()`.
-- **Data:** `src/lib/api.ts` (all Supabase calls, typed).
-- **Shell & design:** `src/index.css` (Smoked Glass tokens), `tailwind.config.js`,
-  **full-bleed bottom V-Dock** (`AppChrome` + `VDock` + `GlobalPlayer` + `OrbSphere`)
-  on every viewport — **no side rail**. Primitives: `Brand`, `Toast`, `Confetti`,
-  `EmptyState`, `Handle`, `DynamicBackground`, `GrainOverlay`, …
-- **Audio UI:** `audioBus`, waveform helpers, `TrackCard`, `Waveform`,
-  `TrackVisualizer`, `GlobalPlayer`, Orb morph via `playbackCustomization` /
-  uploader FX; `profileFields.ts` is the catalog + matching-facet source of truth.
-- **Pages:** Feed, Discover, Connect, Spark, Opportunities, Studio, Live, Messages,
-  Rooms, Profile (+ edit), User/Artist profiles, Store, Admin/Mod, Codex/Legal.
-
-### 3.4 Infrastructure
-- **Supabase:** VYBZ project `xixmneooyufbeftdfpcm`, us-west-1. Anonymous sign-in
-  **off**; email enabled. Prefer verified email + Resend custom SMTP before broad
-  public launch (`scripts/configure-resend-smtp.sh`). Avatars use `media-public`;
-  protected drops + Studio versions use **Bunny secure**; Project/feed post media
-  uses Bunny public CDN. Legacy `audio-assets` / `project-files` remain readable.
-- **Domain:** **`vybz.cloud`** on Vercel (`astramatrix/vybz`). Legacy alias
-  `vybz.astramatrix.xyz` kept on the passkey host list during cutover.
-- **Edge Functions:** see full inventory in [`ARCHITECTURE.md`](./ARCHITECTURE.md)
-  (passkey, Bunny, watermark, embed, Stripe, OAuth, ICE, weekly-digest, …).
-- **Git:** `origin` = `ALaustrup/VYBZ` only. No `upstream` remote.
-
----
-
-## 4. Feature roadmap (sequenced from v1)
-
-Each phase is additive and has an implicit Definition of Done: builds green, RLS-safe,
-manually verified, and it strengthens matchmaking or the exchange.
-
-| Phase | Deliverable |
+| Law | Meaning |
 |---|---|
-| **A. Reliability & polish** ✅ | Realtime feed/DMs, notifications, search & discovery, profile hero, onboarding role-setup. |
-| **B. Matchmaking depth** ✅ | Role-affinity graph, skill-tier proximity, reputation, free `gte-small` resonance, production/agency matching. |
-| **C. Exchange + protection** ✅ | Download gating, per-recipient forensic watermarking (desync-tolerant), hash-chained provenance ledger, license chain. C2PA worker built + verified; live hosting pending a reachable container host. |
-| **D. Projects & collab rooms** ✅ | Private project rooms, versioned handoffs, split sheets, release gate, **verified credits**. Next: discography surface + threaded per-project chat. |
-| **E. Signature reactivity** ✅ | **V-Dock** + **Orb** (Joystick Phase 1 ✅; **reactive runtime** ✅ — onset/beat/spectrum corona; analyser snappier). **Off / Soft / VYBZ Max**. Monitor-cue ducks Orb. Widget catalog shipped (creatively unbounded). WebGL Orb morph still later. |
-| **F. Categorized collab chat** ✅ | Taxonomy-bound rooms (role/genre/DAW), realtime messages + presence. |
-| **G. Live (v1)** ✅ | *Synchronized listening sessions* in rooms (Supabase Realtime + AudioBus). LiveKit group rehearsal/XR still gated on SFU infra. |
-| **O. Unified Social Live** ✅ | One public ultra-low-latency live tier + premium V¢ text/voice rooms. Phases 1–3 ✅. **Phase 4** room voice UI (LiveKit) + V¢ renewals cron ops ✅. |
-| **H. The swarm (P2P)** | Encrypted-chunk WebRTC distribution behind a flag (the `assets` manifest columns are already designed in). |
-| **I. Mobile + packaging** | Capacitor Android/iOS, PWA polish, native plugin-scanner sync. |
-| **J. Monetization** | Pro tier; tasteful, disclosed affiliate gear/plugin links (never influencing match scores). |
-| **N. Music Repos** ✅ | GitHub-like music VCS on Studio: CAS blobs/trees/commits, folder sync, History + Branches (MR / pull tip), Listing marketplace, Bridge watch, **R5 DAWproject/stems handoff hints**. Flag: `VITE_FEATURE_REPOS`. |
-| **L. Codex (public doc library)** | Free, public, professionally-drafted music-industry document library (contracts→demand letters) with plain-English explainers, jurisdiction tags, and disclaimers. US-first. ~90 document types catalogued. |
-| **M. Brand system** | Official VYBZ logo set (mark/wordmark/mono), favicons/PWA icons, OG image, intro animation, email + Codex-doc headers. Drops into `public/brand/`. |
-
-### 4.1 Development findings & environment constraints
-- **Seed cleanup (2026-07):** the demo/test accounts that seeded early matchmaking
-  (bulk `@vybztest.com` + `@example.com` demo profiles) were **purged from the live
-  DB** — cascading their drops, Projects, roles/seeks, connections and DMs — so VYBZ
-  now carries only real creator identities. The owner account (`vybz`) was promoted
-  to **admin**. Orphaned Bunny objects (not publicly reachable) can be swept later.
-- **DM live audio (H1) is implemented and correct**, but cannot be fully exercised in the CI/VM test environment: there is **no microphone**, and `getDisplayMedia` tab-audio capture is **silent** (no real audio output device to capture), so the visualizer/audible path has no signal to show here. Verified in-sandbox: the go-live control + source menu, graceful no-device error handling, `getDisplayMedia` capture → offer → "Calling…" panel + controls, clean build, no console errors. Two real bugs found + fixed during testing: (a) a `MediaStreamSource→Analyser` graph needs a destination sink or Chrome won't process it; (b) the listener needs an `<audio>` element to actually hear the remote stream. **Full 1:1 live audio (audible + visualizer + two-peer connect) should be validated on real devices.**
-- **Infra-gated backlog** (all blocked only on hosting/cost, code is ready): C2PA worker live hosting (needs a reachable container host — LAN box unreachable, free Docker hosts now require payment/PRO); **TURN** server for strict-NAT WebRTC reliability; **LiveKit** SFU for group live rehearsal/XR. These flip on the moment infra exists.
-- **Media hosting & cost (2026-07):** user media is offloaded to **Bunny.net** to protect the Supabase free tier (5 GB egress / 1 GB storage).
-  - *Public post media* → open Bunny pull zone `vybz-cdn-e8684f` (returns a CDN URL). Unchanged.
-  - *Protected drop originals* (§8 exchange) → **isolated** Bunny storage zone `vybz-secure-6d606c` behind a **token-authenticated** pull zone (`vybz-secure-6d606c.b-cdn.net`). Raw objects are **not** publicly reachable (unsigned → 403); previews are short-lived token-signed URLs minted by the `bunny-sign` fn; downloads are fetched **server-side** (AccessKey) by the `watermark` fn for per-recipient watermarking. Legacy Supabase-path assets still work (paths are detected by the `drops/`|`projects/`|`repo-blobs/` prefix). Secrets: `BUNNY_SECURE_*`.
-  - *Known caveat:* Bunny serves `.wav` as `application/octet-stream`; the watermarked **download** is correctly `audio/wav`, but WAV **previews** may need a pull-zone Content-Type edge rule for the WebAudio analyser. Compressed formats (mp3/m4a) are unaffected. Follow-up: video → **Bunny Stream** (HLS/transcode).
-- **Email (2026-07):** Supabase's built-in mailer is throttled (~few/hour) and will break sign-up/passkey-recovery at launch. `scripts/configure-resend-smtp.sh` wires **Resend** (free 3k/mo) as custom SMTP via the Management API — run once the `RESEND_API_KEY` + verified sender are in place.
-- **Monetization (planned, no gating):** Lane A — **Stripe Connect** creator tips + a small exchange transaction fee (mission-aligned; gates nothing). Lane B — a **cosmetic store** (profile/Project skins, accent gradients, audio-reactive frame/visualizer packs, custom cursors, animated flair, founder badge) via one-time Stripe purchases. No ads, no popups, nothing functional behind a paywall.
-- **audio→MIDI (H3) is verified in-VM** (converting a track produced a valid 426-note MIDI, parsed back with `@tonejs/midi`) — it runs on files, so no capture hardware is needed. TensorFlow.js falls back to CPU where WebGL is unavailable.
-- **Web MIDI → DAW (H4) is implemented + degrades gracefully**, but the headless VM has no MIDI subsystem (`requestMIDIAccess` → `InvalidStateError`), so live streaming into a DAW must be validated on a real desktop with a virtual MIDI port (IAC/loopMIDI) in Chrome/Edge. Verified in-VM: support detection, permission flow, and the graceful "MIDI unavailable / set up a virtual port" messaging.
-- **Testing note:** file-playback visuals + audio→MIDI work in-VM (they tap in-graph/file audio); capture-based audio (mic/tab) and Web MIDI do not, because the VM lacks audio + MIDI hardware.
+| **L1 — Free connection forever** | Matching visibility for genuine fit, DMs, cam-to-cam, and private voice are never paywalled, never metered for revenue, never “freemium-throttled.” |
+| **L2 — Zero ads** | No display ads, native ads, sponsored match cards, or affiliate dark patterns that pretend to be people. |
+| **L3 — Zero fake accounts** | Identity-first signup; verification/trust tooling; aggressive anti-bot; demo accounts are explicitly labeled and never mixed into “real” discovery without disclosure. |
+| **L4 — Zero competitive edging** | Paid cosmetics must not reorder genuine match ranking, hide free users, or invent scarcity. Visual standout ≠ algorithmic privilege. |
+| **L5 — Zero connection cost** | Using VYBZ to find and talk to people costs $0 forever. Optional cosmetics are the primary revenue. |
+| **L6 — Safety never paid** | Report, block, age gates, consent tooling, and moderation are free and first-class. |
+| **L7 — No anonymity** | No guest tier, no ephemeral alias, no anonymous posting. |
+| **L8 — Consent & privacy** | Age, sex, location, photo, and looking-for appear in discovery only when the user chose to share them. |
+| **L9 — Explainable matches** | Surfaces should show *why* (shared interests, distance, complementarity) — never dark-pattern urgency. |
+| **L10 — Additive expansion** | Vibes features expand the Beta-0 foundation; they do not delete Create & Pro capability. |
 
 ---
 
-## 5. The matchmaking engine (the core of VYBZ)
+## 3. The experience loop
 
-### 5.1 Principle — complementarity, both directions
-For caller **me** and candidate **u**: **forward** = `|me.seeks ∩ u.offers|` (they have
-what I want); **backward** = `|u.seeks ∩ me.offers|` (I have what they want); a **mutual
-bonus** when both > 0 (the gold standard). Generic role math means every pairing works
-in both directions with no hardcoded special cases.
+```text
+Signup (identity)
+  → Profile (optional richness; photo accelerates trust)
+    → Social Score starts as soon as signal exists
+      → Matchable to others early (minimum viable signal)
+        → Explore any pillar freely
+          → Behavior deepens Social Score
+            → Feed vibe cards + Spark + Connect attune
+              → Free DM / cam / voice
+                → Deeper engagement → better score → better matches
+```
 
-### 5.2 Current blended signals (`collab_matches`)
-Forward/backward complement (×3 each) + mutual bonus (+4), genre overlap (×1.4), DAW
-overlap (×1.2), plugin overlap (×0.9, capped), language overlap (×0.5), tempo-range
-fit (+0.6), semantic resonance from influences/bio (×3, pgvector cosine),
-open-to-work (+1). Normalized to 0–1 `fit`; returns the human "why." Candidate pools
-are UNION'd from offer/seek joins + vector-nearest, so thin/new profiles still match.
+### 3.1 Canonical story (template for every connection type)
 
-### 5.3 Design discipline
-Definer functions read private facets to sharpen *your* results but emit only
-aggregates + role labels. Weights start hand-tuned and are then **earned from outcomes**
-via learning-to-rank (§5.4h) — admin overrides always win, learned weights refine the
-rest, and coded defaults remain the floor.
+1. **User A** signs up and builds their perfect profile — interests (e.g. nature /
+   outdoors), photo, age, sex, location, goals — sharing only what they want.
+2. **Social scoring begins immediately** as details appear. Other users can begin
+   matching with them the moment meaningful profile signal exists.
+3. **User B** (existing, nearby, into outdoors, looking for a hiking partner) sees in
+   the **global feed**:
+   - *“A new user has joined VYBZ — they’re into nature and the outdoors too.”*
+   - Thumbnail + **(age) (sex) (location)** when those fields are public.
+4. Both are within ~**100 miles**, interests align → genuine opportunity — not an ad,
+   not a subscription funnel.
+5. They get **every free connection path**: private messaging, cam-to-cam, private voice.
 
-### 5.4 Enhancement roadmap — best matches across musicianship *and* production/agency types
-This is the standing brief for making matches world-class. Grouped by lever:
+**Curate this pattern for any honest connection:** date, friend, bandmate, mentor,
+climbing partner, study buddy, cofounder, creative collaborator.
 
-**(a) A role-affinity graph (beyond exact declared pairs).**
-Model curated "affinity edges" between roles so strong complements surface even when a
-creator hasn't explicitly declared them — e.g. rapper↔beatmaker, topliner↔producer,
-singer-songwriter↔instrumentalist, artist↔mix/master engineer, band↔session musician,
-composer↔arranger. Each edge carries a weight; the engine blends declared complements
-with graph-inferred ones (at lower weight) so discovery isn't limited to perfectly
-declared seeks.
+### 3.2 Cold start fairness
 
-**(b) Musicianship-type nuance.** Instrumentalists match on instrument + genre +
-tempo/key + skill; vocalists (lead/backing/rapper/topliner) match to the production
-and instrumental roles that complete a record; performers/session players match on
-availability + locality + genre; bands match to the specific member role they lack.
+- New users are **not buried** under rich-get-richer ranking.
+- Feed may announce relevant new joins to compatible locals / interest peers.
+- Algorithmic *pull* intensifies as Social Score gains confidence; early experience is
+  exploratory and fair, not empty and not pay-to-appear.
 
-**(c) Production/agency-type nuance.** Producers/beatmakers match to artists/topliners
-by sonic + genre fit; mix/master engineers match to artists with finished-but-unmixed
-material (and are ranked by craft reputation); A&R/managers match to artists by genre,
-stage, and momentum; sync/licensing matches to catalog owners; studio owners match to
-local artists needing space. These are asymmetric relationships — model them as typed
-edges, not just symmetric overlap.
+### 3.3 No forced mode fork
 
-**(d) Skill-tier proximity.** Match comparable experience with a tunable tolerance so a
-seasoned engineer isn't buried in beginners (and newcomers still find peers). Skill is
-already captured per offered role.
-
-**(e) Semantic + sonic embeddings.** Text resonance is **live and free**: the `embed`
-Edge Function embeds each creator's identity (influences, genres, DAWs, plugins, intent)
-with Supabase's built-in `gte-small` model (384-d, no external key/cost) into
-`profile_embeddings`, and the resonance term in `collab_matches` uses it. Next upgrade:
-*audio* embeddings from uploaded drops for a true "your sounds actually fit" / "find
-creators who sound like this" signal.
-
-**(f) Reputation & reliability.** A trust layer built from completed collaborations,
-post-collab ratings, response rate, and on-time delivery. Boosts high-signal creators
-and improves match quality as the graph matures.
-
-**(g) Behavioral / collaborative filtering.** Co-Vyb on drops (shared taste),
-connect/message/Spark history → "creators like the ones you connect with." Feed these
-as soft signals.
-
-**(h) Learning-to-rank.** ✅ *Shipped (0029).* Every `connect`/`pass`/`accept`/`decline`
-now snapshots a normalized 0–1 **signal vector** for the pair (`match_signal_vector`).
-`tune_matchmaking_weights()` compares each signal's average strength among positive vs
-negative outcomes and scales that signal's weight — **support-shrunk** (thin data barely
-moves) and **clamped to [0.4×, 2.0×]** of the hand-tuned base, so no signal is ever zeroed
-or runs away. `mm_w()` resolves **admin override → learned → coded default**, so learning
-never fights a manual setting and the defaults stay the floor. Runs nightly via `pg_cron`
-when available, or on demand from **/admin → Matchmaking → Run learning** (which shows the
-per-signal base→learned report). The explainable "why" is preserved on every card.
-
-**(i) Hard filters vs soft boosts.** Let users set non-negotiables (remote-only,
-DAW-compatible for project handoff, language) as hard filters, distinct from soft
-ranking boosts.
-
-**(j) Fairness & freshness.** Guard against rich-get-richer: surface new/underexposed
-creators and diversify results so the network stays vibrant.
-
-**(k) Explainability & confidence.** ◑ Always show *why* + a confidence read so creators
-trust and act on matches. *Confidence shipped (0029):* `collab_matches` returns a 0–1
-`confidence` built from how many independent evidence types corroborate a match blended
-with fit, surfaced as a labelled read (High / Solid / Emerging / Exploratory) on Connect
-and Spark alongside the existing "why" (has-what-you-seek / wants-what-you-bring / shared
-disciplines / shared genres+DAWs).
+Users do **not** have to declare “dating XOR collab” at the door. Optional soft
+declarations (“open to dating,” “open to collabs,” “looking for hiking partners”)
+**accelerate** scoring and filter decks — they are accelerators, not walls.
 
 ---
 
-## 6. Domain model roadmap — drops, exchange, protection
+## 4. Three coequal pillars
 
-- **Drops** (shipped): repurpose-free, purpose-named `drops` + `assets`. Reactions and
-  ratings feed taste matching.
-- **Exchange** (Phase C): download gating through `request_asset_download` (records the
-  license accepted); previews stream at capped quality, originals never get a public URL.
-- **Protection & provenance (§8.7)** — deliberately **not a blockchain**. VYBZ is the
-  trusted operator, so a self-run chain would be a slow, complex database with none of
-  the decentralization benefits, immutable-PII/GDPR liabilities, and no added
-  anti-piracy power. Instead:
-  - **Content hashing + acoustic signature on upload** (SHA-256 of the original +
-    a lightweight peaks-derived signature; chromaprint-class fingerprint is a later
-    upgrade) → the "first seen on VYBZ" provenance record (`assets.sha256`/`fingerprint`).
-    *Shipped.*
-  - **Hash-chained, append-only audit ledger** (`provenance_ledger`): every mint,
-    download, and license grant is chained by hash to the previous row, so tampering is
-    detectable (`verify_ledger()`), and `asset_provenance()` reports first-seen +
-    download count. Deny-all to clients; append via definer only. *Shipped.*
-  - **Per-recipient forensic watermarking** on delivery — the real anti-piracy teeth.
-    A **direct-sequence spread-spectrum** watermark (current DSSS approach per
-    oximedia-watermark / VoiceSign, 2026), keyed by `HMAC(WM_SECRET, recipient|asset|
-    wm_id)`, is embedded server-side (the `watermark` Edge Function) into each
-    delivered WAV at ~34 dB SNR (inaudible) and logged as a `watermark` ledger event;
-    a blind correlation detector (`watermark-detect`, admin-only) traces a leaked file
-    to the recipient who received it. *Shipped* (WAV; verified ~35× attribution
-    separation, robust to requantization/gain/noise). Known limits: it's PROVENANCE +
-    ATTRIBUTION, not DRM (defeatable by a determined adversary); the desync-robust,
-    transcode-surviving upgrade is the frequency-domain segmented variant (2–6 kHz PN
-    per ~100 ms segment) + MP3/FLAC support via decode.
-  - **C2PA Content Credentials** attached to delivered files (industry-standard signed
-    provenance; audio WAV/MP3 supported by Adobe/CAI's `c2patool`). The signing worker
-    (`worker/c2pa/`) is *containerized and verified end-to-end locally*: the `watermark`
-    edge fn watermarks a WAV → forwards it to the worker's `POST /sign` → the delivered
-    file validates (`validation_state: "Valid"`) with the VYBZ assertions (creator,
-    asset id, watermark id, license) **and the forensic watermark survives byte-for-byte**
-    (C2PA writes a metadata chunk, not PCM). It runs in **Node/a container** (not the Deno
-    edge). Staging activation = `docker compose up` on the VYBZ server + set the
-    `C2PA_WORKER_URL`/`C2PA_WORKER_TOKEN` edge secrets; until then downloads deliver the
-    watermarked-only file (safe fallback). Self-signed ES256 cert for staging; CA-issued
-    for production.
-  - **Optional public anchoring** — periodically publish the ledger's Merkle root to a
-    public timestamping service (RFC-3161 / OpenTimestamps) for independent,
-    third-party-verifiable proof-of-existence-at-time, without running a chain.
-  - Market it as **protection + provenance, not unbreakable DRM** (the analog hole
-    always exists) — still more than any mainstream platform offers creators.
-- **Projects** (Phase D, *shipped*): `projects`/`project_collaborators`/`project_versions`/
-  `split_sheets` power private, versioned handoffs, per-member split agreement, a release
-  gate, and verified credits (`creator_credits`) that feed `creator_reputation`. Access is
-  through member-gated `SECURITY DEFINER` RPCs (tables are deny-all to clients).
-- **Swarm** (Phase H): encrypted-chunk WebRTC distribution; the `assets` table already
-  carries the manifest columns (`cipher_algo`, `chunk_size`, `chunk_hashes`,
-  `content_key_envelope`) so it's purely additive — keys flow only through the
-  permission-checked server path; peers exchange opaque encrypted chunks only.
+One identity. Three doors. Same honesty.
 
----
+| Pillar | User need | Foundation to expand | Primary surfaces |
+|---|---|---|---|
+| **Love & Meetup** | Romance, dates, IRL partners (hiking, events, local hang) | Spark deck, geo, safety, looking-for | Spark, feed vibe cards, profile meetup intents |
+| **Social & Presence** | Loneliness → real conversation & belonging | DMs, Rooms, Live, WebRTC | Messages, Rooms, Live, private cam/voice |
+| **Create & Pro** | Collab, exchange, professional fit | Roles/seeks, `collab_matches`, Projects, Studio, drops | Connect, Opportunities, Studio, Projects, Feed drops |
 
-## 7. Signature reactivity (Phase E)
+Pillars share Social Score, identity, safety, and the free connection stack. A user can
+live in one pillar or all three over time.
 
-The `AudioBus` analyser drives:
+### 4.1 Love & Meetup — requirements
 
-1. **V-Dock Orb** — **WebGL2 SDF engine** (`src/lib/gpu/orbEngine.ts`) with
-   Canvas2D fallback. Idle neochrome → uploader palette/morph via
-   `sampleReactiveFrame`. Soft/Max budgets; Monitor Cue ducks morph; Joystick
-   Phase 1 + beat-pulsed sectors; reduce-motion / Off calm.
-2. **DropStage** — shared WebGL2 drop banner (`dropStageEngine.ts` /
-   `DropStage.tsx`) for TrackCard / GlobalPlayer; seeded Canvas2D fallback;
-   **uploader video/still backdrops** via `playback_customization.backdropUrl`
-   (Bunny public upload from New Drop; Cover/Fit + dim).
-3. **Material chrome** — `mat-surface` / `cta-pill` / `broadcast-bezel` /
-   `match-bloom` / `stage-empty` (Social Top-3, Spark, More, V-Dock tray).
-4. **Living background** — `DynamicBackground` still scales with FX intensity
-   (0 when Off / reduced).
+**Must ship (expansion):**
 
-Viewport-wide neon borders (`ReactiveFrame`) are **retired** (stub remains for
-import stability only).
+1. **Looking-for model** — dating, friendship, activity partner, “see what happens,”
+   custom free-text; multi-select allowed.
+2. **Tinder-style Spark deck** expanded beyond creator complementarity: interest overlap,
+   geo radius, age preferences (optional), mutual looking-for, Social Score attunement,
+   explainable “why.”
+3. **Meetup intents** — structured activities (hiking, coffee, jam session, gym, study…)
+   with geo + availability soft signals.
+4. **Safety pack** — 18+ for romantic intents; clear consent copy; report reasons for
+   harassment/catfish/underage; block; optional photo verification path (see §9).
+5. **No romantic paywalls** — likes, matches, messages, and video/voice never locked.
+
+**Must not ship:**
+
+- Attractiveness paywalls, “boost to the front of the local stack” as core revenue,
+  fake scarcity timers, or bots posing as matches.
+
+### 4.2 Social & Presence — requirements
+
+**Must ship / deepen:**
+
+1. **Private messaging** — realtime, reliable, media-capable; no message caps.
+2. **Private voice chat** — 1:1 (and later small group) via WebRTC / LiveKit paths.
+3. **Cam-to-cam** — 1:1 video; same free forever rule.
+4. **Rooms & Live** — hangout / listening / presence without forcing create/pro identity.
+5. **Presence signals** — online/recently active where privacy allows; never sold as a
+   premium stalker feature.
+
+**Foundation already present:** `dm_threads` / `dm_messages`, Rooms, Social Live, ICE /
+LiveKit edge paths, DM live-audio work (device-validated outside CI VMs).
+
+### 4.3 Create & Pro — requirements (preserve + deepen)
+
+**Keep as first-class:**
+
+1. Complementary role/seek matchmaking (`collab_matches` and successors).
+2. Sound-first drops feed, reactions, ratings as taste signals.
+3. Projects (profile hubs) + Collabs/Studio + Music Repos.
+4. Protected exchange: watermarking, provenance ledger, license chain.
+5. Opportunities / commissions board for real work.
+6. Creator-adjacent Role Class (booker, patron, curator…) as demand-side identities —
+   still identity-first, still no lurker tier.
+
+Create/pro ranking remains excellent for users whose Social Score and declarations lean
+that way. It must not monopolize onboarding copy or bury Love/Meetup users.
 
 ---
 
-## 8. Profiles — expression with a professional edge
+## 5. Profiles — the perfect optional self
 
-A VYBZ profile is a creator's storefront-of-self: featured drop with its visualizer,
-pinned drops, taste badges (genres/DAWs/plugins), and expressive-but-curated theming
-that can never produce a childish or broken result. **Matchmaking-first tiebreaker:**
-when design choices compete, the one that feeds or showcases matchmaking wins — roles
-offered/sought and the "why we match" always get prime real estate.
+### 5.1 Principle
 
----
+A VYBZ profile is a **storefront of a real person**. Richness is rewarded with better
+matches; emptiness is allowed. Nothing required for vanity metrics. Nothing locked
+behind payment.
 
-## 9. Development rules
+### 5.2 Signal facets (non-exhaustive)
 
-1. **No anonymity, ever.** Every account is a real identity. Never reintroduce guest/
-   anonymous auth or ephemeral aliases.
-2. **Secrets never touch the client.** OpenAI/Resend/service-role keys live only in Edge
-   Functions / server env. Client uses the anon key + RLS.
-3. **RLS on by default.** Sensitive tables get no direct client write policies — access
-   flows through `SECURITY DEFINER` RPCs that re-check `auth.uid()` and emit only what's
-   allowed. Definer functions always `set search_path = public`.
-4. **Idempotent, timestamped migrations** (`create ... if not exists`, `create or
-   replace`, `add column if not exists`). Never edit an applied migration to change live
-   behavior — add a new one.
-5. **Validate & sanitize** all input; check file type/size/mime on upload; treat
-   uploaded audio/project files as untrusted.
-6. **TypeScript strict; `npm run build` green (zero errors) before commit.** Modular,
-   small units. Additive & non-breaking; lazy-load heavy modules; feature-flag risk.
-7. **Latest stable deps** (Node LTS ≥20). Comments only for non-obvious intent.
-8. **Mobile-first + PWA parity.** Keep the glass aesthetic + accessibility
-   (labels, focus, `prefers-reduced-motion`).
-9. Prepare changes PR-style. Confirm before destructive/irreversible actions.
+| Facet | Role in matching | Notes |
+|---|---|---|
+| Photo / avatar | Trust + recognition | Strongly encouraged; accelerates visibility in vibe cards |
+| Display name / handle | Identity | Required for account durability |
+| Age | Soft/hard filter when shared | Romantic intents require 18+ |
+| Sex / gender presentation | Soft filter when shared | User-controlled vocabulary |
+| Location + radius preference | Geo matching | Default example radius: **100 miles**; remote-OK flag |
+| Interests / vibes tags | Overlap scoring | Nature, music, sports, games, food, … |
+| Looking-for | Pillar routing | Dating / friend / activity / collab / pro / custom |
+| Bio | Semantic embedding | Feeds Social Score text resonance |
+| Create facets | Pro pillar | Roles, seeks, genres, DAWs, plugins, crafts |
+| Role class | Demand/supply | Creator vs creator-adjacent |
+| Equipped cosmetics | Visual only | Must not alter fit score (L4) |
 
----
+### 5.3 Early matchability
 
-## 10. Legal & brand
+**Minimum viable signal (MVS)** — exact thresholds are implementation details, but the
+product rule is:
 
-- Product/service name in all copy → **VYBZ**; tagline **"VYBZ: Find Yours."** Owner:
-  **Astra Matrix, Inc.**
-- Legal (Terms, Privacy, Community, DMCA) must reflect: **identity-first** accounts
-  (email; passkey), user-uploaded audio + project files, an **exchange/collaboration**
-  model (not sales), per-asset **license tiers** (`collab-only`/`credit-required`/
-  `free`), split-sheet/credit agreements, forensic-watermarking + provenance disclosure
-  (Phase C), P2P seeding disclosure (Phase H), affiliate-link disclosure (Phase J), and
-  a DMCA/takedown process. There is **no** anonymity clause — remove any such language.
+- As soon as a profile has enough public signal to justify a human-readable “why”
+  (e.g. interests + location, or photo + looking-for, or create roles/seeks), the user
+  becomes **matchable** to others.
+- Completing more fields increases **confidence** and ranking quality — never unlocks
+  the right to exist in the network.
 
----
+### 5.4 Privacy toggles
 
-## 11. Proposed platform additions (brainstorm — for discussion)
+Every sensitive field has:
 
-Beyond the phased roadmap, high-value additions that serve the two promises:
+- **Private** (never in discovery cards)
+- **Matches only** (visible after mutual connect / match, if applicable)
+- **Public** (eligible for feed vibe cards and decks)
 
-- **Matchmaking (see §5.4 for the deep list):** role-affinity graph, skill-tier
-  proximity, reputation/reliability layer, sonic embeddings, learning-to-rank,
-  production/agency-typed edges, hard-filter vs soft-boost controls, fairness/freshness.
-- **Discovery:** faceted search (role/genre/DAW/plugin/BPM/key/location), "creators near
-  you," "sounds like this" (audio similarity), weekly best-fit digest.
-- **Collaboration ops:** in-app project rooms with versioned handoffs, split sheets,
-  and **verified credits/discography** that become reputation inputs — closing the loop
-  from match → collab → trust → better matches.
-- **Creator tooling (first-party, additive):** auto BPM/key detection on upload,
-  stem-splitter, mastering-preview, and a desktop/native **plugin-scanner** that syncs a
-  creator's real plugin arsenal into their profile (a strong matchmaking signal).
-- **Signals & trust:** response-rate + reliability badges, "open to work" spotlights,
-  endorsement from past collaborators.
-- **Engagement:** notifications (match/application/message), realtime feed + DMs,
-  featured-drop profile hero, curated "top-fit in <genre> this week" surfaces (always in
-  service of connection, never vanity charts).
-- **Reach:** mobile (Capacitor) + installable PWA; later, categorized collab chat and
-  live rehearsal rooms.
-- **Business (tasteful):** Pro tier (higher upload/exchange tiers, advanced filters);
-  disclosed affiliate gear/plugin links that **never** influence match ranking.
+Default to conservative for age/sex/precise location; city-level or radius-band is
+preferred over street-level.
 
-**North star:** the **next-generation, elite** platform for finding and seeking
-production collabs — matchmaking with a precision no other platform can touch, and the
-protected creative-exchange every creator has dreamed of, on one identity-first
-platform. **VYBZ: Find Yours.**
+### 5.5 Profile enhancement (cosmetics)
+
+See §10. Cosmetics decorate the profile; they never substitute for missing identity or
+buy algorithmic rank.
 
 ---
 
-## 12. Active redesign & product direction (2026-07)
+## 6. Social Score — the core intelligence
 
-### 12.1 Shipped (redesign slice)
-- Onboarding simplified to **role** ("Choose your role" — typed → closest-match confirm →
-  or custom via trigram canonicalization) + **intent** ("What are you here for?").
-- **Disciplines removed** from the UX; a single **role** is the creative identity.
-- Home feed is the curated landing (intent heading, comfortable/grid layout toggle, roomier).
-- Audio-reactive frame toned to a **subtle, colourful** glow that only shows during playback.
+### 6.1 Definition
 
-### 12.18 Unify Spaces + Projects ✅ (shipped 2026-07)
-"Spaces" and "Projects/Studio" collapsed into ONE concept: **Projects** =
-the on-profile creative projects (`profile_projects`). Each Project now carries
-content (posts/links) **plus a widget dashboard** (`project_page_widgets`,
-migration `0036`; embed widgets live + gated OAuth connectors) rendered in
-`ProjectView` on the profile and `/p/:id`. The private collaboration rooms
-(`projects`) are rebranded **"Collabs"** (versions/splits/credits) so nothing is
-named "Projects" twice. No data migration — additive. Showcase is native
-(Projects are always on the profile). _Verified end-to-end: create a Project,
-add a Spotify widget, it renders on the profile; nav shows "Collabs", profile
-shows "Projects"._
+**Social Score** is a living, multi-dimensional vector representing a person’s vibes,
+preferences, trust, and engagement — used to personalize their environment and to
+precision-compare them with others.
 
-### 12.19 Professions — music-first crafts (Phase A ✅; re-centered 2026-07)
-VYBZ's **primary product lane is Music** (`music`). Three optional secondary
-crafts remain available: **Visual art** (`visual_art`), **Video** (`film_video`),
-**Games** (`game_dev`). They never outrank music in defaults, SEO, onboarding, or
-soft-scoped Find/Spark.
-- **Identity:** onboarding leads with **"Make music with the right people"** —
-  Music selected by default; other crafts sit behind an optional expander.
-  Stored on the profile (`profession` + `professions[]`, validated;
-  `apply_role_intent_onboarding`). Shown as profile **badges**. Unset craft
-  soft-scopes as Music (`craftScope()` / `PRIMARY_PROFESSION`).
-- **Feed:** unset / Music → **Sounds**; Visual→art, Video→video, Game→mixed.
-  Scope chips put Sounds/Music ahead of Art/Video/Writing.
-- **Widgets:** Spotify / SoundCloud / Bandcamp / Apple Music / YouTube first;
-  ArtStation / Behance / Steam / itch demoted under “other crafts.”
-- **Phase B ✅ (2026-07):** per-craft content tools remain (art gallery, Vimeo/
-  Steam embeds, itch/ArtStation/Behance link cards). Bunny Stream gated.
-- **Phase C1 ✅ (2026-07):** profession-aware matchmaking + Discover craft filter.
-  `collab_matches` scores primary/secondary overlap, soft-scopes Find/Spark/
-  FeedHero/Collab-add by caller craft (Music when unset). `search_creators`
-  gains `p_profession`.
-- **Role Class (§12.20)** stays demand-side around **music** collabs (bookers,
-  patrons, curators) — not a multi-vertical pivot.
-- **Roadmap:** deepen music tools (stems, DAW exchange, Bridge); secondary crafts
-  stay available but never the product center of gravity.
+It is **not** a single vanity number shown as “you are 847 points.” External UI may show
+confidence labels (“Emerging,” “Attuned”) and explainable reasons — not a leaderboard
+of human worth.
 
-### 12.20 Open Platform — creator-adjacent Role Class (Phase O)
-**Thesis:** creators don't only want other creators — they want the manager, the
-sync/booker, the curator, and the patron who funds the work. Those are demand-side
-signals VYBZ currently discards. Admitting them **as real identities with structured
-intent** widens matchmaking surface area without turning VYBZ into a consumption feed
-(§0 amended accordingly). This is *additive and reversible* (§9): zero changes to
-existing creator flows, feature-flagged, guardrails first.
+### 6.2 Score dimensions (v1 contract)
 
-**Role Class axis** (sits beside the `professions` axis; `src/lib/profileFields.ts`):
-- **Creator** — today's default; offers/seeks creative roles.
-- **Creator-adjacent** — supporter/patron, booker/manager, curator/playlister,
-  brand/marketing, educator/student. Each carries **intent** ("Support creators",
-  "Book talent", "Hire a creative", "Commission work", "Curate", "Learn") mapped onto
-  the existing onboarding intent → feed-curation seam (`RoleIntentOnboarding.tsx`).
+| Dimension | Inputs (examples) | Used for |
+|---|---|---|
+| **Interest vibe** | Tags, bio keywords, follows, reacts | Feed cards, friendship/meetup |
+| **Geo affinity** | Location, radius, remote-OK | Local partners, IRL |
+| **Relational intent** | Looking-for, dating prefs | Love & Meetup decks |
+| **Create complement** | Roles/seeks, genres, DAWs, plugins, embeddings | Connect / Spark pro |
+| **Taste** | Vyb/Fail, listens, project follows | Soft collaborative filter |
+| **Social graph** | Connects, message replies, room co-presence | Trust + “people like…” |
+| **Reliability / trust** | Response rate, reports against, verification | Safety downrank / boost |
+| **Freshness** | New user boost, recency of activity | Anti rich-get-richer |
 
-**Guardrails (non-negotiable):**
-- Same real-identity/passkey standard — **no lurker/guest tier** (§0).
-- Match quality: role-class is a **filter/weight**; non-pro→creator matches never
-  outrank creator↔creator collab matches on a creator's Connect/Spark deck.
-- Feed separation: the sound-first drops feed stays creator-authored; adjacent
-  accounts consume **contextually** (to book/support/commission), never as a passive
-  scroll.
-- Monetization stays on-mission: patrons route into the **existing Stripe Connect
-  tips** rail (§4.1 Lane A) — no ads, no paywalls.
+### 6.3 Lifecycle
 
-**Staging:**
-- **O1 ✅ (shipped 2026-07)** — Role Class as identity axis: schema (migration
-  `20260709_0038_role_class.sql` — `apply_role_intent_onboarding` v4 persists
-  `roleClass`; `set_role_class` + `_is_role_class` allowlist), a **"How do you
-  fit in?"** first onboarding step, adjacent users skip the profession/role
-  steps and get adjacent intents + a **"Which creators are you looking for?"**
-  step (their seeks feed `creator_seeks` via `sync_creator_graph`), a
-  `RoleClassBadge` on profiles, and feed separation (adjacent classes default to
-  the mixed "For you" feed; drops stay creator-authored). Behind
-  `VITE_FEATURE_ROLE_CLASS` (default on, instantly reversible). _E2E verified:
-  fresh Supporter + Booker signups skip profession/role, land on "For you", show
-  the correct badge, and persist `roleClass` + seeks in the live DB._
-- **O2 ✅ (shipped 2026-07)** — demand-side matchmaking. `collab_matches` **v7**
-  (migration `20260709_0039_roleclass_matchmaking.sql`) emits each candidate's
-  `role_class`, adds a modest `roleclass` demand-alignment signal (feeds fit +
-  confidence via `mm_w`, so LTR is undisturbed), and enforces the **guardrail**:
-  on a creator's deck, adjacent candidates are demoted below every creator
-  candidate — a demand-side match can never outrank a creator↔creator collab.
-  Adjacent callers still rank creators by fit. Connect + Spark badge demand-side
-  matches. _Verified: simulated + live UI — a booker seeking "Lead Vocalist"
-  surfaces on the vocalist's Connect ("Wants what you bring: Lead Vocalist",
-  Booker / Manager badge) ranked below a mutual producer collab; the booker's own
-  deck surfaces the vocalist._
-- **O3 ✅ (shipped 2026-07)** — **commissions board**: paid work requests on the
-  opportunity board. `collab_posts` gains `kind` (`collab` | `commission`) +
-  `budget` (migration `20260709_0040_commissions.sql`); Opportunities gets
-  Collabs / Commissions tabs, a commission post form (budget field), budget
-  badges, and a "Pitch" action reusing `collab_applications`. This is the paid
-  brand/booker/patron → creator loop, needing no payment keys. _E2E verified: a
-  Brand posts a "$300 fixed" commission → it appears under Commissions with the
-  budget badge → an illustrator sees it and pitches → correctly filtered out of
-  Collabs._
-- **O3b ✅ live (2026-07)** — native **Stripe Connect tips** (patron → creator,
-  on-mission per §4.1 Lane A). Shipped: `creator_payouts` + `tips` ledger with read
-  RPCs (migration `0041`); three edge functions — `stripe-connect-onboard` (Express
-  account + hosted onboarding link + a `refresh` status re-sync), `stripe-tip`
-  (destination-charge Checkout so funds settle to the creator), `stripe-webhook`
-  (signature-verified: marks tips paid on `checkout.session.completed`, syncs
-  readiness on `account.updated`); frontend `PayoutSetup` (Enable tips) + `TipButton`
-  (amount sheet → hosted Checkout). Stripe keys + webhook registered on Edge;
-  `VITE_FEATURE_TIPS=on` for production / preview / development (Vercel) and local
-  `.env.local`. **Owner smoke:** You → Settings ⋯ → Enable tips (Express onboard) →
-  second account Tips on `/u/{id}` → Checkout → `tips.status=paid`. Platform Connect
-  must stay enabled at [dashboard.stripe.com/settings/connect](https://dashboard.stripe.com/settings/connect)
-  (Express). Fee: `STRIPE_TIP_FEE_BPS=0`. No ads, no paywalls, no external payment links.
+1. **Profile events** — field set/update, photo upload → immediate partial recompute.
+2. **Behavioral events** — view, dwell, swipe/connect/pass, message, join room, upload,
+   react → append-only event stream (privacy-minimized).
+3. **Nightly / on-demand recompute** — aggregate into vectors + confidence.
+4. **Pairwise compare** — produce fit, confidence, and why-strings for Spark/Connect/feed.
 
-### 12.21 Universal report/flag button ✅ (shipped 2026-07)
-Trust & Safety: a reusable `ReportButton` puts a simple, optional flag on **every**
-piece of user-generated content — audio **drops** (`TrackCard`), **project posts**
-and **gallery images** (`ProjectView`, non-owner), and the home feed
-(`FeedPostCard`, standardized on it). It feeds the existing moderation backbone
-(`report_content` → `content_reports` → `mod_report_queue`/`mod_resolve_report`),
-whose reasons already include **Illegal** — no schema change. _E2E verified: a
-drop flagged "Illegal" persists to `content_reports` (`reason='illegal'`, status
-`open`) and shows the reporter a confirmation._ (Promoted from `IDEAS_BACKLOG.md` #5.)
+### 6.4 Relationship to `collab_matches`
 
-### 12.2 Spaces → Projects (profile creative projects) ✅ — schema: `profile_projects`
+`collab_matches` (and LTR weights) remain the **Create & Pro** specialist scorer.
+Social Score is the **umbrella**:
 
-Shipped: public Space tabs on profiles, post kinds (audio/image/video/text/link),
-follows → feed + match boosts, `/p/:id` deep links. Private collab rooms remain
-**Studio** (`projects` / `/projects`). Discipline-module *UX* stays out of nav;
-onboarding maps Role+Intent into modules via `apply_role_intent_onboarding`.
+- Pro-heavy users → create complement dominates.
+- Love/Meetup-heavy users → interest + geo + relational intent dominate.
+- Mixed users → blended ranking with pillar-aware decks.
 
-_Historical heading retained for continuity:_
-One solid profile; users add unlimited **Projects** (aliases, bands, works) as profile
-tabs. Each Project is an in-profile **micro-blog**: the creator posts content + updates
-(music, artwork, ebooks, voice clips, links). Viewers open a Project tab to see its posts,
-and can **like/follow individual Projects** — those follows feed matchmaking and track the
-viewer's interests. The home feed becomes truly multi-content, curated by intent
-(music→music, art→artwork, connect→mixed) with content-type + layout filters.
-- **Data model:** `profile_projects` (tabs), `project_posts` (kinded posts), `project_follows`,
-  `project_post_likes`. RPCs for create/list/post/follow/like + a unified content feed.
+Learning-to-rank expands to outcomes beyond connect/pass (e.g. mutual message, meetup
+confirm) without ever optimizing for “who paid.”
 
-### 12.3 Passkey-first unified auth ✅ (shipped 2026-07)
-**Goal:** one seamless, secure entry that unifies sign-up & sign-in via **passkeys**, with
-email/password as a fallback, and a **tap-your-avatar** entry (default avatar if new).
+### 6.5 Fairness rules
 
-**Shipped:**
-- **Storage:** `20260709_0025_passkeys.sql` creates `passkeys` + `webauthn_challenges`
-  (these were referenced by the function but never existed — passkeys were dead).
-  RLS: owners read/rename/revoke their own; the challenge table is service-role only;
-  challenges auto-prune hourly.
-- **Passkey-first sign-up:** new `signup-options`/`signup-verify` actions create an
-  email-anchored account and register a passkey as the **primary** credential in one
-  ceremony, then mint a session. Duplicate email → `account_exists` (client pivots to sign-in).
-- **Usernameless sign-in + tap-your-avatar:** discoverable-credential `get()` behind a
-  round avatar affordance; **conditional UI** (`useBrowserAutofill`) armed when an
-  anchored email input is present.
-- **Profile management:** `PasskeysCard` — add (upgrades password accounts), rename, revoke.
-- **Passkey RP ID:** `RP_NAME="VYBZ"`, allow-list = `vybz.cloud` + `vybz.*` +
-  `astramatrix.xyz` + `*.vercel.app` + `localhost`; RP ID now bound to the **registrable
-  domain** so a passkey roams across subdomains.
-- **Fallback:** full email/password path with graceful WebAuthn error handling
-  (cancel/`NotAllowedError`/`InvalidStateError` treated as benign).
-- **Verified:** deployed function + migration; server paths smoke-tested; full browser
-  sign-up→sign-out→sign-in exercised against the live backend via a virtual authenticator.
+- Cosmetics / tips / credit balance **must not** appear in fit math.
+- New accounts get a **fairness boost window**, not burial.
+- Diversify result sets; avoid echo chambers of the same 20 popular profiles.
+- Hard filters (age min for dating, block lists, remote-only) never soft-violated for
+  revenue.
 
-**Still open (non-blocking):** for distinct apex domains (e.g. `vybz.cloud` + redirect
-apexes), publish `/.well-known/webauthn` **related origins** so one credential spans
-them; optional silent **conditional create** to auto-upgrade password users post-login.
-Provision the Vercel DNS zone for `vybz.cloud` if not already live.
+---
 
-### 12.7 Closing the Loop ✅ (alignment sprint)
-Video playback in feed/Space cards; `apply_role_intent_onboarding` + embed intents;
-Spaces vs Studio copy; `vybz.cloud` canon in docs/legal; packaging cleanup
-(`vybz-app`, `cloud.vybz.app`); connection Accept/Decline + `match_feedback`;
-avatar upload UI; Studio uploads → Bunny secure; orphan purge + `NotFoundPage`.
+## 7. Discovery surfaces
 
-### 12.5 Staff system — admin, moderators, rewards ✅ (shipped 2026-07)
-Role tiers **member < moderator < admin** (`profiles.platform_role`, `is_admin` kept in
-sync; `is_platform_admin()` / `is_platform_mod()` guards). Every privileged path is a
-SECURITY DEFINER RPC re-checking `auth.uid()` — privilege cannot self-escalate, and
-demotion revokes access immediately (verified).
-- **Admin console** (`/admin`): Members (member/mod/admin **role picker** + ban), **Staff**
-  (roster, role changes, **audit log**), **Applications** (review moderator applications),
-  plus the existing Disciplines / Matchmaking / Bug-reports tabs.
-- **Moderator console** (`/mod`): a **report queue** (dismiss / warn / hide / remove /
-  escalate — hide/remove pull the post from feeds, warn/escalate notify the author/admins)
-  and a **rewards** tab (credits, rank, leaderboard, recent actions).
-- **Rewards = cosmetic-store credits** (`mod_points`): actions pay 1–4 credits, tying mod
-  work to the Lane B cosmetic store — a no-cash-cost incentive.
-- **Application portal** (`/apply-mod`): members pitch to join; admins approve → moderator.
-- **Reporting**: `content_reports` (post/drop/user/message) with a report affordance on feed
-  posts + profiles; deduped, feeds the queue.
-- **Audit**: every staff action logged to `staff_actions` (actor, action, target, points).
-- Scope guardrails: moderators can triage/act on content but **cannot** see the member
-  roster, appoint staff, or permanently ban — those stay admin-only (ban power via escalate).
+### 7.1 Global feed — vibe cards (first-class)
 
-### 12.6 Cosmetic store (Lane B) ✅ (shipped 2026-07) + desktop width
-Purely-aesthetic store — **nothing functional is ever gated**. Items are unlocked with
-**credits** (`mod_points` earned by moderating; Stripe top-ups arrive with Lane A).
-- **Catalog** (`cosmetics`) + ownership (`user_cosmetics`) + `profiles.equipped_cosmetics`;
-  RPCs `list_cosmetics` / `purchase_cosmetic` / `equip_cosmetic` / `unequip_cosmetic`
-  (server enforces price vs. balance). `public_profile` now returns equipped cosmetics.
-- **accent** = a two-stop gradient on the creator's avatar + name; **flair** = a small
-  badge by the username. Applied on own + others' profiles (`lib/cosmetics` + `Flair`).
-- **`/store`** page: buy / equip / unequip, credit balance, live previews.
-- This closes the loop with the moderator rewards: mod work → credits → cosmetics.
-- **Lane A credit top-ups ✅ (2026-07):** platform Checkout packs (`stripe-credit-topup` +
-  `credit_topups` ledger + `fulfill_credit_topup` on webhook) — Starter $5/50, Plus $10/120,
-  Pro $25/350 → `mod_points`. No Connect KYC required. Tips remain O3b (Express).
-- **Weekly best-fit digest ✅ (2026-07):** opt-in (`profiles.digest_opt_in`, default off) email
-  via edge `weekly-digest` + Resend (`RESEND_API_KEY`, `DIGEST_CRON_SECRET`).
-  `digest_week_bundle` packs week stats (listens/feels/tips/credits), new opportunities,
-  and top Connect matches. You → Settings toggle. Mondays 15:00 UTC (or `?dry_run=1`).
+Beyond drops and project posts, the feed carries **connection discovery cards**:
 
-**Desktop layout:** the main content shell was widened from `max-w-2xl` (672px) to
-`max-w-5xl` / `xl:max-w-6xl`, and the feed grid now spans full width (2-col → 3-col on
-xl) so wide monitors are properly used instead of a narrow centered column.
+| Card type | Example copy | Payload |
+|---|---|---|
+| **New user vibe** | “A new user has joined VYBZ — they’re into nature and the outdoors too.” | Thumbnail, age, sex, location (if public), shared tags, CTA |
+| **Nearby intent** | “Looking for a hiking partner near you.” | Intent, distance band, overlap |
+| **Shared taste bridge** | “You both vibed with …” | Soft social proof |
+| **Create complement** | “Producer seeking vocalist — fits your seeks.” | Roles, why |
+| **Live/presence** | “Friends from your graph are in a room.” | Room deep link |
 
-### 12.9 Visual identity system — Phase 1 ✅ (shipped 2026-07)
-Made every surface feel like its own place without touching the mission or data:
-- **Per-surface theming** (`lib/surfaceTheme`): wires the intended-but-unused
-  `--accent-rgb` per route so the whole token system (`veil-*` utilities, title
-  glow, buttons, nav glow, shadows) + the living-background variant recolour per
-  surface — Feed=violet, Connect=pink, Discover=cyan, Studio=teal, Store=gold,
-  Staff=emerald, You=amber — with a smooth accent crossfade.
-- **`PageHeader`** primitive: haloed surface icon + accent title + "why this page"
-  subtitle + accent hairline (applied to Feed/Connect/Discover/Studio).
-- **Depth:** whisper-quiet film-grain overlay (`GrainOverlay`).
-- **Motion:** staggered card reveals (`.reveal`) on Feed + Connect.
-- **Audio-reactive polish:** **Off / Soft / VYBZ Max** intensity in profile
-  settings. Viewport/card outlines retired — reactivity concentrates on the
-  **V-Dock Orb** (morph modes from uploader `playback_customization` + FFT bands).
-  `DynamicBackground` still scales by intensity (0 when effects Off / reduced).
-  _Env note (§4.1): validate on a real device._
-- **Residue:** purged off-mission wording (legacy economy / confession domains) in touched files.
+**Rules:**
 
-### 12.11 Uploads/Library dashboard — Phase 3 ✅ (shipped 2026-07)
-The profile's read-only "Your drops" became a **manager**: each drop shows stats
-(plays · Vyb · Fail · rating) with inline **rename**, **set-featured**, and
-**delete** (confirm). Edit/delete are owner-scoped via existing `drops` RLS
-(`author_id = auth.uid()`); featuring is a guarded RPC (`set_featured_drop`,
-migration `0031` + `profiles.featured_drop_id`) that verifies ownership and
-headlines the chosen drop on the profile. Component: `UploadsLibrary`.
-_Verified end-to-end against the live DB (feature → rename → delete all persist)._
-_Follow-ups: purge the Bunny object on delete (edge `bunny-delete`); extend the
-Library to Project posts + Studio versions; surface the featured drop publicly._
+- Cards are **genuine algorithmic suggestions**, never paid placement (L2/L4).
+- Respect privacy toggles (L8).
+- Always one-tap path into profile + connect/message.
+- Rate-limit so the feed doesn’t become a spam cannon of “new user” noise.
 
-### 12.10 Media pipeline — Phase 2 ✅ (shipped 2026-07)
-Instant posting + large, high-quality media:
-- **Realtime feed** (migration `0030`): `drops` + `project_posts` added to the
-  `supabase_realtime` publication; `FeedPage` subscribes to INSERTs and silently
-  reloads (debounced), so new drops/Project posts appear the instant they're posted —
-  yours and others'. RLS still governs delivery (drops `using(true)`; posts gated
-  on the non-archived parent project). _Verified: a server-side insert surfaced at
-  the top of an idle feed with no refresh._
-- **Streamed uploads** (`bunny-upload`): the Edge Function now **streams the request
-  body straight to Bunny** (`duplex: "half"`) instead of buffering the whole file,
-  so memory stays flat and large masters/video go through; cap raised **200 MB → 1 GB**
-  (enforced via `Content-Length`). Objects serve with `accept-ranges: bytes` for
-  range-based streaming playback. _Verified end-to-end: exact-byte upload to both the
-  secure (drop) and public (post) zones._
-- **Upload progress + validation**: `uploadAudio` reports real progress (XHR); the
-  drop composer shows a progress bar + size and rejects >1 GB with a clear message.
-- **Deferred (documented):** Bunny **Stream/HLS** transcoding for adaptive video —
-  needs a provisioned Stream library + keys (not available in the build env); large
-  video already streams as progressive MP4 via Bunny CDN range requests until then.
+### 7.2 Spark
 
-### 12.12 Onboarding explicit seeks — "who are you looking for?" ✅ (shipped 2026-07, P0 #3)
-Closed the biggest cold-start gap: a new onboarding step (role → intent →
-**who are you looking for?** → avatar) captures the roles a creator explicitly
-wants, feeding `creator_seeks` directly so `collab_matches` surfaces
-exactly-wanted collaborators from day one (not just role-affinity inference).
-- **UX:** quick-pick roles sampled across families + live catalog search
-  (`suggestDisciplines`); selected roles show as removable chips. Skippable.
-- **Durable (migration `0032`):** explicit picks persist on
-  `profiles.profile.seekRoles`; `sync_creator_graph` builds `creator_seeks` from
-  **module `wants_roles` ∪ explicit `seekRoles`**, so they survive module
-  re-syncs and work for custom (non-catalog) roles too. `apply_role_intent_onboarding`
-  gained `p_seek_roles`. Manual editor (`set_creator_roles`) still overrides.
-- **Verified:** UI selection (Producer/Drums/Mix Engineer/Lead Vocalist) →
-  `creator_seeks` = those + affinity-inferred (band, bass). End-to-end on live DB.
+Swipe/deck surface for high-intent browsing across pillars (mode chips or auto-attuned
+mix). Pass/connect outcomes feed Social Score + LTR.
 
-### 12.13 "For you" feed blend ✅ (shipped 2026-07, P0 #4)
-The default home feed is now **personalized**, not newest-first. `feed_for_you`
-scores each Space post by follow (+5), complement-fit author (+3), accepted
-connection (+2), and intent/content-type match (+1), decayed by recency; cold
-users fall back to recency gracefully. Anti-popularity **"Undiscovered"**
-(`feed_undiscovered`: fresh, least-liked first) is a separate toggle on the home
-feed, so new/under-exposed work still surfaces. Visibility was also hardened
-across `feed_posts`/`feed_for_you`/`feed_undiscovered` (hidden/scheduled/
-followers-only posts filtered). Migration `0033`.
-_Verified on live DB: a viewer who follows+complements creator B saw B's post
-ranked above unrelated C in For-you, and least-liked-first in Undiscovered._
+### 7.3 Connect
 
-### 12.14 Auto BPM + key detection ✅ (shipped 2026-07, P1 #9)
-Drop uploads are analyzed **client-side** (no deps, no network, no cost) to
-auto-fill tempo + key: onset-flux autocorrelation for BPM, and an FFT chromagram
-+ Krumhansl-Schmuckler correlation for key (`src/lib/audioAnalysis.ts`), run on
-the existing single decode in `computeWaveform`. The composer pre-fills both
-(user-overridable, with an "auto-detected" hint), strengthening the matchmaking
-tempo/key signals. _Verified: a known 120 BPM file detects 120 BPM / A minor._
-BPM is highly reliable; key is a best-effort suggestion.
+Ranked list with explainable why — generalized from creator complementarity to full
+Social Score compare.
 
-### 12.15 Faceted discovery ✅ (shipped 2026-07, P1 #5)
-Discover became a real finder: beyond name/role/genre, a filter panel adds
-**DAW, plugin, musical key, BPM (tempo-range fit), location, and remote-only**
-(`search_creators` migration `0034`, definer over public facets; BPM matches
-when the creator's `tempoMin..tempoMax` covers the target). Pairs with the
-auto-detected BPM/key signals. _Verified on live DB: each facet returned the
-right creator; BPM outside a creator's range correctly excluded them._
+### 7.4 Search & facets
 
-### 12.16 Landing hero ✅ (shipped 2026-07)
-The post-login home feed opens with a personalized **hero**: a greeting, your
-strongest fresh matches (avatar, % fit, explainable **confidence read**) for
-one-tap Connect/Message, a "see all matches" link, and a finish-your-profile
-nudge (seeks/avatar) when relevant. Pure frontend (`FeedHero`, reuses
-`collab_matches`); dismissible. Ties matchmaking into the first screen.
+Faceted discovery: interests, looking-for, geo, craft/role, genre/DAW (pro), online-now
+(soft). Search never becomes a paid boost marketplace.
 
-### 12.4 Premium feel, mobile-first, modular & customizable UI
-Direction to move beyond "AI cookie-cutter" theming toward a bespoke, premium surface:
-- **Mobile-first & modular:** larger touch targets, thumb-reachable actions, and a profile/
-  home built from rearrangeable **modules** (cards/tabs) the user can reorder/show-hide to
-  taste; per-user layout + accent preferences (persisted).
-- **Intricate, subtle ambience:** cohesive motion language (spring easing, staggered reveals),
-  soft depth (layered glass, grain/noise, gradient meshes), and micro-interactions on every
-  control — nothing static, nothing loud.
-- **Alive icons:** nav/action icons gain a soft hover/active glow and gentle activity pulses
-  (unread, live, new match) that are **obvious but never overwhelming** — an accent halo, not
-  a klaxon.
-- **Signature, not template:** a distinct type/space rhythm, a custom icon treatment, and
-  brand-specific empty states/loaders so the app reads as VYBZ, not a starter kit.
-- **Accessibility & performance:** honour reduced-motion, keep 60fps, respect safe areas.
+### 7.5 Digests
+
+Opt-in weekly digest can include best-fit people + opportunities (already partially
+shipped) — never paywalled teases.
+
+---
+
+## 8. Free connection stack
+
+Once two people want to connect, VYBZ provides **every** channel without limits:
+
+| Channel | Status intent | Gate? |
+|---|---|---|
+| Private messaging | Deepen shipped DMs | **Never** |
+| Private voice | Expand WebRTC / LiveKit | **Never** |
+| Cam-to-cam | Expand WebRTC / LiveKit | **Never** |
+| Rooms / Live hangouts | Deepen Social Live | **Never** |
+
+**Explicitly forbidden monetization patterns:**
+
+- Message caps / daily likes
+- “Upgrade to video”
+- “Boost to be seen by this match”
+- Blurred matches until payment
+- Read receipts sold as premium (if read receipts exist, they’re free or absent — not paid)
+
+Infra notes (non-product gates): TURN for strict NAT, LiveKit SFU for groups — these are
+reliability investments, not premium SKUs for end users.
+
+---
+
+## 9. Trust, safety, and anti-fake
+
+### 9.1 Identity baseline (shipped spine)
+
+- Passkey-first WebAuthn + email/password fallback
+- Anonymous sign-in **off**
+- Username claim + durable profile
+- Staff roles: member < moderator < admin
+- Universal report/flag → `content_reports` → mod queue
+- Block / ban paths
+
+### 9.2 Expansion requirements
+
+1. **Age:** romantic Love intents require confirmed 18+ policy; underage romantic
+   matching is a P0 incident class.
+2. **Verification (phased):** optional photo/ID/liveness verification badges that boost
+   *trust confidence*, not paid rank. Free to verify.
+3. **Anti-bot:** rate limits, device/browser signals, disposable-email resistance, spam
+   graph detection.
+4. **Catfish / impersonation report reasons** on profiles and messages.
+5. **Meetup safety content** — in-product education (public places, tell a friend) without
+   lecture walls.
+6. **Demo / seed accounts** — if present, must be clearly labeled (`@vybz.demo` etc.) and
+   excluded from “real people” claims in marketing.
+7. **Zero tolerance** for CSAM, stalking tooling, and non-consensual intimate imagery —
+   existing illegal report path remains; legal process via DMCA/takedown stays.
+
+### 9.3 Safety never paid (L6)
+
+Every safety control is available to free users at full fidelity.
+
+---
+
+## 10. Monetization — cosmetics primary
+
+### 10.1 Primary revenue: Profile Enhancement Packages
+
+Optional, cute, expressive packages that help a profile **stand out visually**:
+
+- Accent gradients, frames, flair badges
+- Animated profile flair / reactive cosmetics
+- Founder / seasonal packs
+- Project/profile skins that never alter match fit
+
+**Purchase motivation:** “I want my profile to look special” — **not** “I can’t get matches
+unless I pay.”
+
+### 10.2 Already shipped (keep, reframe)
+
+- Cosmetic store (`cosmetics` / `cosmetic_packages` / `user_cosmetics` / equip RPCs)
+- Credits (`mod_points`) via mod rewards + Stripe credit top-ups
+- Stripe Connect tips (patron → creator) — **secondary**, must never gate messaging
+- No ads
+
+### 10.3 Demoted / constrained
+
+| Idea | Verdict |
+|---|---|
+| Pro tier that unlocks people / messages / video | **Forbidden** |
+| Paid match boosts / queue jumps | **Forbidden** as core model |
+| Ads | **Forbidden** |
+| Tips | Allowed as peer support; never required |
+| Live “visibility boost” | Only if proven not to create pay-to-win match markets; default **off** / later |
+| Affiliate gear links | Allowed only if disclosed and **zero** rank influence |
+
+### 10.4 Economic north star
+
+> VYBZ makes money when people love being here and buy optional flair —  
+> not when people are lonely enough to pay a toll.
+
+---
+
+## 11. Architecture & foundation (keep)
+
+### 11.1 Stack
+
+- **Frontend:** Vite 6 + React 18 + TypeScript (strict), Tailwind 3, `framer-motion`,
+  `react-router-dom` 6, `lucide-react`. Alias `@/` → `src/`. PWA; Capacitor Android present.
+- **Backend:** Supabase project `xixmneooyufbeftdfpcm` (Postgres + Auth + Storage + Edge
+  Functions). Client = anon key + RLS; privileged logic = `SECURITY DEFINER` RPCs + Edge.
+- **Audio:** global `AudioBus` (`src/lib/audioBus.ts`) — shared `AudioContext` → analyser.
+- **Media:** Bunny.net public CDN + secure token zone for protected originals; watermark /
+  C2PA worker path for exchange protection.
+- **Realtime / live:** Supabase Realtime; WebRTC; LiveKit for SFU-class rooms when infra on.
+- **Payments:** Stripe (Connect tips, credit top-ups, cosmetic purchases).
+- **Build gate:** `npm run lint` (`tsc --noEmit`) and `npm run build`.
+- **Hosting:** Vercel → `vybz.cloud`. Secrets never in the client.
+
+### 11.2 Frontend map (high level)
+
+- **State:** `src/store/session.tsx`; player via `AudioBus` / `usePlayer()`.
+- **Data:** `src/lib/api.ts`.
+- **Shell:** full-bleed bottom **V-Dock** + global player (Orb may evolve; dock remains the
+  chrome contract unless explicitly redesigned).
+- **Matching facets catalog:** `src/lib/profileFields.ts` (expand for vibes/interests/
+  looking-for — do not fork a second source of truth).
+- **Pages (foundation):** Feed, Discover, Connect, Spark, Opportunities, Studio, Live,
+  Messages, Rooms, Profile, Store, Admin/Mod, Codex/Legal.
+
+### 11.3 Data spine (foundation)
+
+Identity-first tables with RLS: `profiles`, vocabularies (`roles`/`genres`/`daws`/
+`plugins`), `creator_roles`/`creator_seeks`, `profile_embeddings`, `drops`/`reactions`,
+`assets` + protection ledger, `connections`, `dm_threads`/`dm_messages`,
+`collab_posts`/`collab_applications`, Projects/widgets, Studio/repos, live, tips,
+cosmetics, reports/staff.
+
+**Core RPCs to evolve, not discard:** `collab_matches`, `public_profile`, `start_dm`,
+`my_opportunities`, match learning (`tune_matchmaking_weights` / `mm_w`), digest bundle.
+
+### 11.4 Infra constraints (known)
+
+- CI/VM lacks mic/MIDI — validate cam/voice on real devices.
+- TURN + LiveKit SFU flip on when provisioned; product remains free to users.
+- Resend SMTP required before broad email volume.
+- C2PA worker needs reachable host for production signing; watermark-only fallback is safe.
+
+---
+
+## 12. Expansion roadmap (Vibes generation)
+
+Each phase is additive. **Definition of Done (universal):** builds green; RLS-safe;
+manual smoke of the phase story; strengthens genuine connection; violates no Hard Law.
+
+### Phase 0 — Doctrine ✅ (this rewrite)
+
+- [x] Masterplan rewritten for Vibes / genuine connection
+- [x] `AGENTS.md` aligned to this doctrine
+- [ ] Legal copy pass queued (Terms/Privacy/Community reflect dating/meetup + free
+      connection + cosmetics; still identity-first)
+
+### Phase 1 — Profile → Social Score → Feed vibe cards ✅ (2026-07)
+
+**Requirements:**
+
+1. ✅ Profile vibe facets in `profile` jsonb + optional `lat`/`lng` (migration `0063`)
+2. ✅ Social Score v0 (`social_scores` / `social_score_events` + `recompute_social_score`)
+3. ✅ Early matchability via `profile_is_matchable` + feed generator
+4. ✅ Feed **New user vibe** + **Nearby intent** cards (`feed_vibe_cards` + `VibeCard`)
+5. ✅ Geo radius (default 100 mi) + haversine when coords present; city fallback
+6. ✅ Explainable why-strings on cards
+7. ✅ Cosmetics excluded from fit (`cosmeticsExcluded` guardrail in dimensions)
+
+**DoD story:** Hiking-partner narrative — set interests/meetup on profile → vibe cards
+appear in feed for compatible nearby users — no payment.
+
+**Client:** `ProfileEditPage` Vibes section; `FeedPage` interleaves vibe cards; `api.feedVibeCards` /
+`mySocialScore` / `recordSocialScoreEvent`.
+
+### Phase LF — Profile Dashboard + Live Feed Flow (shipped)
+
+**Doctrine:** The owner's Profile (`/profile`) is the private VYBZ **dashboard**.
+The **Live Feed Flow** on that dashboard is the realtime notification system for
+every event that relates to the user. Public `/u/:id` pages stay storefronts.
+
+**Canonical story:** User watches Live Feed → *“Aria sent you a direct message.”*
+→ click opens a **pop-out** → reply via text, voice message, cam-to-cam, or video
+message (all free) → or later open **Profile → Inbox** (unread highlighted;
+Block / Report / Delete on hover desktop / swipe-left mobile).
+
+**Laws:** Discovery Feed (drops + vibe cards) stays separate from Live Feed.
+`/activity` redirects into Profile Live. Safety actions never paywalled.
+
+**Delivery:** LF-0–LF-4 ✅ (2026-07) — Profile tabs Live / Inbox / You;
+`MessagePopout` (text/voice/cam/video); blocks + thread reads; `/activity` →
+`/profile?tab=live`. Migration `0065_live_feed_dashboard`.
+
+### Phase 2 — Free connection completeness ✅ (2026-07)
+
+1. DM reliability polish (realtime, media, unread) — shared `useInboxThreads`;
+   Messages + Profile Inbox stay in sync; mark-read refreshes dock badge.
+2. Private voice 1:1 — callee now captures/adds tracks; ICE candidate queue;
+   one-shot `restartIce` on failed; TURN via existing `ice-servers` edge.
+3. Cam-to-cam 1:1 — same path in pop-out + Messages; local/remote video tiles.
+4. UX audit: zero upgrade CTAs on message/video/voice; “free forever” copy.
+5. Entry points: vibe cards, Spark, public profile, FeedHero → Message / voice /
+   cam via `FreeConnectActions` + `MessagePopout` (optional auto-start call).
+
+**Validate:** demo `@mayachen` → `@devonblake` DM emits Live Feed
+“mayachen sent you a direct message.” (`open_dm` payload). Login
+`*@vybz.demo` / `VybzDemo2026!` for two-browser UI smoke (Block/Inbox).
+
+### Phase 3 — Love & Meetup full deck ✅ (2026-07)
+
+1. Spark decks **Love / Meetup / Create** — Love & Meetup via `vibe_matches` +
+   `spark_likes` / `spark_act`; Create keeps `collab_matches`. Safety: 18+ romantic
+   gate (trigger + client), Report (catfish/underage), Block on cards.
+2. Meetup intents (hiking template + generalized list) drive Meetup deck ranking/why.
+3. Prefs: distance, age min/max, looking-for, meetup intents (`LoveMeetupFiltersPanel`);
+   profile `prefAgeMin`/`prefAgeMax` private.
+4. Mutual like → `MutualMatchCelebration` → free Message / voice / cam.
+5. `public_profile` strips `birthYear`, age prefs, radius, and `hidden` keys; feed
+   vibe cards exclude blocks. Migration `0066_love_meetup_spark`.
+
+### Phase 4 — Cosmetics revenue focus ✅
+
+1. Profile Enhancement Packages (`cosmetic_packages` + `purchase_cosmetic_package`) as
+   **primary** monetization; Store shelves packages → accents/flair/frames/scenes.
+2. Store / chrome copy celebrates flair (“looks only”), never “get more matches.”
+3. Tips opt-in (`FLAGS.tips`); live visibility boost stub off (`FLAGS.liveBoost`); Tip CTA
+   demoted below free connect on public profiles.
+4. Analytics: `admin_cosmetic_stats` + `admin_match_fairness_guardrail` (Admin → Flair);
+   Social Score keeps `cosmeticsExcluded`. Migration `0067_cosmetic_packages`.
+
+### Phase 5 — Create & Pro excellence ✅ (2026-07 slice)
+
+Finish incomplete Create rails inside Social Score (not greenfield sonic vectors yet):
+
+1. Exchange trust: download → Trust widget (`watermarkAt`) + toast; `asset_provenance`
+   summary on TrackCards; license-change ledger trigger.
+2. Soft Pro upload hints (`PRO_SOFT` / Compose + Bulk) — warn only, never hard-gate.
+3. Opportunities poster **Inbox** — accept/decline applications (`respond_opportunity_application`
+   → free DM); mark filled.
+4. Social Score create axis counts `drop_publish` / `opportunity_post` / `repo_commit`
+   events. Migration `0068_create_pro_excellence`.
+
+**Still later / additive:** sonic/audio embeddings, commission escrow, C2PA production
+host, Bridge Watch live health, plugin scanner.
+
+### Later / infra
+
+- P2P swarm (Phase H legacy), Capacitor packaging, Codex library, brand system polish,
+  audio embeddings, plugin scanner — still valid, still additive.
+
+---
+
+## 13. Current foundation inventory (Beta-0B line)
+
+Shipped capabilities the expansion builds on (non-exhaustive; see CHANGELOG /
+ARCHITECTURE for detail):
+
+- Identity: passkey-first auth, profiles, role/intent/role-class onboarding
+- Matchmaking: Connect + Spark, `collab_matches`, LTR weights, embeddings (`gte-small`)
+- Social: feed drops, Projects, DMs, Rooms, Live
+- Create: Studio / Music Repos, opportunities/commissions + poster inbox, exchange
+  watermark/provenance/license ledger, soft Pro upload hints
+- Trust: reports, mod/admin consoles, staff audit, match fairness guardrail
+- Money: Profile Enhancement packages (primary), flair credits, Stripe tips/top-ups (secondary)
+- Chrome: V-Dock, global player, surface theming, PWA
+
+**Honest gap vs Vibes doctrine:** product copy, onboarding, and match RPCs still skew
+creator-collab-first; Love/Meetup + Social Score umbrella + feed vibe cards + guaranteed
+free cam/voice completeness are the expansion work (§12).
+
+---
+
+## 14. Development rules
+
+1. **No anonymity, ever.** Never reintroduce guest/anonymous auth or ephemeral aliases.
+2. **No connection paywalls, ever.** Reject PRs that meter DMs/cam/voice/matches for pay.
+3. **No ads, ever.**
+4. **Cosmetics must not buy rank.** Fit scoring codepaths must ignore payment state.
+5. **Secrets never touch the client.** Service role, Stripe secrets, LiveKit keys, Bunny
+   AccessKeys, OpenAI, Resend — Edge/server only.
+6. **RLS on by default.** Sensitive writes via `SECURITY DEFINER` RPCs; `search_path =
+   public`.
+7. **Idempotent, timestamped migrations.** Never edit applied migrations to change live
+   behavior — add new ones.
+8. **Validate & sanitize** all input; treat uploads as untrusted.
+9. **TypeScript strict; `npm run build` green before commit.** Additive; feature-flag
+   risky surfaces.
+10. **Mobile-first + a11y** (`prefers-reduced-motion`, labels, focus).
+11. **Pillar-neutral chrome.** New UI must not assume every user is a musician — create
+    tools can be music-deep without forcing that identity on Love/Meetup users.
+12. **Confirm before destructive** production actions (DB wipes, mass bans, force-push).
+
+---
+
+## 15. Legal & brand
+
+Legal (Terms, Privacy, Community, DMCA) must reflect:
+
+- Identity-first accounts (email; passkey)
+- **Genuine connection** use cases including dating/meetup/friendship **and** creative
+  collaboration / material exchange
+- Free messaging / voice / video as product promises (no surprise tolls)
+- Cosmetics as optional purchases
+- User-uploaded media, license tiers, watermark/provenance disclosure
+- **No anonymity clause**
+- Age requirements for romantic features (18+)
+- Report/block/moderation and DMCA/takedown process
+
+Brand name in copy: **VYBZ**. Tagline: **VYBZ: Find Yours.**
+
+---
+
+## 16. Success criteria
+
+The vibes expansion is successful when:
+
+1. The hiking-partner story works without payment, ads, or trickery.
+2. The same pattern works for dating, friendship, and pro collab.
+3. New users become matchable as they share — not after a paywall or endless forced wizard.
+4. DM, cam, and voice are available without upgrade prompts.
+5. Cosmetics feel fun and optional; free users receive genuine matches.
+6. Fake accounts and anonymous toxicity stay out.
+7. Create & Pro users do not lose capability or precision.
+8. `npm run lint` / `npm run build` stay green; RLS holds.
+
+---
+
+## 17. Non-goals
+
+- Subscription-gated matching or messaging
+- Advertising inventory
+- Anonymous or guest modes
+- AI romantic companions as a substitute for people
+- Rebuilding the stack from zero
+- Pay-to-win discovery as the business
+- Street-level stalking maps or non-consensual precise location broadcast
+- Child-directed romantic features
+
+---
+
+## 18. Requirement checklist (pre-expansion gate)
+
+Use this as the exit criteria for “doctrine complete / ready to expand”:
+
+### Product doctrine
+- [x] Mission = genuine connection / vibes (not collab-only)
+- [x] Hard laws L1–L10 written
+- [x] Three pillars coequal
+- [x] Canonical user story documented
+- [x] Cosmetics-primary monetization locked
+- [x] Free connection stack locked
+- [x] Social Score umbrella specified
+- [x] Feed vibe cards specified
+- [x] Safety / anti-fake specified
+- [x] Agent entry docs (`AGENTS.md`) synced
+- [ ] Legal pages queued for copy update
+
+### Engineering contracts (must exist before Phase 1 merge)
+- [ ] Profile signal + privacy model migration plan
+- [ ] Social Score storage + event taxonomy
+- [ ] Feed card types in API/UI contract
+- [ ] Match RPC generalization plan (umbrella over `collab_matches`)
+- [ ] Geo index strategy (PostGIS or approx)
+- [ ] Cam/voice production checklist (TURN/LiveKit)
+- [ ] Guardrail test: cosmetic owners ≠ higher fit by payment
+
+---
+
+## 19. North star
+
+VYBZ is where real people find real vibes — a date, a hiking partner, a bandmate, a
+friend at 1 a.m. — with precision matchmaking, a free path to every conversation medium,
+and optional flair for those who want to shine.
+
+**Identity-first. Vibes-matched. Free to connect. Find Yours.**

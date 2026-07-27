@@ -17,23 +17,19 @@ interface Blob {
   color: string;
 }
 
-const BASE = "#191c22";
+const BASE = "#F4F7FF";
 
 /**
- * The living, touch-reactive backdrop — slow drifting accent "clouds" over a
- * charcoal base that warp and brighten toward the pointer/touch ("heat-paint").
- * Rendered at reduced internal resolution (naturally soft) and behind the whole
- * app, which sits on frosted dark glass. Cheap, pauses when hidden, and falls
- * back to a static wash when the user prefers reduced motion.
+ * Living daylight backdrop — saturated accent blooms over a bright paper base.
+ * Soft, touch-reactive, pauses when hidden; static wash under reduced motion.
  */
 export function DynamicBackground({ variant }: DynamicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduce = useReduceFx();
   const fxScale = useFxScale();
   const { playing } = usePlayer();
-  // Quieter when audio is playing so orb + outline FX own the reactivity.
-  const playDim = playing ? 0.55 : 1;
-  const blobAlpha = 0.34 * (reduce ? 1 : 0.72 + 0.28 * fxScale) * playDim;
+  const playDim = playing ? 0.65 : 1;
+  const blobAlpha = 0.42 * (reduce ? 1 : 0.78 + 0.22 * fxScale) * playDim;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -98,7 +94,7 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       ctx.fillStyle = BASE;
       ctx.fillRect(0, 0, w, h);
 
-      ctx.globalCompositeOperation = "lighter";
+      ctx.globalCompositeOperation = "source-over";
       for (const b of blobs) {
         if (!reduce) {
           b.x += b.vx;
@@ -163,7 +159,7 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       ref={canvasRef}
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 h-full w-full"
-      style={{ filter: playing ? "blur(22px)" : "blur(28px)", transform: "scale(1.08)", opacity: playing ? 0.85 : 1 }}
+      style={{ filter: playing ? "blur(26px)" : "blur(34px)", transform: "scale(1.06)", opacity: playing ? 0.9 : 1 }}
     />
   );
 }

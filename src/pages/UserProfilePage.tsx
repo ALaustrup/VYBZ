@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Loader2, MessageCircle, Sparkles, Star, Target, UserPlus, Users, Flag } from "lucide-react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Loader2, Sparkles, Star, Target, Users, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
-import { useResolvedCosmetics, Flair } from "@/lib/cosmetics";
+import { FreeConnectActions } from "@/components/FreeConnectActions";
+import { useResolvedCosmetics, Flair, CosmeticAvatarShell } from "@/lib/cosmetics";
+import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
 import { TrackCard } from "@/components/TrackCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
@@ -20,7 +22,6 @@ import type { Drop, CreatorStats, Credit } from "@/types";
 
 export function UserProfilePage() {
   const { id = "" } = useParams();
-  const navigate = useNavigate();
   const { userId, showToast } = useSession();
   const [p, setP] = useState<api.PublicProfile | null>(null);
   const [drops, setDrops] = useState<Drop[]>([]);
@@ -57,7 +58,9 @@ export function UserProfilePage() {
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5">
       <div className="mb-3 flex items-start gap-3">
-        <Avatar url={p.avatarUrl} name={p.username} id={id} size="lg" square />
+        <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
+          <Avatar url={p.avatarUrl} name={p.username} id={id} size="lg" square />
+        </CosmeticAvatarShell>
         <div className="min-w-0 flex-1 pt-0.5">
           <div className="flex flex-wrap items-center gap-2">
             <Flair data={cosmetics.flair} />
@@ -77,7 +80,6 @@ export function UserProfilePage() {
         </div>
         {!isMe && (
           <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
-            <TipButton userId={id} username={p.username} />
             <button type="button" onClick={() => setReportOpen(true)} aria-label="Report user" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70 active:scale-90"><Flag className="h-4 w-4" /></button>
           </div>
         )}
@@ -88,9 +90,14 @@ export function UserProfilePage() {
       {p.bio && <p className="mb-3 text-sm leading-relaxed text-white/65">{p.bio}</p>}
 
       {!isMe && (
-        <div className="mb-4 flex gap-2">
-          <button type="button" onClick={async () => { await api.connect(id); showToast("Connection sent"); }} className="btn btn-ghost flex-1"><UserPlus className="h-4 w-4" /> Connect</button>
-          <button type="button" onClick={async () => { const t = await api.startDm(id); if (t) navigate(`/messages/${t}`); }} className="btn btn-primary flex-1"><MessageCircle className="h-4 w-4" /> Message</button>
+        <div className="mb-4">
+          <FreeConnectActions peerId={id} peerName={p.username} variant="bar" />
+          <p className="mt-1.5 text-center text-[11px] text-white/35">Message, voice, and cam are free forever</p>
+          {FLAGS.tips && (
+            <div className="mt-3 flex justify-center border-t border-white/5 pt-3">
+              <TipButton userId={id} username={p.username} />
+            </div>
+          )}
         </div>
       )}
 
@@ -98,6 +105,10 @@ export function UserProfilePage() {
         {p.offers.length > 0 && <Row icon={<Sparkles className="h-3.5 w-3.5 text-white/35" />} label="Brings" items={p.offers} />}
         {p.seeks.length > 0 && <Row icon={<Target className="h-3.5 w-3.5 text-white/35" />} label="Seeks" items={p.seeks} />}
         {f.genres?.length ? <Row label="Genres" items={f.genres} /> : null}
+        {/* Public vibes only — romantic prefs / birthYear / age range never leak via public_profile */}
+        {f.interests?.length ? <Row label="Interests" items={f.interests} /> : null}
+        {f.meetupIntents?.length ? <Row label="Meetup" items={f.meetupIntents} /> : null}
+        {f.lookingFor?.length ? <Row label="Looking for" items={f.lookingFor} /> : null}
       </div>
 
       <AffiliateLinks userId={id} editable={isMe} />

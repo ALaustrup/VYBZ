@@ -18,14 +18,14 @@ export function YouChip() {
 
   return (
     <div className="flex items-center gap-1.5">
-      {unread > 0 && pathname !== "/activity" && (
+      {unread > 0 && !pathname.startsWith("/profile") && (
         <NavLink
-          to="/activity"
-          aria-label="Activity"
+          to="/profile?tab=live"
+          aria-label="Live feed"
           className="relative flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90 bell-alert"
         >
-          <Bell className="h-4 w-4 text-white/75" />
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white">
+          <Bell className="h-4 w-4 text-paper-900/70" />
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-wild px-1 text-[9px] font-bold text-white" data-solid-accent="1">
             {unread > 9 ? "9+" : unread}
           </span>
         </NavLink>

@@ -7,7 +7,12 @@ import { useSession } from "@/store/session";
 import { cx, timeAgo } from "@/lib/utils";
 import type { AppNotification } from "@/types";
 
-const ICON = { connection: UserPlus, application: Briefcase, message: MessageCircle, match: Bell };
+const ICON: Record<string, typeof Bell> = {
+  connection: UserPlus,
+  application: Briefcase,
+  message: MessageCircle,
+  match: Bell,
+};
 
 export function NotificationsPage() {
   const navigate = useNavigate();

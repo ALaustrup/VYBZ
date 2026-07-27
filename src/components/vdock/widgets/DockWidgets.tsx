@@ -77,14 +77,15 @@ export function DockWidget({
       <button
         type="button"
         data-dock-widget={id}
+        data-tip={label || def.label}
         title={def.blurb}
         aria-label={def.label}
         className={cx(
-          "relative flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl px-0.5 py-1 touch-none select-none transition",
-          editing ? "vdock-pin-jiggle text-white/80" : "text-white/70 hover:text-white",
+          "relative flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center rounded-2xl px-0.5 py-1 touch-none select-none transition",
+          editing ? "vdock-pin-jiggle text-paper-900/80" : "text-paper-900/55 hover:text-paper-900",
           dimmed && "pointer-events-none opacity-40",
           id === "openToWork" && (prefs.openToWorkLocal ?? profile?.profile?.openToWork) && "text-feel",
-          id === "metronome" && metro && "text-veil-200",
+          id === "metronome" && metro && "text-veil-500",
         )}
         onPointerDown={(e) => {
           if (!editing || e.button !== 0) return;
@@ -106,14 +107,13 @@ export function DockWidget({
         }}
       >
         <span className="relative">
-          <Icon className="h-[18px] w-[18px]" />
+          <Icon className="h-5 w-5" strokeWidth={2} />
           {badge != null && badge !== "" && (
             <span className="absolute -right-2 -top-1.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-wild px-0.5 text-[8px] font-bold text-white">
               {badge}
             </span>
           )}
         </span>
-        <span className="hidden max-w-full truncate text-[9px] font-semibold sm:block">{label}</span>
       </button>
 
       <WidgetSheet
@@ -230,7 +230,7 @@ async function runQuickAction(
       navigate("/store");
       return;
     case "unreadStack":
-      navigate("/activity");
+      navigate("/profile?tab=live");
       return;
     case "matchRadar":
       navigate("/connect");

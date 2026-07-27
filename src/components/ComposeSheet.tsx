@@ -5,6 +5,7 @@ import { useReduceFx } from "@/lib/display";
 import { AudioLines, Film, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { softUploadHint } from "@/components/ProBadge";
 import { Waveform } from "@/components/Waveform";
 import { AudioTrimBar } from "@/components/AudioTrimBar";
 import {
@@ -57,7 +58,7 @@ interface AudioState {
 }
 
 export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClose: () => void; onPosted: () => void }) {
-  const { showToast, celebrate } = useSession();
+  const { showToast, celebrate, profile } = useSession();
   const reduce = useReduceFx();
   const [title, setTitle] = useState("");
   const [album, setAlbum] = useState("");
@@ -152,6 +153,8 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       showToast(`That file is ${prettyBytes(file.size)} — max is 1 GB.`);
       return;
     }
+    const soft = softUploadHint(file.size, profile?.profile);
+    if (soft) showToast(soft);
     setDecoding(true);
     try {
       const fromVideo = isVideoFile(file);

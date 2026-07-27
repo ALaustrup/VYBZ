@@ -16,7 +16,7 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/discover")) {
     return { title: "Network", subtitle: "Search by craft, role, genre, DAW & place" };
   }
-  if (pathname.startsWith("/activity")) return { title: "Activity" };
+  if (pathname.startsWith("/profile")) return { title: "Dashboard" };
   if (pathname.startsWith("/connect")) {
     return { title: "Network", subtitle: "Ranked collaborators for your craft" };
   }
@@ -55,7 +55,7 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/artist/")) return { title: "Artist", showBack: true };
   if (pathname.startsWith("/p/")) return { title: "Project", showBack: true };
   if (pathname.startsWith("/store")) {
-    return { title: "Store", subtitle: "Accents & flair — never pay-to-win", showBack: true, backTo: "/profile" };
+    return { title: "Flair", subtitle: "Profile Enhancement — looks only", showBack: true, backTo: "/profile" };
   }
   if (pathname.startsWith("/admin")) return { title: "Admin console" };
   if (pathname.startsWith("/mod")) return { title: "Moderator console" };

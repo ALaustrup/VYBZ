@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { softUploadHint } from "@/components/ProBadge";
 import {
   AUDIO_ACCEPT, audioMeta, computeWaveform, placeholderWaveform,
   sha256Hex, acousticSignature,
@@ -51,7 +52,7 @@ export function BulkUploadSheet({
   onClose: () => void;
   onPosted: () => void;
 }) {
-  const { showToast, celebrate } = useSession();
+  const { showToast, celebrate, profile } = useSession();
   const [rows, setRows] = useState<BulkRow[]>([]);
   const [creditedArtist, setCreditedArtist] = useState("");
   const [batchTitle, setBatchTitle] = useState("");
@@ -79,6 +80,11 @@ export function BulkUploadSheet({
     if (oversized) {
       showToast(`${oversized.name} is ${prettyBytes(oversized.size)} — max is 1 GB.`);
       return;
+    }
+    const softHit = take.find((f) => softUploadHint(f.size, profile?.profile));
+    if (softHit) {
+      const hint = softUploadHint(softHit.size, profile?.profile);
+      if (hint) showToast(hint);
     }
     setDecoding(true);
     try {

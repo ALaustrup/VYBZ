@@ -1,11 +1,9 @@
 // ── Surface theming ──────────────────────────────────────────────────────────
-// Identity accent stays brand-locked for chrome continuity. Elite reactive
-// surfaces (Orb / DropStage) prefer uploader palettes + cyan/mint neon — never
-// generic purple-glow SaaS cards. Labels stay quiet; one living backdrop.
+// Daylight vivid system — electric cyan brand, light canvas. Labels stay quiet.
 
 export interface SurfaceTheme {
   id: string;
-  /** "r g b" channels for --accent-rgb. Always brand violet. */
+  /** "r g b" channels for --accent-rgb. */
   accent: string;
   /** DynamicBackground variant id (see lib/backgrounds). */
   bg: string;
@@ -13,11 +11,11 @@ export interface SurfaceTheme {
   label: string;
 }
 
-/** Sign-in / brand violet — the single accent for the whole app. */
-export const BRAND_ACCENT = "168 124 248";
+/** Electric cyan — sharp, loud, not muddy violet. */
+export const BRAND_ACCENT = "0 194 255";
 
-/** Calm living backdrop shared with the sign-in screen. */
-export const BRAND_BG = "aurora";
+/** Bright living backdrop for the daylight shell. */
+export const BRAND_BG = "daybreak";
 
 export const DEFAULT_SURFACE: SurfaceTheme = {
   id: "default",
@@ -26,7 +24,6 @@ export const DEFAULT_SURFACE: SurfaceTheme = {
   label: "VYBZ",
 };
 
-// Labels only — accent + bg are brand-locked.
 const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }> = [
   { test: (p) => p === "/", id: "home", label: "Home" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover" },
@@ -37,11 +34,10 @@ const LABELS: Array<{ test: (p: string) => boolean; id: string; label: string }>
   { test: (p) => p.startsWith("/live"), id: "live", label: "Live" },
   { test: (p) => p.startsWith("/projects"), id: "studio", label: "Studio" },
   { test: (p) => p.startsWith("/messages") || p.startsWith("/rooms"), id: "messages", label: "Messages" },
-  { test: (p) => p.startsWith("/store"), id: "store", label: "Store" },
-  { test: (p) => p.startsWith("/activity"), id: "activity", label: "Activity" },
+  { test: (p) => p.startsWith("/store"), id: "store", label: "Flair" },
   { test: (p) => p.startsWith("/admin") || p.startsWith("/mod") || p.startsWith("/apply-mod"), id: "staff", label: "Staff" },
   { test: (p) => p.startsWith("/library"), id: "library", label: "Library" },
-  { test: (p) => p.startsWith("/profile") || p.startsWith("/u/") || p.startsWith("/artist/"), id: "you", label: "You" },
+  { test: (p) => p.startsWith("/profile") || p.startsWith("/activity") || p.startsWith("/u/") || p.startsWith("/artist/"), id: "you", label: "You" },
   { test: (p) => p.startsWith("/p/"), id: "space", label: "Project" },
   { test: (p) => p.startsWith("/codex") || p.startsWith("/legal"), id: "codex", label: "Codex" },
 ];

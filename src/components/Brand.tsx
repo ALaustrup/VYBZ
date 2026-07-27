@@ -190,7 +190,8 @@ export function BrandLockup({
   className,
   height = "h-7",
   reactive = true,
-  variant = "white",
+  // Day shell defaults to black mark; pass variant="white" on dark stages.
+  variant = "black",
 }: {
   className?: string;
   /** Tailwind height class for the logo (width auto). */

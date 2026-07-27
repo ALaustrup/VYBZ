@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Live 1:1 audio sessions between two DM participants (Phase H1 + K/H5 TURN).
+// Live 1:1 voice/cam sessions between two DM participants (Phase 2).
 // Pure peer-to-peer WebRTC. ICE from edge `ice-servers` (STUN + optional TURN).
 // ---------------------------------------------------------------------------
 
@@ -9,7 +9,7 @@ import * as api from "@/lib/api";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type LiveState = "idle" | "calling" | "incoming" | "connecting" | "connected" | "ended";
-export type LiveSource = "mic" | "desktop";
+export type LiveSource = "mic" | "desktop" | "cam";
 
 const FALLBACK_ICE: RTCIceServer[] = [
   { urls: "stun:stun.l.google.com:19302" },
@@ -22,11 +22,13 @@ export interface LiveSession {
   state: LiveState;
   isHost: boolean;
   source: LiveSource | null;
+  /** Local media (always this device's capture when in a call). */
   stream: MediaStream | null;
   remoteStream: MediaStream | null;
   incoming: boolean;
   error: string | null;
   muted: boolean;
+  turnHint: string | null;
   startCall: (source: LiveSource) => Promise<void>;
   acceptCall: () => Promise<void>;
   declineCall: () => void;
@@ -38,10 +40,21 @@ async function capture(source: LiveSource): Promise<MediaStream> {
   if (source === "desktop") {
     const s = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
     s.getVideoTracks().forEach((t) => { t.stop(); s.removeTrack(t); });
-    if (s.getAudioTracks().length === 0) throw new Error("No audio was shared. In the picker, choose a tab/screen and tick “Share audio”.");
+    if (s.getAudioTracks().length === 0) {
+      throw new Error("No audio was shared. In the picker, choose a tab/screen and tick “Share audio”.");
+    }
     return s;
   }
-  return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false }, video: false });
+  if (source === "cam") {
+    return navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true },
+      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+    });
+  }
+  return navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: true, noiseSuppression: true },
+    video: false,
+  });
 }
 
 export function useLiveSession(threadId: string, selfId: string | null): LiveSession {
@@ -52,15 +65,25 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
+  const [turnHint, setTurnHint] = useState<string | null>(null);
 
   const chRef = useRef<RealtimeChannel | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const localRef = useRef<MediaStream | null>(null);
   const pendingOfferRef = useRef<RTCSessionDescriptionInit | null>(null);
+  const pendingSourceRef = useRef<LiveSource>("mic");
+  const pendingIceRef = useRef<RTCIceCandidateInit[]>([]);
   const iceRef = useRef<RTCIceServer[]>(FALLBACK_ICE);
+  const iceRestartedRef = useRef(false);
+  const endingRef = useRef(false);
 
   useEffect(() => {
     void api.fetchIceServers().then((s) => { iceRef.current = s; }).catch(() => { /* STUN fallback */ });
+    void api.fetchIceStatus().then((st) => {
+      if (st && !st.turnConfigured) {
+        setTurnHint("Voice/cam works best on the same network until TURN is fully ready.");
+      }
+    }).catch(() => { /* ignore */ });
   }, []);
 
   const send = useCallback((event: string, payload: Omit<Signal, "from">) => {
@@ -68,19 +91,30 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
   }, [selfId]);
 
   const cleanup = useCallback((next: LiveState = "idle") => {
+    endingRef.current = true;
     pcRef.current?.getSenders().forEach((s) => s.track?.stop());
     try { pcRef.current?.close(); } catch { /* ignore */ }
     pcRef.current = null;
     localRef.current?.getTracks().forEach((t) => t.stop());
     localRef.current = null;
     pendingOfferRef.current = null;
+    pendingIceRef.current = [];
+    iceRestartedRef.current = false;
     setStream(null);
     setRemoteStream(null);
     setIsHost(false);
     setSource(null);
     setMuted(false);
     setState(next);
-    if (next === "ended") setTimeout(() => setState((s) => (s === "ended" ? "idle" : s)), 1500);
+    if (next === "ended") setTimeout(() => setState((s) => (s === "ended" ? "idle" : s)), 1800);
+    endingRef.current = false;
+  }, []);
+
+  const flushIce = useCallback(async (pc: RTCPeerConnection) => {
+    const queued = pendingIceRef.current.splice(0);
+    for (const c of queued) {
+      try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch { /* ignore stale */ }
+    }
   }, []);
 
   const buildPc = useCallback(async () => {
@@ -89,9 +123,30 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
     pc.onicecandidate = (e) => { if (e.candidate) send("ice", { candidate: e.candidate.toJSON() }); };
     pc.ontrack = (e) => setRemoteStream(e.streams[0] ?? new MediaStream([e.track]));
     pc.onconnectionstatechange = () => {
+      if (endingRef.current || pcRef.current !== pc) return;
       const st = pc.connectionState;
-      if (st === "connected") setState("connected");
-      else if (st === "failed" || st === "disconnected" || st === "closed") cleanup("ended");
+      if (st === "connected") {
+        iceRestartedRef.current = false;
+        setState("connected");
+        setError(null);
+        return;
+      }
+      if (st === "failed" || st === "disconnected") {
+        if (!iceRestartedRef.current && st === "failed") {
+          iceRestartedRef.current = true;
+          setError("Connection unstable — retrying…");
+          try {
+            void pc.restartIce();
+            return;
+          } catch { /* fall through */ }
+        }
+        setError(st === "failed"
+          ? "Couldn't connect. Check mic/camera permissions and try again."
+          : "Connection dropped.");
+        cleanup("ended");
+        return;
+      }
+      if (st === "closed") cleanup("ended");
     };
     pcRef.current = pc;
     return pc;
@@ -103,17 +158,27 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
     ch.on("broadcast", { event: "offer" }, ({ payload }: { payload: Signal }) => {
       if (payload.from === selfId || pcRef.current) return;
       pendingOfferRef.current = payload.sdp ?? null;
+      pendingSourceRef.current = payload.source ?? "mic";
       setSource(payload.source ?? "mic");
       setIsHost(false);
       setState("incoming");
     });
     ch.on("broadcast", { event: "answer" }, async ({ payload }: { payload: Signal }) => {
       if (payload.from === selfId || !pcRef.current || !payload.sdp) return;
-      try { await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.sdp)); setState("connecting"); } catch { /* ignore */ }
+      try {
+        await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+        await flushIce(pcRef.current);
+        setState("connecting");
+      } catch { /* ignore */ }
     });
     ch.on("broadcast", { event: "ice" }, async ({ payload }: { payload: Signal }) => {
-      if (payload.from === selfId || !pcRef.current || !payload.candidate) return;
-      try { await pcRef.current.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch { /* ignore */ }
+      if (payload.from === selfId || !payload.candidate) return;
+      const pc = pcRef.current;
+      if (!pc || !pc.remoteDescription) {
+        pendingIceRef.current.push(payload.candidate);
+        return;
+      }
+      try { await pc.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch { /* ignore */ }
     });
     ch.on("broadcast", { event: "bye" }, ({ payload }: { payload: Signal }) => {
       if (payload.from === selfId) return;
@@ -127,6 +192,7 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
 
   const startCall = useCallback(async (src: LiveSource) => {
     setError(null);
+    iceRestartedRef.current = false;
     try {
       const local = await capture(src);
       localRef.current = local;
@@ -135,12 +201,12 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
       setSource(src);
       const pc = await buildPc();
       local.getTracks().forEach((t) => pc.addTrack(t, local));
-      const offer = await pc.createOffer({ offerToReceiveAudio: false });
+      const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       send("offer", { sdp: offer, source: src });
       setState("calling");
     } catch (e) {
-      setError(mediaError(e));
+      setError(mediaError(e, src));
       cleanup("idle");
     }
   }, [buildPc, send, cleanup]);
@@ -148,18 +214,28 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
   const acceptCall = useCallback(async () => {
     const offer = pendingOfferRef.current;
     if (!offer) return;
+    const src = pendingSourceRef.current;
+    setError(null);
+    iceRestartedRef.current = false;
     try {
+      const local = await capture(src);
+      localRef.current = local;
+      setStream(local);
+      setSource(src);
+      setIsHost(false);
       const pc = await buildPc();
+      local.getTracks().forEach((t) => pc.addTrack(t, local));
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      await flushIce(pc);
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
       send("answer", { sdp: answer });
       setState("connecting");
     } catch (e) {
-      setError(mediaError(e));
+      setError(mediaError(e, src));
       cleanup("idle");
     }
-  }, [buildPc, send, cleanup]);
+  }, [buildPc, send, cleanup, flushIce]);
 
   const declineCall = useCallback(() => { send("bye", {}); cleanup("idle"); }, [send, cleanup]);
   const endCall = useCallback(() => { send("bye", {}); cleanup("ended"); }, [send, cleanup]);
@@ -169,16 +245,21 @@ export function useLiveSession(threadId: string, selfId: string | null): LiveSes
   }, []);
 
   return {
-    state, isHost, source,
-    stream: isHost ? stream : remoteStream,
-    remoteStream, incoming: state === "incoming", error, muted,
+    state, isHost, source, stream, remoteStream,
+    incoming: state === "incoming", error, muted, turnHint,
     startCall, acceptCall, declineCall, endCall, toggleMute,
   };
 }
 
-function mediaError(e: unknown): string {
+function mediaError(e: unknown, source?: LiveSource): string {
   const name = (e as { name?: string })?.name;
-  if (name === "NotAllowedError") return "Permission denied. Allow microphone / screen-audio access and try again.";
-  if (name === "NotFoundError") return "No audio input found on this device.";
+  if (name === "NotAllowedError") {
+    return source === "cam"
+      ? "Permission denied. Allow camera and microphone, then try again."
+      : "Permission denied. Allow microphone / screen-audio access and try again.";
+  }
+  if (name === "NotFoundError") {
+    return source === "cam" ? "No camera or mic found on this device." : "No audio input found on this device.";
+  }
   return (e as { message?: string })?.message || "Couldn't start the live session.";
 }

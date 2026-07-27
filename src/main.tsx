@@ -6,14 +6,26 @@ import { App } from "@/App";
 import { IntroSplash } from "@/components/IntroSplash";
 import { SessionProvider } from "@/store/session";
 import { primeAudio } from "@/lib/sound";
-/* Self-hosted — no Google CDN / CSP / network flake. */
-import "@fontsource/instrument-sans/400.css";
-import "@fontsource/instrument-sans/500.css";
-import "@fontsource/instrument-sans/600.css";
-import "@fontsource/instrument-sans/700.css";
-import "@fontsource/instrument-serif/400.css";
-import "@fontsource/instrument-serif/400-italic.css";
+/* Self-hosted — no Google CDN / CSP / network flake.
+ * Typography (screen-clarity stack):
+ * - Lexend — research-backed reading proficiency, high x-height, full weight range for UI/body
+ * - Atkinson Hyperlegible — Braille Institute; max I/l/1 and 0/O disambiguation for headlines & tiny chrome
+ */
+import "@fontsource/lexend/400.css";
+import "@fontsource/lexend/500.css";
+import "@fontsource/lexend/600.css";
+import "@fontsource/lexend/700.css";
+import "@fontsource/lexend/800.css";
+import "@fontsource/atkinson-hyperlegible/400.css";
+import "@fontsource/atkinson-hyperlegible/400-italic.css";
+import "@fontsource/atkinson-hyperlegible/700.css";
+import "@fontsource/atkinson-hyperlegible/700-italic.css";
 import "@/index.css";
+
+if (typeof document !== "undefined") {
+  document.documentElement.dataset.theme = "day";
+  document.documentElement.style.colorScheme = "light";
+}
 
 // Unlock the audio context on the first user gesture (a browser requirement).
 if (typeof window !== "undefined") {

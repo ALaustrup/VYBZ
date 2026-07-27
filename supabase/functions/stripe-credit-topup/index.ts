@@ -10,9 +10,10 @@ import { admin, CORS, json, callerId } from "../_shared/edge.ts";
 import { stripe } from "../_shared/stripe.ts";
 
 const PACKS: Record<string, { cents: number; credits: number; label: string }> = {
-  starter: { cents: 500, credits: 50, label: "Starter — 50 credits" },
-  plus: { cents: 1000, credits: 120, label: "Plus — 120 credits" },
-  pro: { cents: 2500, credits: 350, label: "Pro — 350 credits" },
+  starter: { cents: 500, credits: 50, label: "Starter — 50 flair credits" },
+  plus: { cents: 1000, credits: 120, label: "Plus — 120 flair credits" },
+  // Pack id stays `pro` for Stripe/session continuity; label is Flare (not soft Pro).
+  pro: { cents: 2500, credits: 350, label: "Flare — 350 flair credits" },
 };
 
 Deno.serve(async (req: Request) => {
@@ -40,7 +41,7 @@ Deno.serve(async (req: Request) => {
           unit_amount: pack.cents,
           product_data: {
             name: `VYBZ ${pack.label}`,
-            description: "Cosmetic-store credits — optional, never gates collaboration",
+            description: "Profile Enhancement credits — optional flair only; never gates matches or messaging",
           },
         },
         quantity: 1,

@@ -19,7 +19,7 @@ export type ReleaseType =
 export type PostFx = "off" | "glow" | "aurora" | "pulse" | "bars" | "ripple";
 export type PostAudience = "public" | "followers" | "private";
 
-/** Owner-editable music facets + privacy (stored in profiles.profile jsonb). */
+/** Owner-editable facets + privacy (stored in profiles.profile jsonb). */
 export interface ProfileDetails {
   bio?: string;
   genres?: string[];
@@ -53,6 +53,25 @@ export interface ProfileDetails {
   proUntil?: string;
   /** Top-level keys the creator has marked private. */
   hidden?: string[];
+  /** Vibes — lifestyle / scene tags (Social Score interest dimension). */
+  interests?: string[];
+  /** Vibes — activity partners (hiking, coffee, jam…). */
+  meetupIntents?: string[];
+  /** Birth year (age derived server-side); share via shareAge. */
+  birthYear?: number;
+  /** Self-described sex / gender presentation; share via shareSex. */
+  sex?: string;
+  /** Match radius in miles (default 100). */
+  matchRadiusMiles?: number;
+  /** Consent to show age on vibe cards / discovery. */
+  shareAge?: boolean;
+  /** Consent to show sex on vibe cards / discovery. */
+  shareSex?: boolean;
+  /** Consent to show city/region on vibe cards (default true). */
+  shareLocation?: boolean;
+  /** Preferred match age range (private — never on public_profile). */
+  prefAgeMin?: number;
+  prefAgeMax?: number;
 }
 
 export interface Profile {
@@ -62,6 +81,9 @@ export interface Profile {
   avatarUrl: string | null;
   bio: string | null;
   location: string | null;
+  /** Optional WGS84 for radius matching (never required for cosmetics). */
+  lat?: number | null;
+  lng?: number | null;
   musicUrl: string | null;
   identityPublic: boolean;
   isAdmin: boolean;
@@ -73,6 +95,38 @@ export interface Profile {
   /** The drop the creator has chosen to headline their profile (Library). */
   featuredDropId?: string | null;
   createdAt: number;
+}
+
+/** Social Score v0 — dimensions never include cosmetics / payment state. */
+export interface SocialScore {
+  userId: string;
+  dimensions: Record<string, unknown>;
+  confidence: number;
+  matchable: boolean;
+  whyHints: string[];
+  updatedAt: number;
+}
+
+export type VibeCardType = "new_user_vibe" | "nearby_intent";
+
+/** Feed discovery card from feed_vibe_cards (genuine match signal, not an ad). */
+export interface VibeCard {
+  cardType: VibeCardType;
+  userId: string;
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  age: number | null;
+  sex: string | null;
+  location: string | null;
+  distanceMiles: number | null;
+  sharedInterests: string[];
+  lookingFor: string[];
+  meetupIntents: string[];
+  headline: string;
+  why: string;
+  createdAt: number;
+  score: number;
 }
 
 /** A drop = an audio post carrying the creator's identity. */
@@ -196,19 +250,28 @@ export interface DmThread {
   id: string;
   peerId: string;
   peerUsername: string | null;
+  peerAvatarUrl?: string | null;
   lastAt: number;
+  lastBody?: string;
+  unread?: boolean;
 }
+
+export type DmMessageKind = "text" | "voice" | "video" | "system";
 
 export interface DmMessage {
   id: string;
   threadId: string;
   senderId: string;
   body: string;
+  kind: DmMessageKind;
+  mediaUrl?: string | null;
   createdAt: number;
   mine: boolean;
 }
 
-export type NotificationKind = "connection" | "application" | "message" | "match";
+export type NotificationKind =
+  | "connection" | "application" | "message" | "match" | "staff"
+  | "reaction" | "vibe" | "follow" | "live" | "system";
 
 export interface AppNotification {
   id: string;
@@ -219,6 +282,7 @@ export interface AppNotification {
   refId: string | null;
   read: boolean;
   createdAt: number;
+  payload?: Record<string, unknown>;
 }
 
 export interface CreatorSearchResult {
@@ -700,7 +764,39 @@ export interface MatchLearningReport {
 export type PlatformRole = "member" | "moderator" | "admin";
 export type ReportKind = "post" | "drop" | "user" | "message";
 export type ReportReason =
-  | "spam" | "harassment" | "hate" | "nsfw" | "illegal" | "impersonation" | "misinformation" | "other";
+  | "spam" | "harassment" | "hate" | "nsfw" | "illegal" | "impersonation" | "misinformation"
+  | "catfish" | "underage" | "other";
+
+/** Spark Love / Meetup deck card (not Create collab_matches). */
+export type SparkDeck = "love" | "meetup" | "create";
+
+export interface VibeMatch {
+  userId: string;
+  username: string | null;
+  fit: number;
+  confidence: number;
+  distanceMiles: number | null;
+  age: number | null;
+  sex: string | null;
+  location: string | null;
+  lookingFor: string[];
+  meetupIntents: string[];
+  sharedInterests: string[];
+  sharedLooking: string[];
+  sharedMeetup: string[];
+  why: string;
+  /** They already liked you on this deck. */
+  mutualLike: boolean;
+}
+
+export interface SparkActResult {
+  ok: boolean;
+  mutual: boolean;
+  peerId: string;
+  peerUsername: string | null;
+  deck: "love" | "meetup";
+  error?: string;
+}
 export type ModAction = "dismiss" | "warn" | "hide" | "remove" | "escalate";
 
 export interface ContentReport {
@@ -769,14 +865,51 @@ export interface MyModApplication {
 }
 
 // ── Cosmetics (Lane B store) ─────────────────────────────────────────────────
-export type CosmeticCategory = "accent" | "flair";
-export interface CosmeticData { c0?: string; c1?: string; label?: string; icon?: string; color?: string }
+export type CosmeticCategory = "accent" | "flair" | "frame" | "backdrop";
+export interface CosmeticData {
+  c0?: string; c1?: string;
+  label?: string; icon?: string; color?: string;
+  ring?: string; ringW?: number;
+  bg?: string;
+}
 export interface Cosmetic { id: string; name: string; category: CosmeticCategory; price: number; data: CosmeticData }
+export interface CosmeticPackage {
+  id: string;
+  name: string;
+  tagline: string;
+  price: number;
+  itemIds: string[];
+  featured: boolean;
+}
 export interface CosmeticStore {
   credits: number;
   equipped: Record<string, string>;
   owned: string[];
   catalog: Cosmetic[];
+  packages: CosmeticPackage[];
+}
+export interface AdminCosmeticStats {
+  topups: { paidCount: number; revenueCents: number; creditsIssued: number };
+  purchases: {
+    purchases7d: number; uniqueBuyers7d: number; packagePurchases7d: number;
+    itemPurchases7d: number; creditsSpent7d: number; ownersTotal: number;
+  };
+  doctrine: string;
+}
+export interface AdminMatchFairness {
+  days: number;
+  freeUsers: number;
+  cosmeticOwners: number;
+  likesFree: number;
+  likesOwners: number;
+  mutualPairsFree: number;
+  mutualPairsOwnerTouch: number;
+  mutualPerLikeFree: number | null;
+  mutualPerLikeOwners: number | null;
+  deltaMutualRate: number | null;
+  alert: boolean;
+  cosmeticsExcludedInScores: boolean;
+  note: string;
 }
 
 /** Payload for creating/updating a module (id omitted → create). */

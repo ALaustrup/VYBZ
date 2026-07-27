@@ -1,6 +1,5 @@
-import { useMemo } from "react";
-import { useState } from "react";
-import { Pause, Play, Star, Heart, Loader2, Download } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Pause, Play, Star, Heart, Loader2, Download, ShieldCheck } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
 import { Handle } from "@/components/Handle";
 import { Waveform } from "@/components/Waveform";
@@ -12,6 +11,7 @@ import * as api from "@/lib/api";
 import { FLAGS } from "@/lib/flags";
 import { trySwarmDownload, swarmSeedOptIn } from "@/lib/swarm";
 import { useSession } from "@/store/session";
+import { patchWidgetPrefs } from "@/lib/vdock/widgetPrefs";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
 
 const LICENSE_LABEL: Record<string, string> = {
@@ -61,9 +61,17 @@ interface TrackCardProps {
 /** The feed's atomic unit for an audio drop — identity-forward, sound-first. */
 export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, onOpenAuthor, className }: TrackCardProps) {
   const player = usePlayer();
-  const { userId } = useSession();
+  const { userId, showToast } = useSession();
   const accent = useMemo(() => paletteFor(d.seed)[0], [d.seed]);
   const [downloading, setDownloading] = useState(false);
+  const [prov, setProv] = useState<api.AssetProvenance | null>(null);
+
+  useEffect(() => {
+    if (!d.assetId || compact) return;
+    let on = true;
+    api.assetProvenance(d.assetId).then((p) => { if (on) setProv(p); }).catch(() => {});
+    return () => { on = false; };
+  }, [d.assetId, compact]);
 
   async function download(e: React.MouseEvent) {
     e.stopPropagation();
@@ -88,6 +96,11 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
         a.download = `${(d.title || "drop").replace(/[^\w.-]+/g, "_")}.wav`;
         document.body.appendChild(a); a.click(); a.remove();
         if (res.revoke) setTimeout(() => URL.revokeObjectURL(res.url), 10_000);
+        patchWidgetPrefs({ watermarkAt: Date.now() });
+        showToast(res.watermarked
+          ? "Downloaded — watermarked for attribution"
+          : "Downloaded — license grant recorded");
+        void api.assetProvenance(d.assetId).then(setProv).catch(() => {});
       }
     } finally {
       setDownloading(false);
@@ -114,7 +127,10 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   }
 
   return (
-    <div className={cx("group relative overflow-hidden rounded-2xl bg-ink-900/60 shadow-card backdrop-blur-sm", className)}>
+    <div
+      data-dark-stage
+      className={cx("group relative overflow-hidden rounded-2xl bg-ink-900/85 shadow-card backdrop-blur-sm", className)}
+    >
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0">
           <TrackVisualizer
@@ -176,6 +192,17 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
             {d.license && (
               <span className="rounded-full bg-white/8 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/55">
                 {LICENSE_LABEL[d.license] ?? d.license}
+              </span>
+            )}
+            {prov && (prov.firstSeen || prov.downloads > 0) && (
+              <span
+                className="inline-flex max-w-[9rem] items-center gap-1 truncate rounded-full bg-feel/10 px-2 py-0.5 text-[10px] font-medium text-feel/90"
+                title={prov.sha256 ? `sha256 ${prov.sha256.slice(0, 12)}…` : "Provenance ledger"}
+              >
+                <ShieldCheck className="h-3 w-3 shrink-0" />
+                {prov.firstSeen
+                  ? `On VYBZ ${new Date(prov.firstSeen).toLocaleDateString()}`
+                  : `${prov.downloads} grant${prov.downloads === 1 ? "" : "s"}`}
               </span>
             )}
             {d.authorUsername && d.creditedArtist?.trim() && (

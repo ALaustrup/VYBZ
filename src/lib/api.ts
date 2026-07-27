@@ -15,9 +15,10 @@ import type {
   ProfileProject, ProfileProjectDetail, ProjectInput, PostInput, LinkInput, FeedPost,
   PlatformRole, ReportKind, ReportReason, ModAction, ContentReport, StaffMember,
   StaffAction, ModStats, ModApplicationRow, MyModApplication,
-  Cosmetic, CosmeticStore,
+  Cosmetic, CosmeticStore, CosmeticPackage, AdminCosmeticStats, AdminMatchFairness,
   LiveSessionCard, LiveSessionDetail, LiveMessage, LiveSource,
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
+  SocialScore, VibeCard, VibeCardType, VibeMatch, SparkActResult,
 } from "@/types";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
@@ -61,6 +62,8 @@ function toProfile(r: any): Profile {
     avatarUrl: r.avatar_url ?? null,
     bio: r.bio ?? null,
     location: r.location ?? null,
+    lat: typeof r.lat === "number" ? r.lat : r.lat != null ? Number(r.lat) : null,
+    lng: typeof r.lng === "number" ? r.lng : r.lng != null ? Number(r.lng) : null,
     musicUrl: r.music_url ?? null,
     identityPublic: r.identity_public ?? true,
     isAdmin: r.is_admin ?? false,
@@ -85,6 +88,8 @@ export async function updateMyProfile(patch: {
   displayName?: string;
   bio?: string;
   location?: string;
+  lat?: number | null;
+  lng?: number | null;
   musicUrl?: string;
   avatarUrl?: string;
   identityPublic?: boolean;
@@ -95,6 +100,8 @@ export async function updateMyProfile(patch: {
   if (patch.displayName !== undefined) row.display_name = patch.displayName;
   if (patch.bio !== undefined) row.bio = patch.bio;
   if (patch.location !== undefined) row.location = patch.location;
+  if (patch.lat !== undefined) row.lat = patch.lat;
+  if (patch.lng !== undefined) row.lng = patch.lng;
   if (patch.musicUrl !== undefined) row.music_url = patch.musicUrl;
   if (patch.avatarUrl !== undefined) row.avatar_url = patch.avatarUrl;
   if (patch.identityPublic !== undefined) row.identity_public = patch.identityPublic;
@@ -104,6 +111,50 @@ export async function updateMyProfile(patch: {
   const { error } = await db().from("profiles").update(row).eq("id", uid);
   if (error) return { error: error.message };
   return {};
+}
+
+export async function mySocialScore(): Promise<SocialScore | null> {
+  const { data, error } = await db().rpc("my_social_score");
+  if (error || !data?.[0]) return null;
+  const r = data[0];
+  return {
+    userId: r.user_id,
+    dimensions: (r.dimensions ?? {}) as Record<string, unknown>,
+    confidence: Number(r.confidence ?? 0),
+    matchable: !!r.matchable,
+    whyHints: (r.why_hints ?? []) as string[],
+    updatedAt: r.updated_at ? new Date(r.updated_at).getTime() : Date.now(),
+  };
+}
+
+export async function recordSocialScoreEvent(
+  kind: string,
+  payload: Record<string, unknown> = {},
+): Promise<void> {
+  await db().rpc("record_social_score_event", { p_kind: kind, p_payload: payload });
+}
+
+export async function feedVibeCards(limit = 12): Promise<VibeCard[]> {
+  const { data, error } = await db().rpc("feed_vibe_cards", { p_limit: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((r) => ({
+    cardType: r.card_type as VibeCardType,
+    userId: r.user_id,
+    username: r.username ?? null,
+    displayName: r.display_name ?? null,
+    avatarUrl: r.avatar_url ?? null,
+    age: r.age != null ? Number(r.age) : null,
+    sex: r.sex ?? null,
+    location: r.location ?? null,
+    distanceMiles: r.distance_miles != null ? Number(r.distance_miles) : null,
+    sharedInterests: (r.shared_interests ?? []) as string[],
+    lookingFor: (r.looking_for ?? []) as string[],
+    meetupIntents: (r.meetup_intents ?? []) as string[],
+    headline: r.headline ?? "",
+    why: r.why ?? "",
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    score: Number(r.score ?? 0),
+  }));
 }
 
 export async function usernameAvailable(username: string): Promise<boolean> {
@@ -660,9 +711,27 @@ export async function staffAudit(limit = 60): Promise<StaffAction[]> {
 
 // ── Cosmetics (Lane B store) ─────────────────────────────────────────────────
 let _cosmeticCatalog: Cosmetic[] | null = null;
+function mapCosmeticStore(raw: any): CosmeticStore {
+  const packages: CosmeticPackage[] = ((raw?.packages ?? []) as any[]).map((p) => ({
+    id: p.id,
+    name: p.name,
+    tagline: p.tagline ?? "",
+    price: Number(p.price ?? 0),
+    itemIds: (p.itemIds ?? p.item_ids ?? []) as string[],
+    featured: !!p.featured,
+  }));
+  return {
+    credits: Number(raw?.credits ?? 0),
+    equipped: (raw?.equipped ?? {}) as Record<string, string>,
+    owned: (raw?.owned ?? []) as string[],
+    catalog: (raw?.catalog ?? []) as Cosmetic[],
+    packages,
+  };
+}
+
 export async function listCosmetics(): Promise<CosmeticStore> {
   const { data, error } = await db().rpc("list_cosmetics");
-  const store = (error || !data) ? { credits: 0, equipped: {}, owned: [], catalog: [] } : (data as CosmeticStore);
+  const store = mapCosmeticStore(error || !data ? null : data);
   _cosmeticCatalog = store.catalog;
   return store;
 }
@@ -677,6 +746,13 @@ export async function purchaseCosmetic(id: string): Promise<{ owned: boolean; cr
   if (error) throw error;
   return data as { owned: boolean; credits: number };
 }
+export async function purchaseCosmeticPackage(id: string): Promise<{
+  owned: boolean; credits: number; newItems?: number; ownedIds?: string[]; message?: string;
+}> {
+  const { data, error } = await db().rpc("purchase_cosmetic_package", { p_id: id });
+  if (error) throw error;
+  return data as { owned: boolean; credits: number; newItems?: number; ownedIds?: string[]; message?: string };
+}
 export async function equipCosmetic(id: string): Promise<Record<string, string>> {
   const { data, error } = await db().rpc("equip_cosmetic", { p_id: id });
   if (error) throw error;
@@ -686,6 +762,49 @@ export async function unequipCosmetic(category: string): Promise<Record<string, 
   const { data, error } = await db().rpc("unequip_cosmetic", { p_category: category });
   if (error) throw error;
   return (data ?? {}) as Record<string, string>;
+}
+
+export async function adminCosmeticStats(): Promise<AdminCosmeticStats | null> {
+  const { data, error } = await db().rpc("admin_cosmetic_stats");
+  if (error || !data) return null;
+  const d = data as any;
+  return {
+    topups: {
+      paidCount: Number(d.topups?.paidCount ?? 0),
+      revenueCents: Number(d.topups?.revenueCents ?? 0),
+      creditsIssued: Number(d.topups?.creditsIssued ?? 0),
+    },
+    purchases: {
+      purchases7d: Number(d.purchases?.purchases7d ?? 0),
+      uniqueBuyers7d: Number(d.purchases?.uniqueBuyers7d ?? 0),
+      packagePurchases7d: Number(d.purchases?.packagePurchases7d ?? 0),
+      itemPurchases7d: Number(d.purchases?.itemPurchases7d ?? 0),
+      creditsSpent7d: Number(d.purchases?.creditsSpent7d ?? 0),
+      ownersTotal: Number(d.purchases?.ownersTotal ?? 0),
+    },
+    doctrine: String(d.doctrine ?? ""),
+  };
+}
+
+export async function adminMatchFairness(days = 14): Promise<AdminMatchFairness | null> {
+  const { data, error } = await db().rpc("admin_match_fairness_guardrail", { p_days: days });
+  if (error || !data) return null;
+  const d = data as any;
+  return {
+    days: Number(d.days ?? days),
+    freeUsers: Number(d.freeUsers ?? 0),
+    cosmeticOwners: Number(d.cosmeticOwners ?? 0),
+    likesFree: Number(d.likesFree ?? 0),
+    likesOwners: Number(d.likesOwners ?? 0),
+    mutualPairsFree: Number(d.mutualPairsFree ?? 0),
+    mutualPairsOwnerTouch: Number(d.mutualPairsOwnerTouch ?? 0),
+    mutualPerLikeFree: d.mutualPerLikeFree != null ? Number(d.mutualPerLikeFree) : null,
+    mutualPerLikeOwners: d.mutualPerLikeOwners != null ? Number(d.mutualPerLikeOwners) : null,
+    deltaMutualRate: d.deltaMutualRate != null ? Number(d.deltaMutualRate) : null,
+    alert: !!d.alert,
+    cosmeticsExcludedInScores: d.cosmeticsExcludedInScores !== false,
+    note: String(d.note ?? ""),
+  };
 }
 
 /** Fuzzy discipline suggestions for the picker's search box. */
@@ -714,6 +833,72 @@ export async function refreshEmbedding(): Promise<void> {
 }
 
 // ── Matchmaking ──────────────────────────────────────────────────────────────
+export async function vibeMatches(
+  deck: "love" | "meetup",
+  limit = 40,
+  filters?: {
+    radiusMiles?: number | null;
+    ageMin?: number | null;
+    ageMax?: number | null;
+    lookingFor?: string[];
+    meetupIntents?: string[];
+    mustShareMeetup?: boolean;
+  },
+): Promise<VibeMatch[]> {
+  const { data, error } = await db().rpc("vibe_matches", {
+    p_deck: deck,
+    p_limit: limit,
+    p_radius_miles: filters?.radiusMiles ?? null,
+    p_age_min: filters?.ageMin ?? null,
+    p_age_max: filters?.ageMax ?? null,
+    p_looking: filters?.lookingFor?.length ? filters.lookingFor : null,
+    p_meetup: filters?.meetupIntents?.length ? filters.meetupIntents : null,
+    p_must_share_meetup: !!filters?.mustShareMeetup,
+  });
+  if (error || !data) return [];
+  return (data as any[]).map((r) => ({
+    userId: r.user_id,
+    username: r.username ?? null,
+    fit: Number(r.fit ?? 0),
+    confidence: Number(r.confidence ?? 0),
+    distanceMiles: r.distance_miles != null ? Number(r.distance_miles) : null,
+    age: r.age != null ? Number(r.age) : null,
+    sex: r.sex ?? null,
+    location: r.location ?? null,
+    lookingFor: (r.looking_for ?? []) as string[],
+    meetupIntents: (r.meetup_intents ?? []) as string[],
+    sharedInterests: (r.shared_interests ?? []) as string[],
+    sharedLooking: (r.shared_looking ?? []) as string[],
+    sharedMeetup: (r.shared_meetup ?? []) as string[],
+    why: r.why ?? "",
+    mutualLike: !!r.mutual_like,
+  }));
+}
+
+export async function sparkAct(
+  targetId: string,
+  outcome: "like" | "pass",
+  deck: "love" | "meetup",
+): Promise<SparkActResult> {
+  const { data, error } = await db().rpc("spark_act", {
+    p_target: targetId,
+    p_outcome: outcome,
+    p_deck: deck,
+  });
+  if (error || !data) {
+    return { ok: false, mutual: false, peerId: targetId, peerUsername: null, deck, error: error?.message };
+  }
+  const r = data as any;
+  return {
+    ok: !!r.ok,
+    mutual: !!r.mutual,
+    peerId: r.peerId ?? targetId,
+    peerUsername: r.peerUsername ?? null,
+    deck: (r.deck as "love" | "meetup") ?? deck,
+    error: r.error,
+  };
+}
+
 export async function collabMatches(
   limit = 30,
   category: string | null = null,
@@ -803,6 +988,7 @@ export async function createOpportunity(input: {
     kind: input.kind ?? "collab", budget: input.budget ?? null,
   });
   if (error) throw error;
+  void recordSocialScoreEvent("opportunity_post", { kind: input.kind ?? "collab" }).catch(() => undefined);
 }
 export async function applyToOpportunity(postId: string, message?: string) {
   const uid = await currentUserId();
@@ -810,6 +996,79 @@ export async function applyToOpportunity(postId: string, message?: string) {
   const { error } = await db().from("collab_applications").insert({
     post_id: postId, applicant_id: uid, message: message ?? null,
   });
+  if (error) throw error;
+}
+
+export interface OpportunityApplication {
+  postId: string;
+  postTitle: string;
+  postKind: "collab" | "commission";
+  postStatus: string;
+  applicantId: string;
+  applicantUsername: string | null;
+  message: string | null;
+  status: "pending" | "accepted" | "rejected";
+  createdAt: number;
+}
+
+/** Poster inbox — applications on my open collab / commission posts. */
+export async function myOpportunityInbox(): Promise<OpportunityApplication[]> {
+  const uid = await currentUserId();
+  if (!uid) return [];
+  const { data: posts, error: pe } = await db()
+    .from("collab_posts")
+    .select("id,title,kind,status")
+    .eq("author_id", uid)
+    .order("created_at", { ascending: false })
+    .limit(40);
+  if (pe || !posts?.length) return [];
+  const postIds = posts.map((p: any) => p.id as string);
+  const postById = new Map(posts.map((p: any) => [p.id as string, p]));
+  const { data: apps, error: ae } = await db()
+    .from("collab_applications")
+    .select("post_id,applicant_id,message,status,created_at")
+    .in("post_id", postIds)
+    .order("created_at", { ascending: false });
+  if (ae || !apps?.length) return [];
+  const authors = await usernamesFor(apps.map((a: any) => a.applicant_id));
+  return apps.map((a: any) => {
+    const post = postById.get(a.post_id);
+    const st = a.status === "accepted" || a.status === "rejected" ? a.status : "pending";
+    return {
+      postId: a.post_id as string,
+      postTitle: (post?.title as string) ?? "Untitled",
+      postKind: post?.kind === "commission" ? "commission" as const : "collab" as const,
+      postStatus: (post?.status as string) ?? "open",
+      applicantId: a.applicant_id as string,
+      applicantUsername: authors.get(a.applicant_id) ?? null,
+      message: (a.message as string | null) ?? null,
+      status: st as "pending" | "accepted" | "rejected",
+      createdAt: a.created_at ? new Date(a.created_at).getTime() : Date.now(),
+    };
+  });
+}
+
+export async function respondOpportunityApplication(
+  postId: string,
+  applicantId: string,
+  accept: boolean,
+): Promise<{ status: string; threadId: string | null }> {
+  const { data, error } = await db().rpc("respond_opportunity_application", {
+    p_post: postId,
+    p_applicant: applicantId,
+    p_accept: accept,
+  });
+  if (error) throw error;
+  return {
+    status: String((data as any)?.status ?? (accept ? "accepted" : "rejected")),
+    threadId: ((data as any)?.threadId as string | null) ?? null,
+  };
+}
+
+export async function closeOpportunity(postId: string, status: "filled" | "closed" = "filled"): Promise<void> {
+  const uid = await currentUserId();
+  if (!uid) throw new Error("Not signed in.");
+  const { error } = await db().from("collab_posts").update({ status }).eq("id", postId).eq("author_id", uid);
   if (error) throw error;
 }
 
@@ -1266,6 +1525,10 @@ export async function createDrop(input: NewDrop): Promise<Drop | null> {
     }));
     if (rows.length) await db().from("drop_invites").upsert(rows).then(() => undefined, () => undefined);
   }
+  void recordSocialScoreEvent("drop_publish", {
+    assetKind: input.assetKind,
+    audience,
+  }).catch(() => undefined);
   const signed = input.audioUrl ? (await signAudio([input.audioUrl])).get(input.audioUrl) : undefined;
   return {
     id: drop.id, authorId: uid, authorUsername: null, title: input.title ?? null,
@@ -1568,6 +1831,29 @@ export async function downloadAsset(assetId: string): Promise<DownloadResult | n
   return data?.signedUrl ? { url: data.signedUrl, watermarked: false, revoke: false } : null;
 }
 
+export interface AssetProvenance {
+  firstSeen: number | null;
+  sha256: string | null;
+  downloads: number;
+  watermarks: number;
+  licenseEvents: number;
+}
+
+/** Public provenance summary — first-seen + aggregate chain counts (no PII). */
+export async function assetProvenance(assetId: string): Promise<AssetProvenance | null> {
+  const { data, error } = await db().rpc("asset_provenance", { p_asset: assetId });
+  if (error || !data) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return null;
+  return {
+    firstSeen: row.first_seen ? new Date(row.first_seen).getTime() : null,
+    sha256: (row.sha256 as string | null) ?? null,
+    downloads: Number(row.downloads ?? 0),
+    watermarks: Number(row.watermarks ?? 0),
+    licenseEvents: Number(row.license_events ?? 0),
+  };
+}
+
 // ── Connections + DMs ────────────────────────────────────────────────────────
 export async function connect(peerId: string) {
   const uid = await currentUserId();
@@ -1603,17 +1889,21 @@ export async function startDm(peerId: string): Promise<string | null> {
   return (data as string) ?? null;
 }
 export async function listThreads(): Promise<DmThread[]> {
-  const uid = await currentUserId();
-  if (!uid) return [];
-  const { data } = await db().from("dm_threads")
-    .select("id,user_a,user_b,last_at").order("last_at", { ascending: false });
-  if (!data) return [];
-  const peers = data.map((t: any) => (t.user_a === uid ? t.user_b : t.user_a));
-  const names = await usernamesFor(peers);
-  return data.map((t: any) => {
-    const peerId = t.user_a === uid ? t.user_b : t.user_a;
-    return { id: t.id, peerId, peerUsername: names.get(peerId) ?? null, lastAt: new Date(t.last_at).getTime() };
-  });
+  return listInboxThreads();
+}
+
+export async function listInboxThreads(limit = 40): Promise<DmThread[]> {
+  const { data, error } = await db().rpc("list_inbox_threads", { p_limit: limit });
+  if (error || !data) return [];
+  return (data as any[]).map((t) => ({
+    id: t.thread_id,
+    peerId: t.peer_id,
+    peerUsername: t.peer_username ?? null,
+    peerAvatarUrl: t.peer_avatar ?? null,
+    lastAt: t.last_at ? new Date(t.last_at).getTime() : Date.now(),
+    lastBody: t.last_body ?? "",
+    unread: !!t.unread,
+  }));
 }
 export async function getThreadPeer(threadId: string): Promise<{ id: string; username: string | null } | null> {
   const uid = await currentUserId();
@@ -1628,30 +1918,107 @@ export async function getThreadPeer(threadId: string): Promise<{ id: string; use
 export async function listMessages(threadId: string): Promise<DmMessage[]> {
   const uid = await currentUserId();
   const { data } = await db().from("dm_messages")
-    .select("id,thread_id,sender_id,body,created_at").eq("thread_id", threadId)
+    .select("id,thread_id,sender_id,body,kind,media_url,created_at,deleted_for_all,deleted_for")
+    .eq("thread_id", threadId)
     .order("created_at", { ascending: true });
-  return (data ?? []).map((m: any) => ({
-    id: m.id, threadId: m.thread_id, senderId: m.sender_id, body: m.body,
-    createdAt: new Date(m.created_at).getTime(), mine: m.sender_id === uid,
-  }));
+  return (data ?? [])
+    .filter((m: any) => {
+      if (m.deleted_for_all) return false;
+      const del = m.deleted_for;
+      if (Array.isArray(del) && uid && del.includes(uid)) return false;
+      return true;
+    })
+    .map((m: any) => ({
+      id: m.id, threadId: m.thread_id, senderId: m.sender_id,
+      body: m.body ?? "",
+      kind: (m.kind ?? "text") as DmMessage["kind"],
+      mediaUrl: m.media_url ?? null,
+      createdAt: new Date(m.created_at).getTime(), mine: m.sender_id === uid,
+    }));
 }
-export async function sendMessage(threadId: string, body: string) {
+export async function sendMessage(
+  threadId: string,
+  body: string,
+  opts?: { kind?: DmMessage["kind"]; mediaUrl?: string | null },
+) {
   const uid = await currentUserId();
   if (!uid) return;
-  await db().from("dm_messages").insert({ thread_id: threadId, sender_id: uid, body });
+  await db().from("dm_messages").insert({
+    thread_id: threadId,
+    sender_id: uid,
+    body: body || "",
+    kind: opts?.kind ?? "text",
+    media_url: opts?.mediaUrl ?? null,
+  });
   await db().from("dm_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
 }
 
-// ── Notifications ─────────────────────────────────────────────────────────────
+export async function markThreadRead(threadId: string) {
+  await db().rpc("mark_thread_read", { p_thread: threadId });
+}
+
+export async function deleteDmMessage(messageId: string) {
+  await db().rpc("delete_dm_message", { p_id: messageId });
+}
+
+export async function hideDmThread(threadId: string) {
+  await db().rpc("hide_dm_thread", { p_thread: threadId });
+}
+
+export async function blockUser(peerId: string) {
+  await db().rpc("block_user", { p_peer: peerId });
+}
+
+export async function unblockUser(peerId: string) {
+  await db().rpc("unblock_user", { p_peer: peerId });
+}
+
+export async function uploadChatMedia(file: Blob, ext: string): Promise<string | null> {
+  try {
+    const endpoint = `${SUPABASE_URL}/functions/v1/bunny-upload?kind=project&name=${encodeURIComponent(`chat.${ext}`)}`;
+    const { data: sess } = await db().auth.getSession();
+    const token = sess.session?.access_token;
+    if (!token || !SUPABASE_ANON_KEY) return null;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        apikey: SUPABASE_ANON_KEY,
+        "Content-Type": file.type || "application/octet-stream",
+      },
+      body: file,
+    });
+    if (!res.ok) return null;
+    const json = await res.json() as { url?: string };
+    return json.url ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Notifications / Live Feed ─────────────────────────────────────────────────
 export async function listNotifications(): Promise<AppNotification[]> {
-  const { data } = await db().from("notifications")
-    .select("id,kind,actor_id,title,body,ref_id,read,created_at")
-    .order("created_at", { ascending: false }).limit(50);
-  return (data ?? []).map((n: any) => ({
+  return listLiveFeed();
+}
+
+export async function listLiveFeed(limit = 50): Promise<AppNotification[]> {
+  const { data, error } = await db().rpc("list_live_feed", { p_limit: limit });
+  if (error || !data) {
+    const { data: fallback } = await db().from("notifications")
+      .select("id,kind,actor_id,title,body,ref_id,read,created_at,payload")
+      .order("created_at", { ascending: false }).limit(limit);
+    return (fallback ?? []).map(mapNotification);
+  }
+  return (data as any[]).map(mapNotification);
+}
+
+function mapNotification(n: any): AppNotification {
+  return {
     id: n.id, kind: n.kind, actorId: n.actor_id ?? null, title: n.title,
     body: n.body ?? null, refId: n.ref_id ?? null, read: !!n.read,
     createdAt: new Date(n.created_at).getTime(),
-  }));
+    payload: (n.payload ?? {}) as Record<string, unknown>,
+  };
 }
 export async function unreadNotificationCount(): Promise<number> {
   const { count } = await db().from("notifications")
@@ -1932,6 +2299,7 @@ export async function commitRepo(input: {
     p_meta: input.meta ?? {},
   });
   if (error) throw error;
+  void recordSocialScoreEvent("repo_commit", { projectId: input.projectId }).catch(() => undefined);
   return (data as string) ?? null;
 }
 

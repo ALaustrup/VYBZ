@@ -69,7 +69,7 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "live", label: "Live", to: "/live", icon: Radio },
   { id: "messages", label: "Messages", to: "/messages", icon: MessageSquare },
   { id: "profile", label: "You", to: "/profile", icon: Users },
-  { id: "activity", label: "Activity", to: "/activity", icon: Bell, badgeUnread: true },
+  { id: "activity", label: "Live feed", to: "/profile?tab=live", icon: Bell, badgeUnread: true },
   { id: "discover", label: "Discover", to: "/discover", icon: Search },
   { id: "spark", label: "Spark", to: "/spark", icon: Sparkles },
   { id: "opportunities", label: "Opportunities", to: "/opportunities", icon: FolderGit2 },
@@ -131,7 +131,7 @@ export const WIDGET_CATALOG: WidgetDef[] = [
   { id: "vcBalance", label: "V¢", blurb: "Balance + top-up", icon: Wallet, context: "both" },
   { id: "tipJar", label: "Tips", blurb: "Recent tip pulse", icon: Activity, context: "go" },
   { id: "listingHeat", label: "Listing", blurb: "Repo listing interest", icon: Gauge, context: "studio" },
-  { id: "unreadStack", label: "Inbox", blurb: "DMs + activity", icon: Bell, context: "both" },
+  { id: "unreadStack", label: "Inbox", blurb: "DMs + live feed", icon: Bell, context: "both" },
   { id: "dmQuickReply", label: "Reply", blurb: "Latest DM quick send", icon: MessageSquare, context: "go" },
   { id: "studioPresence", label: "Room", blurb: "Who's in project", icon: Users, context: "studio" },
   { id: "earBreak", label: "Ears", blurb: "Hearing break timer", icon: Ear, context: "studio" },
@@ -311,12 +311,17 @@ export function useVDockLayout(): VDockLayout {
   return useSyncExternalStore(subscribe, getVDockLayout, getVDockLayout);
 }
 
-export function pinIsActive(pin: PinDef, pathname: string): boolean {
-  if (pin.end) return pathname === pin.to;
-  if (pin.to === "/profile") {
+export function pinIsActive(pin: PinDef, pathname: string, search = ""): boolean {
+  const pathOnly = pin.to.split("?")[0] || pin.to;
+  if (pin.end) return pathname === pathOnly;
+  if (pin.id === "activity") {
+    const tab = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("tab");
+    return pathname.startsWith("/profile") && (tab === "live" || tab == null || tab === "");
+  }
+  if (pathOnly === "/profile") {
     return pathname.startsWith("/profile") || pathname.startsWith("/u/") || pathname.startsWith("/artist/");
   }
-  return pathname === pin.to || pathname.startsWith(`${pin.to}/`);
+  return pathname === pathOnly || pathname.startsWith(`${pathOnly}/`);
 }
 
 export function catalogPinsForRole(opts: { isMod?: boolean; isAdmin?: boolean }): PinDef[] {

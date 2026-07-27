@@ -19,8 +19,8 @@ export function GrainOverlay() {
       style={{
         backgroundImage: `url("${NOISE}")`,
         backgroundRepeat: "repeat",
-        opacity: 0.035,
-        mixBlendMode: "overlay",
+        opacity: 0.02,
+        mixBlendMode: "multiply",
       }}
     />
   );
