@@ -28,7 +28,7 @@ Opt-in only — never required to listen, tip, or go live. Be honest about age a
 We may remove content, restrict features, or ban accounts, and report illegal activity to authorities.
 
 ## 5. Reporting
-abuse@astramatrix.xyz — for copyright, see the DMCA policy.
+abuse@vybz.cloud — for copyright, see the DMCA policy.
 
 ---
 

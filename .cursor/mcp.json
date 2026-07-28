@@ -2,6 +2,9 @@
   "mcpServers": {
     "stripe-vybz": {
       "url": "https://mcp.stripe.com"
+    },
+    "resend": {
+      "url": "https://mcp.resend.com/mcp"
     }
   }
 }

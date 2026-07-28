@@ -67,7 +67,7 @@ We may update these Terms; material changes will be noticed in-product or by ema
 Governed by the laws of the State of Delaware, USA, without regard to conflict-of-laws rules, unless mandatory local consumer law applies. Courts in Delaware have jurisdiction, except where binding arbitration is elected in a separate notice.
 
 ## 17. Contact
-Astra Matrix, Inc. — legal@astramatrix.xyz — https://vybz.cloud
+Astra Matrix, Inc. — legal@vybz.cloud — https://vybz.cloud
 
 ---
 

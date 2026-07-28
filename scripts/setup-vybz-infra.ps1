@@ -134,7 +134,7 @@ if (-not $LocalOnly) {
       $env:SMTP_HOST = if ($env:SMTP_HOST) { $env:SMTP_HOST } else { "smtp.resend.com" }
       $env:SMTP_PORT = if ($env:SMTP_PORT) { $env:SMTP_PORT } else { "465" }
       $env:SMTP_USER = if ($env:SMTP_USER) { $env:SMTP_USER } else { "resend" }
-      $env:SMTP_SENDER_EMAIL = if ($env:SMTP_SENDER_EMAIL) { $env:SMTP_SENDER_EMAIL } else { "noreply@astramatrix.xyz" }
+      $env:SMTP_SENDER_EMAIL = if ($env:SMTP_SENDER_EMAIL) { $env:SMTP_SENDER_EMAIL } else { "noreply@vybz.cloud" }
       $env:SMTP_SENDER_NAME = if ($env:SMTP_SENDER_NAME) { $env:SMTP_SENDER_NAME } else { "VYBZ" }
       node supabase/configure-email.mjs
       Ok "auth redirect URLs + email templates configured for VYBZ"

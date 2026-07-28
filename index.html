@@ -23,9 +23,11 @@
     <link rel="canonical" href="https://vybz.cloud/" />
 
     <!-- Favicons (VYBZ mark). -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
 
     <!-- Typography is self-hosted via @fontsource (see src/main.tsx). -->
 
@@ -53,6 +55,7 @@
       content="Tip + live + catalog for indie artists. Upload, stream, tip with Vc, go live. Real identity. No ads."
     />
     <meta name="twitter:image" content="https://vybz.cloud/og.png" />
+    <meta name="twitter:image:alt" content="VYBZ — Find Yours." />
 
     <!-- Installable PWA / iOS home-screen support. -->
     <meta name="mobile-web-app-capable" content="yes" />
@@ -73,7 +76,14 @@
             "legalName": "Astra Matrix, Inc.",
             "url": "https://vybz.cloud/",
             "slogan": "Find Yours.",
-            "logo": "https://vybz.cloud/icons/icon-512.png",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://vybz.cloud/icons/icon-512.png",
+              "width": 512,
+              "height": 512
+            },
+            "image": "https://vybz.cloud/og.png",
+            "email": "legal@vybz.cloud",
             "sameAs": [
               "https://vybz.work/",
               "https://vybz.world/",
@@ -88,8 +98,9 @@
             "url": "https://vybz.cloud/",
             "name": "VYBZ",
             "alternateName": "Find Yours.",
-            "description": "Music home for indie artists — listen, tip with Vc, go live. Find Yours.",
-            "publisher": { "@id": "https://vybz.cloud/#org" }
+            "description": "Tip + live + catalog home for indie artists — upload, stream on VDock, tip with Vc, go live. Real identity. No ads. Find Yours.",
+            "publisher": { "@id": "https://vybz.cloud/#org" },
+            "inLanguage": "en-US"
           },
           {
             "@type": "WebApplication",
@@ -98,12 +109,14 @@
             "url": "https://vybz.cloud/",
             "applicationCategory": "MusicApplication",
             "operatingSystem": "Web, iOS, Android",
-            "description": "Tip + live + catalog for indie artists. Real identity. No ads.",
+            "browserRequirements": "Requires JavaScript. Modern evergreen browser.",
+            "description": "Tip + live + catalog for indie artists. Upload your music, stream on VDock, tip with Vc (~username), go live. Real identity. No ads.",
             "offers": {
               "@type": "Offer",
               "price": "0",
               "priceCurrency": "USD"
-            }
+            },
+            "publisher": { "@id": "https://vybz.cloud/#org" }
           }
         ]
       }

@@ -85,7 +85,7 @@ if [ -z "${NO_SUPABASE:-}" ]; then
     say "Configuring VYBZ auth emails (Resend + redirect URLs)"
     export SUPABASE_PROJECT_REF APP_URL="${APP_URL:-https://$VERCEL_PROD_DOMAIN}"
     export SMTP_HOST="${SMTP_HOST:-smtp.resend.com}" SMTP_PORT="${SMTP_PORT:-465}"
-    export SMTP_USER="${SMTP_USER:-resend}" SMTP_SENDER_EMAIL="${SMTP_SENDER_EMAIL:-noreply@astramatrix.xyz}"
+    export SMTP_USER="${SMTP_USER:-resend}" SMTP_SENDER_EMAIL="${SMTP_SENDER_EMAIL:-noreply@vybz.cloud}"
     export SMTP_SENDER_NAME="${SMTP_SENDER_NAME:-VYBZ}"
     node supabase/configure-email.mjs
     ok "auth emails configured"

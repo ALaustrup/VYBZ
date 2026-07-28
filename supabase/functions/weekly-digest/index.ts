@@ -296,7 +296,7 @@ Deno.serve(async (req: Request) => {
   if (!authorized(req)) return json({ error: "unauthorized" }, 401);
 
   const apiKey = Deno.env.get("RESEND_API_KEY") ?? "";
-  const from = Deno.env.get("RESEND_FROM") ?? Deno.env.get("RESEND_FROM_EMAIL") ?? "VYBZ <noreply@astramatrix.xyz>";
+  const from = Deno.env.get("RESEND_FROM") ?? Deno.env.get("RESEND_FROM_EMAIL") ?? "VYBZ <noreply@vybz.cloud>";
   const appUrl = Deno.env.get("APP_URL") ?? "https://vybz.cloud";
   const url = new URL(req.url);
   const dryRun = url.searchParams.get("dry_run") === "1";

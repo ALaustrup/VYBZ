@@ -98,7 +98,7 @@ Essential cookies/local storage for auth and preferences. Non-essential cookies 
 ---
 
 ## 9. Your Rights
-Depending on jurisdiction (e.g. GDPR, CCPA/CPRA): access, correction, deletion, export, restrict/object, withdraw consent, and appeal. Contact privacy@astramatrix.xyz. You may also contact your local regulator. Waitlist: use the unsubscribe link or email privacy@astramatrix.xyz.
+Depending on jurisdiction (e.g. GDPR, CCPA/CPRA): access, correction, deletion, export, restrict/object, withdraw consent, and appeal. Contact privacy@vybz.cloud. You may also contact your local regulator. Waitlist: use the unsubscribe link or email privacy@vybz.cloud.
 
 ---
 
@@ -118,7 +118,7 @@ We may update this Policy; material changes will be noticed in-product or by ema
 ---
 
 ## 13. Contact
-Astra Matrix, Inc. — privacy@astramatrix.xyz — https://vybz.cloud
+Astra Matrix, Inc. — privacy@vybz.cloud — https://vybz.cloud
 
 ---
 

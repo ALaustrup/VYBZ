@@ -24,7 +24,7 @@ If your content was removed and you believe it was removed in error or is author
 Copyright notices should be sent to:
 **Astra Matrix, Inc. — Copyright Agent**
 [COMPANY ADDRESS]
-Email: [copyright@astramatrix.xyz]
+Email: copyright@vybz.cloud
 
 ## 5. Repeat Infringers
 Astra Matrix will, in appropriate circumstances, disable or terminate the accounts of users who are repeat infringers.

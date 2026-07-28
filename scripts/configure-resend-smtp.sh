@@ -9,18 +9,19 @@
 # Prereqs (one-time, done by you in the Resend + registrar dashboards):
 #   1. Create a free account at https://resend.com
 #   2. Add & verify a sending domain (recommended: a subdomain you control, e.g.
-#      `send.astramatrix.xyz` or `mail.vybz.cloud`). Resend shows the exact DNS
-#      records to add (SPF TXT, DKIM CNAME/TXT, and an MX for the subdomain).
+#      `mail.vybz.cloud` or root `vybz.cloud`). Resend shows the exact DNS
+#      records to add (SPF TXT, DKIM CNAME/TXT, and an MX for the send subdomain).
 #   3. Create an API key (Full access) → this is your SMTP password.
 #
 # Then set these and run this script (values are read from env / Cursor secrets):
 #   RESEND_API_KEY   = re_...            (the API key from step 3)
-#   RESEND_FROM      = no-reply@send.astramatrix.xyz   (an address on the verified domain)
+#   RESEND_FROM      = noreply@vybz.cloud   (an address on the verified domain)
 #   RESEND_FROM_NAME = VYBZ                              (optional; defaults to VYBZ)
 #   SUPABASE_ACCESS_TOKEN = sbp_...      (already present in this environment)
 #
-# Usage:  RESEND_API_KEY=re_xxx RESEND_FROM=no-reply@send.astramatrix.xyz ./scripts/configure-resend-smtp.sh
+# Usage:  RESEND_API_KEY=re_xxx RESEND_FROM=noreply@vybz.cloud ./scripts/configure-resend-smtp.sh
 #
+# Prefer: node scripts/configure-vybz-cloud-email.mjs (creates domain + optional GoDaddy DNS).
 # This calls the Supabase Management API to set the project's custom SMTP. It does
 # NOT print secrets. Re-runnable (idempotent).
 
@@ -40,7 +41,7 @@ SMTP_USER="resend"
 fail() { echo "ERROR: $1" >&2; exit 1; }
 [ -n "$TOK" ]  || fail "SUPABASE_ACCESS_TOKEN is not set."
 [ -n "$KEY" ]  || fail "RESEND_API_KEY is not set (get it from https://resend.com/api-keys)."
-[ -n "$FROM" ] || fail "RESEND_FROM is not set (an address on your Resend-verified domain, e.g. no-reply@send.astramatrix.xyz)."
+[ -n "$FROM" ] || fail "RESEND_FROM is not set (an address on your Resend-verified domain, e.g. noreply@vybz.cloud)."
 
 echo "Configuring Supabase ($REF) Auth SMTP → Resend as '$FROM' ($FROM_NAME)…"
 

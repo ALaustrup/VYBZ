@@ -4,20 +4,21 @@
  *
  * Supabase only allows custom email templates when a custom SMTP sender is set
  * (or on a paid plan). This script wires both in one shot via the Management API:
- *   1. custom SMTP (Resend → astramatrix.xyz), and
+ *   1. custom SMTP (Resend → vybz.cloud), and
  *   2. the branded welcome/confirmation template (supabase/email-templates/confirm.html).
  *
  * It also sets the Site URL + redirect allow-list so confirmation links re-open
  * the app directly at vybz.cloud (or APP_URL override).
  *
- * Sender domain MUST be verified in Resend first (astramatrix.xyz → SPF + DKIM).
+ * Sender domain MUST be verified in Resend first (vybz.cloud → SPF + DKIM).
+ * Prefer: node scripts/configure-vybz-cloud-email.mjs
  *
  * Usage (PowerShell):
  *   $env:SUPABASE_ACCESS_TOKEN="sbp_..."
  *   $env:SUPABASE_PROJECT_REF="xixmneooyufbeftdfpcm"
  *   $env:SMTP_HOST="smtp.resend.com"; $env:SMTP_PORT="465"
  *   $env:SMTP_USER="resend"; $env:SMTP_PASS="<resend-api-key>"
- *   $env:SMTP_SENDER_EMAIL="noreply@astramatrix.xyz"; $env:SMTP_SENDER_NAME="VYBZ"
+ *   $env:SMTP_SENDER_EMAIL="noreply@vybz.cloud"; $env:SMTP_SENDER_NAME="VYBZ"
  *   $env:APP_URL="https://vybz.cloud"
  *   node supabase/configure-email.mjs
  *

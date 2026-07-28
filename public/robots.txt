@@ -1,15 +1,18 @@
 # VYBZ — Find Yours.  (Astra Matrix, Inc.)
-# Public, indexable surfaces: landing, Codex library, and legal policies.
+# Public, indexable surfaces: landing, open signup, Codex library, and legal.
 # Authenticated app routes are excluded to focus crawl budget on public content.
 
 User-agent: *
 Allow: /
+Allow: /enter
 Allow: /codex
 Allow: /codex/
 Allow: /legal/
 Allow: /og.png
+Allow: /favicon.ico
 Allow: /favicon.svg
 Allow: /icons/
+Allow: /brand/
 
 # Authenticated / private app surfaces — no index value.
 Disallow: /activity
@@ -23,6 +26,7 @@ Disallow: /rooms
 Disallow: /live
 Disallow: /profile
 Disallow: /store
+Disallow: /wallet
 Disallow: /admin
 Disallow: /mod
 Disallow: /apply-mod

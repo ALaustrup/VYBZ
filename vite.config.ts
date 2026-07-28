@@ -34,7 +34,16 @@ export default defineConfig({
     // and auto-updates in the background.
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icons/apple-touch-icon.png"],
+      includeAssets: [
+        "favicon.ico",
+        "favicon.svg",
+        "favicon-64.png",
+        "og.png",
+        "icons/apple-touch-icon.png",
+        "icons/icon-192.png",
+        "icons/icon-512.png",
+        "icons/maskable-512.png",
+      ],
       workbox: {
         navigateFallback: "/index.html",
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
@@ -76,17 +85,19 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "Find Yours.",
+        name: "VYBZ — Find Yours.",
         short_name: "VYBZ",
-        description: "Find Yours.",
+        description:
+          "Tip + live + catalog for indie artists. Upload, stream on VDock, tip with Vc, go live. Real identity. No ads.",
         id: "/",
         start_url: "/",
         scope: "/",
         display: "standalone",
-        orientation: "portrait",
+        orientation: "any",
         background_color: "#0a0c12",
         theme_color: "#0a0c12",
-        categories: ["social", "productivity", "music", "photo"],
+        lang: "en",
+        categories: ["music", "entertainment", "social"],
         icons: [
           {
             src: "/icons/icon-192.png",
