@@ -1,5 +1,8 @@
 # Site backdrop (encoded)
 
-Generated from `Vizualz/backdrop/main.*` via `npm run visuals:encode`.
+Generated from `vizualz/backdrop/main.*` via `npm run visuals:encode`.
 
-Served as `/backdrop/main.webm`, `/backdrop/main.mp4`, `/backdrop/poster.webp`.
+- **Local / offline:** set `VITE_SITE_VISUALS_BASE=local` → `/backdrop/main.*`
+- **Production:** upload with `npm run visuals:upload` → Supabase public bucket `site-visuals`
+
+Keep `poster.webp` in git; `*.mp4` / `*.webm` are gitignored (object storage).

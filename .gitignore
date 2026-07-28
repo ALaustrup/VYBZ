@@ -21,3 +21,15 @@ supabase/.temp/
 .env
 .env.*
 !.env.example
+
+# Large encoded / master visuals — serve from Supabase `site-visuals` bucket.
+# Keep tiny posters/previews + READMEs in git; upload loops via:
+#   npm run visuals:upload
+vizualz/
+Vizualz/
+public/backdrop/*.mp4
+public/backdrop/*.webm
+public/vdock/visuals/**/loop.mp4
+public/vdock/visuals/**/loop.webm
+.agents/
+skills-lock.json

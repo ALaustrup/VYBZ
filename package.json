@@ -7,7 +7,7 @@
     "era": "beta"
   },
   "type": "module",
-  "description": "VYBZ — identity-first creator social, collaboration, and precision matchmaking for every creative discipline.",
+  "description": "VYBZ — tip + live + catalog home for indie artists. Find Yours.",
   "engines": {
     "node": ">=20"
   },
@@ -17,6 +17,7 @@
     "preview": "vite preview",
     "lint": "tsc --noEmit",
     "visuals:encode": "node scripts/encode-vdock-visuals.mjs",
+    "visuals:upload": "node scripts/upload-site-visuals.mjs",
     "cap:sync": "cap sync",
     "android:add": "cap add android",
     "android:sync": "npm run build && cap sync android",

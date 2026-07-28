@@ -74,7 +74,7 @@ Advisors are **not** a ship-blocker for Beta-0B; treat as the next hardening spr
 4. [ ] Rotate any Edge secrets that were ever pasted into chat/logs.
 5. [x] CSP / security headers on `vybz.cloud` host (`vercel.json`).
 6. [ ] PWA: verify precache does not pin stale HTML after deploy.
-7. [ ] Manual smoke: auth → Library → drop play (Orb Max) → Social Top-3 → room voice slots → Spark connect → Go Live (SFU).
+7. [ ] Manual smoke (**GTM loop**): Enter VYBZ → upload → `/u/:id` → VDock play (confirm `site-visuals` CDN loops) → tip with Vc → Go Live. Optional legacy checks: Library / Orb / Social Top-3 / room voice only if debugging those surfaces.
 8. [ ] Tag release per [`VERSIONING.md`](../VERSIONING.md).
 
 ## Elite reactive surfaces (perf / safety)

@@ -10,6 +10,12 @@ alpha waitlist (Resend notify-on-launch), legal + docs rewrite, music-first onbo
 Dating / Spark demoted behind Connection Lab; Living Home product docs archived.
 Signup remains open via **Enter VYBZ**. See masterplan GTM section.
 
+Also in this line:
+- SEO/logo pack on `main` (`8e5060c`): favicon.ico, sitemap `/enter` + `/legal/vc`, PWA manifest, `@vybz.cloud` contacts.
+- Email defaults → `noreply@vybz.cloud`; Resend domain verified.
+- **Site visuals on Supabase Storage** (bucket `site-visuals`, not Git LFS): CDN resolver
+  `src/lib/siteVisuals.ts`, upload script `npm run visuals:upload`, loops on CDN; `AGENTS.md` pickup handoff.
+
 ## Beta-0B.1 — 2026-07-25 — Elite Reactive Campaign
 
 - **V-Dock** widgets catalog + Now Playing system widget (prior); naming locked

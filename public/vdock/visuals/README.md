@@ -1,6 +1,8 @@
 # VDock visuals (encoded)
 
-Browser-ready assets generated from `Vizualz/` via `npm run visuals:encode`.
+Browser-ready assets from `vizualz/` via `npm run visuals:encode`.
 
-Do not hand-edit loops here unless you know you need a one-off override —
-prefer re-encoding from the master in `Vizualz/`.
+- Loops (`loop.webm` / `loop.mp4`) → upload with `npm run visuals:upload` (bucket `site-visuals`)
+- Previews (`preview.webp`) stay in git for picker thumbnails / offline
+
+Do not hand-edit loops here — re-encode from the master, then re-upload.
