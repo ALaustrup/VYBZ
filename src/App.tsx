@@ -68,6 +68,7 @@ export function App() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const surface = surfaceForPath(location.pathname);
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   const equippedScene = cosmetics.backdrop?.bg;
@@ -78,10 +79,20 @@ export function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty("--accent-rgb", BRAND_ACCENT);
+    root.style.setProperty("--accent-rgb", surface.accent);
+    root.dataset.surfaceMode = surface.mode ?? "audience";
     root.classList.add("accent-fade");
     ensureEliteFxDefault();
-  }, []);
+  }, [surface.accent, surface.mode]);
+
+  // Studio "Use on next drop" â†’ /?compose=1 opens Compose with IndexedDB backdrop handoff
+  useEffect(() => {
+    if (searchParams.get("compose") !== "1") return;
+    setComposeOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete("compose");
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const [onboarded, setOnboarded] = useState(false);
   const authed = !!userId && !!profile?.username;
@@ -100,7 +111,7 @@ export function App() {
     }
     return <LandingPage />;
   }
-  // Signed in ΓÇö wait for profile before deciding username vs hub (avoids false UsernameSetup).
+  // Signed in â€” wait for profile before deciding username vs hub (avoids false UsernameSetup).
   if (!profile) {
     return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
   }
@@ -153,7 +164,7 @@ export function App() {
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />
         <Route path="/store" element={<StorePage />} />
-        <Route path="/wallet" element={<Navigate to="/?tab=wallet" replace />} />
+        {suitePlaceholderRoutes()}
         <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/artist/:slug" element={<ArtistPage />} />
         <Route path="/p/:id" element={<ProjectPage />} />
@@ -172,8 +183,9 @@ export function App() {
         <DynamicBackground variant={shellBg} />
         <GrainOverlay />
         <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
-        <AppChrome
+        <SuiteShell
           stage={routes}
+          surfaceMode={surface.mode ?? "audience"}
           onCompose={() => setComposeOpen(true)}
           onBulkUpload={() => setBulkOpen(true)}
           dock={(
@@ -209,7 +221,7 @@ function PublicDocShell() {
       <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
         <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <NavLink to="/codex"><BrandLockup height="h-7" /></NavLink>
-          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex ┬╖ Astra Matrix, Inc.</span>
+          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex Â· Astra Matrix, Inc.</span>
           <NavLink to="/enter" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
         </header>
         <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">
@@ -227,7 +239,7 @@ function PublicDocShell() {
   );
 }
 
-/** Map legacy /profile?tab=ΓÇª onto the dashboard home. */
+/** Map legacy /profile?tab=â€¦ onto the dashboard home. */
 function LegacyProfileRedirect() {
   const [params] = useSearchParams();
   const tab = params.get("tab");
