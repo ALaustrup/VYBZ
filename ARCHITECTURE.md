@@ -6,10 +6,12 @@ The authoritative technical map of the VYBZ codebase. Product context lives in
 
 ## Overview
 
-VYBZ is an **identity-first**, Supabase-backed React PWA with Bunny.net media.
-Every account is a real creator; there is no anonymous/guest path. The client
-talks to Supabase with the anon key under Row-Level Security; privileged paths
-use `SECURITY DEFINER` RPCs and Edge Functions.
+VYBZ is an **identity-first** Music Hub (tip + live + catalog for indie artists),
+Supabase-backed React PWA with media on Supabase Storage (Bunny optional).
+Every account is a real creator; there is no anonymous/guest path. Signed-out
+visitors see the marketing landing (waitlist + Enter VYBZ). The client talks to
+Supabase with the anon key under Row-Level Security; privileged paths use
+`SECURITY DEFINER` RPCs and Edge Functions.
 
 **Canonical domain:** `vybz.cloud` (legacy alias `vybz.astramatrix.xyz` remains on
 passkey/host allow-lists during cutover).
@@ -33,10 +35,10 @@ Production deploys from `main` via Vercel project `astramatrix/vybz`.
   pull tip into a folder), **Listing** (credit marketplace), Files, Credits.
   Listed feed on Studio hub. Bridge companion (`tools/vybz-bridge`) watches
   folders and emits `commit-ready` (web still performs CAS upload).
-- **Unified Social Live (Phase O / Phase 1):** additive schema on `live_sessions`
-  (single `ultra` public tier) + social/premium `rooms`, `room_memberships`,
-  `vc_ledger`; RPCs `subscribe_room_vc` / `process_vc_room_renewals` (service
-  role cron). See `docs/UNIFIED_SOCIAL_LIVE_PHASE1.md`. SFU + Social tab UI = Phase 2+.
+- **Unified Social Live:** additive schema on `live_sessions` (single `ultra`
+  public tier) + social/premium `rooms`, `room_memberships`, `vc_ledger`; RPCs
+  `subscribe_room_vc` / `process_vc_room_renewals` (service role cron). Historical
+  phase notes: `docs/archive/UNIFIED_SOCIAL_LIVE_PHASE*.md`.
 - **Orb (`OrbSphere`):** idle neochrome plasma sphere; while a track plays, eases
   into the uploader’s `playback_customization` morph + palette; on playback end,
   soft-blends back to idle. Listener intensity: **Off / Soft / VYBZ Max**

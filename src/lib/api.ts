@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import { supabase, SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase";
+import { FLAGS } from "@/lib/flags";
 import type {
   Profile, ProfileDetails, Drop, Reaction, RoleOffer, RoleSeek,
   CollabMatch, Opportunity, AssetKind, DmThread, DmMessage,
@@ -1348,33 +1349,79 @@ async function usernamesFor(ids: string[]): Promise<Map<string, string>> {
 const isSecurePath = (p: string) => /^(drops|projects|repo-blobs)\//.test(p);
 
 /**
- * Upload a protected drop original to Bunny's isolated, token-authed secure zone
- * (via the bunny-upload Edge Function — the write key stays server-side). Returns
- * the storage path (e.g. `drops/<uid>/…`), which is what we persist on the asset.
- * The raw object is never publicly reachable; previews are signed on demand and
- * downloads are fetched server-side for watermarking.
+ * Upload a protected drop original to Supabase Storage (`audio-assets`).
+ * Path shape `{uid}/drops/{ts}-{id}.{ext}` — matches bucket RLS (folder = auth.uid()).
+ * Bunny CDN is optional (`FLAGS.bunnyAudio`); default path no longer burns Bunny credits.
  */
 export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: number) => void): Promise<string | null> {
   const sess = (await db().auth.getSession()).data.session;
-  if (!sess) return null;
+  if (!sess?.user?.id) return null;
+  const uid = sess.user.id;
   const ct = (file as File).type || (ext === "wav" ? "audio/wav" : ext === "flac" ? "audio/flac" : "audio/mpeg");
-  const endpoint = `${SUPABASE_URL}/functions/v1/bunny-upload?kind=drop&name=${encodeURIComponent("a." + ext)}`;
-  // XHR (not fetch) so we can report real upload progress for large files.
+  const path = `${uid}/drops/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+
+  // Prefer Bunny only when explicitly re-enabled.
+  if (FLAGS.bunnyAudio) {
+    const endpoint = `${SUPABASE_URL}/functions/v1/bunny-upload?kind=drop&name=${encodeURIComponent("a." + ext)}`;
+    return new Promise<string | null>((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", endpoint);
+      xhr.setRequestHeader("authorization", `Bearer ${sess.access_token}`);
+      xhr.setRequestHeader("apikey", SUPABASE_ANON_KEY);
+      xhr.setRequestHeader("content-type", ct);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try { resolve((JSON.parse(xhr.responseText).path as string) ?? null); } catch { resolve(null); }
+        } else resolve(null);
+      };
+      xhr.onerror = () => resolve(null);
+      xhr.send(file);
+    });
+  }
+
+  // Supabase Storage — XHR against the object API for real upload progress.
+  const endpoint = `${SUPABASE_URL}/storage/v1/object/${AUDIO_BUCKET}/${path}`;
   return new Promise<string | null>((resolve) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", endpoint);
     xhr.setRequestHeader("authorization", `Bearer ${sess.access_token}`);
     xhr.setRequestHeader("apikey", SUPABASE_ANON_KEY);
     xhr.setRequestHeader("content-type", ct);
-    xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100)); };
+    xhr.setRequestHeader("x-upsert", "false");
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
     xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try { resolve((JSON.parse(xhr.responseText).path as string) ?? null); } catch { resolve(null); }
-      } else resolve(null);
+      if (xhr.status >= 200 && xhr.status < 300) resolve(path);
+      else resolve(null);
     };
     xhr.onerror = () => resolve(null);
     xhr.send(file);
   });
+}
+
+/** Mint playback URLs via audio-play tickets (Bunny Storage stream or Supabase signed). */
+async function mintPlayUrls(paths: string[]): Promise<Map<string, string>> {
+  const m = new Map<string, string>();
+  if (!paths.length) return m;
+  const sess = (await db().auth.getSession()).data.session;
+  if (!sess) return m;
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/audio-play`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${sess.access_token}`,
+      apikey: SUPABASE_ANON_KEY,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ paths }),
+  });
+  if (!res.ok) return m;
+  const j = await res.json().catch(() => null);
+  Object.entries((j?.urls as Record<string, string>) ?? {}).forEach(([k, v]) => m.set(k, v));
+  return m;
 }
 
 /** Mint short-lived token URLs for secure-zone paths via the bunny-sign function. */
@@ -1399,15 +1446,40 @@ async function signAudio(paths: string[]): Promise<Map<string, string>> {
   const m = new Map<string, string>();
   const real = paths.filter((p) => p && !/^(https?:|data:|blob:)/i.test(p));
   if (!real.length) return m;
-  // Secure Bunny drops → token-signed CDN URLs; legacy Supabase paths → storage signing.
+
   const secure = real.filter(isSecurePath);
   const legacy = real.filter((p) => !isSecurePath(p));
-  if (secure.length) (await bunnySign(secure)).forEach((v, k) => m.set(k, v));
+
+  // Legacy / new Supabase Storage paths → createSignedUrls.
   if (legacy.length) {
     const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrls(legacy, SIGN_TTL);
-    (data ?? []).forEach((d) => { if (d.path && d.signedUrl) m.set(d.path, d.signedUrl); });
+    (data ?? []).forEach((d) => {
+      if (d.path && d.signedUrl) m.set(d.path, d.signedUrl);
+    });
   }
+
+  // Old Bunny `drops/…` originals:
+  // - CDN token auth when FLAGS.bunnyAudio is on
+  // - otherwise audio-play streams from Bunny Storage AccessKey (no CDN credits)
+  if (secure.length) {
+    if (FLAGS.bunnyAudio) {
+      (await bunnySign(secure)).forEach((v, k) => m.set(k, v));
+    }
+    const missing = secure.filter((p) => !m.has(p));
+    if (missing.length) {
+      (await mintPlayUrls(missing)).forEach((v, k) => m.set(k, v));
+    }
+  }
+
   return m;
+}
+
+/** Resolve any stored asset path / URL to a browser-playable https URL. */
+export async function resolveAudioUrl(urlOrPath: string | null | undefined): Promise<string | null> {
+  if (!urlOrPath) return null;
+  if (/^(https?:|blob:|data:)/i.test(urlOrPath)) return urlOrPath;
+  const signed = await signAudio([urlOrPath]);
+  return signed.get(urlOrPath) ?? null;
 }
 export async function uploadAvatar(file: Blob, ext: string): Promise<string | null> {
   const uid = await currentUserId();
@@ -1599,7 +1671,10 @@ async function assembleDrops(rows: any[], myId: string | null): Promise<Drop[]> 
       feels: r.feels ?? 0, wilds: r.wilds ?? 0,
       createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
       assetId: r.asset_id ?? null,
-      audioUrl: a ? (signed.get(a.url) ?? a.url) : undefined,
+      audioUrl: a ? (() => {
+        const resolved = signed.get(a.url) ?? a.url;
+        return /^(https?:|blob:|data:)/i.test(resolved) ? resolved : undefined;
+      })() : undefined,
       waveform: a?.waveform ?? undefined, durationSec: a?.duration_sec ?? undefined,
       assetKind: a?.kind ?? undefined, bpm: a?.bpm ?? null, musicalKey: a?.musical_key ?? null,
       audioFormat: a?.format ?? null, sampleRate: a?.sample_rate ?? null, lossless: a?.lossless ?? false,
@@ -3364,6 +3439,15 @@ export async function createVybzList(title: string, description?: string): Promi
 export async function addToVybzList(listId: string, dropId: string): Promise<boolean> {
   const { data, error } = await db().rpc("vybz_list_add_track", { p_list: listId, p_drop: dropId });
   return !error && !!data;
+}
+
+export async function removeFromVybzList(listId: string, dropId: string): Promise<boolean> {
+  const { error } = await db()
+    .from("vybz_list_tracks")
+    .delete()
+    .eq("list_id", listId)
+    .eq("drop_id", dropId);
+  return !error;
 }
 
 export async function listMyVybzLists(limit = 40): Promise<VybzList[]> {

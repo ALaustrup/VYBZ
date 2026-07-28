@@ -37,7 +37,7 @@ type DeckCard =
 export function SparkPage() {
   const navigate = useNavigate();
   const { showToast, profile } = useSession();
-  const [deckMode, setDeckMode] = useState<SparkDeck>("love");
+  const [deckMode, setDeckMode] = useState<SparkDeck>("create");
   const [deck, setDeck] = useState<DeckCard[]>([]);
   const [idx, setIdx] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -150,9 +150,9 @@ export function SparkPage() {
         <NetworkModes />
         <div className="mb-2 flex gap-1 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
           {([
-            { id: "love" as const, label: "Love", icon: Heart },
-            { id: "meetup" as const, label: "Meetup", icon: Footprints },
             { id: "create" as const, label: "Create", icon: Music2 },
+            { id: "meetup" as const, label: "Meetup", icon: Footprints },
+            { id: "love" as const, label: "Love", icon: Heart },
           ]).map((t) => (
             <button
               key={t.id}

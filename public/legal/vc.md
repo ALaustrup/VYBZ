@@ -1,12 +1,12 @@
 # VYBZ Credits (Vc) Whitepaper
 
-**Version 1.1 · Astra Matrix, Inc. · July 2026**
+**Version 1.2 · Astra Matrix, Inc. · July 28, 2026**
 
 ---
 
 ## 1. Summary
 
-**VYBZ Credits (Vc)** are the closed-loop social currency of the VYBZ platform. They reward genuine listening, real feedback, presence, and creative participation. Vc is designed as the economic fabric of a premium music-taste social experience — and as the **precursor unit** for a future exchange-listed digital asset.
+**VYBZ Credits (Vc)** are the closed-loop social currency of the VYBZ Music Hub. They power tips to indie artists (`~username`), listen-to-earn, and cosmetics (Flair). Cosmetics / Profile Enhancement are the **primary** optional revenue; tips are **secondary**. Vc is also the **precursor unit** for a future exchange-listed digital asset.
 
 | Parameter | Value |
 |-----------|--------|

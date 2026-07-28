@@ -128,7 +128,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
           <EmptyState
             icon={AudioLines}
             title="Your feed is waking up"
-            body="Add interests on your profile to get vibe matches — or share a drop from the dock."
+            body="Follow artists, rate tracks, or share a drop from the dock — your Listen feed fills from taste."
           />
         ) : (
           <div className={cx("mx-auto", gridCls)}>

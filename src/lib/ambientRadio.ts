@@ -75,16 +75,24 @@ function dropToTrack(d: {
   durationSec?: number;
   waveform?: number[];
   authorUsername?: string | null;
+  authorId?: string;
+  seed?: number;
+  playbackCustomization?: import("@/lib/playbackCustomization").PlaybackCustomization | null;
 }): PlayerTrack | null {
-  if (!d.audioUrl) return null;
+  if (!d.audioUrl || !/^(https?:|blob:|data:)/i.test(d.audioUrl)) return null;
   return {
     id: d.id,
     url: d.audioUrl,
+    authorId: d.authorId,
+    artistUsername: d.authorUsername?.trim() || undefined,
+    earnEligible: true,
     title: d.title?.trim() || "Drop",
     artist: d.authorUsername?.trim() || "VYBZ",
     durationSec: d.durationSec,
     waveform: d.waveform,
     accent: "#00C2FF",
+    seed: d.seed,
+    playback: d.playbackCustomization ?? undefined,
   };
 }
 

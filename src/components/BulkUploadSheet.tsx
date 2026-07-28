@@ -6,6 +6,7 @@ import {
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { softUploadHint } from "@/components/ProBadge";
+import { OriginalityClaim } from "@/components/OriginalityClaim";
 import {
   AUDIO_ACCEPT, audioMeta, computeWaveform, placeholderWaveform,
   sha256Hex, acousticSignature,
@@ -150,7 +151,7 @@ export function BulkUploadSheet({
   async function release() {
     if (!rows.length || posting) return;
     if (!ownershipClaim) {
-      showToast("Confirm you own or are licensed to upload this audio.");
+      showToast("Check the originality box — VYBZ is for your own music.");
       return;
     }
     setPosting(true);
@@ -219,10 +220,10 @@ export function BulkUploadSheet({
       {open && (
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={posting ? undefined : onClose} className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm" />
+            onClick={posting ? undefined : onClose} className="fixed inset-0 z-[85] bg-black/75 backdrop-blur-sm" />
           <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
+            className="fixed inset-x-0 bottom-0 z-[85] mx-auto flex max-h-[min(94dvh,100dvh)] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
             data-dark-stage
           >
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
@@ -272,19 +273,10 @@ export function BulkUploadSheet({
                 ))}
               </div>
 
-              <label className="mb-4 flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left">
-                <input
-                  type="checkbox"
-                  checked={ownershipClaim}
-                  onChange={(e) => setOwnershipClaim(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-white/30"
-                />
-                <span className="text-[12px] leading-snug text-white/70">
-                  I own this audio or have a license to upload it. I understand VYBZ may remove
-                  infringing material and terminate repeat infringers (see{" "}
-                  <a href="/legal/dmca" className="text-veil-200 underline" onClick={(e) => e.stopPropagation()}>DMCA</a>).
-                </span>
-              </label>
+              <div className="mb-4">
+                <p className="eyebrow mb-2">Originality</p>
+                <OriginalityClaim checked={ownershipClaim} onChange={setOwnershipClaim} />
+              </div>
 
               {rows.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-10 text-center">
@@ -323,7 +315,7 @@ export function BulkUploadSheet({
               )}
             </div>
 
-            <div className="shrink-0 border-t border-[var(--hairline)] bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+            <div className="shrink-0 border-t border-[var(--hairline)] bg-ink-900/95 px-5 py-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur">
               {progressLabel && <p className="mb-2 text-[11px] text-white/50">{progressLabel}</p>}
               <button type="button" onClick={() => void release()}
                 disabled={!rows.length || posting || !ownershipClaim || (readyCount === 0 && rows.every((r) => r.status === "done"))}

@@ -18,6 +18,10 @@ export interface PlaybackCustomization {
   /** Optional visual seed override (falls back to drops.seed). */
   seed?: number;
   /**
+   * Catalog Vizualz id from `VDOCK_VISUALS` — loop plays in the music dock.
+   */
+  vdockVisualId?: string;
+  /**
    * Public CDN URL for drop banner video/image backdrop (Bunny `kind=post`).
    * Composited under DropStage reactive layer — never blocks play/scrub.
    */
@@ -64,6 +68,9 @@ export function parsePlaybackCustomization(raw: unknown): PlaybackCustomization 
     if (Object.keys(orbEffects).length) out.orbEffects = orbEffects;
   }
   if (typeof o.seed === "number" && Number.isFinite(o.seed)) out.seed = Math.floor(o.seed);
+  if (typeof o.vdockVisualId === "string" && /^[a-z0-9-]{2,64}$/i.test(o.vdockVisualId.trim())) {
+    out.vdockVisualId = o.vdockVisualId.trim().toLowerCase();
+  }
   if (typeof o.backdropUrl === "string" && /^https?:\/\//i.test(o.backdropUrl.trim())) {
     out.backdropUrl = o.backdropUrl.trim();
   }
@@ -78,6 +85,7 @@ export function buildPlaybackCustomization(partial: PlaybackCustomization, fx: P
   if (partial.orbPalette?.length) out.orbPalette = partial.orbPalette.slice(0, 4);
   if (partial.orbEffects) out.orbEffects = { ...partial.orbEffects };
   if (typeof partial.seed === "number") out.seed = partial.seed;
+  if (partial.vdockVisualId) out.vdockVisualId = partial.vdockVisualId;
   if (partial.backdropUrl) out.backdropUrl = partial.backdropUrl;
   if (partial.backdropFit) out.backdropFit = partial.backdropFit;
   if (typeof partial.backdropDim === "number") out.backdropDim = clamp01(partial.backdropDim);

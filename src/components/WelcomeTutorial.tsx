@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Check, Home, CircleDot, Sparkles } from "lucide-react";
+import { Headphones, Radio, UserRound, ArrowRight, Check } from "lucide-react";
 import { useSession } from "@/store/session";
 import { needsIntentMixIntake } from "@/lib/intentMix";
 import { cx } from "@/lib/utils";
 
 const STEPS = [
-  { icon: Home, title: "Home", body: "You · alerts · Pulse." },
-  { icon: CircleDot, title: "Music", body: "Dock is your soundtrack — always on." },
-  { icon: Sparkles, title: "People", body: "Spark · Network · free DM." },
+  { icon: Headphones, title: "Listen", body: "Upload · queue · VDock — your soundtrack is always on." },
+  { icon: Radio, title: "Live", body: "Go live on your profile. Tip with Vc. Chat in realtime." },
+  { icon: UserRound, title: "You", body: "Artist page · Connect when you want · messaging free forever." },
 ];
 
-/** Shown once after onboarding — Dark Smoke glyph steps. */
+/** Shown once after onboarding — music-hub steps. */
 export function WelcomeTutorial() {
   const { profile } = useSession();
   const ready = !!profile?.username && !needsIntentMixIntake(profile?.profile);
   const [seen, setSeen] = useState(() => {
     try {
-      return localStorage.getItem("vybz.tutorial.v4") === "1"
+      return localStorage.getItem("vybz.tutorial.v5") === "1"
+        || localStorage.getItem("vybz.tutorial.v4") === "1"
         || localStorage.getItem("vybz.tutorial.v3") === "1"
         || localStorage.getItem("vybz.tutorial.v2") === "1"
         || localStorage.getItem("vybz.tutorial.v1") === "1";
@@ -28,8 +29,8 @@ export function WelcomeTutorial() {
 
   const done = () => {
     try {
+      localStorage.setItem("vybz.tutorial.v5", "1");
       localStorage.setItem("vybz.tutorial.v4", "1");
-      localStorage.setItem("vybz.tutorial.v3", "1");
     } catch { /* ignore */ }
     setSeen(true);
   };

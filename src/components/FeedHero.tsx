@@ -86,10 +86,10 @@ export function FeedHero() {
       </p>
 
       {matches === null ? (
-        <p className="mt-1 text-[13px] text-white/40">Finding your best matches…</p>
+        <p className="mt-1 text-[13px] text-white/40">Finding creators near your taste…</p>
       ) : top.length > 0 ? (
         <>
-          <p className="mb-3 mt-1 text-[12px] text-white/40">Strongest collab matches right now.</p>
+          <p className="mb-3 mt-1 text-[12px] text-white/40">Creators who fit your craft right now.</p>
           <div className="divide-y divide-[var(--hairline)]">
             {top.map((m) => {
               const r = confidenceRead(m.confidence);
@@ -125,9 +125,9 @@ export function FeedHero() {
         </>
       ) : (
         <>
-          <p className="mb-2.5 mt-1 text-[12px] text-white/40">Tell us who you&apos;re looking for and matches appear here.</p>
+          <p className="mb-2.5 mt-1 text-[12px] text-white/40">Add genres and roles on your profile — collab suggestions appear here.</p>
           <button type="button" onClick={() => navigate("/profile/edit")} className="flex items-center gap-2 text-[13px] font-medium text-white/70 hover:text-white">
-            <Target className="h-3.5 w-3.5 shrink-0 text-veil-300" /> Add roles you&apos;re seeking <ArrowRight className="h-3.5 w-3.5" />
+            <Target className="h-3.5 w-3.5 shrink-0 text-veil-300" /> Edit music profile <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </>
       )}

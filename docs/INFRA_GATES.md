@@ -1,5 +1,7 @@
 # VYBZ — Infra gates (TURN · Bunny Stream)
 
+> **VYBZ Music Hub infra** — live streaming and WebRTC for the tip + live + catalog wedge.
+
 _Astra Matrix, Inc._ · Companion to [`PRODUCTION_HARDENING.md`](./PRODUCTION_HARDENING.md)
 
 These gates are **explicit production blockers**. Do not fake-ship. The app degrades gracefully:

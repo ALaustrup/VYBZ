@@ -54,5 +54,11 @@ export function chromeForPath(pathname: string): ChromeDef {
   }
   if (pathname.startsWith("/codex") || pathname.startsWith("/legal")) return { title: "Codex", showBack: true, backTo: "/" };
   if (pathname.startsWith("/library")) return { title: "Library", showBack: true, backTo: "/?tab=you" };
+  if (pathname.startsWith("/visuals/tutorial")) {
+    return { title: "Visualizer", showBack: true, backTo: "/" };
+  }
+  if (pathname.startsWith("/visuals/studio")) {
+    return { title: "Studio", showBack: true, backTo: "/visuals/tutorial" };
+  }
   return { title: "VYBZ" };
 }

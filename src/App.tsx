@@ -4,6 +4,7 @@ import { Routes, Route, Navigate, NavLink, useLocation, useSearchParams } from "
 import { Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import { DynamicBackground } from "@/components/DynamicBackground";
+import { LandingPage } from "@/pages/LandingPage";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
 import { WelcomeTutorial } from "@/components/WelcomeTutorial";
@@ -22,6 +23,7 @@ import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BrandLockup } from "@/components/Brand";
+import { cx } from "@/lib/utils";
 import { FeedPage } from "@/pages/FeedPage";
 import { needsIntentMixIntake } from "@/lib/intentMix";
 import { ConnectPage } from "@/pages/ConnectPage";
@@ -56,6 +58,8 @@ import { ArtistPage } from "@/pages/ArtistPage";
 import { AmbientRadioHost } from "@/components/AmbientRadioHost";
 import { ListenEarnHost } from "@/components/ListenEarnHost";
 import { LibraryPage } from "@/pages/LibraryPage";
+import { VisualizerTutorialPage } from "@/pages/VisualizerTutorialPage";
+import { VisualizerStudioPage } from "@/pages/VisualizerStudioPage";
 
 export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
@@ -85,19 +89,29 @@ export function App() {
   if (!backendEnabled) {
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
   }
-  if (!ready) return <><DynamicBackground variant={BRAND_BG} /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
+  if (!ready) return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
 
   const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
-  if (!userId || !profile?.username) {
+  if (!userId) {
     if (isPublicDoc) return <PublicDocShell />;
-    if (!userId) return <><DynamicBackground variant={BRAND_BG} /><Onboarding /></>;
-    return <><DynamicBackground variant={BRAND_BG} /><UsernameSetup /></>;
+    if (location.pathname === "/enter" || location.pathname.startsWith("/enter/")) {
+      return <><DynamicBackground variant={BRAND_BG} mode="static" /><Onboarding /></>;
+    }
+    return <LandingPage />;
+  }
+  // Signed in — wait for profile before deciding username vs hub (avoids false UsernameSetup).
+  if (!profile) {
+    return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
+  }
+  if (!profile.username) {
+    if (isPublicDoc) return <PublicDocShell />;
+    return <><DynamicBackground variant={BRAND_BG} mode="static" /><UsernameSetup /></>;
   }
 
   if (!isPublicDoc && authed && needsMix && !onboarded) {
     return (
       <>
-        <DynamicBackground variant={BRAND_BG} />
+        <DynamicBackground variant={BRAND_BG} mode="static" />
         <RoleIntentOnboarding onComplete={() => setOnboarded(true)} />
       </>
     );
@@ -110,7 +124,7 @@ export function App() {
         initial={pageEnter.initial}
         animate={pageEnter.animate}
         transition={pageEnter.transition}
-        className="h-full"
+        className="h-full min-h-0"
       >
       <Routes location={location}>
         <Route path="/" element={<ProfilePage />} />
@@ -132,6 +146,8 @@ export function App() {
         <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/library" element={<LibraryPage />} />
+        <Route path="/visuals/tutorial" element={<VisualizerTutorialPage />} />
+        <Route path="/visuals/studio" element={<VisualizerStudioPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />
@@ -157,9 +173,14 @@ export function App() {
         <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
         <AppChrome
           stage={routes}
+          onCompose={() => setComposeOpen(true)}
+          onBulkUpload={() => setBulkOpen(true)}
           dock={(
             <ErrorBoundary>
-              <VDock onCompose={() => setComposeOpen(true)} />
+              {/* Hide dock under upload sheets so Release / originality CTAs stay tappable */}
+              <div className={cx((composeOpen || bulkOpen) && "invisible pointer-events-none")}>
+                <VDock onCompose={() => setComposeOpen(true)} />
+              </div>
             </ErrorBoundary>
           )}
         />
@@ -182,13 +203,13 @@ function PublicDocShell() {
   const location = useLocation();
   return (
     <>
-      <DynamicBackground variant={BRAND_BG} />
+      <DynamicBackground variant={BRAND_BG} mode="static" />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
       <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
         <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <NavLink to="/codex"><BrandLockup height="h-7" /></NavLink>
           <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex · Astra Matrix, Inc.</span>
-          <NavLink to="/" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
+          <NavLink to="/enter" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
         </header>
         <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">
           <ErrorBoundary key={location.pathname}>

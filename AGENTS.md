@@ -11,6 +11,11 @@ taste discovery, live studio + chat + Vc tips. Optional **Connection Lab** (18+ 
 adds high-precision people matching including adult-consensual intents; default UI stays
 music-calm and never dates-first.
 
+**Launch wedge (GTM):** tip + live + catalog home for indie artists — not a full
+Spotify clone yet. 90-day loop: upload → `/u/:id` → tip → live. Freeze VR/Immersive
+and dating-first chrome. Public surface: marketing landing + alpha waitlist; signup
+stays open via Enter VYBZ.
+
 Home is the **hub feed** (live + trending) with Listen / Live / Connect / You / Wallet.
 Artist pages (`/u/:id`) are storefronts. Tagline: **VYBZ: Find Yours.**
 

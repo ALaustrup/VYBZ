@@ -20,7 +20,7 @@ export function isMustAckNotification(n: AppNotification): boolean {
 }
 
 /**
- * Rotating must-acknowledge alerts under the Living Home hero.
+ * Rotating must-acknowledge alerts (hub / profile surfaces).
  * Cannot soft-dismiss — user must Accept/Decline or open the video message.
  */
 export function WallAlerts({

@@ -11,7 +11,7 @@ export const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
 
 export const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-digest-secret",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-digest-secret, x-waitlist-secret",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 

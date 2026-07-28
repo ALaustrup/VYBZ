@@ -33,6 +33,8 @@ const PULSE_ICONS = {
 } as const;
 
 /**
+ * @deprecated Orphaned — not routed in App.tsx. Living Home is frozen (launch GTM).
+ * Hub home is ProfilePage / dashboard. Kept only so layout helpers don't break.
  * Living Home — Dark Smoke glyph canvas.
  * Avatar-dominant hero → must-ack alerts → Wall → icon Pulse grid.
  */

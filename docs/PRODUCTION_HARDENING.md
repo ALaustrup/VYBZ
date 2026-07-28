@@ -1,5 +1,7 @@
 # VYBZ — Production hardening checklist
 
+> **VYBZ Music Hub infra** — tip + live + catalog for indie artists (not a dating product).
+
 _Astra Matrix, Inc._ · Companion to [`SECURITY.md`](../SECURITY.md) · Infra gates: [`INFRA_GATES.md`](./INFRA_GATES.md)  
 **Host:** https://vybz.cloud · **Supabase:** `xixmneooyufbeftdfpcm` · **Release:** Beta-0B.1+
 

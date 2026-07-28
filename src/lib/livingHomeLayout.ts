@@ -1,4 +1,4 @@
-/** Living Home pulse module order — drag-reorder, persisted locally. */
+/** @deprecated Pulse module order for orphaned Living Home — not used by Music Hub. */
 
 export type PulseId = "spark" | "messages" | "network" | "drops" | "live";
 

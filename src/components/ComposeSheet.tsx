@@ -2,24 +2,24 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { useReduceFx } from "@/lib/display";
-import { AudioLines, Film, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X, Zap } from "lucide-react";
+import { AudioLines, Globe, Loader2, Lock, Pause, Play, Send, Trash2, Users, X } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { softUploadHint } from "@/components/ProBadge";
+import { OriginalityClaim } from "@/components/OriginalityClaim";
+import { VisualPicker } from "@/components/VisualPicker";
 import { Waveform } from "@/components/Waveform";
-import { AudioTrimBar } from "@/components/AudioTrimBar";
 import {
   AUDIO_ACCEPT, audioMeta, computeWaveform, placeholderWaveform, qualityLabel,
   sha256Hex, acousticSignature,
 } from "@/lib/waveform";
 import {
-  isVideoFile, prepareUploadFile, type ExportFormat, type TrimRange,
+  isVideoFile, prepareUploadFile,
 } from "@/lib/audioEdit";
 import { playTrack, patchCurrentTrack, usePlayer, seekFraction } from "@/lib/audioBus";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
 import { readId3Tags, titleFromFilename } from "@/lib/id3Tags";
 import {
-  ORB_PALETTE_PRESETS,
   buildPlaybackCustomization,
   type PlaybackCustomization,
 } from "@/lib/playbackCustomization";
@@ -36,15 +36,10 @@ const RELEASE_TYPES: { id: ReleaseType; label: string }[] = [
   { id: "edit", label: "Edit" }, { id: "mashup", label: "Mashup" }, { id: "live", label: "Live" },
   { id: "instrumental", label: "Instrumental" }, { id: "bootleg", label: "Bootleg" },
 ];
-const FX_OPTIONS: { id: PostFx; label: string }[] = [
-  { id: "glow", label: "Sphere" }, { id: "pulse", label: "Blob" }, { id: "aurora", label: "Liquid" },
-  { id: "bars", label: "Bars" }, { id: "ripple", label: "Ring" }, { id: "off", label: "Calm" },
-];
 const PREVIEW_ID = "compose-preview";
 const MAX_AUDIO_BYTES = 1024 * 1024 * 1024;
-/** Short loop / still for DropStage — public CDN via bunny-upload kind=post. */
+/** Short loop / still for VDock + DropStage — public CDN via bunny-upload kind=post. */
 const MAX_BACKDROP_BYTES = 80 * 1024 * 1024;
-const BACKDROP_ACCEPT = "video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp";
 function prettyBytes(n: number): string {
   if (n >= 1024 ** 3) return `${(n / 1024 ** 3).toFixed(1)} GB`;
   if (n >= 1024 ** 2) return `${(n / 1024 ** 2).toFixed(0)} MB`;
@@ -68,22 +63,15 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [releaseType, setReleaseType] = useState<ReleaseType>("original");
   const [bpm, setBpm] = useState("");
   const [musicalKey, setMusicalKey] = useState("");
-  const [license, setLicense] = useState("collab-only");
   const [ownershipClaim, setOwnershipClaim] = useState(false);
-  const [fx, setFx] = useState<PostFx>("glow");
+  const [fx] = useState<PostFx>("glow");
   const [audience, setAudience] = useState<PostAudience>("public");
   const [creditedArtist, setCreditedArtist] = useState("");
-  const [paletteId, setPaletteId] = useState("veil");
-  const [customPalette, setCustomPalette] = useState<string[] | null>(null);
-  const [pulseScale, setPulseScale] = useState(0.55);
-  const [rimIntensity, setRimIntensity] = useState(0.5);
-  const [specularFollow, setSpecularFollow] = useState(true);
+  const [vdockVisualId, setVdockVisualId] = useState<string | null>(null);
   const [backdropFile, setBackdropFile] = useState<File | null>(null);
   const [backdropPreview, setBackdropPreview] = useState<string | null>(null);
   const [backdropFit, setBackdropFit] = useState<"cover" | "contain">("cover");
   const [backdropDim, setBackdropDim] = useState(0.35);
-  const [trim, setTrim] = useState<TrimRange>({ startSec: 0, endSec: 0 });
-  const [exportFormat, setExportFormat] = useState<ExportFormat>("original");
   const [decoding, setDecoding] = useState(false);
   const [posting, setPosting] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
@@ -91,7 +79,6 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const [id3Meta, setId3Meta] = useState<{ genre?: string | null; year?: number | null }>({});
   const [artworkUrl, setArtworkUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const backdropRef = useRef<HTMLInputElement>(null);
   const player = usePlayer();
   const previewPlaying = player.track?.id === PREVIEW_ID && player.playing;
   const previewProgress = player.track?.id === PREVIEW_ID && (player.duration || audio?.duration)
@@ -99,31 +86,26 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const accent = paletteFor(seed)[0];
 
   const playback = useMemo((): PlaybackCustomization => {
-    const preset = ORB_PALETTE_PRESETS.find((p) => p.id === paletteId);
-    const orbPalette = customPalette ?? preset?.colors;
     return buildPlaybackCustomization({
-      orbPalette,
       reactiveStyle: fx,
-      orbEffects: { pulseScale, rimIntensity, specularFollow },
+      vdockVisualId: backdropPreview ? undefined : (vdockVisualId ?? undefined),
       // Preview uses object URL; real CDN URL is set at post time
       backdropUrl: backdropPreview ?? undefined,
       backdropFit,
       backdropDim,
     }, fx);
-  }, [paletteId, customPalette, fx, pulseScale, rimIntensity, specularFollow, backdropPreview, backdropFit, backdropDim]);
+  }, [fx, vdockVisualId, backdropPreview, backdropFit, backdropDim]);
 
   useEffect(() => {
     if (open) {
       setTitle(""); setAlbum(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
-      setKind("track"); setReleaseType("original"); setBpm(""); setMusicalKey(""); setLicense("collab-only");
+      setKind("track"); setReleaseType("original"); setBpm(""); setMusicalKey("");
       setOwnershipClaim(false);
-      setFx("glow"); setAudience("public"); setCreditedArtist("");
-      setPaletteId("veil"); setCustomPalette(null);
-      setPulseScale(0.55); setRimIntensity(0.5); setSpecularFollow(true);
+      setAudience("public"); setCreditedArtist("");
+      setVdockVisualId(null);
       setBackdropFile(null);
       setBackdropFit("cover"); setBackdropDim(0.35);
       setBackdropPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-      setTrim({ startSec: 0, endSec: 0 }); setExportFormat("original");
       setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
       setId3Meta({}); setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
     }
@@ -140,7 +122,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   useEffect(() => {
     if (!open || player.track?.id !== PREVIEW_ID) return;
     patchCurrentTrack({
-      accent: playback.orbPalette?.[0] ?? accent,
+      accent,
       fx,
       playback,
       seed,
@@ -179,8 +161,6 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
         sampleRate: wf?.sampleRate ?? 0,
         fromVideo,
       });
-      setTrim({ startSec: 0, endSec: duration || 0 });
-      setExportFormat(fromVideo ? "wav" : "original");
 
       setArtworkUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev);
@@ -212,16 +192,13 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       id: PREVIEW_ID, url: audio.url, title: title || "Preview", artist: creditedArtist || "You",
       waveform: audio.peaks, durationSec: audio.duration,
       quality: qualityLabel(audio.format, audio.sampleRate, audio.lossless), lossless: audio.lossless,
-      seed, accent: playback.orbPalette?.[0] ?? accent, fx, playback,
+      seed, accent, fx, playback,
     });
   }
 
-  function handleBackdrop(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
+  function handleBackdrop(file: File) {
     if (file.size > MAX_BACKDROP_BYTES) {
-      showToast(`Backdrop max is ${prettyBytes(MAX_BACKDROP_BYTES)}.`);
+      showToast(`Visual max is ${prettyBytes(MAX_BACKDROP_BYTES)}.`);
       return;
     }
     const ok =
@@ -233,6 +210,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       showToast("Use MP4/WebM video or JPG/PNG/WebP still.");
       return;
     }
+    setVdockVisualId(null);
     setBackdropFile(file);
     setBackdropPreview((prev) => {
       if (prev) URL.revokeObjectURL(prev);
@@ -251,7 +229,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   async function post() {
     if (!audio || posting) return;
     if (!ownershipClaim) {
-      showToast("Confirm you own or are licensed to upload this audio.");
+      showToast("Check the originality box — VYBZ is for your own music.");
       return;
     }
     setPosting(true);
@@ -260,10 +238,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       const prepared = await prepareUploadFile({
         file: audio.file,
         range: {
-          startSec: trim.startSec,
-          endSec: trim.endSec || audio.duration,
+          startSec: 0,
+          endSec: audio.duration || 0,
         },
-        targetFormat: exportFormat,
+        targetFormat: audio.fromVideo ? "wav" : "original",
         baseName: title || audio.file.name,
       });
       const uploadExt = prepared.format || "wav";
@@ -288,6 +266,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       ]);
       const playbackFinal = buildPlaybackCustomization({
         ...playback,
+        vdockVisualId: backdropUrl ? undefined : (vdockVisualId ?? undefined),
         backdropUrl,
         backdropFit: backdropUrl ? backdropFit : undefined,
         backdropDim: backdropUrl ? backdropDim : undefined,
@@ -300,7 +279,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
         waveform: peaks, durationSec: prepared.durationSec, bpm: bpm ? Number(bpm) : undefined,
         musicalKey: musicalKey || undefined, audioFormat: prepared.format,
         sampleRate: prepared.sampleRate || undefined,
-        lossless: prepared.lossless, license, sha256, fingerprint, fx, audience,
+        lossless: prepared.lossless, license: "collab-only", sha256, fingerprint, fx, audience,
         playbackCustomization: playbackFinal,
         creditedArtist: creditedArtist.trim() || undefined,
         album: album.trim() || undefined,
@@ -318,17 +297,6 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
     }
   }
 
-  const formatChoices: { id: ExportFormat; label: string; hint?: string }[] = audio?.fromVideo
-    ? [
-        { id: "wav", label: "WAV", hint: "Lossless extract" },
-        { id: "mp3", label: "MP3", hint: "Exports as WAV in-browser" },
-      ]
-    : [
-        { id: "original", label: "Original", hint: audio?.ext?.toUpperCase() },
-        { id: "wav", label: "WAV" },
-        { id: "mp3", label: "MP3", hint: "Keeps MP3 or → WAV" },
-      ];
-
   return (
     <AnimatePresence>
       {open && (
@@ -340,7 +308,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             exit="exit"
             transition={withReduce(reduce, { duration: 0.22 })}
             onClick={onClose}
-            className="fixed inset-0 z-[55] bg-black/75 backdrop-blur-sm"
+            className="fixed inset-0 z-[85] bg-black/75 backdrop-blur-sm"
           />
           <motion.div
             variants={sheetVariants}
@@ -348,7 +316,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             animate="visible"
             exit="exit"
             transition={withReduce(reduce, springSoft)}
-            className="fixed inset-x-0 bottom-0 z-[55] mx-auto flex max-h-[94dvh] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
+            className="fixed inset-x-0 bottom-0 z-[85] mx-auto flex max-h-[min(94dvh,100dvh)] w-full max-w-lg flex-col rounded-t-3xl border-t border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl"
             data-dark-stage
           >
             <div className="mx-auto mt-3 h-1.5 w-11 rounded-full bg-white/20" />
@@ -376,7 +344,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-white backdrop-blur transition active:scale-90">
                       {previewPlaying ? <Pause className="h-6 w-6" /> : <Play className="ml-0.5 h-6 w-6" />}
                     </button>
-                    <Waveform peaks={audio.peaks} progress={previewProgress} accent={playback.orbPalette?.[0] ?? accent} height={40}
+                    <Waveform peaks={audio.peaks} progress={previewProgress} accent={accent} height={40}
                       onSeek={player.track?.id === PREVIEW_ID ? (f) => seekFraction(f) : undefined} />
                   </div>
                 ) : (
@@ -394,38 +362,6 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                 </button>
               ) : (
                 <div className="mb-3 space-y-3">
-                  {audio.duration > 0 && (
-                    <AudioTrimBar
-                      duration={audio.duration}
-                      range={{ startSec: trim.startSec, endSec: trim.endSec || audio.duration }}
-                      onChange={setTrim}
-                      peaks={audio.peaks}
-                      accent={playback.orbPalette?.[0] ?? accent}
-                    />
-                  )}
-
-                  <div>
-                    <p className="mb-1.5 text-[12px] font-semibold text-white/60">
-                      {audio.fromVideo ? "Extract as" : "Upload format"}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {formatChoices.map((f) => (
-                        <button key={f.id} type="button" onClick={() => setExportFormat(f.id)}
-                          className={cx(
-                            "rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95",
-                            exportFormat === f.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90",
-                          )}>
-                          {f.label}{f.hint ? ` · ${f.hint}` : ""}
-                        </button>
-                      ))}
-                    </div>
-                    {(exportFormat === "mp3" && (audio.fromVideo || audio.ext !== "mp3")) && (
-                      <p className="mt-1.5 text-[11px] text-white/35">
-                        Browser export uses WAV when MP3 encoding isn’t available — full quality preserved.
-                      </p>
-                    )}
-                  </div>
-
                   <div className="no-scrollbar flex gap-4 overflow-x-auto border-b border-[var(--hairline)]">
                     {KINDS.map((k) => (
                       <button key={k.id} type="button" onClick={() => setKind(k.id)}
@@ -462,7 +398,6 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     </select>
                     <button type="button" onClick={() => {
                       setAudio(null); setAutoDetected([]); setId3Meta({}); setAlbum("");
-                      setTrim({ startSec: 0, endSec: 0 }); setExportFormat("original");
                       setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
                     }} aria-label="Remove"
                       className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
@@ -478,33 +413,20 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     </p>
                   )}
                   <div>
-                    <p className="eyebrow mb-2">Ownership</p>
-                    <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-left">
-                      <input
-                        type="checkbox"
-                        checked={ownershipClaim}
-                        onChange={(e) => setOwnershipClaim(e.target.checked)}
-                        className="mt-0.5 h-4 w-4 rounded border-white/30"
-                      />
-                      <span className="text-[12px] leading-snug text-white/70">
-                        I own this audio or have a license to upload it. I understand VYBZ may remove
-                        infringing material and terminate repeat infringers (see{" "}
-                        <a href="/legal/dmca" className="text-veil-200 underline" onClick={(e) => e.stopPropagation()}>DMCA</a>).
-                      </span>
-                    </label>
+                    <p className="eyebrow mb-2">Originality</p>
+                    <OriginalityClaim checked={ownershipClaim} onChange={setOwnershipClaim} />
                   </div>
                   <div>
-                    <p className="eyebrow mb-2">Exchange license</p>
-                    <div className="flex gap-4">
-                      {[["collab-only","Collab only"],["credit-required","Credit required"],["free","Free"]].map(([id,label]) => (
-                        <button key={id} type="button" onClick={() => setLicense(id)}
-                          className={cx("relative pb-1.5 text-[12px] font-medium transition",
-                            license === id ? "text-white" : "text-white/40 hover:text-white/70")}>
-                          {label}
-                          {license === id && <span className="absolute inset-x-0 bottom-0 h-px bg-veil-400/70" />}
-                        </button>
-                      ))}
-                    </div>
+                    <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Song title</label>
+                    <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))}
+                      placeholder="Song title…"
+                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Album / EP / Single</label>
+                    <input value={album} onChange={(e) => setAlbum(e.target.value.slice(0, 80))}
+                      placeholder="Leave blank for Single"
+                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
                   </div>
                   <div>
                     <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Artist name</label>
@@ -512,117 +434,20 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                       placeholder="Artist / band credited on the card"
                       className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
                   </div>
-                  <div>
-                    <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Album</label>
-                    <input value={album} onChange={(e) => setAlbum(e.target.value.slice(0, 80))}
-                      placeholder="Leave blank for Single"
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
-                  </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
-                    <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
-                      <Film className="h-3.5 w-3.5 text-cyan-200" /> Banner backdrop
-                    </p>
-                    <p className="mb-3 text-[11px] text-white/40">
-                      Optional video or still that fills the drop banner. Reactive FX layer on top — never blocks play. Short loops work best.
-                    </p>
-                    <input ref={backdropRef} type="file" accept={BACKDROP_ACCEPT} className="hidden" onChange={handleBackdrop} />
-                    {backdropPreview ? (
-                      <div className="mb-3 overflow-hidden rounded-xl border border-white/10">
-                        <div className="relative aspect-[16/7] bg-ink-950">
-                          {backdropFile?.type.startsWith("video/") ? (
-                            <video src={backdropPreview} muted loop playsInline autoPlay
-                              className={cx("absolute inset-0 h-full w-full", backdropFit === "contain" ? "object-contain" : "object-cover")} />
-                          ) : (
-                            <img src={backdropPreview} alt=""
-                              className={cx("absolute inset-0 h-full w-full", backdropFit === "contain" ? "object-contain" : "object-cover")} />
-                          )}
-                          <div className="pointer-events-none absolute inset-0" style={{ background: `rgba(6,8,16,${backdropDim})` }} />
-                        </div>
-                        <div className="flex items-center gap-2 border-t border-white/10 px-2.5 py-2">
-                          <button type="button" onClick={() => setBackdropFit("cover")}
-                            className={cx("rounded-full px-2.5 py-1 text-[11px] font-medium", backdropFit === "cover" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50")}>
-                            Cover
-                          </button>
-                          <button type="button" onClick={() => setBackdropFit("contain")}
-                            className={cx("rounded-full px-2.5 py-1 text-[11px] font-medium", backdropFit === "contain" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50")}>
-                            Fit
-                          </button>
-                          <label className="ml-auto flex items-center gap-2 text-[11px] text-white/45">
-                            Dim
-                            <input type="range" min={0} max={70} value={Math.round(backdropDim * 100)}
-                              onChange={(e) => setBackdropDim(Number(e.target.value) / 100)}
-                              className="h-1.5 w-20 accent-cyan-300" />
-                          </label>
-                          <button type="button" onClick={clearBackdrop} className="rounded-full p-1.5 text-white/45 hover:text-white" aria-label="Remove backdrop">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button type="button" onClick={() => backdropRef.current?.click()}
-                        className="mb-1 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 bg-white/[0.03] py-3 text-[12px] font-medium text-white/60 transition hover:border-cyan-300/35 hover:text-white/85">
-                        <Film className="h-3.5 w-3.5" /> Add video or still
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
-                    <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
-                      <Zap className="h-3.5 w-3.5 text-veil-200" /> Orb customization
-                    </p>
-                    <p className="mb-3 text-[11px] text-white/40">
-                      Listeners see your Orb palette and morph while this track plays. Their Off / Soft / VYBZ Max setting scales how vivid and reactive it gets.
-                    </p>
-                    <p className="mb-1.5 text-[11px] font-medium text-white/50">Orb palette</p>
-                    <div className="mb-3 flex flex-wrap gap-1.5">
-                      {ORB_PALETTE_PRESETS.map((p) => (
-                        <button key={p.id} type="button"
-                          onClick={() => { setPaletteId(p.id); setCustomPalette(null); }}
-                          className={cx(
-                            "flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium transition active:scale-95",
-                            paletteId === p.id && !customPalette
-                              ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50"
-                              : "bg-white/[0.05] text-white/60 hover:text-white/90",
-                          )}>
-                          <span className="flex gap-0.5">
-                            {p.colors.slice(0, 3).map((c) => (
-                              <span key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
-                            ))}
-                          </span>
-                          {p.label}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="mb-1.5 text-[11px] font-medium text-white/50">Orb morph</p>
-                    <div className="mb-3 flex flex-wrap gap-1.5">
-                      {FX_OPTIONS.map((o) => (
-                        <button key={o.id} type="button" onClick={() => setFx(o.id)}
-                          className={cx("rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95", fx === o.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90")}>
-                          {o.label}
-                        </button>
-                      ))}
-                    </div>
-                    <label className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-                      <span>Pulse</span>
-                      <input type="range" min={0} max={100} value={Math.round(pulseScale * 100)}
-                        onChange={(e) => setPulseScale(Number(e.target.value) / 100)}
-                        className="h-1.5 w-40 accent-veil-400" />
-                    </label>
-                    <label className="mb-2 flex items-center justify-between gap-3 text-[11px] text-white/55">
-                      <span>Rim</span>
-                      <input type="range" min={0} max={100} value={Math.round(rimIntensity * 100)}
-                        onChange={(e) => setRimIntensity(Number(e.target.value) / 100)}
-                        className="h-1.5 w-40 accent-veil-400" />
-                    </label>
-                    <button type="button" onClick={() => setSpecularFollow((v) => !v)}
-                      className={cx(
-                        "mt-1 w-full rounded-xl py-2 text-[12px] font-medium transition",
-                        specularFollow ? "bg-veil-500/20 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/50",
-                      )}>
-                      Specular follow {specularFollow ? "on" : "off"}
-                    </button>
-                  </div>
+                  <VisualPicker
+                    selectedId={vdockVisualId}
+                    customPreview={backdropPreview}
+                    customIsVideo={!!backdropFile?.type.startsWith("video/")}
+                    backdropFit={backdropFit}
+                    backdropDim={backdropDim}
+                    onSelectCatalog={setVdockVisualId}
+                    onCustomFile={handleBackdrop}
+                    onClearCustom={clearBackdrop}
+                    onFitChange={setBackdropFit}
+                    onDimChange={setBackdropDim}
+                    onBeforeTutorial={onClose}
+                  />
 
                   <div>
                     <p className="mb-1.5 text-[12px] font-semibold text-white/60">Audience</p>
@@ -634,12 +459,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                   </div>
                 </div>
               )}
-
-              <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))} placeholder="Song title…"
-                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3.5 text-[15px] text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
             </div>
 
-            <div className="shrink-0 border-t border-[var(--hairline)] bg-ink-900/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+            <div className="shrink-0 border-t border-[var(--hairline)] bg-ink-900/95 px-5 py-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur">
               {progress !== null && (
                 <div className="mb-2.5">
                   <div className="mb-1 flex items-center justify-between text-[11px] text-white/55">

@@ -68,10 +68,10 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10" data-dark-stage>
       <div className="w-full max-w-md">
-        <p className="eyebrow mb-2">Open to</p>
-        <h1 className="font-display text-2xl font-bold text-gradient">Your mix</h1>
+        <p className="eyebrow mb-2">Your hub</p>
+        <h1 className="font-display text-2xl font-bold text-gradient">What brings you?</h1>
         <p className="mt-2 text-sm leading-relaxed text-white/55">
-          Pick any · or skip. Change anytime.
+          Music first. Pick any · or skip. Romance stays optional in Connection Lab.
         </p>
 
         <div className="mt-6 space-y-2">

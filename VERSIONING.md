@@ -8,7 +8,7 @@ Canonical product labels use the **Beta-NL[.P]** scheme. Tooling keeps a paralle
 | Era | Scope |
 |-----|--------|
 | **Alpha** | All development **before** the `Beta-0A` tag (pivot through Orb/taskbar unification). Historical only — do not open new Alpha labels. |
-| **Beta** | Current public platform line, starting at **Beta-0A**. |
+| **Beta** | Current public platform line, starting at **Beta-0A**. **Launch wedge (2026-07):** tip + live + catalog for indie artists; marketing landing + alpha waitlist. |
 
 ## Label grammar
 

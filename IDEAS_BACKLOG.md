@@ -18,6 +18,72 @@
 
 ## Idea log
 
+### 2026-07-28 — ACTIVE: Tip + live + catalog launch loop 🟢
+- **What:** Official GTM wedge — indie artists upload → `/u/:id` → tip (Vc) → live.
+  Marketing landing + alpha waitlist; cosmetics primary, tips secondary.
+- **Status:** **Active build** (see masterplan GTM). Do not divert into VR or
+  dating-first chrome until this loop is profitable.
+
+### 2026-07-27 — Engagement loops + VYBZ Immersive (3D / VR) 🔴 PARKED
+- **What:** Retention systems that keep creators returning daily, plus a fully
+  interactive 3D/VR “VYBZ World” where listening, collab, and live become spatial.
+- **Status:** **Parked for launch era** (freeze per masterplan GTM). Near-term
+  engagement loops (Daily Drop, Listen Circles, etc.) may graduate later; Immersive
+  / VR stays frozen. If revived, reuse AudioBus as the single clock.
+
+#### A. Engagement / habit loops (near-term, web-first)
+1. **Daily Drop Ritual** — personalized morning “3 tracks for your vibe” + optional
+   voice prompt (“what are you making today?”) → For You radio. Streak Vc micro-grant.
+2. **Listen Circles** — ephemeral 24h co-listen rooms (friends / role-class). Shared
+   VDock queue + stage; reactions float on the cinema strip.
+3. **Creator Pulse** — when someone you rate/favorite goes live or drops, Orb
+   pulse + one-tap Join (reuses live priority already on NowPlayingStage).
+4. **Collab Bingo / Weekly Challenge** — genre or stem challenge; public board of
+   entries; winners get Vizualz unlocks + Vc.
+5. **Taste Graph transparency** — “Why this track” chip on For You (roles, ratings,
+   listen time, list adds) — trust → more ratings → better radio.
+6. **Session souvenirs** — after a meaningful listen (≥50%), offer a shareable
+   Wave-comment card / Vizual clip still with track + ~addr.
+7. **Return hooks** — unfinished feedback notes, open collab invites, and “your
+   drop got 3 new listens” as soft Orb badges (not spam email first).
+
+#### B. Spatial / 3D web (bridge to VR)
+1. **Orb Planetarium** — WebGL sky of drops as glowing orbs; proximity = preview
+   audio from AudioBus; grab to queue. Desktop + Quest browser.
+2. **Studio Floors** — persistent rooms per genre/DAW; avatars near a booth hear
+   that booth’s stage visual + track (positional audio later).
+3. **Drop Monoliths** — each release is a 3D totem with Vizualz as emissive
+   material; walk around to scrub waveform (maps to `seekFraction`).
+
+#### C. Full VR — “VYBZ Immersive” (mind-blowing north star)
+- **Fantasy:** Put on a headset → emerge in a neon harbor / canyon city of sound.
+  Your VDock is a wrist deck; the cinema stage is a sky-theater; friends are
+  volumetric or stylized avatars; going live opens a floating amphitheater that
+  *overrides* the sky-theater (same priority model as web: live > track visual).
+- **Pillars:**
+  1. **One clock** — AudioBus (or Immersive fork) remains the audio authority;
+     all visual layers slave to it (learned from web stage sync).
+  2. **Presence** — see who’s listening to the same drop; ghost trails of recent
+     visitors on a track’s monolith.
+  3. **Creation in-world** — drag stems onto a table → intent-mix / collab invite;
+     Visualizer Studio as a VR booth with hand-tracked FX pads.
+  4. **Economy** — tip jars as physical objects; Vc orbs you can toss to performers.
+  5. **Safety** — identity-first avatars, personal space bubble, mute/block, no
+     anonymous lurkers in intimate rooms.
+- **Stack sketch:** WebXR (Quest / PCVR browsers) first via `three` / `react-three-fiber`
+  + Web Audio positional nodes fed by AudioBus analyser; later native if needed
+  (Unity/Unreal) only if WebXR hits a ceiling. LiveKit spatial rooms for voice
+  booths; HLS/WebRTC for sky-theater live.
+- **Phased path:** (1) WebGL planetarium on `/immersive` desktop → (2) WebXR
+  controller locomotion → (3) persistent world shards → (4) native shell if demanded.
+- **Guardrails:** motion comfort (SSW options, vignette, teleport), hearing health
+  (level guard), GPU budget (one stage video decoder — same lesson as web), and
+  never block the 2D app; Immersive is an opt-in layer.
+- **Fit:** Aligns with music-first VYBZ, Vizualz, live priority, For You, and Vc.
+  Large; promote only after cinema stage + listen loops feel excellent on 2D.
+
+---
+
 ### 2026-07-27 — Music Hub + Connection Lab (clarified) 🟢
 - **What:** SoundCloud × Spotify × Twitch as the product; Hub feed (live + trending);
   waveform comments; optional 18+ Connection Lab spice (romance/meetup/adult intents)

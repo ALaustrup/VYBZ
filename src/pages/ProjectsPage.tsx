@@ -98,11 +98,11 @@ export function ProjectsPage({ onBulkUpload }: { onBulkUpload?: () => void }) {
         ) : items.length === 0 && batches.length === 0 && listed.length === 0 ? (
           <EmptyState
             icon={FolderGit2}
-            title={FLAGS.repos ? "No repos yet" : "Studio is empty"}
+            title={FLAGS.repos ? "No repos yet" : "No projects yet"}
             body={
               FLAGS.repos
                 ? "Drop your Ableton Project folder — we version the sound, not just the zip. New Repo is in the AppBar."
-                : "Start a collab room or upload a release batch — AppBar Upload and New are the only doors."
+                : "Start a collab room or upload a release batch from the AppBar."
             }
           />
         ) : (

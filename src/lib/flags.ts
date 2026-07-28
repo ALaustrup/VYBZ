@@ -21,4 +21,6 @@ export const FLAGS = {
   repos: !off(import.meta.env.VITE_FEATURE_REPOS),
   /** Phase O — Unified Social Live (Social tab + SFU). Default ON. */
   socialLive: !off(import.meta.env.VITE_FEATURE_SOCIAL_LIVE),
+  /** Drop audio via Bunny CDN. Default OFF — Supabase Storage is the playback backend. */
+  bunnyAudio: on(import.meta.env.VITE_FEATURE_BUNNY_AUDIO),
 } as const;

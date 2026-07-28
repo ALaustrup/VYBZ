@@ -76,10 +76,9 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "VYBZ — Find Yours.",
+        name: "Find Yours.",
         short_name: "VYBZ",
-        description:
-          "Music collaboration network — drop sounds, match with complementary musicians, exchange stems and project files. Find Yours.",
+        description: "Find Yours.",
         id: "/",
         start_url: "/",
         scope: "/",
@@ -119,5 +118,9 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    // Masters are encode-only; watching them crashes Vite (EBUSY on large MP4s).
+    watch: {
+      ignored: ["**/Vizualz/**", "**/vizualz/**"],
+    },
   },
 });

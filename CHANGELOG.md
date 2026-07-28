@@ -3,6 +3,13 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## Unreleased — 2026-07-28 — Official Launch Reposition
+
+Music Hub **tip + live + catalog** wedge for indie artists. Public marketing landing,
+alpha waitlist (Resend notify-on-launch), legal + docs rewrite, music-first onboarding.
+Dating / Spark demoted behind Connection Lab; Living Home product docs archived.
+Signup remains open via **Enter VYBZ**. See masterplan GTM section.
+
 ## Beta-0B.1 — 2026-07-25 — Elite Reactive Campaign
 
 - **V-Dock** widgets catalog + Now Playing system widget (prior); naming locked

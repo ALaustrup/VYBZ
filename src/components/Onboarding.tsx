@@ -115,10 +115,10 @@ export function Onboarding() {
   return (
     <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        className="glass-panel w-full max-w-sm p-7">
+        className="glass-panel w-full max-w-sm p-7 !bg-ink-950/88">
         <div className="mb-6 flex flex-col items-center gap-3 text-center">
           <BrandLockup height="h-10" />
-          <p className="text-sm text-white/55">Find Yours. — music collaboration &amp; matchmaking.</p>
+          <p className="text-sm text-white/55">Find Yours. — listen · tip · live</p>
         </div>
 
         {/* Passkey-first path */}
@@ -144,7 +144,7 @@ export function Onboarding() {
             {isJoin && (
               <Field icon={<Mail className="h-4 w-4" />}>
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@studio.com" autoComplete="username webauthn"
+                  placeholder="you@email.com" autoComplete="username webauthn"
                   className="w-full bg-transparent text-[15px] text-white placeholder:text-white/35 focus:outline-none" />
               </Field>
             )}
@@ -171,7 +171,7 @@ export function Onboarding() {
           <form onSubmit={passwordSubmit} className="flex flex-col gap-3">
             <Field icon={<Mail className="h-4 w-4" />}>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@studio.com" autoComplete={pk ? "username webauthn" : "email"}
+                placeholder="you@email.com" autoComplete={pk ? "username webauthn" : "email"}
                 className="w-full bg-transparent text-[15px] text-white placeholder:text-white/35 focus:outline-none" />
             </Field>
             <Field icon={<Lock className="h-4 w-4" />}>
@@ -241,7 +241,7 @@ export function UsernameSetup() {
 
   return (
     <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-6">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel w-full max-w-sm p-7">
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel w-full max-w-sm p-7 !bg-ink-950/88">
         <h1 className="font-display text-2xl font-bold text-gradient">Claim your name</h1>
         <p className="mb-5 mt-1 text-sm text-white/55">This is your identity across VYBZ — how collaborators find you.</p>
         <form onSubmit={save} className="flex flex-col gap-3">

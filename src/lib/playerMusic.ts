@@ -75,6 +75,7 @@ export async function loadMyDropsIntoPlayer(limit = 24): Promise<number> {
     tracks.push({
       id: d.id,
       authorId: d.authorId,
+      artistUsername: d.authorUsername ?? undefined,
       earnEligible: true,
       url: d.audioUrl,
       title: d.title?.trim() || "Drop",
@@ -98,6 +99,7 @@ export async function loadOwnDropsIntoPlayer(authorId: string, limit = 40): Prom
     tracks.push({
       id: d.id,
       authorId: d.authorId,
+      artistUsername: d.authorUsername ?? undefined,
       earnEligible: true,
       url: d.audioUrl,
       title: d.title?.trim() || "Drop",
@@ -122,6 +124,7 @@ export async function loadForYouIntoPlayer(limit = 24): Promise<number> {
     tracks.push({
       id: d.id,
       authorId: d.authorId,
+      artistUsername: d.authorUsername ?? undefined,
       earnEligible: true,
       url: d.audioUrl,
       title: d.title?.trim() || "For You",
@@ -146,6 +149,7 @@ export async function loadVybzListIntoPlayer(listId: string): Promise<number> {
     tracks.push({
       id: d.id,
       authorId: d.authorId,
+      artistUsername: d.authorUsername ?? undefined,
       earnEligible: true,
       url: d.audioUrl,
       title: d.title?.trim() || "Track",

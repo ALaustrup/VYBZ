@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pause, Play, Star, Heart, Loader2, Download, ShieldCheck } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
-import { Handle } from "@/components/Handle";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { ReportButton } from "@/components/ReportButton";
@@ -13,6 +12,7 @@ import { FLAGS } from "@/lib/flags";
 import { trySwarmDownload, swarmSeedOptIn } from "@/lib/swarm";
 import { useSession } from "@/store/session";
 import { patchWidgetPrefs } from "@/lib/vdock/widgetPrefs";
+import { vdockVisual } from "@/lib/vdockVisualManifest";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
 
 const LICENSE_LABEL: Record<string, string> = {
@@ -40,6 +40,7 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
   return {
     id: d.id, url: d.audioUrl ?? "",
     authorId: d.authorId,
+    artistUsername: d.authorUsername ?? undefined,
     earnEligible: true,
     title: d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled",
     artist: d.creditedArtist?.trim() || d.authorUsername || "Creator",
@@ -132,12 +133,20 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   const avg = d.rating ?? (mine || 0);
   const count = d.ratingCount ?? 0;
   const quality = qualityLabel(d.audioFormat ?? undefined, d.sampleRate ?? undefined, d.lossless);
+  const catalogVisual = vdockVisual(d.playbackCustomization?.vdockVisualId);
+  const stageBackdrop =
+    d.playbackCustomization?.backdropUrl
+    ?? catalogVisual?.loopMp4
+    ?? null;
 
   function togglePlay(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!d.audioUrl) return;
-    if (!isCurrent) void api.recordPlay(d.id); // count a distinct-listener play on start
-    playTrack(toPlayerTrack(d), (queue ?? []).filter((x) => x.audioUrl).map(toPlayerTrack));
+    if (!d.audioUrl || !/^(https?:|blob:|data:)/i.test(d.audioUrl)) {
+      showToast("This drop has no playable audio URL yet");
+      return;
+    }
+    if (!isCurrent) void api.recordPlay(d.id);
+    playTrack(toPlayerTrack(d), (queue ?? []).filter((x) => x.audioUrl && /^(https?:|blob:|data:)/i.test(x.audioUrl)).map(toPlayerTrack));
   }
 
   return (
@@ -151,7 +160,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
             seed={d.seed}
             accent={accent}
             active={playing}
-            backdropUrl={d.playbackCustomization?.backdropUrl}
+            backdropUrl={stageBackdrop}
             backdropFit={d.playbackCustomization?.backdropFit}
             backdropDim={d.playbackCustomization?.backdropDim}
           />
@@ -181,26 +190,22 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
         )}
       </div>
 
-      <div className={cx("flex flex-col", compact ? "gap-1 p-2.5" : "gap-1 p-3")}>
+      <div className={cx("flex flex-col", compact ? "gap-1 p-2.5" : "gap-1.5 p-3")}>
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
+            <p className={cx("truncate font-display font-semibold text-white", compact ? "text-sm" : "text-base")}>
+              {d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled"}
+            </p>
+            <p className={cx("truncate text-white/55", compact ? "text-[11px]" : "text-[12px]")}>
+              {d.album?.trim() || "Single"}
+            </p>
             <button
               type="button"
               onClick={openArtist}
-              className={cx(
-                "block w-full truncate text-left font-display font-semibold text-white transition hover:text-veil-200",
-                compact ? "text-sm" : "text-base",
-              )}
+              className="mt-0.5 block max-w-full truncate text-left text-[11px] text-white/40 transition hover:text-cyan-200/90"
             >
-              {d.creditedArtist?.trim() || d.authorUsername || "Creator"}
+              {d.authorUsername ? `@${d.authorUsername}` : (d.creditedArtist?.trim() || "Uploader")}
             </button>
-            <p className={cx("truncate text-white/70", compact ? "text-xs" : "text-sm")}>
-              {d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled"}
-            </p>
-            <p className="truncate text-[11px] text-white/40">
-              {d.album?.trim() || "Single"}
-              {d.releaseType && d.assetKind ? ` · ${KIND_LABEL[d.assetKind] ?? d.assetKind}` : ""}
-            </p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1">
             {d.license && (
@@ -218,11 +223,6 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
                   ? `On VYBZ ${new Date(prov.firstSeen).toLocaleDateString()}`
                   : `${prov.downloads} grant${prov.downloads === 1 ? "" : "s"}`}
               </span>
-            )}
-            {d.authorUsername && d.creditedArtist?.trim() && (
-              <button type="button" onClick={openArtist} className="max-w-[7rem] truncate text-[10px] text-white/35 hover:text-white/60">
-                <Handle username={d.authorUsername} size={12} />
-              </button>
             )}
           </div>
         </div>

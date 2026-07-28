@@ -41,6 +41,28 @@ with this document, **this document wins**.
 > Permanently banned: anonymity, guest aliases, AI companions as substitute people, ads,
 > paywalled messaging/matching.
 
+> ### GTM / Launch Wedge (July 2026) — profitable focus
+>
+> We are **not** competing as a full SoundCloud × Spotify × Twitch clone on day one.
+> The launch wedge is:
+>
+> **VYBZ = tip + live + catalog home for indie artists.** Fans listen, tip in Vc
+> (`~username`), and catch live. Artists own a real identity storefront. No ads.
+> Messaging stays free.
+>
+> **90-day product loop:** upload → `/u/:id` + VDock play → tip → live → more tips.
+>
+> **Buyers:** (1) indie artists — cosmetics / Profile Enhancement, tip rake;
+> (2) fans — Vc top-ups for tips.
+>
+> **Frozen for this era (do not expand):** VR / Immersive worlds; dating-first
+> Connection Lab as the public front door; catalog-scale Spotify competition.
+> Connection Lab remains optional opt-in only. Parked ideas stay in
+> [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md).
+>
+> **Public launch surface:** marketing landing (alpha waitlist + Enter VYBZ) →
+> Resend notify-on-launch; legal + docs match this wedge.
+
 **Three promises define every decision:**
 
 1. **Music in motion** — upload, queue, stream, comment on the wave, go live.

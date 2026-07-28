@@ -9,12 +9,15 @@
 // Deploy with --no-verify-jwt (we verify the caller's JWT ourselves).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { signBunnyUrl, isSecureBunnyPath } from "../_shared/bunnyToken.ts";
+import { signBunnyUrl, isSecureBunnyPath, type BunnyTokenMode } from "../_shared/bunnyToken.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const CDN = Deno.env.get("BUNNY_SECURE_CDN_HOST") ?? "";
 const TOKEN_KEY = Deno.env.get("BUNNY_SECURE_TOKEN_KEY") ?? "";
+const MODE = ((Deno.env.get("BUNNY_TOKEN_AUTH_MODE") ?? "advanced").toLowerCase() === "basic"
+  ? "basic"
+  : "advanced") as BunnyTokenMode;
 const TTL = 60 * 60 * 2; // 2h — matches the app's SIGN_TTL for preview URLs.
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -43,7 +46,7 @@ Deno.serve(async (req: Request) => {
   const urls: Record<string, string> = {};
   for (const p of paths) {
     if (typeof p !== "string" || !p) continue;
-    if (isSecureBunnyPath(p)) urls[p] = await signBunnyUrl(CDN, TOKEN_KEY, p, TTL);
+    if (isSecureBunnyPath(p)) urls[p] = await signBunnyUrl(CDN, TOKEN_KEY, p, TTL, MODE);
   }
-  return json({ urls });
+  return json({ urls, mode: MODE });
 });

@@ -21,17 +21,17 @@ export interface IntentMix {
 }
 
 export const INTENT_PILLARS: { id: IntentPillar; label: string; blurb: string }[] = [
-  { id: "love", label: "Dates & romance", blurb: "Spicy or serious — real people" },
-  { id: "meetup", label: "Activities & IRL", blurb: "Hikes, coffee, hangouts" },
-  { id: "social", label: "Friends & chat", blurb: "Belonging, late-night talks" },
-  { id: "create", label: "Create & collab", blurb: "Music, craft, projects" },
+  { id: "create", label: "Music & create", blurb: "Upload, collab, share catalog" },
+  { id: "social", label: "Fans & friends", blurb: "Chat, follow, listen together" },
+  { id: "meetup", label: "IRL & hangouts", blurb: "Shows, sessions, coffee" },
+  { id: "love", label: "Dates & romance", blurb: "Optional — Connection Lab later" },
 ];
 
 export const FOCUS_OPTIONS: { id: FocusMode; label: string }[] = [
   { id: "for_you", label: "For you" },
-  { id: "love", label: "Love" },
-  { id: "meetup", label: "Meetup" },
   { id: "create", label: "Create" },
+  { id: "meetup", label: "Meetup" },
+  { id: "love", label: "Love" },
 ];
 
 const EMPTY_WEIGHTS: Record<IntentPillar, number> = {
@@ -51,10 +51,10 @@ export function mixFromPillars(pillars: IntentPillar[], focus?: FocusMode): Inte
   const unique = [...new Set(pillars)];
   const weights = { ...EMPTY_WEIGHTS };
   if (unique.length === 0) {
-    // Soft explore: social + light love — not Create-first.
-    weights.social = 0.55;
-    weights.love = 0.25;
-    weights.meetup = 0.2;
+    // Soft explore: music-first — create + social (not dating-first).
+    weights.create = 0.55;
+    weights.social = 0.3;
+    weights.meetup = 0.15;
     return {
       pillars: [],
       weights,
@@ -66,9 +66,9 @@ export function mixFromPillars(pillars: IntentPillar[], focus?: FocusMode): Inte
   for (const p of unique) weights[p] = w;
   const inferredFocus: FocusMode =
     focus ??
-    (unique.includes("love") && unique.length === 1 ? "love"
+    (unique.includes("create") && unique.length === 1 ? "create"
       : unique.includes("meetup") && !unique.includes("love") && unique.length === 1 ? "meetup"
-      : unique.includes("create") && unique.length === 1 ? "create"
+      : unique.includes("love") && unique.length === 1 ? "love"
         : "for_you");
   return {
     pillars: unique,
@@ -118,6 +118,8 @@ export function needsIntentMixIntake(details?: ProfileDetails | null): boolean {
   if (details?.intentMix?.completedAt) return false;
   // Legacy users with role already onboarded — skip forced intake.
   if (details?.role || details?.roleLabel) return false;
+  // Music Hub: genres / DAWs already set ⇒ treat as onboarded (create-leaning).
+  if ((details?.genres?.length ?? 0) > 0 || (details?.daws?.length ?? 0) > 0) return false;
   return true;
 }
 
@@ -147,7 +149,7 @@ export function defaultLayoutForIntentMix(mix: IntentMix): VDockLayout {
   const createHeavy = (mix.weights.create ?? 0) >= 0.45 || (mix.pillars.length === 1 && mix.pillars[0] === "create");
   const left: VDockLayout["left"] = [
     { kind: "pin", id: "feed" },
-    createHeavy ? { kind: "pin", id: "connect" } : { kind: "pin", id: "spark" },
+    createHeavy ? { kind: "pin", id: "connect" } : { kind: "pin", id: "live" },
   ];
   if (createHeavy) {
     left.push({ kind: "pin", id: "collabs" });

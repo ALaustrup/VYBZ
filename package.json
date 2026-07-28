@@ -16,6 +16,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit",
+    "visuals:encode": "node scripts/encode-vdock-visuals.mjs",
     "cap:sync": "cap sync",
     "android:add": "cap add android",
     "android:sync": "npm run build && cap sync android",

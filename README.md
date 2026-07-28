@@ -2,32 +2,38 @@
 
 > **Find Yours.**
 
-VYBZ is an **identity-first** creator social, collaboration, and precision
-matchmaking platform — for music, art, film, writing, game design, and every
-creative discipline. Owner: **Astra Matrix, Inc.** Canonical domain:
+VYBZ is the **music home for indie artists and their fans** — upload your catalog,
+stream on **VDock**, tip with **Vc** (`~username`), and go **live**. Real identity.
+No ads. Messaging free forever. Owner: **Astra Matrix, Inc.** Canonical domain:
 **`vybz.cloud`**.
 
-**VYBZ has no anonymity.** Every account is a real, durable creator identity.
+**VYBZ has no anonymity.** Every account is a durable creator identity.
 
-> 📐 See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for the product + engineering
-> plan, [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map, and
-> [`VERSIONING.md`](./VERSIONING.md) for Alpha → Beta-0A release labels.
+> 📐 See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for product + GTM doctrine,
+> [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map, and
+> [`VERSIONING.md`](./VERSIONING.md) for release labels.
 >
-> **Current release:** **Beta-0B** (see [`CHANGELOG.md`](./CHANGELOG.md)).
+> **Current release:** **Beta-0B** line — launch reposition in progress (see [`CHANGELOG.md`](./CHANGELOG.md)).
+
+## What VYBZ is (launch wedge)
+
+- **Listen** — upload drops, stream in VDock, discover by taste.
+- **Tip** — support artists with closed-loop **Vc**; cosmetics are primary revenue.
+- **Live** — go live on your profile; chat + presence on the same identity.
+- **Identity** — email + passkey; artist pages at `/u/:id`.
+- **Optional Connection Lab** — people matching (including adult-gated intents) only for users who opt in. Never the front door.
+
+Public visitors hit the **marketing landing** (alpha waitlist + Enter VYBZ). Signed-in users land on the **music hub**.
 
 ## What's shipped
 
-- **Passkey-first auth** with password fallback, then username claim → Role + Intent onboarding (optional avatar / role class).
-- **Creator profiles** — role/intents mapped into `profile_modules` + complementary seeks; genres, DAWs, plugins, influences.
-- **Precision matchmaking** — `collab_matches` (roles, modules, affinity, embeddings, Project follows, reputation, role class) on **Connect** + **Spark**.
-- **Projects** (on-profile microblogs / hubs) and **Studio** (private collab rooms with versions, splits, credits, release batches).
-- **Sound-first feed** of drops + Project posts (audio / image / video / writing), discovery anti-popularity mode, New Drop editor with trim/convert.
-- **Full-bleed bottom taskbar** with integrated player + **Orb** (idle neochrome plasma → uploader morph while playing).
-- **Connections + DMs**, Rooms, Live, Opportunities (collabs / commissions), Activity.
-- **Bunny-protected media** (secure originals + signed previews; forensic watermark + optional C2PA path).
-- **Staff / mod** queue + rewards → **cosmetic store** + Stripe credit top-ups; **Stripe Connect tips**.
-- **Opt-in weekly digest** (Resend) with week stats + matches.
-- **Codex & Legal** — free industry templates + Terms / Privacy / DMCA / AUP.
+- **Marketing landing** — brand hero, product story, alpha waitlist (Resend launch notify).
+- **Passkey-first auth** with password fallback → username → music-first Intent Mix.
+- **Hub** — Listen / Live / Connect / You / Wallet; artist storefronts `/u/:id`.
+- **VDock** — always-on player + Orb; cinema stage for live / track visuals.
+- **Vc tips** + cosmetic store + Stripe top-ups (tips secondary to Flair).
+- **Live** — streams, Social hub, room voice (LiveKit).
+- **Codex & Legal** — industry templates + Terms / Privacy / DMCA / AUP / Vc whitepaper.
 
 ## Local development
 

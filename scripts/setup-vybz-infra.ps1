@@ -114,7 +114,8 @@ if (-not $LocalOnly) {
       "passkey", "bunny-upload", "bunny-sign", "bunny-live",
       "watermark", "watermark-detect",
       "stripe-webhook", "stripe-connect-onboard", "stripe-tip", "stripe-credit-topup",
-      "oauth-start", "oauth-callback", "ice-servers", "weekly-digest"
+      "oauth-start", "oauth-callback", "ice-servers", "weekly-digest",
+      "waitlist-join", "waitlist-notify", "audio-play"
     )
     Get-ChildItem supabase/functions -Directory | ForEach-Object {
       $name = $_.Name

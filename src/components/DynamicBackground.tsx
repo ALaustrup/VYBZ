@@ -1,11 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { bgVariant } from "@/lib/backgrounds";
 import { useReduceFx, useFxScale } from "@/lib/display";
 import { usePlayer } from "@/lib/audioBus";
+import { SITE_BACKDROP } from "@/lib/siteBackdrop";
 
 interface DynamicBackgroundProps {
-  /** Variant id (aurora/ember/…) — set per surface for a distinct backdrop. */
+  /** Variant id (aurora/ember/…) — soft accent blooms over the video. */
   variant?: string;
+  /**
+   * `static` — poster + scrims only (auth / boot). Avoids video decode fighting passkey UI.
+   * `live` — looping muted video (default once inside the app).
+   */
+  mode?: "live" | "static";
 }
 
 interface Blob {
@@ -20,26 +26,46 @@ interface Blob {
 const BASE = "#0a0e18";
 
 /**
- * Dark smoke backdrop — soft neon blooms over charcoal.
- * Touch-reactive; pauses when hidden; static wash under reduced motion.
+ * Site backdrop: looping muted video under heavy readability scrims,
+ * plus soft neon blooms from the surface palette.
  */
-export function DynamicBackground({ variant }: DynamicBackgroundProps) {
+export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const reduce = useReduceFx();
   const fxScale = useFxScale();
-  const { playing } = usePlayer();
-  const playDim = playing ? 0.65 : 1;
-  const blobAlpha = 0.42 * (reduce ? 1 : 0.78 + 0.22 * fxScale) * playDim;
+  const { playing, track } = usePlayer();
+  const [videoOk, setVideoOk] = useState(true);
+  // Free a decoder slot while the cinema stage owns a track visual.
+  const stageOwnsVisual = !!(track?.playback?.vdockVisualId || track?.playback?.backdropUrl);
+  const allowVideo = mode === "live" && !reduce && videoOk && !(playing && stageOwnsVisual);
+  const playDim = playing ? 0.55 : 1;
+  const blobAlpha = (mode === "static" ? 0.1 : 0.18) * (reduce ? 1 : 0.78 + 0.22 * fxScale) * playDim;
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !allowVideo) return;
+    v.playbackRate = 0.92;
+    const play = () => { void v.play().catch(() => setVideoOk(false)); };
+    play();
+    const onVis = () => {
+      if (document.visibilityState === "visible") play();
+      else v.pause();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      v.pause();
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [allowVideo]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
     const colors = bgVariant(variant).colors;
-
-    // Render at ~55% resolution; the CSS upscale keeps it buttery and soft.
     const SCALE = 0.55;
     let w = 0;
     let h = 0;
@@ -52,21 +78,18 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
     };
     resize();
 
-    // Seed a handful of drifting blobs from the variant palette.
     const blobs: Blob[] = [];
-    const COUNT = 6;
-    for (let i = 0; i < COUNT; i++) {
+    for (let i = 0; i < 5; i++) {
       blobs.push({
         x: Math.random() * w,
         y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.12,
-        vy: (Math.random() - 0.5) * 0.12,
-        r: (0.34 + Math.random() * 0.26) * Math.max(w, h),
+        vx: (Math.random() - 0.5) * 0.1,
+        vy: (Math.random() - 0.5) * 0.1,
+        r: (0.3 + Math.random() * 0.24) * Math.max(w, h),
         color: colors[i % colors.length],
       });
     }
 
-    // Pointer "heat" — eases toward the latest touch/cursor position.
     const heat = { x: w / 2, y: h / 2, tx: w / 2, ty: h / 2, power: 0 };
     const onMove = (cx: number, cy: number) => {
       heat.tx = cx * SCALE;
@@ -90,18 +113,13 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
     };
 
     const render = () => {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = BASE;
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.globalCompositeOperation = "source-over";
+      ctx.clearRect(0, 0, w, h);
       for (const b of blobs) {
         if (!reduce) {
           b.x += b.vx;
           b.y += b.vy;
-          // Gentle attraction toward the heat point.
-          b.x += (heat.x - b.x) * 0.0006 * heat.power;
-          b.y += (heat.y - b.y) * 0.0006 * heat.power;
+          b.x += (heat.x - b.x) * 0.0005 * heat.power;
+          b.y += (heat.y - b.y) * 0.0005 * heat.power;
           if (b.x < -b.r) b.x = w + b.r;
           if (b.x > w + b.r) b.x = -b.r;
           if (b.y < -b.r) b.y = h + b.r;
@@ -109,15 +127,12 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
         }
         drawBlob(b.x, b.y, b.r, b.color, blobAlpha);
       }
-
-      // The reactive highlight that blooms under the finger/cursor.
       heat.x += (heat.tx - heat.x) * 0.08;
       heat.y += (heat.ty - heat.y) * 0.08;
       if (heat.power > 0) {
-        drawBlob(heat.x, heat.y, Math.max(w, h) * 0.2, colors[1], 0.3 * heat.power);
+        drawBlob(heat.x, heat.y, Math.max(w, h) * 0.18, colors[1], 0.16 * heat.power);
         heat.power = Math.max(0, heat.power - 0.012);
       }
-      ctx.globalCompositeOperation = "source-over";
     };
 
     let raf = 0;
@@ -127,18 +142,11 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       raf = requestAnimationFrame(loop);
     };
 
-    if (reduce) {
-      render(); // one static frame
-    } else {
-      raf = requestAnimationFrame(loop);
-    }
+    if (reduce) render();
+    else raf = requestAnimationFrame(loop);
 
-    const onVisibility = () => {
-      running = document.visibilityState === "visible";
-    };
-    const onResize = () => {
-      resize();
-    };
+    const onVisibility = () => { running = document.visibilityState === "visible"; };
+    const onResize = () => resize();
 
     window.addEventListener("pointermove", pointerMove, { passive: true });
     window.addEventListener("touchmove", touchMove, { passive: true });
@@ -152,19 +160,77 @@ export function DynamicBackground({ variant }: DynamicBackgroundProps) {
       window.removeEventListener("resize", onResize);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [variant, reduce, blobAlpha, playing]);
+  }, [variant, reduce, blobAlpha]);
+
+  const showVideo = allowVideo;
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-10 h-full w-full"
-      style={{ filter: playing ? "blur(26px)" : "blur(34px)", transform: "scale(1.06)", opacity: playing ? 0.9 : 1 }}
-    />
+    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+      {/* Charcoal floor so letterboxing / load never flashes white */}
+      <div className="absolute inset-0" style={{ background: BASE }} />
+
+      {showVideo ? (
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{
+            opacity: playing ? 0.28 : 0.36,
+            filter: playing ? "blur(2px) saturate(0.85)" : "blur(1.5px) saturate(0.9)",
+            transform: "scale(1.06)",
+          }}
+          muted
+          loop
+          playsInline
+          autoPlay
+          preload="metadata"
+          poster={SITE_BACKDROP.poster}
+          onError={() => setVideoOk(false)}
+        >
+          <source src={SITE_BACKDROP.webm} type="video/webm" />
+          <source src={SITE_BACKDROP.mp4} type="video/mp4" />
+        </video>
+      ) : (
+        <img
+          src={SITE_BACKDROP.poster}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{
+            opacity: mode === "static" ? 0.28 : 0.36,
+            filter: "blur(2px) saturate(0.85)",
+            transform: "scale(1.06)",
+          }}
+        />
+      )}
+
+      {/* Readability stack — keeps type/panels legible over motion */}
+      <div
+        className="absolute inset-0"
+        style={{ background: `rgba(10, 14, 24, ${mode === "static" ? 0.72 : playing ? 0.62 : 0.55})` }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(10,14,24,0.72) 0%, rgba(10,14,24,0.35) 38%, rgba(10,14,24,0.4) 62%, rgba(10,14,24,0.78) 100%)",
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 75% 60% at 50% 40%, transparent 0%, rgba(10,14,24,0.45) 100%)",
+        }}
+      />
+
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 h-full w-full"
+        style={{ filter: "blur(28px)", transform: "scale(1.04)", opacity: playing ? 0.55 : 0.7 }}
+      />
+    </div>
   );
 }
 
-/** "#rrggbb" + alpha(0..1) → "rgba(...)". */
 function hexA(hex: string, a: number): string {
   const m = hex.replace("#", "");
   const r = parseInt(m.slice(0, 2), 16);

@@ -14,10 +14,10 @@
     /* App shell tokens */
     --app-bar-h: 3.25rem;
     --taskbar-h: 4.75rem;
-    --vdock-h: 4.75rem;
+    --vdock-h: 5.25rem;
     --player-h: 0px;
-    --dock-gap: 0.35rem;
-    --dock-reserve: 5.5rem;
+    --dock-gap: 0;
+    --dock-reserve: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
     --rail-w: 5.75rem;
     --stage-pad-x: 1rem;
 
@@ -165,21 +165,183 @@
     padding-bottom: 0.35rem;
   }
 
+  @keyframes vybz-hue {
+    from { filter: hue-rotate(0deg) saturate(1.35) brightness(1.08); }
+    to { filter: hue-rotate(360deg) saturate(1.35) brightness(1.08); }
+  }
+  @keyframes vybz-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-\[vybz-hue_9s_linear_infinite\],
+    .animate-\[vybz-spin_10s_linear_infinite\] {
+      animation: none !important;
+    }
+  }
+
   .app-stage {
-    @apply relative z-10 min-h-0 flex-1 overflow-hidden;
+    @apply relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden;
     /* Clear the fixed dock so feed content isn’t trapped under pins/Orb/player */
     padding-bottom: calc(var(--dock-reserve, 6.25rem) + env(safe-area-inset-bottom, 0px));
   }
 
   .app-stage-inner {
-    @apply mx-auto h-full w-full max-w-5xl;
+    @apply mx-auto h-full min-h-0 w-full max-w-5xl overflow-y-auto overflow-x-hidden;
     padding-left: var(--stage-pad-x);
     padding-right: var(--stage-pad-x);
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Always-on bottom chrome — above stage content, below expanded player / confetti */
+  /* Always-on bottom chrome — full-bleed edge-to-edge player */
   .app-dock {
-    @apply pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center overflow-visible;
+    @apply pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex w-full justify-stretch overflow-visible;
+  }
+  .app-dock > * {
+    @apply w-full max-w-none;
+  }
+
+  /* Translucent music dock — fills the entire bottom bar including safe area. */
+  .vdock-shell {
+    --vdock-h: 5.25rem;
+    width: 100%;
+    max-width: none;
+    min-height: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
+    height: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    margin: 0;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 42%, rgba(0, 194, 255, 0.06) 100%),
+      rgba(10, 14, 26, 0.22);
+    backdrop-filter: blur(22px) saturate(1.75);
+    -webkit-backdrop-filter: blur(22px) saturate(1.75);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+      0 -12px 40px -24px rgba(4, 10, 24, 0.45),
+      0 0 40px -18px rgba(0, 194, 255, 0.22);
+  }
+  .vdock-shell-veil {
+    background:
+      radial-gradient(120% 90% at 12% 50%, rgba(0, 194, 255, 0.12), transparent 55%),
+      radial-gradient(100% 80% at 88% 40%, rgba(0, 214, 143, 0.1), transparent 50%),
+      linear-gradient(180deg, rgba(8, 12, 22, 0.08) 0%, rgba(8, 12, 22, 0.28) 100%);
+  }
+
+  .vdock-action {
+    background: transparent;
+  }
+  .vdock-play-center {
+    will-change: transform, box-shadow;
+  }
+  .vdock-ctrl--play {
+    background: color-mix(in srgb, var(--vdock-accent, #00C2FF) 32%, rgba(255, 255, 255, 0.08));
+    border-color: color-mix(in srgb, var(--vdock-accent, #00C2FF) 55%, rgba(255, 255, 255, 0.2));
+  }
+  .vdock-ctrl--side {
+    background: color-mix(in srgb, var(--vdock-accent, #00C2FF) 12%, rgba(255, 255, 255, 0.04));
+  }
+  .vdock-ctrl:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--vdock-accent, #00C2FF) 40%, rgba(255, 255, 255, 0.1));
+  }
+  .vdock-ctrl-glow {
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--vdock-accent, #00C2FF) 55%, transparent),
+      transparent 68%
+    );
+    opacity: 0.45;
+    pointer-events: none;
+    filter: blur(6px);
+  }
+
+  .vdock-pulse-play {
+    animation: vdock-ctrl-pulse 3.6s ease-in-out infinite;
+  }
+  .vdock-pulse-idle {
+    animation: vdock-ctrl-pulse 5.2s ease-in-out infinite;
+  }
+  .vdock-pulse-side {
+    animation: vdock-side-pulse 4.8s ease-in-out infinite;
+  }
+  .vdock-pulse-play .vdock-ctrl-glow,
+  .vdock-pulse-idle .vdock-ctrl-glow {
+    animation: vdock-glow-breathe 3.6s ease-in-out infinite;
+  }
+  .vdock-pulse-side .vdock-ctrl-glow {
+    animation: vdock-glow-breathe 4.8s ease-in-out infinite;
+  }
+
+  .vdock-meta-title {
+    color: #fff;
+    text-shadow:
+      0 0 18px color-mix(in srgb, var(--vdock-accent, #00C2FF) 45%, transparent),
+      0 1px 10px rgba(0, 0, 0, 0.45);
+  }
+  .vdock-meta-artist {
+    color: color-mix(in srgb, var(--vdock-accent, #00C2FF) 35%, rgba(255, 255, 255, 0.55));
+  }
+  .vdock-meta-rail {
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .vdock-meta-fill {
+    background: linear-gradient(
+      90deg,
+      var(--vdock-accent, #00C2FF),
+      color-mix(in srgb, var(--vdock-accent, #00C2FF) 40%, #00D68F)
+    );
+    box-shadow: 0 0 10px color-mix(in srgb, var(--vdock-accent, #00C2FF) 70%, transparent);
+  }
+
+  @keyframes vdock-ctrl-pulse {
+    0%, 100% {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 0 16px -6px color-mix(in srgb, var(--vdock-accent, #00C2FF) 55%, transparent);
+      filter: brightness(1);
+    }
+    50% {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        0 0 28px -2px color-mix(in srgb, var(--vdock-accent, #00C2FF) 85%, transparent),
+        0 0 40px -8px color-mix(in srgb, #00D68F 50%, transparent);
+      filter: brightness(1.12) saturate(1.15);
+    }
+  }
+  @keyframes vdock-side-pulse {
+    0%, 100% {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 0 10px -8px color-mix(in srgb, var(--vdock-accent, #00C2FF) 40%, transparent);
+      color: rgba(255, 255, 255, 0.78);
+    }
+    50% {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        0 0 20px -4px color-mix(in srgb, var(--vdock-accent, #00C2FF) 70%, transparent);
+      color: #fff;
+    }
+  }
+  @keyframes vdock-glow-breathe {
+    0%, 100% { opacity: 0.32; transform: scale(0.92); }
+    50% { opacity: 0.72; transform: scale(1.08); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vdock-pulse-play,
+    .vdock-pulse-idle,
+    .vdock-pulse-side,
+    .vdock-pulse-play .vdock-ctrl-glow,
+    .vdock-pulse-idle .vdock-ctrl-glow,
+    .vdock-pulse-side .vdock-ctrl-glow {
+      animation: none !important;
+    }
   }
 
   .vdock-side {

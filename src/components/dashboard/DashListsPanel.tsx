@@ -45,7 +45,7 @@ export function DashListsPanel() {
   return (
     <div className="space-y-4">
       <p className="text-[12px] leading-relaxed text-white/45">
-        Collaborative playlists of VYBZ uploads. Create a list, then add tracks while listening — play them straight into VDock.
+        Collaborative playlists of VYBZ uploads. Heart a track in VDock to save it to your <span className="text-white/70">Favorites</span> list automatically. Create more lists for listening parties.
       </p>
       <form
         onSubmit={(e) => { e.preventDefault(); void create(); }}

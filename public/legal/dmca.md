@@ -1,9 +1,9 @@
 # VYBZ Copyright & DMCA Policy
 
 **Operator:** Astra Matrix, Inc.   **Service:** VYBZ
-**Effective Date:** [EFFECTIVE DATE]   **Version:** 1.0
+**Effective Date:** July 28, 2026   **Version:** 1.1
 
-Astra Matrix respects intellectual property rights and expects users to do the same. This policy explains how to report claimed copyright infringement on VYBZ and how we respond, consistent with the U.S. Digital Millennium Copyright Act (DMCA) and similar laws.
+Astra Matrix respects intellectual property rights and expects users to do the same. This policy explains how to report claimed copyright infringement on VYBZ (including uploaded catalog, live recordings, and profile media) and how we respond, consistent with the U.S. Digital Millennium Copyright Act (DMCA) and similar laws.
 
 ## 1. Reporting Claimed Infringement (Takedown Notice)
 If you believe content on VYBZ infringes your copyright, send a written notice to our Designated Agent (Section 4) that includes:
