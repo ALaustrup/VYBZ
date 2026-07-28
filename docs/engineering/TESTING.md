@@ -1,27 +1,32 @@
 # Testing
 
-> Phase 1 foundation. Until landed, correctness gate remains `npm run lint` && `npm run build`.
+## Commands
 
-## Planned stack
+| Script | Purpose |
+|--------|---------|
+| `npm run lint` | `tsc --noEmit` |
+| `npm run test` | Vitest unit/component |
+| `npm run test:watch` | Vitest watch |
+| `npm run build` | Typecheck + Vite production build |
+| `npm run test:e2e` | Playwright smoke |
+| `npm run test:a11y` | Playwright a11y smoke subset |
 
-| Layer | Tool | Scope |
-|-------|------|-------|
-| Unit / component | **Vitest** + Testing Library | Pure libs, flags, cost estimate helpers, Suite shell |
-| E2E | **Playwright** | Critical paths: Enter, upload smoke, artist page, VDock, tip (mock), live token fail-soft |
-| CI | GitHub Actions | lint · build · unit · e2e (smoke) on PR |
+## Stack (Phase 1)
 
-## Priority cases (Beta-1A)
+- **Vitest 3** + jsdom + Testing Library (`vitest.config.ts`, `src/test/setup.ts`)
+- **Playwright** (`playwright.config.ts`, `e2e/smoke.spec.ts`)
+- **CI:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — lint, test, build, e2e
 
-1. Route manifest / Suite shell placeholders render.
-2. Feature flags default safely (Bunny audio off; storefront/repos as intended).
-3. Cost reservation helpers reject unbounded calls.
-4. RLS-sensitive client paths do not assume service role.
-5. PWA update does not forever-cache `index.html`.
+## Priority coverage
+
+1. Design tokens / route manifest / provider health (Bunny disabled)
+2. UI primitives (Button, StateView)
+3. Suite shell placeholders (manual + route smoke)
+4. Cost helpers refuse unpaid fal by default
+5. PWA `index.html` / landing still loads without secrets
 
 ## Rules
 
-- No live paid provider calls in CI (fal/Groq/Stripe) — mock or skip.
-- No exploit PoCs; defensive tests only.
-- Flaky e2e against shared prod Supabase → prefer local/branch or recorded fixtures.
-
-Track progress in Phase 1 commit notes / CHANGELOG. Companion: [`DEVELOPMENT.md`](./DEVELOPMENT.md).
+- No live paid providers in CI.
+- Do not enable Bunny audio flag in tests.
+- Keep storefront WIP out of foundation commits until migrated.

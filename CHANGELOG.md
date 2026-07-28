@@ -10,17 +10,22 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-Phase 0 (doctrine):
+Phase 0 (doctrine): **complete** on `suite-genesis`.
 
-- Archive Music Hub–era authority under `docs/archive/pre-suite-2026/`
-- Rewrite root docs + establish `docs/{architecture,products,design,operations,engineering,agents}`
-- Route, migration, provider, and cost inventories
-- Branch `suite-genesis`; package metadata → `1.1.0` / `Beta-1A` (**no git tag yet**)
+Phase 1 (engineering + design foundation): **complete** on `suite-genesis`:
+
+- Canonical design tokens + product surface accents
+- Shared UI primitives + canonical state views
+- SuiteShell (PrimaryRail / MobileNav) with placeholders for every Suite product
+- Route manifest + legacy `/studio` → `/projects` preserve
+- Job / cost / audit / org / provider-health stubs (Bunny disabled)
+- Vitest + Testing Library, Playwright smoke, GitHub Actions CI
+- package metadata remains `1.1.0` / `Beta-1A` (**no git tag yet**)
 
 Still carried from the prior Unreleased Music Hub line (not discarded):
 
 - SEO/logo pack; `@vybz.cloud` email; site-visuals CDN on Supabase Storage
-- AI Visualizer stills (`visual-generate`) + Sample Pack Storefront
+- AI Visualizer stills (`visual-generate`) + Sample Pack Storefront (WIP, uncommitted)
 - Bunny retired as media origin; LiveKit for live
 
 ## Prior Unreleased notes — 2026-07-28 — Official Launch Reposition (archived doctrine)

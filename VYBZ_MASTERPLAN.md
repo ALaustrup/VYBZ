@@ -171,7 +171,8 @@ Brand principle: *The platform provides precision. The artist provides expressio
 - [x] Documentation tree established
 - [x] Route / migration / provider / cost inventories
 - [x] Bunny origin doctrine removed from active docs
-- [ ] Phase 1 engineering foundation (next)
+- [x] Phase 1 engineering foundation (tokens, primitives, SuiteShell, CI)
+- [ ] Phase 2 Prepare MVP (next)
 
 Full product DoD for later modules: loading, empty, error, and degraded-provider
 states; human approval for rights/payments/distribution; cost reservation for paid jobs.

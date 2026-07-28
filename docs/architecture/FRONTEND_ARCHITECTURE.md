@@ -1,22 +1,32 @@
 # Frontend Architecture
 
-## Today
+## Today (Phase 1)
 
-- Vite + React 18 + React Router; routes declared in `src/App.tsx`.
-- Auth/shell gates before app chrome; VDock persistent for signed-in users.
-- Feature modules: only `src/features/storefront/` so far.
-- Styling: Tailwind + existing surface tokens (`surfaceTheme`); Framer Motion.
+- Vite + React 18 + React Router; routes in `src/App.tsx` plus `src/app/suitePlaceholderRoutes.tsx`.
+- Auth/shell gates before chrome; **SuiteShell** wraps signed-in stage + VDock.
+- Design tokens: `src/index.css` + `src/design/tokens.ts` + Tailwind bridges.
+- UI primitives: `src/components/ui/*`; states: `src/components/states/*`.
+- Feature modules: `src/features/storefront/` (WIP, keep isolated) + suite placeholders.
+- Styling: Tailwind + Suite tokens + existing glass mats; Framer Motion.
 
-## Target (Phase 1)
+## Layout
 
 ```text
-src/app/       routeManifest.ts, providers.tsx, entitlements.ts, commands.ts
-src/shell/     SuiteShell, PrimaryRail, CommandBar, MobileNav, ContextInspector, SuiteSwitcher
-src/features/  home, studio, prepare, credits, mastering, coverlab, sentinel,
-               relay, artist, live, market, wallet
-src/platform/  api, auth, jobs, costs, storage, audit, notifications, providers, telemetry, security
+src/app/       routeManifest.ts, entitlements.ts, suitePlaceholderRoutes.tsx
+src/shell/     SuiteShell, PrimaryRail, MobileNav, SuiteSwitcher, CommandBar, ContextInspector
+src/design/    tokens.ts
+src/components/ui/      Button, Input, Panel, Badge, Tabs, Dialog, Tooltip, Progress, NavItem
+src/components/states/  Skeleton, StateView, EmptyState
+src/platform/  jobs, costs, audit, orgs, providerHealth
+src/features/  storefront (WIP), … future product modules
 ```
 
-Legacy routes redirect until telemetry clears them. OverlayPortal rules for VDock
-remain mandatory. Audience surfaces may stay atmospheric; professional workspaces
-use denser, flatter chrome (see design docs).
+Legacy routes redirect or coexist until telemetry clears them. OverlayPortal rules
+for VDock remain mandatory. Audience surfaces may stay atmospheric; professional
+workspaces use denser, flatter chrome (`data-surface-mode`).
+
+## Route code
+
+Canonical list: `src/app/routeManifest.ts` (mirrors
+[`ROUTE_MANIFEST.md`](../architecture/ROUTE_MANIFEST.md)).
+`/studio` → `/projects` preserves Music Repos until Studio UI migrates.

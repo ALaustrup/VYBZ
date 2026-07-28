@@ -54,4 +54,7 @@
 | `/wallet` → `/?tab=wallet` | Keep until `/wallet` page |
 | `/profile` | Legacy redirect |
 
-**Rule:** no route removal without redirect. Phase 1 introduces `src/app/routeManifest.ts`.
+**Rule:** no route removal without redirect. Phase 1 introduced
+`src/app/routeManifest.ts` and `src/app/suitePlaceholderRoutes.tsx`.
+SuiteShell (`src/shell/SuiteShell.tsx`) hosts placeholders for every Suite product.
+`/studio` redirects to `/projects` to preserve Music Repos until Studio UI migrates.

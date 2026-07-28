@@ -31,19 +31,21 @@
 ### Phase status
 | Phase | Status |
 |-------|--------|
-| **0 Suite Genesis doctrine** | **Complete** on branch `suite-genesis` (docs + inventories; no `Beta-1A` tag) |
-| **1 Engineering + design foundation** | **Next** — Vitest/Playwright/CI, design tokens, SuiteShell, route manifest code, job/cost/audit models |
-| 2–9 | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **0 Suite Genesis doctrine** | **Complete** on `suite-genesis` |
+| **1 Engineering + design foundation** | **Complete** on `suite-genesis` — tokens, primitives, SuiteShell placeholders, Vitest/Playwright/CI, job/cost/audit stubs |
+| **2 Prepare MVP** | **Next** — release project, browser readiness scan, free findings report |
+| 3–9 | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. **Phase 1 now:** quality foundation (Vitest, Playwright, CI) + Suite shell with product placeholders + job/cost/audit models.
+1. **Phase 2 now:** Prepare MVP — release project schema, track/artwork import, free browser readiness checks, findings UI (no paid providers).
 2. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
 3. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 4. Do **not** expand Spark/dating, Living Home, VR, or Bunny. Park ideas in Opportunity Register.
-5. Do **not** tag `Beta-1A` until shell + cost kernel + Prepare scan pass production gates.
+5. Do **not** tag `Beta-1A` until shell + cost kernel + Prepare scan pass production gates (shell landed; cost kernel stubbed; Prepare scan is Phase 2).
+6. Keep storefront/visual WIP isolated until intentionally migrated.
 
 ### Correctness gate
-`npm run lint` && `npm run build`. Automated tests arrive in Phase 1.
+`npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
 
 ### Do not commit
 `vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`, `.agents/`,
