@@ -16,6 +16,7 @@ import {
   uploadLocalFilesToPlayer,
 } from "@/lib/playerMusic";
 import { AUDIO_ACCEPT } from "@/lib/waveform";
+import { OverlayPortal } from "@/lib/overlayPortal";
 import { cx } from "@/lib/utils";
 
 type Tab = "upload" | "connect" | "library";
@@ -127,14 +128,14 @@ export function MusicSourceSheet({
   return (
     <AnimatePresence>
       {open && (
-        <>
+        <OverlayPortal>
           <motion.button
             type="button"
             aria-label="Dismiss"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] cursor-default bg-black/40"
+            className="fixed inset-0 z-[90] cursor-default bg-[#071018]/55 backdrop-blur-md"
             onClick={onClose}
           />
           <motion.div
@@ -145,12 +146,12 @@ export function MusicSourceSheet({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 380, damping: 28 }}
-            className="fixed left-1/2 top-[max(1rem,env(safe-area-inset-top))] z-[81] flex w-[min(100%-1.5rem,24rem)] -translate-x-1/2 flex-col overflow-hidden rounded-3xl border border-white/14 shadow-[0_28px_80px_-24px_rgba(0,0,0,0.75)] sm:top-[12vh]"
+            className="fixed left-1/2 top-[max(1rem,env(safe-area-inset-top))] z-[91] flex w-[min(100%-1.5rem,24rem)] -translate-x-1/2 flex-col overflow-hidden rounded-[1.75rem] border border-white/20 shadow-[0_28px_80px_-24px_rgba(8,40,80,0.55)] sm:top-[10vh]"
             style={{
-              background: "rgba(12, 16, 28, 0.92)",
-              backdropFilter: "blur(28px) saturate(1.5)",
-              WebkitBackdropFilter: "blur(28px) saturate(1.5)",
-              maxHeight: "min(78dvh, 36rem)",
+              background: "linear-gradient(165deg, rgba(255,255,255,0.16), rgba(180,220,255,0.08) 42%, rgba(12,24,48,0.72))",
+              backdropFilter: "blur(28px) saturate(1.55)",
+              WebkitBackdropFilter: "blur(28px) saturate(1.55)",
+              maxHeight: "min(78dvh, calc(100dvh - var(--dock-reserve, 6.25rem) - 2rem))",
             }}
             data-dark-stage
             onClick={(e) => e.stopPropagation()}
@@ -312,7 +313,7 @@ export function MusicSourceSheet({
               )}
             </div>
           </motion.div>
-        </>
+        </OverlayPortal>
       )}
     </AnimatePresence>
   );

@@ -38,6 +38,7 @@ import {
   toggleFavorite,
 } from "@/lib/favorites";
 import { useReduceFx } from "@/lib/display";
+import { OverlayPortal } from "@/lib/overlayPortal";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 
@@ -452,11 +453,12 @@ function NowPlayingExpanded({
   return (
     <AnimatePresence>
       {open && (
+        <OverlayPortal>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[75] flex flex-col bg-ink-950/95 backdrop-blur-2xl"
+          className="fixed inset-0 z-[92] flex flex-col bg-[#0a1224]/92 backdrop-blur-2xl"
           data-dark-stage
         >
           <div className="absolute inset-0 opacity-70">
@@ -486,7 +488,7 @@ function NowPlayingExpanded({
             <span className="w-10" />
           </div>
 
-          <div className="relative z-10 mt-auto flex flex-col gap-4 px-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
+          <div className="relative z-10 mt-auto flex flex-col gap-4 px-6 pb-[max(2rem,calc(var(--dock-reserve,6.25rem)+1rem))]">
             <div>
               <h2 className="font-display text-2xl font-bold text-white">{p.track.title}</h2>
               <button
@@ -590,6 +592,7 @@ function NowPlayingExpanded({
             </div>
           </div>
         </motion.div>
+        </OverlayPortal>
       )}
     </AnimatePresence>
   );

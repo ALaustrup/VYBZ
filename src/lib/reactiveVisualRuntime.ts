@@ -5,7 +5,7 @@
  * Music-led defaults; any creative drop’s audio still drives the same frame.
  */
 
-import { frequencyBinCount, readFrequencies } from "@/lib/audioBus";
+import { frequencyBinCount, readBands, readFrequencies } from "@/lib/audioBus";
 
 export interface ReactiveVisualFrame {
   /** Normalized 0..1 band energies */
@@ -99,11 +99,21 @@ export function sampleReactiveFrame(active: boolean): ReactiveVisualFrame {
 
   const ok = readFrequencies(spectrum);
   if (!ok) {
-    const miss = { ...EMPTY, spectrum };
-    cacheAt = now;
-    cacheActive = true;
-    cacheFrame = miss;
-    return miss;
+    // Keep envelopes alive from band proxy (never freeze Orb / stage on miss).
+    const bands = readBands();
+    const n = spectrum.length;
+    for (let i = 0; i < n; i++) {
+      const f = i / n;
+      const env = f < 0.12 ? bands.bass : f < 0.45 ? bands.mid : bands.high;
+      spectrum[i] = Math.round(env * 220);
+    }
+    if (bands.level <= 0.001) {
+      const miss = { ...EMPTY, spectrum };
+      cacheAt = now;
+      cacheActive = true;
+      cacheFrame = miss;
+      return miss;
+    }
   }
 
   const n = spectrum.length;

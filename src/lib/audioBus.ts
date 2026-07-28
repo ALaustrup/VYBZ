@@ -140,9 +140,46 @@ async function startPlayback(el: HTMLAudioElement) {
   }
 }
 
-/** Analyser APIs kept for call-site compatibility — always idle (no hijack). */
-export function readFrequencies(_out: Uint8Array): boolean {
-  return false;
+/**
+ * Fill a spectrum buffer without hijacking the play element (MediaElementSource
+ * mutes Bunny/CDN output in Chromium). Prefer uploaded waveform peaks at the
+ * playhead; otherwise synthesize from `readBands()` so Orb / dock stay reactive.
+ */
+export function readFrequencies(out: Uint8Array): boolean {
+  if (!snapshot.playing || !out.length) return false;
+  const peaks = snapshot.track?.waveform;
+  const dur = snapshot.duration || snapshot.track?.durationSec || 0;
+  const t = snapshot.currentTime;
+  const n = out.length;
+
+  if (peaks && peaks.length > 4 && dur > 0) {
+    const pos = Math.min(0.999, Math.max(0, t / dur));
+    const center = pos * (peaks.length - 1);
+    for (let i = 0; i < n; i++) {
+      const spread = (i / n) * 0.55;
+      const idx = Math.min(peaks.length - 1, Math.max(0, Math.floor(center + (spread - 0.12) * peaks.length * 0.08)));
+      const neighbor = peaks[Math.min(peaks.length - 1, idx + 1)] ?? peaks[idx];
+      const frac = center - Math.floor(center);
+      const amp = peaks[idx] * (1 - frac) + neighbor * frac;
+      // Shape toward bass-left / high-right so bars feel spectral.
+      const tilt = 0.55 + 0.45 * (1 - i / n);
+      const wobble = 0.85 + 0.15 * Math.sin(t * 18 + i * 0.21);
+      out[i] = Math.max(8, Math.min(255, Math.round(amp * 255 * tilt * wobble)));
+    }
+    return true;
+  }
+
+  const bands = readBands();
+  for (let i = 0; i < n; i++) {
+    const f = i / n;
+    const env =
+      f < 0.12 ? bands.bass :
+      f < 0.45 ? bands.mid :
+      bands.high;
+    const pulse = 0.7 + 0.3 * Math.sin(t * (9 + f * 14) + i * 0.17);
+    out[i] = Math.max(6, Math.min(255, Math.round(env * 255 * pulse)));
+  }
+  return true;
 }
 
 export function frequencyBinCount(): number {
@@ -152,9 +189,27 @@ export function frequencyBinCount(): number {
 export interface Bands { bass: number; mid: number; high: number; level: number }
 
 export function readBands(): Bands {
-  // Soft procedural pulse so Orb / dock still feel alive without Web Audio tap.
   if (!snapshot.playing) return { bass: 0, mid: 0, high: 0, level: 0 };
+  const peaks = snapshot.track?.waveform;
+  const dur = snapshot.duration || snapshot.track?.durationSec || 0;
   const t = snapshot.currentTime;
+  if (peaks && peaks.length > 4 && dur > 0) {
+    const pos = Math.min(0.999, Math.max(0, t / dur));
+    const i = Math.floor(pos * (peaks.length - 1));
+    const window = 6;
+    let sum = 0;
+    let c = 0;
+    for (let k = Math.max(0, i - window); k <= Math.min(peaks.length - 1, i + window); k++) {
+      sum += peaks[k];
+      c++;
+    }
+    const level = c ? sum / c : 0.2;
+    const bass = Math.min(1, level * 1.15 + 0.08 * Math.sin(t * 6.2));
+    const mid = Math.min(1, level * 0.95 + 0.1 * Math.sin(t * 9.4 + 1));
+    const high = Math.min(1, level * 0.75 + 0.12 * Math.sin(t * 14.1 + 2));
+    return { bass, mid, high, level: Math.min(1, (bass + mid + high) / 2.6) };
+  }
+  // Soft procedural pulse when no waveform peaks yet.
   const bass = 0.35 + 0.35 * Math.sin(t * 4.2);
   const mid = 0.25 + 0.3 * Math.sin(t * 7.1 + 1);
   const high = 0.15 + 0.25 * Math.sin(t * 11.3 + 2);

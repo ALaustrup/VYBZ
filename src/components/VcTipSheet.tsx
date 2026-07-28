@@ -4,6 +4,7 @@ import { Coins, Loader2, Send, Target, Wallet } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { formatVc, formatVcAddress } from "@/lib/vc";
+import { OverlayPortal } from "@/lib/overlayPortal";
 import { cx } from "@/lib/utils";
 
 const PRESETS = [0.5, 1, 2, 5, 10];
@@ -109,12 +110,21 @@ export function VcTipSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-[84] flex items-end justify-center sm:items-center">
-      <button type="button" className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm" aria-label="Close" onClick={onClose} />
-      <form
-        onSubmit={(e) => void send(e)}
-        className="relative z-10 w-full max-w-md rounded-t-3xl border border-white/10 bg-ink-900/95 p-4 shadow-card backdrop-blur-2xl sm:rounded-3xl"
+    <OverlayPortal>
+      <div
+        className="fixed inset-0 z-[90] flex items-center justify-center p-4"
+        style={{ paddingBottom: "max(1rem, calc(var(--dock-reserve, 6.25rem) + 0.75rem))" }}
       >
+        <button type="button" className="absolute inset-0 bg-ink-950/75 backdrop-blur-sm" aria-label="Close" onClick={onClose} />
+        <form
+          onSubmit={(e) => void send(e)}
+          className="relative z-10 max-h-[min(85dvh,calc(100dvh-var(--dock-reserve,6.25rem)-2rem))] w-full max-w-md overflow-y-auto rounded-[1.75rem] border border-white/20 p-4 shadow-[0_28px_80px_-24px_rgba(20,80,140,0.55)]"
+          style={{
+            background: "linear-gradient(165deg, rgba(255,255,255,0.16), rgba(180,220,255,0.08) 40%, rgba(10,22,42,0.88))",
+            backdropFilter: "blur(28px) saturate(1.5)",
+            WebkitBackdropFilter: "blur(28px) saturate(1.5)",
+          }}
+        >
         <p className="font-display text-lg font-semibold text-white">Tip {label}</p>
         <p className="mt-1 text-[12px] text-white/45">
           Send Vc to <span className="font-mono text-cyan-200/90">{addr || "—"}</span>
@@ -188,7 +198,8 @@ export function VcTipSheet({
         <button type="submit" disabled={busy || self} className="btn btn-primary mt-3 w-full py-2.5 text-sm disabled:opacity-40">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Tip with Vc</>}
         </button>
-      </form>
-    </div>
+        </form>
+      </div>
+    </OverlayPortal>
   );
 }

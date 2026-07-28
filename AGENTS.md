@@ -132,6 +132,8 @@ CDN pattern:
 - **React vendor chunk:** keep `react`, `react-dom`, `scheduler`, `react-router(-dom)` in shared `vendor` chunk.
 - **Secrets in chat:** if the owner pastes `service_role` / `sbp_`, use once for the task; never commit; do not nag about rotation unless they ask.
 - **Origin-only Git:** `ALaustrup/VYBZ` — no legacy remotes.
+- **VDock is not a modal viewport:** tips, comments, source pickers, expanded player MUST render via `OverlayPortal` (`src/lib/overlayPortal.tsx`) on `document.body`, above dock z-70, with bottom clearance for `--dock-reserve`. Never nest tall sheets inside `.vdock-shell`.
+- **UX language:** frosted glass chips (`.glass-chip`), soft luminous blue atmosphere, stage-as-hero — see reference direction in chat / `NowPlayingStage`.
 
 ---
 
