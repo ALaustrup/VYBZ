@@ -27,3 +27,4 @@ jobs:
         run: npm run test:e2e
         env:
           CI: true
+          PLAYWRIGHT_SKIP_BUILD: "1"
