@@ -1,137 +1,94 @@
-# VYBZ — Architecture
+# ARCHITECTURE.md
 
-The authoritative technical map of the VYBZ codebase. Product context lives in
-[`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md). Release labels:
-[`VERSIONING.md`](./VERSIONING.md) (**current: Beta-0B**).
+> Platform map for **VYBZ Suite** (Beta-1A / Suite Genesis). Product doctrine:
+> [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md). Pre-suite snapshot:
+> [`docs/archive/pre-suite-2026/ARCHITECTURE.md`](./docs/archive/pre-suite-2026/ARCHITECTURE.md).
 
-## Overview
+## Summary
 
-VYBZ is an **identity-first** Music Hub (tip + live + catalog for indie artists),
-Supabase-backed React PWA with media on Supabase Storage (Bunny optional).
-Every account is a real creator; there is no anonymous/guest path. Signed-out
-visitors see the marketing landing (waitlist + Enter VYBZ). The client talks to
-Supabase with the anon key under Row-Level Security; privileged paths use
-`SECURITY DEFINER` RPCs and Edge Functions.
+Single-root **Vite 6 + React 18 + TypeScript** SPA/PWA with **Supabase**
+(Auth, Postgres + RLS, Storage, Realtime, Edge Functions), **Stripe**, **LiveKit**,
+**Resend**. Modular product namespaces share one identity, one database, one billing spine.
 
-**Canonical domain:** `vybz.cloud` (legacy alias `vybz.astramatrix.xyz` remains on
-passkey/host allow-lists during cutover).
+**Media origin is Supabase Storage only.** Dormant `bunny-*` Edge functions must not be
+re-enabled as doctrine. Live voice/SFU = LiveKit.
 
-**Git:** single remote `origin` → [`ALaustrup/VYBZ`](https://github.com/ALaustrup/VYBZ).
-Production deploys from `main` via Vercel project `astramatrix/vybz`.
+## Target frontend layout (Phase 1+)
 
-## Frontend
+```text
+src/
+  app/          routeManifest, providers, entitlements, commands
+  shell/        SuiteShell, PrimaryRail, CommandBar, MobileNav, SuiteSwitcher
+  features/     home, studio, prepare, credits, mastering, coverlab,
+                sentinel, relay, artist, live, market, wallet
+  platform/     api, auth, jobs, costs, storage, audit, notifications,
+                providers, telemetry, security
+```
 
-- **Entry:** `src/main.tsx` → `SessionProvider` → `App`.
-- **Shell (`AppChrome`):** sticky contextual app bar + scroll stage + fixed
-  **full-bleed bottom dock** (taskbar + integrated `GlobalPlayer`). Same layout on
-  mobile and desktop — **no side rail**. Taskbar pins use a `1fr | Orb | 1fr` grid
-  with even pin spacing; customize via long-press / gear (`TaskbarPins`).
-- **Studio / Music Repos:** `/projects` is the Repos hub when `VITE_FEATURE_REPOS`
-  is on (default). `create_repo` + CAS tables (`repo_blobs` / `repo_trees` /
-  `repo_commits` / `repo_branches` / `repo_merge_requests` / `repo_listings`);
-  New Repo sheet walks a local DAW folder, hashes SHA-256, uploads missing blobs,
-  commits to `main`. Room tabs: **History** (handoff hints for DAWproject/stems/
-  bounce), **Branches** (create branch, merge requests take-theirs/keep-ours,
-  pull tip into a folder), **Listing** (credit marketplace), Files, Credits.
-  Listed feed on Studio hub. Bridge companion (`tools/vybz-bridge`) watches
-  folders and emits `commit-ready` (web still performs CAS upload).
-- **Unified Social Live:** additive schema on `live_sessions` (single `ultra`
-  public tier) + social/premium `rooms`, `room_memberships`, `vc_ledger`; RPCs
-  `subscribe_room_vc` / `process_vc_room_renewals` (service role cron). Historical
-  phase notes: `docs/archive/UNIFIED_SOCIAL_LIVE_PHASE*.md`.
-- **Orb (`OrbSphere`):** idle neochrome plasma sphere; while a track plays, eases
-  into the uploader’s `playback_customization` morph + palette; on playback end,
-  soft-blends back to idle. Listener intensity: **Off / Soft / VYBZ Max**
-  (`src/lib/display.ts`). Viewport outline FX are retired (`ReactiveFrame` is a
-  no-op stub kept for import stability).
-- **Routing (`src/App.tsx`):**
-  - Primary: `/` (feed), `/discover`, `/connect` (+ `/spark`, `/opportunities`),
-    `/projects` (**Studio**), `/messages` (+ `/rooms`), `/live` (+ `/live/:id`),
-    `/profile`.
-  - Also: `/activity`, `/store`, `/admin`, `/mod`, `/apply-mod`, `/codex`,
-    `/codex/:slug`, `/legal/:slug`, `/u/:id`, `/artist/:slug`, `/p/:id`
-    (**Project** deep link), `*` → `NotFoundPage`.
-- **Auth gate:** Onboarding (passkey-first) → username → `RoleIntentOnboarding`
-  (role + intents + who-you-seek + optional avatar / role class) → app +
-  `WelcomeTutorial`.
-- **State:** `src/store/session.tsx`; player via `AudioBus` / `usePlayer()`.
-- **Data:** `src/lib/api.ts` typed to `src/types.ts`.
-- **Design:** Smoked-Glass tokens in `src/index.css`. **Per-surface theming**
-  (`src/lib/surfaceTheme.ts`) sets `--accent-rgb` + living-background variant per
-  route. Shared `PageHeader`; `GrainOverlay`; `.reveal` entrances;
-  `DynamicBackground` scales with FX intensity; primary reactivity is the Orb.
+Today: flat routes in [`src/App.tsx`](./src/App.tsx); only `src/features/storefront/` exists.
+See [`docs/architecture/FRONTEND_ARCHITECTURE.md`](./docs/architecture/FRONTEND_ARCHITECTURE.md)
+and [`docs/architecture/ROUTE_MANIFEST.md`](./docs/architecture/ROUTE_MANIFEST.md).
 
-### Naming (product vs schema)
+## Platform kernel
 
-| UI label | Schema / routes | Purpose |
-|----------|-----------------|---------|
-| **Projects** | `profile_projects`, `/p/:id` | On-profile creative projects: micro-blog posts and/or hub widgets (`project_page_widgets`) |
-| **Studio / Repos** | `projects`, `/projects` | Private collab rooms + Music Repos VCS: CAS commits, splits, credits, listings |
+Session · organizations (planned) · project membership · permissions · release identity ·
+assets · provider credentials · jobs · cost reservations · audit · notifications ·
+entitlements · feature flags ([`src/lib/flags.ts`](./src/lib/flags.ts)) · quotas · storage access.
 
-(Historical docs sometimes said “Spaces” / “Collabs” for the same surfaces.)
+## Existing foundations to preserve
 
-## Backend (Supabase)
+| Layer | Location |
+|-------|----------|
+| Music Repos (CAS blobs/trees/commits/branches/MRs) | migrations `0059`/`0060`, `src/lib/repoSync.ts`, `src/lib/api.ts`, `src/components/repos/` |
+| Local watch companion | `tools/vybz-bridge/` → evolve to **VYBZ Engine** |
+| Playback | AudioBus, VDock, OverlayPortal |
+| Watermark / provenance | `watermark`, `watermark-detect`, ledger migrations |
+| Market (packs) | `src/features/storefront/`, EFs `storefront-*` |
+| AI stills | EF `visual-generate` (fal; prepaid / Vc debit) |
+| Auth | Supabase Auth + passkeys |
+| Payments | Stripe Checkout + Connect Express (`creator_payouts`) |
+| Live | LiveKit token EF + client |
 
-**Project ref:** `xixmneooyufbeftdfpcm` (us-west-1). This is the **VYBZ** production
-project (CLI link name may still show as `vyb-audio`). Do not point the app at any
-other Supabase project.
+## Data and storage
 
-### Schema highlights (`supabase/migrations/`)
-Migrations are timestamped from `20260709_*` through `20260724_*` (60+ files).
-Core: profiles + taxonomy + `creator_roles` / `creator_seeks`; `profile_modules` +
-`apply_role_intent_onboarding`; connections + DMs; drops / assets / playback
-customization; Studio projects + Music Repos CAS + release batches; profile
-Projects + widgets; rooms; live streams; staff/mod; cosmetics + credit top-ups;
-passkeys; provenance ledger; weekly digest; OAuth connections; habit/trust;
-network hard filters.
+Additive migrations only; no DB reset; one Supabase project `xixmneooyufbeftdfpcm`.
 
-### Discovery & feed
-`search_creators` powers faceted Discover. Feed ranking:
-`feed_for_you` / `feed_undiscovered`. Realtime: `drops` + `project_posts` on
-`supabase_realtime`.
+Buckets: `site-visuals`, `media-public`, `audio-assets`, `project-files`,
+`storefront-previews`, `storefront-zips`, plus Music Repos blob storage per schema.
 
-### Edge Functions (`supabase/functions/`)
+Planned Suite tables (Prepare onward): release projects, findings, credits passport,
+audio/artwork analysis runs, secure rooms, distribution packages, automation_jobs,
+cost_reservations — see [`docs/architecture/DATA_ARCHITECTURE.md`](./docs/architecture/DATA_ARCHITECTURE.md)
+and [`docs/architecture/DATABASE_REGISTRY.md`](./docs/architecture/DATABASE_REGISTRY.md).
 
-| Function | Role |
-|----------|------|
-| `passkey` | WebAuthn |
-| `bunny-upload` / `bunny-sign` / `bunny-live` | Media upload (incl. `kind=repo-blob` CAS), signed URLs, live media helpers |
-| `livekit-token` / `vc-room-renewals` | Unified Social Live: LiveKit JWTs; V¢ room subscription cron |
-| `watermark` / `watermark-detect` | Forensic watermark + optional C2PA forward |
-| `embed` | gte-small resonance embeddings |
-| `stripe-connect-onboard` / `stripe-tip` / `stripe-webhook` / `stripe-credit-topup` | Connect tips + cosmetic credit packs |
-| `oauth-start` / `oauth-callback` | Third-party OAuth links |
-| `ice-servers` | WebRTC ICE / TURN config |
-| `weekly-digest` | Opt-in Resend weekly digest |
+## Jobs and compute routing
 
-Shared helpers live under `_shared/`. There is **no** `push-send` function in-tree.
+```text
+Browser / WASM → VYBZ Engine (Bridge) → OVH worker → Edge Function → free provider → paid provider
+```
 
-### Auth & media
-- **Auth:** passkey-first WebAuthn + password fallback. Anonymous disabled.
-- **Media:** Bunny public (post media) + Bunny secure (drops, Studio versions,
-  `repo-blobs/` CAS objects). Legacy Supabase buckets (`media-public` avatars,
-  `audio-assets`) still readable. Uploads stream through `bunny-upload` (≤1 GB)
-  with client progress.
-- **Library:** `UploadsLibrary` on profile (rename / delete / feature drop).
-- **C2PA:** `worker/c2pa` container; gated on `C2PA_WORKER_*` secrets.
+Job state machine and Cost Sentinel: [`docs/architecture/JOB_SYSTEM.md`](./docs/architecture/JOB_SYSTEM.md),
+[`docs/operations/COST_CONTROL.md`](./docs/operations/COST_CONTROL.md).
 
-## Professions & role class
+## Providers
 
-Four professions (`src/lib/profileFields.ts`): Music, Visual Art, Film/Video,
-Game Dev. **Role Class** (supporter, booker, curator, brand, educator, …) is a
-second identity axis (`VITE_FEATURE_ROLE_CLASS`) with matchmaking guardrails so
-adjacent accounts never outrank creator↔creator collabs. Commissions board +
-Stripe Connect tips (`VITE_FEATURE_TIPS`) are shipped.
+Registry: [`docs/architecture/PROVIDER_ARCHITECTURE.md`](./docs/architecture/PROVIDER_ARCHITECTURE.md).
+Default optional AI (`fal`) = disabled / prepaid_only. Groq free_only ceiling. LiveKit Build hard allowance.
 
-## Matchmaking
+## Deployment
 
-`collab_matches` (v7+) blends complementary roles, modules, affinity, embeddings,
-Project follows, reputation, and role-class signals with an explainable confidence.
-Learning-to-rank via `match_feedback` → `tune_matchmaking_weights()` /
-`matchmaking_learning` (cron or Admin → Matchmaking).
+| Concern | Current | Planned |
+|---------|---------|---------|
+| SPA host | Vercel `astramatrix/vybz` ← `main` | Cloudflare Pages canary → `app.vybz.cloud` → apex |
+| Backend | Supabase Edge + Postgres + Storage | Same project |
+| Email | Resend | Same |
+| Live | LiveKit | Same until quota forces controlled upgrade |
 
-## Conventions
+## Failure modes
 
-Identity-first; RLS everywhere; definer RPCs; idempotent migrations; strict
-TypeScript (`npm run build` green); additive changes. Full rules in
-`VYBZ_MASTERPLAN.md` §9. Release process in `VERSIONING.md`.
+- Missing Supabase env → app hard-stops (not a mock offline app).
+- LiveKit quota exhausted → block new sessions gracefully; never auto-upgrade.
+- Paid provider without reservation → refuse start.
+- Degraded provider → show unavailable / local fallback, not silent cloud spend.
+
+Deep dives: [`docs/architecture/PLATFORM_OVERVIEW.md`](./docs/architecture/PLATFORM_OVERVIEW.md).

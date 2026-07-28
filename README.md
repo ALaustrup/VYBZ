@@ -1,85 +1,78 @@
 # VYBZ
 
-> **Find Yours.**
+> **Find Yours.**  
+> **Everything between finished and released.**
 
-VYBZ is the **music home for indie artists and their fans** — upload your catalog,
-stream on **VDock**, tip with **Vc** (`~username`), and go **live**. Real identity.
-No ads. Messaging free forever. Owner: **Astra Matrix, Inc.** Canonical domain:
-**`vybz.cloud`**.
+VYBZ is the **release operating system for independent music** — prepare, protect,
+credit, master, package, distribute, and present your work, then keep it playing
+for fans. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 
-**VYBZ has no anonymity.** Every account is a durable creator identity.
+**VYBZ has no anonymity.** Every account is a durable creator identity. No ads.
+No connection paywalls. Messaging free forever.
 
-> 📐 See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for product + GTM doctrine,
-> [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map, and
-> [`VERSIONING.md`](./VERSIONING.md) for release labels.
+> See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for Suite doctrine,
+> [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map,
+> [`VERSIONING.md`](./VERSIONING.md) for labels, and
+> [`docs/DOCUMENTATION_MANIFEST.md`](./docs/DOCUMENTATION_MANIFEST.md) for the doc tree.
 >
-> **Current release:** **Beta-0B** line — launch reposition in progress (see [`CHANGELOG.md`](./CHANGELOG.md)).
+> **Current line:** **Beta-1A — Suite Genesis** (in progress; **untagged** until
+> shell, cost kernel, and Prepare scan pass production gates).
 
-## What VYBZ is (launch wedge)
+## What VYBZ is
 
-- **Listen** — upload drops, stream in VDock, discover by taste.
-- **Tip** — support artists with closed-loop **Vc**; cosmetics are primary revenue.
-- **Live** — go live on your profile; chat + presence on the same identity.
-- **Identity** — email + passkey; artist pages at `/u/:id`.
-- **Optional Connection Lab** — people matching (including adult-gated intents) only for users who opt in. Never the front door.
+| Module | Role |
+|--------|------|
+| **Home** | Release and audience command center |
+| **Studio** | Music Repos — versions, branches, collaboration |
+| **Prepare** | Know what is ready; fix what is not |
+| **Credits** | Contributors, splits, approvals |
+| **MasterReady** | Analysis and deliverables |
+| **CoverLab** | Artwork readiness and repair |
+| **Sentinel** | Secure prerelease sharing and provenance |
+| **Relay** | Distribution packages and delivery status |
+| **Artist / VDock / Live / Market** | Public catalog, playback, performance, digital products |
 
-Public visitors hit the **marketing landing** (alpha waitlist + Enter VYBZ). Signed-in users land on the **music hub**.
+## What's shipped today (foundation)
 
-## What's shipped
+- Marketing landing + alpha waitlist + Enter VYBZ (`/enter`)
+- Passkey-first auth, artist pages `/u/:id`, VDock playback, Vc tips + cosmetics
+- LiveKit live sessions, Music Repos + `tools/vybz-bridge`
+- Sample Pack Storefront (`/tools/packs`, `/pack/:slug`)
+- AI visualizer stills (`visual-generate`) → Studio → Compose backdrop
+- Watermark embed/detect Edge Functions
+- Supabase Storage media origin (`site-visuals` CDN); Bunny dormant
 
-- **Marketing landing** — brand hero, product story, alpha waitlist (Resend launch notify).
-- **Passkey-first auth** with password fallback → username → music-first Intent Mix.
-- **Hub** — Listen / Live / Connect / You / Wallet; artist storefronts `/u/:id`.
-- **VDock** — always-on player + Orb; cinema stage for live / track visuals.
-- **Vc tips** + cosmetic store + Stripe top-ups (tips secondary to Flair).
-- **Live** — streams, Social hub, room voice (LiveKit).
-- **Codex & Legal** — industry templates + Terms / Privacy / DMCA / AUP / Vc whitepaper.
+Suite shell, Prepare scans, and cost kernel land in later phases — see masterplan.
 
 ## Local development
 
 ```bash
 npm install
-cp .env.example .env.local   # fill VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
-npm run dev
+cp .env.example .env   # set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
+npm run dev            # http://localhost:5173
+npm run lint
+npm run build
 ```
 
-Requires Node ≥ 20. Production deploys via Vercel project **`astramatrix/vybz`**
-(GitHub [`ALaustrup/VYBZ`](https://github.com/ALaustrup/VYBZ) → `main`). Canonical host: **vybz.cloud**
-(preview: `vybz-astramatrix.vercel.app`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
-as project env vars (production Supabase ref: `xixmneooyufbeftdfpcm`). Auth redirect allowlist includes `https://vybz.cloud/**`.
+Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
 
-## Scripts
+## Documentation map
 
-| Script | Purpose |
-|--------|---------|
-| `npm run dev` | Vite dev server |
-| `npm run build` | Typecheck + production build |
-| `npm run lint` | `tsc --noEmit` |
-| `scripts/deploy.sh` | Migrations + Edge Functions + Vercel |
-| `scripts/activate-vybz-domains.sh` | Point parked GoDaddy satellite domains at Vercel |
-| `scripts/configure-resend-smtp.sh` | Wire Resend SMTP via Management API |
-| `scripts/provision-stripe-vybz.sh` | Stripe secrets for Edge |
-| `scripts/provision-oauth-turn-tips.sh` | OAuth / TURN / tips provisioning |
-| `scripts/setup-vybz-infra.ps1` | Local Phase-0 infra orchestration (Windows) |
+| Doc | Purpose |
+|-----|---------|
+| [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) | Product authority |
+| [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Platform overview |
+| [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
+| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |
+| [`docs/`](./docs/) | Architecture, products, design, ops, engineering, agents |
+| [`docs/archive/`](./docs/archive/) | Historical only — never authoritative |
 
-## Satellite domains
+## Security reporting
 
-The satellite domains **`vybz.work`**, **`vybz.space`**, **`vybz.world`**,
-**`vybz.guru`**, and **`vybz.cc`** are registered at GoDaddy and each already has
-a **308 redirect → `vybz.cloud`** configured on the Vercel project. Activating
-them only requires repointing their GoDaddy DNS at Vercel (apex `A → 76.76.21.21`,
-matching the canonical `vybz.cloud`). Run:
+Report vulnerabilities privately to the Astra Matrix owners. Do not file public
+issues that include exploit detail for unpatched production flaws.
 
-```bash
-export GODADDY_API_KEY="..." GODADDY_API_SECRET="..."   # PRODUCTION keys
-export VERCEL_TOKEN="..."                                # optional: post-write verification
-DRY_RUN=1 bash scripts/activate-vybz-domains.sh          # preview first
-bash scripts/activate-vybz-domains.sh                    # apply
-```
+## License / ownership
 
-The script is idempotent and verifies each record after writing. GoDaddy keys are
-created at <https://developer.godaddy.com/keys> (use the **Production** key/secret).
-
-## License
-
-Proprietary — Astra Matrix, Inc. All rights reserved.
+Proprietary — Astra Matrix, Inc. Repository: [ALaustrup/VYBZ](https://github.com/ALaustrup/VYBZ).

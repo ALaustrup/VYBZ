@@ -1,13 +1,14 @@
 {
   "name": "vybz-app",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.1.0",
   "vybz": {
-    "release": "Beta-0B.1",
-    "era": "beta"
+    "release": "Beta-1A",
+    "era": "beta",
+    "codename": "Suite Genesis"
   },
   "type": "module",
-  "description": "VYBZ — tip + live + catalog home for indie artists. Find Yours.",
+  "description": "VYBZ — release operating system for independent music. Find Yours. Everything between finished and released.",
   "engines": {
     "node": ">=20"
   },

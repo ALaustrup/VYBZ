@@ -3,18 +3,31 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
-## Unreleased — 2026-07-28 — Official Launch Reposition
+## Unreleased — Suite Genesis (Beta-1A planned)
 
-Music Hub **tip + live + catalog** wedge for indie artists. Public marketing landing,
-alpha waitlist (Resend notify-on-launch), legal + docs rewrite, music-first onboarding.
-Dating / Spark demoted behind Connection Lab; Living Home product docs archived.
-Signup remains open via **Enter VYBZ**. See masterplan GTM section.
+**Codename:** Suite Genesis. VYBZ repositioned as a **release operating system**
+(“Everything between finished and released”). Music Hub audience surfaces
+(artist pages, VDock, tips, live, storefront) preserved as the public layer of a
+longer professional lifecycle.
 
-Also in this line:
-- SEO/logo pack on `main` (`8e5060c`): favicon.ico, sitemap `/enter` + `/legal/vc`, PWA manifest, `@vybz.cloud` contacts.
-- Email defaults → `noreply@vybz.cloud`; Resend domain verified.
-- **Site visuals on Supabase Storage** (bucket `site-visuals`, not Git LFS): CDN resolver
-  `src/lib/siteVisuals.ts`, upload script `npm run visuals:upload`, loops on CDN; `AGENTS.md` pickup handoff.
+Phase 0 (doctrine):
+
+- Archive Music Hub–era authority under `docs/archive/pre-suite-2026/`
+- Rewrite root docs + establish `docs/{architecture,products,design,operations,engineering,agents}`
+- Route, migration, provider, and cost inventories
+- Branch `suite-genesis`; package metadata → `1.1.0` / `Beta-1A` (**no git tag yet**)
+
+Still carried from the prior Unreleased Music Hub line (not discarded):
+
+- SEO/logo pack; `@vybz.cloud` email; site-visuals CDN on Supabase Storage
+- AI Visualizer stills (`visual-generate`) + Sample Pack Storefront
+- Bunny retired as media origin; LiveKit for live
+
+## Prior Unreleased notes — 2026-07-28 — Official Launch Reposition (archived doctrine)
+
+Music Hub tip + live + catalog wedge, marketing landing, waitlist, dating/Spark
+demotion, Living Home archive. Superseded as **product north star** by Suite Genesis;
+historical copy: [`docs/archive/pre-suite-2026/`](./docs/archive/pre-suite-2026/).
 
 ## Beta-0B.1 — 2026-07-25 — Elite Reactive Campaign
 
@@ -35,7 +48,6 @@ Also in this line:
 Studio evolves into a GitHub-like music VCS (flag `VITE_FEATURE_REPOS`, default on).
 
 - Migrations `20260724_0059_music_repos.sql` + `0060_music_repos_collab_market.sql` — CAS blobs/trees/commits/branches, merge requests, tip pull manifest, listings/purchases
-- `bunny-upload` `kind=repo-blob`; secure paths include `repo-blobs/` for `bunny-sign`
 - New Repo sheet — directory picker / drag-drop, Ableton/FL ignore rules, SHA-256 dedupe sync
 - Repo room tabs — History, Branches (MR + pull tip), Listing (cosmetic credits), Files, Credits
 - Studio hub — “Repos for sale” feed via `repo_listed_feed` + purchase with `mod_points`
