@@ -11,6 +11,95 @@
     --accent-rgb: 0 194 255;
     --coral-rgb: 255 77 46;
 
+    /* ── Suite Genesis semantic color ───────────────────────────────── */
+    --color-abyss: #0a0e18;
+    --color-graphite: #121826;
+    --color-slate: #1e293b;
+    --color-fog: #94a3b8;
+    --color-snow: #f8fafc;
+    --color-cyan: #00c2ff;
+    --color-success: #00d68f;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-info: #7dd3fc;
+
+    --accent-home: 0 194 255;
+    --accent-studio: 255 140 40;
+    --accent-prepare: 125 211 252;
+    --accent-credits: 99 102 241;
+    --accent-master: 245 158 11;
+    --accent-coverlab: 217 70 239;
+    --accent-sentinel: 239 68 68;
+    --accent-relay: 59 130 246;
+    --accent-live: 220 38 38;
+    --accent-market: 168 85 247;
+    --accent-artist: 0 194 255;
+    --vdock-accent: 0 194 255;
+
+    /* Spacing scale (rem) */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+
+    /* Sizing */
+    --size-control-sm: 2rem;
+    --size-control-md: 2.5rem;
+    --size-control-lg: 3rem;
+    --size-icon-sm: 1rem;
+    --size-icon-md: 1.25rem;
+
+    /* Radii — restrained Suite chrome */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.625rem;
+    --radius-lg: 0.875rem;
+    --radius-xl: 1.25rem;
+    --radius-full: 9999px;
+
+    /* Borders */
+    --border-width: 1px;
+    --border-color: var(--hairline);
+    --border-color-strong: var(--hairline-strong);
+
+    /* Elevation / shadows */
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.24);
+    --shadow-md: 0 8px 24px -12px rgb(6 12 28 / 0.55);
+    --shadow-lg: 0 22px 52px -28px rgb(6 12 28 / 0.55);
+    --shadow-focus: 0 0 0 2px var(--color-abyss), 0 0 0 4px rgb(var(--accent-rgb) / 0.55);
+
+    /* Z-index layers */
+    --z-base: 0;
+    --z-stage: 10;
+    --z-sticky: 30;
+    --z-dock: 70;
+    --z-overlay: 80;
+    --z-modal: 90;
+    --z-toast: 100;
+    --z-max: 110;
+
+    /* Motion */
+    --motion-fast: 120ms;
+    --motion-base: 220ms;
+    --motion-slow: 360ms;
+    --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+    /* Typography aliases */
+    --font-sans: Lexend, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Atkinson Hyperlegible", Lexend, ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+
     /* App shell tokens */
     --app-bar-h: 3.25rem;
     --taskbar-h: 4.75rem;
@@ -19,6 +108,7 @@
     --dock-gap: 0;
     --dock-reserve: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
     --rail-w: 5.75rem;
+    --rail-width: var(--rail-w);
     --stage-pad-x: 1rem;
 
     /* Soft dark glass — frosted, next-gen, not muddy black */
@@ -34,6 +124,14 @@
     --neon-cyan: 0 194 255;
     --neon-mint: 0 214 143;
     --neon-electric: 0 194 255;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --motion-fast: 0.01ms;
+      --motion-base: 0.01ms;
+      --motion-slow: 0.01ms;
+    }
   }
 
   @media (min-width: 640px) {
@@ -140,6 +238,44 @@
 
   .app-shell-main {
     @apply flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden;
+  }
+
+  /* ── Suite shell — rail + main + dock ───────────────────────────────────── */
+  .suite-shell {
+    @apply relative mx-auto flex h-[100dvh] w-full max-w-7xl overflow-hidden;
+  }
+
+  .suite-rail {
+    @apply hidden w-52 shrink-0 flex-col border-r border-white/10 bg-white/[0.02] lg:flex;
+  }
+
+  .suite-shell-main {
+    @apply flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden;
+  }
+
+  .suite-stage {
+    @apply relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden;
+    padding-bottom: calc(var(--dock-reserve, 6.25rem) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .suite-stage-inner {
+    @apply mx-auto h-full min-h-0 w-full max-w-5xl overflow-y-auto overflow-x-hidden;
+    padding-left: var(--stage-pad-x);
+    padding-right: var(--stage-pad-x);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .suite-mobile-nav {
+    @apply shrink-0 border-t border-white/10 bg-black/20 backdrop-blur-md;
+    margin-bottom: var(--dock-reserve, 6.25rem);
+  }
+
+  .suite-command-bar {
+    @apply relative z-30;
+  }
+
+  .suite-inspector {
+    padding-bottom: calc(var(--dock-reserve, 6.25rem) + env(safe-area-inset-bottom, 0px));
   }
 
   .app-bar {
@@ -969,4 +1105,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
 /* Dock hover labels always above chrome */
 [data-vdock] [data-tip]::after {
   z-index: 90;
+}
+
+@layer utilities {
+  .suite-focus-ring:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+  .suite-surface-professional {
+    background: var(--color-graphite);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-md);
+  }
+  .suite-surface-audience {
+    background: var(--mat-fill);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px);
+  }
 }
