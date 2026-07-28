@@ -86,6 +86,15 @@ export interface ProfileDetails {
   };
   /** Keys stripped by `public_profile` RPC (privacy facets). */
   _hidden?: string[];
+  /** Phase 8 — connected external playlists (Spotify etc.). */
+  connectedPlaylists?: Array<{
+    id: string;
+    provider: string;
+    externalUrl: string;
+    title: string;
+    trackCount: number;
+    connectedAt: number;
+  }>;
 }
 
 export interface Profile {
@@ -511,15 +520,20 @@ export interface RoomMessage {
   body: string;
   createdAt: number;
   mine: boolean;
+  /** emoji → user ids */
+  reactions?: Record<string, string[]>;
 }
 
 export interface RoomPresence {
   userId: string;
   username: string | null;
+  typing?: boolean;
 }
 
 /** Public creator live session (Bunny Stream + identity chat). */
 export type LiveSource = "camera" | "display" | "both";
+/** Circle = accepted connections; World = public listing. */
+export type LiveAudience = "world" | "circle";
 
 export interface LiveSessionCard {
   id: string;
@@ -534,6 +548,7 @@ export interface LiveSessionCard {
   viewerCount: number;
   playbackHls: string | null;
   startedAt: number;
+  visibility?: LiveAudience;
 }
 
 export interface LiveSessionDetail extends LiveSessionCard {
@@ -546,6 +561,9 @@ export interface LiveSessionDetail extends LiveSessionCard {
   livekitRoom?: string | null;
   sfuProvider?: string | null;
   audioMode?: "music" | "speech";
+  tipGoal?: number;
+  tipRaised?: number;
+  tipCount?: number;
 }
 
 export interface LiveMessage {

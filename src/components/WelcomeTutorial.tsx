@@ -6,30 +6,19 @@ import { needsIntentMixIntake } from "@/lib/intentMix";
 import { cx } from "@/lib/utils";
 
 const STEPS = [
-  {
-    icon: Home,
-    title: "Your Home",
-    body: "Home is your living canvas — alerts, people, and Focus. Customize it; it blooms with what you’re open to.",
-  },
-  {
-    icon: CircleDot,
-    title: "The Orb & Dock",
-    body: "Hold and drag the Orb for Drop, Live, Spark, or Messages. Hold any dock pin to rearrange — keep it minimal.",
-  },
-  {
-    icon: Sparkles,
-    title: "Find people",
-    body: "Spark for vibes & dates, Network for collabs, Messages for free DM / voice / cam. Never paywalled.",
-  },
+  { icon: Home, title: "Home", body: "You · alerts · Pulse." },
+  { icon: CircleDot, title: "Music", body: "Dock is your soundtrack — always on." },
+  { icon: Sparkles, title: "People", body: "Spark · Network · free DM." },
 ];
 
-/** Shown once after onboarding — Living Home era. */
+/** Shown once after onboarding — Dark Smoke glyph steps. */
 export function WelcomeTutorial() {
   const { profile } = useSession();
   const ready = !!profile?.username && !needsIntentMixIntake(profile?.profile);
   const [seen, setSeen] = useState(() => {
     try {
-      return localStorage.getItem("vybz.tutorial.v3") === "1"
+      return localStorage.getItem("vybz.tutorial.v4") === "1"
+        || localStorage.getItem("vybz.tutorial.v3") === "1"
         || localStorage.getItem("vybz.tutorial.v2") === "1"
         || localStorage.getItem("vybz.tutorial.v1") === "1";
     } catch { return true; }
@@ -39,9 +28,8 @@ export function WelcomeTutorial() {
 
   const done = () => {
     try {
+      localStorage.setItem("vybz.tutorial.v4", "1");
       localStorage.setItem("vybz.tutorial.v3", "1");
-      localStorage.setItem("vybz.tutorial.v2", "1");
-      localStorage.setItem("vybz.tutorial.v1", "1");
     } catch { /* ignore */ }
     setSeen(true);
   };
@@ -55,14 +43,14 @@ export function WelcomeTutorial() {
         <motion.div key={step} initial={{ y: 20, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ type: "spring", stiffness: 300, damping: 28 }}
           className="glass-panel relative z-10 w-full max-w-sm rounded-t-3xl p-7 text-center sm:rounded-3xl">
-          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-veil-500/20 text-veil-100"><S.icon className="h-7 w-7" /></span>
+          <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(var(--neon-cyan)/0.18)] text-[rgb(var(--neon-cyan))]"><S.icon className="h-7 w-7" /></span>
           <h2 className="font-display text-xl font-bold text-white">{S.title}</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-white/65">{S.body}</p>
           <div className="mt-5 flex items-center justify-center gap-1.5">
-            {STEPS.map((_, i) => <span key={i} className={cx("h-1.5 rounded-full transition-all", i === step ? "w-5 bg-veil-400" : "w-1.5 bg-white/20")} />)}
+            {STEPS.map((_, i) => <span key={i} className={cx("h-1.5 rounded-full transition-all", i === step ? "w-5 bg-[rgb(var(--neon-cyan))]" : "w-1.5 bg-white/20")} />)}
           </div>
           <button type="button" onClick={() => (last ? done() : setStep(step + 1))} className="btn btn-primary mt-5 w-full py-3.5 text-[15px]">
-            {last ? <>Enter Home <Check className="h-4 w-4" /></> : <>Next <ArrowRight className="h-4 w-4" /></>}
+            {last ? <>Enter <Check className="h-4 w-4" /></> : <>Next <ArrowRight className="h-4 w-4" /></>}
           </button>
           {!last && <button type="button" onClick={done} className="mt-3 w-full text-center text-[13px] text-white/45 hover:text-white/70">Skip</button>}
         </motion.div>

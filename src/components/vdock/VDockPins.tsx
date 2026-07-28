@@ -96,7 +96,7 @@ export function VDockItemRow({
 
         const className = cx(
           "relative flex h-full min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center rounded-2xl px-0.5 py-1 transition touch-none select-none",
-          editing ? "vdock-pin-jiggle text-paper-900/80" : active ? "text-paper-900" : "text-paper-900/40 hover:text-paper-900/80",
+          editing ? "vdock-pin-jiggle text-white/80" : active ? "text-white" : "text-white/40 hover:text-white/80",
           isDragging && "opacity-30",
         );
 

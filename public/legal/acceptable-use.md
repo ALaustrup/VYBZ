@@ -1,33 +1,35 @@
 # VYBZ Acceptable Use Policy
 
-**Operator:** Astra Matrix, Inc.   **Service:** VYBZ
-**Effective Date:** [EFFECTIVE DATE]   **Version:** 1.0
+**Operator:** Astra Matrix, Inc. **Service:** VYBZ  
+**Effective Date:** July 27, 2026 **Version:** 2.0
 
-This Acceptable Use Policy ("AUP") governs conduct on VYBZ and is incorporated into the Terms of Service. Violating this AUP may result in content removal, suspension, or termination.
+This AUP is part of the Terms of Service. Violations may lead to content removal, limits, suspension, or termination.
 
 ## 1. You May Not
-- Upload, share, or distribute content you do not own or have the rights to, or that **infringes** any copyright, trademark, or other right.
-- Upload uncleared **samples, interpolations, or third-party recordings** without authorization.
-- Post unlawful, fraudulent, deceptive, defamatory, harassing, hateful, or abusive content, or content that violates others' privacy or publicity rights.
-- Impersonate any person or entity or misrepresent your identity or affiliation (VYBZ is identity-first).
-- Upload malware, or attempt to hack, disrupt, overload, or gain unauthorized access to the Service, other accounts, or its infrastructure.
-- Scrape, harvest, or bulk-collect data or content except as expressly permitted.
-- Circumvent, disable, or tamper with security, watermarking, provenance, or rights-management features.
-- Use the Service to spam, artificially inflate or manipulate metrics, or to send unsolicited solicitations.
-- Resell or redistribute other users' assets outside the license granted for that asset.
-- Use the Service for any illegal purpose or in violation of applicable law.
-- Misrepresent affiliate or sponsored links as unpaid recommendations, or use affiliate links to manipulate matchmaking (affiliate links never affect ranking).
-- Abuse optional Swarm (P2P) seeding to redistribute assets beyond the license granted, or to seed content you are not permitted to download.
+- Upload or distribute content you lack rights to, or that infringes IP.
+- Upload uncleared samples/third-party recordings without authorization.
+- Post unlawful, fraudulent, harassing, hateful, or non-consensual intimate content.
+- Involve **anyone under 18** in romantic, sexual, or adult Connection Lab activity — zero tolerance.
+- Share non-consensual intimate imagery, doxxing, or threats.
+- Impersonate others or run bots/fake accounts (identity-first).
+- Hack, scrape abusively, spam, or manipulate metrics / Vc earn.
+- Circumvent watermarking, provenance, age gates, or security.
+- Use live, chat, or Connection Lab to traffic, exploit, or coerce.
+- Misuse Swarm/P2P beyond granted licenses.
+- Misrepresent affiliate links or use them to game ranking.
 
-## 2. Content Standards
-Content you share should be your original work or properly licensed, accurately credited, and lawful. Provide accurate metadata and honor the license terms attached to assets you download. Disclose affiliate/referral relationships when you post merchant links.
+## 2. Music & Live Standards
+Credit accurately. Honor licenses on downloads. Live streams and waveform comments must follow this AUP. Tips via Vc or Stripe must not be used for illegal markets.
 
-## 3. Enforcement
-We may review reported content and take action at our discretion, including removing content, limiting features, or suspending/terminating accounts. We may report unlawful activity to authorities.
+## 3. Connection Lab Standards
+Opt-in only. Be honest about age and intents. Consent is required and revocable. Offline meetups are at your own risk; arrange safely. Adult roleplay / cam / sexting intents are only for consenting adults.
 
-## 4. Reporting Violations
-To report a violation, contact [abuse@astramatrix.xyz]. For copyright specifically, see our **Copyright & DMCA Policy**.
+## 4. Enforcement
+We may remove content, restrict features, or ban accounts, and report illegal activity to authorities.
+
+## 5. Reporting
+abuse@astramatrix.xyz — for copyright, see the DMCA policy.
 
 ---
 
-*This document is provided by Astra Matrix, Inc. and should be reviewed by qualified counsel before public reliance.*
+*Version 2.0 — Music Hub + Connection Lab conduct rules. Review with counsel before heavy launch marketing.*

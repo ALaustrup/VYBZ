@@ -23,8 +23,8 @@ import "@fontsource/atkinson-hyperlegible/700-italic.css";
 import "@/index.css";
 
 if (typeof document !== "undefined") {
-  document.documentElement.dataset.theme = "day";
-  document.documentElement.style.colorScheme = "light";
+  document.documentElement.dataset.theme = "smoke";
+  document.documentElement.style.colorScheme = "dark";
 }
 
 // Unlock the audio context on the first user gesture (a browser requirement).

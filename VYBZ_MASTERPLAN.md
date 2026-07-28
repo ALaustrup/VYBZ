@@ -2,11 +2,11 @@
 
 > ## **VYBZ: Find Yours.**
 
-**Product:** VYBZ is the next-generation, **identity-first**, **vibes-based genuine
-connection platform**. It exists to make real human connection discoverable —
-romance, friendship, hangouts, activity partners, creative collaboration, and
-professional fit — without ads, without subscription traps, and without paywalling
-the ability to meet or talk to people.
+**Product:** VYBZ is the ultimate **music platform** fusing **SoundCloud** (upload +
+waveform community), **Spotify** (seamless streaming + taste discovery), and **Twitch**
+(live studio + chat + tips) — under one durable identity. Optional **Connection Lab**
+matchmaking (including adult-gated intents) is available for those who opt in; it must
+never overwhelm the music-first majority experience.
 
 **Owner:** Astra Matrix, Inc.  
 **Canonical domain:** [`vybz.cloud`](https://vybz.cloud) (legacy alias: `vybz.astramatrix.xyz`).  
@@ -17,32 +17,35 @@ Technical map of the live tree: [`ARCHITECTURE.md`](./ARCHITECTURE.md). Release 
 [`VERSIONING.md`](./VERSIONING.md) + [`CHANGELOG.md`](./CHANGELOG.md). Security rules:
 [`SECURITY.md`](./SECURITY.md). Parked ideas: [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md).
 
-**Doctrine era:** **Vibes** — generation target **Beta-1A** (expansion on the Beta-0B
-foundation). Until Beta-1A ships, live code may still skew creator-collab-first; **this
-document wins** when code or older brand notes conflict.
+**Doctrine era:** **Music Hub** — generation target **Beta-1H** (SoundCloud × Spotify ×
+Twitch hub UI + optional Connection Lab). When live code or older brand notes conflict
+with this document, **this document wins**.
 
-> ### Correction of record (read once, then move on)
+> ### Correction of record (July 2026) — clarified north star
 >
-> VYBZ inherited a creator-collab spine (matchmaking, drops, Studio, DMs, Live,
-> cosmetics). That spine is **kept and expanded** — it is not discarded.
+> VYBZ is **music-first**. The product loop is upload → stream in VDock → discover by
+> taste → artist profiles → live + tip with Vc.
 >
-> An earlier doctrine briefly banned dating and other “off-mission” social domains.
-> **That ban is revoked.** Love, meetup, friendship, and activity partnership are
-> first-class pillars alongside create/pro. What remains permanently banned:
-> **anonymity of any kind**, guest/ephemeral aliases, confessions-as-product, AI
-> companions as substitute people, ads, and paywalled connection.
+> **Connection Lab (optional spice):** high-precision people matching — friendship,
+> creative partners, romance, IRL meetups, and adult-consensual intents (e.g. roleplay,
+> cam, sexting) for **verified 18+ users who explicitly opt in**. Default chrome stays
+> music-hub calm; spicy surfaces are behind opt-in + age gates. Messaging / cam / voice
+> remain free forever.
 >
-> Early scaffolding briefly carried unrelated concepts from a prior experiment.
-> Anonymous/guest accounts and crisis “lifelines” stay out. The legacy `myvybsocial`
-> remote is eradicated — `origin` is `ALaustrup/VYBZ` only.
+> **What we keep:** auth, drops, AudioBus + VDock, DMs/cam/voice, Live, Vc (`~username`),
+> taste signals, `/u/:id` artist pages, existing match RPCs (reused behind Connection Lab).
+>
+> **Not the default front door:** dating-first Living Home, Studio-only positioning,
+> anonymity, ads, paywalled connection.
+>
+> Permanently banned: anonymity, guest aliases, AI companions as substitute people, ads,
+> paywalled messaging/matching.
 
 **Three promises define every decision:**
 
-1. **Genuine connection** — people find people who actually fit their vibes and goals.
-2. **Matchmaking precision** — Social Score + complementary signals no other platform
-   can casually copy.
-3. **Freedom to connect** — messaging, cam, and voice stay free forever; cosmetics are
-   optional flair, never a tollbooth.
+1. **Music in motion** — upload, queue, stream, comment on the wave, go live.
+2. **Taste → people** — discover artists and listeners; optional Connection Lab for deeper fits.
+3. **Live + tip** — real-time presence; tip creators with closed-loop **Vc** (`~username`).
 
 If a feature doesn’t serve those promises, it doesn’t ship.
 
@@ -52,72 +55,55 @@ If a feature doesn’t serve those promises, it doesn’t ship.
 
 ### 0.1 Mission
 
-Genuine connection is hard to find. VYBZ solves that problem.
+Music discovery without a hollow feed: every listen can lead to a real artist profile,
+a follow, a message, a tip, or a live session.
 
-Users sign up, build the profile they want (sharing only what they choose), and
-immediately begin feeding **Social Score** — the living vector of who they are and what
-they’re seeking. The platform matches them to opportunities in whatever direction their
-life (and their behavior) takes them: a hiking partner within 100 miles, a date, a
-bandmate, a mentor, a roommate-to-be, a cofounder, a late-night voice chat friend.
+Users sign up with a durable identity, upload tracks (SoundCloud-feel), stream them into
+the platform queue (Spotify-feel), and optionally go live (Twitch-feel). Listeners earn
+and spend **Vc**; the home surface is a **music-taste dashboard** (`/`), not a social
+catalog.
 
-**We are already ~80% done.** The vibes expansion is additive on the shipped identity,
-feed, Spark/Connect, DMs, Live/WebRTC, Projects/Studio, and cosmetics foundation. It is
-**not** a greenfield rebuild.
+### 0.2 The Music Network thesis
 
-### 0.2 The Vibes thesis
+VYBZ is where **listening is the social graph**. Shared plays and honest feedback form
+taste affinity. Profiles are artist storefronts: catalog, bio, live-now, follow, message.
+The dock is the always-on player. Live is presence on the same profile — not a separate
+“TV app.”
 
-“Vibes” is the unifying product metaphor: emotional atmosphere, interpersonal chemistry,
-shared energy, aesthetic feel, “we just click,” creative resonance. VYBZ detects,
-cultivates, and matches vibes between **real people**.
-
-**Find Yours** means: find the people, rooms, projects, dates, friendships, and
-professional fits that match *your* vibes — as revealed by profile signal and how you
-actually live inside the product.
+**Find Yours** means: find the sound, the artist, and the people whose taste matches yours.
 
 ### 0.3 It IS
 
-- **A genuine-connection network** for modern loneliness and modern ambition — romance,
-  friendship, activity partners, creative collab, and professional fit under one real
-  identity.
-- **Identity-first.** Every account is a durable human (email + passkey). No guests, no
-  ephemeral aliases, no “post anonymously.”
-- **Profile-first.** Users design their perfect profile at their own pace. Matching can
-  begin the moment meaningful signal exists — not after a forced mode picker or a
-  paywall.
-- **Explore-and-learn.** No forced “I am here for dating XOR collab” wall at signup.
-  Soft declarations accelerate scoring; behavior and profile fill-in do the rest.
-- **Three coequal pillars** (see §4): Love & Meetup · Social & Presence · Create & Pro.
-- **A free connection stack:** private messaging, cam-to-cam, private voice — unlimited,
-  uncapped, never gated (see §8).
-- **Living Home (Concept F):** `/` is the user’s **Living Profile Wall** — a MySpace-soul
-  personal canvas (you, alerts, people, optional soundtrack/stage) that blooms with
-  Intent Mix, not a generic product catalog or Studio-first dock (see §3.4).
-- **Cosmetics-primary monetization:** optional profile enhancement packages that help
-  someone *stand out visually* because they want to — never because matching is broken
-  without them (see §10).
-- **A precision Social Score engine** that personalizes feed, Spark, Connect, and
-  suggestions (see §6).
-- **Still a world-class create/pro workbench** for people who come for collaboration:
-  drops, Projects, Studio / Music Repos, exchange protection, role/seek complementarity
-  — now as one pillar among equals, not the only door.
+- **A music listening + upload + live network** under one real identity.
+- **Identity-first.** Email + passkey; no guests, no ephemeral aliases.
+- **Profile-first artist pages** (`/u/:id`): catalog, shared info, live stream when active,
+  Follow / Message, tip with Vc.
+- **VDock as the Spotify layer:** queue + continuous playback of uploaded (and curated)
+  music platform-wide.
+- **SoundCloud-feel uploads:** drops land in discovery/Listen and on the uploader’s profile.
+- **Twitch-feel live:** live sessions surface on the artist’s profile and the dashboard Live
+  panel; tips via `~username`.
+- **Taste matchmaking** from listens, ratings, and genres (dashboard Match panel).
+- **Closed-loop Vc** (1 Vc = $0.05 reference peg; no cash-out; future ticker VYBZ ~2027).
+- **Free connection stack** for messaging / cam / voice — never a tollbooth to talk to an
+  artist you found through music.
+- **Cosmetics (Flair)** as optional visual enhancement — not pay-to-match.
 
 ### 0.4 It is NOT
 
+- **Not a dating app.** Love/Meetup decks are legacy; not the roadmap.
+- **Not Living Home / MySpace wall as product home.** Home is the music-taste dashboard.
 - **Not anonymous.** Ever.
-- **Not an ad farm.** Zero advertising inventory. Zero sponsored “matches.”
-- **Not a subscription dating trap.** No “upgrade to message,” no “see who liked you for
-  $29.99,” no competitive edging that lets paid users steal matches from free users as
-  the business model.
-- **Not fake-account friendly.** Bots, catfish farms, and disposable spam identities are
-  treated as existential threats (see §9).
-- **Not “SoundCloud with a swipe deck.”** Discovery exists to create **connection**, not
-  endless passive scroll vanity.
-- **Not a rebuild.** We expand the foundation; we do not throw away working auth, media,
-  match RPCs, DMs, or Live paths.
+- **Not an ad farm.** Zero advertising inventory.
+- **Not a subscription trap** that paywalls messaging or matching.
+- **Not “endless scroll vanity” without people** — tracks route to artists.
+- **Not a greenfield rewrite** of auth/media/ledger — we redirect the product on the
+  working spine.
 
 ### 0.5 Brand voice
 
 Copy stays **minimal** and human. Tagline: **"VYBZ: Find Yours."**  
+Prefer music language: listen, upload, queue, live, tip, taste — not dating jargon.
 Metadata/SEO: **"Find Yours."** (no `VYBZ:` prefix).  
 Corporate: `© <year> Astra Matrix, Inc. All rights reserved.`
 
@@ -156,9 +142,9 @@ These are constitutional. Features that violate them are bugs, not roadmap items
 | **L5 — Zero connection cost** | Using VYBZ to find and talk to people costs $0 forever. Optional cosmetics are the primary revenue. |
 | **L6 — Safety never paid** | Report, block, age gates, consent tooling, and moderation are free and first-class. |
 | **L7 — No anonymity** | No guest tier, no ephemeral alias, no anonymous posting. |
-| **L8 — Consent & privacy** | Age, sex, location, photo, and looking-for appear in discovery only when the user chose to share them. |
-| **L9 — Explainable matches** | Surfaces should show *why* (shared interests, distance, complementarity) — never dark-pattern urgency. |
-| **L10 — Additive expansion** | Vibes features expand the Beta-0 foundation; they do not delete Create & Pro capability. |
+| **L8 — Consent & privacy** | Location, age, and sensitive fields appear only when the user chose to share them. |
+| **L9 — Explainable taste** | Match surfaces show *why* (shared listens, ratings, genres) — never dark-pattern urgency. |
+| **L10 — Music Network wins** | When inherited Love/Meetup/Living-Home/Studio chrome conflicts with Music Network (§0), Music Network wins. Legacy routes may remain dormant; do not expand them. |
 
 ---
 
@@ -166,96 +152,69 @@ These are constitutional. Features that violate them are bugs, not roadmap items
 
 ```text
 Signup (identity)
-  → Soft Intent Mix intake (multi-select; skip OK)
-    → Living Home Wall blooms (modules sized by mix)
-      → Profile richness optional; Social Score starts as signal exists
-        → Matchable early (minimum viable signal)
-          → Explore any pillar via Focus / rooms (Feed, Spark, Studio…)
-            → Behavior deepens mix + Social Score
-              → Free DM / cam / voice
-                → Deeper engagement → better curation → better matches
+  → Music-taste dashboard (/)
+    → Upload drops (SoundCloud-feel)
+      → Queue into VDock (Spotify-feel continuous play)
+        → Listen + rate + feedback → earn Vc + taste affinity
+          → Match people by shared taste
+            → Open artist profile (/u/:id): catalog · Follow · Message · tip
+              → Artist goes live → Live visible on same profile (Twitch-feel)
+                → Tip host with ~username Vc
 ```
 
-### 3.1 Canonical story (template for every connection type)
+### 3.1 Canonical story
 
-1. **User A** signs up and builds their perfect profile — interests (e.g. nature /
-   outdoors), photo, age, sex, location, goals — sharing only what they want.
-2. **Social scoring begins immediately** as details appear. Other users can begin
-   matching with them the moment meaningful profile signal exists.
-3. **User B** (existing, nearby, into outdoors, looking for a hiking partner) sees in
-   the **global feed**:
-   - *“A new user has joined VYBZ — they’re into nature and the outdoors too.”*
-   - Thumbnail + **(age) (sex) (location)** when those fields are public.
-4. Both are within ~**100 miles**, interests align → genuine opportunity — not an ad,
-   not a subscription funnel.
-5. They get **every free connection path**: private messaging, cam-to-cam, private voice.
-
-**Curate this pattern for any honest connection:** date, friend, bandmate, mentor,
-climbing partner, study buddy, cofounder, creative collaborator.
+1. **Artist A** uploads a track. It appears on their profile and in Listen / discovery.
+2. **Listener B** plays it in **VDock**. After a meaningful listen they earn Vc; a rating
+   or written note earns more and strengthens taste signals.
+3. B taps the track / artist name → **`/u/A`**: catalog, bio, Follow, Message, tip.
+4. When A is **live**, that session is visible on A’s profile and the dashboard Live tab;
+   B tips with Vc to `~A`.
+5. Dashboard **Match** surfaces people who share B’s listens and ratings — connect without
+   leaving the music loop.
 
 ### 3.2 Cold start fairness
 
-- New users are **not buried** under rich-get-richer ranking.
-- Feed may announce relevant new joins to compatible locals / interest peers.
-- Algorithmic *pull* intensifies as Social Score gains confidence; early experience is
-  exploratory and fair, not empty and not pay-to-appear.
+- New uploads and new listeners are not buried solely by popularity.
+- Early Listen queue mixes under-exposed drops with taste-adjacent material.
+- Vc earn caps and anti-self rules keep listen/feedback farming in check.
 
-### 3.3 No forced mode fork
+### 3.3 No dating fork
 
-Users do **not** have to declare “dating XOR collab” at the door. Optional soft
-declarations (“open to dating,” “open to collabs,” “looking for hiking partners”)
-**accelerate** scoring and filter decks — they are accelerators, not walls.
+There is **no** Love / Meetup / dating pillar in the forward product. Soft legacy profile
+fields may remain in storage; they are not marketed or expanded. Music taste is the
+primary matching axis.
 
-### 3.4 Living Home — Concept F (locked)
+### 3.4 Home + player + profile (locked)
 
-**North-star articulation:** VYBZ is the ultimate **canvas for connection** — one real
-identity whose home blooms into a uniquely curated masterpiece of that person’s desires
-and needs (dates, friendship, IRL, collab, presence), without forcing a single use-case
-or spawning alternate public “identities.”
-
-**Ship target = Hybrid Living Profile (Concept F):**
-
-1. **`/` = Living Home Wall** (not a generic global Feed as the front door). Hero = you
-   (avatar, Focus chips, short vibe line) + Customize. Primary surface = chronological
-   **Wall** (messages, matches, applications, live pulses, friend drops) — MySpace-soul
-   alerts-on-the-profile, modern media underneath.
-2. **Under the fold = Intent Mix modules** (Pulse Board lite): Love / Social / Create
-   columns or cards **sized or collapsed by Intent Mix**. Dating-first users never eat a
-   Studio wall on day one; mixed users get both without XOR.
-3. **Dock is earned:** default **3–5** pins from Intent Mix (e.g. Home · Spark · Messages
-   · You). Metronome, VC balance, collabs, open-to-work, etc. unlock via Customize Dock
-   or Create weight — not day-one chrome.
-4. **Customize** = cosmetics + module toggles + optional soundtrack/stage — flair and
-   layout, never paywalled matching (L4/L5).
-5. **Public `/u/:id`** = privacy-gated cut of the same living canvas (storefront of a
-   real person).
-6. **Feed / Discover / Spark / Studio / Live** remain first-class **rooms you enter**
-   from Home or dock — they are not abolished; they stop being the default overwhelm.
-
-**Intent Mix (companion lock):** soft multi-select intake seeds pillar weights; progressive
-disclosure hides Create facets until Create weight or explicit expand; Focus control
-changes ranking/chrome, never username or trust graph. **No swappable public identities.**
-
-**Prerequisite / parallel:** day-theme contrast audit (`data-dark-stage` / surface tokens)
-so dark panels stay readable. Upload ownership claims + DMCA ops remain the Create-legality
-layer when media tools appear.
+1. **`/` = Music-taste dashboard** — Match · Listen · Live · You · Wallet (not Living Home
+   Pulse, not a feed mosaic).
+2. **VDock = always-on music player** — queue from uploads / network drops / connected
+   playlists; music-only chrome (no hub pin navigation).
+3. **`/u/:id` = artist storefront** — music catalog (play → VDock queue), optional live-now,
+   Follow + Message, tip, bio/genres the artist chose to share.
+4. **Click path:** track title / artist control → uploader profile. Own tracks → You tab.
+5. **Auth / Codex / legal** remain reachable; legacy hubs (Spark Love, Studio, Rooms as
+   destinations) are dormant — do not link from primary chrome.
 
 ---
 
-## 4. Three coequal pillars
+## 4. Product pillars (Music Network)
 
 One identity. Three doors. Same honesty.
 
-| Pillar | User need | Foundation to expand | Primary surfaces |
-|---|---|---|---|
-| **Love & Meetup** | Romance, dates, IRL partners (hiking, events, local hang) | Spark deck, geo, safety, looking-for | Spark, feed vibe cards, profile meetup intents |
-| **Social & Presence** | Loneliness → real conversation & belonging | DMs, Rooms, Live, WebRTC | Messages, Rooms, Live, private cam/voice |
-| **Create & Pro** | Collab, exchange, professional fit | Roles/seeks, `collab_matches`, Projects, Studio, drops | Connect, Opportunities, Studio, Projects, Feed drops |
+| Pillar | User need | Primary surfaces |
+|---|---|---|
+| **Listen & Upload** | Continuous play + SoundCloud-feel publishing | VDock, Listen tab, drops, Compose |
+| **Taste & People** | Find artists/listeners who share your ear | Match tab, `/u/:id`, Follow, Message |
+| **Live & Vc** | Presence + tip economy | Live on profile, Live tab, Wallet `~username` |
 
-Pillars share Social Score, identity, safety, and the free connection stack. A user can
-live in one pillar or all three over time.
+> **Legacy note:** Older “Love & Meetup · Social · Create” and Living Home sections below
+> are **historical**. Do not implement new work against them. Prefer §0 and §3.4.
 
-### 4.1 Love & Meetup — requirements
+### 4.1–4.3 Historical (Love / Social / Create) — DO NOT EXPAND
+
+The following subsections document the superseded Vibes pillars for archaeology only.
 
 **Must ship (expansion):**
 
@@ -718,6 +677,37 @@ progressive Create on `ProfileEditPage` · ownership claim on compose paths · p
 
 **DoD story:** Dating-first signup → Home feels personal, not a DAW catalog; dock is
 tiny; Wall shows messages/matches; user can later expand Create without a second identity.
+
+### Phase 7 — Dark Smoke Shell · ✅
+
+1. Default shell flips to dark-smoke glass (charcoal canvas, frosted panels, cyan/mint accents).
+2. Living Home becomes avatar-dominant + glyph Pulse grid; Wall alerts stay symbol + one action.
+3. App bar / dock tips are one-word; welcome + Intent Mix copy stays short.
+4. `data-theme="smoke"` is native — no daylight text remaps for the whole app.
+
+### Phase 8 — Always-on music · ✅
+
+1. Ambient radio seeds AudioBus after auth (drops → connected playlist → soft pad).
+2. Spotify playlist connect (paste URL; OAuth when flag on) → `playlists` / `playlist_tracks`.
+3. Now Playing always present once radio starts; Connect playlist from expanded player.
+
+### Phase 9 — Live Circle vs World · ✅
+
+1. `live_sessions.visibility` → `world` | `circle` (legacy `public` aliased).
+2. Go Live wizard: source → audience → details → Go.
+3. `list_live_sessions` / `top_live_sessions` / `can_watch_live` filter by connections graph.
+
+### Phase 10 — Cyber chat rooms · ✅
+
+1. Room chrome: user rail, typing pulse, emoji reactions, whisper → free DM.
+2. Unified Rooms discovery (social + taxonomy) under glass cyber feel.
+3. Voice + listen-together retained as next-gen layer.
+
+### Phase 11 — Music Dock + Vc Wallet · ✅
+
+1. V-Dock is music-only (glass frequency visualizer + full transport); hubs live in More + Pulse.
+2. Closed-loop **VYBZ Credits (Vc)** — peg **1 Vc = $0.05**, starter **20 Vc**, `vc_tx_ledger`, P2P, `/wallet`, whitepaper `/legal/vc`.
+3. Social earn fragments (daily caps) + Stripe packs repriced to the peg. Future ticker **VYBZ** documented for **2027**; no cash-out.
 
 ### Later / infra
 

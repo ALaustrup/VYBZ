@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
@@ -9,6 +10,7 @@ import {
   Volume2,
   VolumeX,
   Loader2,
+  Plus,
 } from "lucide-react";
 import {
   usePlayer,
@@ -22,6 +24,7 @@ import {
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { ExtractMidiButton } from "@/components/ExtractMidiButton";
+import { MusicSourceSheet } from "@/components/MusicSourceSheet";
 import { cx } from "@/lib/utils";
 
 function fmt(s: number): string {
@@ -32,15 +35,14 @@ function fmt(s: number): string {
 }
 
 /**
- * Compact now-playing **widget** for the unified V-Dock row (not a second bar).
- * Tap title / art area to expand; transport stays inline beside the Orb.
+ * Compact now-playing **widget** (legacy compact chip).
+ * Prefer MusicDockPlayer in the music dock.
  */
 export function NowPlayingWidget({
   className,
   dimmed = false,
 }: {
   className?: string;
-  /** Edit-mode: keep visible but non-interactive. */
   dimmed?: boolean;
 }) {
   const p = usePlayer();
@@ -66,7 +68,7 @@ export function NowPlayingWidget({
           onClick={() => void toggle()}
           data-tip={p.playing ? "Pause" : "Play"}
           aria-label={p.playing ? "Pause" : "Play"}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-paper-100 text-paper-900 ring-1 ring-paper-900/10 transition active:scale-90"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15 transition active:scale-90"
           style={{ boxShadow: `0 0 16px -6px ${accent}` }}
         >
           {p.loading ? (
@@ -83,10 +85,10 @@ export function NowPlayingWidget({
           onClick={() => setExpanded(true)}
           data-tip={p.track.title}
           aria-label={`Now playing: ${p.track.title}`}
-          className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-paper-900 ring-1 ring-paper-900/10 transition active:scale-90"
+          className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/15 transition active:scale-90"
         >
           <span
-            className="absolute inset-x-1.5 bottom-1 h-0.5 overflow-hidden rounded-full bg-paper-900/10"
+            className="absolute inset-x-1.5 bottom-1 h-0.5 overflow-hidden rounded-full bg-white/15"
             aria-hidden
           >
             <span
@@ -106,7 +108,7 @@ export function NowPlayingWidget({
             onClick={next}
             data-tip="Next"
             aria-label="Next"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-paper-900/45 transition hover:bg-paper-100 hover:text-paper-900 active:scale-90"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white/45 transition hover:bg-white/10 hover:text-white active:scale-90"
           >
             <SkipForward className="h-3.5 w-3.5" />
           </button>
@@ -114,6 +116,110 @@ export function NowPlayingWidget({
       </div>
 
       <NowPlayingExpanded open={expanded} onClose={() => setExpanded(false)} />
+    </>
+  );
+}
+
+/**
+ * Full music-dock player — title, transport, mute; tap meta to expand.
+ */
+export function MusicDockPlayer() {
+  const p = usePlayer();
+  const [expanded, setExpanded] = useState(false);
+  const [sourceOpen, setSourceOpen] = useState(false);
+  const accent = p.track?.accent ?? "#00C2FF";
+  const dur = p.duration || p.track?.durationSec || 0;
+  const progress = dur > 0 ? p.currentTime / dur : 0;
+
+  return (
+    <>
+      <div className="flex h-[52px] w-full items-center gap-2 sm:h-[56px] sm:gap-3" data-taskbar-widget="music-dock">
+        <button
+          type="button"
+          onClick={() => void toggle()}
+          disabled={!p.track}
+          data-tip={p.playing ? "Pause" : "Play"}
+          aria-label={p.playing ? "Pause" : "Play"}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-white ring-1 ring-white/18 transition active:scale-90 disabled:opacity-40"
+          style={{ boxShadow: p.playing ? `0 0 22px -6px ${accent}` : undefined }}
+        >
+          {p.loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : p.playing ? (
+            <Pause className="h-5 w-5" />
+          ) : (
+            <Play className="ml-0.5 h-5 w-5" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => p.track && setExpanded(true)}
+          disabled={!p.track}
+          className="min-w-0 flex-1 text-left disabled:opacity-50"
+          aria-label={p.track ? `Now playing: ${p.track.title}` : "No track"}
+        >
+          <span className="block truncate font-display text-[14px] font-semibold text-white sm:text-[15px]">
+            {p.track?.title ?? "VYBZ Radio"}
+          </span>
+          <span className="block truncate text-[11px] text-white/50">
+            {p.track?.artist ?? "Soundtrack starts after login"}
+          </span>
+          <span className="mt-1 block h-0.5 overflow-hidden rounded-full bg-white/10" aria-hidden>
+            <span
+              className="block h-full origin-left rounded-full transition-transform"
+              style={{
+                background: accent,
+                transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
+                boxShadow: `0 0 8px ${accent}`,
+              }}
+            />
+          </span>
+        </button>
+
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            type="button"
+            onClick={prev}
+            disabled={!p.track || p.queueLength <= 1}
+            data-tip="Previous"
+            aria-label="Previous"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-white/70 transition hover:bg-white/10 active:scale-90 disabled:opacity-30"
+          >
+            <SkipBack className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            disabled={!p.track || p.queueLength <= 1}
+            data-tip="Next"
+            aria-label="Next"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-white/70 transition hover:bg-white/10 active:scale-90 disabled:opacity-30"
+          >
+            <SkipForward className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={toggleMute}
+            disabled={!p.track}
+            data-tip={p.muted ? "Unmute" : "Mute"}
+            aria-label={p.muted ? "Unmute" : "Mute"}
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-white/70 transition hover:bg-white/10 active:scale-90 disabled:opacity-30"
+          >
+            {p.muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+
+      <NowPlayingExpanded
+        open={expanded}
+        onClose={() => setExpanded(false)}
+        onOpenSource={() => {
+          setExpanded(false);
+          setSourceOpen(true);
+        }}
+      />
+      <MusicSourceSheet open={sourceOpen} onClose={() => setSourceOpen(false)} />
     </>
   );
 }
@@ -134,13 +240,29 @@ export function DockPlaybackProgress() {
   );
 }
 
-function NowPlayingExpanded({ open, onClose }: { open: boolean; onClose: () => void }) {
+function NowPlayingExpanded({
+  open,
+  onClose,
+  onOpenSource,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onOpenSource?: () => void;
+}) {
   const p = usePlayer();
+  const navigate = useNavigate();
   if (!p.track) return null;
-  const accent = p.track.accent ?? "#a87cf8";
+  const accent = p.track.accent ?? "#00C2FF";
   const dur = p.duration || p.track.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
   const peaks = p.track.waveform;
+
+  function openArtist() {
+    const aid = p.track?.authorId;
+    if (!aid) return;
+    onClose();
+    navigate(`/u/${aid}`);
+  }
 
   return (
     <AnimatePresence>
@@ -182,14 +304,19 @@ function NowPlayingExpanded({ open, onClose }: { open: boolean; onClose: () => v
           <div className="relative z-10 mt-auto flex flex-col gap-4 px-6 pb-[max(2rem,env(safe-area-inset-bottom))]">
             <div>
               <h2 className="font-display text-2xl font-bold text-white">{p.track.title}</h2>
-              <p className="mt-1 flex items-center gap-2 text-sm text-white/60">
+              <button
+                type="button"
+                onClick={openArtist}
+                disabled={!p.track.authorId}
+                className="mt-1 flex items-center gap-2 text-left text-sm text-white/60 transition hover:text-cyan-200 disabled:hover:text-white/60"
+              >
                 {p.track.artist}
                 {p.track.quality && (
                   <span className="rounded-full border border-white/15 bg-black/30 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-white/70">
                     {p.track.quality}
                   </span>
                 )}
-              </p>
+              </button>
             </div>
 
             {peaks && (
@@ -259,11 +386,23 @@ function NowPlayingExpanded({ open, onClose }: { open: boolean; onClose: () => v
               />
             </div>
 
-            {p.track.url && (
-              <div className="flex items-center justify-center">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenSource?.();
+                }}
+                aria-label="Add music"
+                data-tip="Music"
+                className="btn btn-ghost flex-1 justify-center gap-2 py-2.5 text-sm"
+              >
+                <Plus className="h-4 w-4" /> Add music
+              </button>
+              {p.track.url && (
                 <ExtractMidiButton source={p.track.url} title={p.track.title} />
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </motion.div>
       )}

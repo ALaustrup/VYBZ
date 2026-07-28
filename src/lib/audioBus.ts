@@ -23,6 +23,10 @@ import type { PlaybackCustomization } from "@/lib/playbackCustomization";
 export interface PlayerTrack {
   /** Stable id (the drop/asset id) — used to reconcile "is this one playing?". */
   id: string;
+  /** Drop author (for listen-to-earn anti-self). */
+  authorId?: string;
+  /** True when this track is a network drop (not local file / ambient pad). */
+  earnEligible?: boolean;
   /** Directly-playable source URL (object/data/signed URL). */
   url: string;
   title: string;
@@ -210,6 +214,70 @@ export function getSnapshot(): PlayerSnapshot {
   return snapshot;
 }
 
+/** Append tracks to the current queue; optionally start playing the first added. */
+export function enqueueTracks(tracks: PlayerTrack[], opts?: { playFirst?: boolean }) {
+  if (!tracks.length) return;
+  const el = ensureEngine();
+  if (!el) return;
+  const existing = new Set(queue.map((t) => t.id));
+  const added = tracks.filter((t) => t.url && !existing.has(t.id));
+  if (!added.length) {
+    if (opts?.playFirst !== false) playTrack(tracks[0]);
+    return;
+  }
+  const startIdx = queue.length;
+  queue = [...queue, ...added];
+  if (!snapshot.track) {
+    loadQueue(queue, { autoplay: opts?.playFirst !== false });
+    return;
+  }
+  set({ queueLength: queue.length });
+  if (opts?.playFirst !== false) {
+    playTrack(queue[startIdx], queue);
+  }
+}
+
+/** Replace the queue and optionally start playback (does not toggle-pause). */
+export function loadQueue(
+  list: PlayerTrack[],
+  opts?: { startIndex?: number; autoplay?: boolean; loop?: boolean },
+) {
+  const el = ensureEngine();
+  if (!el || !list.length) return;
+  queue = list;
+  const index = Math.max(0, Math.min(opts?.startIndex ?? 0, list.length - 1));
+  const track = list[index];
+  el.loop = !!opts?.loop && list.length === 1;
+  set({
+    track,
+    loading: true,
+    currentTime: 0,
+    duration: track.durationSec ?? 0,
+    queueIndex: index,
+    queueLength: queue.length,
+    playing: false,
+  });
+  el.src = track.url;
+  el.volume = snapshot.muted ? 0 : snapshot.volume;
+  ensureGraph();
+  if (opts?.autoplay !== false) {
+    void ctx?.resume();
+    void el.play().catch(() => {
+      set({ playing: false, loading: false });
+      const unlock = () => {
+        void ctx?.resume();
+        void el.play().catch(() => undefined);
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      };
+      window.addEventListener("pointerdown", unlock, { once: true });
+      window.addEventListener("keydown", unlock, { once: true });
+    });
+  } else {
+    set({ loading: false });
+  }
+}
+
 /** Play a track (optionally as part of a queue). Toggles pause if it's current. */
 export function playTrack(track: PlayerTrack, list?: PlayerTrack[]) {
   const el = ensureEngine();
@@ -221,6 +289,7 @@ export function playTrack(track: PlayerTrack, list?: PlayerTrack[]) {
     queue = [track];
   }
   const index = queue.findIndex((t) => t.id === track.id);
+  el.loop = false;
 
   // Same track already loaded → just toggle.
   if (snapshot.track?.id === track.id && el.src) {

@@ -22,6 +22,7 @@ import type {
 } from "@/types";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
+import { parseVcAddress } from "@/lib/vc";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 const AUDIO_BUCKET = "audio-assets";
@@ -68,7 +69,7 @@ function toProfile(r: any): Profile {
     identityPublic: r.identity_public ?? true,
     isAdmin: r.is_admin ?? false,
     platformRole: (r.platform_role ?? (r.is_admin ? "admin" : "member")) as Profile["platformRole"],
-    modPoints: r.mod_points ?? 0,
+    modPoints: Number(r.mod_points ?? 0),
     equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
     banned: r.banned ?? false,
     profile: (r.profile ?? {}) as ProfileDetails,
@@ -889,7 +890,7 @@ export async function sparkAct(
     return { ok: false, mutual: false, peerId: targetId, peerUsername: null, deck, error: error?.message };
   }
   const r = data as any;
-  return {
+  const result: SparkActResult = {
     ok: !!r.ok,
     mutual: !!r.mutual,
     peerId: r.peerId ?? targetId,
@@ -897,6 +898,10 @@ export async function sparkAct(
     deck: (r.deck as "love" | "meetup") ?? deck,
     error: r.error,
   };
+  if (result.ok && result.mutual) {
+    void awardSocialVc("spark_match", "spark", targetId).catch(() => undefined);
+  }
+  return result;
 }
 
 export async function collabMatches(
@@ -1777,13 +1782,108 @@ export async function listDiscovery(seed: number, limit = 40): Promise<Discovery
   return drops.map((d) => ({ ...d, ...(meta.get(d.id) ?? { visibility: 0, popularity: 0, plays: 0 }) })) as DiscoveryDrop[];
 }
 
+/** Personalized For You radio — genre affinity + freshness + unheard bias. */
+export async function listForYouDrops(limit = 24): Promise<Drop[]> {
+  const myId = await currentUserId();
+  const { data, error } = await db().rpc("for_you_drops", { p_limit: limit });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return assembleDrops(rows, myId);
+}
+
 export async function react(dropId: string, reaction: Reaction) {
   const uid = await currentUserId();
   if (!uid) return;
   await db().from("reactions").upsert({ drop_id: dropId, user_id: uid, reaction });
+  void awardSocialVc("drop_react", "drop", dropId).catch(() => undefined);
 }
 export async function rateTrack(dropId: string, stars: number) {
   await db().rpc("rate_track", { p_drop: dropId, p_rating: stars });
+  void awardSocialVc("track_feedback", "drop", dropId).catch(() => undefined);
+}
+
+/** Written feedback on a drop — awards track_feedback_note when accepted server-side. */
+export async function submitDropFeedback(
+  dropId: string,
+  note: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await db().rpc("submit_drop_feedback", {
+    p_drop: dropId,
+    p_note: note,
+  });
+  if (error) return { ok: false, error: error.message };
+  const r = data as { ok?: boolean; error?: string } | null;
+  if (!r?.ok) return { ok: false, error: r?.error || "rejected" };
+  void awardSocialVc("track_feedback_note", "drop", dropId).catch(() => undefined);
+  return { ok: true };
+}
+
+export interface TasteMatch {
+  userId: string;
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  fit: number;
+  sharedPlays: number;
+  sharedGenres: string[];
+}
+
+export async function tasteMatches(limit = 30): Promise<TasteMatch[]> {
+  const { data, error } = await db().rpc("taste_matches", { p_limit: limit });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return rows.map((r: any) => ({
+    userId: r.user_id,
+    username: r.username ?? null,
+    displayName: r.display_name ?? null,
+    avatarUrl: r.avatar_url ?? null,
+    fit: Number(r.fit ?? 0),
+    sharedPlays: Number(r.shared_plays ?? 0),
+    sharedGenres: Array.isArray(r.shared_genres) ? r.shared_genres.map(String) : [],
+  }));
+}
+
+export interface WaveComment {
+  id: string;
+  dropId: string;
+  userId: string;
+  body: string;
+  timeSec: number;
+  createdAt: number;
+  username: string | null;
+  avatarUrl: string | null;
+}
+
+export async function listWaveComments(dropId: string, limit = 80): Promise<WaveComment[]> {
+  const { data, error } = await db().rpc("list_wave_comments", { p_drop: dropId, p_limit: limit });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return rows.map((r: any) => ({
+    id: r.id,
+    dropId: r.drop_id,
+    userId: r.user_id,
+    body: r.body ?? "",
+    timeSec: Number(r.time_sec ?? 0),
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    username: r.username ?? null,
+    avatarUrl: r.avatar_url ?? null,
+  }));
+}
+
+export async function addWaveComment(
+  dropId: string,
+  body: string,
+  timeSec: number,
+): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const { data, error } = await db().rpc("add_wave_comment", {
+    p_drop: dropId,
+    p_body: body,
+    p_time: timeSec,
+  });
+  if (error) return { ok: false, error: error.message };
+  const r = data as { ok?: boolean; error?: string; id?: string } | null;
+  if (!r?.ok) return { ok: false, error: r?.error || "rejected" };
+  return { ok: true, id: r.id };
 }
 
 /**
@@ -1868,6 +1968,9 @@ export async function respondConnection(requesterId: string, accept: boolean): P
     p_accept: accept,
   });
   if (error) return false;
+  if (data && accept) {
+    void awardSocialVc("connection_accept", "connection", requesterId).catch(() => undefined);
+  }
   return !!data;
 }
 
@@ -1951,6 +2054,8 @@ export async function sendMessage(
     media_url: opts?.mediaUrl ?? null,
   });
   await db().from("dm_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
+  const event = opts?.kind === "video" ? "video_message" : "dm_send";
+  void awardSocialVc(event, "dm", threadId).catch(() => undefined);
 }
 
 export async function markThreadRead(threadId: string) {
@@ -2027,6 +2132,18 @@ export async function unreadNotificationCount(): Promise<number> {
 }
 export async function markNotificationsRead() {
   await db().rpc("mark_notifications_read");
+}
+
+/** Explicit ack for a single must-ack notification (video watched / request handled). */
+export async function markNotificationRead(id: string) {
+  await db().from("notifications").update({ read: true }).eq("id", id);
+}
+
+/** Expire pending connect requests older than 3 days; notifies senders with reconnect nudge. */
+export async function expireStaleConnections(): Promise<number> {
+  const { data, error } = await db().rpc("expire_stale_connection_requests");
+  if (error) return 0;
+  return Number(data ?? 0);
 }
 
 // ── Search / discovery ────────────────────────────────────────────────────────
@@ -2680,6 +2797,7 @@ export async function topLiveSessions(limit = 3): Promise<import("@/types").Live
     viewerCount: Number(r.viewer_count ?? 0),
     playbackHls: r.playback_hls ?? null,
     startedAt: r.started_at ? new Date(r.started_at).getTime() : Date.now(),
+    visibility: (r.visibility === "circle" ? "circle" : "world") as import("@/types").LiveAudience,
   }));
 }
 
@@ -2778,13 +2896,14 @@ export async function ensureRoomVoiceChannel(roomId: string): Promise<string | n
 export async function listRoomMessages(roomId: string, limit = 100): Promise<import("@/types").RoomMessage[]> {
   const uid = await currentUserId();
   const { data } = await db().from("room_messages")
-    .select("id,room_id,sender_id,body,created_at").eq("room_id", roomId)
+    .select("id,room_id,sender_id,body,created_at,reactions").eq("room_id", roomId)
     .order("created_at", { ascending: true }).limit(limit);
   if (!data) return [];
   const names = await usernamesFor(data.map((m: any) => m.sender_id));
   return data.map((m: any) => ({
     id: m.id, roomId: m.room_id, senderId: m.sender_id, senderName: names.get(m.sender_id) ?? null,
     body: m.body, createdAt: new Date(m.created_at).getTime(), mine: m.sender_id === uid,
+    reactions: (m.reactions && typeof m.reactions === "object") ? m.reactions as Record<string, string[]> : {},
   }));
 }
 
@@ -2794,6 +2913,23 @@ export async function sendRoomMessage(roomId: string, body: string) {
   const clean = body.trim().slice(0, 2000);
   if (!clean) return;
   await db().from("room_messages").insert({ room_id: roomId, sender_id: uid, body: clean });
+  void awardSocialVc("room_message", "room", roomId).catch(() => undefined);
+}
+
+/** Toggle an emoji reaction on a room message. */
+export async function toggleRoomReaction(messageId: string, emoji: string): Promise<boolean> {
+  const uid = await currentUserId();
+  if (!uid) return false;
+  const { data } = await db().from("room_messages").select("reactions").eq("id", messageId).maybeSingle();
+  if (!data) return false;
+  const reactions = { ...((data.reactions as Record<string, string[]>) ?? {}) };
+  const list = new Set(reactions[emoji] ?? []);
+  if (list.has(uid)) list.delete(uid);
+  else list.add(uid);
+  if (list.size) reactions[emoji] = Array.from(list);
+  else delete reactions[emoji];
+  const { error } = await db().from("room_messages").update({ reactions }).eq("id", messageId);
+  return !error;
 }
 
 /** Join a room's live presence channel; `onSync` receives the current occupants. */
@@ -2804,13 +2940,22 @@ export function joinRoomPresence(
 ): RealtimeChannel {
   const ch = db().channel(`room-presence:${roomId}`, { config: { presence: { key: me.id } } });
   ch.on("presence", { event: "sync" }, () => {
-    const state = ch.presenceState() as Record<string, { user_id: string; username: string | null }[]>;
+    const state = ch.presenceState() as Record<string, { user_id: string; username: string | null; typing?: boolean }[]>;
     const seen = new Map<string, import("@/types").RoomPresence>();
-    Object.values(state).flat().forEach((p) => seen.set(p.user_id, { userId: p.user_id, username: p.username ?? null }));
+    Object.values(state).flat().forEach((p) =>
+      seen.set(p.user_id, { userId: p.user_id, username: p.username ?? null, typing: !!p.typing }),
+    );
     onSync(Array.from(seen.values()));
   });
-  ch.subscribe((status) => { if (status === "SUBSCRIBED") void ch.track({ user_id: me.id, username: me.username }); });
+  ch.subscribe((status) => {
+    if (status === "SUBSCRIBED") void ch.track({ user_id: me.id, username: me.username, typing: false });
+  });
   return ch;
+}
+
+export async function setRoomTyping(ch: RealtimeChannel | null, me: { id: string; username: string | null }, typing: boolean) {
+  if (!ch) return;
+  await ch.track({ user_id: me.id, username: me.username, typing });
 }
 
 // ── Stream: public live sessions (Bunny Stream + identity chat) ─────────────
@@ -2830,6 +2975,7 @@ export async function listLiveSessions(limit = 40): Promise<LiveSessionCard[]> {
     viewerCount: r.viewer_count ?? 0,
     playbackHls: r.playback_hls ?? null,
     startedAt: r.started_at ? new Date(r.started_at).getTime() : Date.now(),
+    visibility: (r.visibility === "circle" ? "circle" : "world") as import("@/types").LiveAudience,
   }));
 }
 
@@ -2837,8 +2983,17 @@ export async function getLiveSession(id: string): Promise<LiveSessionDetail | nu
   const me = await currentUserId();
   const { data, error } = await db().from("live_sessions").select("*").eq("id", id).maybeSingle();
   if (error || !data) return null;
+
+  // Circle vs world gate for non-hosts
+  if (me !== data.host_id) {
+    const { data: allowed } = await db().rpc("can_watch_live", { p_session: id });
+    if (allowed === false) return null;
+  }
+
   const { data: host } = await db().from("profiles").select("username, display_name, avatar_url, profile").eq("id", data.host_id).maybeSingle();
   const profile = (host?.profile ?? {}) as Record<string, unknown>;
+  const visRaw = String(data.visibility ?? "world");
+  const mon = (data.monetization ?? {}) as Record<string, unknown>;
   return {
     id: data.id,
     hostId: data.host_id,
@@ -2860,6 +3015,10 @@ export async function getLiveSession(id: string): Promise<LiveSessionDetail | nu
     livekitRoom: data.livekit_room ?? null,
     sfuProvider: data.sfu_provider ?? null,
     audioMode: (data.audio_mode as "music" | "speech") ?? "music",
+    visibility: visRaw === "circle" ? "circle" : "world",
+    tipGoal: Number(mon.tip_goal ?? 0) || 0,
+    tipRaised: Number(mon.tip_raised ?? 0) || 0,
+    tipCount: Number(mon.tip_count ?? 0) || 0,
   };
 }
 
@@ -2868,6 +3027,7 @@ export async function startLiveSession(input: {
   title?: string;
   source: LiveSource;
   intent?: string;
+  visibility?: import("@/types").LiveAudience;
 }): Promise<LiveSessionDetail | null> {
   const me = await currentUserId();
   if (!me) return null;
@@ -2894,6 +3054,8 @@ export async function startLiveSession(input: {
     }
   } catch { /* Bunny optional — presence + chat still work */ }
 
+  const visibility = input.visibility === "circle" ? "circle" : "world";
+
   const { data, error } = await db().from("live_sessions").insert({
     host_id: me,
     title: input.title?.trim() || null,
@@ -2905,11 +3067,13 @@ export async function startLiveSession(input: {
     stream_key: bunny.streamKey ?? null,
     input_mode: input.source,
     quality_tier: "ultra",
-    visibility: "public",
+    visibility,
     audio_mode: "music",
     sfu_provider: "livekit",
   }).select("*").single();
   if (error || !data) return null;
+
+  void awardSocialVc("go_live", "live", data.id).catch(() => undefined);
 
   // Attach LiveKit room name (Edge mints tokens; works when LIVEKIT_* secrets set)
   try {
@@ -3024,6 +3188,45 @@ export function sendListen(ch: RealtimeChannel, state: ListenState) {
   void ch.send({ type: "broadcast", event: "sync", payload: state });
 }
 
+/** Persist a connected external playlist into thin queue tables (best-effort). */
+export async function upsertConnectedPlaylist(
+  playlist: {
+    id: string;
+    provider: string;
+    externalUrl: string;
+    title: string;
+    trackCount: number;
+  },
+  tracks: { id: string; title: string; artist: string; url: string; durationSec?: number }[],
+): Promise<void> {
+  const me = await currentUserId();
+  if (!me) return;
+  const { error } = await db().from("playlists").upsert({
+    id: playlist.id,
+    owner_id: me,
+    provider: playlist.provider,
+    external_url: playlist.externalUrl,
+    title: playlist.title,
+    track_count: playlist.trackCount,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "id" });
+  if (error) return;
+  await db().from("playlist_tracks").delete().eq("playlist_id", playlist.id);
+  if (tracks.length) {
+    await db().from("playlist_tracks").insert(
+      tracks.map((t, i) => ({
+        playlist_id: playlist.id,
+        track_id: t.id,
+        title: t.title,
+        artist: t.artist,
+        url: t.url,
+        duration_sec: t.durationSec ?? null,
+        position: i,
+      })),
+    );
+  }
+}
+
 // ── Realtime ──────────────────────────────────────────────────────────────────
 /** Subscribe to inserts on a table (optionally filtered). Returns the channel. */
 export function subscribeInserts(table: string, filter: string | undefined, cb: () => void): RealtimeChannel {
@@ -3033,5 +3236,164 @@ export function subscribeInserts(table: string, filter: string | undefined, cb: 
 }
 export function unsubscribe(ch: RealtimeChannel | null) {
   if (ch && supabase) supabase.removeChannel(ch);
+}
+
+// ── VYBZ Credits (Vc) wallet ─────────────────────────────────────────────────
+export interface VcLedgerRow {
+  id: string;
+  createdAt: number;
+  fromId: string | null;
+  toId: string | null;
+  amount: number;
+  balanceAfter: number | null;
+  kind: string;
+  refType: string | null;
+  refId: string | null;
+  memo: string | null;
+}
+
+export async function ensureVcSignupGrant(): Promise<number> {
+  const { data, error } = await db().rpc("vc_signup_grant");
+  if (error) return 0;
+  return Number(data ?? 0);
+}
+
+export async function transferVc(
+  username: string,
+  amount: number,
+  memo?: string,
+): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const { data, error } = await db().rpc("vc_transfer_username", {
+    p_username: parseVcAddress(username),
+    p_amount: amount,
+    p_memo: memo?.trim() || null,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, id: data as string };
+}
+
+export async function awardSocialVc(
+  event: string,
+  refType?: string,
+  refId?: string,
+  idempotency?: string,
+): Promise<number> {
+  const { data, error } = await db().rpc("vc_award", {
+    p_event: event,
+    p_ref_type: refType ?? null,
+    p_ref_id: refId ?? null,
+    p_idempotency: idempotency ?? null,
+  });
+  if (error) return 0;
+  return Number(data ?? 0);
+}
+
+export async function listVcLedger(limit = 40): Promise<VcLedgerRow[]> {
+  const { data, error } = await db().rpc("vc_list_ledger", { p_limit: limit, p_before: null });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return rows.map((r: any) => ({
+    id: r.id,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    fromId: r.from_id ?? null,
+    toId: r.to_id ?? null,
+    amount: Number(r.amount ?? 0),
+    balanceAfter: r.balance_after != null ? Number(r.balance_after) : null,
+    kind: String(r.kind ?? ""),
+    refType: r.ref_type ?? null,
+    refId: r.ref_id ?? null,
+    memo: r.memo ?? null,
+  }));
+}
+
+export async function liveSetTipGoal(sessionId: string, goal: number): Promise<{ ok: boolean; tipGoal?: number; tipRaised?: number; tipCount?: number; error?: string }> {
+  const { data, error } = await db().rpc("live_set_tip_goal", { p_session: sessionId, p_goal: goal });
+  if (error) return { ok: false, error: error.message };
+  const r = data as { ok?: boolean; error?: string; monetization?: Record<string, unknown> } | null;
+  if (!r?.ok) return { ok: false, error: r?.error || "failed" };
+  const m = r.monetization ?? {};
+  return {
+    ok: true,
+    tipGoal: Number(m.tip_goal ?? goal),
+    tipRaised: Number(m.tip_raised ?? 0),
+    tipCount: Number(m.tip_count ?? 0),
+  };
+}
+
+export async function liveTip(
+  sessionId: string,
+  amount: number,
+  memo?: string,
+): Promise<{ ok: boolean; tipGoal?: number; tipRaised?: number; tipCount?: number; error?: string }> {
+  const { data, error } = await db().rpc("live_tip", {
+    p_session: sessionId,
+    p_amount: amount,
+    p_memo: memo ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  const r = data as { ok?: boolean; error?: string; monetization?: Record<string, unknown> } | null;
+  if (!r?.ok) return { ok: false, error: r?.error || "failed" };
+  const m = r.monetization ?? {};
+  return {
+    ok: true,
+    tipGoal: Number(m.tip_goal ?? 0),
+    tipRaised: Number(m.tip_raised ?? 0),
+    tipCount: Number(m.tip_count ?? 0),
+  };
+}
+
+export interface VybzList {
+  id: string;
+  title: string;
+  description: string | null;
+  isPublic: boolean;
+  ownerId: string;
+  trackCount: number;
+  updatedAt: number;
+}
+
+export async function createVybzList(title: string, description?: string): Promise<string | null> {
+  const { data, error } = await db().rpc("vybz_list_create", {
+    p_title: title,
+    p_description: description ?? null,
+  });
+  if (error || !data) return null;
+  return data as string;
+}
+
+export async function addToVybzList(listId: string, dropId: string): Promise<boolean> {
+  const { data, error } = await db().rpc("vybz_list_add_track", { p_list: listId, p_drop: dropId });
+  return !error && !!data;
+}
+
+export async function listMyVybzLists(limit = 40): Promise<VybzList[]> {
+  const { data, error } = await db().rpc("vybz_list_mine", { p_limit: limit });
+  if (error || !data) return [];
+  const rows = Array.isArray(data) ? data : [];
+  return rows.map((r: any) => ({
+    id: r.id,
+    title: r.title ?? "Untitled",
+    description: r.description ?? null,
+    isPublic: !!r.is_public,
+    ownerId: r.owner_id,
+    trackCount: Number(r.track_count ?? 0),
+    updatedAt: r.updated_at ? new Date(r.updated_at).getTime() : Date.now(),
+  }));
+}
+
+export async function vybzListDropIds(listId: string): Promise<string[]> {
+  const { data, error } = await db().rpc("vybz_list_drop_ids", { p_list: listId });
+  if (error || !data) return [];
+  return (data as string[]).map(String);
+}
+
+export async function dropsByIds(ids: string[]): Promise<Drop[]> {
+  if (!ids.length) return [];
+  const myId = await currentUserId();
+  const { data } = await db().from("drops").select("*").in("id", ids);
+  if (!data?.length) return [];
+  const order = new Map(ids.map((id, i) => [id, i]));
+  const sorted = [...data].sort((a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  return assembleDrops(sorted, myId);
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */

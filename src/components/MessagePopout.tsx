@@ -6,12 +6,12 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import * as api from "@/lib/api";
 import { useMessagePopout } from "@/lib/messagePopout";
-import { useLiveSession } from "@/lib/liveSession";
-import { LiveSessionPanel } from "@/components/LiveSessionPanel";
+import { useCamCall } from "@/lib/camCall";
 import { ReportModal } from "@/components/ReportModal";
 import { useSession } from "@/store/session";
 import { cx, timeAgo } from "@/lib/utils";
 import type { DmMessage } from "@/types";
+import type { LiveSource } from "@/lib/liveSession";
 
 export function MessagePopoutHost() {
   const { threadId, pendingCall, clearPendingCall, close } = useMessagePopout();
@@ -34,12 +34,13 @@ function MessagePopout({
   threadId, pendingCall, onPendingCallConsumed, onClose,
 }: {
   threadId: string;
-  pendingCall: "mic" | "cam" | "desktop" | null;
+  pendingCall: LiveSource | null;
   onPendingCallConsumed: () => void;
   onClose: () => void;
 }) {
   const navigate = useNavigate();
-  const { userId, showToast, refreshUnread } = useSession();
+  const { showToast, refreshUnread } = useSession();
+  const { startLiveCall } = useCamCall();
   const [msgs, setMsgs] = useState<DmMessage[]>([]);
   const [text, setText] = useState("");
   const [peer, setPeer] = useState<{ id: string; username: string | null } | null>(null);
@@ -50,7 +51,6 @@ function MessagePopout({
   const endRef = useRef<HTMLDivElement>(null);
   const recRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const session = useLiveSession(threadId, userId);
   const peerName = peer?.username ?? "them";
 
   async function load() {
@@ -68,14 +68,32 @@ function MessagePopout({
   }, [threadId]);
 
   useEffect(() => {
-    if (!pendingCall || session.state !== "idle") return;
+    if (!pendingCall || !peer?.id) return;
     const src = pendingCall;
     onPendingCallConsumed();
-    void session.startCall(src);
+    void startLiveCall({
+      threadId,
+      peerId: peer.id,
+      peerName: peer.username ?? "them",
+      source: src,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingCall, session.state]);
+  }, [pendingCall, peer?.id]);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs.length]);
+
+  async function beginCall(source: LiveSource) {
+    if (!peer?.id) {
+      showToast("Still loading this chat…");
+      return;
+    }
+    await startLiveCall({
+      threadId,
+      peerId: peer.id,
+      peerName: peer.username ?? "them",
+      source,
+    });
+  }
 
   async function sendText(e?: React.FormEvent) {
     e?.preventDefault();
@@ -177,8 +195,6 @@ function MessagePopout({
           </button>
         </header>
 
-        <LiveSessionPanel session={session} peerName={peerName} />
-
         <div className="no-scrollbar flex-1 space-y-2 overflow-y-auto px-3 py-3">
           {loading ? (
             <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
@@ -196,11 +212,11 @@ function MessagePopout({
         </div>
 
         <div className="flex flex-wrap items-center gap-1 border-t border-white/10 px-2 py-1.5">
-          <button type="button" disabled={!!recording || busy} onClick={() => void session.startCall("cam")}
+          <button type="button" disabled={!!recording || busy} onClick={() => void beginCall("cam")}
             className="rounded-full p-2 text-white/60 hover:bg-white/8 disabled:opacity-40" aria-label="Cam to cam">
             <Video className="h-4 w-4" />
           </button>
-          <button type="button" disabled={!!recording || busy} onClick={() => void session.startCall("mic")}
+          <button type="button" disabled={!!recording || busy} onClick={() => void beginCall("mic")}
             className="rounded-full p-2 text-white/60 hover:bg-white/8 disabled:opacity-40" aria-label="Voice call">
             <Phone className="h-4 w-4" />
           </button>

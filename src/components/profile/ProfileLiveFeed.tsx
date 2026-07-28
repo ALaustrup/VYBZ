@@ -9,6 +9,7 @@ import { useMessagePopout } from "@/lib/messagePopout";
 import { useSession } from "@/store/session";
 import { cx, timeAgo } from "@/lib/utils";
 import type { AppNotification, NotificationKind } from "@/types";
+import { isMustAckNotification } from "@/components/home/WallAlerts";
 
 const ICON: Partial<Record<NotificationKind, typeof Bell>> = {
   connection: UserPlus,
@@ -23,7 +24,7 @@ const ICON: Partial<Record<NotificationKind, typeof Bell>> = {
   system: Bell,
 };
 
-export function ProfileLiveFeed() {
+export function ProfileLiveFeed({ excludeMustAck = false }: { excludeMustAck?: boolean }) {
   const navigate = useNavigate();
   const { openThread } = useMessagePopout();
   const { userId, markNotificationsRead, showToast, refreshUnread } = useSession();
@@ -33,9 +34,10 @@ export function ProfileLiveFeed() {
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
-    setItems(await api.listLiveFeed(60));
+    const all = await api.listLiveFeed(60);
+    setItems(excludeMustAck ? all.filter((n) => !isMustAckNotification(n) || n.read) : all);
     setLoading(false);
-  }, []);
+  }, [excludeMustAck]);
 
   useEffect(() => {
     void load();
@@ -72,11 +74,9 @@ export function ProfileLiveFeed() {
     setActing(null);
     if (!ok) { showToast("Couldn't update that request"); return; }
     showToast(accept ? "Connected" : "Request declined");
-    setItems((prev) => prev.map((x) =>
-      x.id === n.id
-        ? { ...x, title: accept ? "You're connected" : "Request declined", body: n.title, read: true }
-        : x,
-    ));
+    await api.markNotificationRead(n.id);
+    setItems((prev) => prev.filter((x) => x.id !== n.id));
+    void refreshUnread();
   }
 
   const isIncomingRequest = (n: AppNotification) =>

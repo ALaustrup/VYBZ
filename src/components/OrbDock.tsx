@@ -2,26 +2,25 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { useSession } from "@/store/session";
 import { Avatar } from "@/components/Avatar";
+import { formatVcAddress } from "@/lib/vc";
 import { cx } from "@/lib/utils";
 
 /**
- * You controls — avatar + unread activity bell.
- * Inline for ContextualAppBar; primary nav remains on the V-Dock.
+ * You controls — avatar + unread activity bell → dashboard tabs (no hub hops).
  */
 export function YouChip() {
   const { profile, unread } = useSession();
-  const { pathname } = useLocation();
-  const onYou =
-    pathname.startsWith("/profile") ||
-    pathname.startsWith("/u/") ||
-    pathname.startsWith("/artist/");
+  const { pathname, search } = useLocation();
+  const onHome = pathname === "/" || pathname === "";
+  const tab = new URLSearchParams(search).get("tab");
+  const onYou = onHome && (tab === "you" || !tab || tab === "match");
 
   return (
     <div className="flex items-center gap-1.5">
-      {unread > 0 && !pathname.startsWith("/profile") && (
+      {unread > 0 && !(onHome && tab === "live") && (
         <NavLink
-          to="/profile?tab=live"
-          aria-label="Live feed"
+          to="/?tab=live"
+          aria-label="Live alerts"
           className="relative flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90 bell-alert"
         >
           <Bell className="h-4 w-4 text-paper-900/70" />
@@ -31,8 +30,8 @@ export function YouChip() {
         </NavLink>
       )}
       <NavLink
-        to="/profile"
-        aria-label="You"
+        to="/?tab=you"
+        aria-label={formatVcAddress(profile?.username) || "You"}
         className={cx(
           "flex items-center rounded-full p-1 glass active:scale-95",
           onYou && "ring-1 ring-veil-400/45",

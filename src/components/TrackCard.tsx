@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Pause, Play, Star, Heart, Loader2, Download, ShieldCheck } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
 import { Handle } from "@/components/Handle";
@@ -38,6 +39,8 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
   const playback = d.playbackCustomization ?? undefined;
   return {
     id: d.id, url: d.audioUrl ?? "",
+    authorId: d.authorId,
+    earnEligible: true,
     title: d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled",
     artist: d.creditedArtist?.trim() || d.authorUsername || "Creator",
     waveform: d.waveform, durationSec: d.durationSec,
@@ -61,10 +64,21 @@ interface TrackCardProps {
 /** The feed's atomic unit for an audio drop — identity-forward, sound-first. */
 export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, onOpenAuthor, className }: TrackCardProps) {
   const player = usePlayer();
+  const navigate = useNavigate();
   const { userId, showToast } = useSession();
   const accent = useMemo(() => paletteFor(d.seed)[0], [d.seed]);
   const [downloading, setDownloading] = useState(false);
   const [prov, setProv] = useState<api.AssetProvenance | null>(null);
+
+  function openArtist() {
+    if (onOpenAuthor) {
+      onOpenAuthor();
+      return;
+    }
+    if (!d.authorId) return;
+    if (userId && d.authorId === userId) navigate("/?tab=you");
+    else navigate(`/u/${d.authorId}`);
+  }
 
   useEffect(() => {
     if (!d.assetId || compact) return;
@@ -172,7 +186,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
           <div className="min-w-0 flex-1">
             <button
               type="button"
-              onClick={onOpenAuthor}
+              onClick={openArtist}
               className={cx(
                 "block w-full truncate text-left font-display font-semibold text-white transition hover:text-veil-200",
                 compact ? "text-sm" : "text-base",
@@ -206,7 +220,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
               </span>
             )}
             {d.authorUsername && d.creditedArtist?.trim() && (
-              <button type="button" onClick={onOpenAuthor} className="max-w-[7rem] truncate text-[10px] text-white/35 hover:text-white/60">
+              <button type="button" onClick={openArtist} className="max-w-[7rem] truncate text-[10px] text-white/35 hover:text-white/60">
                 <Handle username={d.authorUsername} size={12} />
               </button>
             )}

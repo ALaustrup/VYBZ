@@ -57,11 +57,11 @@ export function ContextualAppBar() {
               </button>
             ) : null)}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-[17px] tracking-tight text-paper-900">
+              <p className="truncate font-display text-[17px] tracking-tight text-white">
                 {title}
               </p>
               {subtitle && (
-                <p className="truncate text-[11px] leading-tight text-paper-900/45">{subtitle}</p>
+                <p className="truncate text-[11px] leading-tight text-white/45">{subtitle}</p>
               )}
             </div>
           </div>

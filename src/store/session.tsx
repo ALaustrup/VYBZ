@@ -49,6 +49,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const loadProfile = useCallback(async (id: string) => {
     const p = await api.getMyProfile(id);
     setProfile(p);
+    if (p?.username) {
+      void (async () => {
+        await api.ensureVcSignupGrant().catch(() => 0);
+        void api.awardSocialVc("daily_login", "presence", new Date().toISOString().slice(0, 10)).catch(() => undefined);
+        const next = await api.getMyProfile(id);
+        if (next) setProfile(next);
+      })();
+    }
   }, []);
 
   useEffect(() => {

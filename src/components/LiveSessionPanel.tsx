@@ -4,8 +4,7 @@ import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { ExtractMidiButton } from "@/components/ExtractMidiButton";
 import type { LiveSession } from "@/lib/liveSession";
 
-/** In-chat live-session surface: incoming call, connecting, and the active
- *  session with a live visualizer, mute, and record (listener). */
+/** Compact in-chat live surface (mic/desktop fallback). Cam uses CamCallOverlay. */
 export function LiveSessionPanel({ session, peerName }: { session: LiveSession; peerName: string }) {
   const { state, isHost, source, stream, remoteStream, error, turnHint } = session;
 
@@ -17,7 +16,7 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
 
   useEffect(() => {
     const el = audioRef.current;
-    if (el && remoteStream) { el.srcObject = remoteStream; void el.play().catch(() => {}); }
+    if (el && remoteStream) { el.srcObject = remoteStream; el.volume = 0.88; void el.play().catch(() => {}); }
   }, [remoteStream]);
 
   useEffect(() => {
@@ -54,7 +53,7 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
       </div>
     );
   }
-  if (state === "idle") return null;
+  if (state === "idle" || state === "prep" || source === "cam") return null;
 
   if (state === "incoming") {
     return (
@@ -62,7 +61,7 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
         <Radio className="h-4 w-4 shrink-0 animate-pulse text-veil-200" />
         <span className="min-w-0 flex-1 truncate text-white/90">
           <span className="font-semibold">{peerName}</span> wants to go live (
-          {source === "desktop" ? "desktop audio" : source === "cam" ? "cam" : "mic"})
+          {source === "desktop" ? "desktop audio" : "mic"})
         </span>
         <button type="button" onClick={() => void session.acceptCall()} className="flex shrink-0 items-center gap-1 rounded-full bg-feel/25 px-2.5 py-1 text-xs font-semibold text-feel active:scale-95">
           <Check className="h-3 w-3" /> Accept
@@ -86,7 +85,7 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
         <span className="flex-1 truncate font-display text-sm font-semibold text-white">
           {connecting ? (state === "calling" ? `Calling ${peerName}…` : "Connecting…") : `Live with ${peerName}`}
           <span className="ml-1.5 font-sans text-[11px] font-normal text-white/45">
-            {source === "desktop" ? "desktop audio" : source === "cam" ? "cam to cam" : "microphone"}
+            {source === "desktop" ? "desktop audio" : "microphone"}
           </span>
         </span>
         <button type="button" onClick={session.endCall} aria-label="End session" className="flex h-8 w-8 items-center justify-center rounded-full bg-wild/20 text-wild active:scale-90">
@@ -94,26 +93,6 @@ export function LiveSessionPanel({ session, peerName }: { session: LiveSession; 
         </button>
       </div>
 
-      {source === "cam" && (stream || remoteStream) && (
-        <div className="mb-2 grid grid-cols-2 gap-2">
-          {stream && (
-            <video
-              autoPlay muted playsInline
-              ref={(el) => { if (el && stream) el.srcObject = stream; }}
-              className="aspect-video w-full rounded-xl bg-black/40 object-cover"
-              aria-label="You"
-            />
-          )}
-          {remoteStream && (
-            <video
-              autoPlay playsInline
-              ref={(el) => { if (el && remoteStream) el.srcObject = remoteStream; }}
-              className="aspect-video w-full rounded-xl bg-black/40 object-cover"
-              aria-label={peerName}
-            />
-          )}
-        </div>
-      )}
       <div className="h-14 overflow-hidden rounded-xl bg-black/25">
         {vizStream
           ? <LiveVisualizer stream={vizStream} />

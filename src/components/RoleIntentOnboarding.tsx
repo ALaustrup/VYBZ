@@ -7,11 +7,9 @@ import {
   INTENT_PILLARS,
   mixFromPillars,
   lookingForFromPillars,
-  applyDockSeed,
   type IntentPillar,
   sealIntentMixPrivacy,
 } from "@/lib/intentMix";
-import { setVDockLayout } from "@/lib/vdock/layout";
 import { cx } from "@/lib/utils";
 
 /**
@@ -56,8 +54,8 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
         }),
       });
       void api.recordSocialScoreEvent("intent_mix", { pillars }).catch(() => undefined);
+      void api.awardSocialVc("intent_mix", "onboarding", "once").catch(() => undefined);
       await refreshProfile();
-      applyDockSeed(mix, setVDockLayout);
       onComplete();
       navigate("/");
     } catch (e) {
@@ -70,11 +68,10 @@ export function RoleIntentOnboarding({ onComplete }: { onComplete: () => void })
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10" data-dark-stage>
       <div className="w-full max-w-md">
-        <p className="eyebrow mb-2">Find Yours</p>
-        <h1 className="font-display text-2xl font-bold text-gradient">What are you open to?</h1>
+        <p className="eyebrow mb-2">Open to</p>
+        <h1 className="font-display text-2xl font-bold text-gradient">Your mix</h1>
         <p className="mt-2 text-sm leading-relaxed text-white/55">
-          Pick as many as you want — or skip. Your Home canvas will bloom around this mix.
-          You can change it anytime. Never locked into one box.
+          Pick any · or skip. Change anytime.
         </p>
 
         <div className="mt-6 space-y-2">

@@ -8,11 +8,11 @@ import { cx } from "@/lib/utils";
 import { Flair } from "@/lib/cosmetics";
 import type { Cosmetic, CosmeticPackage, CosmeticStore } from "@/types";
 
-/** Credit top-up packs — amounts enforced server-side. "flare" label avoids Pro confusion. */
+/** Credit top-up packs — 1 Vc = $0.05 USD peg (enforced server-side). */
 const CREDIT_PACKS = [
-  { id: "starter", dollars: 5, credits: 50, label: "Starter" },
-  { id: "plus", dollars: 10, credits: 120, label: "Plus" },
-  { id: "pro", dollars: 25, credits: 350, label: "Flare" },
+  { id: "starter", dollars: 5, credits: 100, label: "Starter" },
+  { id: "plus", dollars: 10, credits: 200, label: "Plus" },
+  { id: "pro", dollars: 25, credits: 500, label: "Flare" },
 ] as const;
 
 /**
@@ -184,7 +184,12 @@ export function StorePage() {
       )}
 
       <div className="mb-6">
-        <p className="eyebrow mb-2">Credits for flair</p>
+        <p className="eyebrow mb-2">Buy Vc · 1 Vc = $0.05</p>
+        <p className="mb-2 text-[11px] text-white/40">
+          Closed-loop until 2027 · <a href="/legal/vc" className="text-cyan-200/80 underline-offset-2 hover:underline">Whitepaper</a>
+          {" · "}
+          <a href="/wallet" className="text-cyan-200/80 underline-offset-2 hover:underline">Wallet</a>
+        </p>
         <div className="grid grid-cols-3 gap-2">
           {CREDIT_PACKS.map((p) => (
             <button

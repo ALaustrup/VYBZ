@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Routes, Route, Navigate, NavLink, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import { DynamicBackground } from "@/components/DynamicBackground";
@@ -22,7 +22,6 @@ import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BrandLockup } from "@/components/Brand";
-import { LivingHomePage } from "@/pages/LivingHomePage";
 import { FeedPage } from "@/pages/FeedPage";
 import { needsIntentMixIntake } from "@/lib/intentMix";
 import { ConnectPage } from "@/pages/ConnectPage";
@@ -36,6 +35,9 @@ import { MessagesPage } from "@/pages/MessagesPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { MessagePopoutProvider } from "@/lib/messagePopout";
 import { MessagePopoutHost } from "@/components/MessagePopout";
+import { CamCallProvider } from "@/lib/camCall";
+import { CamCallOverlay } from "@/components/CamCallOverlay";
+import { VideoMessageHost } from "@/components/VideoMessageHost";
 import { ProjectsPage } from "@/pages/ProjectsPage";
 import { ProjectRoomPage } from "@/pages/ProjectRoomPage";
 import { RoomsPage } from "@/pages/RoomsPage";
@@ -51,6 +53,8 @@ import { LiveWatchPage } from "@/pages/LiveWatchPage";
 import { SocialPage } from "@/pages/SocialPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { ArtistPage } from "@/pages/ArtistPage";
+import { AmbientRadioHost } from "@/components/AmbientRadioHost";
+import { ListenEarnHost } from "@/components/ListenEarnHost";
 import { LibraryPage } from "@/pages/LibraryPage";
 
 export function App() {
@@ -109,10 +113,10 @@ export function App() {
         className="h-full"
       >
       <Routes location={location}>
-        <Route path="/" element={<LivingHomePage />} />
+        <Route path="/" element={<ProfilePage />} />
         <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/activity" element={<Navigate to="/" replace />} />
+        <Route path="/activity" element={<Navigate to="/?tab=live" replace />} />
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/spark" element={<SparkPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
@@ -125,13 +129,14 @@ export function App() {
         <Route path="/messages/:id" element={<MessagesPage />} />
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/rooms/:id" element={<RoomPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />
         <Route path="/store" element={<StorePage />} />
+        <Route path="/wallet" element={<Navigate to="/?tab=wallet" replace />} />
         <Route path="/u/:id" element={<UserProfilePage />} />
         <Route path="/artist/:slug" element={<ArtistPage />} />
         <Route path="/p/:id" element={<ProjectPage />} />
@@ -146,23 +151,29 @@ export function App() {
 
   return (
     <MessagePopoutProvider>
-      <DynamicBackground variant={shellBg} />
-      <GrainOverlay />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
-      <AppChrome
-        stage={routes}
-        dock={(
-          <ErrorBoundary>
-            <VDock onCompose={() => setComposeOpen(true)} />
-          </ErrorBoundary>
-        )}
-      />
-      <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
-      <BulkUploadSheet open={bulkOpen} onClose={() => setBulkOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
-      <MessagePopoutHost />
-      <ReactiveFrame />
-      <WelcomeTutorial />
-      <Toast /><Confetti />
+      <CamCallProvider>
+        <DynamicBackground variant={shellBg} />
+        <GrainOverlay />
+        <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
+        <AppChrome
+          stage={routes}
+          dock={(
+            <ErrorBoundary>
+              <VDock onCompose={() => setComposeOpen(true)} />
+            </ErrorBoundary>
+          )}
+        />
+        <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+        <BulkUploadSheet open={bulkOpen} onClose={() => setBulkOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+        <AmbientRadioHost />
+        <ListenEarnHost />
+        <MessagePopoutHost />
+        <CamCallOverlay />
+        <VideoMessageHost />
+        <ReactiveFrame />
+        <WelcomeTutorial />
+        <Toast /><Confetti />
+      </CamCallProvider>
     </MessagePopoutProvider>
   );
 }
@@ -192,4 +203,17 @@ function PublicDocShell() {
       </div>
     </>
   );
+}
+
+/** Map legacy /profile?tab=… onto the dashboard home. */
+function LegacyProfileRedirect() {
+  const [params] = useSearchParams();
+  const tab = params.get("tab");
+  const mapped =
+    tab === "inbox" ? "you"
+    : tab === "match" ? "connect"
+    : tab === "live" || tab === "you" || tab === "listen" || tab === "wallet" || tab === "hub" || tab === "connect"
+      ? tab
+      : "hub";
+  return <Navigate to={`/?tab=${mapped}`} replace />;
 }

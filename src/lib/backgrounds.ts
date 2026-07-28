@@ -16,8 +16,9 @@ export interface BgVariant {
 }
 
 export const BG_VARIANTS: BgVariant[] = [
+  { id: "smoke", label: "Smoke", colors: ["#00C2FF", "#00D68F", "#FF4D2E"], premium: false, price: 0 },
   { id: "daybreak", label: "Daybreak", colors: ["#00C2FF", "#FF4D2E", "#00D68F"], premium: false, price: 0 },
-  { id: "aurora", label: "Daybreak", colors: ["#00C2FF", "#FF4D2E", "#5EEAD4"], premium: false, price: 0 },
+  { id: "aurora", label: "Aurora", colors: ["#00C2FF", "#5EEAD4", "#67E8F9"], premium: false, price: 0 },
   { id: "ember", label: "Ember", colors: ["#FF7A18", "#FF4D2E", "#FFB020"], premium: true, price: 120 },
   { id: "tide", label: "Tide", colors: ["#00C2FF", "#2563EB", "#14B8A6"], premium: true, price: 120 },
   { id: "ink", label: "Mist", colors: ["#7DD3FC", "#A5B4FC", "#67E8F9"], premium: true, price: 120 },
@@ -25,7 +26,7 @@ export const BG_VARIANTS: BgVariant[] = [
   { id: "nebula", label: "Signal", colors: ["#00C2FF", "#FF4D2E", "#A3E635"], premium: true, price: 0, exclusive: true },
 ];
 
-export const DEFAULT_BG = "daybreak";
+export const DEFAULT_BG = "smoke";
 
 const MAP: Record<string, BgVariant> = Object.fromEntries(
   BG_VARIANTS.map((v) => [v.id, v])

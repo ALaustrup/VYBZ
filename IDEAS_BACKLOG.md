@@ -18,6 +18,15 @@
 
 ## Idea log
 
+### 2026-07-27 — Music Hub + Connection Lab (clarified) 🟢
+- **What:** SoundCloud × Spotify × Twitch as the product; Hub feed (live + trending);
+  waveform comments; optional 18+ Connection Lab spice (romance/meetup/adult intents)
+  without overwhelming the music majority. Legal Terms/Privacy/AUP v2–3 aligned.
+- **Status:** **In progress / promoted** — UI hub + legal shipped in this pass; AI playlists,
+  donation goals, full collab playlists continue on the same spine.
+
+---
+
 ### 2026-07-19 — "Live & Video" cluster
 Five related ideas, captured together. They split cleanly across three buckets:
 things that reuse what we have (do soon), things gated on infra/cost, and one

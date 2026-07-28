@@ -17,11 +17,11 @@ interface Blob {
   color: string;
 }
 
-const BASE = "#F4F7FF";
+const BASE = "#0a0e18";
 
 /**
- * Living daylight backdrop — saturated accent blooms over a bright paper base.
- * Soft, touch-reactive, pauses when hidden; static wash under reduced motion.
+ * Dark smoke backdrop — soft neon blooms over charcoal.
+ * Touch-reactive; pauses when hidden; static wash under reduced motion.
  */
 export function DynamicBackground({ variant }: DynamicBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

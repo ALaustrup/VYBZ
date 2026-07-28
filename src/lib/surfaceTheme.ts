@@ -1,5 +1,5 @@
 // ── Surface theming ──────────────────────────────────────────────────────────
-// Daylight vivid system — electric cyan brand, light canvas. Labels stay quiet.
+// Dark smoke glass — electric cyan accents on charcoal. Labels stay quiet.
 
 export interface SurfaceTheme {
   id: string;
@@ -14,8 +14,8 @@ export interface SurfaceTheme {
 /** Electric cyan — sharp, loud, not muddy violet. */
 export const BRAND_ACCENT = "0 194 255";
 
-/** Bright living backdrop for the daylight shell. */
-export const BRAND_BG = "daybreak";
+/** Native dark-smoke backdrop for the cyber shell. */
+export const BRAND_BG = "smoke";
 
 export const DEFAULT_SURFACE: SurfaceTheme = {
   id: "default",

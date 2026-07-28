@@ -4,14 +4,14 @@ import { Loader2, MessageSquare, Send, Mic, MonitorSpeaker, Video, Square } from
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { ChatTabs } from "@/components/ChatTabs";
-import { LiveSessionPanel } from "@/components/LiveSessionPanel";
-import { useLiveSession } from "@/lib/liveSession";
 import { useMessagePopout } from "@/lib/messagePopout";
+import { useCamCall } from "@/lib/camCall";
 import { useInboxThreads } from "@/hooks/useInboxThreads";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx, timeAgo } from "@/lib/utils";
 import type { DmMessage } from "@/types";
+import type { LiveSource } from "@/lib/liveSession";
 
 export function MessagesPage() {
   const { id } = useParams();
@@ -77,7 +77,8 @@ function ThreadList() {
 }
 
 function Thread({ threadId }: { threadId: string }) {
-  const { userId, refreshUnread, showToast } = useSession();
+  const { refreshUnread, showToast } = useSession();
+  const { startLiveCall, session } = useCamCall();
   const [msgs, setMsgs] = useState<DmMessage[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -88,8 +89,21 @@ function Thread({ threadId }: { threadId: string }) {
   const endRef = useRef<HTMLDivElement>(null);
   const recRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const session = useLiveSession(threadId, userId);
-  const peerName = peer?.username ?? "your collaborator";
+  const callIdle = session.state === "idle" || session.state === "ended";
+
+  async function beginCall(source: LiveSource) {
+    if (!peer?.id) {
+      showToast("Still loading this chat…");
+      return;
+    }
+    setJamMenu(false);
+    await startLiveCall({
+      threadId,
+      peerId: peer.id,
+      peerName: peer.username ?? "them",
+      source,
+    });
+  }
 
   async function load() { setMsgs(await api.listMessages(threadId)); setLoading(false); }
   useEffect(() => {
@@ -163,17 +177,17 @@ function Thread({ threadId }: { threadId: string }) {
 
   return (
     <div className="relative flex h-full flex-col">
-      {jamMenu && session.state === "idle" && (
+      {jamMenu && callIdle && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setJamMenu(false)} />
           <div className="absolute bottom-16 left-3 z-50 w-56 overflow-hidden rounded-2xl border border-white/10 bg-ink-900/95 p-1.5 shadow-card backdrop-blur-2xl">
-            <button type="button" onClick={() => { setJamMenu(false); void session.startCall("mic"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
+            <button type="button" onClick={() => void beginCall("mic")} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
               <Mic className="h-4 w-4 text-veil-200" /> <span><span className="font-semibold">Microphone</span><span className="block text-[11px] text-white/45">Jam or talk — free</span></span>
             </button>
-            <button type="button" onClick={() => { setJamMenu(false); void session.startCall("cam"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
+            <button type="button" onClick={() => void beginCall("cam")} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
               <Video className="h-4 w-4 text-feel" /> <span><span className="font-semibold">Cam to cam</span><span className="block text-[11px] text-white/45">Private video — free forever</span></span>
             </button>
-            <button type="button" onClick={() => { setJamMenu(false); void session.startCall("desktop"); }} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
+            <button type="button" onClick={() => void beginCall("desktop")} className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-white/90 hover:bg-white/8">
               <MonitorSpeaker className="h-4 w-4 text-aqua-200" /> <span><span className="font-semibold">Desktop audio</span><span className="block text-[11px] text-white/45">Share a DAW/tab (Chrome)</span></span>
             </button>
           </div>
@@ -190,9 +204,8 @@ function Thread({ threadId }: { threadId: string }) {
           ))}
         <div ref={endRef} />
       </div>
-      <LiveSessionPanel session={session} peerName={peerName} />
       <div className="flex flex-wrap items-center gap-1 border-t border-white/10 px-1 pt-1.5">
-        {session.state === "idle" && (
+        {callIdle && (
           <button type="button" onClick={() => setJamMenu((v) => !v)} aria-label="Start live call" aria-expanded={jamMenu}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/70 active:scale-95">
             <Mic className="h-4 w-4" />
