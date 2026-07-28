@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Routes, Route, Navigate, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -13,10 +13,11 @@ import { BulkUploadSheet } from "@/components/BulkUploadSheet";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { VDock } from "@/components/vdock/VDock";
-import { AppChrome } from "@/components/shell/AppChrome";
+import { SuiteShell } from "@/shell/SuiteShell";
+import { suitePlaceholderRoutes } from "@/app/suitePlaceholderRoutes";
 import { ensureEliteFxDefault } from "@/lib/display";
 import { pageEnter } from "@/lib/motion";
-import { BRAND_ACCENT, BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
+import { BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
 import { useResolvedCosmetics } from "@/lib/cosmetics";
 import { BG_VARIANTS } from "@/lib/backgrounds";
 import { Toast } from "@/components/Toast";
@@ -99,7 +100,7 @@ export function App() {
     }
     return <LandingPage />;
   }
-  // Signed in — wait for profile before deciding username vs hub (avoids false UsernameSetup).
+  // Signed in ΓÇö wait for profile before deciding username vs hub (avoids false UsernameSetup).
   if (!profile) {
     return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
   }
@@ -208,7 +209,7 @@ function PublicDocShell() {
       <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
         <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <NavLink to="/codex"><BrandLockup height="h-7" /></NavLink>
-          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex · Astra Matrix, Inc.</span>
+          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex ┬╖ Astra Matrix, Inc.</span>
           <NavLink to="/enter" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
         </header>
         <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">
@@ -226,7 +227,7 @@ function PublicDocShell() {
   );
 }
 
-/** Map legacy /profile?tab=… onto the dashboard home. */
+/** Map legacy /profile?tab=ΓÇª onto the dashboard home. */
 function LegacyProfileRedirect() {
   const [params] = useSearchParams();
   const tab = params.get("tab");
