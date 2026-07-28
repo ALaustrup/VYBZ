@@ -40,6 +40,7 @@ are **never authoritative**.
 - [`architecture/DATABASE_REGISTRY.md`](./architecture/DATABASE_REGISTRY.md)
 - [`architecture/ADR_INDEX.md`](./architecture/ADR_INDEX.md)
 - [`architecture/COST_INVENTORY.md`](./architecture/COST_INVENTORY.md)
+- [`architecture/PHASE1_FOUNDATION_INVENTORY.md`](./architecture/PHASE1_FOUNDATION_INVENTORY.md)
 
 ## Products
 
