@@ -4,6 +4,7 @@ import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { NewReleasePage } from "@/features/prepare/NewReleasePage";
 import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
 import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
+import { DistributionReportPage } from "@/features/distribution/DistributionReportPage";
 import { DesktopBatchPanel } from "@/features/processing/DesktopBatchPanel";
 
 function StudioIdRedirect() {
@@ -23,6 +24,7 @@ export function suitePlaceholderRoutes() {
       <Route path="/releases/new" element={<NewReleasePage />} />
       <Route path="/release/:id" element={<ReleaseDetailPage />} />
       <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
+      <Route path="/release/:id/distribution" element={<DistributionReportPage />} />
       <Route path="/desktop/process" element={<DesktopBatchPanel />} />
       <Route path="/studio" element={<Navigate to="/projects" replace />} />
       <Route path="/studio/:id" element={<StudioIdRedirect />} />

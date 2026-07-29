@@ -9,6 +9,8 @@ export type {
 
 export {
   createCostSentinel,
+  getSharedCostSentinel,
+  resetSharedCostSentinel,
   DEFAULT_THRESHOLDS,
   type CostAlert,
   type CostSentinel,

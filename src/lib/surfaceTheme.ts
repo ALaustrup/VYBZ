@@ -51,6 +51,7 @@ const LABELS: SurfaceRule[] = [
   { test: (p) => p.startsWith("/live"), id: "live", label: "Live", product: "live", mode: "audience" },
   { test: (p) => p.startsWith("/studio") || p.startsWith("/projects"), id: "studio", label: "Studio", product: "studio", mode: "professional" },
   { test: (p) => p.startsWith("/release/") && p.includes("/credits"), id: "credits", label: "Credits", product: "credits", mode: "professional" },
+  { test: (p) => p.startsWith("/release/") && p.includes("/distribution"), id: "relay", label: "Distribution", product: "relay", mode: "professional" },
   { test: (p) => p.startsWith("/credits"), id: "credits", label: "Credits", product: "credits", mode: "professional" },
   { test: (p) => p.startsWith("/release/") && p.includes("/master"), id: "master", label: "MasterReady", product: "master", mode: "professional" },
   { test: (p) => p.startsWith("/master"), id: "master", label: "MasterReady", product: "master", mode: "professional" },

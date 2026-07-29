@@ -111,8 +111,18 @@ export function createAndroidBridge(): PlatformBridge {
       async receiveSharedFiles() {
         return [];
       },
-      async shareExport(_file: ExportedFile) {
-        throw unsupported("shareExport (Phase 6+)");
+      async shareExport(file: ExportedFile) {
+        // Share-sheet when Web Share API is available; else download fallback.
+        if (typeof navigator !== "undefined" && typeof navigator.share === "function" && typeof File !== "undefined") {
+          try {
+            const shared = new File([file.blob], file.name, { type: file.mimeType });
+            await navigator.share({ files: [shared], title: file.name });
+            return;
+          } catch {
+            /* fall through */
+          }
+        }
+        return web.files.saveExport(file);
       },
     },
   };
