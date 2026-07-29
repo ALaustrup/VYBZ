@@ -1,27 +1,37 @@
-# Cloudflare security ruleset (template)
+# Cloudflare security ruleset (VYBZ)
 
-> **Status:** Template for a future Cloudflare Pages canary. Production SPA today is
-> **Vercel** (`astramatrix/vybz` → https://vybz.cloud). Do not flip DNS until the
-> canary gate in [`../operations/DEPLOYMENT.md`](../operations/DEPLOYMENT.md) passes.
+> **Import file:** [`cloudflare-ruleset.yml`](./cloudflare-ruleset.yml)  
+> Tuned for Vite SPA routes + Supabase Edge (`/functions/v1/`).  
+> Production SPA today is still **Vercel** (`astramatrix/vybz` → https://vybz.cloud).
+> Apply this ruleset only on hostnames Cloudflare already proxies (staging first).
 
-## Recommended WAF / Bot rules (when CF is fronting)
+## Import (staging → production)
 
-| Rule | Action | Notes |
-|------|--------|-------|
-| Rate limit `/functions/v1/storefront-checkout` | Challenge / block after burst | Protect Checkout Edge |
-| Rate limit `/functions/v1/stripe-webhook` | Allow Stripe ASNs only if possible | Signature still verified in EF |
-| Bot Fight Mode | On (non-enterprise) | Skip for authenticated SPA cookies carefully |
-| Block countries (optional) | Off by default | Owner decision for alpha |
-| Managed WAF (OWASP) | Medium | Log → challenge |
+1. Cloudflare Dashboard → **Security** → **WAF** → **Rulesets** → **Add ruleset** → **Import rules**.
+2. Paste / upload [`cloudflare-ruleset.yml`](./cloudflare-ruleset.yml).
+3. Save on the **staging** zone; run smoke below.
+4. Export / re-import the same YAML on the **production** zone once staging is green.
 
-## Headers (Pages / Workers)
+## Smoke-test checklist (staging)
 
-- Keep SPA CSP aligned with [`../../index.html`](../../index.html) / Vercel headers.
+| Path | Expected |
+|------|----------|
+| `/`, `/pack/<slug>`, `/enter` | 200 |
+| `POST /functions/v1/stripe-webhook` | 200 / 400 (signature) — not 403 from WAF |
+| `/.%2e/etc/passwd` or path with `../` | **403** |
+| `/?__proto__[x]=1` | **403** |
+
+## Also recommended (dashboard toggles, not in YAML)
+
+| Control | Action | Notes |
+|---------|--------|-------|
+| Rate limit storefront checkout | Challenge after burst | Path `/functions/v1/storefront-checkout` |
+| Stripe webhook | Prefer allowlisting Stripe egress if available | Signature still verified in Edge |
+| Bot Fight Mode | On (non-enterprise) | Watch authenticated SPA cookies |
+| Managed WAF (OWASP) | Medium · log then challenge | Complements custom rules |
+
+## Headers / cutover
+
+- Keep SPA CSP aligned with `index.html` / Vercel headers.
 - Do not terminate Stripe webhooks through a Worker that strips `Stripe-Signature`.
-
-## Cutover checklist
-
-1. Deploy Pages canary on subdomain.
-2. Apply this ruleset in log-only mode for 48h.
-3. Compare Core Web Vitals vs Vercel.
-4. Owner approval → apex cutover; keep Vercel rollback ready.
+- Apex cutover to Cloudflare Pages remains gated by [`../operations/DEPLOYMENT.md`](../operations/DEPLOYMENT.md).

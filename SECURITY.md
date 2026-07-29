@@ -64,6 +64,18 @@ or signing secrets. Platform Bridge must use allowlisted native commands only
 - Storefront `kind=storefront` fulfillment via Resend signed ZIP (24h).
 - Cost reservations required before paid AI/mastering jobs (Phase 1 / Commit 4).
 
+## Edge & WAF
+
+- **Ruleset (import YAML):** [`docs/security/cloudflare-ruleset.yml`](./docs/security/cloudflare-ruleset.yml)
+  — SPA allowlist + Edge `/functions/v1/` allow + LFI / `__proto__` blocks.
+- **Ops guide:** [`docs/security/cloudflare.md`](./docs/security/cloudflare.md)
+- **Ruleset committed:** 2026-07-29 (Phase 11 follow-up).
+- **Staging WAF enabled:** _pending owner import + smoke_
+- **Production WAF go-live:** _pending staging green_ (record date here when enabled)
+
+Supabase Edge Functions remain the API plane; Cloudflare WAF applies only when
+the hostname is proxied through Cloudflare.
+
 ## Secrets
 
 | Secret | Where |
