@@ -7,6 +7,15 @@ export type {
   ProviderMode,
 } from "./types";
 
+export {
+  createCostSentinel,
+  DEFAULT_THRESHOLDS,
+  type CostAlert,
+  type CostSentinel,
+  type CostSentinelThresholds,
+  type CostUsageSnapshot,
+} from "./sentinel";
+
 export type CostPolicy = {
   allowPaidWithoutReservation: boolean;
   prepaidProviders: readonly string[];
@@ -19,7 +28,7 @@ export function defaultCostPolicy(): CostPolicy {
   };
 }
 
-/** Phase 1: paid providers require reservation / prepaid — never silent cloud spend. */
+/** Paid providers require reservation / prepaid — never silent cloud spend. */
 export function canUsePaidProvider(
   provider: string,
   policy: CostPolicy = defaultCostPolicy(),
@@ -28,7 +37,7 @@ export function canUsePaidProvider(
   return policy.prepaidProviders.includes(provider);
 }
 
-/** Phase 1 stub — always zero / disabled until Cost Sentinel. */
+/** Estimates stay disabled until a paid provider is explicitly reserved. */
 export function estimateJobCost(
   provider: string,
   mode: ProviderMode = "disabled",
@@ -39,7 +48,7 @@ export function estimateJobCost(
     estimatedCents: 0,
     currency: "USD",
     disabled: true,
-    reason: "Cost estimates disabled in Phase 1 stubs",
+    reason: "Cost estimates disabled until prepaid reservation (Cost Sentinel tracks usage only)",
   };
 }
 

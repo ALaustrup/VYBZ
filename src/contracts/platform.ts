@@ -62,6 +62,8 @@ export interface JobReference {
   status: "queued" | "processing" | "succeeded" | "failed" | "canceled";
   engine: "portable" | "native" | "remote";
   createdAt: string;
+  /** Optional analysis payload when the job completes inline (portable/native). */
+  result?: Record<string, unknown>;
 }
 
 export interface VybzNotification {

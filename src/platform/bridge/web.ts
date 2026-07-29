@@ -8,8 +8,12 @@ import type {
 import { capabilitiesFor } from "@/platform/bridge/capabilities";
 import { cancelled, normalizeUnknown, PlatformError } from "@/platform/bridge/errors";
 import type { PlatformBridge } from "@/platform/bridge/types";
+import { createCostSentinel } from "@/platform/costs/sentinel";
+import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
+import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 
 const SESSION_KEY = "vybz.platform.session.v1";
+const costSentinel = createCostSentinel();
 
 function newId(): string {
   return crypto.randomUUID();
@@ -129,12 +133,33 @@ export function createWebBridge(): PlatformBridge {
         if (input.file.sizeBytes > caps.maxLocalFileBytes) {
           throw new PlatformError("validation", "Audio file exceeds web size limit");
         }
-        return {
-          jobId: newId(),
-          status: "queued",
-          engine: "portable",
-          createdAt: new Date().toISOString(),
-        };
+        if (input.file.sizeBytes > PORTABLE_FFT_MAX_BYTES) {
+          throw new PlatformError(
+            "validation",
+            `Portable FFT limited to ${PORTABLE_FFT_MAX_BYTES} bytes — use Desktop for larger masters`
+          );
+        }
+        if (!input.file.blob) {
+          throw new PlatformError("validation", "Audio blob required for portable analyze");
+        }
+        try {
+          const result = await portableAnalyzeWav({
+            name: input.file.name,
+            sizeBytes: input.file.sizeBytes,
+            arrayBuffer: () => input.file.blob!.arrayBuffer(),
+          });
+          const minutes = Math.max(0.001, (result.durationSeconds || 0) / 60);
+          costSentinel.record({ jobMinutes: minutes, storageBytes: input.file.sizeBytes });
+          return {
+            jobId: newId(),
+            status: "succeeded",
+            engine: "portable",
+            createdAt: new Date().toISOString(),
+            result: result as unknown as Record<string, unknown>,
+          };
+        } catch (err) {
+          throw normalizeUnknown(err);
+        }
       },
       async analyzeArtwork(input) {
         const caps = capabilitiesFor("web");
@@ -149,7 +174,7 @@ export function createWebBridge(): PlatformBridge {
         };
       },
       async cancelJob(_jobId: string) {
-        /* Phase 1.5: no durable local job runner yet */
+        /* portable jobs complete inline */
       },
     },
 
