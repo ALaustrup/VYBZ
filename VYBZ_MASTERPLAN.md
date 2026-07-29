@@ -751,10 +751,10 @@ Prepare remains Phase **2**. Later suite phases stay **3–9**.
 | **1** | Engineering + design foundation | **Complete** |
 | **1.1** | Playwright / quality hardening | **Complete** |
 | **1.5** | Platform readiness | **Complete** |
-| **2** | Prepare MVP (shared domain) | **Next** |
+| **2** | Prepare MVP (shared domain) | **Complete** |
 | **2.D** | Desktop Windows alpha (may overlap 2+) | Pending |
 | **2.A** | Android alpha (may overlap 2+) | Pending |
-| **3** | Credits + metadata | Pending |
+| **3** | Credits + metadata | **Next** |
 | **4** | MasterReady | Pending |
 | **5** | CoverLab | Pending |
 | **6** | Sentinel | Pending |
@@ -1008,7 +1008,7 @@ Mark any leftover “browser-only product” language as superseded.
 - [x] Phase 1.5 inserted; Phases 0–1 preserved
 - [x] Documentation migration inventory
 - [x] Phase 1.5 implementation exit gate
-- [ ] Phase 2 Prepare MVP
+- [x] Phase 2 Prepare MVP
 - [ ] Desktop + Android alphas
 - [ ] Phase R public distribution
 

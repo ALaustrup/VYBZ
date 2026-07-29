@@ -49,6 +49,9 @@ are **never authoritative**.
 - [`architecture/PHASE1_FOUNDATION_INVENTORY.md`](./architecture/PHASE1_FOUNDATION_INVENTORY.md)
 - [`architecture/PHASE15_PLATFORM_INVENTORY.md`](./architecture/PHASE15_PLATFORM_INVENTORY.md)
 - [`architecture/PHASE15_EXIT_GATE.md`](./architecture/PHASE15_EXIT_GATE.md)
+- [`architecture/PHASE2_PREPARE_INVENTORY.md`](./architecture/PHASE2_PREPARE_INVENTORY.md)
+- [`architecture/PHASE2_EXIT_GATE.md`](./architecture/PHASE2_EXIT_GATE.md)
+- [`architecture/ADR_RELEASE_PROJECT_SCHEMA.md`](./architecture/ADR_RELEASE_PROJECT_SCHEMA.md)
 
 ## Products
 

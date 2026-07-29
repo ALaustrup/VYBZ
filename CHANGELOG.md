@@ -10,6 +10,13 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
+### Phase 2 Prepare MVP (complete on `suite-genesis`)
+
+- Release Project schema + RLS (`0081`) with up/down SQL
+- Domain/data/processing packages; Web Worker readiness probes ($0)
+- `/releases`, `/releases/new`, `/release/:id` Findings UI + local hard-refresh
+- Exit gate: [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md)
+
 ### Phase 1.5 Platform readiness (complete on `suite-genesis`)
 
 - PlatformBridge contract + web/mock/desktop/android stubs

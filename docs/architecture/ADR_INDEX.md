@@ -18,6 +18,7 @@ Architecture Decision Records for Suite Genesis.
 | ADR-012 | Android shell = Capacitor (no RN without proof) | Accepted — [`ADR_ANDROID_CAPACITOR.md`](./ADR_ANDROID_CAPACITOR.md) |
 | ADR-013 | Platform Bridge mandatory; no scattered platform checks | Accepted — [`PLATFORM_BRIDGE.md`](./PLATFORM_BRIDGE.md) |
 | ADR-014 | Incremental workspace; no big-bang monorepo | Accepted — [`REPO_WORKSPACE_PLAN.md`](./REPO_WORKSPACE_PLAN.md) |
+| ADR-015 | Release Project schema for Prepare MVP | Accepted — [`ADR_RELEASE_PROJECT_SCHEMA.md`](./ADR_RELEASE_PROJECT_SCHEMA.md) |
 
 **Note:** ADR-001’s “no early monorepo” remains: workspace extraction is **staged**
 (Stage A–F). Do not interpret multi-platform as permission for a destructive rewrite.

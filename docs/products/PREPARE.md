@@ -40,7 +40,7 @@ not decorative glow. Flat, scannable report layout.
 
 ## DoD
 
-- [ ] Free readiness report for a release (browser rules)
-- [ ] Categories with clear severity and fix paths
-- [ ] Loading / empty / degraded-scan states
-- [ ] Human gate before any paid remediation path
+- [x] Free readiness report for a release (browser rules)
+- [x] Categories with clear severity and fix paths
+- [x] Loading / empty / degraded-scan states
+- [x] Human gate before any paid remediation path (no paid path in MVP)

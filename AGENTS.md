@@ -33,6 +33,7 @@
 | Layout | Single-root SPA; Stage A aliases `@vybz/*` — no file moves yet |
 | Package manager | **npm** (do not casually switch) |
 | Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android stubs |
+| Prepare | `@vybz/domain/releases` · `@vybz/data/releases` · `src/features/prepare/` |
 
 ### Phase status
 | Phase | Status |
@@ -41,17 +42,18 @@
 | **1 Engineering + design foundation** | **Complete** |
 | **1.1 Playwright hardening** | **Complete** |
 | **1.5 Platform readiness** | **Complete** — see [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md) |
-| **2 Prepare MVP** | **Next** — shared domain/data/processing; use Platform Bridge for files/session |
-| **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap 2+) |
-| 3–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **2 Prepare MVP** | **Complete** — see [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
+| **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap later) |
+| **3 Credits + metadata** | **Next** |
+| 4–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. **Phase 2 now:** Prepare MVP — Release Project schema, track/artwork import via Platform Bridge, free browser readiness checks, Findings UI (no paid providers). Domain logic must not import Tauri/Capacitor.
+1. **Phase 3 now:** Credits + metadata — multi-account approved credit state; reuse Release Project + Platform Bridge.
 2. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
 3. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 4. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
 5. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
-6. Optional: install Rust + Tauri toolchain to boot Windows PoC (`npm run dev:desktop`).
+6. Optional: repair Supabase migration history so `db push` matches applied `0081` schema.
 7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
