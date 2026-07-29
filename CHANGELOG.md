@@ -10,13 +10,21 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
+### Phase 1.5 Platform readiness (complete on `suite-genesis`)
+
+- PlatformBridge contract + web/mock/desktop/android stubs
+- Capability registry, shell modes, deep-link/cache/mutation contracts
+- Tauri Windows PoC scaffold (`apps/desktop/`); Capacitor bridge on existing `android/`
+- Workspace Stage A aliases (`@vybz/*`); no source tree moves
+- Exit gate: [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md)
+
 ### Multi-platform blueprint expansion (docs)
 
 Master Blueprint rewritten for unified **VYBZ Cloud** + **VYBZ Desktop (Tauri 2)** +
 **VYBZ for Android (Capacitor)** on one Platform Services backend. Inserted
 **Phase 1.5 Platform readiness** before Prepare MVP. ADRs and platform specs added
 under `docs/architecture/` (Platform Bridge, workspace plan, auth/deeplinks,
-offline/sync). **No feature code in this change.** Next engineering: Phase 1.5.
+offline/sync).
 
 Phase 0 (doctrine): **complete** on `suite-genesis`.
 

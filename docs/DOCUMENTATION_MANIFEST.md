@@ -47,6 +47,8 @@ are **never authoritative**.
 - [`architecture/REPO_WORKSPACE_PLAN.md`](./architecture/REPO_WORKSPACE_PLAN.md)
 - [`architecture/COST_INVENTORY.md`](./architecture/COST_INVENTORY.md)
 - [`architecture/PHASE1_FOUNDATION_INVENTORY.md`](./architecture/PHASE1_FOUNDATION_INVENTORY.md)
+- [`architecture/PHASE15_PLATFORM_INVENTORY.md`](./architecture/PHASE15_PLATFORM_INVENTORY.md)
+- [`architecture/PHASE15_EXIT_GATE.md`](./architecture/PHASE15_EXIT_GATE.md)
 
 ## Products
 

@@ -750,8 +750,8 @@ Prepare remains Phase **2**. Later suite phases stay **3–9**.
 | **0** | Suite Genesis doctrine | **Complete** |
 | **1** | Engineering + design foundation | **Complete** |
 | **1.1** | Playwright / quality hardening | **Complete** |
-| **1.5** | Platform readiness | **Next** |
-| **2** | Prepare MVP (shared domain) | Pending |
+| **1.5** | Platform readiness | **Complete** |
+| **2** | Prepare MVP (shared domain) | **Next** |
 | **2.D** | Desktop Windows alpha (may overlap 2+) | Pending |
 | **2.A** | Android alpha (may overlap 2+) | Pending |
 | **3** | Credits + metadata | Pending |
@@ -1007,7 +1007,7 @@ Mark any leftover “browser-only product” language as superseded.
 - [x] Offline/sync realism defined
 - [x] Phase 1.5 inserted; Phases 0–1 preserved
 - [x] Documentation migration inventory
-- [ ] Phase 1.5 implementation exit gate (next engineering work)
+- [x] Phase 1.5 implementation exit gate
 - [ ] Phase 2 Prepare MVP
 - [ ] Desktop + Android alphas
 - [ ] Phase R public distribution

@@ -29,9 +29,10 @@
 | Site visuals CDN | `https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/` |
 | **Media origin** | **Supabase Storage only**. Bunny Edge functions dormant. Live = **LiveKit**. |
 | Android seed | Capacitor 8 · `capacitor.config.ts` · `appId: cloud.vybz.app` · `android/` present |
-| Desktop | **Not scaffolded yet** — Tauri 2 in Phase 1.5 PoC |
-| Layout | Single-root SPA today; workspace target is staged (see Master Blueprint §6) |
+| Desktop | Tauri 2 PoC scaffold in `apps/desktop/` (Rust required to boot; see README) |
+| Layout | Single-root SPA; Stage A aliases `@vybz/*` — no file moves yet |
 | Package manager | **npm** (do not casually switch) |
+| Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android stubs |
 
 ### Phase status
 | Phase | Status |
@@ -39,18 +40,18 @@
 | **0 Suite Genesis doctrine** | **Complete** |
 | **1 Engineering + design foundation** | **Complete** |
 | **1.1 Playwright hardening** | **Complete** |
-| **1.5 Platform readiness** | **Next** — PlatformBridge, ADRs landed in docs; implement bridge + Tauri/Capacitor PoCs |
-| **2 Prepare MVP** | After 1.5 exit (shared domain; not browser-only assumptions) |
+| **1.5 Platform readiness** | **Complete** — see [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md) |
+| **2 Prepare MVP** | **Next** — shared domain/data/processing; use Platform Bridge for files/session |
 | **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap 2+) |
 | 3–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. **Phase 1.5 now (after owner review of Master Blueprint):** implement Platform Bridge (web + mock), capability registry, shell modes, deep-link skeleton, cache/mutation **contracts**, Tauri Windows PoC, Capacitor bridge stub on existing `android/`. See Master Blueprint §22 Phase 1.5 exit gate.
-2. **Do not start Phase 2 Prepare schema** until Phase 1.5 exit gate (or explicit owner waiver).
-3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
-4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
-5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-6. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+1. **Phase 2 now:** Prepare MVP — Release Project schema, track/artwork import via Platform Bridge, free browser readiness checks, Findings UI (no paid providers). Domain logic must not import Tauri/Capacitor.
+2. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
+3. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
+4. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+5. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+6. Optional: install Rust + Tauri toolchain to boot Windows PoC (`npm run dev:desktop`).
 7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
