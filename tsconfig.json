@@ -18,7 +18,13 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@vybz/contracts": ["src/contracts/index.ts"],
+      "@vybz/contracts/*": ["src/contracts/*"],
+      "@vybz/platform": ["src/platform/bridge/index.ts"],
+      "@vybz/platform/*": ["src/platform/*"],
+      "@vybz/domain": ["src/domain/index.ts"],
+      "@vybz/domain/*": ["src/domain/*"]
     }
   },
   "include": ["src"]

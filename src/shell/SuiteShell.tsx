@@ -2,10 +2,12 @@ import type { ReactNode } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 import { NowPlayingStage } from "@/components/shell/NowPlayingStage";
+import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { ContextInspector } from "@/shell/ContextInspector";
 import { MobileNav } from "@/shell/MobileNav";
 import { PrimaryRail } from "@/shell/PrimaryRail";
+import { shellModeClass } from "@/shell/shellMode";
 
 export function SuiteShell({
   stage,
@@ -27,8 +29,13 @@ export function SuiteShell({
   showCommandBar?: boolean;
   showInspector?: boolean;
 }) {
+  const shellMode = useShellMode();
   return (
-    <div className="suite-shell" data-surface-mode={surfaceMode}>
+    <div
+      className={`suite-shell ${shellModeClass(shellMode)}`}
+      data-surface-mode={surfaceMode}
+      data-shell-mode={shellMode}
+    >
       <PrimaryRail />
       <div className="suite-shell-main">
         {appBar ?? (

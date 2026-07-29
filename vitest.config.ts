@@ -7,6 +7,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@vybz/contracts": path.resolve(__dirname, "./src/contracts/index.ts"),
+      "@vybz/platform": path.resolve(__dirname, "./src/platform/bridge/index.ts"),
+      "@vybz/domain": path.resolve(__dirname, "./src/domain/index.ts"),
     },
   },
   test: {

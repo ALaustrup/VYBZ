@@ -14,12 +14,22 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:web": "vite",
+    "dev:desktop": "node scripts/dev-desktop.mjs",
+    "dev:android": "node scripts/dev-android.mjs",
     "build": "tsc --noEmit && vite build",
+    "build:web": "npm run build",
+    "build:desktop:windows": "node scripts/build-desktop-windows.mjs",
+    "build:android:apk": "node scripts/build-android.mjs apk",
+    "build:android:aab": "node scripts/build-android.mjs aab",
     "preview": "vite preview",
     "preview:e2e": "node ./node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort",
     "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:shared": "vitest run src/platform src/contracts src/domain src/shell",
+    "test:web": "vitest run",
     "test:e2e": "node scripts/run-e2e.mjs",
     "test:a11y": "node scripts/run-e2e.mjs e2e/smoke.spec.ts",
     "visuals:encode": "node scripts/encode-vdock-visuals.mjs",
@@ -27,7 +37,8 @@
     "cap:sync": "cap sync",
     "android:add": "cap add android",
     "android:sync": "npm run build && cap sync android",
-    "android:open": "cap open android"
+    "android:open": "cap open android",
+    "sync:android": "npm run android:sync"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",

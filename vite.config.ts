@@ -124,6 +124,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@vybz/contracts": fileURLToPath(new URL("./src/contracts/index.ts", import.meta.url)),
+      "@vybz/platform": fileURLToPath(new URL("./src/platform/bridge/index.ts", import.meta.url)),
+      "@vybz/domain": fileURLToPath(new URL("./src/domain/index.ts", import.meta.url)),
     },
   },
   server: {

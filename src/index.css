@@ -245,6 +245,19 @@
     @apply relative mx-auto flex h-[100dvh] w-full max-w-7xl overflow-hidden;
   }
 
+  /* Phase 1.5 shell composition hooks — denser desktop / touch-first Android */
+  .suite-shell.shell-mode-desktop {
+    @apply max-w-none;
+  }
+
+  .suite-shell.shell-mode-android .suite-rail {
+    @apply hidden;
+  }
+
+  .suite-shell.shell-mode-android {
+    @apply max-w-none;
+  }
+
   .suite-rail {
     @apply hidden w-52 shrink-0 flex-col border-r border-white/10 bg-white/[0.02] lg:flex;
   }
