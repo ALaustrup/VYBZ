@@ -32,7 +32,7 @@ export function SuiteShell({
   const shellMode = useShellMode();
   return (
     <div
-      className={`suite-shell ${shellModeClass(shellMode)}`}
+      className={`suite-shell suite-density-premium ${shellModeClass(shellMode)}`}
       data-surface-mode={surfaceMode}
       data-shell-mode={shellMode}
     >

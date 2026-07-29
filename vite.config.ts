@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { visualizer } from "rollup-plugin-visualizer";
 import { fileURLToPath, URL } from "node:url";
 
 // VYBZ is a client-side SPA. Kept intentionally minimal so the build stays fast
@@ -30,6 +31,16 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    ...(process.env.ANALYZE === "1"
+      ? [
+          visualizer({
+            filename: "dist/stats.html",
+            open: false,
+            gzipSize: true,
+            brotliSize: true,
+          }),
+        ]
+      : []),
     // Installable PWA: Workbox precaches the hashed app shell (offline-capable)
     // and auto-updates in the background.
     VitePWA({

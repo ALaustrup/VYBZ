@@ -59,8 +59,8 @@ export function StorefrontDashboardPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 px-4 py-6 pb-28" data-testid="storefront-dashboard">
-      <header className="space-y-2">
+    <div className="mx-auto max-w-3xl space-y-8 px-4 py-6 pb-28 suite-grid suite-grid-dense" data-testid="storefront-dashboard">
+      <header className="space-y-2 glass-vibrant rounded-2xl px-4 py-3">
         <h1 className="text-2xl font-semibold tracking-tight text-white">Sample Pack Storefront</h1>
         <p className="text-sm text-white/55">
           Upload a pack, generate copy and cover art, publish a storefront. Fans pay VYBZ; you settle

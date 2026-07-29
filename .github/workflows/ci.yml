@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, suite-genesis]
+    branches: [main, suite-genesis, phase11-perf-ui]
   pull_request:
 
 jobs:
@@ -28,3 +28,29 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_SKIP_BUILD: "1"
+
+  perf-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Production build
+        run: npm run build
+      - name: Lighthouse (≥90 perf & best-practices)
+        run: npm run perf:audit
+
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+      - name: K6 pack + checkout (p95 < 800ms)
+        run: k6 run tooling/k6/pack_checkout.js
+        env:
+          BASE_URL: https://vybz.cloud
+          FUNCTIONS_URL: https://xixmneooyufbeftdfpcm.supabase.co/functions/v1

@@ -26,6 +26,14 @@ describe("Button", () => {
     await user.click(screen.getByRole("button"));
     expect(clicked).toBe(false);
   });
+
+  it("renders glass variant with focus-visible ring class", () => {
+    render(<Button variant="glass">Glass</Button>);
+    const btn = screen.getByRole("button", { name: "Glass" });
+    expect(btn).toHaveAttribute("data-variant", "glass");
+    expect(btn.className).toContain("glass-vibrant");
+    expect(btn.className).toContain("focus-visible:shadow-suite-focus");
+  });
 });
 
 describe("StateView", () => {

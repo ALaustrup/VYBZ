@@ -41,12 +41,12 @@ export const springDrawer: Transition = {
 
 /** Fade / short tween when springs feel wrong (route fades, overlays). */
 export const easeOutExpo: Transition = {
-  duration: 0.28,
+  duration: 0.24,
   ease: [0.16, 1, 0.3, 1],
 };
 
 export const easeOutQuick: Transition = {
-  duration: 0.18,
+  duration: 0.12,
   ease: "easeOut",
 };
 
@@ -57,11 +57,15 @@ export function withReduce(reduce: boolean, transition: Transition): Transition 
   return reduce ? reduceMotion : transition;
 }
 
+/** Duration presets aligned with MOTION_V2 (ms → s for Framer). */
+export const durationFast = 0.12;
+export const durationNormal = 0.24;
+
 /** Route stage enter — used by App shell. */
 export const pageEnter = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
-  transition: { ...easeOutExpo, duration: 0.32 } satisfies Transition,
+  transition: { ...easeOutExpo, duration: durationNormal } satisfies Transition,
 };
 
 /** Bottom sheet (Compose / Go Live / Bulk). */

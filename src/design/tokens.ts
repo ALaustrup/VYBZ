@@ -1,7 +1,16 @@
 /**
- * Suite Genesis design tokens — TypeScript mirror of CSS variables in index.css.
+ * Suite Genesis design tokens — TypeScript mirror of CSS variables.
  * Prefer CSS vars in components; use this module for typed product accents and docs.
+ * v2 ramps: re-exported from tokens.v2.ts
  */
+
+export {
+  COLOR_V2,
+  MOTION_V2,
+  SHADOW_V2,
+  GLASS_VIBRANT,
+  ACCENT_WASH_V2,
+} from "./tokens.v2";
 
 export const SUITE_PRODUCTS = [
   "home",
@@ -62,13 +71,14 @@ export const Z_INDEX = {
   max: 110,
 } as const;
 
+/** @deprecated Prefer MOTION_V2 — kept for Phase 9 call sites */
 export const MOTION_MS = {
   fast: 120,
-  base: 220,
+  base: 240,
   slow: 360,
 } as const;
 
-/** Elevation tokens — mirror `--shadow-*` in index.css */
+/** Elevation tokens — mirror `--shadow-*` */
 export const SHADOW = {
   sm: "var(--shadow-sm)",
   md: "var(--shadow-md)",
@@ -76,7 +86,7 @@ export const SHADOW = {
   focus: "var(--shadow-focus)",
 } as const;
 
-/** Soft accent washes for Market / CoverLab polish (CSS color-mix friendly). */
+/** Soft accent washes for Market / CoverLab polish */
 export const ACCENT_WASH = {
   market: "color-mix(in srgb, rgb(var(--accent-market) / 0.22) 100%, transparent)",
   coverlab: "color-mix(in srgb, rgb(var(--accent-coverlab) / 0.22) 100%, transparent)",
