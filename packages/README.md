@@ -12,6 +12,9 @@ In-tree Stage A boundaries (authoritative until extraction):
 | `@vybz/domain/releases` | `packages/domain/releases` |
 | `@vybz/data/releases` | `packages/data/releases` |
 | `@vybz/processing/readiness` | `packages/processing/readiness` |
+| `@vybz/processing/waveform` | `packages/processing/waveform` |
+| `@vybz/domain/credits` | `packages/domain/credits` |
+| `@vybz/data/credits` | `packages/data/credits` |
 
 Target extraction (later stages — see `docs/architecture/REPO_WORKSPACE_PLAN.md`):
 
