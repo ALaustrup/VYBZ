@@ -52,12 +52,37 @@ async function fulfillStorefrontOrder(session: {
   }
 
   const now = new Date().toISOString();
-  await admin.from("storefront_orders").update({
-    status: "paid",
-    stripe_payment_intent: pi,
-    buyer_email: email || "unknown@buyer",
-    fulfilled_at: now,
-  }).eq("stripe_session_id", session.id);
+
+  if (existing?.id) {
+    await admin.from("storefront_orders").update({
+      status: "paid",
+      stripe_payment_intent: pi,
+      buyer_email: email || "unknown@buyer",
+      fulfilled_at: now,
+      settlement_status: "pending_manual",
+    }).eq("id", existing.id);
+  } else {
+    // Create paid row without Connect transfer_id (platform checkout).
+    const { data: packRow } = await admin
+      .from("storefront_packs")
+      .select("price_cents")
+      .eq("id", packId)
+      .maybeSingle();
+    const amountCents = Number(packRow?.price_cents ?? 0);
+    const feeCents = Math.floor((Math.max(amountCents, 0) * 1000) / 10_000);
+    await admin.from("storefront_orders").insert({
+      pack_id: packId,
+      buyer_email: email || "unknown@buyer",
+      buyer_user_id: session.metadata?.buyer_user_id || null,
+      amount_cents: amountCents > 0 ? amountCents : 100,
+      application_fee_cents: feeCents,
+      status: "paid",
+      settlement_status: "pending_manual",
+      stripe_session_id: session.id,
+      stripe_payment_intent: pi,
+      fulfilled_at: now,
+    });
+  }
 
   const { data: pack } = await admin
     .from("storefront_packs")

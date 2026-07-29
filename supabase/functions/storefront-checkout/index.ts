@@ -1,12 +1,12 @@
 // Supabase Edge Function: storefront-checkout
-// POST { packId, origin? } — creates Stripe Checkout (destination charge, 10% fee)
-// for a published storefront pack. Reuses creator_payouts Express accounts.
+// POST { packId, origin? } — creates Stripe Checkout on the **platform** account
+// (no Connect transfer_data). Producer settlement is manual (ACH / Zelle / Vc).
 // Guest-friendly: deploy with --no-verify-jwt; optional buyer JWT attaches buyer_user_id.
 
 import { admin, CORS, callerId, json } from "../_shared/edge.ts";
 import { stripe } from "../_shared/stripe.ts";
 
-const FEE_BPS = 1000; // 10%
+const FEE_BPS = 1000; // 10% platform fee (tracked in DB; not Stripe application_fee)
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -36,16 +36,6 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Invalid pack price" }, 400);
     }
 
-    const { data: payout } = await admin
-      .from("creator_payouts")
-      .select("stripe_account_id, charges_enabled")
-      .eq("user_id", pack.user_id)
-      .maybeSingle();
-
-    if (!payout?.stripe_account_id || !payout.charges_enabled) {
-      return json({ error: "Seller has not enabled payouts yet." }, 400);
-    }
-
     const feeCents = Math.floor((amountCents * FEE_BPS) / 10_000);
     const buyerId = await callerId(req);
 
@@ -64,8 +54,6 @@ Deno.serve(async (req: Request) => {
       }],
       payment_intent_data: {
         description: `VYBZ pack ${pack.slug}`,
-        transfer_data: { destination: payout.stripe_account_id },
-        application_fee_amount: feeCents,
       },
       success_url: `${origin}/pack/${pack.slug}?checkout=success`,
       cancel_url: `${origin}/pack/${pack.slug}?checkout=cancel`,
@@ -73,6 +61,7 @@ Deno.serve(async (req: Request) => {
         kind: "storefront",
         pack_id: pack.id,
         seller_id: pack.user_id,
+        settlement: "pending_manual",
         ...(buyerId ? { buyer_user_id: buyerId } : {}),
       },
     });
@@ -84,6 +73,7 @@ Deno.serve(async (req: Request) => {
       amount_cents: amountCents,
       application_fee_cents: feeCents,
       status: "pending",
+      settlement_status: "pending_manual",
       stripe_session_id: session.id,
     });
     if (ordErr) {

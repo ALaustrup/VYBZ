@@ -32,3 +32,11 @@ estimate → show user → approve → reserve ledger row → execute → reconc
 
 Owner secrets still needed for alpha: `FAL_KEY`, `GROQ_API_KEY`, migration `0080`,
 redeploy `stripe-webhook`. See [`VENDOR_REGISTER.md`](./VENDOR_REGISTER.md).
+
+## Storefront manual payouts (platform checkout)
+
+Pack sales charge the **platform** Stripe account. Producers are settled outside
+Stripe (ACH / Zelle / Vc debit). Track `storefront_orders.settlement_status`
+(`pending_manual` → `settled_off_platform`). Platform retains ~10%
+(`application_fee_cents`). No automated Connect transfer — see
+[`ADR_PLATFORM_CHECKOUT.md`](../architecture/ADR_PLATFORM_CHECKOUT.md).

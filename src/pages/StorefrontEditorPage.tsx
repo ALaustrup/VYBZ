@@ -29,7 +29,6 @@ export function StorefrontEditorPage() {
   const [saving, setSaving] = useState(false);
   const [artBusy, setArtBusy] = useState(false);
   const [keywords, setKeywords] = useState("");
-  const [payoutOk, setPayoutOk] = useState(false);
 
   const [title, setTitle] = useState("");
   const [genre, setGenre] = useState("");
@@ -57,10 +56,6 @@ export function StorefrontEditorPage() {
     setStatus(p.status);
     setSlug(p.slug);
     setKeywords(p.genre || p.title);
-  }, []);
-
-  useEffect(() => {
-    void api.myPayoutStatus().then((s) => setPayoutOk(s.chargesEnabled));
   }, []);
 
   useEffect(() => {
@@ -108,7 +103,6 @@ export function StorefrontEditorPage() {
     const nextStatus = opts?.publish ? "published" : status;
     if (nextStatus === "published") {
       if (!zipPath) { showToast("Upload a ZIP before publishing."); return null; }
-      if (!payoutOk) { showToast("Connect Stripe payouts before publishing."); return null; }
     }
 
     setSaving(true);
@@ -207,7 +201,7 @@ export function StorefrontEditorPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-white">{isNew ? "New sample pack" : "Edit pack"}</h1>
-          <p className="mt-1 text-sm text-white/45">Draft locally, publish when ZIP + payouts are ready.</p>
+          <p className="mt-1 text-sm text-white/45">Draft locally, publish when ZIP is ready. Fans pay VYBZ; you settle manually.</p>
         </div>
         <PackCopyPanel
           keywords={keywords || title || genre}

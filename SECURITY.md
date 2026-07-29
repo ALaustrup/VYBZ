@@ -28,7 +28,8 @@ or signing secrets. Platform Bridge must use allowlisted native commands only
 | Unreleased audio | Leak, unauthorized download | Sentinel rooms, signed URLs, play/download limits, watermark manifests (Phase 6) |
 | Masters / ZIPs | Hotlink, scrape | Private buckets; signed fulfillment only after paid order |
 | Credits / splits | Fraudulent claims | Approval workflows; AI may not approve (Phase 3) |
-| Payments | Webhook spoof, Connect abuse | Stripe signature verify; Express onboarding |
+| Payments | Webhook spoof; Connect abuse (tips) | Stripe signature verify; Express for tips only |
+| Storefront settlement | Manual payout drift | `settlement_status`; owner Settle now RPC |
 | Bridge/Engine | Remote code abuse | Device registration, signed jobs, sandboxed command templates, no arbitrary shell |
 | Desktop native cmds | Path traversal, injection, symlink | Allowlists, path validation, process isolation |
 | Local caches | Leak after collaborator removal | Cache purge on access loss; encrypted session stores |
@@ -56,7 +57,10 @@ or signing secrets. Platform Bridge must use allowlisted native commands only
 
 ## Payments
 
-- Stripe Checkout + Connect Express; webhook verification required.
+- Stripe Checkout + webhook verification required.
+- **Storefront packs:** platform Checkout (no Connect transfer). Producer paid
+  off-platform (ACH / Zelle / Vc); `settlement_status` tracks manual settle.
+- **Tips / Connect Express:** unchanged for creators who complete ID verification.
 - Storefront `kind=storefront` fulfillment via Resend signed ZIP (24h).
 - Cost reservations required before paid AI/mastering jobs (Phase 1 / Commit 4).
 

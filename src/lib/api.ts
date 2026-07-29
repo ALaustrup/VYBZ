@@ -1341,9 +1341,19 @@ export async function listMyStorefrontOrders(): Promise<StorefrontOrder[]> {
     stripe_session_id: r.stripe_session_id ? String(r.stripe_session_id) : null,
     stripe_payment_intent: r.stripe_payment_intent ? String(r.stripe_payment_intent) : null,
     status: r.status as StorefrontOrder["status"],
+    settlement_status: (r.settlement_status as StorefrontOrder["settlement_status"]) || "pending_manual",
     fulfilled_at: r.fulfilled_at ? String(r.fulfilled_at) : null,
     created_at: String(r.created_at),
   }));
+}
+
+/** Pack owner marks order settled after manual ACH/Zelle/Vc payout. */
+export async function settleStorefrontOrder(orderId: string): Promise<{ id: string; settlement_status: string }> {
+  const { data, error } = await db().rpc("storefront_settle_order", { p_order_id: orderId });
+  if (error) throw new Error(error.message);
+  const row = data as { id?: string; settlement_status?: string } | null;
+  if (!row?.id) throw new Error("Could not settle order");
+  return { id: String(row.id), settlement_status: String(row.settlement_status ?? "settled_off_platform") };
 }
 
 export async function uploadStorefrontPreview(userId: string, file: File): Promise<string> {
