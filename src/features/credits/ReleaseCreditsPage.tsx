@@ -108,7 +108,10 @@ export function ReleaseCreditsPage() {
   if (!id) return <StateView variant="error" title="Missing release" />;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 md:p-8" data-testid="credits-page">
+    <div
+      className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-[max(7rem,env(safe-area-inset-bottom))] md:p-8"
+      data-testid="credits-page"
+    >
       <div>
         <Link to={`/release/${id}`} className="text-xs text-fog hover:text-snow">
           ← Prepare
@@ -154,7 +157,7 @@ export function ReleaseCreditsPage() {
           inputMode="decimal"
           data-testid="credits-split"
         />
-        <Button type="submit" loading={saving} data-testid="credits-add">
+        <Button type="submit" loading={saving} className="min-h-11" data-testid="credits-add">
           Add credit
         </Button>
       </form>
