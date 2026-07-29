@@ -23,4 +23,8 @@ export const FLAGS = {
   socialLive: !off(import.meta.env.VITE_FEATURE_SOCIAL_LIVE),
   /** Drop audio via Bunny CDN. Default OFF — Supabase Storage is the playback backend. */
   bunnyAudio: on(import.meta.env.VITE_FEATURE_BUNNY_AUDIO),
+  /** Sample Pack Storefront Generator. Default ON; set off to hide. (Market — keep WIP isolated.) */
+  storefront: !off(import.meta.env.VITE_FEATURE_STOREFRONT),
+  /** Phase 2 — Prepare MVP (release list, findings, local drafts). Default ON. */
+  prepare: !off(import.meta.env.VITE_FEATURE_PREPARE),
 } as const;

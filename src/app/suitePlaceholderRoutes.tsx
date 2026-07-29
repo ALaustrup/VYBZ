@@ -1,5 +1,8 @@
 import { Navigate, Route, useParams } from "react-router-dom";
 import { SuitePlaceholderPage } from "@/pages/suite/SuiteProductPage";
+import { ReleasesPage } from "@/features/prepare/ReleasesPage";
+import { NewReleasePage } from "@/features/prepare/NewReleasePage";
+import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
 
 function StudioIdRedirect() {
   const { id } = useParams();
@@ -7,45 +10,16 @@ function StudioIdRedirect() {
 }
 
 /**
- * Suite placeholder + studio preserve routes.
- * Wire into App Routes when ready — do not import storefront here.
+ * Suite Prepare MVP + placeholders + studio preserve routes.
+ * Do not import storefront here.
  */
 export function suitePlaceholderRoutes() {
   return (
     <>
-      <Route
-        path="/start"
-        element={
-          <SuitePlaceholderPage
-            product="home"
-            title="Start a release"
-            description="Begin a new release or project from Suite Home."
-            phaseNote="Phase 2 — Start / Prepare intake."
-          />
-        }
-      />
-      <Route
-        path="/releases"
-        element={
-          <SuitePlaceholderPage
-            product="prepare"
-            title="Releases"
-            description="Your release list and Prepare rollup live here."
-            phaseNote="Phase 2 — Prepare release list."
-          />
-        }
-      />
-      <Route
-        path="/release/:id"
-        element={
-          <SuitePlaceholderPage
-            product="prepare"
-            title="Prepare workspace"
-            description="Release readiness, findings, and hand-offs."
-            phaseNote="Phase 2 — Prepare workspace."
-          />
-        }
-      />
+      <Route path="/start" element={<NewReleasePage />} />
+      <Route path="/releases" element={<ReleasesPage />} />
+      <Route path="/releases/new" element={<NewReleasePage />} />
+      <Route path="/release/:id" element={<ReleaseDetailPage />} />
       <Route path="/studio" element={<Navigate to="/projects" replace />} />
       <Route path="/studio/:id" element={<StudioIdRedirect />} />
       <Route
