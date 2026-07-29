@@ -10,11 +10,20 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 9 Polish & Visual (in progress locally on `suite-genesis`)
+### Phase 10 – Storefront go-live (ops)
+
+- Production `VITE_FEATURE_STOREFRONT=true` on Vercel (`astramatrix/vybz`)
+- Secrets confirmed on Supabase `xixmneooyufbeftdfpcm`: `GROQ_API_KEY`, `FAL_KEY`
+- Edge functions live: `storefront-*`, `visual-generate`, `stripe-webhook` (`kind=storefront`)
+- Staging smoke + a11y (WCAG 2.1 AA) passed before prod flip
+- Tag: `v1.1.0-beta1A-phase10` · closes [#9](https://github.com/ALaustrup/VYBZ/issues/9)
+
+### Phase 9 Polish & Visual (complete — merged + tagged)
 
 - Storefront + CoverLab visuals wired behind `FLAGS.storefront` · public `/pack/:slug`
 - Brand polish tokens (motion / shadow / accent wash) · a11y smoke extensions
 - Cost Sentinel read-only UI at `/settings/costs`
+- PR #8 merged to `main`; tag `v1.1.0-beta1A-phase9`
 - Exit gate: [`docs/architecture/PHASE9_EXIT_GATE.md`](./docs/architecture/PHASE9_EXIT_GATE.md)
 - ADR: [`docs/architecture/ADR_VISUAL_POLISH.md`](./docs/architecture/ADR_VISUAL_POLISH.md)
 
