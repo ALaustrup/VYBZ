@@ -20,6 +20,7 @@
     "build": "tsc --noEmit && vite build",
     "build:web": "npm run build",
     "build:desktop:windows": "node scripts/build-desktop-windows.mjs",
+    "smoke:desktop:installer": "node scripts/smoke-desktop-installer.mjs",
     "build:android:apk": "node scripts/build-android.mjs apk",
     "build:android:aab": "node scripts/build-android.mjs aab",
     "preview": "vite preview",

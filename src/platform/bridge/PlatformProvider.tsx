@@ -1,7 +1,8 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { createRuntimeBridge } from "@/platform/bridge/createBridge";
 import type { PlatformBridge } from "@/platform/bridge/types";
 import type { ShellMode } from "@/contracts";
+import { restoreDesktopWindowPrefs } from "@/platform/desktop/restoreWindowPrefs";
 
 const PlatformContext = createContext<PlatformBridge | null>(null);
 
@@ -13,6 +14,13 @@ export function PlatformProvider({
   children: ReactNode;
 }) {
   const value = bridge ?? createRuntimeBridge();
+
+  useEffect(() => {
+    if (value.kind === "desktop") {
+      void restoreDesktopWindowPrefs();
+    }
+  }, [value.kind]);
+
   return <PlatformContext.Provider value={value}>{children}</PlatformContext.Provider>;
 }
 

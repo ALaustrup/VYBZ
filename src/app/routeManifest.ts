@@ -25,6 +25,7 @@ export const SUITE_ROUTES: readonly SuiteRoute[] = [
   { path: "/release/:id/credits", productId: "credits", title: "Release credits" },
   { path: "/master", productId: "master", title: "MasterReady", nav: true },
   { path: "/release/:id/master", productId: "master", title: "Master workspace" },
+  { path: "/desktop/process", productId: "master", title: "Desktop batch" },
   { path: "/coverlab", productId: "coverlab", title: "CoverLab", nav: true },
   { path: "/release/:id/artwork", productId: "coverlab", title: "Artwork" },
   { path: "/sentinel", productId: "sentinel", title: "Sentinel", nav: true },

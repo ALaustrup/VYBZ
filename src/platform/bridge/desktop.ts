@@ -48,8 +48,10 @@ export function createDesktopBridge(): PlatformBridge {
 
     auth: {
       async persistSession(session: PersistedSession) {
-        // Phase 1.5: localStorage stand-in; Phase 2.D → encrypted native store
         try {
+          const mod = await import("@/platform/bridge/tauriInvoke");
+          const ok = await mod.invokeSecureSet("session", JSON.stringify(session));
+          if (ok) return;
           localStorage.setItem(SESSION_KEY, JSON.stringify(session));
         } catch (err) {
           throw new PlatformError("io", "Failed to persist desktop session", err);
@@ -57,6 +59,9 @@ export function createDesktopBridge(): PlatformBridge {
       },
       async restoreSession() {
         try {
+          const mod = await import("@/platform/bridge/tauriInvoke");
+          const sealed = await mod.invokeSecureGet("session");
+          if (sealed) return JSON.parse(sealed) as PersistedSession;
           const raw = localStorage.getItem(SESSION_KEY);
           if (!raw) return null;
           return JSON.parse(raw) as PersistedSession;
@@ -65,6 +70,12 @@ export function createDesktopBridge(): PlatformBridge {
         }
       },
       async clearSession() {
+        try {
+          const mod = await import("@/platform/bridge/tauriInvoke");
+          await mod.invokeSecureClear("session");
+        } catch {
+          /* ignore */
+        }
         localStorage.removeItem(SESSION_KEY);
       },
     },

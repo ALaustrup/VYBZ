@@ -4,6 +4,7 @@ import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { NewReleasePage } from "@/features/prepare/NewReleasePage";
 import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
 import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
+import { DesktopBatchPanel } from "@/features/processing/DesktopBatchPanel";
 
 function StudioIdRedirect() {
   const { id } = useParams();
@@ -22,6 +23,7 @@ export function suitePlaceholderRoutes() {
       <Route path="/releases/new" element={<NewReleasePage />} />
       <Route path="/release/:id" element={<ReleaseDetailPage />} />
       <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
+      <Route path="/desktop/process" element={<DesktopBatchPanel />} />
       <Route path="/studio" element={<Navigate to="/projects" replace />} />
       <Route path="/studio/:id" element={<StudioIdRedirect />} />
       <Route
@@ -42,7 +44,7 @@ export function suitePlaceholderRoutes() {
             product="master"
             title="MasterReady"
             description="Loudness, peaks, and master delivery checks."
-            phaseNote="Phase 4 — MasterReady."
+            phaseNote="Phase 4 Processing Engine shipped — use /desktop/process on Desktop for batch queue."
           />
         }
       />
