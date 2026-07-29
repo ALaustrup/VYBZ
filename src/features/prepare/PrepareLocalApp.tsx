@@ -7,6 +7,7 @@ import { BRAND_BG } from "@/lib/surfaceTheme";
 import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { NewReleasePage } from "@/features/prepare/NewReleasePage";
 import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
+import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
 
 /**
  * Minimal Prepare shell for unsigned / backend-local flows.
@@ -27,6 +28,7 @@ export function PrepareLocalApp() {
             <Route path="/releases" element={<ReleasesPage />} />
             <Route path="/releases/new" element={<NewReleasePage />} />
             <Route path="/release/:id" element={<ReleaseDetailPage />} />
+            <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
             <Route path="/start" element={<Navigate to="/releases/new" replace />} />
             <Route path="*" element={<Navigate to="/releases" replace />} />
           </Routes>
