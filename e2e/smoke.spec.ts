@@ -4,7 +4,6 @@ test.describe("Suite smoke", () => {
   test("landing renders brand promise", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("body")).toBeVisible();
-    // Unauthed visitors hit marketing landing; backend-missing hard-stop is also ok.
     const body = await page.locator("body").innerText();
     expect(body.length).toBeGreaterThan(0);
   });
@@ -15,5 +14,26 @@ test.describe("a11y smoke", () => {
     await page.goto("/");
     const main = page.locator("main, #root");
     await expect(main.first()).toBeVisible();
+  });
+
+  test("Prepare releases expose main landmark and focusable CTA", async ({ page }) => {
+    await page.goto("/releases");
+    await expect(page.getByTestId("prepare-releases")).toBeVisible();
+    const main = page.locator("main");
+    await expect(main.first()).toBeVisible();
+    const cta = page.getByTestId("prepare-new-release");
+    await cta.focus();
+    await expect(cta).toBeFocused();
+  });
+
+  test("Cost Sentinel path is reachable or falls back safely", async ({ page }) => {
+    await page.goto("/settings/costs");
+    await expect(page.locator("body")).toBeVisible();
+    const sentinel = page.getByTestId("cost-sentinel-page");
+    const root = page.locator("main, #root");
+    await expect(root.first().or(sentinel)).toBeVisible();
+    if ((await sentinel.count()) > 0) {
+      await expect(page.getByRole("heading", { name: /Usage/i })).toBeVisible();
+    }
   });
 });

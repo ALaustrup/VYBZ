@@ -15,6 +15,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
+import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 import type { Drop, FeedPost } from "@/types";
 
@@ -58,6 +59,15 @@ export function LibraryPage() {
     <div className="mx-auto flex h-full max-w-2xl flex-col px-4 pb-10 pt-2">
       <p className="mb-3 text-[13px] leading-relaxed text-white/45">
         Everything you&apos;ve uploaded — drops, project posts, and stage backdrops — in one place.
+        {FLAGS.storefront && (
+          <>
+            {" "}
+            Selling sample packs?{" "}
+            <button type="button" className="text-veil-300 underline-offset-2 hover:underline" onClick={() => navigate("/tools/packs")}>
+              Open Storefront
+            </button>
+          </>
+        )}
       </p>
 
       <div className="no-scrollbar mb-4 flex gap-1.5 overflow-x-auto">

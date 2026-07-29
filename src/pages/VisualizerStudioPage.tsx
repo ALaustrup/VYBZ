@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Download,
@@ -14,12 +14,16 @@ import {
   Sparkles,
   Upload,
   Waves,
+  Wand2,
 } from "lucide-react";
 import { StudioPreview } from "@/components/visualizer/StudioPreview";
 import { pause as pauseGlobalPlayer } from "@/lib/audioBus";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import * as api from "@/lib/api";
+import type { VisualStylePreset } from "@/lib/api";
 import { AUDIO_ACCEPT } from "@/lib/waveform";
+import { saveStudioBackdropHandoff } from "@/lib/studioBackdropHandoff";
 import {
   DEFAULT_STUDIO_SETTINGS,
   REACTIVE_STYLES,
@@ -37,6 +41,15 @@ import { cx } from "@/lib/utils";
 const MEDIA_ACCEPT = "video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp";
 const MAX_MEDIA_BYTES = 80 * 1024 * 1024;
 const MAX_AUDIO_BYTES = 200 * 1024 * 1024;
+const GEN_COST = 2;
+
+const STYLE_PRESETS: { id: VisualStylePreset; label: string; blurb: string }[] = [
+  { id: "glass", label: "Glass", blurb: "Frosted luminous cyan" },
+  { id: "aurora", label: "Aurora", blurb: "Mint ribbons on dark" },
+  { id: "waveform", label: "Waveform", blurb: "Frequency field" },
+  { id: "stage", label: "Stage", blurb: "Concert haze beams" },
+  { id: "ember", label: "Ember", blurb: "Warm coral liquid" },
+];
 
 function prettyBytes(n: number): string {
   if (n >= 1024 ** 2) return `${(n / 1024 ** 2).toFixed(0)} MB`;
@@ -53,7 +66,8 @@ function emptyBands(): StudioBands {
  */
 export function VisualizerStudioPage() {
   const navigate = useNavigate();
-  const { showToast, celebrate } = useSession();
+  const [searchParams] = useSearchParams();
+  const { showToast, celebrate, refreshProfile, profile } = useSession();
 
   const [settings, setSettings] = useState<StudioReactiveSettings>(() => {
     const draft = loadStudioDraftMeta();
@@ -75,6 +89,13 @@ export function VisualizerStudioPage() {
   const [freqs, setFreqs] = useState<Uint8Array | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportPct, setExportPct] = useState<number | null>(null);
+  const [lastExport, setLastExport] = useState<{ blob: Blob; filename: string } | null>(null);
+  const [handingOff, setHandingOff] = useState(false);
+
+  const [genPrompt, setGenPrompt] = useState("");
+  const [genStyle, setGenStyle] = useState<VisualStylePreset>("glass");
+  const [generating, setGenerating] = useState(false);
+  const [genOpen, setGenOpen] = useState(() => searchParams.get("tab") === "generate");
 
   const mediaVideoRef = useRef<HTMLVideoElement>(null);
   const mediaImageRef = useRef<HTMLImageElement>(null);
@@ -90,6 +111,10 @@ export function VisualizerStudioPage() {
   const musicInputRef = useRef<HTMLInputElement>(null);
 
   useRegisterAppBar({ title: "Visualizer studio" }, []);
+
+  useEffect(() => {
+    if (searchParams.get("tab") === "generate") setGenOpen(true);
+  }, [searchParams]);
 
   useEffect(() => {
     saveStudioDraftMeta(settings);
@@ -269,13 +294,52 @@ export function VisualizerStudioPage() {
     setDuration(0);
   }
 
+  async function runGenerate() {
+    const prompt = genPrompt.trim();
+    if (prompt.length < 3) {
+      showToast("Describe the visual (at least a few words)");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const res = await api.generateVisualizerStill(prompt, { stylePreset: genStyle, aspect: "16:9" });
+      if (!res.ok || !res.imageUrl) {
+        const err = res.error || "generate_failed";
+        if (err === "insufficient_vc") {
+          showToast(`Need ${GEN_COST} Vc — top up in Store`);
+        } else if (err === "daily_cap") {
+          showToast("Daily AI visual limit reached — try tomorrow");
+        } else if (err === "fal_not_configured") {
+          showToast("AI generate not configured yet (FAL_KEY)");
+        } else {
+          showToast(err.replace(/_/g, " "));
+        }
+        return;
+      }
+      const imgRes = await fetch(res.imageUrl);
+      if (!imgRes.ok) throw new Error("Could not download still");
+      const blob = await imgRes.blob();
+      const ext = blob.type.includes("png") ? "png" : blob.type.includes("webp") ? "webp" : "jpg";
+      const file = new File([blob], `vybz-ai-${Date.now()}.${ext}`, { type: blob.type || "image/jpeg" });
+      onMediaFile(file);
+      await refreshProfile();
+      celebrate("AI still ready");
+      showToast(`Spent ${res.costVc ?? GEN_COST} Vc · ${res.remainingToday ?? "?"} left today`);
+      setGenOpen(false);
+    } catch (e) {
+      showToast((e as Error).message || "Generate failed");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function exportLoop() {
     if (!canvasRef.current) {
       showToast("Preview not ready");
       return;
     }
     if (!mediaUrl) {
-      showToast("Upload media first");
+      showToast("Upload or generate media first");
       return;
     }
     setExporting(true);
@@ -313,15 +377,32 @@ export function VisualizerStudioPage() {
 
       const nameBase = (mediaFile?.name || "vybz-visual").replace(/\.[^.]+$/, "");
       const filename = `${nameBase}-vdock.${extForMime(blob.type || pickRecorderMime())}`;
+      setLastExport({ blob, filename });
       downloadBlob(blob, filename);
       celebrate("Visualizer exported");
-      showToast("Muted loop downloaded — upload it under Custom in Compose");
+      showToast("Muted loop ready — download saved · use on next drop below");
     } catch (err) {
       showToast((err as Error).message || "Export failed");
       setPlaying(wasPlaying);
     } finally {
       setExporting(false);
       setExportPct(null);
+    }
+  }
+
+  async function useOnNextDrop() {
+    if (!lastExport) {
+      showToast("Export a loop first");
+      return;
+    }
+    setHandingOff(true);
+    try {
+      await saveStudioBackdropHandoff(lastExport.blob, lastExport.filename);
+      navigate("/?compose=1");
+    } catch {
+      showToast("Could not hand off to Compose");
+    } finally {
+      setHandingOff(false);
     }
   }
 
@@ -341,9 +422,21 @@ export function VisualizerStudioPage() {
         <div className="min-w-0 flex-1">
           <h1 className="font-display text-xl font-bold text-white">Visualizer studio</h1>
           <p className="text-[12px] text-white/45">
-            Upload media · attach music · tune audio-reactive FX · export a muted VDock loop
+            Generate or upload · attach music · reactive FX · export muted VDock loop
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setGenOpen((v) => !v)}
+          className={cx(
+            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition",
+            genOpen
+              ? "border-cyan-300/45 bg-cyan-500/20 text-cyan-50"
+              : "border-white/12 bg-white/[0.04] text-white/70 hover:text-white",
+          )}
+        >
+          <Wand2 className="h-3.5 w-3.5" /> AI generate · {GEN_COST} Vc
+        </button>
         <button
           type="button"
           onClick={() => navigate("/visuals/tutorial")}
@@ -352,6 +445,58 @@ export function VisualizerStudioPage() {
           <GraduationCap className="h-3.5 w-3.5" /> Specs
         </button>
       </div>
+
+      {genOpen && (
+        <section
+          className="rounded-[1.75rem] border border-white/20 p-4 shadow-[0_20px_50px_-28px_rgba(30,100,180,0.45)]"
+          style={{
+            background: "linear-gradient(165deg, rgba(255,255,255,0.14), rgba(180,220,255,0.06) 45%, rgba(10,22,42,0.55))",
+            backdropFilter: "blur(22px) saturate(1.4)",
+          }}
+        >
+          <p className="mb-1 flex items-center gap-1.5 text-[13px] font-semibold text-white">
+            <Wand2 className="h-4 w-4 text-cyan-200" /> AI still for your visualizer
+          </p>
+          <p className="mb-3 text-[12px] text-white/50">
+            Prompt → fal Flux still ({GEN_COST} Vc, max 10/day). Then tune FX with your track and export a muted loop.
+            Balance · <span className="font-mono text-white/75">{Number(profile?.modPoints ?? 0).toFixed(0)} Vc</span>
+          </p>
+          <textarea
+            value={genPrompt}
+            onChange={(e) => setGenPrompt(e.target.value.slice(0, 480))}
+            rows={3}
+            placeholder="e.g. liquid cyan glass shards over a dark stage, soft glow…"
+            className="w-full rounded-2xl border border-white/14 bg-black/25 px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-cyan-300/40 focus:outline-none"
+          />
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {STYLE_PRESETS.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setGenStyle(s.id)}
+                className={cx(
+                  "min-w-[5.5rem] shrink-0 rounded-xl border px-2.5 py-2 text-left transition",
+                  genStyle === s.id
+                    ? "border-cyan-300/45 bg-cyan-500/15 text-white"
+                    : "border-white/10 bg-white/[0.04] text-white/60 hover:text-white/85",
+                )}
+              >
+                <span className="block text-[11px] font-semibold">{s.label}</span>
+                <span className="mt-0.5 block text-[9px] text-white/40">{s.blurb}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            disabled={generating || genPrompt.trim().length < 3}
+            onClick={() => void runGenerate()}
+            className="btn btn-primary mt-3 w-full gap-2 py-3 disabled:opacity-40 sm:w-auto sm:px-6"
+          >
+            {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {generating ? "Generating…" : `Generate · ${GEN_COST} Vc`}
+          </button>
+        </section>
+      )}
 
       {/* Preview stage */}
       <section className="overflow-hidden rounded-2xl border border-white/12 bg-ink-950/80 shadow-[0_24px_60px_-28px_rgba(0,0,0,0.65)]">
@@ -633,6 +778,17 @@ export function VisualizerStudioPage() {
             {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             {exporting ? "Exporting…" : "Export loop"}
           </button>
+          {lastExport && (
+            <button
+              type="button"
+              disabled={handingOff}
+              onClick={() => void useOnNextDrop()}
+              className="btn btn-ghost shrink-0 gap-2 px-4 py-3 text-sm"
+            >
+              {handingOff ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Use on next drop
+            </button>
+          )}
         </div>
       </section>
     </div>
