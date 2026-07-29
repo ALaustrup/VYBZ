@@ -21,6 +21,7 @@ Architecture Decision Records for Suite Genesis.
 | ADR-015 | Release Project schema for Prepare MVP | Accepted — [`ADR_RELEASE_PROJECT_SCHEMA.md`](./ADR_RELEASE_PROJECT_SCHEMA.md) |
 | ADR-016 | Release Credits schema for Credits MVP | Accepted — [`ADR_RELEASE_CREDITS.md`](./ADR_RELEASE_CREDITS.md) |
 | ADR-017 | Processing Engine (portable · native · remote) | Accepted — [`ADR_PROCESSING_ENGINE.md`](./ADR_PROCESSING_ENGINE.md) |
+| ADR-018 | Desktop Windows alpha (Phase 5 / 2.D) | Accepted — see [`PHASE5_EXIT_GATE.md`](./PHASE5_EXIT_GATE.md) + [`DESKTOP_RELEASE.md`](../operations/DESKTOP_RELEASE.md) |
 
 **Note:** ADR-001’s “no early monorepo” remains: workspace extraction is **staged**
 (Stage A–F). Do not interpret multi-platform as permission for a destructive rewrite.

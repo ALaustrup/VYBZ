@@ -10,11 +10,18 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 4 Processing Engine (in progress locally on `suite-genesis`)
+### Phase 5 Desktop Alpha / 2.D (in progress locally on `suite-genesis`)
+
+- NSIS installMode both · updater channels JSON · installer smoke hash workflow
+- `/desktop/process` batch panel · window prefs · secure session store · crash file log
+- Exit gate: [`docs/architecture/PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md)
+
+### Phase 4 Processing Engine (complete — merged + tagged)
 
 - Portable waveform/FFT/loudness (`@vybz/processing/waveform`, ≤10 MB Worker)
 - Tauri `vybz_analyze_audio`; Bridge wiring; Cost Sentinel (log-only alerts)
 - `processing_jobs` + Edge `processing-enqueue` skeleton (no paid AI)
+- PR #3 merged to `main`; tag `v1.1.0-beta1A-phase4`
 - Exit gate: [`docs/architecture/PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md)
 
 ### Phase 3 Credits & Metadata (complete — merged + tagged)

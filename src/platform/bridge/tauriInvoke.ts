@@ -1,6 +1,14 @@
 import type { ExportedFile, SelectedFile } from "@/contracts";
 import type { PortableAudioAnalysis } from "@vybz/processing/waveform";
 
+export type WindowPrefs = {
+  width: number;
+  height: number;
+  x?: number | null;
+  y?: number | null;
+  theme: "dark" | "light" | "system" | string;
+};
+
 /**
  * Optional Tauri invoke shim. Safe to import when Tauri is absent —
  * all functions return null/false so the desktop bridge can fall back to web APIs.
@@ -58,6 +66,65 @@ export async function invokeAnalyzeAudio(
     };
   } catch {
     return null;
+  }
+}
+
+export async function invokeWindowPrefsGet(): Promise<WindowPrefs | null> {
+  if (!isTauriRuntime()) return null;
+  try {
+    const invoke = getInvoke();
+    if (!invoke) return null;
+    return (await invoke("vybz_window_prefs_get")) as WindowPrefs;
+  } catch {
+    return null;
+  }
+}
+
+export async function invokeWindowPrefsSet(prefs: WindowPrefs): Promise<boolean> {
+  if (!isTauriRuntime()) return false;
+  try {
+    const invoke = getInvoke();
+    if (!invoke) return false;
+    await invoke("vybz_window_prefs_set", { prefs });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function invokeSecureSet(key: string, value: string): Promise<boolean> {
+  if (!isTauriRuntime()) return false;
+  try {
+    const invoke = getInvoke();
+    if (!invoke) return false;
+    await invoke("vybz_secure_set", { key, value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function invokeSecureGet(key: string): Promise<string | null> {
+  if (!isTauriRuntime()) return null;
+  try {
+    const invoke = getInvoke();
+    if (!invoke) return null;
+    const v = await invoke("vybz_secure_get", { key });
+    return typeof v === "string" ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function invokeSecureClear(key?: string): Promise<boolean> {
+  if (!isTauriRuntime()) return false;
+  try {
+    const invoke = getInvoke();
+    if (!invoke) return false;
+    await invoke("vybz_secure_clear", { key: key ?? null });
+    return true;
+  } catch {
+    return false;
   }
 }
 

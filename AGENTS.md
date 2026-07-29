@@ -29,11 +29,12 @@
 | Site visuals CDN | `https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/` |
 | **Media origin** | **Supabase Storage only**. Bunny Edge functions dormant. Live = **LiveKit**. |
 | Android seed | Capacitor 8 · `capacitor.config.ts` · `appId: cloud.vybz.app` · `android/` present |
-| Desktop | Tauri 2 PoC scaffold in `apps/desktop/` (Rust required to boot; see README) |
+| Desktop | Tauri 2 Windows alpha in `apps/desktop/` — see [`DESKTOP_RELEASE.md`](./docs/operations/DESKTOP_RELEASE.md) |
 | Layout | Single-root SPA; Stage A aliases `@vybz/*` — no file moves yet |
 | Package manager | **npm** (do not casually switch) |
-| Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android stubs |
+| Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android |
 | Prepare | `@vybz/domain/releases` · `@vybz/data/releases` · `src/features/prepare/` |
+| Processing | `@vybz/processing/waveform` · `/desktop/process` |
 
 ### Phase status
 | Phase | Status |
@@ -43,20 +44,20 @@
 | **1.1 Playwright hardening** | **Complete** |
 | **1.5 Platform readiness** | **Complete** — see [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md) |
 | **2 Prepare MVP** | **Complete** — merged PR #1 · tag `v1.1.0-beta1A-phase2` · [`PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
-| **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap later) |
 | **3 Credits + metadata** | **Complete** — merged PR #2 · tag `v1.1.0-beta1A-phase3` · [`PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md) |
-| **4 Processing Engine** | **In progress (local)** — see [`docs/architecture/PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md) |
-| 5–9 · P · R · 2.D / 2.A | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **4 Processing Engine** | **Complete** — merged PR #3 · tag `v1.1.0-beta1A-phase4` · [`PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md) |
+| **5 Desktop Alpha (2.D)** | **In progress (local)** — [`PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md) |
+| **2.A** | Android alpha (later) |
+| 6–9 · CoverLab+ | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. Finish Phase 4 exit gate locally; **await owner approval** before push/PR.
-2. After Phase 4 merge: MasterReady product surfaces can consume Bridge `analyzeAudio`.
-3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-4. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
-5. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
-6. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-7. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
-8. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
+1. Finish Phase 5 exit gate locally; **await owner approval** before push/PR.
+2. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
+3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
+4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
+5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+6. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
 `npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).

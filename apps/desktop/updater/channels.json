@@ -1,0 +1,19 @@
+{
+  "product": "VYBZ Desktop",
+  "identifier": "cloud.vybz.desktop",
+  "channels": {
+    "stable": {
+      "endpoint": "https://releases.vybz.cloud/desktop/stable",
+      "notes": "Production channel — requires signed builds"
+    },
+    "preview": {
+      "endpoint": "https://releases.vybz.cloud/desktop/preview",
+      "notes": "Beta-1A / Suite Genesis preview"
+    }
+  },
+  "currentChannel": "preview",
+  "updater": {
+    "enabled": false,
+    "reason": "Pubkey + signed artifacts required before enabling tauri-plugin-updater at runtime"
+  }
+}
