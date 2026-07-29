@@ -3,6 +3,7 @@ import { SuitePlaceholderPage } from "@/pages/suite/SuiteProductPage";
 import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { NewReleasePage } from "@/features/prepare/NewReleasePage";
 import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
+import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
 
 function StudioIdRedirect() {
   const { id } = useParams();
@@ -20,6 +21,7 @@ export function suitePlaceholderRoutes() {
       <Route path="/releases" element={<ReleasesPage />} />
       <Route path="/releases/new" element={<NewReleasePage />} />
       <Route path="/release/:id" element={<ReleaseDetailPage />} />
+      <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
       <Route path="/studio" element={<Navigate to="/projects" replace />} />
       <Route path="/studio/:id" element={<StudioIdRedirect />} />
       <Route
@@ -29,18 +31,7 @@ export function suitePlaceholderRoutes() {
             product="credits"
             title="Credit Passport"
             description="Normalize and approve credits before release."
-            phaseNote="Phase 3 — Credits."
-          />
-        }
-      />
-      <Route
-        path="/release/:id/credits"
-        element={
-          <SuitePlaceholderPage
-            product="credits"
-            title="Release credits"
-            description="Credits scoped to this release."
-            phaseNote="Phase 3 — Credits."
+            phaseNote="Phase 3 — Open a release, then Credits on that release."
           />
         }
       />

@@ -85,6 +85,13 @@ export function ReleaseDetailPage() {
           </Badge>
         </div>
         <p className="mt-1 text-sm text-fog">{project.artistName || "Artist TBD"}</p>
+        <Link
+          to={`/release/${project.id}/credits`}
+          className="mt-3 inline-flex h-8 items-center rounded-suite-md border border-white/10 bg-graphite px-3 text-xs font-semibold text-snow hover:border-suite-cyan/40"
+          data-testid="prepare-open-credits"
+        >
+          Edit credits
+        </Link>
       </div>
 
       <div className="flex flex-wrap gap-2 text-xs text-fog">

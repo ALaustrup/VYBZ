@@ -6,6 +6,7 @@ import { StateView } from "@/components/states/StateView";
 import { usePlatform } from "@/platform/bridge/PlatformProvider";
 import { useSession } from "@/store/session";
 import { createReleaseWithScan, getPrepareOwnerId } from "@/features/prepare/service";
+import { ensureMetadataCredits } from "@/features/credits/service";
 import { probeArtworkFile, probeAudioFile } from "@/features/prepare/probeClient";
 import type { AudioProbe, ArtworkProbe } from "@vybz/domain/releases";
 
@@ -91,6 +92,12 @@ export function NewReleasePage() {
         audio: audioMeta,
         artwork: artMeta,
         idempotencyKey: crypto.randomUUID(),
+      });
+      await ensureMetadataCredits({
+        ownerId,
+        releaseId: bundle.project.id,
+        artistName: artistName || audioMeta?.probe.artistFromName || null,
+        composerName: audioMeta?.probe.composerFromName ?? null,
       });
       navigate(`/release/${bundle.project.id}`, { replace: true });
     } catch (err) {
