@@ -1,0 +1,4 @@
+# Auto-generated / local Tauri artifacts
+/target/
+/gen/
+Cargo.lock
