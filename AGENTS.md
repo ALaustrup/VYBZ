@@ -28,13 +28,14 @@
 | Stripe | VYBZ acct `acct_1TwTEtAnnpt9OYZI` |
 | Site visuals CDN | `https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/` |
 | **Media origin** | **Supabase Storage only**. Bunny Edge functions dormant. Live = **LiveKit**. |
-| Android seed | Capacitor 8 · `capacitor.config.ts` · `appId: cloud.vybz.app` · `android/` present |
-| Desktop | Tauri 2 Windows alpha in `apps/desktop/` — see [`DESKTOP_RELEASE.md`](./docs/operations/DESKTOP_RELEASE.md) |
+| Android seed | Capacitor 8 · `appId: cloud.vybz.app` · see [`ANDROID_RELEASE.md`](./docs/operations/ANDROID_RELEASE.md) |
+| Desktop | Tauri 2 Windows alpha — see [`DESKTOP_RELEASE.md`](./docs/operations/DESKTOP_RELEASE.md) |
 | Layout | Single-root SPA; Stage A aliases `@vybz/*` — no file moves yet |
 | Package manager | **npm** (do not casually switch) |
 | Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android |
 | Prepare | `@vybz/domain/releases` · `@vybz/data/releases` · `src/features/prepare/` |
 | Processing | `@vybz/processing/waveform` · `/desktop/process` |
+| Android sync | upload queue · `vybz://` deep links · FCM token local-only |
 
 ### Phase status
 | Phase | Status |
@@ -46,12 +47,12 @@
 | **2 Prepare MVP** | **Complete** — merged PR #1 · tag `v1.1.0-beta1A-phase2` · [`PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
 | **3 Credits + metadata** | **Complete** — merged PR #2 · tag `v1.1.0-beta1A-phase3` · [`PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md) |
 | **4 Processing Engine** | **Complete** — merged PR #3 · tag `v1.1.0-beta1A-phase4` · [`PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md) |
-| **5 Desktop Alpha (2.D)** | **In progress (local)** — [`PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md) |
-| **2.A** | Android alpha (later) |
-| 6–9 · CoverLab+ | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **5 Desktop Alpha (2.D)** | **Complete** — merged PR #4 · tag `v1.1.0-beta1A-phase5` · [`PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md) |
+| **6 Android Alpha (2.A)** | **In progress (local)** — [`PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md) |
+| 7–9 · CoverLab+ | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. Finish Phase 5 exit gate locally; **await owner approval** before push/PR.
+1. Finish Phase 6 exit gate locally; **await owner approval** before push/PR.
 2. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
 4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.

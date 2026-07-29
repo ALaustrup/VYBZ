@@ -10,10 +10,17 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 5 Desktop Alpha / 2.D (in progress locally on `suite-genesis`)
+### Phase 6 Android Alpha / 2.A (in progress locally on `suite-genesis`)
+
+- `cloud.vybz.app` signing workflow · APK smoke hash · upload queue · `vybz://` + FCM stub
+- Mobile credits / Findings read-only · sealed prefs · Detox contract (Vitest)
+- Exit gate: [`docs/architecture/PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md)
+
+### Phase 5 Desktop Alpha / 2.D (complete — merged + tagged)
 
 - NSIS installMode both · updater channels JSON · installer smoke hash workflow
 - `/desktop/process` batch panel · window prefs · secure session store · crash file log
+- PR #4 merged to `main`; tag `v1.1.0-beta1A-phase5`
 - Exit gate: [`docs/architecture/PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md)
 
 ### Phase 4 Processing Engine (complete — merged + tagged)
