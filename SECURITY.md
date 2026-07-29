@@ -68,13 +68,15 @@ or signing secrets. Platform Bridge must use allowlisted native commands only
 
 - **Ruleset (import YAML):** [`docs/security/cloudflare-ruleset.yml`](./docs/security/cloudflare-ruleset.yml)
   — SPA allowlist + Edge `/functions/v1/` allow + LFI / `__proto__` blocks.
-- **Ops guide:** [`docs/security/cloudflare.md`](./docs/security/cloudflare.md)
+  Name: `vybz-cloud-spa-edge`.
+- **Ops guide (owner dashboard):** [`docs/security/cloudflare.md`](./docs/security/cloudflare.md)
+  — staging import → smoke → promote production → stamp date below.
 - **Ruleset committed:** 2026-07-29 (Phase 11 follow-up).
-- **Staging WAF enabled:** _pending owner import + smoke_
-- **Production WAF go-live:** _pending staging green_ (record date here when enabled)
+- **WAF active:** _pending owner Cloudflare import + prod smoke_
+  (when live, replace with: `2026-07-30 (ruleset: vybz-cloud-spa-edge)` or the actual enable day).
 
 Supabase Edge Functions remain the API plane; Cloudflare WAF applies only when
-the hostname is proxied through Cloudflare.
+the hostname is proxied through Cloudflare. Dashboard apply is owner-only.
 
 ## Secrets
 

@@ -1,25 +1,49 @@
 # Cloudflare security ruleset (VYBZ)
 
 > **Import file:** [`cloudflare-ruleset.yml`](./cloudflare-ruleset.yml)  
+> Ruleset name: **`vybz-cloud-spa-edge`**  
 > Tuned for Vite SPA routes + Supabase Edge (`/functions/v1/`).  
 > Production SPA today is still **Vercel** (`astramatrix/vybz` → https://vybz.cloud).
-> Apply this ruleset only on hostnames Cloudflare already proxies (staging first).
+> Apply only on hostnames Cloudflare already proxies.
+>
+> Dashboard import requires an **owner-level Cloudflare session** (agents cannot apply this).
 
-## Import (staging → production)
+## Staging WAF activation
 
-1. Cloudflare Dashboard → **Security** → **WAF** → **Rulesets** → **Add ruleset** → **Import rules**.
-2. Paste / upload [`cloudflare-ruleset.yml`](./cloudflare-ruleset.yml).
-3. Save on the **staging** zone; run smoke below.
-4. Export / re-import the same YAML on the **production** zone once staging is green.
+1. Log in to Cloudflare → select the **staging** zone (e.g. `staging.vybz.cloud`).
+2. **Security** → **WAF** → **Rulesets** → **Add ruleset** → **Import rules**.
+3. Paste the contents of [`cloudflare-ruleset.yml`](./cloudflare-ruleset.yml) and save.
+4. Run the smoke table below against the staging hostname.
 
-## Smoke-test checklist (staging)
+## Smoke test (staging)
 
-| Path | Expected |
-|------|----------|
-| `/`, `/pack/<slug>`, `/enter` | 200 |
-| `POST /functions/v1/stripe-webhook` | 200 / 400 (signature) — not 403 from WAF |
-| `/.%2e/etc/passwd` or path with `../` | **403** |
-| `/?__proto__[x]=1` | **403** |
+| Request | Expected |
+|---------|----------|
+| `GET /` | 200 OK |
+| `GET /pack/<any-slug>` | 200 OK |
+| `GET /enter` | 200 OK |
+| `POST /functions/v1/stripe-webhook` (test JSON) | 200 / 400 — **not** WAF 403 |
+| `GET /.%2e/etc/passwd` | **403** Forbidden |
+| `GET /?__proto__[x]=1` | **403** Forbidden |
+
+Tip — Edge path probe:
+
+```bash
+curl -I -X POST https://staging.vybz.cloud/functions/v1/stripe-webhook
+```
+
+(Use the real staging hostname if different.)
+
+## Promote to production
+
+If all staging checks pass:
+
+1. Repeat import on the **production** zone (`vybz.cloud`).
+2. Name the ruleset the same (`vybz-cloud-spa-edge`); set to **Deploy** immediately.
+3. Re-run the smoke table against `https://vybz.cloud` (and Supabase Edge host if WAF sits in front of it).
+4. Record go-live in [`SECURITY.md`](../../SECURITY.md) under **Edge & WAF**:
+
+   `**WAF active:** YYYY-MM-DD (ruleset: vybz-cloud-spa-edge)`
 
 ## Also recommended (dashboard toggles, not in YAML)
 
