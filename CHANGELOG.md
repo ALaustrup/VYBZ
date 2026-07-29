@@ -10,11 +10,19 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 3 Credits & Metadata (complete locally on `suite-genesis`)
+### Phase 4 Processing Engine (in progress locally on `suite-genesis`)
+
+- Portable waveform/FFT/loudness (`@vybz/processing/waveform`, ≤10 MB Worker)
+- Tauri `vybz_analyze_audio`; Bridge wiring; Cost Sentinel (log-only alerts)
+- `processing_jobs` + Edge `processing-enqueue` skeleton (no paid AI)
+- Exit gate: [`docs/architecture/PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md)
+
+### Phase 3 Credits & Metadata (complete — merged + tagged)
 
 - `release_credits` schema + RLS (`0082`) with up/down SQL
 - Domain/data packages; metadata seeding; mutation-queue conflicts
 - `/release/:id/credits` in-place edit + Playwright hard-refresh
+- PR #2 merged to `main`; tag `v1.1.0-beta1A-phase3`
 - Exit gate: [`docs/architecture/PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md)
 
 ### Phase 2 Prepare MVP (complete — merged + tagged)
