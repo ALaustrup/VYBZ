@@ -23,6 +23,7 @@ import {
   buildPlaybackCustomization,
   type PlaybackCustomization,
 } from "@/lib/playbackCustomization";
+import { takeStudioBackdropHandoff } from "@/lib/studioBackdropHandoff";
 import { cx, paletteFor } from "@/lib/utils";
 import type { AssetKind, PostAudience, PostFx, ReleaseType } from "@/types";
 
@@ -97,18 +98,40 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   }, [fx, vdockVisualId, backdropPreview, backdropFit, backdropDim]);
 
   useEffect(() => {
-    if (open) {
-      setTitle(""); setAlbum(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
-      setKind("track"); setReleaseType("original"); setBpm(""); setMusicalKey("");
-      setOwnershipClaim(false);
-      setAudience("public"); setCreditedArtist("");
-      setVdockVisualId(null);
-      setBackdropFile(null);
-      setBackdropFit("cover"); setBackdropDim(0.35);
-      setBackdropPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-      setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
-      setId3Meta({}); setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
-    }
+    if (!open) return;
+    setTitle(""); setAlbum(""); setSeed(Math.floor(Math.random() * 1e6)); setAudio(null);
+    setKind("track"); setReleaseType("original"); setBpm(""); setMusicalKey("");
+    setOwnershipClaim(false);
+    setAudience("public"); setCreditedArtist("");
+    setVdockVisualId(null);
+    setBackdropFile(null);
+    setBackdropFit("cover"); setBackdropDim(0.35);
+    setBackdropPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
+    setDecoding(false); setPosting(false); setProgress(null); setAutoDetected([]);
+    setId3Meta({}); setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const handoff = await takeStudioBackdropHandoff();
+        if (cancelled || !handoff) return;
+        const file = handoff.file;
+        if (file.size > MAX_BACKDROP_BYTES) {
+          showToast(`Visual max is ${prettyBytes(MAX_BACKDROP_BYTES)}.`);
+          return;
+        }
+        setVdockVisualId(null);
+        setBackdropFile(file);
+        setBackdropPreview((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return URL.createObjectURL(file);
+        });
+        showToast("Studio loop attached as custom backdrop");
+      } catch {
+        /* ignore missing IndexedDB */
+      }
+    })();
+    return () => { cancelled = true; };
   }, [open]);
 
   useEffect(() => () => {

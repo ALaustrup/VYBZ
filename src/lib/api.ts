@@ -25,6 +25,17 @@ import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/pl
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
 import { parseVcAddress } from "@/lib/vc";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import type {
+  PackCopyResult,
+  StorefrontOrder,
+  StorefrontPack,
+  StorefrontPackPublic,
+} from "@/features/storefront/types";
+import {
+  STOREFRONT_PREVIEWS_BUCKET,
+  STOREFRONT_ZIPS_BUCKET,
+} from "@/features/storefront/types";
+import { uniqueSlug } from "@/features/storefront/slug";
 
 const AUDIO_BUCKET = "audio-assets";
 const AVATAR_BUCKET = "media-public";
@@ -1139,6 +1150,264 @@ export async function startCreditTopup(packId: string, origin: string): Promise<
   if (error) throw new Error(await fnErrorMessage(error, "Could not start credit top-up."));
   if ((data as any)?.error) throw new Error((data as any).error);
   return (data as any)?.url ?? null;
+}
+
+export type VisualStylePreset = "glass" | "aurora" | "waveform" | "stage" | "ember";
+
+export interface VisualGenerateResult {
+  ok: boolean;
+  imageUrl?: string;
+  stylePreset?: string;
+  costVc?: number;
+  credits?: number;
+  remainingToday?: number;
+  error?: string;
+}
+
+/** AI still for Visualizer Studio (Edge → fal Flux). Costs Vc; daily cap. */
+export async function generateVisualizerStill(
+  prompt: string,
+  opts?: { stylePreset?: VisualStylePreset; aspect?: "16:9" | "1:1" | "9:16" },
+): Promise<VisualGenerateResult> {
+  const { data, error } = await db().functions.invoke("visual-generate", {
+    body: {
+      prompt,
+      stylePreset: opts?.stylePreset ?? "glass",
+      aspect: opts?.aspect ?? "16:9",
+    },
+  });
+  if (error) {
+    return { ok: false, error: await fnErrorMessage(error, "Could not generate visual.") };
+  }
+  const d = data as VisualGenerateResult & { remaining_today?: number };
+  if (d?.error && !d.ok) {
+    return {
+      ok: false,
+      error: String(d.error),
+      credits: d.credits,
+      remainingToday: d.remainingToday ?? d.remaining_today,
+      costVc: d.costVc ?? 2,
+    };
+  }
+  return {
+    ok: true,
+    imageUrl: d.imageUrl,
+    stylePreset: d.stylePreset,
+    costVc: d.costVc ?? 2,
+    credits: d.credits,
+    remainingToday: d.remainingToday ?? d.remaining_today,
+  };
+}
+
+// ── Sample Pack Storefront ───────────────────────────────────────────────────
+
+function mapStorefrontPack(r: Record<string, unknown>): StorefrontPack {
+  return {
+    id: String(r.id),
+    user_id: String(r.user_id),
+    title: String(r.title ?? ""),
+    slug: String(r.slug ?? ""),
+    description: String(r.description ?? ""),
+    features: Array.isArray(r.features) ? r.features.map(String) : [],
+    genre: String(r.genre ?? ""),
+    price_cents: Number(r.price_cents ?? 0),
+    currency: String(r.currency ?? "usd"),
+    preview_path: r.preview_path ? String(r.preview_path) : null,
+    zip_path: r.zip_path ? String(r.zip_path) : null,
+    cover_path: r.cover_path ? String(r.cover_path) : null,
+    status: (r.status === "published" ? "published" : "draft"),
+    created_at: String(r.created_at ?? ""),
+    updated_at: String(r.updated_at ?? ""),
+  };
+}
+
+function mapStorefrontPackPublic(r: Record<string, unknown>): StorefrontPackPublic {
+  const p = mapStorefrontPack(r);
+  return {
+    id: p.id,
+    user_id: p.user_id,
+    title: p.title,
+    slug: p.slug,
+    description: p.description,
+    features: p.features,
+    genre: p.genre,
+    price_cents: p.price_cents,
+    currency: p.currency,
+    preview_path: p.preview_path,
+    cover_path: p.cover_path,
+    created_at: p.created_at,
+    updated_at: p.updated_at,
+  };
+}
+
+export async function listMyStorefrontPacks(): Promise<StorefrontPack[]> {
+  const { data, error } = await db()
+    .from("storefront_packs")
+    .select("id, user_id, title, slug, description, features, genre, price_cents, currency, preview_path, cover_path, status, created_at, updated_at")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => mapStorefrontPack({ ...r, zip_path: null } as Record<string, unknown>));
+}
+
+export async function getMyStorefrontPack(id: string): Promise<StorefrontPack | null> {
+  const { data, error } = await db().rpc("storefront_my_pack", { p_id: id });
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return mapStorefrontPack(data as Record<string, unknown>);
+}
+
+export async function getPublishedStorefrontPack(slug: string): Promise<StorefrontPackPublic | null> {
+  const { data, error } = await db().rpc("storefront_pack_by_slug", { p_slug: slug });
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return mapStorefrontPackPublic(data as Record<string, unknown>);
+}
+
+export async function createStorefrontPack(input: {
+  title: string;
+  slug?: string;
+  description?: string;
+  features?: string[];
+  genre?: string;
+  price_cents: number;
+  preview_path?: string | null;
+  zip_path?: string | null;
+  cover_path?: string | null;
+  status?: "draft" | "published";
+}): Promise<StorefrontPack | null> {
+  const { data: sess } = await db().auth.getUser();
+  const uid = sess.user?.id;
+  if (!uid) throw new Error("Sign in required");
+  const slug = input.slug?.trim() || uniqueSlug(input.title);
+  const { data, error } = await db()
+    .from("storefront_packs")
+    .insert({
+      user_id: uid,
+      title: input.title,
+      slug,
+      description: input.description ?? "",
+      features: input.features ?? [],
+      genre: input.genre ?? "",
+      price_cents: input.price_cents,
+      preview_path: input.preview_path ?? null,
+      zip_path: input.zip_path ?? null,
+      cover_path: input.cover_path ?? null,
+      status: input.status ?? "draft",
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  if (!data?.id) return null;
+  return getMyStorefrontPack(String(data.id));
+}
+
+export async function updateStorefrontPack(
+  id: string,
+  input: Partial<{
+    title: string;
+    slug: string;
+    description: string;
+    features: string[];
+    genre: string;
+    price_cents: number;
+    preview_path: string | null;
+    zip_path: string | null;
+    cover_path: string | null;
+    status: "draft" | "published";
+  }>,
+): Promise<StorefrontPack | null> {
+  const { error } = await db()
+    .from("storefront_packs")
+    .update({ ...input, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  return getMyStorefrontPack(id);
+}
+
+export async function listMyStorefrontOrders(): Promise<StorefrontOrder[]> {
+  const { data, error } = await db()
+    .from("storefront_orders")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => ({
+    id: String(r.id),
+    pack_id: String(r.pack_id),
+    buyer_email: String(r.buyer_email),
+    buyer_user_id: r.buyer_user_id ? String(r.buyer_user_id) : null,
+    amount_cents: Number(r.amount_cents),
+    application_fee_cents: Number(r.application_fee_cents ?? 0),
+    stripe_session_id: r.stripe_session_id ? String(r.stripe_session_id) : null,
+    stripe_payment_intent: r.stripe_payment_intent ? String(r.stripe_payment_intent) : null,
+    status: r.status as StorefrontOrder["status"],
+    fulfilled_at: r.fulfilled_at ? String(r.fulfilled_at) : null,
+    created_at: String(r.created_at),
+  }));
+}
+
+export async function uploadStorefrontPreview(userId: string, file: File): Promise<string> {
+  const ext = (file.name.split(".").pop() || "mp3").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp3";
+  const path = `${userId}/previews/${crypto.randomUUID()}.${ext}`;
+  const { error } = await db().storage.from(STOREFRONT_PREVIEWS_BUCKET).upload(path, file, {
+    contentType: file.type || "audio/mpeg",
+    upsert: false,
+  });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
+export async function uploadStorefrontZip(userId: string, file: File): Promise<string> {
+  const path = `${userId}/zips/${crypto.randomUUID()}.zip`;
+  const { error } = await db().storage.from(STOREFRONT_ZIPS_BUCKET).upload(path, file, {
+    contentType: file.type || "application/zip",
+    upsert: false,
+  });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
+export async function generateStorefrontPackCopy(
+  keywords: string,
+  genre?: string,
+): Promise<PackCopyResult | null> {
+  const { data, error } = await db().functions.invoke("storefront-pack-copy", {
+    body: { keywords, genre },
+  });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not generate copy."));
+  const d = data as { title?: string; description?: string; features?: string[]; error?: string };
+  if (d?.error) throw new Error(d.error);
+  if (!d?.title || !d?.description) return null;
+  return {
+    title: String(d.title),
+    description: String(d.description),
+    features: Array.isArray(d.features) ? d.features.map(String).slice(0, 5) : [],
+  };
+}
+
+export async function generateStorefrontPackArt(opts: {
+  title: string;
+  genre?: string;
+  packId?: string;
+  palette?: string;
+}): Promise<string | null> {
+  const { data, error } = await db().functions.invoke("storefront-pack-art", {
+    body: opts,
+  });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not generate cover art."));
+  const d = data as { coverPath?: string; error?: string };
+  if (d?.error) throw new Error(d.error);
+  return d?.coverPath ? String(d.coverPath) : null;
+}
+
+/** Guest-friendly Checkout for a published pack; returns hosted Stripe URL. */
+export async function startStorefrontCheckout(packId: string, origin: string): Promise<string | null> {
+  const { data, error } = await db().functions.invoke("storefront-checkout", {
+    body: { packId, origin },
+  });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not start checkout."));
+  if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+  return (data as { url?: string })?.url ?? null;
 }
 
 /** Weekly best-fit digest opt-in (Resend). Default off. */

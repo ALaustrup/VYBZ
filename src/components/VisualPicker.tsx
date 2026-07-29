@@ -66,8 +66,18 @@ export function VisualPicker({
         <div className="flex shrink-0 flex-col items-end gap-1.5">
           <button
             type="button"
-            onClick={openTutorial}
+            onClick={() => {
+              onBeforeTutorial?.();
+              navigate("/visuals/studio?tab=generate");
+            }}
             className="inline-flex items-center gap-1 rounded-full border border-cyan-300/30 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold text-cyan-100 transition hover:border-cyan-300/50 hover:bg-cyan-500/20"
+          >
+            AI generate · 2 Vc
+          </button>
+          <button
+            type="button"
+            onClick={openTutorial}
+            className="inline-flex items-center gap-1 rounded-full border border-white/14 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white/80 transition hover:border-cyan-300/35 hover:text-white"
           >
             <GraduationCap className="h-3 w-3" /> Make yours · +10 Vc
           </button>
