@@ -10,12 +10,19 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 7 Sync & Collaboration (in progress locally on `suite-genesis`)
+### Phase 8 Distribution Readiness (in progress locally on `suite-genesis`)
+
+- Loudness / ISRC / DPI rules · ZIP + DDP-stub export · `/release/:id/distribution`
+- Cost Sentinel free-tier alert (no auto-spend) · export SHA via Playwright
+- Exit gate: [`docs/architecture/PHASE8_EXIT_GATE.md`](./docs/architecture/PHASE8_EXIT_GATE.md)
+- ADR: [`docs/architecture/ADR_DISTRIBUTION_RULES.md`](./docs/architecture/ADR_DISTRIBUTION_RULES.md)
+
+### Phase 7 Sync & Collaboration (complete — merged + tagged)
 
 - Reconnect mutation flush · field merge · accept mine/theirs conflict UI
 - AES-GCM sealed drafts · two-user RLS Playwright (no secrets) · offline/online e2e
+- PR #6 merged to `main`; tag `v1.1.0-beta1A-phase7`
 - Exit gate: [`docs/architecture/PHASE7_EXIT_GATE.md`](./docs/architecture/PHASE7_EXIT_GATE.md)
-- ADR: [`docs/architecture/ADR_SYNC_CONFLICTS.md`](./docs/architecture/ADR_SYNC_CONFLICTS.md)
 
 ### Phase 6 Android Alpha / 2.A (complete — merged + tagged)
 

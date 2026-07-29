@@ -24,6 +24,7 @@ Architecture Decision Records for Suite Genesis.
 | ADR-018 | Desktop Windows alpha (Phase 5 / 2.D) | Accepted — see [`PHASE5_EXIT_GATE.md`](./PHASE5_EXIT_GATE.md) + [`DESKTOP_RELEASE.md`](../operations/DESKTOP_RELEASE.md) |
 | ADR-019 | Android Capacitor alpha (Phase 6 / 2.A) | Accepted — see [`PHASE6_EXIT_GATE.md`](./PHASE6_EXIT_GATE.md) + [`ANDROID_RELEASE.md`](../operations/ANDROID_RELEASE.md) |
 | ADR-020 | Sync conflicts (accept mine / theirs) | Accepted — [`ADR_SYNC_CONFLICTS.md`](./ADR_SYNC_CONFLICTS.md) |
+| ADR-021 | Distribution readiness rules | Accepted — [`ADR_DISTRIBUTION_RULES.md`](./ADR_DISTRIBUTION_RULES.md) |
 
 **Note:** ADR-001’s “no early monorepo” remains: workspace extraction is **staged**
 (Stage A–F). Do not interpret multi-platform as permission for a destructive rewrite.
