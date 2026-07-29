@@ -114,6 +114,26 @@ Each entry uses:
 - **Status:** `parked`
 - **Promotion criteria:** Stage 2–3 partner delivery proven; counsel-approved agreements
 
+### OR-010 — Migration history formalization (`db push` vs raw SQL)
+- **Problem:** Remote `schema_migrations` drifts from local filenames; `supabase db push` fails while raw SQL apply works.
+- **Customer:** Platform ops / agents
+- **Strategic fit:** Correctness / CI
+- **Dependencies:** Decide single source of truth; checksum table; CI guard
+- **Estimated cost:** Low engineering; care on prod history repair
+- **Legal risk:** Low
+- **Status:** `ready` (noted at Phase 2/3 boundary — not a Phase 3 blocker)
+- **Promotion criteria:** Include in Phase 4 ops hardening or earlier if `db push` blocks a release
+
+### OR-011 — Two-user live RLS e2e
+- **Problem:** Owner-only RLS is covered by SQL policies + contract tests, not a live two-session Playwright suite.
+- **Customer:** Platform security
+- **Strategic fit:** Prepare / Credits correctness
+- **Dependencies:** Test users + auth harness against linked Supabase
+- **Estimated cost:** Low–medium
+- **Legal risk:** Low
+- **Status:** `parked` (contract tests sufficient for Phase 2–3)
+- **Promotion criteria:** Before multi-account Credits approval or public beta
+
 ---
 
 ## Ritual

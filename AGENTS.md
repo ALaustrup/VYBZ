@@ -42,19 +42,20 @@
 | **1 Engineering + design foundation** | **Complete** |
 | **1.1 Playwright hardening** | **Complete** |
 | **1.5 Platform readiness** | **Complete** — see [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md) |
-| **2 Prepare MVP** | **Complete** — see [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
+| **2 Prepare MVP** | **Complete** — merged PR #1 · tag `v1.1.0-beta1A-phase2` · [`PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
 | **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap later) |
-| **3 Credits + metadata** | **Next** |
+| **3 Credits + metadata** | **Complete (local)** — see [`docs/architecture/PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md) — await push/PR approval |
 | 4–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. **Phase 3 now:** Credits + metadata — multi-account approved credit state; reuse Release Project + Platform Bridge.
-2. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
-3. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
-4. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-5. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
-6. Optional: repair Supabase migration history so `db push` matches applied `0081` schema.
-7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
+1. **Owner:** approve Phase 3 push/PR when ready; do not push until then.
+2. **Phase 4 next (after Phase 3 merge):** Masters / protect per Masterplan — reuse Release Project + Credits.
+3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — noted follow-up, not a Phase 3 blocker.
+4. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
+5. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
+6. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+7. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+8. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
 `npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
@@ -104,7 +105,8 @@ bypass RLS.
 | Marketing landing | `src/pages/LandingPage.tsx` |
 | Signed-in hub | `src/pages/ProfilePage.tsx` (`/`) |
 | Artist storefront | `/u/:id` |
-| Prepare (Phase 2) | placeholders → `src/features/prepare` |
+| Prepare (Phase 2) | `src/features/prepare` · `@vybz/domain/releases` · `@vybz/data/releases` |
+| Credits (Phase 3) | `src/features/credits` · `@vybz/domain/credits` · `@vybz/data/credits` · `/release/:id/credits` |
 | Market packs | `src/features/storefront/` |
 | Site visuals CDN | `src/lib/siteVisuals.ts` |
 | Workspace plan | [`docs/architecture/REPO_WORKSPACE_PLAN.md`](./docs/architecture/REPO_WORKSPACE_PLAN.md) |

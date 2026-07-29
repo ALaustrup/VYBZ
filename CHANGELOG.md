@@ -10,11 +10,19 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 2 Prepare MVP (complete on `suite-genesis`)
+### Phase 3 Credits & Metadata (complete locally on `suite-genesis`)
+
+- `release_credits` schema + RLS (`0082`) with up/down SQL
+- Domain/data packages; metadata seeding; mutation-queue conflicts
+- `/release/:id/credits` in-place edit + Playwright hard-refresh
+- Exit gate: [`docs/architecture/PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md)
+
+### Phase 2 Prepare MVP (complete — merged + tagged)
 
 - Release Project schema + RLS (`0081`) with up/down SQL
 - Domain/data/processing packages; Web Worker readiness probes ($0)
 - `/releases`, `/releases/new`, `/release/:id` Findings UI + local hard-refresh
+- PR #1 merged to `main`; tag `v1.1.0-beta1A-phase2`
 - Exit gate: [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md)
 
 ### Phase 1.5 Platform readiness (complete on `suite-genesis`)
