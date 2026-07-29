@@ -6,6 +6,7 @@ import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
 import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
 import { DistributionReportPage } from "@/features/distribution/DistributionReportPage";
 import { DesktopBatchPanel } from "@/features/processing/DesktopBatchPanel";
+import { FLAGS } from "@/lib/flags";
 
 function StudioIdRedirect() {
   const { id } = useParams();
@@ -130,12 +131,16 @@ export function suitePlaceholderRoutes() {
       <Route
         path="/market"
         element={
-          <SuitePlaceholderPage
-            product="market"
-            title="Market"
-            description="Digital marketplace for packs and support goods."
-            phaseNote="Phase 8 — Market. Keep /tools/packs WIP until cutover."
-          />
+          FLAGS.storefront ? (
+            <Navigate to="/tools/packs" replace />
+          ) : (
+            <SuitePlaceholderPage
+              product="market"
+              title="Market"
+              description="Digital marketplace for packs and support goods."
+              phaseNote="Enable VITE_FEATURE_STOREFRONT (default on) for Sample Pack Storefront."
+            />
+          )
         }
       />
       <Route
@@ -156,7 +161,7 @@ export function suitePlaceholderRoutes() {
             product="home"
             title="Settings"
             description="Account, privacy, and Suite preferences."
-            phaseNote="Phase 1 — Settings placeholder."
+            phaseNote="Cost Sentinel: /settings/costs (read-only usage alerts)."
           />
         }
       />

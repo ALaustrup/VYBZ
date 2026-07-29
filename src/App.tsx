@@ -63,6 +63,10 @@ import { VisualizerTutorialPage } from "@/pages/VisualizerTutorialPage";
 import { VisualizerStudioPage } from "@/pages/VisualizerStudioPage";
 import { FLAGS } from "@/lib/flags";
 import { isPreparePath, PrepareLocalApp } from "@/features/prepare/PrepareLocalApp";
+import { StorefrontDashboardPage } from "@/pages/StorefrontDashboardPage";
+import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
+import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
+import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 
 export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
@@ -109,10 +113,12 @@ export function App() {
   if (!ready) return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
 
   const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
+  const isPublicPack = FLAGS.storefront && location.pathname.startsWith("/pack/");
   if (!userId) {
     if (FLAGS.prepare && isPreparePath(location.pathname)) {
       return <PrepareLocalApp />;
     }
+    if (isPublicPack) return <PublicPackShell />;
     if (isPublicDoc) return <PublicDocShell />;
     if (location.pathname === "/enter" || location.pathname.startsWith("/enter/")) {
       return <><DynamicBackground variant={BRAND_BG} mode="static" /><Onboarding /></>;
@@ -168,6 +174,16 @@ export function App() {
         <Route path="/library" element={<LibraryPage />} />
         <Route path="/visuals/tutorial" element={<VisualizerTutorialPage />} />
         <Route path="/visuals/studio" element={<VisualizerStudioPage />} />
+        {FLAGS.storefront ? (
+          <>
+            <Route path="/tools/packs" element={<StorefrontDashboardPage />} />
+            <Route path="/tools/packs/new" element={<StorefrontEditorPage />} />
+            <Route path="/tools/packs/:id/edit" element={<StorefrontEditorPage />} />
+            <Route path="/pack/:slug" element={<StorefrontPackPage />} />
+            <Route path="/market" element={<Navigate to="/tools/packs" replace />} />
+          </>
+        ) : null}
+        <Route path="/settings/costs" element={<CostSentinelDashboardPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />
@@ -217,6 +233,31 @@ export function App() {
         <Toast /><Confetti />
       </CamCallProvider>
     </MessagePopoutProvider>
+  );
+}
+
+function PublicPackShell() {
+  const location = useLocation();
+  return (
+    <>
+      <DynamicBackground variant={BRAND_BG} mode="static" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
+      <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
+        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <NavLink to="/"><BrandLockup height="h-7" /></NavLink>
+          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Sample pack · VYBZ Market</span>
+          <NavLink to="/enter" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
+        </header>
+        <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-auto" data-testid="public-pack-main">
+          <ErrorBoundary key={location.pathname}>
+            <Routes location={location}>
+              <Route path="/pack/:slug" element={<StorefrontPackPage publicShell />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ErrorBoundary>
+        </main>
+      </div>
+    </>
   );
 }
 

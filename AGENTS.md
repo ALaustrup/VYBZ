@@ -50,16 +50,16 @@
 | **5 Desktop Alpha (2.D)** | **Complete** — merged PR #4 · tag `v1.1.0-beta1A-phase5` · [`PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md) |
 | **6 Android Alpha (2.A)** | **Complete** — merged PR #5 · tag `v1.1.0-beta1A-phase6` · [`PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md) |
 | **7 Sync & Collaboration** | **Complete** — merged PR #6 · tag `v1.1.0-beta1A-phase7` · [`PHASE7_EXIT_GATE.md`](./docs/architecture/PHASE7_EXIT_GATE.md) |
-| **8 Distribution Readiness** | **In progress (local)** — [`PHASE8_EXIT_GATE.md`](./docs/architecture/PHASE8_EXIT_GATE.md) |
-| 9 · CoverLab+ | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **8 Distribution Readiness** | **Complete** — merged PR #7 · tag `v1.1.0-beta1A-phase8` · [`PHASE8_EXIT_GATE.md`](./docs/architecture/PHASE8_EXIT_GATE.md) |
+| **9 Polish & Visual** | **In progress (local)** — [`PHASE9_EXIT_GATE.md`](./docs/architecture/PHASE9_EXIT_GATE.md) |
 
 ### Exact next actions
-1. Finish Phase 8 exit gate locally; **await owner approval** before push/PR.
+1. Finish Phase 9 exit gate locally; **await owner approval** before push/PR.
 2. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
+3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`. Consider `VITE_FEATURE_STOREFRONT=off` on prod until then.
 4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-6. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+6. Do **not** tag `Beta-1A` yet.
 7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate

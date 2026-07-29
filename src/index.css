@@ -1125,6 +1125,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
     outline: none;
     box-shadow: var(--shadow-focus);
   }
+  .suite-accent-wash-market {
+    background: color-mix(in srgb, rgb(var(--accent-market) / 0.14) 100%, transparent);
+  }
+  .suite-accent-wash-coverlab {
+    background: color-mix(in srgb, rgb(var(--accent-coverlab) / 0.14) 100%, transparent);
+  }
   .suite-surface-professional {
     background: var(--color-graphite);
     border: 1px solid var(--hairline);

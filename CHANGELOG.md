@@ -10,12 +10,20 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 8 Distribution Readiness (in progress locally on `suite-genesis`)
+### Phase 9 Polish & Visual (in progress locally on `suite-genesis`)
+
+- Storefront + CoverLab visuals wired behind `FLAGS.storefront` · public `/pack/:slug`
+- Brand polish tokens (motion / shadow / accent wash) · a11y smoke extensions
+- Cost Sentinel read-only UI at `/settings/costs`
+- Exit gate: [`docs/architecture/PHASE9_EXIT_GATE.md`](./docs/architecture/PHASE9_EXIT_GATE.md)
+- ADR: [`docs/architecture/ADR_VISUAL_POLISH.md`](./docs/architecture/ADR_VISUAL_POLISH.md)
+
+### Phase 8 Distribution Readiness (complete — merged + tagged)
 
 - Loudness / ISRC / DPI rules · ZIP + DDP-stub export · `/release/:id/distribution`
 - Cost Sentinel free-tier alert (no auto-spend) · export SHA via Playwright
+- PR #7 merged to `main`; tag `v1.1.0-beta1A-phase8`
 - Exit gate: [`docs/architecture/PHASE8_EXIT_GATE.md`](./docs/architecture/PHASE8_EXIT_GATE.md)
-- ADR: [`docs/architecture/ADR_DISTRIBUTION_RULES.md`](./docs/architecture/ADR_DISTRIBUTION_RULES.md)
 
 ### Phase 7 Sync & Collaboration (complete — merged + tagged)
 

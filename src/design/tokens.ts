@@ -67,3 +67,18 @@ export const MOTION_MS = {
   base: 220,
   slow: 360,
 } as const;
+
+/** Elevation tokens — mirror `--shadow-*` in index.css */
+export const SHADOW = {
+  sm: "var(--shadow-sm)",
+  md: "var(--shadow-md)",
+  lg: "var(--shadow-lg)",
+  focus: "var(--shadow-focus)",
+} as const;
+
+/** Soft accent washes for Market / CoverLab polish (CSS color-mix friendly). */
+export const ACCENT_WASH = {
+  market: "color-mix(in srgb, rgb(var(--accent-market) / 0.22) 100%, transparent)",
+  coverlab: "color-mix(in srgb, rgb(var(--accent-coverlab) / 0.22) 100%, transparent)",
+  home: "color-mix(in srgb, rgb(var(--accent-home) / 0.18) 100%, transparent)",
+} as const;
