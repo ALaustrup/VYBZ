@@ -109,6 +109,9 @@ export function App() {
     if (FLAGS.prepare && isPreparePath(location.pathname)) {
       return <PrepareLocalApp />;
     }
+    if (FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders") {
+      return <StorefrontOrdersE2EFixtureShell />;
+    }
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
   }
   if (!ready) return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
