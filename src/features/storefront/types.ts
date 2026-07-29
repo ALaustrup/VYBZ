@@ -37,6 +37,8 @@ export interface StorefrontPackPublic {
   updated_at: string;
 }
 
+export type SettlementStatus = "pending_manual" | "settled_off_platform";
+
 export interface StorefrontOrder {
   id: string;
   pack_id: string;
@@ -47,6 +49,7 @@ export interface StorefrontOrder {
   stripe_session_id: string | null;
   stripe_payment_intent: string | null;
   status: "pending" | "paid" | "failed";
+  settlement_status: SettlementStatus;
   fulfilled_at: string | null;
   created_at: string;
 }
