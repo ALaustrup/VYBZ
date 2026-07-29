@@ -1,6 +1,6 @@
 /**
- * Deep-link / auth-callback route handler skeleton (Phase 1.5).
- * Full App Links verification lands in Phase 2.A / 2.D.
+ * Deep-link / auth-callback route handler (Phase 1.5 + Phase 6 Android).
+ * Supports https://vybz.cloud/... and custom scheme vybz://release/{id}.
  */
 
 export type DeepLinkKind =
@@ -19,6 +19,8 @@ export interface ParsedDeepLink {
   path: string;
   params: Record<string, string>;
   raw: string;
+  /** Normalized release id when kind is open_release */
+  releaseId?: string;
 }
 
 const KIND_BY_PREFIX: Array<{ prefix: string; kind: DeepLinkKind }> = [
@@ -28,11 +30,29 @@ const KIND_BY_PREFIX: Array<{ prefix: string; kind: DeepLinkKind }> = [
   { prefix: "/auth/magic", kind: "magic_link" },
   { prefix: "/invite", kind: "invitation" },
   { prefix: "/releases/", kind: "open_release" },
+  { prefix: "/release/", kind: "open_release" },
   { prefix: "/findings/", kind: "open_finding" },
   { prefix: "/jobs/", kind: "open_job" },
 ];
 
+function parseVybzScheme(raw: string): ParsedDeepLink | null {
+  // vybz://release/{id} or vybz:release/{id}
+  const m = /^vybz:(?:\/\/)?release\/([^/?#]+)/i.exec(raw.trim());
+  if (!m) return null;
+  const releaseId = decodeURIComponent(m[1]!);
+  return {
+    kind: "open_release",
+    path: `/release/${releaseId}`,
+    params: {},
+    raw,
+    releaseId,
+  };
+}
+
 export function parseDeepLink(raw: string): ParsedDeepLink {
+  const custom = parseVybzScheme(raw);
+  if (custom) return custom;
+
   try {
     const url = new URL(raw, typeof window !== "undefined" ? window.location.origin : "https://vybz.cloud");
     const params: Record<string, string> = {};
@@ -41,11 +61,18 @@ export function parseDeepLink(raw: string): ParsedDeepLink {
     });
     const path = url.pathname;
     const match = KIND_BY_PREFIX.find((entry) => path.startsWith(entry.prefix));
+    let releaseId: string | undefined;
+    if (match?.kind === "open_release") {
+      const parts = path.split("/").filter(Boolean);
+      // /release/:id or /releases/:id
+      if (parts[0] === "release" || parts[0] === "releases") releaseId = parts[1];
+    }
     return {
       kind: match?.kind ?? "unknown",
       path,
       params,
       raw,
+      releaseId,
     };
   } catch {
     return { kind: "unknown", path: "", params: {}, raw };
@@ -64,7 +91,10 @@ export function deepLinkToAppPath(link: ParsedDeepLink): string | null {
     case "invitation":
       return `/invite${link.params.token ? `?token=${encodeURIComponent(link.params.token)}` : ""}`;
     case "open_release":
-      return link.path;
+      if (link.releaseId) return `/release/${link.releaseId}`;
+      return link.path.startsWith("/releases/")
+        ? link.path.replace(/^\/releases\//, "/release/")
+        : link.path;
     case "open_finding":
       return link.path;
     case "open_job":

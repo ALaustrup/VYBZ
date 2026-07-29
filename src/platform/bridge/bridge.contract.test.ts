@@ -87,7 +87,7 @@ describe("deep links", () => {
   it("parses release open links", () => {
     const link = parseDeepLink("https://vybz.cloud/releases/abc?x=1");
     expect(link.kind).toBe("open_release");
-    expect(deepLinkToAppPath(link)).toBe("/releases/abc");
+    expect(deepLinkToAppPath(link)).toBe("/release/abc");
   });
 
   it("maps auth callback", () => {

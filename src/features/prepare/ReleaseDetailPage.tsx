@@ -3,8 +3,10 @@ import { Link, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/Badge";
 import { StateView } from "@/components/states/StateView";
 import { useSession } from "@/store/session";
+import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { getPrepareOwnerId, getReleaseBundle } from "@/features/prepare/service";
 import { countBySeverity, severityTone, statusTone } from "@/features/prepare/severity";
+import { FindingsReadOnly } from "@/features/prepare/FindingsReadOnly";
 import type { FindingSeverity, ReleaseBundle } from "@vybz/domain/releases";
 
 const SEVERITY_FILTER: Array<"all" | FindingSeverity> = ["all", "blocking", "warning", "info"];
@@ -12,6 +14,7 @@ const SEVERITY_FILTER: Array<"all" | FindingSeverity> = ["all", "blocking", "war
 export function ReleaseDetailPage() {
   const { id } = useParams();
   const { userId } = useSession();
+  const shell = useShellMode();
   const ownerId = getPrepareOwnerId(userId);
   const [bundle, setBundle] = useState<ReleaseBundle | null>(null);
   const [loading, setLoading] = useState(true);
@@ -130,6 +133,10 @@ export function ReleaseDetailPage() {
           title="No open findings"
           body="This filter is clear — or the release is ready."
         />
+      ) : shell === "android" ? (
+        <div data-testid="prepare-findings-list">
+          <FindingsReadOnly findings={findings} title="Findings (read-only)" />
+        </div>
       ) : (
         <ul className="flex flex-col gap-2" data-testid="prepare-findings-list">
           {findings.map((f) => (

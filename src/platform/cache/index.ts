@@ -39,3 +39,10 @@ export function createMemoryCache<T = unknown>(): LocalCacheContract<T> {
     },
   };
 }
+
+export {
+  createSecurePreferences,
+  memoryPreferenceKv,
+  type PreferenceKv,
+  type SecurePreferences,
+} from "./securePreferences";
