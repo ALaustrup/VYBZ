@@ -66,6 +66,7 @@ import { isPreparePath, PrepareLocalApp } from "@/features/prepare/PrepareLocalA
 import { StorefrontDashboardPage } from "@/pages/StorefrontDashboardPage";
 import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
+import { StorefrontOrdersE2EFixturePage } from "@/pages/StorefrontOrdersE2EFixturePage";
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 
 export function App() {
@@ -114,10 +115,12 @@ export function App() {
 
   const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
   const isPublicPack = FLAGS.storefront && location.pathname.startsWith("/pack/");
+  const isStorefrontE2EFixture = FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders";
   if (!userId) {
     if (FLAGS.prepare && isPreparePath(location.pathname)) {
       return <PrepareLocalApp />;
     }
+    if (isStorefrontE2EFixture) return <StorefrontOrdersE2EFixtureShell />;
     if (isPublicPack) return <PublicPackShell />;
     if (isPublicDoc) return <PublicDocShell />;
     if (location.pathname === "/enter" || location.pathname.startsWith("/enter/")) {
@@ -233,6 +236,17 @@ export function App() {
         <Toast /><Confetti />
       </CamCallProvider>
     </MessagePopoutProvider>
+  );
+}
+
+function StorefrontOrdersE2EFixtureShell() {
+  return (
+    <>
+      <DynamicBackground variant={BRAND_BG} mode="static" />
+      <div className="min-h-[100dvh] bg-abyss-950/80">
+        <StorefrontOrdersE2EFixturePage />
+      </div>
+    </>
   );
 }
 
