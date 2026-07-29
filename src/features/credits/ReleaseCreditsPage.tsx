@@ -15,6 +15,7 @@ import {
   listCredits,
   updateCredit,
 } from "@/features/credits/service";
+import { SyncConflictPanel } from "@/features/sync/SyncConflictPanel";
 
 function roleLabel(role: CreditRole): string {
   return role.replace(/_/g, " ");
@@ -125,6 +126,8 @@ export function ReleaseCreditsPage() {
       </div>
 
       {error ? <StateView variant="error" title="Credits error" body={error} /> : null}
+
+      <SyncConflictPanel projectId={id} />
 
       <form className="flex flex-col gap-3 rounded-suite border border-white/10 bg-white/[0.03] p-4" onSubmit={onAdd}>
         <Input

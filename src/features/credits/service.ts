@@ -11,7 +11,11 @@ import {
   createSupabaseCreditsRepository,
   type CreditsRepository,
 } from "@vybz/data/credits";
-import { createMemoryMutationQueue, type MutationQueueContract } from "@/platform/sync";
+import {
+  createMemoryMutationQueue,
+  type MutationQueueContract,
+  type PendingMutation,
+} from "@/platform/sync";
 import { getPrepareOwnerId } from "@/features/prepare/service";
 import { supabase } from "@/lib/supabase";
 
@@ -19,6 +23,10 @@ const LOCAL_OWNER = "local-prepare";
 
 let repo: CreditsRepository | null = null;
 let queue: MutationQueueContract | null = null;
+
+function isBrowserOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
 
 function memoryKv() {
   const map = new Map<string, string>();
@@ -42,10 +50,10 @@ export function getCreditsRepository(): CreditsRepository {
   if (repo) return repo;
   const local = createLocalCreditsRepository(browserKv());
   if (supabase) {
-    const remote = createSupabaseCreditsRepository(supabase);
-    repo = createHybridCredits(local, remote);
+    repo = createHybridCredits(local, createSupabaseCreditsRepository(supabase));
   } else {
-    repo = local;
+    // Local-only still enqueues on offline so reconnect flush can run in e2e / alpha.
+    repo = createHybridCredits(local, local);
   }
   return repo;
 }
@@ -67,74 +75,133 @@ function createHybridCredits(local: CreditsRepository, remote: CreditsRepository
     },
     async upsert(credit) {
       const saved = await local.upsert(credit);
+      const enqueue = async () => {
+        await getCreditsMutationQueue().enqueue({
+          userId: credit.ownerId,
+          projectId: credit.releaseId,
+          operation: "credit.upsert",
+          payload: { credit, fields: ["displayName", "role", "splitBps", "status"] },
+          idempotencyKey: `credit:upsert:${credit.id}:${credit.updatedAt}`,
+          baseVersion: credit.updatedAt,
+        });
+      };
+      if (isBrowserOffline()) {
+        await enqueue();
+        return saved;
+      }
       if (credit.ownerId !== LOCAL_OWNER) {
         try {
           return await remote.upsert(credit);
         } catch {
-          await getCreditsMutationQueue().enqueue({
-            userId: credit.ownerId,
-            projectId: credit.releaseId,
-            operation: "credit.upsert",
-            payload: { credit, fields: ["displayName", "role", "splitBps", "status"] },
-            idempotencyKey: `credit:upsert:${credit.id}:${credit.updatedAt}`,
-            baseVersion: credit.updatedAt,
-          });
+          await enqueue();
         }
       }
       return saved;
     },
     async update(ownerId, creditId, patch) {
       const saved = await local.update(ownerId, creditId, patch);
+      const enqueue = async () => {
+        await getCreditsMutationQueue().enqueue({
+          userId: ownerId,
+          projectId: saved.releaseId,
+          operation: "credit.update",
+          payload: { creditId, fields: Object.keys(patch), patch },
+          idempotencyKey: `credit:upd:${creditId}:${saved.updatedAt}`,
+          baseVersion: saved.updatedAt,
+        });
+      };
+      if (isBrowserOffline()) {
+        await enqueue();
+        return saved;
+      }
       if (ownerId !== LOCAL_OWNER) {
         try {
           return await remote.update(ownerId, creditId, patch);
         } catch {
-          await getCreditsMutationQueue().enqueue({
-            userId: ownerId,
-            projectId: saved.releaseId,
-            operation: "credit.update",
-            payload: { creditId, fields: Object.keys(patch), patch },
-            idempotencyKey: `credit:upd:${creditId}:${saved.updatedAt}`,
-            baseVersion: saved.updatedAt,
-          });
+          await enqueue();
         }
       }
       return saved;
     },
     async remove(ownerId, creditId) {
       await local.remove(ownerId, creditId);
+      const enqueue = async () => {
+        await getCreditsMutationQueue().enqueue({
+          userId: ownerId,
+          projectId: creditId,
+          operation: "credit.delete",
+          payload: { creditId },
+          idempotencyKey: `credit:del:${creditId}`,
+        });
+      };
+      if (isBrowserOffline()) {
+        await enqueue();
+        return;
+      }
       if (ownerId !== LOCAL_OWNER) {
         try {
           await remote.remove(ownerId, creditId);
         } catch {
-          await getCreditsMutationQueue().enqueue({
-            userId: ownerId,
-            projectId: creditId,
-            operation: "credit.delete",
-            payload: { creditId },
-            idempotencyKey: `credit:del:${creditId}`,
-          });
+          await enqueue();
         }
       }
     },
     async replaceForRelease(ownerId, releaseId, credits) {
       const saved = await local.replaceForRelease(ownerId, releaseId, credits);
+      const enqueue = async () => {
+        await getCreditsMutationQueue().enqueue({
+          userId: ownerId,
+          projectId: releaseId,
+          operation: "credit.upsert",
+          payload: { replace: credits },
+          idempotencyKey: `credit:replace:${releaseId}:${credits.length}`,
+        });
+      };
+      if (isBrowserOffline()) {
+        await enqueue();
+        return saved;
+      }
       if (ownerId !== LOCAL_OWNER) {
         try {
           return await remote.replaceForRelease(ownerId, releaseId, credits);
         } catch {
-          await getCreditsMutationQueue().enqueue({
-            userId: ownerId,
-            projectId: releaseId,
-            operation: "credit.upsert",
-            payload: { replace: credits },
-            idempotencyKey: `credit:replace:${releaseId}:${credits.length}`,
-          });
+          await enqueue();
         }
       }
       return saved;
     },
   };
+}
+
+/** Apply a queued credit mutation against the local (and remote when available) repo. */
+export async function applyCreditsMutation(mutation: PendingMutation): Promise<"applied" | "skipped"> {
+  const repository = getCreditsRepository();
+  try {
+    if (mutation.operation === "credit.upsert") {
+      const payload = mutation.payload as { credit?: ReleaseCredit; replace?: ReleaseCredit[] };
+      if (payload.replace?.length) {
+        await repository.replaceForRelease(mutation.userId, mutation.projectId, payload.replace);
+        return "applied";
+      }
+      if (payload.credit) {
+        await repository.upsert(payload.credit);
+        return "applied";
+      }
+    }
+    if (mutation.operation === "credit.update") {
+      const payload = mutation.payload as { creditId: string; patch: UpdateCreditInput };
+      await repository.update(mutation.userId, payload.creditId, payload.patch);
+      return "applied";
+    }
+    if (mutation.operation === "credit.delete") {
+      const payload = mutation.payload as { creditId: string };
+      await repository.remove(mutation.userId, payload.creditId);
+      return "applied";
+    }
+  } catch {
+    return "skipped";
+  }
+  return "skipped";
 }
 
 export async function listCredits(ownerId: string, releaseId: string): Promise<ReleaseCredit[]> {

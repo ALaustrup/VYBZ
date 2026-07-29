@@ -1,8 +1,9 @@
 # Phase 6 Exit Gate Report
 
-**Branch:** `suite-genesis` (local — no push/PR until owner approval)  
+**Branch:** `suite-genesis` → merged PR #5 → `main`  
 **Date:** 2026-07-28  
-**Authority:** Owner Phase 6 Android Alpha (= Masterplan **2.A**)
+**Authority:** Owner Phase 6 Android Alpha (= Masterplan **2.A**)  
+**Tag:** `v1.1.0-beta1A-phase6`
 
 ## Checklist
 
@@ -14,29 +15,22 @@
 | Signed APK hash recorded | **Pass (debug stub)** | `npm run smoke:android:apk` → artifact_missing stub |
 | Docs | **Pass** | this file + [`ANDROID_RELEASE.md`](../operations/ANDROID_RELEASE.md) |
 | No secrets / storefront WIP | **Pass** | |
-| Unpushed until approval | **Pass** | |
+| Ship | **Complete** | PR [#5](https://github.com/ALaustrup/VYBZ/pull/5) · tag `v1.1.0-beta1A-phase6` |
 
-## Validation
+## APK-smoke stub
 
-```text
-npm run lint               ✓
-npm run test               ✓ 63 tests
-npm run build              ✓
-npm run test:e2e           ✓ 4 passed
-npm run smoke:android:apk  ✓ artifact_missing stub hash
+```json
+{
+  "status": "artifact_missing",
+  "applicationId": "cloud.vybz.app",
+  "versionName": "1.1.0",
+  "sha256": null,
+  "signed": false
+}
 ```
 
-## Deliverables
-
-| Stream | Location |
-|--------|----------|
-| APK/AAB + signing workflow | `android/app/build.gradle` · `key.properties.example` · smoke |
-| Upload queue | `src/platform/sync/uploadQueue.ts` |
-| Deep links + FCM stub | `vybz://` · Manifest · `deviceToken.ts` |
-| Credits + Findings mobile | safe-area · `FindingsReadOnly` on Android |
-| Offline sealed prefs | `securePreferences.ts` |
-| Detox contract | `src/platform/android/offline-sync.contract.test.ts` |
+Play Integrity / production signing deferred until key-custody approval.
 
 ## Next
 
-Await owner approval before Phase 6 push/PR.
+Phase 7 — Sync & Collaboration (local until approval).

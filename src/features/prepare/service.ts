@@ -40,7 +40,16 @@ function browserKv() {
   return localStorage;
 }
 
+/** E2E / two-user RLS harness: `sessionStorage['vybz.e2e.ownerId']` overrides owner. */
 export function getPrepareOwnerId(sessionUserId: string | null | undefined): string {
+  if (typeof sessionStorage !== "undefined") {
+    try {
+      const e2e = sessionStorage.getItem("vybz.e2e.ownerId");
+      if (e2e) return e2e;
+    } catch {
+      /* private mode */
+    }
+  }
   return sessionUserId || LOCAL_OWNER;
 }
 
