@@ -12,3 +12,20 @@ export {
   type UploadQueueItem,
   type UploadHandler,
 } from "./uploadQueue";
+export {
+  diffRecords,
+  autoMergeIndependent,
+  resolveAcceptMine,
+  resolveAcceptTheirs,
+  applyConflictChoice,
+  type FieldDiff,
+  type ConflictChoice,
+} from "./fieldMerge";
+export {
+  createSyncOrchestrator,
+  getGlobalSyncOrchestrator,
+  setGlobalSyncOrchestrator,
+  type SyncConflict,
+  type SyncOrchestrator,
+  type SyncFlushResult,
+} from "./syncOnReconnect";

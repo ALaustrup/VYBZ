@@ -35,7 +35,7 @@
 | Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android |
 | Prepare | `@vybz/domain/releases` · `@vybz/data/releases` · `src/features/prepare/` |
 | Processing | `@vybz/processing/waveform` · `/desktop/process` |
-| Android sync | upload queue · `vybz://` deep links · FCM token local-only |
+| Android sync | upload queue · `vybz://` deep links · FCM token local-only · reconnect flush · conflict UI |
 
 ### Phase status
 | Phase | Status |
@@ -48,11 +48,12 @@
 | **3 Credits + metadata** | **Complete** — merged PR #2 · tag `v1.1.0-beta1A-phase3` · [`PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md) |
 | **4 Processing Engine** | **Complete** — merged PR #3 · tag `v1.1.0-beta1A-phase4` · [`PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md) |
 | **5 Desktop Alpha (2.D)** | **Complete** — merged PR #4 · tag `v1.1.0-beta1A-phase5` · [`PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md) |
-| **6 Android Alpha (2.A)** | **In progress (local)** — [`PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md) |
-| 7–9 · CoverLab+ | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **6 Android Alpha (2.A)** | **Complete** — merged PR #5 · tag `v1.1.0-beta1A-phase6` · [`PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md) |
+| **7 Sync & Collaboration** | **In progress (local)** — [`PHASE7_EXIT_GATE.md`](./docs/architecture/PHASE7_EXIT_GATE.md) |
+| 8–9 · CoverLab+ | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. Finish Phase 6 exit gate locally; **await owner approval** before push/PR.
+1. Finish Phase 7 exit gate locally; **await owner approval** before push/PR.
 2. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
 4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.

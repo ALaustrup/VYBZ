@@ -10,10 +10,18 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 6 Android Alpha / 2.A (in progress locally on `suite-genesis`)
+### Phase 7 Sync & Collaboration (in progress locally on `suite-genesis`)
+
+- Reconnect mutation flush · field merge · accept mine/theirs conflict UI
+- AES-GCM sealed drafts · two-user RLS Playwright (no secrets) · offline/online e2e
+- Exit gate: [`docs/architecture/PHASE7_EXIT_GATE.md`](./docs/architecture/PHASE7_EXIT_GATE.md)
+- ADR: [`docs/architecture/ADR_SYNC_CONFLICTS.md`](./docs/architecture/ADR_SYNC_CONFLICTS.md)
+
+### Phase 6 Android Alpha / 2.A (complete — merged + tagged)
 
 - `cloud.vybz.app` signing workflow · APK smoke hash · upload queue · `vybz://` + FCM stub
 - Mobile credits / Findings read-only · sealed prefs · Detox contract (Vitest)
+- PR #5 merged to `main`; tag `v1.1.0-beta1A-phase6`
 - Exit gate: [`docs/architecture/PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md)
 
 ### Phase 5 Desktop Alpha / 2.D (complete — merged + tagged)

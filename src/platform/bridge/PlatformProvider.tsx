@@ -4,6 +4,9 @@ import type { PlatformBridge } from "@/platform/bridge/types";
 import type { ShellMode } from "@/contracts";
 import { restoreDesktopWindowPrefs } from "@/platform/desktop/restoreWindowPrefs";
 import { bindCapacitorDeepLinks } from "@/platform/deeplinks/capacitor";
+import { createBrowserNetworkProvider } from "@/platform/network";
+import { createSyncOrchestrator, setGlobalSyncOrchestrator } from "@/platform/sync";
+import { applyCreditsMutation, getCreditsMutationQueue } from "@/features/credits/service";
 
 const PlatformContext = createContext<PlatformBridge | null>(null);
 
@@ -35,6 +38,24 @@ export function PlatformProvider({
     });
     return () => unbind?.();
   }, [value.kind]);
+
+  useEffect(() => {
+    const orch = createSyncOrchestrator({
+      queue: getCreditsMutationQueue(),
+      apply: async (m) => {
+        const status = await applyCreditsMutation(m);
+        return status === "applied" ? { status: "applied" } : { status: "skipped" };
+      },
+    });
+    setGlobalSyncOrchestrator(orch);
+    const network = createBrowserNetworkProvider();
+    const unbindNet = orch.bindNetwork(network);
+    if (network.getState() === "online") void orch.flush();
+    return () => {
+      unbindNet();
+      setGlobalSyncOrchestrator(null);
+    };
+  }, []);
 
   return <PlatformContext.Provider value={value}>{children}</PlatformContext.Provider>;
 }
