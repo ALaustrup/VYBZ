@@ -23,6 +23,8 @@
     "smoke:desktop:installer": "node scripts/smoke-desktop-installer.mjs",
     "build:android:apk": "node scripts/build-android.mjs apk",
     "build:android:aab": "node scripts/build-android.mjs aab",
+    "smoke:android:apk": "node scripts/smoke-android-apk.mjs",
+    "test:android": "vitest run src/platform/push src/platform/deeplinks src/platform/android src/platform/sync/uploadQueue.test.ts src/platform/cache/securePreferences.test.ts",
     "preview": "vite preview",
     "preview:e2e": "node ./node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort",
     "lint": "tsc --noEmit",
