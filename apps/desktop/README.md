@@ -1,4 +1,4 @@
-# VYBZ Desktop (Tauri 2) — Phase 1.5 PoC
+# VYBZ Desktop (Tauri 2) — Windows alpha (Phase 5 / 2.D)
 
 Windows-first workstation shell around the shared Vite/React build.
 
@@ -7,35 +7,34 @@ Windows-first workstation shell around the shared Vite/React build.
 | Item | State |
 |------|--------|
 | Scaffold | Present (`src-tauri/`) |
-| Shared UI | Loads `../../dist` (run `npm run build:web` first) |
-| Native command | `vybz_ping` → `"pong"` |
-| Platform Bridge | `createDesktopBridge()` in `src/platform/bridge/desktop.ts` |
-| Code signing | Not in Phase 1.5 |
+| Shared UI | Loads `../../dist` |
+| Native commands | `vybz_ping`, `vybz_analyze_audio`, window prefs, secure store |
+| Batch UI | `/desktop/process` |
+| NSIS | `installMode: both` (GUI + passive-capable) |
+| Updater channels | Configured in `updater/channels.json` (runtime plugin deferred until signed) |
+| Code signing | Unsigned alpha — see `signing/README.md` |
+| Crash | Local `crash.log`; no external send by default |
 
 ## Prerequisites
 
 1. [Rust](https://rustup.rs) (stable)
-2. [Tauri 2 Windows prerequisites](https://v2.tauri.app/start/prerequisites/) (WebView2, MSVC build tools)
+2. [Tauri 2 Windows prerequisites](https://v2.tauri.app/start/prerequisites/) (WebView2, MSVC)
 3. Node 20+
 
-## Run PoC
+## Run
 
 ```bash
-# from repo root
 npm run build:web
-cd apps/desktop
-npm install
-npm run tauri:dev
+cd apps/desktop && npm install && npm run tauri:dev
 ```
 
-Or from root (exits 0 with install guidance if Rust missing):
+Or from root: `npm run dev:desktop`
 
-```bash
-npm run dev:desktop
-```
+## Release
 
-## Architecture note
+See [`docs/operations/DESKTOP_RELEASE.md`](../../docs/operations/DESKTOP_RELEASE.md).
 
-Desktop remains an **untrusted client**. Native commands are allowlisted in
-`src-tauri/capabilities/default.json`. Domain code must not import Tauri —
+## Architecture
+
+Desktop remains an **untrusted client**. Domain code must not import Tauri —
 only Platform Bridge adapters may invoke native APIs.
