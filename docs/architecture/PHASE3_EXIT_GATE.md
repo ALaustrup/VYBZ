@@ -1,6 +1,6 @@
 # Phase 3 Exit Gate Report
 
-**Branch:** `suite-genesis` (local — no push/PR until owner approval)  
+**Branch:** `suite-genesis` → merged to `main` via PR #2 · tag `v1.1.0-beta1A-phase3`  
 **Date:** 2026-07-28  
 **Authority:** Master Blueprint Phase 3
 
@@ -17,7 +17,7 @@
 | Docs + AGENTS → Phase 4 | **Pass** | this report + ADR + inventory |
 | No desktop/Android editor UI; domain/data platform-agnostic | **Pass** | Cloud UI only; packages have no Tauri/Capacitor imports |
 | No secrets / paid providers | **Pass** | |
-| package `1.1.0` / Beta-1A; unpushed | **Pass** | awaiting approval |
+| package `1.1.0` / Beta-1A; shipped | **Pass** | PR #2 · tag `v1.1.0-beta1A-phase3` |
 
 ## Validation
 
@@ -28,12 +28,18 @@ npm run build     ✓
 npm run test:e2e  ✓ 4 passed (smoke + prepare + credits)
 ```
 
+## Ship record
+
+- PR: https://github.com/ALaustrup/VYBZ/pull/2
+- Merge: `6b86ba1`
+- Tag: `v1.1.0-beta1A-phase3`
+
 ## Unresolved / follow-ups
 
-1. **Migration history formalization (Phase 3→4):** remote `schema_migrations` still drifts from local filenames; `supabase db push` is unreliable. Track work to generate checksum tables + CI guard so push vs raw-SQL is explicit.
-2. **Two-user live RLS e2e:** leave in backlog; contract tests cover policy intent.
+1. **Migration history formalization:** OR-010 — `db push` vs raw-SQL + CI checksum guard.
+2. **Two-user live RLS e2e:** OR-011 — contract tests sufficient for Phase 3.
 3. Storefront / visual-generate WIP remains uncommitted — intentionally isolated.
 
 ## Next
 
-Phase 4 — Masters / protect (or next Masterplan stream). Wait for owner approval before push/PR of Phase 3.
+Phase 4 — Processing Engine (portable · native · remote skeleton + Cost Sentinel).

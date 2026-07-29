@@ -44,13 +44,14 @@
 | **1.5 Platform readiness** | **Complete** — see [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md) |
 | **2 Prepare MVP** | **Complete** — merged PR #1 · tag `v1.1.0-beta1A-phase2` · [`PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
 | **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap later) |
-| **3 Credits + metadata** | **Complete (local)** — see [`docs/architecture/PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md) — await push/PR approval |
-| 4–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **3 Credits + metadata** | **Complete** — merged PR #2 · tag `v1.1.0-beta1A-phase3` · [`PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md) |
+| **4 Processing Engine** | **In progress (local)** — see [`docs/architecture/PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md) |
+| 5–9 · P · R · 2.D / 2.A | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. **Owner:** approve Phase 3 push/PR when ready; do not push until then.
-2. **Phase 4 next (after Phase 3 merge):** Masters / protect per Masterplan — reuse Release Project + Credits.
-3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — noted follow-up, not a Phase 3 blocker.
+1. Finish Phase 4 exit gate locally; **await owner approval** before push/PR.
+2. After Phase 4 merge: MasterReady product surfaces can consume Bridge `analyzeAudio`.
+3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 4. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
 5. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 6. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
@@ -107,6 +108,7 @@ bypass RLS.
 | Artist storefront | `/u/:id` |
 | Prepare (Phase 2) | `src/features/prepare` · `@vybz/domain/releases` · `@vybz/data/releases` |
 | Credits (Phase 3) | `src/features/credits` · `@vybz/domain/credits` · `@vybz/data/credits` · `/release/:id/credits` |
+| Processing Engine (Phase 4) | `@vybz/processing/waveform` · `src/features/processing` · EF `processing-enqueue` · Tauri `vybz_analyze_audio` |
 | Market packs | `src/features/storefront/` |
 | Site visuals CDN | `src/lib/siteVisuals.ts` |
 | Workspace plan | [`docs/architecture/REPO_WORKSPACE_PLAN.md`](./docs/architecture/REPO_WORKSPACE_PLAN.md) |

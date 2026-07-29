@@ -73,24 +73,31 @@ export function createDesktopBridge(): PlatformBridge {
       async getCapabilities() {
         return capabilitiesFor("desktop");
       },
-      async analyzeAudio(_input) {
-        return {
-          jobId: crypto.randomUUID(),
-          status: "queued",
-          engine: "native",
-          createdAt: new Date().toISOString(),
-        };
+      async analyzeAudio(input) {
+        if (input.file.localPath) {
+          try {
+            const mod = await import("@/platform/bridge/tauriInvoke");
+            const native = await mod.invokeAnalyzeAudio(input.file.localPath, 2048);
+            if (native) {
+              return {
+                jobId: crypto.randomUUID(),
+                status: "succeeded",
+                engine: "native",
+                createdAt: new Date().toISOString(),
+                result: native as unknown as Record<string, unknown>,
+              };
+            }
+          } catch {
+            /* fall through to portable */
+          }
+        }
+        return web.processing.analyzeAudio(input);
       },
-      async analyzeArtwork(_input) {
-        return {
-          jobId: crypto.randomUUID(),
-          status: "queued",
-          engine: "native",
-          createdAt: new Date().toISOString(),
-        };
+      async analyzeArtwork(input) {
+        return web.processing.analyzeArtwork(input);
       },
       async cancelJob(_jobId: string) {
-        /* stub */
+        /* native cancel wiring in later Engine pass */
       },
     },
 

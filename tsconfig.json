@@ -30,7 +30,8 @@
       "@vybz/domain/credits": ["packages/domain/credits/src/index.ts"],
       "@vybz/data/credits": ["packages/data/credits/src/index.ts"],
       "@vybz/processing/readiness": ["packages/processing/readiness/src/index.ts"],
-      "@vybz/processing/readiness/worker": ["packages/processing/readiness/src/worker.ts"]
+      "@vybz/processing/readiness/worker": ["packages/processing/readiness/src/worker.ts"],
+      "@vybz/processing/waveform": ["packages/processing/waveform/src/index.ts"]
     }
   },
   "include": ["src", "packages"]
