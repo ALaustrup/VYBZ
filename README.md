@@ -7,16 +7,21 @@ VYBZ is the **release operating system for independent music** — prepare, prot
 credit, master, package, distribute, and present your work, then keep it playing
 for fans. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 
+**One account · one cloud · three clients:** **VYBZ Cloud** (web) · **VYBZ Desktop**
+(Tauri 2, Windows first) · **VYBZ Mobile** (Capacitor / Android first), all on
+**VYBZ Platform Services** (Supabase).
+
 **VYBZ has no anonymity.** Every account is a durable creator identity. No ads.
 No connection paywalls. Messaging free forever.
 
-> See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for Suite doctrine,
+> See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for Suite + multi-platform doctrine,
 > [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map,
 > [`VERSIONING.md`](./VERSIONING.md) for labels, and
 > [`docs/DOCUMENTATION_MANIFEST.md`](./docs/DOCUMENTATION_MANIFEST.md) for the doc tree.
 >
 > **Current line:** **Beta-1A — Suite Genesis** (in progress; **untagged** until
-> shell, cost kernel, and Prepare scan pass production gates).
+> Cloud shell, cost kernel, and Prepare scan pass production gates).
+> **Next engineering:** Phase **1.5** Platform readiness (see Master Blueprint).
 
 ## What VYBZ is
 
@@ -42,7 +47,8 @@ No connection paywalls. Messaging free forever.
 - Watermark embed/detect Edge Functions
 - Supabase Storage media origin (`site-visuals` CDN); Bunny dormant
 
-Suite shell, Prepare scans, and cost kernel land in later phases — see masterplan.
+Suite shell foundation is on `suite-genesis`. Platform Bridge + Desktop/Android
+PoCs = Phase 1.5. Prepare MVP = Phase 2. See masterplan.
 
 ## Local development
 

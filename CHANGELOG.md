@@ -10,6 +10,14 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
+### Multi-platform blueprint expansion (docs)
+
+Master Blueprint rewritten for unified **VYBZ Cloud** + **VYBZ Desktop (Tauri 2)** +
+**VYBZ for Android (Capacitor)** on one Platform Services backend. Inserted
+**Phase 1.5 Platform readiness** before Prepare MVP. ADRs and platform specs added
+under `docs/architecture/` (Platform Bridge, workspace plan, auth/deeplinks,
+offline/sync). **No feature code in this change.** Next engineering: Phase 1.5.
+
 Phase 0 (doctrine): **complete** on `suite-genesis`.
 
 Phase 1 (engineering + design foundation): **complete** on `suite-genesis`:
@@ -20,6 +28,7 @@ Phase 1 (engineering + design foundation): **complete** on `suite-genesis`:
 - Route manifest + legacy `/studio` → `/projects` preserve
 - Job / cost / audit / org / provider-health stubs (Bunny disabled)
 - Vitest + Testing Library, Playwright smoke, GitHub Actions CI
+- Phase 1.1: deterministic Playwright preview runner
 - package metadata remains `1.1.0` / `Beta-1A` (**no git tag yet**)
 
 Still carried from the prior Unreleased Music Hub line (not discarded):
@@ -27,6 +36,7 @@ Still carried from the prior Unreleased Music Hub line (not discarded):
 - SEO/logo pack; `@vybz.cloud` email; site-visuals CDN on Supabase Storage
 - AI Visualizer stills (`visual-generate`) + Sample Pack Storefront (WIP, uncommitted)
 - Bunny retired as media origin; LiveKit for live
+- Capacitor Android seed (`cloud.vybz.app`)
 
 ## Prior Unreleased notes — 2026-07-28 — Official Launch Reposition (archived doctrine)
 

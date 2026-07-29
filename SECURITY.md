@@ -12,6 +12,15 @@
 5. **Honest security marketing** — watermark detection is evidentiary, not infallible.
 6. **Human gates** — rights claims, contributor disputes, payment method changes, distribution submit, provider upgrades.
 
+## Multi-client trust boundary
+
+**VYBZ Desktop (Tauri) and VYBZ for Android (Capacitor) are untrusted clients.**
+Native packaging does not secure secrets. Privileged actions stay behind RLS,
+protected RPCs, Edge Functions, trusted workers, and verified billing webhooks.
+No client may ship `service_role`, Stripe secrets, Resend keys, AI provider keys,
+or signing secrets. Platform Bridge must use allowlisted native commands only
+(no arbitrary shell / unrestricted FS). See Master Blueprint §16–17.
+
 ## Threat model (summary)
 
 | Asset | Risks | Controls |
@@ -21,7 +30,11 @@
 | Credits / splits | Fraudulent claims | Approval workflows; AI may not approve (Phase 3) |
 | Payments | Webhook spoof, Connect abuse | Stripe signature verify; Express onboarding |
 | Bridge/Engine | Remote code abuse | Device registration, signed jobs, sandboxed command templates, no arbitrary shell |
-| Accounts | Session theft | Passkeys preferred; short-lived tokens |
+| Desktop native cmds | Path traversal, injection, symlink | Allowlists, path validation, process isolation |
+| Local caches | Leak after collaborator removal | Cache purge on access loss; encrypted session stores |
+| Deep links | Interception / OAuth abuse | App Links verification; state params; web fallback |
+| Update channels | Compromised artifacts | Signed updates; isolated signing keys; checksums |
+| Accounts | Session theft | Passkeys preferred; short-lived tokens; platform secure storage |
 
 ## Identity and organizations
 

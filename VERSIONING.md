@@ -23,6 +23,14 @@ Canonical product labels use the **Beta-NL[.P]** scheme. Tooling keeps a paralle
 
 `package.json` may already show `1.1.0` / `Beta-1A` as **in-progress metadata** during doctrine and foundation work. That is not a shipped release.
 
+### Multi-client version sync
+
+VYBZ Cloud, Desktop, and Android share the **product label** (`Beta-1A` …) and should
+stay aligned on marketing generation. Native shells may carry platform build numbers
+(Windows installer / Android `versionCode`) that map to the same product label.
+Do not ship mismatched generation labels across clients without an explicit
+compatibility note in release docs.
+
 ## Label grammar
 
 ```

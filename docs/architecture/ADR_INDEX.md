@@ -13,5 +13,13 @@ Architecture Decision Records for Suite Genesis.
 | ADR-007 | Vercel remains production until Cloudflare canary verified | Accepted |
 | ADR-008 | Beta-1A untagged until shell + cost kernel + Prepare scan | Accepted |
 | ADR-009 | AI may not approve rights, splits, or distribution submit | Accepted |
+| ADR-010 | Multi-client: one core · Tauri Desktop · Capacitor Android | Accepted — see linked ADRs |
+| ADR-011 | Desktop shell = Tauri 2 (Windows first) | Accepted — [`ADR_DESKTOP_TAURI.md`](./ADR_DESKTOP_TAURI.md) |
+| ADR-012 | Android shell = Capacitor (no RN without proof) | Accepted — [`ADR_ANDROID_CAPACITOR.md`](./ADR_ANDROID_CAPACITOR.md) |
+| ADR-013 | Platform Bridge mandatory; no scattered platform checks | Accepted — [`PLATFORM_BRIDGE.md`](./PLATFORM_BRIDGE.md) |
+| ADR-014 | Incremental workspace; no big-bang monorepo | Accepted — [`REPO_WORKSPACE_PLAN.md`](./REPO_WORKSPACE_PLAN.md) |
 
-Add new ADRs as `docs/architecture/adr/ADR-NNN-title.md` and link here.
+**Note:** ADR-001’s “no early monorepo” remains: workspace extraction is **staged**
+(Stage A–F). Do not interpret multi-platform as permission for a destructive rewrite.
+
+Add new ADRs as linked docs above or `docs/architecture/adr/ADR-NNN-title.md`.

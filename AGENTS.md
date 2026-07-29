@@ -5,44 +5,53 @@
 
 ---
 
-## Pick up here — Suite Genesis (Beta-1A)
+## Pick up here — Suite Genesis (Beta-1A) · Multi-platform
 
 ### Product lock (do not reopen)
 - **VYBZ** = release operating system for independent music. Tagline: **Find Yours.**
 - **Promise:** Everything between finished and released.
-- **Lifecycle:** project → analyze → credits → masters → protect → package → distribute → artist page → VDock → live → sell/support.
+- **Lifecycle:** Release Project → analyze → credits → masters → protect → package → distribute → artist page → VDock → live → sell/support.
+- **Clients:** **VYBZ Cloud** (web) · **VYBZ Desktop** (Tauri 2, Windows first) · **VYBZ Mobile / Android** (Capacitor) · one **VYBZ Platform Services** backend.
+- **Governing principle:** One product core, one cloud platform, three shells. Same account / DB / Storage across clients.
 - **Audience layer (preserved):** `/u/:id`, VDock, Vc tips, LiveKit live, cosmetics.
-- **Frozen:** VR/Immersive; dating-first / Spark-as-home; Living Home; Spotify-scale catalog race; Bunny as media origin.
+- **Frozen:** VR/Immersive; dating-first / Spark-as-home; Living Home; Spotify-scale catalog race; Bunny as media origin; React Native rewrite without proven necessity.
 - **Domain:** https://vybz.cloud · Owner: Astra Matrix, Inc. · GitHub: **`ALaustrup/VYBZ`** only.
-- **Branch:** `suite-genesis` (Phase 0 doctrine). Do not cut `Beta-1A` tag until shell + cost kernel + Prepare scan pass production gates.
+- **Branch:** `suite-genesis`. Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
 
 ### Repo / deploy truth
 | Item | Value |
 |------|--------|
 | Integration branch | `main` (production); Suite work on `suite-genesis` until merge |
-| App | https://vybz.cloud (Vercel `astramatrix/vybz` ← GitHub `main`) |
+| App (Cloud) | https://vybz.cloud (Vercel `astramatrix/vybz` ← GitHub `main`) |
 | Supabase | `xixmneooyufbeftdfpcm` (us-west-1) — **never** point at MYVYB / other projects |
 | Email | Resend `vybz.cloud` · From `VYBZ <noreply@vybz.cloud>` |
 | Stripe | VYBZ acct `acct_1TwTEtAnnpt9OYZI` |
 | Site visuals CDN | `https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/` |
 | **Media origin** | **Supabase Storage only**. Bunny Edge functions dormant. Live = **LiveKit**. |
-| Planned host | Cloudflare Pages canary later; Vercel remains production until verified cutover |
+| Android seed | Capacitor 8 · `capacitor.config.ts` · `appId: cloud.vybz.app` · `android/` present |
+| Desktop | **Not scaffolded yet** — Tauri 2 in Phase 1.5 PoC |
+| Layout | Single-root SPA today; workspace target is staged (see Master Blueprint §6) |
+| Package manager | **npm** (do not casually switch) |
 
 ### Phase status
 | Phase | Status |
 |-------|--------|
-| **0 Suite Genesis doctrine** | **Complete** on `suite-genesis` |
-| **1 Engineering + design foundation** | **Complete** on `suite-genesis` — tokens, primitives, SuiteShell placeholders, Vitest/Playwright/CI, job/cost/audit stubs |
-| **2 Prepare MVP** | **Next** — release project, browser readiness scan, free findings report |
-| 3–9 | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
+| **0 Suite Genesis doctrine** | **Complete** |
+| **1 Engineering + design foundation** | **Complete** |
+| **1.1 Playwright hardening** | **Complete** |
+| **1.5 Platform readiness** | **Next** — PlatformBridge, ADRs landed in docs; implement bridge + Tauri/Capacitor PoCs |
+| **2 Prepare MVP** | After 1.5 exit (shared domain; not browser-only assumptions) |
+| **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap 2+) |
+| 3–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
 ### Exact next actions
-1. **Phase 2 now:** Prepare MVP — release project schema, track/artwork import, free browser readiness checks, findings UI (no paid providers).
-2. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
-3. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
-4. Do **not** expand Spark/dating, Living Home, VR, or Bunny. Park ideas in Opportunity Register.
-5. Do **not** tag `Beta-1A` until shell + cost kernel + Prepare scan pass production gates (shell landed; cost kernel stubbed; Prepare scan is Phase 2).
-6. Keep storefront/visual WIP isolated until intentionally migrated.
+1. **Phase 1.5 now (after owner review of Master Blueprint):** implement Platform Bridge (web + mock), capability registry, shell modes, deep-link skeleton, cache/mutation **contracts**, Tauri Windows PoC, Capacitor bridge stub on existing `android/`. See Master Blueprint §22 Phase 1.5 exit gate.
+2. **Do not start Phase 2 Prepare schema** until Phase 1.5 exit gate (or explicit owner waiver).
+3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
+4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
+5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+6. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
 `npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
@@ -55,7 +64,7 @@
 
 ## Authoritative sources (conflict order)
 
-1. [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) — Suite product authority
+1. [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) — Suite + multi-platform authority
 2. This file (`AGENTS.md`) — agent ops + pickup state
 3. [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 4. [`SECURITY.md`](./SECURITY.md)
@@ -66,7 +75,8 @@
 
 Hard laws: no anonymity, no ads, no connection paywalls, no pay-to-win ranking,
 safety never paid, 18+ for romantic/adult Connection Lab remnants, Suite Masterplan
-wins over legacy chrome.
+wins over legacy chrome. One product core · three shells · no client secrets that
+bypass RLS.
 
 ---
 
@@ -75,80 +85,68 @@ wins over legacy chrome.
 | Concern | Anchor |
 |---------|--------|
 | Music Repos CAS | `src/lib/repoSync.ts`, `src/lib/api.ts`, migrations `0059`/`0060`, `src/components/repos/` |
-| Local companion | `tools/vybz-bridge/` (user-facing rename target: **VYBZ Engine**) |
+| Local companion | `tools/vybz-bridge/` (user-facing rename target: **VYBZ Engine**) — distinct from Platform Bridge |
 | Feature flags | `src/lib/flags.ts` |
 | Watermark | `supabase/functions/watermark`, `watermark-detect`, `_shared/watermark.mjs` |
-| Storefront | `src/features/storefront/`, pages `/tools/packs`, `/pack/:slug`, EFs `storefront-*` |
-| AI stills | EF `visual-generate`, Studio Generate tab, `studioBackdropHandoff.ts` |
-| Playback | AudioBus, VDock, OverlayPortal rules |
-| Auth / money / live | Passkeys, Stripe Connect/Checkout, LiveKit token EF |
+| Capacitor Android | `capacitor.config.ts`, `android/`, `@capacitor/*` |
+| Suite shell / tokens | `src/shell/`, `src/design/`, `src/components/ui/`, `src/components/states/` |
+| Platform stubs | `src/platform/{jobs,costs,audit,orgs}`, `providerHealth.ts` |
 
----
+### Key surface map
 
-## Cost rules (agents)
+| Concern | Path |
+|---------|------|
+| Routing / auth shells | `src/App.tsx`, `src/shell/SuiteShell.tsx`, `src/app/routeManifest.ts` |
+| Platform Bridge (Phase 1.5) | `src/platform/bridge/**` (target) |
+| Marketing landing | `src/pages/LandingPage.tsx` |
+| Signed-in hub | `src/pages/ProfilePage.tsx` (`/`) |
+| Artist storefront | `/u/:id` |
+| Prepare (Phase 2) | placeholders → `src/features/prepare` |
+| Market packs | `src/features/storefront/` |
+| Site visuals CDN | `src/lib/siteVisuals.ts` |
+| Workspace plan | [`docs/architecture/REPO_WORKSPACE_PLAN.md`](./docs/architecture/REPO_WORKSPACE_PLAN.md) |
 
-1. No unbounded provider call.
-2. Paid jobs: estimate → user approval → reserve → execute → reconcile.
-3. Optional providers default `disabled` or `free_only` (fal prepaid only).
-4. Prefer browser → Bridge/Engine → Edge → free external → paid external.
-5. Deterministic code before AI for validation/measurement.
-6. No agent may purchase vendor subscriptions or raise hard budgets.
+### Edge functions
+Preserve existing set including `visual-generate`, `storefront-*`, `stripe-*`,
+`livekit-token`, `watermark*`, waitlist, audio-play, etc. Deploy JWT rules unchanged
+unless a phase doc says otherwise.
 
-See [`docs/operations/COST_CONTROL.md`](./docs/operations/COST_CONTROL.md).
+### Storage buckets
+`site-visuals`, `media-public`, `audio-assets`, `project-files`,
+`storefront-previews`, `storefront-zips` (+ Music Repos blobs). **No per-client silos.**
+
+### Newest migrations (reference)
+- `20260728_0080_storefront_packs.sql`
+- `20260728_0079_visual_generate_spend.sql`
+- Suite Prepare tables: Phase 2 (not yet)
+
+### Gotchas
+- Large media gitignored — serve from Storage.
+- Bunny retired — do not set `VITE_FEATURE_BUNNY_AUDIO=on`.
+- VDock overlays via `OverlayPortal` on `document.body`.
+- Desktop packaging ≠ secure secrets.
+- Do not declare native apps “done” because a webview opens.
+- Destructive monorepo move forbidden; follow staged workspace plan.
 
 ---
 
 ## Stack & commands
 
 - **Stack:** Vite 6 + React 18 + TypeScript 5.6 (strict) SPA/PWA; Tailwind 3; npm; Node 20+.
-- **Root only** — no `apps/` directory.
+- **Root only today** — workspace is a **target**, not current layout.
 - `npm run dev` → http://localhost:5173
 - `npm run lint` → `tsc --noEmit`
-- `npm run build` → `tsc --noEmit && vite build`
-- `npm run visuals:encode` / `visuals:upload` → site-visuals CDN
+- `npm run test` / `npm run test:e2e` / `npm run build`
+- Target multi-client scripts: see Master Blueprint §6 / Phase 1.5
 
 ### Env (client)
-Required multi-user: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`. Missing → hard stop.
-Never put service_role / Stripe secret / Resend / fal / Groq keys in `VITE_*`.
+- Required: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
+- Missing Supabase → hard-stop (not a mock offline app)
+- Never put service_role / Stripe secret / Resend / fal / Groq in `VITE_*`
 
 ---
-
-## Key surface map (current + Suite target)
-
-| Concern | Path / note |
-|---------|-------------|
-| Routing today | Flat routes in `src/App.tsx` (Suite shell lands Phase 1) |
-| Target routes | [`docs/architecture/ROUTE_MANIFEST.md`](./docs/architecture/ROUTE_MANIFEST.md) |
-| Marketing | `src/pages/LandingPage.tsx` |
-| Artist | `/u/:id` |
-| Studio / repos | `/projects`, `/projects/:id` → Suite Studio |
-| Market | `/tools/packs`, `/pack/:slug` → Suite Market |
-| Inventories | Route, DB, providers, cost under `docs/architecture/` |
-
-### Edge functions
-`waitlist-*`, `weekly-digest`, `audio-play`, dormant `bunny-*`, `stripe-*`, `livekit-token`,
-`passkey`, `oauth-*`, `embed`, `ice-servers`, `watermark*`, `vc-room-renewals`,
-`visual-generate`, `storefront-pack-copy`, `storefront-pack-art`, `storefront-checkout`.
-
-### Storage buckets
-`site-visuals` (public CDN) · `media-public` · `audio-assets` · `project-files` ·
-`storefront-previews` · `storefront-zips` · Music Repos CAS paths per migrations.
-
-### Newest migrations
-- `20260728_0080_storefront_packs.sql`
-- `20260728_0079_visual_generate_spend.sql`
-- `20260728_0078_site_visuals_public_bucket.sql`
-
----
-
-## Gotchas
-
-- Large media gitignored — serve from Storage CDN.
-- VDock overlays via `OverlayPortal` on `document.body`, never nested tall sheets in `.vdock-shell`.
-- React vendor chunk: keep react / react-dom / scheduler / react-router in shared `vendor`.
-- Origin-only Git: `ALaustrup/VYBZ`.
-- Secrets pasted in chat: use once; never commit.
 
 ## Cursor Cloud notes
 
-Prefer `npm run lint` / `npm run build`. Do not invent monorepos or Next.js rewrites.
+Prefer `npm run lint` / `npm run test` / `npm run build` / `npm run test:e2e`.
+Do not re-run `npm install` unless needed. Do not push unless owner asks.

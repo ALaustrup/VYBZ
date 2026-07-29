@@ -39,6 +39,12 @@ are **never authoritative**.
 - [`architecture/EDGE_FUNCTION_REGISTRY.md`](./architecture/EDGE_FUNCTION_REGISTRY.md)
 - [`architecture/DATABASE_REGISTRY.md`](./architecture/DATABASE_REGISTRY.md)
 - [`architecture/ADR_INDEX.md`](./architecture/ADR_INDEX.md)
+- [`architecture/ADR_DESKTOP_TAURI.md`](./architecture/ADR_DESKTOP_TAURI.md)
+- [`architecture/ADR_ANDROID_CAPACITOR.md`](./architecture/ADR_ANDROID_CAPACITOR.md)
+- [`architecture/PLATFORM_BRIDGE.md`](./architecture/PLATFORM_BRIDGE.md)
+- [`architecture/AUTH_AND_DEEPLINKS.md`](./architecture/AUTH_AND_DEEPLINKS.md)
+- [`architecture/OFFLINE_AND_SYNC.md`](./architecture/OFFLINE_AND_SYNC.md)
+- [`architecture/REPO_WORKSPACE_PLAN.md`](./architecture/REPO_WORKSPACE_PLAN.md)
 - [`architecture/COST_INVENTORY.md`](./architecture/COST_INVENTORY.md)
 - [`architecture/PHASE1_FOUNDATION_INVENTORY.md`](./architecture/PHASE1_FOUNDATION_INVENTORY.md)
 
