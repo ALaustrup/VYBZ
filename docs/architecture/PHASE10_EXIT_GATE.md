@@ -19,10 +19,11 @@
 
 ```text
 npm run lint               ✓
-npm run test               ✓ (≥81)
+npm run test               ✓ 83 tests
 npm run build              ✓
-npm run test:e2e           ✓ (≥9)
-Migration 0084 up/down     ✓ applied on xixmneooyufbeftdfpcm
+npm run test:e2e           ✓ 10 passed (workers=1; Prepare localStorage race avoided)
+Migration 0084 up/down     ✓ verified on xixmneooyufbeftdfpcm
+Edge redeploy              ✓ storefront-checkout (--no-verify-jwt) + stripe-webhook
 ```
 
 ## Deliverables

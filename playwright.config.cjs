@@ -15,7 +15,8 @@ const PREVIEW_READY_URL = `${PREVIEW_ORIGIN}/index.html`;
  */
 module.exports = defineConfig({
   testDir: "e2e",
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
