@@ -9,6 +9,9 @@ In-tree Stage A boundaries (authoritative until extraction):
 | `@vybz/contracts` | `src/contracts` |
 | `@vybz/platform` | `src/platform/bridge` (+ siblings under `src/platform`) |
 | `@vybz/domain` | `src/domain` |
+| `@vybz/domain/releases` | `packages/domain/releases` |
+| `@vybz/data/releases` | `packages/data/releases` |
+| `@vybz/processing/readiness` | `packages/processing/readiness` |
 
 Target extraction (later stages — see `docs/architecture/REPO_WORKSPACE_PLAN.md`):
 
@@ -16,10 +19,10 @@ Target extraction (later stages — see `docs/architecture/REPO_WORKSPACE_PLAN.m
 packages/
   app/
   ui/
-  domain/
-  data/
+  domain/       # releases present (Phase 2)
+  data/         # releases present (Phase 2)
   platform/
-  processing/
+  processing/   # readiness present (Phase 2)
   contracts/
   configuration/
   testing/

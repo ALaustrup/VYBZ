@@ -122,12 +122,37 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-      "@vybz/contracts": fileURLToPath(new URL("./src/contracts/index.ts", import.meta.url)),
-      "@vybz/platform": fileURLToPath(new URL("./src/platform/bridge/index.ts", import.meta.url)),
-      "@vybz/domain": fileURLToPath(new URL("./src/domain/index.ts", import.meta.url)),
-    },
+    alias: [
+      {
+        find: "@vybz/domain/releases",
+        replacement: fileURLToPath(new URL("./packages/domain/releases/src/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/data/releases",
+        replacement: fileURLToPath(new URL("./packages/data/releases/src/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/processing/readiness/worker",
+        replacement: fileURLToPath(new URL("./packages/processing/readiness/src/worker.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/processing/readiness",
+        replacement: fileURLToPath(new URL("./packages/processing/readiness/src/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/contracts",
+        replacement: fileURLToPath(new URL("./src/contracts/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/platform",
+        replacement: fileURLToPath(new URL("./src/platform/bridge/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/domain",
+        replacement: fileURLToPath(new URL("./src/domain/index.ts", import.meta.url)),
+      },
+      { find: "@", replacement: fileURLToPath(new URL("./src", import.meta.url)) },
+    ],
   },
   server: {
     host: true,

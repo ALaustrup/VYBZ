@@ -1,7 +1,6 @@
 /**
- * Domain layer boundary (Phase 1.5 Stage A).
- * Use cases live here and must not import Tauri, Capacitor, or DOM globals.
- * Prepare / releases domain modules land in Phase 2.
+ * Domain layer boundary. Prepare release domain lives in packages/domain/releases
+ * (@vybz/domain/releases). This module must not import Tauri, Capacitor, or DOM APIs.
  */
-
 export const DOMAIN_LAYER = "src/domain" as const;
+export type { ReleaseProject, ReleaseFinding } from "@vybz/domain/releases";
