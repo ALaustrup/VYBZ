@@ -1,67 +1,81 @@
-# VYBZ — Security & Privacy
+# SECURITY.md
 
-_Astra Matrix, Inc._ · **Beta-0B.1**
-
-How VYBZ handles accounts, sensitive data, and access control. VYBZ is
-**identity-first** — every account is a real creator — but it collects as little as
-possible and protects it with Postgres Row-Level Security and definer-gated RPCs.
+> Suite security doctrine (Beta-1A). Product boundaries: [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md).
+> Archived Music Hub–era notes: [`docs/archive/pre-suite-2026/SECURITY.md`](./docs/archive/pre-suite-2026/SECURITY.md).
 
 ## Principles
 
-- **PII stays in Supabase Auth.** Email lives only in `auth.users` (not world-readable).
-  `public.profiles` has **no email column**; the world-readable `public_profiles` view
-  exposes only safe fields (username, display name, avatar, location).
-- **The client uses the anon key only.** The service-role key is never in the client
-  bundle or repo; privileged work runs in Edge Functions / definer RPCs.
-- **RLS on every table.** The full `profiles` row (including the private `profile`
-  jsonb) is readable **only by its owner**; everyone else sees the sanitized
-  `public_profile()` projection with hidden facets stripped.
-- **Sensitive/privileged paths go through `SECURITY DEFINER` RPCs** that re-check
-  `auth.uid()` and emit only aggregates + labels — never raw private facets.
+1. **Identity-first** — no anonymity; durable creator accounts (email + passkeys).
+2. **Least privilege** — RLS on every user table; definer RPCs for privileged writes.
+3. **One Supabase project** — never share service_role with the client; never commit secrets.
+4. **Storage-only media origin** — private masters in `audio-assets` / repo blobs; public CDN only for approved public assets (`site-visuals`, `media-public`, storefront previews).
+5. **Honest security marketing** — watermark detection is evidentiary, not infallible.
+6. **Human gates** — rights claims, contributor disputes, payment method changes, distribution submit, provider upgrades.
 
-## Access-control summary
+## Multi-client trust boundary
 
-| Data | Read | Write |
-|---|---|---|
-| `profiles` (full row) | owner only | owner only |
-| public profile fields | `public_profiles` / `public_profile()` | — |
-| `creator_roles` / `creator_seeks` | via definer RPCs | via `set_creator_roles` / module sync |
-| `drops` / Project posts | feed-scoped | author only |
-| `assets` (secure Bunny paths) | signed / watermarked download | owner upload via Edge Fn |
-| Studio projects / versions | member-gated definer RPCs | members / owners |
-| `connections` / DMs | participants only | participants only |
-| tips / credit ledger | participant or owner RPCs | Stripe webhooks + Edge Fns |
-| staff / reports | admin/mod RPCs | staff only |
+**VYBZ Desktop (Tauri) and VYBZ for Android (Capacitor) are untrusted clients.**
+Native packaging does not secure secrets. Privileged actions stay behind RLS,
+protected RPCs, Edge Functions, trusted workers, and verified billing webhooks.
+No client may ship `service_role`, Stripe secrets, Resend keys, AI provider keys,
+or signing secrets. Platform Bridge must use allowlisted native commands only
+(no arbitrary shell / unrestricted FS). See Master Blueprint §16–17.
 
-## Auth
+## Threat model (summary)
 
-- **Passkey-first** WebAuthn (Edge Function `passkey`) with password fallback.
-  Anonymous sign-in is **disabled** and must stay disabled.
-- RP name `VYBZ`; host allow-list includes `vybz.cloud` and legacy
-  `vybz.astramatrix.xyz`. Canonical production host: **`vybz.cloud`**.
-- Email verification / custom SMTP via Resend when keys are provisioned.
+| Asset | Risks | Controls |
+|-------|-------|----------|
+| Unreleased audio | Leak, unauthorized download | Sentinel rooms, signed URLs, play/download limits, watermark manifests (Phase 6) |
+| Masters / ZIPs | Hotlink, scrape | Private buckets; signed fulfillment only after paid order |
+| Credits / splits | Fraudulent claims | Approval workflows; AI may not approve (Phase 3) |
+| Payments | Webhook spoof, Connect abuse | Stripe signature verify; Express onboarding |
+| Bridge/Engine | Remote code abuse | Device registration, signed jobs, sandboxed command templates, no arbitrary shell |
+| Desktop native cmds | Path traversal, injection, symlink | Allowlists, path validation, process isolation |
+| Local caches | Leak after collaborator removal | Cache purge on access loss; encrypted session stores |
+| Deep links | Interception / OAuth abuse | App Links verification; state params; web fallback |
+| Update channels | Compromised artifacts | Signed updates; isolated signing keys; checksums |
+| Accounts | Session theft | Passkeys preferred; short-lived tokens; platform secure storage |
 
-## Storage & media protection
+## Identity and organizations
 
-- **Avatars / public post media:** Supabase `media-public` (avatars) and Bunny
-  public CDN (Project / feed post media).
-- **Protected originals (drops + Studio versions):** Bunny secure zone +
-  token-auth pull zone; signed via `bunny-sign`; downloads via `watermark`
-  (WAV forensic watermark when applicable) + provenance ledger events.
-- **C2PA Content Credentials:** optional forward from `watermark` when the
-  `worker/c2pa` host is configured (self-signed cert OK for staging; CA-issued
-  for production validators).
-- **Payments:** Stripe secrets and webhook verification stay server-side
-  (`stripe-webhook`, Connect + credit top-up functions). Client never holds
-  service-role or Stripe secret keys.
+- Supabase Auth + WebAuthn passkeys (`passkey` Edge Function).
+- Planned: `organizations` / `organization_members` with explicit roles (Phase 1+).
+- Staff/mod paths remain separate (`/admin`, `/mod`) with existing staff tables.
 
-## Production hardening
+## RLS and RPC
 
-See [`docs/PRODUCTION_HARDENING.md`](./docs/PRODUCTION_HARDENING.md) for the
-release checklist, Edge inventory, and **explicit infra/legal gates** that must
-not be pretend-shipped (TURN, Bunny live ingest, 8K TUS, V¢ cash-out).
+- Prefer row ownership (`auth.uid()`) and membership checks.
+- Money, tips, watermark events, repo commits: definer-security RPCs.
+- Additive migrations must ship RLS + rollback notes.
 
-## Reporting
+## Media and secure sharing
 
-Report security concerns to Astra Matrix, Inc. Please do not open public issues for
-vulnerabilities that could put creators or media at risk.
+- **Do not** treat Bunny CDN/Stream as active origin.
+- Watermark embed/detect Edge Functions exist; expand into Sentinel recipient manifests later.
+- Provenance / C2PA-related ledger tables remain; extend with signed manifests in Sentinel.
+
+## Payments
+
+- Stripe Checkout + Connect Express; webhook verification required.
+- Storefront `kind=storefront` fulfillment via Resend signed ZIP (24h).
+- Cost reservations required before paid AI/mastering jobs (Phase 1 / Commit 4).
+
+## Secrets
+
+| Secret | Where |
+|--------|--------|
+| `SUPABASE_SERVICE_ROLE_KEY` | Server / Edge / CI only |
+| Stripe secret + webhook secret | Edge / webhook only |
+| `RESEND_API_KEY` | Edge only |
+| `FAL_KEY`, `GROQ_API_KEY` | Edge secrets; never `VITE_*` |
+| `LIVEKIT_*` | Edge token mint |
+
+## Incident response
+
+See [`docs/operations/INCIDENT_RESPONSE.md`](./docs/operations/INCIDENT_RESPONSE.md).
+Rotate keys via documented infra commands when those land; until then, Supabase/Vercel/Resend dashboards with dual control.
+
+## Retention
+
+Define per product in legal drafts (counsel). Engineering default: soft-delete where possible;
+immutable audit for money, watermark, and distribution events.

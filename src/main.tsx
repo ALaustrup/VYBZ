@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { App } from "@/App";
 import { IntroSplash } from "@/components/IntroSplash";
+import { PlatformProvider } from "@/platform/bridge/PlatformProvider";
 import { SessionProvider } from "@/store/session";
 import { primeAudio } from "@/lib/sound";
 /* Self-hosted — no Google CDN / CSP / network flake.
@@ -79,10 +80,12 @@ void initNativeShell();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <SessionProvider>
-        <App />
-        <IntroSplash />
-      </SessionProvider>
+      <PlatformProvider>
+        <SessionProvider>
+          <App />
+          <IntroSplash />
+        </SessionProvider>
+      </PlatformProvider>
     </BrowserRouter>
   </StrictMode>
 );

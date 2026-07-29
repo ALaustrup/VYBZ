@@ -1,85 +1,37 @@
-# VYBZ — Infra gates (TURN · Bunny Stream)
+# Infra Gates — Suite Genesis
 
-> **VYBZ Music Hub infra** — live streaming and WebRTC for the tip + live + catalog wedge.
+> Explicit production blockers for Beta-1A. Companion: [`PRODUCTION_HARDENING.md`](./PRODUCTION_HARDENING.md).
+> **No Bunny Stream / Bunny CDN gates** — media origin is Supabase Storage; live is LiveKit.
 
-_Astra Matrix, Inc._ · Companion to [`PRODUCTION_HARDENING.md`](./PRODUCTION_HARDENING.md)
+Degrade gracefully when a gate is unset; do not fake-ship.
 
-These gates are **explicit production blockers**. Do not fake-ship. The app degrades gracefully:
+| Gate | Without | With |
+|------|---------|------|
+| **Storage CDN** | Broken / local-only visuals | Public `site-visuals` (+ media buckets) load on vybz.cloud |
+| **LiveKit token** | No reliable live / room voice | `livekit-token` + `LIVEKIT_*` secrets |
+| **Resend domain** | Auth/pay mail fail | Verified `vybz.cloud`; From `VYBZ <noreply@vybz.cloud>` |
+| **Stripe webhook** | Tips / storefront not fulfilled | Signature verify; redeployed `stripe-webhook` |
+| **Passkeys** | WebAuthn fail on prod host | `passkey` RP allow-list includes `vybz.cloud` |
+| **Feature flags** | Wrong surfaces live | `src/lib/flags.ts` matches intent |
+| **Cost modes** | Silent paid spend | ProviderMode per [`operations/VENDOR_REGISTER.md`](./operations/VENDOR_REGISTER.md) |
 
-| Gate | Without secrets | With secrets |
-|------|-----------------|--------------|
-| **TURN** | Google STUN only via `ice-servers` | Reliable NAT traversal for 1:1 WebRTC |
-| **Bunny Stream** | LiveKit SFU + presence; no OBS RTMP/HLS | `bunny-live` provisions RTMP + HLS |
+Optional: managed TURN via `ice-servers` (`TURN_*`) for hard NAT — not a Bunny dependency.
 
-Client probes (no side effects):
-
-- `POST ice-servers` → `{ turnConfigured }`
-- `POST bunny-live` `{ "action": "status" }` → `{ configured }`
-- Admin → **Infra** tab · Go Live sheet status strip · `api.fetchInfraGates()`
-
-VYBZ runs on **Vercel + Supabase + Bunny** — there is **no VYBZ-owned VPS**. TURN must be a **managed** provider (or a host you explicitly choose later).
-
----
-
-## 1. TURN (managed) — ExpressTURN free
-
-**Endpoint:** `free.expressturn.com:3478`  
-Sign up → copy long-term username + password from the ExpressTURN dashboard.  
-Never commit credentials; never put them in `VITE_*`.
-
-### Set Edge secrets (project `xixmneooyufbeftdfpcm`)
+## Verify
 
 ```bash
-export SUPABASE_ACCESS_TOKEN=sbp_...   # https://supabase.com/dashboard/account/tokens
+# CDN object (example)
+curl -I "https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/"
 
-export TURN_URLS='turn:free.expressturn.com:3478?transport=udp,turn:free.expressturn.com:3478?transport=tcp'
-export TURN_USERNAME='<from ExpressTURN dashboard>'
-export TURN_CREDENTIAL='<from ExpressTURN dashboard>'
-
-bash scripts/set-turn-edge-secrets.sh
+# After auth: livekit-token invoke should mint JWT when LIVEKIT_* set
+# Stripe: Dashboard → Webhooks → recent successes for vybz endpoints
+# Resend: domain verified; daily/monthly headroom under hard_cap
 ```
 
-Or one-liner:
+Product smoke: Enter → upload → VDock → tip → brief live.
+Admin / `api.fetchInfraGates()` may expose probes; do **not** probe dormant `bunny-*`.
 
-```bash
-npx supabase secrets set --project-ref xixmneooyufbeftdfpcm \
-  "TURN_URLS=turn:free.expressturn.com:3478?transport=udp,turn:free.expressturn.com:3478?transport=tcp" \
-  "TURN_USERNAME=..." \
-  "TURN_CREDENTIAL=..."
-```
+## Secrets rule
 
-Redeploy is **not** required for Edge secrets. Verify: Admin → Infra → **TURN ready**.
-
-Smoke: room voice / 1:1 cam from cellular + Wi‑Fi NAT.
-
-**Note:** Free managed TURN is shared capacity. Upgrade ExpressTURN (or another provider) if you outgrow the free tier. If credentials are ever pasted into chat/logs, rotate them in the ExpressTURN dashboard and re-run `secrets set`.
-
----
-
-## 2. Bunny Stream live ingest
-
-1. In Bunny.net: create a **Stream Library** (Live enabled). Note Library ID + AccessKey.
-2. Set Edge secrets:
-
-```bash
-supabase secrets set \
-  BUNNY_STREAM_LIBRARY_ID="<numeric-id>" \
-  BUNNY_STREAM_API_KEY="<library-access-key>"
-# optional:
-# BUNNY_STREAM_RTMP_BASE="rtmp://…"
-```
-
-3. Redeploy `bunny-live` if the `status` action is not yet live on the project.
-4. Confirm Admin → Infra shows Bunny ready, or `action: "status"` returns `configured: true`.
-5. Smoke: Go Live → host sees RTMP URL + stream key when Bunny succeeds; viewers get HLS when OBS/encoder publishes.
-
-LiveKit remains the in-app SFU path (`livekit-token` + `LIVEKIT_*` secrets). Bunny is the optional 1:N HLS / OBS path.
-
----
-
-## 3. Verify from the product
-
-1. Sign in on https://vybz.cloud
-2. Admin (staff) → **Infra** → Refresh
-3. Or Live → Go live → read the amber/green status strip
-4. Never paste secrets into client env, chat, or `VITE_*`
+Never put privileged keys in `VITE_*`. Set via `supabase secrets set --project-ref xixmneooyufbeftdfpcm`.
+Human gate for payments and plan upgrades: [`operations/PROVISIONING.md`](./operations/PROVISIONING.md).

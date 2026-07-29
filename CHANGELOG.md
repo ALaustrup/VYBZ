@@ -3,18 +3,61 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
-## Unreleased — 2026-07-28 — Official Launch Reposition
+## Unreleased — Suite Genesis (Beta-1A planned)
 
-Music Hub **tip + live + catalog** wedge for indie artists. Public marketing landing,
-alpha waitlist (Resend notify-on-launch), legal + docs rewrite, music-first onboarding.
-Dating / Spark demoted behind Connection Lab; Living Home product docs archived.
-Signup remains open via **Enter VYBZ**. See masterplan GTM section.
+**Codename:** Suite Genesis. VYBZ repositioned as a **release operating system**
+(“Everything between finished and released”). Music Hub audience surfaces
+(artist pages, VDock, tips, live, storefront) preserved as the public layer of a
+longer professional lifecycle.
 
-Also in this line:
-- SEO/logo pack on `main` (`8e5060c`): favicon.ico, sitemap `/enter` + `/legal/vc`, PWA manifest, `@vybz.cloud` contacts.
-- Email defaults → `noreply@vybz.cloud`; Resend domain verified.
-- **Site visuals on Supabase Storage** (bucket `site-visuals`, not Git LFS): CDN resolver
-  `src/lib/siteVisuals.ts`, upload script `npm run visuals:upload`, loops on CDN; `AGENTS.md` pickup handoff.
+### Phase 2 Prepare MVP (complete on `suite-genesis`)
+
+- Release Project schema + RLS (`0081`) with up/down SQL
+- Domain/data/processing packages; Web Worker readiness probes ($0)
+- `/releases`, `/releases/new`, `/release/:id` Findings UI + local hard-refresh
+- Exit gate: [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md)
+
+### Phase 1.5 Platform readiness (complete on `suite-genesis`)
+
+- PlatformBridge contract + web/mock/desktop/android stubs
+- Capability registry, shell modes, deep-link/cache/mutation contracts
+- Tauri Windows PoC scaffold (`apps/desktop/`); Capacitor bridge on existing `android/`
+- Workspace Stage A aliases (`@vybz/*`); no source tree moves
+- Exit gate: [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md)
+
+### Multi-platform blueprint expansion (docs)
+
+Master Blueprint rewritten for unified **VYBZ Cloud** + **VYBZ Desktop (Tauri 2)** +
+**VYBZ for Android (Capacitor)** on one Platform Services backend. Inserted
+**Phase 1.5 Platform readiness** before Prepare MVP. ADRs and platform specs added
+under `docs/architecture/` (Platform Bridge, workspace plan, auth/deeplinks,
+offline/sync).
+
+Phase 0 (doctrine): **complete** on `suite-genesis`.
+
+Phase 1 (engineering + design foundation): **complete** on `suite-genesis`:
+
+- Canonical design tokens + product surface accents
+- Shared UI primitives + canonical state views
+- SuiteShell (PrimaryRail / MobileNav) with placeholders for every Suite product
+- Route manifest + legacy `/studio` → `/projects` preserve
+- Job / cost / audit / org / provider-health stubs (Bunny disabled)
+- Vitest + Testing Library, Playwright smoke, GitHub Actions CI
+- Phase 1.1: deterministic Playwright preview runner
+- package metadata remains `1.1.0` / `Beta-1A` (**no git tag yet**)
+
+Still carried from the prior Unreleased Music Hub line (not discarded):
+
+- SEO/logo pack; `@vybz.cloud` email; site-visuals CDN on Supabase Storage
+- AI Visualizer stills (`visual-generate`) + Sample Pack Storefront (WIP, uncommitted)
+- Bunny retired as media origin; LiveKit for live
+- Capacitor Android seed (`cloud.vybz.app`)
+
+## Prior Unreleased notes — 2026-07-28 — Official Launch Reposition (archived doctrine)
+
+Music Hub tip + live + catalog wedge, marketing landing, waitlist, dating/Spark
+demotion, Living Home archive. Superseded as **product north star** by Suite Genesis;
+historical copy: [`docs/archive/pre-suite-2026/`](./docs/archive/pre-suite-2026/).
 
 ## Beta-0B.1 — 2026-07-25 — Elite Reactive Campaign
 
@@ -35,7 +78,6 @@ Also in this line:
 Studio evolves into a GitHub-like music VCS (flag `VITE_FEATURE_REPOS`, default on).
 
 - Migrations `20260724_0059_music_repos.sql` + `0060_music_repos_collab_market.sql` — CAS blobs/trees/commits/branches, merge requests, tip pull manifest, listings/purchases
-- `bunny-upload` `kind=repo-blob`; secure paths include `repo-blobs/` for `bunny-sign`
 - New Repo sheet — directory picker / drag-drop, Ableton/FL ignore rules, SHA-256 dedupe sync
 - Repo room tabs — History, Branches (MR + pull tip), Listing (cosmetic credits), Files, Credits
 - Studio hub — “Repos for sale” feed via `repo_listed_feed` + purchase with `mod_points`

@@ -1,5 +1,11 @@
 # docs/archive
 
-Historical phase notes archived during the **Official Launch Reposition** (2026-07-28).
-They are **not** product truth — see [`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md)
-for Music Hub + tip/live/catalog GTM.
+Historical documents only. **Never authoritative.**
+
+| Folder / files | What it preserves |
+|----------------|-------------------|
+| [`pre-suite-2026/`](./pre-suite-2026/) | Music Hub–era root doctrine frozen at Suite Genesis Phase 0 |
+| `UNIFIED_SOCIAL_LIVE_PHASE*.md` | Earlier Social Live phase notes |
+
+Active truth: [`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md), [`AGENTS.md`](../../AGENTS.md),
+and [`DOCUMENTATION_MANIFEST.md`](../DOCUMENTATION_MANIFEST.md).

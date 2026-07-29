@@ -1,8 +1,8 @@
 # VYBZ brand assets
 
 Official VYBZ marks for the web app, PWA, social previews, and native wrappers.
-Product wedge: **tip + live + catalog** for indie artists. Tagline: **Find Yours.**
-Domain: [vybz.cloud](https://vybz.cloud).
+Product: **release operating system for independent music** — Find Yours.
+Promise: **Everything between finished and released.** Domain: [vybz.cloud](https://vybz.cloud).
 
 ## Files in this folder
 

@@ -1,142 +1,155 @@
 # AGENTS.md
 
-> **Read this first.** Conflict order below. When in doubt, prefer the GTM wedge
-> and the **Pick up here** section over legacy chrome still present in `src/`.
+> **Read this first.** Conflict order below. When in doubt, prefer the Suite
+> Masterplan and the **Pick up here** section over legacy chrome still present in `src/`.
 
 ---
 
-## Pick up here — 2026-07-28
+## Pick up here — Suite Genesis (Beta-1A) · Multi-platform
 
 ### Product lock (do not reopen)
-- **VYBZ** = tip + live + catalog home for indie artists. Tagline: **Find Yours.**
-- **90-day loop:** upload → `/u/:id` + VDock play → tip (`~username` / Vc) → live.
-- **Revenue:** cosmetics / Profile Enhancement **primary**; tips **secondary**.
-- **Frozen:** VR/Immersive; dating-first front door / Spark-as-home; Spotify-scale catalog race.
-- Access: marketing landing + alpha waitlist **and** open signup via **Enter VYBZ** (`/enter`).
-- Domain: **https://vybz.cloud** · Owner: Astra Matrix, Inc. · GitHub: **`ALaustrup/VYBZ`** only.
+- **VYBZ** = release operating system for independent music. Tagline: **Find Yours.**
+- **Promise:** Everything between finished and released.
+- **Lifecycle:** Release Project → analyze → credits → masters → protect → package → distribute → artist page → VDock → live → sell/support.
+- **Clients:** **VYBZ Cloud** (web) · **VYBZ Desktop** (Tauri 2, Windows first) · **VYBZ Mobile / Android** (Capacitor) · one **VYBZ Platform Services** backend.
+- **Governing principle:** One product core, one cloud platform, three shells. Same account / DB / Storage across clients.
+- **Audience layer (preserved):** `/u/:id`, VDock, Vc tips, LiveKit live, cosmetics.
+- **Frozen:** VR/Immersive; dating-first / Spark-as-home; Living Home; Spotify-scale catalog race; Bunny as media origin; React Native rewrite without proven necessity.
+- **Domain:** https://vybz.cloud · Owner: Astra Matrix, Inc. · GitHub: **`ALaustrup/VYBZ`** only.
+- **Branch:** `suite-genesis`. Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
 
 ### Repo / deploy truth
 | Item | Value |
 |------|--------|
-| Branch | `main` (keep tip current with `origin/main`) |
-| App | https://vybz.cloud |
+| Integration branch | `main` (production); Suite work on `suite-genesis` until merge |
+| App (Cloud) | https://vybz.cloud (Vercel `astramatrix/vybz` ← GitHub `main`) |
 | Supabase | `xixmneooyufbeftdfpcm` (us-west-1) — **never** point at MYVYB / other projects |
-| Vercel | `astramatrix/vybz` ← GitHub `main` |
-| Email | Resend domain `vybz.cloud` verified · From `VYBZ <noreply@vybz.cloud>` |
+| Email | Resend `vybz.cloud` · From `VYBZ <noreply@vybz.cloud>` |
 | Stripe | VYBZ acct `acct_1TwTEtAnnpt9OYZI` |
 | Site visuals CDN | `https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/` |
+| **Media origin** | **Supabase Storage only**. Bunny Edge functions dormant. Live = **LiveKit**. |
+| Android seed | Capacitor 8 · `capacitor.config.ts` · `appId: cloud.vybz.app` · `android/` present |
+| Desktop | Tauri 2 PoC scaffold in `apps/desktop/` (Rust required to boot; see README) |
+| Layout | Single-root SPA; Stage A aliases `@vybz/*` — no file moves yet |
+| Package manager | **npm** (do not casually switch) |
+| Platform Bridge | `src/platform/bridge/` — web + mock + desktop/android stubs |
+| Prepare | `@vybz/domain/releases` · `@vybz/data/releases` · `src/features/prepare/` |
 
-### Done recently (treat as shipped doctrine)
-1. Launch reposition: landing, waitlist EF, legal `@vybz.cloud`, music-first onboarding (`e7fa109`).
-2. SEO/logo pack + email defaults cutover to `vybz.cloud` (`8e5060c`).
-3. All remote branches fast-forwarded to `main` tip.
-4. **Object storage (not Git LFS):** public bucket `site-visuals`; encoded backdrop + VDock loops on CDN; app resolver `src/lib/siteVisuals.ts`; agent handoff rewritten in this file.
+### Phase status
+| Phase | Status |
+|-------|--------|
+| **0 Suite Genesis doctrine** | **Complete** |
+| **1 Engineering + design foundation** | **Complete** |
+| **1.1 Playwright hardening** | **Complete** |
+| **1.5 Platform readiness** | **Complete** — see [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md) |
+| **2 Prepare MVP** | **Complete** — see [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md) |
+| **2.D / 2.A** | Desktop Windows alpha · Android alpha (may overlap later) |
+| **3 Credits + metadata** | **Next** |
+| 4–9 · P · R | See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) |
 
-### Do not commit
-`vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`, `.agents/`, `skills-lock.json`, any `service_role` / `sbp_` tokens.
-
-### Exact next actions (in order)
-1. **Prod smoke (required before alpha blast):** on https://vybz.cloud  
-   Enter → upload track → play on VDock → tip with Vc → go live briefly.  
-   Confirm backdrop/loops load from the `site-visuals` CDN above.
-2. **Small alpha cohort** (~5–15 artists) — same loop; collect friction notes.
-3. **Money path:** cosmetics purchase + Vc top-up (Stripe) still works on prod.
-4. **Only then:** `waitlist-notify` blast (secret `WAITLIST_NOTIFY_SECRET` or `DIGEST_CRON_SECRET`).
-5. Optional: Resend tracking CNAME `mail` → `links1.resend-dns.com`; Google Search Console sitemap submit.
-6. Do **not** expand Spark/dating, Living Home, or VR. Park ideas in `IDEAS_BACKLOG.md`.
+### Exact next actions
+1. **Phase 3 now:** Credits + metadata — multi-account approved credit state; reuse Release Project + Platform Bridge.
+2. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`.
+3. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
+4. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+5. Do **not** tag `Beta-1A` yet. Keep storefront/visual WIP isolated.
+6. Optional: repair Supabase migration history so `db push` matches applied `0081` schema.
+7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
-`npm run lint` && `npm run build` (no automated test suite). Skip inherited MYVYB UI smoke unless the owner asks.
+`npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
+
+### Do not commit
+`vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`, `.agents/`,
+`skills-lock.json`, any `service_role` / `sbp_` tokens.
 
 ---
 
 ## Authoritative sources (conflict order)
 
-1. [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) — Music Hub + **GTM wedge** (wins on product)
+1. [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) — Suite + multi-platform authority
 2. This file (`AGENTS.md`) — agent ops + pickup state
 3. [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 4. [`SECURITY.md`](./SECURITY.md)
 5. [`VERSIONING.md`](./VERSIONING.md)
-6. [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md)
+6. [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) — Opportunity Register
 7. [`CHANGELOG.md`](./CHANGELOG.md)
-8. [`docs/PRODUCTION_HARDENING.md`](./docs/PRODUCTION_HARDENING.md)
+8. [`docs/DOCUMENTATION_MANIFEST.md`](./docs/DOCUMENTATION_MANIFEST.md) + ops docs
 
 Hard laws: no anonymity, no ads, no connection paywalls, no pay-to-win ranking,
-safety never paid, 18+ for romantic/adult Connection Lab, Music Hub wins over legacy chrome.
+safety never paid, 18+ for romantic/adult Connection Lab remnants, Suite Masterplan
+wins over legacy chrome. One product core · three shells · no client secrets that
+bypass RLS.
+
+---
+
+## Preserve (do not rewrite from scratch)
+
+| Concern | Anchor |
+|---------|--------|
+| Music Repos CAS | `src/lib/repoSync.ts`, `src/lib/api.ts`, migrations `0059`/`0060`, `src/components/repos/` |
+| Local companion | `tools/vybz-bridge/` (user-facing rename target: **VYBZ Engine**) — distinct from Platform Bridge |
+| Feature flags | `src/lib/flags.ts` |
+| Watermark | `supabase/functions/watermark`, `watermark-detect`, `_shared/watermark.mjs` |
+| Capacitor Android | `capacitor.config.ts`, `android/`, `@capacitor/*` |
+| Suite shell / tokens | `src/shell/`, `src/design/`, `src/components/ui/`, `src/components/states/` |
+| Platform stubs | `src/platform/{jobs,costs,audit,orgs}`, `providerHealth.ts` |
+
+### Key surface map
+
+| Concern | Path |
+|---------|------|
+| Routing / auth shells | `src/App.tsx`, `src/shell/SuiteShell.tsx`, `src/app/routeManifest.ts` |
+| Platform Bridge (Phase 1.5) | `src/platform/bridge/**` (target) |
+| Marketing landing | `src/pages/LandingPage.tsx` |
+| Signed-in hub | `src/pages/ProfilePage.tsx` (`/`) |
+| Artist storefront | `/u/:id` |
+| Prepare (Phase 2) | placeholders → `src/features/prepare` |
+| Market packs | `src/features/storefront/` |
+| Site visuals CDN | `src/lib/siteVisuals.ts` |
+| Workspace plan | [`docs/architecture/REPO_WORKSPACE_PLAN.md`](./docs/architecture/REPO_WORKSPACE_PLAN.md) |
+
+### Edge functions
+Preserve existing set including `visual-generate`, `storefront-*`, `stripe-*`,
+`livekit-token`, `watermark*`, waitlist, audio-play, etc. Deploy JWT rules unchanged
+unless a phase doc says otherwise.
+
+### Storage buckets
+`site-visuals`, `media-public`, `audio-assets`, `project-files`,
+`storefront-previews`, `storefront-zips` (+ Music Repos blobs). **No per-client silos.**
+
+### Newest migrations (reference)
+- `20260728_0080_storefront_packs.sql`
+- `20260728_0079_visual_generate_spend.sql`
+- Suite Prepare tables: Phase 2 (not yet)
+
+### Gotchas
+- Large media gitignored — serve from Storage.
+- Bunny retired — do not set `VITE_FEATURE_BUNNY_AUDIO=on`.
+- VDock overlays via `OverlayPortal` on `document.body`.
+- Desktop packaging ≠ secure secrets.
+- Do not declare native apps “done” because a webview opens.
+- Destructive monorepo move forbidden; follow staged workspace plan.
 
 ---
 
 ## Stack & commands
 
 - **Stack:** Vite 6 + React 18 + TypeScript 5.6 (strict) SPA/PWA; Tailwind 3; npm; Node 20+.
-- **Root only** — there is no `apps/` directory (README mention is stale).
-- `npm run dev` → http://localhost:5173 (`server.host: true`)
+- **Root only today** — workspace is a **target**, not current layout.
+- `npm run dev` → http://localhost:5173
 - `npm run lint` → `tsc --noEmit`
-- `npm run build` → `tsc --noEmit && vite build` → `dist/`
-- `npm run visuals:encode` → encode masters from `vizualz/` → `public/`
-- `npm run visuals:upload` → needs `SUPABASE_SERVICE_ROLE_KEY` → bucket `site-visuals`
+- `npm run test` / `npm run test:e2e` / `npm run build`
+- Target multi-client scripts: see Master Blueprint §6 / Phase 1.5
 
 ### Env (client)
-- Required multi-user: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (see `.env.example`).
-- Missing Supabase env → app hard-stops (“backend not configured”) — **not** a mock offline app.
-- Site visuals: omit `VITE_SITE_VISUALS_BASE` for CDN; set `local` for `/public` encode loop.
-- Never put service_role / Stripe secret / Resend key in `VITE_*`.
-
----
-
-## Key surface map
-
-| Concern | Path |
-|---------|------|
-| Routing / auth shells | `src/App.tsx` |
-| Marketing landing | `src/pages/LandingPage.tsx`, `src/components/landing/*` |
-| Waitlist client | `src/lib/waitlist.ts` → EF `waitlist-join` |
-| Waitlist blast | EF `waitlist-notify` |
-| Signed-in hub home | `src/pages/ProfilePage.tsx` (`/`) |
-| Artist storefront | `/u/:id` |
-| Site visuals CDN | `src/lib/siteVisuals.ts`, `siteBackdrop.ts`, `vdockVisualManifest.ts` |
-| SEO | `index.html`, `public/robots.txt`, `public/sitemap.xml`, `public/og.png`, `public/favicon.*` |
-| Legal / Codex | `public/legal/*`, `src/lib/codex.ts` |
-| Vc whitepaper | `/legal/vc` |
-| Brand kit | `public/brand/*` |
-
-### Edge functions (`supabase/functions/`)
-`waitlist-join`, `waitlist-notify`, `weekly-digest`, `audio-play`, `bunny-live`, `bunny-sign`, `bunny-upload`, `stripe-*`, `livekit-token`, `passkey`, `oauth-*`, `embed`, `ice-servers`, `watermark*`, `vc-room-renewals`.
-
-Deploy waitlist with **`--no-verify-jwt`** (public join; notify uses shared secret header).
-
-### Storage buckets
-| Bucket | Role |
-|--------|------|
-| **`site-visuals`** | Public CDN — backdrop + VDock loops; anon **read**; write = service_role only |
-| `media-public` | Avatars / user public media (folder = uid) |
-| `audio-assets` | Private audio masters |
-| `project-files` | Private project files |
-
-CDN pattern:  
-`https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/{backdrop\|vdock/visuals}/…`
-
-### Newest migrations
-- `20260728_0078_site_visuals_public_bucket.sql`
-- `20260728_0077_alpha_waitlist.sql`
-- `20260728_0076_audio_assets_supabase_backend.sql`
-
----
-
-## Gotchas (pinpoint)
-
-- **Large media:** gitignored. Serve from `site-visuals`. Re-upload after re-encode: `npm run visuals:upload`.
-- **Git LFS:** rejected on purpose — free tier + clone bandwidth; use Storage.
-- **Email:** all product mail from `@vybz.cloud` — not `astramatrix.xyz`.
-- **Living Home / dating chrome:** may still exist as stubs or demoted routes — do not revive as the front door.
-- **React vendor chunk:** keep `react`, `react-dom`, `scheduler`, `react-router(-dom)` in shared `vendor` chunk.
-- **Secrets in chat:** if the owner pastes `service_role` / `sbp_`, use once for the task; never commit; do not nag about rotation unless they ask.
-- **Origin-only Git:** `ALaustrup/VYBZ` — no legacy remotes.
-- **VDock is not a modal viewport:** tips, comments, source pickers, expanded player MUST render via `OverlayPortal` (`src/lib/overlayPortal.tsx`) on `document.body`, above dock z-70, with bottom clearance for `--dock-reserve`. Never nest tall sheets inside `.vdock-shell`.
-- **UX language:** frosted glass chips (`.glass-chip`), soft luminous blue atmosphere, stage-as-hero — see reference direction in chat / `NowPlayingStage`.
+- Required: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`
+- Missing Supabase → hard-stop (not a mock offline app)
+- Never put service_role / Stripe secret / Resend / fal / Groq in `VITE_*`
 
 ---
 
 ## Cursor Cloud notes
 
-Same stack/commands as above. Dependency install is usually handled by Cloud startup; prefer not re-running `npm install` unless needed. Prefer `npm run lint` / `npm run build` over manual UI testing of inherited features unless the owner explicitly requests smoke of the **90-day loop**.
+Prefer `npm run lint` / `npm run test` / `npm run build` / `npm run test:e2e`.
+Do not re-run `npm install` unless needed. Do not push unless owner asks.

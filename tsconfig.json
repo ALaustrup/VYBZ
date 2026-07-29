@@ -18,8 +18,18 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@vybz/contracts": ["src/contracts/index.ts"],
+      "@vybz/contracts/*": ["src/contracts/*"],
+      "@vybz/platform": ["src/platform/bridge/index.ts"],
+      "@vybz/platform/*": ["src/platform/*"],
+      "@vybz/domain": ["src/domain/index.ts"],
+      "@vybz/domain/*": ["src/domain/*"],
+      "@vybz/domain/releases": ["packages/domain/releases/src/index.ts"],
+      "@vybz/data/releases": ["packages/data/releases/src/index.ts"],
+      "@vybz/processing/readiness": ["packages/processing/readiness/src/index.ts"],
+      "@vybz/processing/readiness/worker": ["packages/processing/readiness/src/worker.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "packages"]
 }

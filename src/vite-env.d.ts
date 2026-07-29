@@ -12,6 +12,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_ROLE_CLASS?: string;
   readonly VITE_FEATURE_REPOS?: string;
   readonly VITE_FEATURE_SOCIAL_LIVE?: string;
+  readonly VITE_FEATURE_PREPARE?: string;
 }
 
 interface ImportMeta {

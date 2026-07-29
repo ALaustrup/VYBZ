@@ -1,6 +1,9 @@
-# VYBZ Bridge
+# VYBZ Bridge (VYBZ Engine)
 
-Local companion for **Music Repos** folder watch + auto-commit prompts (phase R4 / H5).
+Local companion for **Music Repos** folder watch + auto-commit prompts.
+User-facing rename target: **VYBZ Engine** (package path may keep `vybz-bridge` for compatibility).
+
+See [`docs/architecture/VYBZ_ENGINE.md`](../../docs/architecture/VYBZ_ENGINE.md).
 
 ## Install & run
 
@@ -27,7 +30,8 @@ After a debounced save in a watched DAW folder:
 - Always: `folder-changed`
 - If `autoCommit: true`: `commit-ready` with an `Autosave · HH:MM` message
 
-The **web app** (or future native shell) owns auth, CAS upload via `bunny-upload` (`kind=repo-blob`), and `repo_commit`. Bridge never stores API keys.
+The **web app** owns auth, CAS upload to **Supabase Storage** (Music Repos blob RPCs),
+and `repo_commit`. Bridge never stores API keys. Dormant `bunny-*` paths must not be used.
 
 ## Platform notes
 
@@ -36,4 +40,4 @@ The **web app** (or future native shell) owns auth, CAS upload via `bunny-upload
 
 ## Tray / packaging
 
-This is the watch protocol server. A system-tray installer is a follow-up; for Beta-0B run Bridge from a terminal while producing.
+Watch protocol server today. System-tray installer and Engine analysis jobs are follow-ups (Suite Studio / MasterReady phases).
