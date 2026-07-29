@@ -3,6 +3,19 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 10 (platform checkout)
+
+**Fully deployed** — 2026-07-29 · tags `v1.1.0-beta1A-phase10`,
+`v1.1.0-beta1A-phase10-platform` · PR [#11](https://github.com/ALaustrup/VYBZ/pull/11)
+
+- Storefront live in production using platform checkout
+- Manual settlement workflow released
+- All a11y, unit, e2e, and cost-sentinel checks green
+
+Also in this phase: production flag + secrets; migration `0084`
+(`settlement_status`); Edge Checkout without Connect transfer; ADR-023 /
+[`PHASE10_EXIT_GATE.md`](./docs/architecture/PHASE10_EXIT_GATE.md).
+
 ## Unreleased — Suite Genesis (Beta-1A planned)
 
 **Codename:** Suite Genesis. VYBZ repositioned as a **release operating system**
@@ -10,13 +23,13 @@ All notable platform releases are documented here. Product labels follow
 (artist pages, VDock, tips, live, storefront) preserved as the public layer of a
 longer professional lifecycle.
 
-### Phase 10 – Storefront go-live (ops)
+### Phase 10 – Storefront go-live (complete — fully deployed)
 
 - Production `VITE_FEATURE_STOREFRONT=true` on Vercel (`astramatrix/vybz`)
-- Secrets confirmed on Supabase `xixmneooyufbeftdfpcm`: `GROQ_API_KEY`, `FAL_KEY`
-- Edge functions live: `storefront-*`, `visual-generate`, `stripe-webhook` (`kind=storefront`)
-- Staging smoke + a11y (WCAG 2.1 AA) passed before prod flip
-- Tag: `v1.1.0-beta1A-phase10` · closes [#9](https://github.com/ALaustrup/VYBZ/issues/9)
+- Platform Checkout (no Connect) + Orders **Settle now** · live `$1` smoke passed
+- Secrets: `GROQ_API_KEY`, `FAL_KEY`, live Stripe on Supabase `xixmneooyufbeftdfpcm`
+- Tags: `v1.1.0-beta1A-phase10`, `v1.1.0-beta1A-phase10-platform`
+- See **[1.1.0-beta1A] – Phase 10** above for the release summary
 
 ### Phase 9 Polish & Visual (complete — merged + tagged)
 
