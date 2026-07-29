@@ -1,3 +1,5 @@
+@import "./design/tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -66,7 +68,7 @@
     --border-color: var(--hairline);
     --border-color-strong: var(--hairline-strong);
 
-    /* Elevation / shadows */
+    /* Elevation / shadows — base; v2 ramp overrides in tokens.css */
     --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.24);
     --shadow-md: 0 8px 24px -12px rgb(6 12 28 / 0.55);
     --shadow-lg: 0 22px 52px -28px rgb(6 12 28 / 0.55);
@@ -82,9 +84,9 @@
     --z-toast: 100;
     --z-max: 110;
 
-    /* Motion */
+    /* Motion — v2 aligns base/normal to 240ms via tokens.css */
     --motion-fast: 120ms;
-    --motion-base: 220ms;
+    --motion-base: 240ms;
     --motion-slow: 360ms;
     --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
     --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);

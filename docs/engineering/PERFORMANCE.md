@@ -18,7 +18,12 @@
 
 ## Measure
 
-- Lighthouse / Web Vitals on landing + artist page after visual changes.
+- **Phase 11 gate:** `npm run perf:audit` (Lighthouse ≥ 90 on `/perf-audit.html` +
+  `/perf-orders.html`; desktop + mobile).
+- **Bundle:** `npm run perf:bundle` → `dist/stats.html`.
+- **Load:** `npm run perf:load` / K6 — pack page + checkout Edge, p95 < 800 ms.
+- SPA `?audit=1` reduces DynamicBackground FX for profiling.
 - Vercel analytics optional; do not add paid APM on Hobby budgets.
 
-See [`PWA.md`](./PWA.md), [`BROWSER_COMPUTE.md`](./BROWSER_COMPUTE.md).
+See [`../architecture/ADR_PERF_BUDGET.md`](../architecture/ADR_PERF_BUDGET.md),
+[`PWA.md`](./PWA.md), [`BROWSER_COMPUTE.md`](./BROWSER_COMPUTE.md).

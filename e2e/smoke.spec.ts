@@ -36,4 +36,10 @@ test.describe("a11y smoke", () => {
       await expect(page.getByRole("heading", { name: /Usage/i })).toBeVisible();
     }
   });
+
+  test("storefront settlement fixture exposes Pending manual", async ({ page }) => {
+    await page.goto("/__e2e__/storefront-orders");
+    await expect(page.getByTestId("storefront-orders-fixture")).toBeVisible();
+    await expect(page.getByTestId("settlement-pending")).toBeVisible();
+  });
 });

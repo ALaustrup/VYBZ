@@ -2,7 +2,7 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { cx } from "@/lib/utils";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "glass";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -20,6 +20,8 @@ const variants: Record<ButtonVariant, string> = {
   ghost: "bg-transparent text-fog hover:bg-white/[0.06] hover:text-snow",
   danger:
     "bg-suite-danger/15 text-suite-danger border border-suite-danger/30 hover:bg-suite-danger/25",
+  glass:
+    "glass-vibrant text-snow border border-[var(--glass-vibrant-border)] hover:shadow-[var(--shadow-glow)] hover:brightness-110",
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -50,6 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         disabled={isDisabled}
         aria-busy={loading || undefined}
+        data-variant={variant}
         className={cx(
           "inline-flex items-center justify-center rounded-suite-md font-semibold",
           "transition duration-suite-base ease-suite",

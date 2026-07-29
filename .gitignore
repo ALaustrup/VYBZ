@@ -33,3 +33,9 @@ public/vdock/visuals/**/loop.mp4
 public/vdock/visuals/**/loop.webm
 .agents/
 skills-lock.json
+
+# Phase 11 perf artifacts
+.lighthouseci/
+dist/stats.html
+test-results/
+playwright-report/

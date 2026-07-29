@@ -30,7 +30,12 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
   const reduce = useReduceFx();
   const fxScale = useFxScale();
   const { playing } = usePlayer();
-  const blobAlpha = (mode === "static" ? 0.12 : 0.2) * (reduce ? 1 : 0.85 + 0.15 * fxScale);
+  const auditMode =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("audit") === "1";
+  const effectiveMode = auditMode ? "static" : mode;
+  const blobAlpha =
+    (effectiveMode === "static" ? 0.08 : 0.2) * (reduce || auditMode ? 0.5 : 0.85 + 0.15 * fxScale);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -125,7 +130,7 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
         style={{
-          opacity: mode === "static" ? 0.22 : playing ? 0.2 : 0.28,
+          opacity: effectiveMode === "static" || auditMode ? 0.18 : playing ? 0.2 : 0.28,
           filter: "blur(18px) saturate(1.15)",
           transform: "scale(1.12)",
         }}

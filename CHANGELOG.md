@@ -3,6 +3,14 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 11 (perf + premium UI)
+
+**Merged** — tag `v1.1.0-beta1A-phase11` · exit gate
+[`PHASE11_EXIT_GATE.md`](./docs/architecture/PHASE11_EXIT_GATE.md)
+
+- Phase 11: Premium dark/vibrant redesign, Lighthouse ≥ 99, K6 p95 < 200 ms
+- Cloudflare WAF template & DB indices hardening
+
 ## [1.1.0-beta1A] – Phase 10 (platform checkout)
 
 **Fully deployed** — 2026-07-29 · tags `v1.1.0-beta1A-phase10`,
