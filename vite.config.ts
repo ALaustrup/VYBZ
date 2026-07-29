@@ -124,6 +124,14 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        find: "@vybz/domain/credits",
+        replacement: fileURLToPath(new URL("./packages/domain/credits/src/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/data/credits",
+        replacement: fileURLToPath(new URL("./packages/data/credits/src/index.ts", import.meta.url)),
+      },
+      {
         find: "@vybz/domain/releases",
         replacement: fileURLToPath(new URL("./packages/domain/releases/src/index.ts", import.meta.url)),
       },

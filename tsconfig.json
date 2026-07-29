@@ -27,6 +27,8 @@
       "@vybz/domain/*": ["src/domain/*"],
       "@vybz/domain/releases": ["packages/domain/releases/src/index.ts"],
       "@vybz/data/releases": ["packages/data/releases/src/index.ts"],
+      "@vybz/domain/credits": ["packages/domain/credits/src/index.ts"],
+      "@vybz/data/credits": ["packages/data/credits/src/index.ts"],
       "@vybz/processing/readiness": ["packages/processing/readiness/src/index.ts"],
       "@vybz/processing/readiness/worker": ["packages/processing/readiness/src/worker.ts"]
     }

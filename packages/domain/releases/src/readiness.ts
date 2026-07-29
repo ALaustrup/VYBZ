@@ -17,6 +17,8 @@ export type AudioProbe = {
   durationSeconds?: number;
   titleFromName?: string;
   artistFromName?: string;
+  /** Optional composer tag from audio metadata / filename heuristics. */
+  composerFromName?: string;
 };
 
 export type ArtworkProbe = {
