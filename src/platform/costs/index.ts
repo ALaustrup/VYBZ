@@ -18,6 +18,22 @@ export {
   type CostUsageSnapshot,
 } from "./sentinel";
 
+export { recordCost, listRecentCostEvents, monthlySpendByFeature, monthTotals } from "./recordCost";
+export {
+  clientBudgetCaps,
+  evaluateBudget,
+  featureDisabledFlag,
+  resolveBudgetCaps,
+  type BudgetStatus,
+} from "./budget";
+export {
+  isFeatureKillSwitched,
+  applyKillSwitchLocal,
+  assertKillSwitchWhenFreeTierExceeded,
+  hydrateEdgeFlags,
+} from "./edgeFlags";
+export { decideCostAlert } from "./costAlert";
+
 export type CostPolicy = {
   allowPaidWithoutReservation: boolean;
   prepaidProviders: readonly string[];

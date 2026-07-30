@@ -63,7 +63,9 @@ or signing secrets. Platform Bridge must use allowlisted native commands only
 - **Tips / Connect Express:** unchanged for creators who complete ID verification.
 - Storefront `kind=storefront` fulfillment via Resend signed ZIP (24h).
 - Cost reservations required before paid AI/mastering jobs (Phase 1 / Commit 4).
-
+- **Cost Sentinel (Phase 14):** soft monthly USD / free-tier unit caps; kill-switch
+  via `edge_flags` (`feature:X:disabled`); owner email at ≥ 90% via `cost-alert`
+  Edge Function. No auto-spend; no client secrets.
 ## Edge & WAF
 
 - **Ruleset (import YAML):** [`docs/security/cloudflare-ruleset.yml`](./docs/security/cloudflare-ruleset.yml)
@@ -87,6 +89,7 @@ the hostname is proxied through Cloudflare.
 | `RESEND_API_KEY` | Edge only |
 | `FAL_KEY`, `GROQ_API_KEY` | Edge secrets; never `VITE_*` |
 | `LIVEKIT_*` | Edge token mint |
+| `COST_ALERT_SECRET`, `COST_SENTINEL_*` | Edge cost-alert / soft caps; never `VITE_*` for secrets |
 
 ## Incident response
 

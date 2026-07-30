@@ -16,7 +16,7 @@
 - **Audience layer (preserved):** `/u/:id`, VDock, Vc tips, LiveKit live, cosmetics.
 - **Frozen:** VR/Immersive; dating-first / Spark-as-home; Living Home; Spotify-scale catalog race; Bunny as media origin; React Native rewrite without proven necessity.
 - **Domain:** https://vybz.cloud · Owner: Astra Matrix, Inc. · GitHub: **`ALaustrup/VYBZ`** only.
-- **Branch:** `phase13-android-beta` (local). Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
+- **Branch:** `phase14-cost-sentinel` (local). Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
 
 ### Repo / deploy truth
 | Item | Value |
@@ -55,11 +55,12 @@
 | **10 Storefront + platform checkout** | **Complete** — PR #11 · tags `v1.1.0-beta1A-phase10` / `phase10-platform` |
 | **11 Perf + Premium UI** | **Complete** — merged PR #12 · tag `v1.1.0-beta1A-phase11` |
 | **12 Desktop Beta** | **Complete** — merged PR #13 · tag `v1.1.0-beta1A-phase12` · [`PHASE12_EXIT_GATE.md`](./docs/architecture/PHASE12_EXIT_GATE.md) |
-| **13 Android Beta** | **In progress (local)** — [`PHASE13_EXIT_GATE.md`](./docs/architecture/PHASE13_EXIT_GATE.md) · await owner approval before push/PR |
+| **13 Android Beta** | **Complete** — merged PR #14 · tag `v1.1.0-beta1A-phase13` · [`PHASE13_EXIT_GATE.md`](./docs/architecture/PHASE13_EXIT_GATE.md) |
+| **14 Cost Sentinel** | **In progress (local)** — [`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md) · await owner approval before push/PR |
 
 ### Exact next actions
-1. Finish Phase 13 exit gate locally; **await owner approval** before push/PR.
-2. Owner: provision `ANDROID_KEYSTORE_BASE64` / `ANDROID_KEYSTORE_PWD` / `KEY_ALIAS` / `KEY_ALIAS_PWD`; optional `google-services.json` for FCM.
+1. Finish Phase 14 exit gate locally; **await owner approval** before push/PR.
+2. Owner: set `COST_SENTINEL_MONTHLY_CAP_USD` / `COST_ALERT_EMAIL`; apply migration `0086`; deploy `cost-alert`.
 3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
