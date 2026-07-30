@@ -37,6 +37,8 @@
     "test:web": "vitest run",
     "test:e2e": "node scripts/run-e2e.mjs",
     "test:a11y": "node scripts/run-e2e.mjs e2e/smoke.spec.ts",
+    "cost:test": "node scripts/cost-test.mjs",
+    "cost:alert": "node scripts/cost-alert.mjs --dry",
     "perf:audit": "node scripts/perf-audit.mjs",
     "perf:bundle": "node scripts/perf-bundle.mjs",
     "perf:load": "node scripts/perf-load.mjs",

@@ -9,6 +9,8 @@ import { capabilitiesFor } from "@/platform/bridge/capabilities";
 import { cancelled, normalizeUnknown, PlatformError } from "@/platform/bridge/errors";
 import type { PlatformBridge } from "@/platform/bridge/types";
 import { createCostSentinel } from "@/platform/costs/sentinel";
+import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
+import { recordCost } from "@/platform/costs/recordCost";
 import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 
@@ -129,6 +131,12 @@ export function createWebBridge(): PlatformBridge {
         return capabilitiesFor("web");
       },
       async analyzeAudio(input) {
+        if (isFeatureKillSwitched("processing") || isFeatureKillSwitched("analyze-audio")) {
+          throw new PlatformError(
+            "validation",
+            "Processing disabled by Cost Sentinel kill-switch (feature:processing:disabled)"
+          );
+        }
         const caps = capabilitiesFor("web");
         if (input.file.sizeBytes > caps.maxLocalFileBytes) {
           throw new PlatformError("validation", "Audio file exceeds web size limit");
@@ -150,6 +158,7 @@ export function createWebBridge(): PlatformBridge {
           });
           const minutes = Math.max(0.001, (result.durationSeconds || 0) / 60);
           costSentinel.record({ jobMinutes: minutes, storageBytes: input.file.sizeBytes });
+          void recordCost("processing", minutes, 0);
           return {
             jobId: newId(),
             status: "succeeded",

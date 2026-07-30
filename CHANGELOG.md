@@ -3,6 +3,16 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 14 (Cost Sentinel) — unreleased
+
+**Branch:** `phase14-cost-sentinel` · exit gate
+[`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md)
+· ADR [`ADR_COST_SENTINEL_UI.md`](./docs/architecture/ADR_COST_SENTINEL_UI.md)
+
+- Cost telemetry ledger, soft monthly caps, kill-switch flags, dashboard chart
+- Daily `cost-alert` Edge Function (Resend at ≥ 90% cap)
+- ADR-028 Cost Sentinel UI
+
 ## [1.1.0-beta1A] – Phase 13 (Android Beta)
 
 **Merged** — tag `v1.1.0-beta1A-phase13` · exit gate

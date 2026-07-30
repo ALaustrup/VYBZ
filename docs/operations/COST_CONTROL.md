@@ -19,10 +19,15 @@
 
 `disabled` | `free_only` | `prepaid_only` | `hard_cap` | `manual_approval` | `production`
 
-## Cost Sentinel (planned)
+## Cost Sentinel (Phase 14)
 
-Track quotas · estimate · enforce user/feature/provider caps · degrade · weekly reports ·
-block recursive jobs. Precursor models in Phase 1; full Sentinel Phase 9.
+Track quotas · estimate · enforce user/feature soft caps · degrade via kill-switch ·
+daily owner email at ≥ 90% of `COST_SENTINEL_MONTHLY_CAP_USD` · weekly report still
+planned before raising any hard_cap.
+
+- Ledger: `cost_events` · flags: `edge_flags` (`feature:X:disabled`)
+- UI: `/settings/costs` · ADR: [`ADR_COST_SENTINEL_UI.md`](../architecture/ADR_COST_SENTINEL_UI.md)
+- No auto-spend. No live billing webhooks (Phase 15).
 
 ## Reservation flow
 
