@@ -6,6 +6,7 @@ import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
 import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
 import { DistributionReportPage } from "@/features/distribution/DistributionReportPage";
 import { DesktopBatchPanel } from "@/features/processing/DesktopBatchPanel";
+import { WaveformPreviewPage } from "@/pages/WaveformPreviewPage";
 import { FLAGS } from "@/lib/flags";
 
 function StudioIdRedirect() {
@@ -27,6 +28,7 @@ export function suitePlaceholderRoutes() {
       <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
       <Route path="/release/:id/distribution" element={<DistributionReportPage />} />
       <Route path="/desktop/process" element={<DesktopBatchPanel />} />
+      <Route path="/desktop/waveform" element={<WaveformPreviewPage />} />
       <Route path="/studio" element={<Navigate to="/projects" replace />} />
       <Route path="/studio/:id" element={<StudioIdRedirect />} />
       <Route

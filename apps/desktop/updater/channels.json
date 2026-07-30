@@ -3,17 +3,21 @@
   "identifier": "cloud.vybz.desktop",
   "channels": {
     "stable": {
-      "endpoint": "https://releases.vybz.cloud/desktop/stable",
-      "notes": "Production channel — requires signed builds"
+      "endpoint": "https://update.vybz.cloud/windows/stable.json",
+      "artifactBase": "https://update.vybz.cloud/windows/",
+      "notes": "Production signed channel (Phase 12)"
     },
     "preview": {
-      "endpoint": "https://releases.vybz.cloud/desktop/preview",
-      "notes": "Beta-1A / Suite Genesis preview"
+      "endpoint": "https://update.vybz.cloud/windows/preview.json",
+      "artifactBase": "https://update.vybz.cloud/windows/preview/",
+      "notes": "Internal preview"
     }
   },
-  "currentChannel": "preview",
+  "currentChannel": "stable",
   "updater": {
-    "enabled": false,
-    "reason": "Pubkey + signed artifacts required before enabling tauri-plugin-updater at runtime"
+    "enabled": true,
+    "channel": "stable",
+    "feedUrl": "https://update.vybz.cloud/windows/stable.json",
+    "reason": "Phase 12 Desktop Beta — enable after WINDOWS_CERT_* + updater pubkey provisioned"
   }
 }

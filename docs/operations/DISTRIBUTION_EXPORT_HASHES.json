@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-07-29T05:37:47.146Z",
-  "fileName": "vybz-cc99708b-distribution.zip",
-  "sha256": "1cb13ee84dc031adda252d446a7f7bcf9671177d75757063e4020bc35ab6a721",
+  "recordedAt": "2026-07-30T06:21:40.807Z",
+  "fileName": "vybz-7800d76e-distribution.zip",
+  "sha256": "b20ec843812591d4274a62074bda2005008c889d004407021af79403d4b7e4dd",
   "bytes": 1645,
   "source": "e2e/distribution.spec.ts"
 }
