@@ -5,7 +5,7 @@ All notable platform releases are documented here. Product labels follow
 
 ## [1.1.0-beta1A] – Phase 17 (Desktop macOS & Linux)
 
-**Pending push** — branch `phase17-desktop-cross` · exit gate
+**Merged** — tag `v1.1.0-beta1A-phase17` · exit gate
 [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md)
 · ADR [`ADR_DESKTOP_CROSS.md`](./docs/architecture/ADR_DESKTOP_CROSS.md) (ADR-031)
 
