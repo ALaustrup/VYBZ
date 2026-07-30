@@ -110,12 +110,15 @@ jobs:
         run: npm i -D @tauri-apps/cli@^2.5.0 --no-save
 
       - name: Import Apple Developer ID cert (notarisation)
+        id: apple_cert
         if: env.MAC_CERT_BASE64 != ''
+        continue-on-error: true
         env:
           APPLE_CERTIFICATE: ${{ secrets.MAC_CERT_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERT_PWD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          set -euo pipefail
           KEYCHAIN_PASSWORD="${KEYCHAIN_PASSWORD:-vybz-ci-keychain}"
           echo "$APPLE_CERTIFICATE" | base64 --decode > certificate.p12
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -126,26 +129,38 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
           CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application" | head -1 || true)
           CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
-          echo "APPLE_SIGNING_IDENTITY=$CERT_ID" >> $GITHUB_ENV
-          echo "APPLE_CERTIFICATE=$APPLE_CERTIFICATE" >> $GITHUB_ENV
-          echo "APPLE_CERTIFICATE_PASSWORD=$APPLE_CERTIFICATE_PASSWORD" >> $GITHUB_ENV
-          echo "Certificate imported: ${CERT_ID:-unsigned}"
+          if [ -z "$CERT_ID" ]; then
+            echo "No Developer ID Application identity found — will build unsigned DMG"
+            echo "apple_signing=0" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "APPLE_SIGNING_IDENTITY=$CERT_ID" >> "$GITHUB_ENV"
+          echo "apple_signing=1" >> "$GITHUB_OUTPUT"
+          echo "Certificate imported: $CERT_ID"
 
-      - name: Build DMG (signed + notarised when secrets present)
+      - name: Build DMG (signed + notarised only when cert import succeeded)
         working-directory: apps/desktop
         env:
-          APPLE_CERTIFICATE: ${{ secrets.MAC_CERT_BASE64 }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.MAC_CERT_PWD }}
+          MAC_CERT_BASE64: ${{ secrets.MAC_CERT_BASE64 }}
+          MAC_CERT_PWD: ${{ secrets.MAC_CERT_PWD }}
           APPLE_SIGNING_IDENTITY: ${{ env.APPLE_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_SIGNING_OK: ${{ steps.apple_cert.outputs.apple_signing }}
         run: |
+          set -euo pipefail
           export VYBZ_DESKTOP_BUILD_HASH="${GITHUB_SHA:0:12}"
-          if [ -n "${{ secrets.MAC_CERT_BASE64 }}" ]; then
-            echo "Building signed/notarised DMG (MAC_CERT_* present)"
+          # Never leave empty APPLE_CERTIFICATE in the environment — Tauri treats
+          # a set (even invalid) value as "must codesign" and fails the bundle.
+          unset APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD || true
+          if [ "${APPLE_SIGNING_OK:-0}" = "1" ] && [ -n "${MAC_CERT_BASE64:-}" ] && [ -n "${APPLE_SIGNING_IDENTITY:-}" ]; then
+            export APPLE_CERTIFICATE="$MAC_CERT_BASE64"
+            export APPLE_CERTIFICATE_PASSWORD="$MAC_CERT_PWD"
+            echo "Building signed/notarised DMG (MAC_CERT_* + identity OK)"
           else
-            echo "MAC_CERT_* missing — unsigned DMG for CI artifact smoke"
+            unset APPLE_SIGNING_IDENTITY APPLE_ID APPLE_PASSWORD APPLE_TEAM_ID || true
+            echo "MAC_CERT_* missing or import failed — unsigned DMG for CI artifact smoke"
           fi
           npx tauri build --bundles dmg
 
