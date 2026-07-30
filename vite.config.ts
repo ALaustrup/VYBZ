@@ -135,6 +135,10 @@ export default defineConfig({
   resolve: {
     alias: [
       {
+        find: "@vybz/domain/collab",
+        replacement: fileURLToPath(new URL("./packages/domain/collab/src/index.ts", import.meta.url)),
+      },
+      {
         find: "@vybz/domain/credits",
         replacement: fileURLToPath(new URL("./packages/domain/credits/src/index.ts", import.meta.url)),
       },

@@ -3,6 +3,18 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 16 (Collaboration Sessions)
+
+**Pending merge** — branch `phase16-collab` · exit gate
+[`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md)
+· ADR [`ADR_COLLAB_SESSIONS.md`](./docs/architecture/ADR_COLLAB_SESSIONS.md) (ADR-030)
+
+- Phase 16: real-time presence, live cursors, comment threads, conflict-safe merge
+- Live presence + cursors on Prepare / Credits (Realtime + local session store)
+- Anchored comment threads (waveform / metadata / credits)
+- Conflict-safe metadata merge (`row_version` + `merge_release_metadata`)
+- ADR-030 Collaboration Sessions
+
 ## [1.1.0-beta1A] – Phase 15 (Remote AI Processing)
 
 **Merged** — tag `v1.1.0-beta1A-phase15` · exit gate

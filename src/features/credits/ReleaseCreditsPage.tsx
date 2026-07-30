@@ -16,6 +16,9 @@ import {
   updateCredit,
 } from "@/features/credits/service";
 import { SyncConflictPanel } from "@/features/sync/SyncConflictPanel";
+import { CollabPresenceStrip } from "@/features/collab/CollabPresenceStrip";
+import { CommentThreadPanel } from "@/features/collab/CommentThreadPanel";
+import { CollabMergePanel } from "@/features/collab/CollabMergePanel";
 
 function roleLabel(role: CreditRole): string {
   return role.replace(/_/g, " ");
@@ -125,9 +128,17 @@ export function ReleaseCreditsPage() {
         {splitWarning ? <p className="mt-1 text-xs text-fog">{splitWarning}</p> : null}
       </div>
 
+      <CollabPresenceStrip
+        releaseId={id}
+        userId={ownerId}
+        username={null}
+        pane="credits"
+      />
+
       {error ? <StateView variant="error" title="Credits error" body={error} /> : null}
 
       <SyncConflictPanel projectId={id} />
+      <CollabMergePanel releaseId={id} />
 
       <form className="flex flex-col gap-3 rounded-suite border border-white/10 bg-white/[0.03] p-4" onSubmit={onAdd}>
         <Input
@@ -203,6 +214,15 @@ export function ReleaseCreditsPage() {
           </li>
         ))}
       </ul>
+
+      <CommentThreadPanel
+        releaseId={id}
+        authorId={ownerId}
+        authorName={null}
+        title="Credit comments"
+        anchorKind="credit_field"
+        anchorRef="displayName"
+      />
     </div>
   );
 }

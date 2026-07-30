@@ -58,15 +58,17 @@
 | **13 Android Beta** | **Complete** — merged PR #14 · tag `v1.1.0-beta1A-phase13` · [`PHASE13_EXIT_GATE.md`](./docs/architecture/PHASE13_EXIT_GATE.md) |
 | **14 Cost Sentinel** | **Complete** — merged PR #15 · tag `v1.1.0-beta1A-phase14` · [`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md) |
 | **15 Remote AI Processing** | **Complete** — merged PR #16 · tag `v1.1.0-beta1A-phase15` · [`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md) |
+| **16 Collaboration Sessions** | **In progress** — branch `phase16-collab` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
 
 ### Exact next actions
-1. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
-2. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-3. Prod smoke: `/release/:id/master` Analyze & Master on a short WAV; Cost Sentinel still alerts.
-4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
-5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-6. Do **not** tag `Beta-1A` yet.
-7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
+1. **Phase 16:** local exit gate → owner approval → push/PR → merge → tag `v1.1.0-beta1A-phase16` → apply migration `0088`.
+2. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
+3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
+4. Prod smoke: `/release/:id/master` Analyze & Master on a short WAV; Cost Sentinel still alerts.
+5. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
+6. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+7. Do **not** tag `Beta-1A` yet.
+8. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
 `npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
@@ -118,6 +120,7 @@ bypass RLS.
 | Artist storefront | `/u/:id` |
 | Prepare (Phase 2) | `src/features/prepare` · `@vybz/domain/releases` · `@vybz/data/releases` |
 | Credits (Phase 3) | `src/features/credits` · `@vybz/domain/credits` · `@vybz/data/credits` · `/release/:id/credits` |
+| Collab Sessions (Phase 16) | `src/features/collab/` · `src/platform/collab/` · `@vybz/domain/collab` · `/__e2e__/collab` |
 | Processing Engine (Phase 4) | `@vybz/processing/waveform` · `src/features/processing` · EF `processing-enqueue` · Tauri `vybz_analyze_audio` |
 | Market packs | `src/features/storefront/` |
 | Site visuals CDN | `src/lib/siteVisuals.ts` |
@@ -133,9 +136,9 @@ unless a phase doc says otherwise.
 `storefront-previews`, `storefront-zips` (+ Music Repos blobs). **No per-client silos.**
 
 ### Newest migrations (reference)
+- `20260730_0088_collab_sessions.sql` — collaborators, comment threads, merge RPC
+- `20260730_0087_processing_ai.sql` — AI jobs / results
 - `20260728_0080_storefront_packs.sql`
-- `20260728_0079_visual_generate_spend.sql`
-- Suite Prepare tables: Phase 2 (not yet)
 
 ### Gotchas
 - Large media gitignored — serve from Storage.

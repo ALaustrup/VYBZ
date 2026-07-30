@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: [
+      { find: "@vybz/domain/collab", replacement: path.resolve(__dirname, "./packages/domain/collab/src/index.ts") },
       { find: "@vybz/domain/credits", replacement: path.resolve(__dirname, "./packages/domain/credits/src/index.ts") },
       { find: "@vybz/data/credits", replacement: path.resolve(__dirname, "./packages/data/credits/src/index.ts") },
       { find: "@vybz/domain/releases", replacement: path.resolve(__dirname, "./packages/domain/releases/src/index.ts") },

@@ -72,6 +72,7 @@ import { StorefrontOrdersE2EFixturePage } from "@/pages/StorefrontOrdersE2EFixtu
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 import { CostSentinelE2EFixturePage } from "@/pages/CostSentinelE2EFixturePage";
 import { MasteringE2EFixturePage } from "@/pages/MasteringE2EFixturePage";
+import { CollabSessionsE2EFixturePage } from "@/pages/CollabSessionsE2EFixturePage";
 
 export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
@@ -115,6 +116,9 @@ export function App() {
   }
   if (location.pathname === "/__e2e__/cost-sentinel") {
     return <CostSentinelE2EFixturePage />;
+  }
+  if (location.pathname === "/__e2e__/collab") {
+    return <CollabSessionsE2EFixturePage />;
   }
   if (FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders") {
     return <StorefrontOrdersE2EFixtureShell />;
