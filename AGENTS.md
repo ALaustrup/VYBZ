@@ -59,12 +59,13 @@
 | **14 Cost Sentinel** | **Complete** — merged PR #15 · tag `v1.1.0-beta1A-phase14` · [`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md) |
 | **15 Remote AI Processing** | **Complete** — merged PR #16 · tag `v1.1.0-beta1A-phase15` · [`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md) |
 | **16 Collaboration Sessions** | **Complete** — merged PR #17 · tag `v1.1.0-beta1A-phase16` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
+| **17 Desktop macOS & Linux** | **In progress** — branch `phase17-desktop-cross` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
 
 ### Exact next actions
-1. Choose next: **Phase 17** (macOS/Linux desktop) **or** cost-minute billing.
+1. **Phase 17:** merge PR → tag `v1.1.0-beta1A-phase17` → provision `MAC_CERT_*` for notarised DMG.
 2. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
 3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-4. Prod smoke: Prepare/Credits presence; `/release/:id/master`; Cost Sentinel; Enter → VDock → tip → live.
+4. Prod smoke: Prepare/Credits presence; desktop update feeds; Enter → VDock → tip → live.
 5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
 6. Do **not** tag `Beta-1A` yet.
 7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.

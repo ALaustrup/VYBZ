@@ -1,69 +1,46 @@
 /**
- * Desktop installer smoke — prefers MSI, falls back to NSIS; writes DESKTOP_INSTALLERS.json.
+ * Desktop installer smoke — multi-platform DESKTOP_INSTALLERS.json (Phase 17).
+ * Prefer real bundle artifacts; use --fixtures for dmg/appimage hashes when absent.
  */
-import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync, mkdirSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const msiDir = path.join(root, "apps", "desktop", "src-tauri", "target", "release", "bundle", "msi");
-const nsisDir = path.join(root, "apps", "desktop", "src-tauri", "target", "release", "bundle", "nsis");
-const outDir = path.join(root, "apps", "desktop", "signing");
-const hashTable = path.join(outDir, "INSTALLER_HASHES.json");
-const installersTable = path.join(outDir, "DESKTOP_INSTALLERS.json");
+const feedScript = path.join(root, "scripts", "build-update-feed.mjs");
+const installersPath = path.join(root, "apps", "desktop", "signing", "DESKTOP_INSTALLERS.json");
+const noFixtures = process.argv.includes("--no-fixtures");
 
-function sha256File(filePath) {
-  return createHash("sha256").update(readFileSync(filePath)).digest("hex");
+const result = spawnSync(
+  process.execPath,
+  [feedScript, ...(noFixtures ? [] : ["--fixtures"])],
+  { stdio: "inherit", cwd: root, env: process.env },
+);
+
+if (result.status !== 0) process.exit(result.status ?? 1);
+
+if (!existsSync(installersPath)) {
+  console.error("[smoke-desktop-installer] missing DESKTOP_INSTALLERS.json");
+  process.exit(1);
 }
 
-function findInstaller() {
-  for (const dir of [msiDir, nsisDir]) {
-    if (!existsSync(dir)) continue;
-    const files = readdirSync(dir).filter((f) => f.endsWith(".msi") || f.endsWith(".exe"));
-    if (files.length) return path.join(dir, files[0]);
-  }
-  return null;
+const table = JSON.parse(readFileSync(installersPath, "utf8"));
+const platforms = table.platforms || {};
+const dmg =
+  platforms["darwin-aarch64"]?.sha256 || platforms["darwin-x86_64"]?.sha256;
+const appimage = platforms["linux-x86_64"]?.sha256;
+
+if (!dmg || !appimage) {
+  console.error("[smoke-desktop-installer] expected dmg + appimage sha256 entries");
+  process.exit(1);
 }
 
-const rustc = spawnSync("rustc", ["--version"], { encoding: "utf8" });
-const installer = findInstaller();
-mkdirSync(outDir, { recursive: true });
-
-if (!installer) {
-  const stub = {
-    recordedAt: new Date().toISOString(),
-    status: rustc.status === 0 ? "artifact_missing" : "toolchain_missing",
-    note:
-      rustc.status === 0
-        ? "Rust present but MSI/NSIS artifact missing — run npm run build:desktop:windows"
-        : "Rust/Tauri toolchain not installed — unsigned installer hash deferred",
-    channel: "stable",
-    version: "1.1.0",
-    sha256: null,
-    path: null,
-  };
-  writeFileSync(hashTable, JSON.stringify(stub, null, 2) + "\n");
-  writeFileSync(installersTable, JSON.stringify(stub, null, 2) + "\n");
-  console.log("[smoke-desktop-installer]", stub.status);
-  process.exit(0);
-}
-
-const sha256 = sha256File(installer);
-const record = {
-  recordedAt: new Date().toISOString(),
-  status: "ok",
-  channel: "stable",
-  version: "1.1.0",
-  sha256,
-  path: path.relative(root, installer).replace(/\\/g, "/"),
-  bytes: statSync(installer).size,
-  signed: Boolean(process.env.WINDOWS_CERT_BASE64),
-  feedUrl: "https://update.vybz.cloud/windows/stable.json",
-  note: "Phase 12 Desktop Beta installer record",
-};
-writeFileSync(hashTable, JSON.stringify(record, null, 2) + "\n");
-writeFileSync(installersTable, JSON.stringify(record, null, 2) + "\n");
-console.log("[smoke-desktop-installer] ok", record.path, sha256.slice(0, 12) + "…");
+console.log(
+  "[smoke-desktop-installer] ok",
+  "darwin=",
+  String(dmg).slice(0, 12) + "…",
+  "linux=",
+  String(appimage).slice(0, 12) + "…",
+);
 process.exit(0);

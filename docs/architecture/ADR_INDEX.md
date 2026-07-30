@@ -34,6 +34,7 @@ Architecture Decision Records for Suite Genesis.
 | ADR-028 | Cost Sentinel UI + budget enforcement (Phase 14) | Accepted — [`ADR_COST_SENTINEL_UI.md`](./ADR_COST_SENTINEL_UI.md) |
 | ADR-029 | AI Mastering & Metadata AI (Phase 15) | Accepted — [`ADR_AI_MASTERING.md`](./ADR_AI_MASTERING.md) |
 | ADR-030 | Collaboration Sessions (Phase 16) | Accepted — [`ADR_COLLAB_SESSIONS.md`](./ADR_COLLAB_SESSIONS.md) |
+| ADR-031 | Desktop macOS & Linux ports (Phase 17) | Accepted — [`ADR_DESKTOP_CROSS.md`](./ADR_DESKTOP_CROSS.md) |
 
 **Note:** ADR-001’s “no early monorepo” remains: workspace extraction is **staged**
 (Stage A–F). Do not interpret multi-platform as permission for a destructive rewrite.

@@ -1,23 +1,26 @@
-# Desktop code signing (Windows)
+# Desktop code signing (Windows · macOS · Linux)
 
-Phase 5 records the **installer hash workflow**. Certificates are owner-held and
-never committed.
+Certificates are owner-held and **never committed**.
 
 ## Modes
 
-| Mode | When | Behavior |
-|------|------|----------|
-| Unsigned NSIS | No Authenticode cert | `tauri build` produces `.exe`; record SHA-256 in [`DESKTOP_RELEASE.md`](../../../docs/operations/DESKTOP_RELEASE.md) |
-| Signed NSIS | Cert + `TAURI_SIGNING_*` / Windows signtool | Same artifact + signature; update hash table |
-| Updater | Pubkey in `tauri.conf.json` + signed update manifests | Enable `tauri-plugin-updater` after first signed channel cut |
+| Mode | Secrets | Behavior |
+|------|---------|----------|
+| Windows unsigned | — | MSI/NSIS for CI smoke; `signed: false` in hash table |
+| Windows Authenticode | `WINDOWS_CERT_BASE64`, `WINDOWS_CERT_PWD` | signtool after `tauri build` |
+| macOS unsigned | — | DMG smoke artifact |
+| macOS Developer ID + notarisation | `MAC_CERT_BASE64`, `MAC_CERT_PWD`, optional `APPLE_ID` / `APPLE_PASSWORD` / `APPLE_TEAM_ID` | Import `.p12` → Tauri `APPLE_CERTIFICATE*` |
+| Linux AppImage | — | Unsigned AppImage (Phase 17) |
+| Updater | Tauri pubkey in `tauri.conf.json` | Per-OS `stable.json` under `update.vybz.cloud/{windows,darwin,linux}/` |
 
-## Silent / GUI install
+## Hash table
 
-NSIS `installMode: both` in `tauri.conf.json` allows per-user GUI and passive
-updater installs (`plugins.updater.windows.installMode: passive`).
+`DESKTOP_INSTALLERS.json` is multi-platform (`platforms.windows-x86_64`,
+`darwin-aarch64`, `linux-x86_64`, …). Local gate uses `--fixtures` for dmg/appimage
+when Rust bundles are absent; CI overwrites with real artifacts.
 
 ## Do not commit
 
 - `.pfx` / `.p12` / private keys
-- `TAURI_PRIVATE_KEY` material
-- Sentry DSNs with send enabled by default
+- `TAURI_PRIVATE_KEY` / updater private material
+- Raw `MAC_CERT_*` / `WINDOWS_CERT_*` values

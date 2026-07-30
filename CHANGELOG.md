@@ -3,6 +3,18 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 17 (Desktop macOS & Linux)
+
+**Pending push** — branch `phase17-desktop-cross` · exit gate
+[`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md)
+· ADR [`ADR_DESKTOP_CROSS.md`](./docs/architecture/ADR_DESKTOP_CROSS.md) (ADR-031)
+
+- Phase 17: macOS DMG & Linux AppImage released, auto-update feeds per OS
+- Signed DMG + AppImage targets, CI matrix (`windows-msi` · `mac-dmg` · `linux-appimage`)
+- Auto-update channels: `windows/` · `darwin/` · `linux/`
+- Notarisation wiring via `MAC_CERT_BASE64` / `MAC_CERT_PWD` (+ optional Apple ID secrets)
+- ADR-031 Desktop cross-platform
+
 ## [1.1.0-beta1A] – Phase 16 (Collaboration Sessions)
 
 **Merged** — tag `v1.1.0-beta1A-phase16` · exit gate
