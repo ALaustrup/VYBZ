@@ -62,7 +62,7 @@
 | **17 Desktop macOS & Linux** | **In progress** — branch `phase17-desktop-cross` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
 
 ### Exact next actions
-1. **Phase 17:** local exit gate → owner approval → push/PR → merge → tag `v1.1.0-beta1A-phase17` → provision `MAC_CERT_*` for notarised DMG.
+1. **Phase 17:** merge PR → tag `v1.1.0-beta1A-phase17` → provision `MAC_CERT_*` for notarised DMG.
 2. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
 3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 4. Prod smoke: Prepare/Credits presence; desktop update feeds; Enter → VDock → tip → live.
