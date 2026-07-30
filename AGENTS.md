@@ -16,7 +16,7 @@
 - **Audience layer (preserved):** `/u/:id`, VDock, Vc tips, LiveKit live, cosmetics.
 - **Frozen:** VR/Immersive; dating-first / Spark-as-home; Living Home; Spotify-scale catalog race; Bunny as media origin; React Native rewrite without proven necessity.
 - **Domain:** https://vybz.cloud · Owner: Astra Matrix, Inc. · GitHub: **`ALaustrup/VYBZ`** only.
-- **Branch:** `suite-genesis`. Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
+- **Branch:** `phase12-desktop-beta` (local). Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
 
 ### Repo / deploy truth
 | Item | Value |
@@ -51,12 +51,15 @@
 | **6 Android Alpha (2.A)** | **Complete** — merged PR #5 · tag `v1.1.0-beta1A-phase6` · [`PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md) |
 | **7 Sync & Collaboration** | **Complete** — merged PR #6 · tag `v1.1.0-beta1A-phase7` · [`PHASE7_EXIT_GATE.md`](./docs/architecture/PHASE7_EXIT_GATE.md) |
 | **8 Distribution Readiness** | **Complete** — merged PR #7 · tag `v1.1.0-beta1A-phase8` · [`PHASE8_EXIT_GATE.md`](./docs/architecture/PHASE8_EXIT_GATE.md) |
-| **9 Polish & Visual** | **In progress (local)** — [`PHASE9_EXIT_GATE.md`](./docs/architecture/PHASE9_EXIT_GATE.md) |
+| **9 Polish & Visual** | **Complete** — merged PR #8 · tag `v1.1.0-beta1A-phase9` |
+| **10 Storefront + platform checkout** | **Complete** — PR #11 · tags `v1.1.0-beta1A-phase10` / `phase10-platform` |
+| **11 Perf + Premium UI** | **Complete** — merged PR #12 · tag `v1.1.0-beta1A-phase11` |
+| **12 Desktop Beta** | **In progress (local)** — [`PHASE12_EXIT_GATE.md`](./docs/architecture/PHASE12_EXIT_GATE.md) · await owner approval before push/PR |
 
 ### Exact next actions
-1. Finish Phase 9 exit gate locally; **await owner approval** before push/PR.
-2. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-3. Owner secrets still needed for shipped alpha surfaces: `FAL_KEY` → `visual-generate`; `GROQ_API_KEY` + migration `0080` → storefront; redeploy `stripe-webhook`. Consider `VITE_FEATURE_STOREFRONT=off` on prod until then.
+1. Finish Phase 12 exit gate locally; **await owner approval** before push/PR.
+2. Owner: provision `WINDOWS_CERT_BASE64` / `WINDOWS_CERT_PWD` + Tauri updater pubkey; host `update.vybz.cloud`.
+3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
 6. Do **not** tag `Beta-1A` yet.

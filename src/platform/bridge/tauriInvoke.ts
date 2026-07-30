@@ -135,6 +135,9 @@ function getInvoke(): ((cmd: string, args?: Record<string, unknown>) => Promise<
   return g.__TAURI__?.core?.invoke ?? null;
 }
 
-function isTauriRuntime(): boolean {
+export function isTauriRuntime(): boolean {
   return typeof window !== "undefined" && Boolean((window as { __TAURI_INTERNALS__?: unknown }).__TAURI_INTERNALS__);
 }
+
+/** @deprecated prefer isTauriRuntime */
+export const isTauri = isTauriRuntime;

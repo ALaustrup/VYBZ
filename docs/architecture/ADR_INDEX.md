@@ -29,6 +29,7 @@ Architecture Decision Records for Suite Genesis.
 | ADR-023 | Platform Checkout (storefront, no Connect) | Accepted — [`ADR_PLATFORM_CHECKOUT.md`](./ADR_PLATFORM_CHECKOUT.md) |
 | ADR-024 | Premium UI refresh (Phase 11) | Accepted — [`ADR_UI_REFRESH.md`](./ADR_UI_REFRESH.md) |
 | ADR-025 | Performance budget (Phase 11) | Accepted — [`ADR_PERF_BUDGET.md`](./ADR_PERF_BUDGET.md) |
+| ADR-026 | Desktop updater signed channel (Phase 12) | Accepted — [`ADR_DESKTOP_UPDATER.md`](./ADR_DESKTOP_UPDATER.md) |
 
 **Note:** ADR-001’s “no early monorepo” remains: workspace extraction is **staged**
 (Stage A–F). Do not interpret multi-platform as permission for a destructive rewrite.
