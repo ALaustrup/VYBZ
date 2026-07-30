@@ -3,9 +3,9 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
-## [1.1.0-beta1A] – Phase 14 (Cost Sentinel) — unreleased
+## [1.1.0-beta1A] – Phase 14 (Cost Sentinel)
 
-**Branch:** `phase14-cost-sentinel` · exit gate
+**Merged** — tag `v1.1.0-beta1A-phase14` · exit gate
 [`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md)
 · ADR [`ADR_COST_SENTINEL_UI.md`](./docs/architecture/ADR_COST_SENTINEL_UI.md)
 
