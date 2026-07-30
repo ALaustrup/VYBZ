@@ -3,6 +3,17 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 15 (Remote AI Processing)
+
+**In progress** — branch `phase15-remote-ai` · exit gate
+[`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md)
+· ADR [`ADR_AI_MASTERING.md`](./docs/architecture/ADR_AI_MASTERING.md)
+
+- AI mastering DSP (loudness / peak / width) + optional ONNX weights path
+- Metadata AI (genre, mood, BPM, ISRC suggestions) via Groq + fixtures
+- `processing_jobs_ai` / `processing_results` · cost hooks · `/release/:id/master`
+- ADR-029 AI Mastering
+
 ## [1.1.0-beta1A] – Phase 14 (Cost Sentinel)
 
 **Merged** — tag `v1.1.0-beta1A-phase14` · exit gate

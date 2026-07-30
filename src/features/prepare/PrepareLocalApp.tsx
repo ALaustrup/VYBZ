@@ -9,6 +9,7 @@ import { NewReleasePage } from "@/features/prepare/NewReleasePage";
 import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
 import { ReleaseCreditsPage } from "@/features/credits/ReleaseCreditsPage";
 import { DistributionReportPage } from "@/features/distribution/DistributionReportPage";
+import { ReleaseMasterPane } from "@/features/mastering/ReleaseMasterPane";
 
 /**
  * Minimal Prepare shell for unsigned / backend-local flows.
@@ -31,6 +32,7 @@ export function PrepareLocalApp() {
             <Route path="/release/:id" element={<ReleaseDetailPage />} />
             <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
             <Route path="/release/:id/distribution" element={<DistributionReportPage />} />
+            <Route path="/release/:id/master" element={<ReleaseMasterPane />} />
             <Route path="/start" element={<Navigate to="/releases/new" replace />} />
             <Route path="*" element={<Navigate to="/releases" replace />} />
           </Routes>

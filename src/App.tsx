@@ -71,6 +71,7 @@ import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
 import { StorefrontOrdersE2EFixturePage } from "@/pages/StorefrontOrdersE2EFixturePage";
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 import { CostSentinelE2EFixturePage } from "@/pages/CostSentinelE2EFixturePage";
+import { MasteringE2EFixturePage } from "@/pages/MasteringE2EFixturePage";
 
 export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
@@ -108,6 +109,17 @@ export function App() {
   const authed = !!userId && !!profile?.username;
   const needsMix = needsIntentMixIntake(profile?.profile);
 
+  // Playwright fixtures — bypass auth / backend gates (same pattern for all __e2e__ shells).
+  if (location.pathname === "/__e2e__/mastering") {
+    return <MasteringE2EFixturePage />;
+  }
+  if (location.pathname === "/__e2e__/cost-sentinel") {
+    return <CostSentinelE2EFixturePage />;
+  }
+  if (FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders") {
+    return <StorefrontOrdersE2EFixtureShell />;
+  }
+
   if (!backendEnabled) {
     if (FLAGS.prepare && isPreparePath(location.pathname)) {
       return <PrepareLocalApp />;
@@ -118,20 +130,12 @@ export function App() {
     if (isAndroidLocalPath(location.pathname)) {
       return <AndroidLocalApp />;
     }
-    if (FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders") {
-      return <StorefrontOrdersE2EFixtureShell />;
-    }
-    if (location.pathname === "/__e2e__/cost-sentinel") {
-      return <CostSentinelE2EFixturePage />;
-    }
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
   }
   if (!ready) return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
 
   const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
   const isPublicPack = FLAGS.storefront && location.pathname.startsWith("/pack/");
-  const isStorefrontE2EFixture = FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders";
-  const isCostE2EFixture = location.pathname === "/__e2e__/cost-sentinel";
   if (!userId) {
     if (FLAGS.prepare && isPreparePath(location.pathname)) {
       return <PrepareLocalApp />;
@@ -142,8 +146,6 @@ export function App() {
     if (isAndroidLocalPath(location.pathname)) {
       return <AndroidLocalApp />;
     }
-    if (isStorefrontE2EFixture) return <StorefrontOrdersE2EFixtureShell />;
-    if (isCostE2EFixture) return <CostSentinelE2EFixturePage />;
     if (isPublicPack) return <PublicPackShell />;
     if (isPublicDoc) return <PublicDocShell />;
     if (location.pathname === "/enter" || location.pathname.startsWith("/enter/")) {

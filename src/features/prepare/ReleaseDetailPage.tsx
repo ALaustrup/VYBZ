@@ -102,6 +102,13 @@ export function ReleaseDetailPage() {
         >
           Distribution
         </Link>
+        <Link
+          to={`/release/${project.id}/master`}
+          className="ml-2 mt-3 inline-flex h-8 items-center rounded-suite-md border border-white/10 bg-graphite px-3 text-xs font-semibold text-snow hover:border-suite-cyan/40"
+          data-testid="prepare-open-master"
+        >
+          Master
+        </Link>
       </div>
 
       <div className="flex flex-wrap gap-2 text-xs text-fog">

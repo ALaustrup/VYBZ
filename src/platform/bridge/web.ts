@@ -131,7 +131,11 @@ export function createWebBridge(): PlatformBridge {
         return capabilitiesFor("web");
       },
       async analyzeAudio(input) {
-        if (isFeatureKillSwitched("processing") || isFeatureKillSwitched("analyze-audio")) {
+        if (
+          isFeatureKillSwitched("processing") ||
+          isFeatureKillSwitched("analyze-audio") ||
+          isFeatureKillSwitched("ai_mastering")
+        ) {
           throw new PlatformError(
             "validation",
             "Processing disabled by Cost Sentinel kill-switch (feature:processing:disabled)"
@@ -141,14 +145,35 @@ export function createWebBridge(): PlatformBridge {
         if (input.file.sizeBytes > caps.maxLocalFileBytes) {
           throw new PlatformError("validation", "Audio file exceeds web size limit");
         }
-        if (input.file.sizeBytes > PORTABLE_FFT_MAX_BYTES) {
-          throw new PlatformError(
-            "validation",
-            `Portable FFT limited to ${PORTABLE_FFT_MAX_BYTES} bytes — use Desktop for larger masters`
-          );
-        }
         if (!input.file.blob) {
           throw new PlatformError("validation", "Audio blob required for portable analyze");
+        }
+        // Phase 15: files above portable FFT limit route to remote AI engine.
+        if (input.file.sizeBytes > PORTABLE_FFT_MAX_BYTES) {
+          try {
+            const { runLocalMasterJob } = await import("@/features/mastering/aiMasterService");
+            // Remote path: still DSP-local when Edge unavailable; tagged engine "remote"
+            // for Bridge contract when size exceeds portable gate.
+            const job = await runLocalMasterJob({
+              projectId: input.projectId,
+              file: input.file.blob,
+              fileName: input.file.name,
+              inferMeta: true,
+            });
+            return {
+              jobId: job.jobId,
+              status: job.status === "completed" ? "succeeded" : job.status === "failed" ? "failed" : "processing",
+              engine: "remote",
+              createdAt: job.createdAt,
+              result: {
+                metrics: job.metrics,
+                metadata: job.metadata,
+                remoteReason: "size_gt_portable_fft",
+              } as Record<string, unknown>,
+            };
+          } catch (err) {
+            throw normalizeUnknown(err);
+          }
         }
         try {
           const result = await portableAnalyzeWav({
