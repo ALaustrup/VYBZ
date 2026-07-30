@@ -1,32 +1,19 @@
+import { createAndroidSecurePreferences } from "@/platform/android/keystorePreferences";
 import type { DeviceInformation, ExportedFile, PersistedSession } from "@/contracts";
 import { capabilitiesFor } from "@/platform/bridge/capabilities";
 import { PlatformError, unsupported } from "@/platform/bridge/errors";
 import type { PlatformBridge } from "@/platform/bridge/types";
 import { createWebBridge } from "@/platform/bridge/web";
-import {
-  createSecurePreferences,
-  memoryPreferenceKv,
-  type PreferenceKv,
-} from "@/platform/cache/securePreferences";
 
 const SESSION_KEY = "session";
 
-function browserOrMemoryKv(): PreferenceKv {
-  if (typeof localStorage === "undefined") return memoryPreferenceKv();
-  return {
-    getItem: (k) => localStorage.getItem(k),
-    setItem: (k, v) => localStorage.setItem(k, v),
-    removeItem: (k) => localStorage.removeItem(k),
-  };
-}
-
 /**
- * Android Capacitor bridge — secure preference-backed session; web file inputs
+ * Android Capacitor bridge — KeyStore-backed sealed session; web file inputs
  * until document-picker plugins land. Deep links via Cap App listener separately.
  */
 export function createAndroidBridge(): PlatformBridge {
   const web = createWebBridge();
-  const prefs = createSecurePreferences(browserOrMemoryKv(), "vybz.android.secure.v1");
+  const prefs = createAndroidSecurePreferences();
 
   return {
     kind: "android",
@@ -112,8 +99,11 @@ export function createAndroidBridge(): PlatformBridge {
         return [];
       },
       async shareExport(file: ExportedFile) {
-        // Share-sheet when Web Share API is available; else download fallback.
-        if (typeof navigator !== "undefined" && typeof navigator.share === "function" && typeof File !== "undefined") {
+        if (
+          typeof navigator !== "undefined" &&
+          typeof navigator.share === "function" &&
+          typeof File !== "undefined"
+        ) {
           try {
             const shared = new File([file.blob], file.name, { type: file.mimeType });
             await navigator.share({ files: [shared], title: file.name });

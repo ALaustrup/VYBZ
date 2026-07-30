@@ -29,6 +29,8 @@ export const SUITE_ROUTES: readonly SuiteRoute[] = [
   { path: "/release/:id/master", productId: "master", title: "Master workspace" },
   { path: "/desktop/process", productId: "master", title: "Desktop batch" },
   { path: "/desktop/waveform", productId: "master", title: "Waveform preview" },
+  { path: "/mobile/uploads", productId: "prepare", title: "Android upload queue" },
+  { path: "/android/beta", productId: "prepare", title: "Android Beta" },
   { path: "/coverlab", productId: "coverlab", title: "CoverLab", nav: true },
   { path: "/release/:id/artwork", productId: "coverlab", title: "Artwork" },
   { path: "/sentinel", productId: "sentinel", title: "Sentinel", nav: true },

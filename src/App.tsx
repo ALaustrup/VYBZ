@@ -64,6 +64,7 @@ import { VisualizerStudioPage } from "@/pages/VisualizerStudioPage";
 import { FLAGS } from "@/lib/flags";
 import { isPreparePath, PrepareLocalApp } from "@/features/prepare/PrepareLocalApp";
 import { DesktopLocalApp, isDesktopLocalPath } from "@/platform/desktop/DesktopLocalApp";
+import { AndroidLocalApp, isAndroidLocalPath } from "@/platform/android/AndroidLocalApp";
 import { StorefrontDashboardPage } from "@/pages/StorefrontDashboardPage";
 import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
@@ -113,6 +114,9 @@ export function App() {
     if (isDesktopLocalPath(location.pathname)) {
       return <DesktopLocalApp />;
     }
+    if (isAndroidLocalPath(location.pathname)) {
+      return <AndroidLocalApp />;
+    }
     if (FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders") {
       return <StorefrontOrdersE2EFixtureShell />;
     }
@@ -129,6 +133,9 @@ export function App() {
     }
     if (isDesktopLocalPath(location.pathname)) {
       return <DesktopLocalApp />;
+    }
+    if (isAndroidLocalPath(location.pathname)) {
+      return <AndroidLocalApp />;
     }
     if (isStorefrontE2EFixture) return <StorefrontOrdersE2EFixtureShell />;
     if (isPublicPack) return <PublicPackShell />;

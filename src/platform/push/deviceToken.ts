@@ -1,6 +1,6 @@
 /**
- * FCM / push device-token registration — Phase 6 foundation.
- * Registers and stores the token locally. Does **not** send to server yet.
+ * FCM / push device-token registration — Phase 13 Android Beta.
+ * Registers + stores token locally; optional `onRegistered` for server POST.
  */
 
 import type { PreferenceKv } from "@/platform/cache/securePreferences";
@@ -24,16 +24,21 @@ export type PushPluginLike = {
   ): Promise<{ remove: () => Promise<void> }>;
 };
 
-export async function registerDeviceToken(opts?: {
+export type RegisterDeviceTokenOpts = {
   kv?: PreferenceKv;
   plugin?: PushPluginLike | null;
   platform?: DeviceTokenRecord["platform"];
-}): Promise<DeviceTokenRecord | null> {
+  /** Optional server registration hook (Phase 13 — owner wires Edge Fn later). */
+  onRegistered?: (record: DeviceTokenRecord) => Promise<void> | void;
+};
+
+export async function registerDeviceToken(
+  opts?: RegisterDeviceTokenOpts
+): Promise<DeviceTokenRecord | null> {
   const prefs = createSecurePreferences(opts?.kv ?? memoryPreferenceKv());
   const platform = opts?.platform ?? "android";
 
   if (!opts?.plugin) {
-    // No Cap Push plugin / google-services — record unavailable stub for tests.
     const record: DeviceTokenRecord = {
       token: "",
       platform,
@@ -71,11 +76,26 @@ export async function registerDeviceToken(opts?: {
     permission: "granted",
   };
   await prefs.setJson(TOKEN_KEY, record);
-  // Intentionally no server POST — Phase 6 local registration only.
+  if (record.token && opts?.onRegistered) {
+    await opts.onRegistered(record);
+  }
   return record;
 }
 
 export async function loadStoredDeviceToken(kv?: PreferenceKv): Promise<DeviceTokenRecord | null> {
   const prefs = createSecurePreferences(kv ?? memoryPreferenceKv());
   return prefs.getJson<DeviceTokenRecord>(TOKEN_KEY);
+}
+
+/**
+ * Best-effort Cap Push plugin loader. Returns null when
+ * `@capacitor/push-notifications` is not installed / not native.
+ */
+export async function loadCapacitorPushPlugin(): Promise<PushPluginLike | null> {
+  try {
+    const mod = await import("@capacitor/push-notifications");
+    return mod.PushNotifications as unknown as PushPluginLike;
+  } catch {
+    return null;
+  }
 }
