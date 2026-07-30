@@ -5,7 +5,7 @@ All notable platform releases are documented here. Product labels follow
 
 ## [1.1.0-beta1A] – Phase 16 (Collaboration Sessions)
 
-**Pending merge** — branch `phase16-collab` · exit gate
+**Merged** — tag `v1.1.0-beta1A-phase16` · exit gate
 [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md)
 · ADR [`ADR_COLLAB_SESSIONS.md`](./docs/architecture/ADR_COLLAB_SESSIONS.md) (ADR-030)
 
