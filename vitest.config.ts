@@ -11,6 +11,8 @@ export default defineConfig({
       { find: "@vybz/domain/releases", replacement: path.resolve(__dirname, "./packages/domain/releases/src/index.ts") },
       { find: "@vybz/data/releases", replacement: path.resolve(__dirname, "./packages/data/releases/src/index.ts") },
       { find: "@vybz/processing/waveform", replacement: path.resolve(__dirname, "./packages/processing/waveform/src/index.ts") },
+      { find: "@vybz/processing/mastering", replacement: path.resolve(__dirname, "./packages/processing/mastering/src/index.ts") },
+      { find: "@vybz/processing/metadata", replacement: path.resolve(__dirname, "./packages/processing/metadata/src/index.ts") },
       { find: "@vybz/processing/readiness/worker", replacement: path.resolve(__dirname, "./packages/processing/readiness/src/worker.ts") },
       { find: "@vybz/processing/readiness", replacement: path.resolve(__dirname, "./packages/processing/readiness/src/index.ts") },
       { find: "@vybz/contracts", replacement: path.resolve(__dirname, "./src/contracts/index.ts") },

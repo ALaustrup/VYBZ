@@ -155,6 +155,14 @@ export default defineConfig({
         replacement: fileURLToPath(new URL("./packages/processing/waveform/src/index.ts", import.meta.url)),
       },
       {
+        find: "@vybz/processing/mastering",
+        replacement: fileURLToPath(new URL("./packages/processing/mastering/src/index.ts", import.meta.url)),
+      },
+      {
+        find: "@vybz/processing/metadata",
+        replacement: fileURLToPath(new URL("./packages/processing/metadata/src/index.ts", import.meta.url)),
+      },
+      {
         find: "@vybz/processing/readiness/worker",
         replacement: fileURLToPath(new URL("./packages/processing/readiness/src/worker.ts", import.meta.url)),
       },

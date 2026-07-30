@@ -8,6 +8,7 @@ import { DistributionReportPage } from "@/features/distribution/DistributionRepo
 import { DesktopBatchPanel } from "@/features/processing/DesktopBatchPanel";
 import { WaveformPreviewPage } from "@/pages/WaveformPreviewPage";
 import { AndroidBetaPage } from "@/pages/AndroidBetaPage";
+import { ReleaseMasterPane } from "@/features/mastering/ReleaseMasterPane";
 import { FLAGS } from "@/lib/flags";
 
 function StudioIdRedirect() {
@@ -52,21 +53,11 @@ export function suitePlaceholderRoutes() {
             product="master"
             title="MasterReady"
             description="Loudness, peaks, and master delivery checks."
-            phaseNote="Phase 4 Processing Engine shipped — use /desktop/process on Desktop for batch queue."
+            phaseNote="Phase 15 — Open a release, then Master on that release (/release/:id/master)."
           />
         }
       />
-      <Route
-        path="/release/:id/master"
-        element={
-          <SuitePlaceholderPage
-            product="master"
-            title="Master workspace"
-            description="Mastering workspace for this release."
-            phaseNote="Phase 4 — MasterReady."
-          />
-        }
-      />
+      <Route path="/release/:id/master" element={<ReleaseMasterPane />} />
       <Route
         path="/coverlab"
         element={

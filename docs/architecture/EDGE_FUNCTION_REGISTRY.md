@@ -20,6 +20,8 @@
 | `storefront-pack-copy` | **on** | Groq copy | Market |
 | `storefront-pack-art` | **on** | SVG art | Market |
 | `storefront-checkout` | **off** | Checkout session | Market |
+| `ai-mastering` | **on** | DSP loudness/peak (+ optional ONNX) | Phase 15; cost_events `ai_mastering` |
+| `ai-metadata` | **on** | Groq genre/mood/BPM/ISRC | Phase 15; cost_events `ai_metadata` |
 | `bunny-upload` | — | Dormant | **Do not re-enable** |
 | `bunny-sign` | — | Dormant | **Do not re-enable** |
 | `bunny-live` | — | Dormant | **Do not re-enable** |
