@@ -38,10 +38,14 @@ rules:
   - id: block_lfi
     description: Block ../../etc/passwd and encoded traversal
     action: block
+    # Free plan: use contains only (matches/regex needs Business / WAF Advanced)
     expression: |
       http.request.uri.path contains "../" or
       http.request.uri.query contains "../" or
-      http.request.uri.path matches "(%2e%2e|%252e%252e)"
+      http.request.uri.path contains "%2e%2e" or
+      http.request.uri.path contains "%252e%252e" or
+      http.request.uri.query contains "%2e%2e" or
+      http.request.uri.query contains "%252e%252e"
 
   # ─────────────────────────────────────────────
   # 3. Block prototype pollution probes
@@ -50,7 +54,7 @@ rules:
     description: Block ?__proto__={} style payloads
     action: block
     expression: |
-      http.request.uri.query matches "__proto__"
+      http.request.uri.query contains "__proto__"
 
   # ─────────────────────────────────────────────
   # 4. Default: allow (falls through CF managed rules)

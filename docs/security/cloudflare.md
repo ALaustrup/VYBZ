@@ -2,11 +2,10 @@
 
 > **Import file:** [`cloudflare-ruleset.yml`](./cloudflare-ruleset.yml)  
 > Ruleset name: **`vybz-cloud-spa-edge`**  
-> Tuned for Vite SPA routes + Supabase Edge (`/functions/v1/`).  
-> Production SPA today is still **Vercel** (`astramatrix/vybz` → https://vybz.cloud).
-> Apply only on hostnames Cloudflare already proxies.
->
-> Dashboard import requires an **owner-level Cloudflare session** (agents cannot apply this).
+> **Production status:** **active** on zone `vybz.cloud` since **2026-07-30**  
+> (ruleset id `cd57debe6da141c18d4adcaed440c319`).  
+> Free plan: block expressions use `contains` only (`matches`/regex needs Business / WAF Advanced).
+> Tuned for Vite SPA routes + Supabase Edge (`/functions/v1/`).
 
 ## Staging WAF activation
 
