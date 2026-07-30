@@ -157,7 +157,7 @@ export function suitePlaceholderRoutes() {
             product="home"
             title="Settings"
             description="Account, privacy, and Suite preferences."
-            phaseNote="Cost Sentinel: /settings/costs (read-only usage alerts)."
+            phaseNote="Cost Sentinel: /settings/costs · AI minutes: /settings/credits."
           />
         }
       />

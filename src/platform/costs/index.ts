@@ -33,6 +33,19 @@ export {
   hydrateEdgeFlags,
 } from "./edgeFlags";
 export { decideCostAlert } from "./costAlert";
+export {
+  AI_MINUTE_PACK_SECONDS,
+  AI_MINUTE_PACK_CENTS,
+  AI_MINUTE_PACK_ID,
+  AI_LOW_BALANCE_SECONDS,
+  creditAiSeconds,
+  debitAICredits,
+  getAiCreditBalance,
+  listAiCreditLedger,
+  resetAiCreditStore,
+  secondsToAiMinutes,
+  type AiCreditLedgerRow,
+} from "./aiCredits";
 
 export type CostPolicy = {
   allowPaidWithoutReservation: boolean;
@@ -42,7 +55,7 @@ export type CostPolicy = {
 export function defaultCostPolicy(): CostPolicy {
   return {
     allowPaidWithoutReservation: false,
-    prepaidProviders: [],
+    prepaidProviders: ["ai_mastering"],
   };
 }
 

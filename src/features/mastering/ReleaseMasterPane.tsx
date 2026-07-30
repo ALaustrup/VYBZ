@@ -10,6 +10,10 @@ import {
   subscribeAiJobs,
   type AiMasterJob,
 } from "@/features/mastering/aiMasterService";
+import {
+  AI_LOW_BALANCE_SECONDS,
+  getAiCreditBalance,
+} from "@/platform/costs/aiCredits";
 
 function useAiJobs(projectId?: string): AiMasterJob[] {
   const [jobs, setJobs] = useState(() => listAiJobs(projectId));
@@ -37,6 +41,18 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
   const [error, setError] = useState<string | null>(null);
   const [ab, setAb] = useState<"A" | "B">("B");
   const [file, setFile] = useState<File | null>(null);
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const latestStatus = jobs[0]?.status;
+
+  useEffect(() => {
+    let cancelled = false;
+    void getAiCreditBalance().then((b) => {
+      if (!cancelled) setCreditBalance(b);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [latestStatus]);
 
   useEffect(() => {
     if (!e2eMode) return;
@@ -134,6 +150,18 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           <h1 className="font-display text-xl font-semibold text-snow">MasterReady · e2e</h1>
           <Badge tone="info">fixture</Badge>
         </header>
+      )}
+
+      {creditBalance !== null && creditBalance < AI_LOW_BALANCE_SECONDS && (
+        <div
+          className="rounded-suite-md border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-snow"
+          data-testid="master-low-balance-banner"
+        >
+          AI minute balance low ({Math.floor(creditBalance)}s).{" "}
+          <Link to="/settings/credits" className="underline hover:text-suite-cyan">
+            Top up credits
+          </Link>
+        </div>
       )}
 
       <div className="flex flex-wrap items-center gap-3">

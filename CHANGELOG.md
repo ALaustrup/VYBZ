@@ -3,6 +3,17 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 18 (Cost-Minute Billing)
+
+**Pending push** — branch `phase18-billing` · exit gate
+[`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md)
+· ADR [`ADR_AI_MINUTE_BILLING.md`](./docs/architecture/ADR_AI_MINUTE_BILLING.md) (ADR-032)
+
+- Phase 18: AI processing seconds → billable minutes; Stripe top-up; hard-stop at balance ≤ 0
+- Ledger `ai_credit_ledger` · Edge `ai-topup` · webhook `kind=ai_topup` (+6000 s pack)
+- `/settings/credits` wallet + Master low-balance banner (&lt;120 s)
+- ADR-032 AI minute billing
+
 ## [1.1.0-beta1A] – Phase 17 (Desktop macOS & Linux)
 
 **Merged** — tag `v1.1.0-beta1A-phase17` · exit gate

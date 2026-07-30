@@ -256,6 +256,21 @@ Deno.serve(async (req: Request) => {
     p_meta: { job_id: job.id, proc_version: PROC_VERSION },
   });
 
+  // Phase 18 — debit prepaid AI seconds when the user has a ledger balance.
+  const { data: balRaw } = await admin.rpc("get_ai_credit_balance", { p_user_id: uid });
+  const bal = Number(balRaw ?? 0);
+  if (bal > 0) {
+    const debitSecs = Math.min(seconds, bal);
+    const { error: debitErr } = await admin.rpc("admin_debit_ai_credits", {
+      p_user_id: uid,
+      p_seconds: debitSecs,
+      p_reason: "ai_mastering",
+      p_usd: debitSecs * USD_PER_SECOND,
+      p_meta: { job_id: job.id, proc_version: PROC_VERSION },
+    });
+    if (debitErr) console.error("admin_debit_ai_credits", debitErr.message);
+  }
+
   return json({
     jobId: job.id,
     status: "completed",

@@ -70,8 +70,10 @@ import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
 import { StorefrontOrdersE2EFixturePage } from "@/pages/StorefrontOrdersE2EFixturePage";
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
+import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
 import { CostSentinelE2EFixturePage } from "@/pages/CostSentinelE2EFixturePage";
 import { MasteringE2EFixturePage } from "@/pages/MasteringE2EFixturePage";
+import { AiCreditsE2EFixturePage } from "@/pages/AiCreditsE2EFixturePage";
 import { CollabSessionsE2EFixturePage } from "@/pages/CollabSessionsE2EFixturePage";
 
 export function App() {
@@ -116,6 +118,9 @@ export function App() {
   }
   if (location.pathname === "/__e2e__/cost-sentinel") {
     return <CostSentinelE2EFixturePage />;
+  }
+  if (location.pathname === "/__e2e__/ai-credits") {
+    return <AiCreditsE2EFixturePage />;
   }
   if (location.pathname === "/__e2e__/collab") {
     return <CollabSessionsE2EFixturePage />;
@@ -216,6 +221,7 @@ export function App() {
           </>
         ) : null}
         <Route path="/settings/costs" element={<CostSentinelDashboardPage />} />
+        <Route path="/settings/credits" element={<AiCreditsPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />
