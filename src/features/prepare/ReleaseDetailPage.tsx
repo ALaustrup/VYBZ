@@ -7,6 +7,8 @@ import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { getPrepareOwnerId, getReleaseBundle } from "@/features/prepare/service";
 import { countBySeverity, severityTone, statusTone } from "@/features/prepare/severity";
 import { FindingsReadOnly } from "@/features/prepare/FindingsReadOnly";
+import { CollabPresenceStrip } from "@/features/collab/CollabPresenceStrip";
+import { CommentThreadPanel } from "@/features/collab/CommentThreadPanel";
 import type { FindingSeverity, ReleaseBundle } from "@vybz/domain/releases";
 
 const SEVERITY_FILTER: Array<"all" | FindingSeverity> = ["all", "blocking", "warning", "info"];
@@ -111,6 +113,13 @@ export function ReleaseDetailPage() {
         </Link>
       </div>
 
+      <CollabPresenceStrip
+        releaseId={project.id}
+        userId={ownerId}
+        username={null}
+        pane="prepare"
+      />
+
       <div className="flex flex-wrap gap-2 text-xs text-fog">
         <span>{counts.blocking} blocking</span>
         <span>·</span>
@@ -169,6 +178,15 @@ export function ReleaseDetailPage() {
           ))}
         </ul>
       )}
+
+      <CommentThreadPanel
+        releaseId={project.id}
+        authorId={ownerId}
+        authorName={null}
+        title="Prepare comments"
+        anchorKind="metadata_field"
+        anchorRef="title"
+      />
     </div>
   );
 }
