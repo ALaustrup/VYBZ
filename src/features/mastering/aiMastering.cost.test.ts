@@ -6,6 +6,12 @@ import {
 import { applyKillSwitchLocal, isFeatureKillSwitched, resetEdgeFlagCache } from "@/platform/costs/edgeFlags";
 import { listRecentCostEvents, recordCost, resetCostEventStore } from "@/platform/costs/recordCost";
 import {
+  creditAiSeconds,
+  getAiCreditBalance,
+  resetAiCreditStore,
+} from "@/platform/costs/aiCredits";
+import {
+  assertAiMasteringAllowed,
   resetAiJobStore,
   runLocalMasterJob,
   shouldUseRemoteAnalyze,
@@ -46,6 +52,7 @@ describe("AI mastering cost hooks", () => {
     resetCostEventStore();
     resetEdgeFlagCache();
     resetAiJobStore();
+    resetAiCreditStore();
   });
 
   it("logs cost_event when job records 3 s", async () => {
@@ -96,6 +103,28 @@ describe("AI mastering cost hooks", () => {
         file: makeSineWav(0.25),
       })
     ).rejects.toThrow(/kill-switch/i);
+  });
+
+  it("hard-stop when free-tier and prepaid balance are exhausted", async () => {
+    await recordCost("ai_mastering", AI_MASTERING_FREE_SECONDS, 0.1, {
+      caps: { monthlyCapUsd: 0, freeTierUnits: 99999, alertRatio: 0.9 },
+    });
+    await expect(assertAiMasteringAllowed(1)).rejects.toThrow(/balance ≤ 0|exhausted/i);
+  });
+
+  it("prepaid pack allows mastering after free-tier is used", async () => {
+    await recordCost("ai_mastering", AI_MASTERING_FREE_SECONDS, 0.1, {
+      caps: { monthlyCapUsd: 0, freeTierUnits: 99999, alertRatio: 0.9 },
+    });
+    await creditAiSeconds(6000);
+    await assertAiMasteringAllowed(30);
+    const job = await runLocalMasterJob({
+      file: makeSineWav(1),
+      fileName: "paid.wav",
+      fixtureMeta: true,
+    });
+    expect(job.status).toBe("completed");
+    expect(await getAiCreditBalance()).toBeLessThan(6000);
   });
 });
 

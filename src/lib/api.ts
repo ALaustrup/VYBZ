@@ -1152,6 +1152,54 @@ export async function startCreditTopup(packId: string, origin: string): Promise<
   return (data as any)?.url ?? null;
 }
 
+/** Buyer: start an AI minute pack Checkout (platform charge); returns hosted URL. */
+export async function startAiMinuteTopup(packId: string, origin: string): Promise<string | null> {
+  const { data, error } = await db().functions.invoke("ai-topup", { body: { packId, origin } });
+  if (error) throw new Error(await fnErrorMessage(error, "Could not start AI minute top-up."));
+  if ((data as any)?.error) throw new Error((data as any).error);
+  return (data as any)?.url ?? null;
+}
+
+/** Prepaid AI mastering seconds balance (RPC). Returns null if offline / unauthenticated. */
+export async function fetchAiCreditBalance(): Promise<number | null> {
+  try {
+    const { data, error } = await db().rpc("get_ai_credit_balance");
+    if (error) return null;
+    return Number(data ?? 0);
+  } catch {
+    return null;
+  }
+}
+
+export type AiCreditLedgerApiRow = {
+  id: string;
+  delta_seconds: number;
+  usd: number;
+  reason: string;
+  created_at: string;
+};
+
+/** Recent AI credit ledger rows for the signed-in user. */
+export async function fetchAiCreditLedger(limit = 40): Promise<AiCreditLedgerApiRow[]> {
+  try {
+    const { data, error } = await db()
+      .from("ai_credit_ledger")
+      .select("id, delta_seconds, usd, reason, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return data.map((r) => ({
+      id: String(r.id),
+      delta_seconds: Number(r.delta_seconds),
+      usd: Number(r.usd),
+      reason: String(r.reason),
+      created_at: String(r.created_at),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export type VisualStylePreset = "glass" | "aurora" | "waveform" | "stage" | "ember";
 
 export interface VisualGenerateResult {

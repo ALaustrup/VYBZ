@@ -60,16 +60,18 @@
 | **15 Remote AI Processing** | **Complete** — merged PR #16 · tag `v1.1.0-beta1A-phase15` · [`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md) |
 | **16 Collaboration Sessions** | **Complete** — merged PR #17 · tag `v1.1.0-beta1A-phase16` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
 | **17 Desktop macOS & Linux** | **Complete** — merged PR #18 · tag `v1.1.0-beta1A-phase17` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
+| **18 Cost-Minute Billing** | **In progress** — branch `phase18-billing` · [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md) |
 
 ### Exact next actions
-1. **Owner secrets (notarised DMG):** set GitHub Actions `MAC_CERT_BASE64` + `MAC_CERT_PWD` (optional `APPLE_ID` / `APPLE_PASSWORD` / `APPLE_TEAM_ID`) → rerun `mac-dmg`.
-2. Choose next wedge: cost-minute billing · UI-polish backlog · or iOS alpha (Phase 18).
-3. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
-4. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-5. Prod smoke: desktop update feeds (win/mac/linux); Enter → VDock → tip → live.
-6. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-7. Do **not** tag `Beta-1A` yet.
-8. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
+1. **Phase 18:** exit gate → owner approval → push/PR → merge → tag `v1.1.0-beta1A-phase18` → apply `0089` + deploy `ai-topup` / `stripe-webhook`.
+2. Parallel: UI-polish micro-PRs to `main` (no phase tag). iOS alpha = **Phase 19**.
+3. **Owner secrets (notarised DMG):** `MAC_CERT_BASE64` + `MAC_CERT_PWD` (optional Apple ID secrets) → rerun `mac-dmg`.
+4. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
+5. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
+6. Prod smoke: AI credits Checkout; Enter → VDock → tip → live.
+7. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+8. Do **not** tag `Beta-1A` yet.
+9. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
 `npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
@@ -129,8 +131,9 @@ bypass RLS.
 
 ### Edge functions
 Preserve existing set including `visual-generate`, `storefront-*`, `stripe-*`,
-`livekit-token`, `watermark*`, waitlist, audio-play, etc. Deploy JWT rules unchanged
-unless a phase doc says otherwise.
+`ai-topup`, `ai-mastering`, `livekit-token`, `watermark*`, waitlist, audio-play, etc.
+Deploy JWT rules unchanged unless a phase doc says otherwise.
+`ai-topup` → `--no-verify-jwt` (verify JWT in-function); redeploy `stripe-webhook` for `kind=ai_topup`.
 
 ### Storage buckets
 `site-visuals`, `media-public`, `audio-assets`, `project-files`,

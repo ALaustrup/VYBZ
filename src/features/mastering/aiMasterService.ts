@@ -16,6 +16,7 @@ import {
 } from "@vybz/processing/metadata";
 import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
 import { monthTotals, recordCost } from "@/platform/costs/recordCost";
+import { debitAICredits, getAiCreditBalance } from "@/platform/costs/aiCredits";
 import { PlatformError } from "@/platform/bridge/errors";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 
@@ -77,10 +78,12 @@ export async function assertAiMasteringAllowed(extraSeconds: number): Promise<vo
     );
   }
   const used = await aiMasteringMonthSeconds();
-  if (used + extraSeconds > AI_MASTERING_FREE_SECONDS) {
+  const freeLeft = Math.max(0, AI_MASTERING_FREE_SECONDS - used);
+  const prepaid = await getAiCreditBalance();
+  if (freeLeft + prepaid < extraSeconds) {
     throw new PlatformError(
       "validation",
-      `AI mastering free-tier exceeded (${AI_MASTERING_FREE_SECONDS}s/month)`
+      "AI credits exhausted (balance ≤ 0) — top up at /settings/credits"
     );
   }
 }
@@ -152,9 +155,19 @@ export async function runLocalMasterJob(opts: {
         : undefined;
     const seconds = Math.max(0.001, mastered.metrics.durationSeconds);
     const usd = seconds * AI_MASTERING_USD_PER_SECOND;
+    const usedBefore = await aiMasteringMonthSeconds();
+    const freeLeft = Math.max(0, AI_MASTERING_FREE_SECONDS - usedBefore);
+    const prepaidDebit = Math.max(0, seconds - freeLeft);
     await recordCost("ai_mastering", seconds, usd, {
       meta: { job_id: jobId, proc_version: mastered.metrics.procVersion },
     });
+    if (prepaidDebit > 0) {
+      await debitAICredits(prepaidDebit, {
+        usd: prepaidDebit * AI_MASTERING_USD_PER_SECOND,
+        reason: "ai_mastering",
+        meta: { job_id: jobId, proc_version: mastered.metrics.procVersion },
+      });
+    }
 
     let metadata: InferredMetadata | undefined;
     if (opts.inferMeta !== false) {

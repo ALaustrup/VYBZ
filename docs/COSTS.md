@@ -13,9 +13,16 @@ daily Edge alert `cost-alert`. See
 and [`architecture/PHASE14_EXIT_GATE.md`](./architecture/PHASE14_EXIT_GATE.md).
 
 **Remote AI (Phase 15):** `ai_mastering` / `ai_metadata` cost features; free-tier
-**300 s/month** mastering (`AI_MASTERING_FREE_SECONDS`). Soft telemetry only —
-paid minutes deferred to Phase 16. See
-[`architecture/ADR_AI_MASTERING.md`](./architecture/ADR_AI_MASTERING.md).
+**300 s/month** mastering (`AI_MASTERING_FREE_SECONDS`). Soft telemetry via Cost
+Sentinel. See [`architecture/ADR_AI_MASTERING.md`](./architecture/ADR_AI_MASTERING.md).
+
+**AI minute billing (Phase 18):** prepaid ledger `ai_credit_ledger`; Stripe
+Checkout Edge `ai-topup` (default **100 min / $10** → **+6000 s**); webhook
+`kind=ai_topup` → `fulfill_ai_topup`. Jobs call `recordCost` **and**
+`debitAICredits` for prepaid seconds. Hard-stop when free-tier + balance
+exhausted. UI `/settings/credits`. See
+[`architecture/ADR_AI_MINUTE_BILLING.md`](./architecture/ADR_AI_MINUTE_BILLING.md)
+and [`architecture/PHASE18_EXIT_GATE.md`](./architecture/PHASE18_EXIT_GATE.md).
 
 | Env | Role |
 |-----|------|
@@ -25,3 +32,5 @@ paid minutes deferred to Phase 16. See
 | `COST_ALERT_SECRET` | Edge auth (fallback: `DIGEST_CRON_SECRET`) |
 | `VITE_COST_SENTINEL_MONTHLY_CAP_USD` | Optional client display mirror |
 | `GROQ_API_KEY` | Metadata AI (Edge `ai-metadata`) |
+| `STRIPE_SECRET_KEY` | Checkout for AI minute packs (`ai-topup`) |
+| `STRIPE_WEBHOOK_SECRET` | Fulfill `ai_topup` sessions |

@@ -3,6 +3,7 @@
 // Signature-verified Stripe webhook. Handles:
 //   • checkout.session.completed (kind=tip) → mark the tip 'paid'
 //   • checkout.session.completed (kind=credit_topup) → fulfill_credit_topup
+//   • checkout.session.completed (kind=ai_topup) → fulfill_ai_topup (+6000 sec default)
 //   • checkout.session.completed (kind=storefront) → mark order paid + Resend ZIP link
 //   • account.updated             → sync creator_payouts readiness flags
 //
@@ -184,6 +185,12 @@ Deno.serve(async (req: Request) => {
           p_payment_intent: pi,
         });
         if (error) console.error("fulfill_credit_topup", error.message);
+      } else if (s.metadata?.kind === "ai_topup") {
+        const { error } = await admin.rpc("fulfill_ai_topup", {
+          p_session_id: s.id,
+          p_payment_intent: pi,
+        });
+        if (error) console.error("fulfill_ai_topup", error.message);
       } else if (s.metadata?.kind === "storefront") {
         await fulfillStorefrontOrder(s);
       }
