@@ -16,7 +16,7 @@
 - **Audience layer (preserved):** `/u/:id`, VDock, Vc tips, LiveKit live, cosmetics.
 - **Frozen:** VR/Immersive; dating-first / Spark-as-home; Living Home; Spotify-scale catalog race; Bunny as media origin; React Native rewrite without proven necessity.
 - **Domain:** https://vybz.cloud · Owner: Astra Matrix, Inc. · GitHub: **`ALaustrup/VYBZ`** only.
-- **Branch:** `phase15-remote-ai` (local). Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates. Do **not** push/PR unless owner explicitly asks.
+- **Branch:** `main` (tip). Do **not** cut `Beta-1A` tag until Cloud shell + cost kernel + Prepare scan pass production gates.
 
 ### Repo / deploy truth
 | Item | Value |
@@ -57,11 +57,11 @@
 | **12 Desktop Beta** | **Complete** — merged PR #13 · tag `v1.1.0-beta1A-phase12` · [`PHASE12_EXIT_GATE.md`](./docs/architecture/PHASE12_EXIT_GATE.md) |
 | **13 Android Beta** | **Complete** — merged PR #14 · tag `v1.1.0-beta1A-phase13` · [`PHASE13_EXIT_GATE.md`](./docs/architecture/PHASE13_EXIT_GATE.md) |
 | **14 Cost Sentinel** | **Complete** — merged PR #15 · tag `v1.1.0-beta1A-phase14` · [`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md) |
-| **15 Remote AI Processing** | **In progress (local)** — [`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md) · await owner approval before push/PR |
+| **15 Remote AI Processing** | **Shipping** — PR → tag `v1.1.0-beta1A-phase15` · [`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md) |
 
 ### Exact next actions
-1. Finish Phase 15 exit gate locally; **await owner approval** before push/PR.
-2. Owner (parallel): apply migration `0087`; optional upload `ai-models/mastering.onnx`; deploy `ai-mastering` + `ai-metadata` (JWT on).
+1. Merge Phase 15 PR after CI green; tag `v1.1.0-beta1A-phase15`.
+2. Owner: apply migration `0087`; optional upload `ai-models/mastering.onnx`; deploy `ai-mastering` + `ai-metadata` (JWT on).
 3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 4. Prod smoke on vybz.cloud: Enter → upload → VDock → tip → brief live; CDN site-visuals.
 5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
