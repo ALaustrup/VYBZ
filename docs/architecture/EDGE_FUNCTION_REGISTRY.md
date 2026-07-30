@@ -5,6 +5,7 @@
 | `waitlist-join` | off | Public waitlist | Keep |
 | `waitlist-notify` | secret header | Launch blast | Keep; quota-aware |
 | `weekly-digest` | cron/secret | Digest mail | Keep |
+| `cost-alert` | secret header | Cost Sentinel ≥90% owner email | Phase 14; `--no-verify-jwt` |
 | `audio-play` | on | Playback auth | Keep |
 | `livekit-token` | on | Live tokens | Keep; hard-cap UX |
 | `passkey` | mixed | WebAuthn | Keep |
