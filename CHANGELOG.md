@@ -3,6 +3,17 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 13 (Android Beta)
+
+**Merged** — tag `v1.1.0-beta1A-phase13` · exit gate
+[`PHASE13_EXIT_GATE.md`](./docs/architecture/PHASE13_EXIT_GATE.md)
+· ADR [`ADR_ANDROID_BETA.md`](./docs/architecture/ADR_ANDROID_BETA.md)
+
+- Phase 13: Android Beta — signed AAB, Play Console metadata, upload queue retry, in-app update API, AES-GCM prefs
+- Play-ready AAB CI (`bundleRelease`), data-safety form, flexible in-app updates
+- Upload-queue UI (retry + progress), `vybz://release/:id`, FCM registration
+- AES-GCM prefs via Android KeyStore · ADR-027
+
 ## [1.1.0-beta1A] – Phase 12 (Desktop Beta)
 
 **Merged** — tag `v1.1.0-beta1A-phase12` · exit gate

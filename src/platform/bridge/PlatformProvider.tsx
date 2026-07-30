@@ -7,6 +7,8 @@ import { bindCapacitorDeepLinks } from "@/platform/deeplinks/capacitor";
 import { createBrowserNetworkProvider } from "@/platform/network";
 import { createSyncOrchestrator, setGlobalSyncOrchestrator } from "@/platform/sync";
 import { applyCreditsMutation, getCreditsMutationQueue } from "@/features/credits/service";
+import { loadCapacitorPushPlugin, registerDeviceToken } from "@/platform/push/deviceToken";
+import { getUploadQueue } from "@/platform/sync/uploadQueueController";
 
 const PlatformContext = createContext<PlatformBridge | null>(null);
 
@@ -36,6 +38,12 @@ export function PlatformProvider({
     }).then((fn) => {
       unbind = fn;
     });
+    // FCM token registration (local + optional server hook)
+    void loadCapacitorPushPlugin().then((plugin) =>
+      registerDeviceToken({ plugin, platform: "android" })
+    );
+    // Drain upload queue when coming online
+    void getUploadQueue().drain().catch(() => undefined);
     return () => unbind?.();
   }, [value.kind]);
 
