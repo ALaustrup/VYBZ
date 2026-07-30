@@ -60,15 +60,15 @@
 | **15 Remote AI Processing** | **Complete** — merged PR #16 · tag `v1.1.0-beta1A-phase15` · [`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md) |
 | **16 Collaboration Sessions** | **Complete** — merged PR #17 · tag `v1.1.0-beta1A-phase16` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
 | **17 Desktop macOS & Linux** | **Complete** — merged PR #18 · tag `v1.1.0-beta1A-phase17` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
-| **18 Cost-Minute Billing** | **In progress** — branch `phase18-billing` · [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md) |
+| **18 Cost-Minute Billing** | **Complete** — merged PR #19 · tag `v1.1.0-beta1A-phase18` · [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md) |
 
 ### Exact next actions
-1. **Phase 18:** exit gate → owner approval → push/PR → merge → tag `v1.1.0-beta1A-phase18` → apply `0089` + deploy `ai-topup` / `stripe-webhook`.
-2. Parallel: UI-polish micro-PRs to `main` (no phase tag). iOS alpha = **Phase 19**.
+1. **Phase 18 ops:** apply migration `0089` · deploy `ai-topup` (`--no-verify-jwt`) · redeploy `stripe-webhook` + `ai-mastering` · live Checkout smoke.
+2. Parallel: UI-polish micro-PRs to `main` (no phase tag). Next phase tag: **Phase 19 – iOS Alpha**.
 3. **Owner secrets (notarised DMG):** `MAC_CERT_BASE64` + `MAC_CERT_PWD` (optional Apple ID secrets) → rerun `mac-dmg`.
 4. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
 5. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-6. Prod smoke: AI credits Checkout; Enter → VDock → tip → live.
+6. Prod smoke: AI credits Checkout → +6000 s → master debit; Enter → VDock → tip → live.
 7. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
 8. Do **not** tag `Beta-1A` yet.
 9. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.

@@ -5,7 +5,7 @@ All notable platform releases are documented here. Product labels follow
 
 ## [1.1.0-beta1A] – Phase 18 (Cost-Minute Billing)
 
-**Pending push** — branch `phase18-billing` · exit gate
+**Merged** — tag `v1.1.0-beta1A-phase18` · exit gate
 [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md)
 · ADR [`ADR_AI_MINUTE_BILLING.md`](./docs/architecture/ADR_AI_MINUTE_BILLING.md) (ADR-032)
 
