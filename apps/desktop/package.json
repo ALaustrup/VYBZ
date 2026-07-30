@@ -2,7 +2,7 @@
   "name": "@vybz/desktop",
   "private": true,
   "version": "0.0.1",
-  "description": "VYBZ Desktop Tauri 2 PoC (Windows first)",
+  "description": "VYBZ Desktop Tauri 2 (Windows · macOS · Linux)",
   "scripts": {
     "tauri": "tauri",
     "tauri:dev": "tauri dev",

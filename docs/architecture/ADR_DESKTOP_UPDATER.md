@@ -39,4 +39,4 @@ Keep prior MSI objects immutable under versioned keys on the update host.
 
 - Apex / update host must be reachable (Cloudflare DNS for `update.vybz.cloud`).
 - Unsigned local builds remain allowed for developers; CI marks `signed: false`.
-- macOS / Linux ports deferred (Phase 17).
+- macOS / Linux ports: **Phase 17** — see [`ADR_DESKTOP_CROSS.md`](./ADR_DESKTOP_CROSS.md).
