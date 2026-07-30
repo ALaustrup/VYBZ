@@ -3,11 +3,13 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
-## [1.1.0-beta1A] – Phase 12 (Desktop Beta) — unreleased
+## [1.1.0-beta1A] – Phase 12 (Desktop Beta)
 
-**Branch:** `phase12-desktop-beta` · exit gate
+**Merged** — tag `v1.1.0-beta1A-phase12` · exit gate
 [`PHASE12_EXIT_GATE.md`](./docs/architecture/PHASE12_EXIT_GATE.md)
+· ADR [`ADR_DESKTOP_UPDATER.md`](./docs/architecture/ADR_DESKTOP_UPDATER.md)
 
+- Desktop Beta signed channel, auto-update feed, multi-window, sealed prefs
 - Windows updater feed `https://update.vybz.cloud/windows/stable.json`
 - MSI (+ NSIS) CI with Authenticode secrets; WaveformPreview multi-window
 - AES-GCM `%APPDATA%\\Vybz\\secrets.bin` + legacy hex migration

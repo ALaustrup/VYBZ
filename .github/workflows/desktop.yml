@@ -16,6 +16,12 @@ permissions:
 jobs:
   windows-msi:
     runs-on: windows-latest
+    # Map secrets to env first — GitHub rejects `secrets.*` inside step `if:`.
+    env:
+      WINDOWS_CERT_BASE64: ${{ secrets.WINDOWS_CERT_BASE64 }}
+      WINDOWS_CERT_PWD: ${{ secrets.WINDOWS_CERT_PWD }}
+      UPDATE_BUCKET_WRITE_TOKEN: ${{ secrets.UPDATE_BUCKET_WRITE_TOKEN }}
+      UPDATE_FEED_UPLOAD_URL: ${{ secrets.UPDATE_FEED_UPLOAD_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,15 +42,13 @@ jobs:
         run: npm i -D @tauri-apps/cli@^2.5.0 --no-save
 
       - name: Import Windows code-signing cert
-        if: ${{ secrets.WINDOWS_CERT_BASE64 != '' }}
+        if: env.WINDOWS_CERT_BASE64 != ''
         shell: pwsh
         run: |
           $bytes = [Convert]::FromBase64String($env:WINDOWS_CERT_BASE64)
           $path = Join-Path $env:RUNNER_TEMP "vybz-codesign.pfx"
           [IO.File]::WriteAllBytes($path, $bytes)
           echo "WINDOWS_CERT_FILE=$path" >> $env:GITHUB_ENV
-        env:
-          WINDOWS_CERT_BASE64: ${{ secrets.WINDOWS_CERT_BASE64 }}
 
       - name: Build MSI (+ NSIS)
         shell: pwsh
@@ -59,28 +63,21 @@ jobs:
             Write-Host "WINDOWS_CERT_* missing — unsigned MSI for CI artifact smoke"
             npx tauri build --bundles msi,nsis
           }
-        env:
-          WINDOWS_CERT_PWD: ${{ secrets.WINDOWS_CERT_PWD }}
 
       - name: Sign MSI with signtool (optional)
-        if: ${{ secrets.WINDOWS_CERT_BASE64 != '' }}
+        if: env.WINDOWS_CERT_BASE64 != ''
         shell: pwsh
         run: |
           $msi = Get-ChildItem -Path apps/desktop/src-tauri/target/release/bundle/msi -Filter *.msi | Select-Object -First 1
           if (-not $msi) { throw "MSI not found" }
           & signtool sign /f $env:WINDOWS_CERT_FILE /p $env:WINDOWS_CERT_PWD /tr http://timestamp.digicert.com /td sha256 /fd sha256 $msi.FullName
-        env:
-          WINDOWS_CERT_PWD: ${{ secrets.WINDOWS_CERT_PWD }}
 
       - name: Build update feed + DESKTOP_INSTALLERS.json
         run: node scripts/build-update-feed.mjs
 
       - name: Upload feed (optional)
-        if: ${{ secrets.UPDATE_BUCKET_WRITE_TOKEN != '' && secrets.UPDATE_FEED_UPLOAD_URL != '' }}
+        if: env.UPDATE_BUCKET_WRITE_TOKEN != '' && env.UPDATE_FEED_UPLOAD_URL != ''
         run: node scripts/build-update-feed.mjs --upload
-        env:
-          UPDATE_BUCKET_WRITE_TOKEN: ${{ secrets.UPDATE_BUCKET_WRITE_TOKEN }}
-          UPDATE_FEED_UPLOAD_URL: ${{ secrets.UPDATE_FEED_UPLOAD_URL }}
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
