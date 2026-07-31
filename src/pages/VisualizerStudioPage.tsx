@@ -38,6 +38,15 @@ import {
 } from "@/lib/visualizerStudio";
 import { cx } from "@/lib/utils";
 
+/** Accent swatches — hex required by reactive export; values match Suite tokens. */
+const STUDIO_ACCENT_SWATCHES = [
+  "#00C2FF", // --color-cyan / suite-cyan
+  "#00D68F", // --color-success
+  "#A855F7", // --accent-market
+  "#FF4D2E", // coral-500
+  "#F0FF5A", // studio highlighter (intentional; not a semantic suite tone)
+] as const;
+
 const MEDIA_ACCEPT = "video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp";
 const MAX_MEDIA_BYTES = 80 * 1024 * 1024;
 const MAX_AUDIO_BYTES = 200 * 1024 * 1024;
@@ -431,7 +440,7 @@ export function VisualizerStudioPage() {
           className={cx(
             "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition",
             genOpen
-              ? "border-cyan-300/45 bg-cyan-500/20 text-cyan-50"
+              ? "border-suite-cyan/45 bg-suite-cyan/20 text-snow"
               : "border-white/12 bg-white/[0.04] text-white/70 hover:text-white",
           )}
         >
@@ -455,7 +464,7 @@ export function VisualizerStudioPage() {
           }}
         >
           <p className="mb-1 flex items-center gap-1.5 text-[13px] font-semibold text-white">
-            <Wand2 className="h-4 w-4 text-cyan-200" /> AI still for your visualizer
+            <Wand2 className="h-4 w-4 text-suite-cyan/80" /> AI still for your visualizer
           </p>
           <p className="mb-3 text-[12px] text-white/50">
             Prompt → fal Flux still ({GEN_COST} Vc, max 10/day). Then tune FX with your track and export a muted loop.
@@ -466,7 +475,7 @@ export function VisualizerStudioPage() {
             onChange={(e) => setGenPrompt(e.target.value.slice(0, 480))}
             rows={3}
             placeholder="e.g. liquid cyan glass shards over a dark stage, soft glow…"
-            className="w-full rounded-2xl border border-white/14 bg-black/25 px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-cyan-300/40 focus:outline-none"
+            className="w-full rounded-2xl border border-white/14 bg-black/25 px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-suite-cyan/40 focus:outline-none"
           />
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
             {STYLE_PRESETS.map((s) => (
@@ -477,7 +486,7 @@ export function VisualizerStudioPage() {
                 className={cx(
                   "min-w-[5.5rem] shrink-0 rounded-xl border px-2.5 py-2 text-left transition",
                   genStyle === s.id
-                    ? "border-cyan-300/45 bg-cyan-500/15 text-white"
+                    ? "border-suite-cyan/45 bg-suite-cyan/15 text-white"
                     : "border-white/10 bg-white/[0.04] text-white/60 hover:text-white/85",
                 )}
               >
@@ -572,7 +581,7 @@ export function VisualizerStudioPage() {
             <button
               type="button"
               onClick={() => void togglePlay()}
-              className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500/25 text-white ring-1 ring-cyan-300/40 transition active:scale-95"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl bg-suite-cyan/25 text-white ring-1 ring-suite-cyan/40 transition active:scale-95"
               aria-label={playing ? "Pause" : "Play"}
             >
               {playing ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
@@ -584,7 +593,7 @@ export function VisualizerStudioPage() {
               step={0.001}
               value={Math.max(0, Math.min(1, progress))}
               onChange={(e) => seek(Number(e.target.value))}
-              className="h-1.5 flex-1 accent-cyan-300"
+              className="h-1.5 flex-1 accent-suite-cyan"
               aria-label="Timeline"
             />
             <span className="w-16 text-right font-mono text-[11px] text-white/45">
@@ -592,9 +601,9 @@ export function VisualizerStudioPage() {
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <LevelChip label="Bass" value={bands.bass} color="#00C2FF" />
-            <LevelChip label="Mid" value={bands.mid} color="#00D68F" />
-            <LevelChip label="High" value={bands.high} color="#A855F7" />
+            <LevelChip label="Bass" value={bands.bass} color="var(--color-cyan)" />
+            <LevelChip label="Mid" value={bands.mid} color="var(--color-success)" />
+            <LevelChip label="High" value={bands.high} color="rgb(var(--accent-market))" />
             <span className="ml-auto text-[11px] text-white/35">
               Export window · {settings.loopSec}s muted loop
             </span>
@@ -645,7 +654,7 @@ export function VisualizerStudioPage() {
       {/* Reactive style */}
       <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
         <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
-          <Waves className="h-3.5 w-3.5 text-cyan-200" /> Reactive style
+          <Waves className="h-3.5 w-3.5 text-suite-cyan/80" /> Reactive style
         </p>
         <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
           {REACTIVE_STYLES.map((s) => (
@@ -656,7 +665,7 @@ export function VisualizerStudioPage() {
               className={cx(
                 "min-w-[6.5rem] shrink-0 rounded-xl border px-3 py-2.5 text-left transition",
                 settings.style === s.id
-                  ? "border-cyan-300/45 bg-cyan-500/15 text-white"
+                  ? "border-suite-cyan/45 bg-suite-cyan/15 text-white"
                   : "border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25 hover:text-white/85",
               )}
             >
@@ -701,7 +710,7 @@ export function VisualizerStudioPage() {
               step={1}
               value={settings.loopSec}
               onChange={(e) => patch({ loopSec: Number(e.target.value) })}
-              className="accent-cyan-300"
+              className="accent-suite-cyan"
             />
             <span className="font-mono text-white/70">{settings.loopSec}s</span>
           </label>
@@ -709,7 +718,7 @@ export function VisualizerStudioPage() {
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-[11px] text-white/45">Accent</span>
-          {["#00C2FF", "#00D68F", "#A855F7", "#FF4D2E", "#F0FF5A"].map((c) => (
+          {STUDIO_ACCENT_SWATCHES.map((c) => (
             <button
               key={c}
               type="button"
@@ -728,7 +737,7 @@ export function VisualizerStudioPage() {
               onClick={() => patch({ fit: "cover" })}
               className={cx(
                 "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                settings.fit === "cover" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50",
+                settings.fit === "cover" ? "bg-suite-cyan/25 text-snow ring-1 ring-suite-cyan/40" : "text-white/50",
               )}
             >
               Cover
@@ -738,7 +747,7 @@ export function VisualizerStudioPage() {
               onClick={() => patch({ fit: "contain" })}
               className={cx(
                 "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                settings.fit === "contain" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50",
+                settings.fit === "contain" ? "bg-suite-cyan/25 text-snow ring-1 ring-suite-cyan/40" : "text-white/50",
               )}
             >
               Fit
@@ -748,11 +757,11 @@ export function VisualizerStudioPage() {
       </section>
 
       {/* Export */}
-      <section className="rounded-2xl border border-cyan-300/25 bg-cyan-500/10 p-4">
+      <section className="rounded-2xl border border-suite-cyan/25 bg-suite-cyan/10 p-4">
         <div className="flex flex-wrap items-start gap-3">
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
-              <Sparkles className="h-4 w-4 text-cyan-200" /> Export muted VDock loop
+              <Sparkles className="h-4 w-4 text-suite-cyan/80" /> Export muted VDock loop
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-white/55">
               Records the reactive preview at 1280×720. Music stays out of the file so it won’t clash with playback in VDock. Then upload under <strong className="font-semibold text-white/80">Custom</strong> when releasing a drop.
@@ -764,7 +773,7 @@ export function VisualizerStudioPage() {
                   <span className="tabular-nums">{exportPct}%</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full rounded-full bg-cyan-400 transition-all" style={{ width: `${exportPct}%` }} />
+                  <div className="h-full rounded-full bg-suite-cyan transition-all" style={{ width: `${exportPct}%` }} />
                 </div>
               </div>
             )}
@@ -838,17 +847,17 @@ function AssetCard({
       className={cx(
         "flex items-start gap-3 rounded-2xl border p-3.5 text-left transition",
         active
-          ? "border-cyan-300/35 bg-cyan-500/10"
+          ? "border-suite-cyan/35 bg-suite-cyan/10"
           : "border-dashed border-white/15 bg-white/[0.03] hover:border-white/30",
       )}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-cyan-200">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-suite-cyan/80">
         <Icon className="h-5 w-5" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[13px] font-semibold text-white">{title}</span>
         <span className="mt-0.5 block truncate text-[11px] text-white/45">{body}</span>
-        <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-200">
+        <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-suite-cyan/80">
           <Upload className="h-3 w-3" /> {cta}
         </span>
       </span>
@@ -878,7 +887,7 @@ function Slider({
         step={0.01}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="accent-cyan-300"
+        className="accent-suite-cyan"
       />
     </label>
   );
