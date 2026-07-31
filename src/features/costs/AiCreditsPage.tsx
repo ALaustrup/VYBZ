@@ -118,7 +118,7 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
 
       {topupStatus === "success" && (
         <div
-          className="rounded-suite-md border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-snow"
+          className="suite-accent-wash-success rounded-suite-md border border-suite-success/30 px-4 py-3 text-sm text-snow"
           data-testid="ai-topup-success"
         >
           Payment received — minutes appear after webhook fulfill (refresh if needed).
@@ -132,7 +132,7 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
 
       {low && (
         <div
-          className="rounded-suite-md border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-snow"
+          className="suite-accent-wash-warning rounded-suite-md border border-suite-warning/40 px-4 py-3 text-sm text-snow"
           data-testid="ai-low-balance-banner"
         >
           Low balance ({Math.floor(balance)}s). Top up to keep mastering without interruption.

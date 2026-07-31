@@ -19,12 +19,12 @@ import { clientBudgetCaps, evaluateBudget, type BudgetStatus } from "@/platform/
 import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
 
 const FEATURE_COLORS = [
-  "bg-sky-400",
-  "bg-violet-400",
-  "bg-emerald-400",
-  "bg-amber-400",
-  "bg-rose-400",
-  "bg-cyan-300",
+  "bg-suite-cyan",
+  "bg-suite-info",
+  "bg-suite-success",
+  "bg-suite-warning",
+  "bg-suite-danger",
+  "bg-suite-cyan/60",
 ];
 
 type Props = {
@@ -123,7 +123,7 @@ export function CostSentinelDashboardPage({ seedDemo = false }: Props) {
 
       {showCapBanner ? (
         <div
-          className="rounded-suite border border-amber-400/40 bg-amber-400/10 px-4 py-3"
+          className="suite-accent-wash-warning rounded-suite border border-suite-warning/40 px-4 py-3"
           role="alert"
           data-testid="cost-cap-alert-banner"
         >
@@ -256,7 +256,7 @@ export function CostSentinelDashboardPage({ seedDemo = false }: Props) {
             {alerts.map((a) => (
               <li
                 key={`${a.code}-${a.at}`}
-                className="rounded-suite border border-amber-400/25 bg-amber-400/5 px-4 py-3"
+                className="suite-accent-wash-warning rounded-suite border border-suite-warning/25 px-4 py-3"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone="warning">{a.code}</Badge>
