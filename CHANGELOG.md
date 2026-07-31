@@ -5,14 +5,27 @@ All notable platform releases are documented here. Product labels follow
 
 ## [1.1.0-beta1A] – Phase 19 (iOS Alpha)
 
-**Pending push** — branch `phase19-ios-alpha` · exit gate
+**Merged** — tag `v1.1.0-beta1A-phase19` · exit gate
 [`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md)
 · ADR [`ADR_IOS_ALPHA.md`](./docs/architecture/ADR_IOS_ALPHA.md) (ADR-033)
 
-- Phase 19: Capacitor iOS shell, signed IPA CI, TestFlight, Keychain AES-GCM, deep links
+- Phase 19: iOS Alpha – signed IPA, TestFlight upload workflow, deep links, background uploads, Keychain-sealed prefs
 - `ios/App` · `ios.yml` · `IOS_BUILDS.json` · fastlane beta
 - `vybz://` + Universal Links · APNs push · background URLSession uploads
 - ADR-033 iOS Alpha
+
+### Owner steps before TestFlight upload
+
+| Secret / file | Purpose |
+|---|---|
+| `IOS_CERT_BASE64` | base64-encoded Apple Developer distribution (`.p12`) |
+| `IOS_CERT_PWD` | password for the p12 |
+| `IOS_PROV_PROFILE_BASE64` | base64 provisioning profile (`.mobileprovision`) |
+| `APPLE_TEAM_ID` | 10-char Apple team ID |
+
+After secrets are set, rerun the `ios.yml` job or push an empty commit — it will decode cert & profile, build IPA, notarise, and upload to TestFlight. Attach the IPA artefact to the tagged release draft.
+
+**AASA & assetlinks:** Replace the placeholder `TEAMID` in `public/.well-known/apple-app-site-association` with your real Apple Team ID and redeploy Vercel; do the same for `assetlinks.json` if you change the Android application-id.
 
 ## [1.1.0-beta1A] – Phase 18 (Cost-Minute Billing)
 

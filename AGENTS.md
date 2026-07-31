@@ -61,12 +61,12 @@
 | **16 Collaboration Sessions** | **Complete** — merged PR #17 · tag `v1.1.0-beta1A-phase16` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
 | **17 Desktop macOS & Linux** | **Complete** — merged PR #18 · tag `v1.1.0-beta1A-phase17` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
 | **18 Cost-Minute Billing** | **Complete** — merged PR #19 · tag `v1.1.0-beta1A-phase18` · [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md) |
-| **19 iOS Alpha** | **In progress** — branch `phase19-ios-alpha` · [`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md) |
+| **19 iOS Alpha** | **Complete** — merged PR #21 · tag `v1.1.0-beta1A-phase19` · [`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md) |
 
 ### Exact next actions
-1. **Phase 19:** exit gate → owner approval → push/PR → merge → tag `v1.1.0-beta1A-phase19` → provision `IOS_CERT_*` + TestFlight.
-2. Parallel: UI-polish micro-PRs to `main` ([issue #20](https://github.com/ALaustrup/VYBZ/issues/20)).
-3. Replace `TEAMID` in `public/.well-known/apple-app-site-association` with real Apple Team ID.
+1. **Phase 19 ops:** provision `IOS_CERT_BASE64` / `IOS_CERT_PWD` / `IOS_PROV_PROFILE_BASE64` / `APPLE_TEAM_ID` → rerun `ios.yml` → TestFlight.
+2. Replace `TEAMID` in `public/.well-known/apple-app-site-association` with real Apple Team ID; redeploy Vercel.
+3. Parallel: UI-polish micro-PRs to `main` ([issue #20](https://github.com/ALaustrup/VYBZ/issues/20)).
 4. **Phase 18 ops (if pending):** live AI minute Checkout smoke on `/settings/credits`.
 5. **Owner secrets (notarised DMG):** `MAC_CERT_BASE64` + `MAC_CERT_PWD` → rerun `mac-dmg`.
 6. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
