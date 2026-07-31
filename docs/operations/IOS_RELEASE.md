@@ -2,6 +2,27 @@
 
 **Bundle ID:** `cloud.vybz.app` · **Version:** 1.1.0 (build 119)
 
+> **Status (2026-07-30): DEFERRED.** Phase 19 code + CI are on `main` (`v1.1.0-beta1A-phase19`).
+> Live TestFlight is parked until Apple Developer Program (~$99/yr) and signing secrets
+> are provisioned. Unsigned CI continues to record a `toolchain_missing` stub — that is OK.
+> Resume via Opportunity Register **OR-012**. Do not block Suite / UI-polish work on this.
+
+## Resume when ready (owner)
+
+1. Enroll Apple Developer Program; create Distribution cert + App Store profile for `cloud.vybz.app`.
+2. GitHub → Settings → Secrets → Actions — add:
+
+| Secret | Value |
+|--------|--------|
+| `IOS_CERT_BASE64` | Base64 of Apple Distribution `.p12` |
+| `IOS_CERT_PWD` | Password for the `.p12` |
+| `IOS_PROV_PROFILE_BASE64` | Base64 of `.mobileprovision` |
+| `APPLE_TEAM_ID` | 10-char team ID |
+
+3. Replace `TEAMID` in `public/.well-known/apple-app-site-association` → commit + redeploy Vercel.
+4. Re-run `.github/workflows/ios.yml` (or empty commit) → IPA → TestFlight Internal.
+5. Smoke: launch UI · `vybz://release/123` · background upload.
+
 ## Local (macOS)
 
 ```bash

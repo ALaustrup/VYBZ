@@ -52,3 +52,8 @@ npm run perf:audit         ✓ mobile ≥ 100 / desktop ≥ 99
 | `ASC_KEY_ID` / `ASC_ISSUER_ID` / `ASC_KEY_CONTENT` | Preferred ASC API key (base64) |
 
 Replace `TEAMID` in `public/.well-known/apple-app-site-association` before prod Universal Links.
+
+## Follow-up — TestFlight deferred (OR-012)
+
+Live signing / TestFlight / AASA Team ID **paused** (Apple Developer cost). Phase 19 code exit remains satisfied.
+Resume from [`IOS_RELEASE.md`](../operations/IOS_RELEASE.md) when owner budgets Apple membership.

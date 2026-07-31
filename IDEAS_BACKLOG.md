@@ -134,6 +134,16 @@ Each entry uses:
 - **Status:** `parked` (contract tests sufficient for Phase 2–3)
 - **Promotion criteria:** Before multi-account Credits approval or public beta
 
+### OR-012 — iOS TestFlight live upload (Phase 19 ops)
+- **Problem:** Capacitor iOS shell + CI exist, but no signed IPA / TestFlight without Apple Developer + certs.
+- **Customer:** Alpha testers on iPhone
+- **Strategic fit:** Multi-platform shell · Phase 19 follow-up
+- **Dependencies:** Apple Developer Program (~$99/yr); secrets `IOS_CERT_*` / `APPLE_TEAM_ID`; AASA `TEAMID`; optional ASC API key
+- **Estimated cost:** $99/yr Apple + GitHub macOS Actions minutes
+- **Legal risk:** Low
+- **Status:** `parked` (explicitly deferred 2026-07-30 — not blocking Suite)
+- **Promotion criteria:** Owner enrolls Apple Developer + budgets CI minutes; then follow [`IOS_RELEASE.md`](./docs/operations/IOS_RELEASE.md)
+
 ---
 
 ## Ritual

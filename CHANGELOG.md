@@ -14,18 +14,11 @@ All notable platform releases are documented here. Product labels follow
 - `vybz://` + Universal Links · APNs push · background URLSession uploads
 - ADR-033 iOS Alpha
 
-### Owner steps before TestFlight upload
+### TestFlight / signing — **deferred** (OR-012)
 
-| Secret / file | Purpose |
-|---|---|
-| `IOS_CERT_BASE64` | base64-encoded Apple Developer distribution (`.p12`) |
-| `IOS_CERT_PWD` | password for the p12 |
-| `IOS_PROV_PROFILE_BASE64` | base64 provisioning profile (`.mobileprovision`) |
-| `APPLE_TEAM_ID` | 10-char Apple team ID |
-
-After secrets are set, rerun the `ios.yml` job or push an empty commit — it will decode cert & profile, build IPA, notarise, and upload to TestFlight. Attach the IPA artefact to the tagged release draft.
-
-**AASA & assetlinks:** Replace the placeholder `TEAMID` in `public/.well-known/apple-app-site-association` with your real Apple Team ID and redeploy Vercel; do the same for `assetlinks.json` if you change the Android application-id.
+Code + CI wiring shipped; live TestFlight paused until Apple Developer Program + secrets are budgeted.
+Resume checklist: [`IOS_RELEASE.md`](./docs/operations/IOS_RELEASE.md) · Opportunity Register **OR-012**.
+Leave AASA `TEAMID` placeholder until then.
 
 ## [1.1.0-beta1A] – Phase 18 (Cost-Minute Billing)
 

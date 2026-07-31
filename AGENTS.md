@@ -61,18 +61,17 @@
 | **16 Collaboration Sessions** | **Complete** — merged PR #17 · tag `v1.1.0-beta1A-phase16` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
 | **17 Desktop macOS & Linux** | **Complete** — merged PR #18 · tag `v1.1.0-beta1A-phase17` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
 | **18 Cost-Minute Billing** | **Complete** — merged PR #19 · tag `v1.1.0-beta1A-phase18` · [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md) |
-| **19 iOS Alpha** | **Complete** — merged PR #21 · tag `v1.1.0-beta1A-phase19` · [`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md) |
+| **19 iOS Alpha** | **Complete** (code) — merged PR #21 · tag `v1.1.0-beta1A-phase19` · [`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md) |
+| **19.ops TestFlight** | **Deferred** — Apple Developer ($99/yr) + signing secrets not now · resume via OR-012 / [`IOS_RELEASE.md`](./docs/operations/IOS_RELEASE.md) |
 
 ### Exact next actions
-1. **Phase 19 ops:** provision `IOS_CERT_BASE64` / `IOS_CERT_PWD` / `IOS_PROV_PROFILE_BASE64` / `APPLE_TEAM_ID` → rerun `ios.yml` → TestFlight.
-2. Replace `TEAMID` in `public/.well-known/apple-app-site-association` with real Apple Team ID; redeploy Vercel.
-3. Parallel: UI-polish micro-PRs to `main` ([issue #20](https://github.com/ALaustrup/VYBZ/issues/20)).
-4. **Phase 18 ops (if pending):** live AI minute Checkout smoke on `/settings/credits`.
-5. **Owner secrets (notarised DMG):** `MAC_CERT_BASE64` + `MAC_CERT_PWD` → rerun `mac-dmg`.
-6. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-7. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
-8. Do **not** tag `Beta-1A` yet.
-9. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
+1. **Primary:** UI-polish micro-PRs to `main` ([issue #20](https://github.com/ALaustrup/VYBZ/issues/20)) — no phase tag; start with stage/player hex → tokens.
+2. **Prod smoke (Beta-1A gates):** Enter → upload → VDock play → tip Vc → brief live; confirm `site-visuals` CDN; AI credits Checkout on `/settings/credits` if pending.
+3. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
+4. **Deferred (do not block):** iOS TestFlight (OR-012) · AASA `TEAMID` · notarised DMG (`MAC_CERT_*`).
+5. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
+6. Do **not** tag `Beta-1A` yet.
+7. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.
 
 ### Correctness gate
 `npm run lint` && `npm run test` && `npm run build`. E2E: `npm run test:e2e` (Playwright).
