@@ -109,9 +109,9 @@ export function ContextualAppBar({
             type="button"
             onClick={() => navigate("/discover")}
             aria-label="Discover"
-            className="glass-chip hidden h-10 w-10 items-center justify-center text-white/80 transition hover:text-white active:scale-90 sm:flex"
+            className="glass-chip hidden h-10 w-10 items-center justify-center text-white/80 transition duration-suite-fast ease-suite hover:text-white hover:shadow-suite-sm active:scale-90 sm:flex"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-6 w-6" />
           </button>
           <div ref={uploadRef} className="relative">
             <button
@@ -124,11 +124,11 @@ export function ContextualAppBar({
               aria-expanded={uploadOpen}
               aria-haspopup="menu"
               className={cx(
-                "glass-chip flex h-10 w-10 items-center justify-center text-white transition active:scale-90",
-                uploadOpen && "ring-1 ring-sky-300/50",
+                "glass-chip flex h-10 w-10 items-center justify-center text-white transition duration-suite-fast ease-suite active:scale-90",
+                uploadOpen && "ring-1 ring-suite-cyan/50 shadow-suite-focus",
               )}
             >
-              <Plus className="h-5 w-5" strokeWidth={2.25} />
+              <Plus className="h-6 w-6" strokeWidth={2.25} />
             </button>
             <AnimatePresence>
               {uploadOpen && (
@@ -139,12 +139,7 @@ export function ContextualAppBar({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                  className="absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-56 overflow-hidden rounded-2xl border border-white/20 p-1.5 shadow-[0_24px_60px_-20px_rgba(20,80,140,0.55)]"
-                  style={{
-                    background: "linear-gradient(165deg, rgba(255,255,255,0.18), rgba(20,40,70,0.88))",
-                    backdropFilter: "blur(24px) saturate(1.4)",
-                    WebkitBackdropFilter: "blur(24px) saturate(1.4)",
-                  }}
+                  className="glass-vibrant absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-56 overflow-hidden rounded-2xl border border-[var(--hairline)] p-1.5 shadow-suite-lg"
                 >
                   <button
                     type="button"
@@ -153,9 +148,9 @@ export function ContextualAppBar({
                       setUploadOpen(false);
                       onCompose?.();
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:bg-white/10"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition duration-suite-fast ease-suite hover:bg-white/10 hover:shadow-suite-sm"
                   >
-                    <span className="glass-chip flex h-8 w-8 items-center justify-center text-sky-100">
+                    <span className="glass-chip flex h-8 w-8 items-center justify-center text-suite-cyan/90">
                       <Upload className="h-4 w-4" />
                     </span>
                     <span>
@@ -170,9 +165,9 @@ export function ContextualAppBar({
                       setUploadOpen(false);
                       onBulkUpload?.();
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:bg-white/10"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition duration-suite-fast ease-suite hover:bg-white/10 hover:shadow-suite-sm"
                   >
-                    <span className="glass-chip flex h-8 w-8 items-center justify-center text-emerald-200">
+                    <span className="glass-chip flex h-8 w-8 items-center justify-center text-suite-success">
                       <Disc3 className="h-4 w-4" />
                     </span>
                     <span>
