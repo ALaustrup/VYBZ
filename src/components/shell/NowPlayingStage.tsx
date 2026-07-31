@@ -165,16 +165,16 @@ export function NowPlayingStage() {
       <div className="relative mx-auto aspect-[4/5] max-h-[min(52vh,22rem)] w-full max-w-lg sm:aspect-[16/10] sm:max-h-[20rem]">
         {/* Soft glass frame */}
         <div className="absolute inset-3 overflow-hidden rounded-[1.75rem] border border-white/25 shadow-[0_24px_60px_-28px_rgba(40,120,200,0.55)] sm:inset-4">
-          <div className="absolute inset-0 bg-[#0a1428]" />
+          <div className="absolute inset-0 bg-ink-900" />
 
           {mode === "live" && liveMatch && (
             <>
               {liveMatch.avatarUrl ? (
                 <img src={liveMatch.avatarUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
               ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-sky-500/30 via-[#0a1428] to-[#071018]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-suite-cyan/30 via-ink-900 to-ink-950" />
               )}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#071018]/90 via-transparent to-white/5" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/90 via-transparent to-white/5" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
                 <div className="min-w-0 glass-chip px-3 py-2">
                   <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-rose-200">
@@ -222,7 +222,7 @@ export function NowPlayingStage() {
               )}
               <div className="pointer-events-none absolute inset-0" style={{ background: `rgba(8,16,32,${dim})` }} />
               <canvas ref={washRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#071018]/85 via-transparent to-white/10" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent to-white/10" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
                 <div className="glass-chip min-w-0 flex-1 px-3 py-2">
                   <p className="truncate font-display text-[15px] font-semibold text-white">{track?.title}</p>
@@ -242,7 +242,7 @@ export function NowPlayingStage() {
 
           {mode === "idle" && (
             <>
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(100,180,255,0.28),transparent_58%),linear-gradient(180deg,#1a3a68_0%,#0a1428_70%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgb(var(--accent-rgb)/0.28),transparent_58%),linear-gradient(180deg,theme(colors.ink.800)_0%,theme(colors.ink.900)_70%)]" />
               <canvas ref={washRef} className="pointer-events-none absolute inset-0 h-full w-full opacity-70" aria-hidden />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
                 <span className="glass-chip flex h-14 w-14 items-center justify-center">

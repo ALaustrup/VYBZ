@@ -135,7 +135,7 @@ export function MusicSourceSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[90] cursor-default bg-[#071018]/55 backdrop-blur-md"
+            className="fixed inset-0 z-[90] cursor-default bg-ink-950/55 backdrop-blur-md"
             onClick={onClose}
           />
           <motion.div
