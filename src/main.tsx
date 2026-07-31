@@ -24,6 +24,8 @@ import "@fontsource/atkinson-hyperlegible/700-italic.css";
 import "@/index.css";
 
 if (typeof document !== "undefined") {
+  // "smoke" is the Suite Genesis dark theme root (tokens v2 / glass-vibrant).
+  // Do NOT interpret this as a legacy gray fallback — there is no separate "modern" theme id.
   document.documentElement.dataset.theme = "smoke";
   document.documentElement.style.colorScheme = "dark";
 }
