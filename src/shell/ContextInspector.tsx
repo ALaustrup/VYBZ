@@ -19,7 +19,7 @@ export function ContextInspector({
   return (
     <aside
       className={cx(
-        "suite-inspector hidden shrink-0 border-l border-white/10 bg-white/[0.02] transition-[width] lg:flex lg:flex-col",
+        "suite-inspector glass-vibrant hidden shrink-0 border-l border-[var(--hairline)] transition-[width] duration-suite-base ease-suite lg:flex lg:flex-col",
         open ? "w-52" : "w-10",
       )}
       aria-label="Context inspector"
@@ -29,7 +29,7 @@ export function ContextInspector({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label={open ? "Collapse inspector" : "Expand inspector"}
-        className="flex h-10 items-center justify-center text-white/45 hover:text-white/80"
+        className="flex h-10 items-center justify-center text-white/45 transition duration-suite-fast ease-suite hover:bg-white/[0.06] hover:text-white/80 hover:shadow-suite-sm"
       >
         {open ? (
           <PanelRightClose className="h-4 w-4" />
@@ -44,7 +44,7 @@ export function ContextInspector({
           </p>
           <div className="flex items-center gap-2">
             <span
-              className="h-2 w-2 rounded-full"
+              className="h-2 w-2 rounded-full shadow-glow"
               style={{ background: `rgb(${accent})` }}
               aria-hidden
             />
