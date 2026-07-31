@@ -19,8 +19,10 @@ export function detectPlatformKind(): PlatformKind {
   if (typeof window !== "undefined" && window.__TAURI_INTERNALS__) {
     return "desktop";
   }
-  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android") {
-    return "android";
+  if (Capacitor.isNativePlatform()) {
+    const native = Capacitor.getPlatform();
+    if (native === "android") return "android";
+    if (native === "ios") return "ios";
   }
   return "web";
 }

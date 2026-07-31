@@ -3,6 +3,17 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+## [1.1.0-beta1A] – Phase 19 (iOS Alpha)
+
+**Pending push** — branch `phase19-ios-alpha` · exit gate
+[`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md)
+· ADR [`ADR_IOS_ALPHA.md`](./docs/architecture/ADR_IOS_ALPHA.md) (ADR-033)
+
+- Phase 19: Capacitor iOS shell, signed IPA CI, TestFlight, Keychain AES-GCM, deep links
+- `ios/App` · `ios.yml` · `IOS_BUILDS.json` · fastlane beta
+- `vybz://` + Universal Links · APNs push · background URLSession uploads
+- ADR-033 iOS Alpha
+
 ## [1.1.0-beta1A] – Phase 18 (Cost-Minute Billing)
 
 **Merged** — tag `v1.1.0-beta1A-phase18` · exit gate

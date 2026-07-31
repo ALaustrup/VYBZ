@@ -39,3 +39,8 @@ skills-lock.json
 dist/stats.html
 test-results/
 playwright-report/
+
+# iOS Cap build outputs (ios/.gitignore covers App/public)
+ios/build/
+ios/App/build/
+ios/DerivedData/

@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TEAMID.cloud.vybz.app"],
+        "components": [
+          { "/": "/release/*", "comment": "Open release in VYBZ iOS" },
+          { "/": "/releases/*", "comment": "Legacy release path" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.cloud.vybz.app"]
+  }
+}

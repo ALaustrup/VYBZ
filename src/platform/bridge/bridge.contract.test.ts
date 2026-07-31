@@ -45,9 +45,10 @@ describe("PlatformBridge mock contract", () => {
 
 describe("capability registry", () => {
   it("defines all platform kinds", () => {
-    expect(Object.keys(CAPABILITY_REGISTRY).sort()).toEqual(["android", "desktop", "web"]);
+    expect(Object.keys(CAPABILITY_REGISTRY).sort()).toEqual(["android", "desktop", "ios", "web"]);
     expect(capabilitiesFor("desktop").nativeTranscode).toBe(true);
     expect(capabilitiesFor("android").maxLocalFileBytes).toBeGreaterThan(0);
+    expect(capabilitiesFor("ios").maxLocalFileBytes).toBeGreaterThan(0);
   });
 });
 
