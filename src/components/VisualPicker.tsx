@@ -57,7 +57,7 @@ export function VisualPicker({
       <div className="mb-2 flex items-start justify-between gap-2">
         <div>
           <p className="flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
-            <Film className="h-3.5 w-3.5 text-cyan-200" /> VDock visual
+            <Film className="h-3.5 w-3.5 text-suite-cyan/80" /> VDock visual
           </p>
           <p className="mt-1 text-[11px] leading-relaxed text-white/40">
             Pick a Vizualz loop for the music bar, or upload your own. Swipe the row to browse.
@@ -70,14 +70,14 @@ export function VisualPicker({
               onBeforeTutorial?.();
               navigate("/visuals/studio?tab=generate");
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-cyan-300/30 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-semibold text-cyan-100 transition hover:border-cyan-300/50 hover:bg-cyan-500/20"
+            className="inline-flex items-center gap-1 rounded-full border border-suite-cyan/30 bg-suite-cyan/10 px-2.5 py-1 text-[10px] font-semibold text-suite-cyan/90 transition hover:border-suite-cyan/50 hover:bg-suite-cyan/20"
           >
             AI generate · 2 Vc
           </button>
           <button
             type="button"
             onClick={openTutorial}
-            className="inline-flex items-center gap-1 rounded-full border border-white/14 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white/80 transition hover:border-cyan-300/35 hover:text-white"
+            className="inline-flex items-center gap-1 rounded-full border border-white/14 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white/80 transition hover:border-suite-cyan/35 hover:text-white"
           >
             <GraduationCap className="h-3 w-3" /> Make yours · +10 Vc
           </button>
@@ -87,7 +87,7 @@ export function VisualPicker({
               onBeforeTutorial?.();
               navigate("/visuals/studio");
             }}
-            className="inline-flex items-center gap-1 rounded-full border border-white/14 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white/80 transition hover:border-cyan-300/35 hover:text-white"
+            className="inline-flex items-center gap-1 rounded-full border border-white/14 bg-white/[0.06] px-2.5 py-1 text-[10px] font-semibold text-white/80 transition hover:border-suite-cyan/35 hover:text-white"
           >
             Open studio
           </button>
@@ -110,7 +110,7 @@ export function VisualPicker({
           className={cx(
             "flex h-[4.5rem] w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-xl border text-[10px] font-medium transition",
             !selectedId && !customPreview
-              ? "border-cyan-300/50 bg-cyan-500/15 text-cyan-50"
+              ? "border-suite-cyan/50 bg-suite-cyan/15 text-snow"
               : "border-white/12 bg-white/[0.04] text-white/50 hover:border-white/25 hover:text-white/80",
           )}
         >
@@ -138,7 +138,7 @@ export function VisualPicker({
             "flex h-[4.5rem] w-[4.5rem] shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-dashed text-[10px] font-medium transition",
             customPreview
               ? "border-[rgb(var(--neon-mint)/0.5)] bg-[rgb(var(--neon-mint)/0.12)] text-[rgb(var(--neon-mint))]"
-              : "border-white/20 bg-white/[0.03] text-white/55 hover:border-cyan-300/40 hover:text-white/85",
+              : "border-white/20 bg-white/[0.03] text-white/55 hover:border-suite-cyan/40 hover:text-white/85",
           )}
         >
           <Upload className="h-4 w-4" />
@@ -175,7 +175,7 @@ export function VisualPicker({
             )}
             <div className="pointer-events-none absolute inset-0" style={{ background: `rgba(6,8,16,${backdropDim})` }} />
             <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white/85">
-              <Check className="h-3 w-3 text-cyan-300" /> Your visual
+              <Check className="h-3 w-3 text-suite-cyan" /> Your visual
             </span>
           </div>
           <div className="flex items-center gap-2 border-t border-white/10 px-2.5 py-2">
@@ -184,7 +184,7 @@ export function VisualPicker({
               onClick={() => onFitChange("cover")}
               className={cx(
                 "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                backdropFit === "cover" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50",
+                backdropFit === "cover" ? "bg-suite-cyan/25 text-snow ring-1 ring-suite-cyan/40" : "text-white/50",
               )}
             >
               Cover
@@ -194,7 +194,7 @@ export function VisualPicker({
               onClick={() => onFitChange("contain")}
               className={cx(
                 "rounded-full px-2.5 py-1 text-[11px] font-medium",
-                backdropFit === "contain" ? "bg-cyan-500/25 text-cyan-50 ring-1 ring-cyan-300/40" : "text-white/50",
+                backdropFit === "contain" ? "bg-suite-cyan/25 text-snow ring-1 ring-suite-cyan/40" : "text-white/50",
               )}
             >
               Fit
@@ -207,7 +207,7 @@ export function VisualPicker({
                 max={70}
                 value={Math.round(backdropDim * 100)}
                 onChange={(e) => onDimChange(Number(e.target.value) / 100)}
-                className="h-1.5 w-20 accent-cyan-300"
+                className="h-1.5 w-20 accent-suite-cyan"
               />
             </label>
             <button
@@ -231,7 +231,7 @@ export function VisualPicker({
       ) : (
         <p className="text-[11px] text-white/35">
           Specs: landscape loop · max 1280px wide · 8–12s · MP4/WebM or JPG/PNG/WebP.{" "}
-          <button type="button" onClick={openTutorial} className="text-cyan-200/80 underline-offset-2 hover:underline">
+          <button type="button" onClick={openTutorial} className="text-suite-cyan/80/80 underline-offset-2 hover:underline">
             Open guided tutorial
           </button>
         </p>
@@ -280,7 +280,7 @@ function VisualThumb({
       className={cx(
         "relative h-[4.5rem] w-[7.25rem] shrink-0 overflow-hidden rounded-xl border transition",
         selected
-          ? "border-cyan-300/55 ring-2 ring-cyan-400/35"
+          ? "border-suite-cyan/55 ring-2 ring-suite-cyan/35"
           : "border-white/12 hover:border-white/30",
       )}
     >
@@ -308,7 +308,7 @@ function VisualThumb({
         {visual.title}
       </span>
       {selected && (
-        <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-400 text-ink-950">
+        <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-suite-cyan text-ink-950">
           <Check className="h-2.5 w-2.5" strokeWidth={3} />
         </span>
       )}
