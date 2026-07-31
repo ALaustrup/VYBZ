@@ -25,6 +25,7 @@ import {
   toggleMute,
   readBands,
 } from "@/lib/audioBus";
+import { COLOR_V2 } from "@/design/tokens";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { ExtractMidiButton } from "@/components/ExtractMidiButton";
@@ -41,6 +42,9 @@ import { useReduceFx } from "@/lib/display";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+
+/** Suite cyan — typed fallback when a track has no accent. */
+const DEFAULT_ACCENT = COLOR_V2.cyan;
 
 function fmt(s: number): string {
   if (!Number.isFinite(s) || s < 0) return "0:00";
@@ -76,7 +80,7 @@ export function NowPlayingWidget({
   const [expanded, setExpanded] = useState(false);
   if (!p.track) return null;
 
-  const accent = p.track.accent ?? "#00C2FF";
+  const accent = p.track.accent ?? DEFAULT_ACCENT;
   const dur = p.duration || p.track.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
 
@@ -168,7 +172,7 @@ export function MusicDockPlayer() {
     () => false,
   );
 
-  const accent = p.track?.accent ?? "#00C2FF";
+  const accent = p.track?.accent ?? DEFAULT_ACCENT;
   const dur = p.duration || p.track?.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
   const networkDrop = !!p.track?.authorId && p.track.earnEligible !== false;
@@ -282,7 +286,7 @@ export function MusicDockPlayer() {
             className="vdock-play-center relative flex h-12 w-12 items-center justify-center rounded-full text-white transition active:scale-95 disabled:opacity-40 sm:h-14 sm:w-14"
             style={{
               transform: `scale(${playScale})`,
-              background: `radial-gradient(circle at 40% 35%, ${reactiveColor}, color-mix(in srgb, ${reactiveColor} 35%, #0a101c) 70%)`,
+              background: `radial-gradient(circle at 40% 35%, ${reactiveColor}, color-mix(in srgb, ${reactiveColor} 35%, var(--color-abyss)) 70%)`,
               boxShadow: `0 0 ${playGlow}px -2px ${reactiveColor}, 0 0 ${playGlow * 1.6}px -8px ${reactiveColor}, inset 0 1px 0 rgba(255,255,255,0.35)`,
               border: `1px solid color-mix(in srgb, ${reactiveColor} 55%, white)`,
             }}
@@ -410,7 +414,7 @@ export function MusicDockPlayer() {
 export function DockPlaybackProgress() {
   const p = usePlayer();
   if (!p.track) return null;
-  const accent = p.track.accent ?? "#00C2FF";
+  const accent = p.track.accent ?? DEFAULT_ACCENT;
   const dur = p.duration || p.track.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
   return (
@@ -438,7 +442,7 @@ function NowPlayingExpanded({
   const p = usePlayer();
   const navigate = useNavigate();
   if (!p.track) return null;
-  const accent = p.track.accent ?? "#00C2FF";
+  const accent = p.track.accent ?? DEFAULT_ACCENT;
   const dur = p.duration || p.track.durationSec || 0;
   const progress = dur > 0 ? p.currentTime / dur : 0;
   const peaks = p.track.waveform;
@@ -458,7 +462,7 @@ function NowPlayingExpanded({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[92] flex flex-col bg-[#0a1224]/92 backdrop-blur-2xl"
+          className="fixed inset-0 z-[92] flex flex-col bg-ink-900/92 backdrop-blur-2xl glass-vibrant"
           data-dark-stage
         >
           <div className="absolute inset-0 opacity-70">

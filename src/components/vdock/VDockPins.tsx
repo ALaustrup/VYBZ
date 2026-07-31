@@ -110,7 +110,7 @@ export function VDockItemRow({
               />
             )}
             <span className="relative z-10">
-              <Icon className={cx("h-5 w-5", active && "text-[#00C2FF]")} strokeWidth={active ? 2.35 : 2} />
+              <Icon className={cx("h-5 w-5", active && "text-suite-cyan")} strokeWidth={active ? 2.35 : 2} />
               {showBadge && (
                 <span className="absolute -right-2 -top-1.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-wild px-0.5 text-[8px] font-bold text-white">
                   {unread > 9 ? "9+" : unread}
