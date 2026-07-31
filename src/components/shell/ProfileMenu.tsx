@@ -197,9 +197,9 @@ export function ProfileMenu() {
         aria-expanded={open}
         aria-haspopup="menu"
         className={cx(
-          "relative flex h-10 w-10 items-center justify-center rounded-full transition",
-          "ring-1 ring-white/20 hover:ring-cyan-300/50 hover:shadow-[0_0_24px_-4px_rgba(0,194,255,0.55)]",
-          open && "ring-cyan-300/60 shadow-[0_0_28px_-2px_rgba(0,214,143,0.45)]",
+          "relative flex h-10 w-10 items-center justify-center rounded-full transition duration-suite-base ease-suite",
+          "ring-1 ring-white/20 hover:ring-suite-cyan/50 hover:shadow-glow",
+          open && "ring-suite-cyan/60 shadow-glow-feel",
         )}
       >
         <Avatar
@@ -210,7 +210,7 @@ export function ProfileMenu() {
           square={false}
         />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[rgb(var(--neon-cyan))] px-1 text-[9px] font-bold text-ink-950">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-suite-cyan px-1 text-[9px] font-bold text-ink-950">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
@@ -225,10 +225,10 @@ export function ProfileMenu() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.97 }}
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
-    className="absolute right-0 top-[calc(100%+0.55rem)] z-[80] max-h-[min(70dvh,28rem)] w-[min(18.5rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-white/14 bg-ink-950/92 shadow-[0_28px_80px_-24px_rgba(0,0,0,0.85),0_0_40px_-12px_rgba(0,194,255,0.25)] backdrop-blur-2xl"
+            className="glass-vibrant absolute right-0 top-[calc(100%+0.55rem)] z-[80] max-h-[min(70dvh,28rem)] w-[min(18.5rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl shadow-suite-lg"
           >
             <div className="border-b border-white/10 px-3.5 py-3">
-              <p className="truncate font-mono text-[13px] font-semibold text-cyan-100">{addr || "VYBZ"}</p>
+              <p className="truncate font-mono text-[13px] font-semibold text-suite-cyan/90">{addr || "VYBZ"}</p>
               <p className="mt-0.5 text-[11px] text-white/40">{formatVc(vc)} Vc</p>
             </div>
 
@@ -256,25 +256,25 @@ export function ProfileMenu() {
                             role="menuitem"
                             onClick={() => go(item.to)}
                             className={cx(
-                              "group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium transition",
+                              "group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium transition duration-suite-fast ease-suite",
                               active
-                                ? "bg-[rgb(var(--neon-cyan)/0.16)] text-white shadow-[inset_0_0_0_1px_rgb(var(--neon-cyan)/0.35),0_0_20px_-6px_rgb(var(--neon-cyan)/0.55)]"
-                                : "text-white/70 hover:bg-white/[0.06] hover:text-white hover:shadow-[0_0_22px_-8px_rgba(0,214,143,0.55)]",
+                                ? "bg-suite-cyan/15 text-white shadow-glow"
+                                : "text-white/70 hover:bg-white/[0.06] hover:text-white hover:shadow-glow-feel",
                             )}
                           >
                             <span
                               className={cx(
-                                "flex h-8 w-8 items-center justify-center rounded-lg transition",
+                                "flex h-8 w-8 items-center justify-center rounded-lg transition duration-suite-fast ease-suite",
                                 active
-                                  ? "bg-[rgb(var(--neon-cyan)/0.22)] text-cyan-100"
-                                  : "bg-white/[0.05] text-white/55 group-hover:text-[rgb(var(--neon-mint))] group-hover:shadow-[0_0_16px_-4px_rgb(var(--neon-mint)/0.7)]",
+                                  ? "bg-suite-cyan/20 text-suite-cyan/90"
+                                  : "bg-white/[0.05] text-white/55 group-hover:text-suite-success group-hover:shadow-glow-feel",
                               )}
                             >
                               <Icon className="h-4 w-4" />
                             </span>
                             <span className="min-w-0 flex-1 truncate">{item.label}</span>
                             {active && (
-                              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[rgb(var(--neon-cyan))] shadow-[0_0_10px_rgb(var(--neon-cyan))]" />
+                              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-suite-cyan shadow-glow" />
                             )}
                           </button>
                         </motion.li>
@@ -289,7 +289,7 @@ export function ProfileMenu() {
                   type="button"
                   role="menuitem"
                   onClick={() => void logout()}
-                  className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/55 transition hover:bg-wild/15 hover:text-wild hover:shadow-[0_0_22px_-8px_rgba(255,77,46,0.55)]"
+                  className="group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/55 transition duration-suite-fast ease-suite hover:bg-wild/15 hover:text-wild hover:shadow-glow-wild"
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.05] group-hover:bg-wild/20">
                     <LogOut className="h-4 w-4" />

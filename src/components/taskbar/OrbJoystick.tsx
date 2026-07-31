@@ -273,8 +273,8 @@ export function OrbJoystick({ actions, disabled }: OrbJoystickProps) {
                 className="absolute left-0 top-0 h-[10.5rem] w-[10.5rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
                 style={{
                   background:
-                    "radial-gradient(circle, rgba(255,255,255,0.10) 0%, rgba(168,124,248,0.08) 38%, transparent 68%)",
-                  boxShadow: "0 0 36px 6px rgba(0,255,200,0.10)",
+                    "radial-gradient(circle, rgba(255,255,255,0.10) 0%, rgb(var(--accent-rgb) / 0.10) 38%, transparent 68%)",
+                  boxShadow: "var(--shadow-glow)",
                 }}
               />
               {list.map((action) => {
