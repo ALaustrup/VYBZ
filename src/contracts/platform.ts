@@ -1,6 +1,6 @@
 /** Shared cross-client contracts — Phase 1.5. No platform imports. */
 
-export type PlatformKind = "web" | "desktop" | "android";
+export type PlatformKind = "web" | "desktop" | "android" | "ios";
 
 export type ShellMode = PlatformKind;
 

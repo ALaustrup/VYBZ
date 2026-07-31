@@ -61,14 +61,15 @@
 | **16 Collaboration Sessions** | **Complete** — merged PR #17 · tag `v1.1.0-beta1A-phase16` · [`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md) |
 | **17 Desktop macOS & Linux** | **Complete** — merged PR #18 · tag `v1.1.0-beta1A-phase17` · [`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md) |
 | **18 Cost-Minute Billing** | **Complete** — merged PR #19 · tag `v1.1.0-beta1A-phase18` · [`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md) |
+| **19 iOS Alpha** | **In progress** — branch `phase19-ios-alpha` · [`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md) |
 
 ### Exact next actions
-1. **Phase 18 ops:** apply migration `0089` · deploy `ai-topup` (`--no-verify-jwt`) · redeploy `stripe-webhook` + `ai-mastering` · live Checkout smoke.
-2. Parallel: UI-polish micro-PRs to `main` (no phase tag). Next phase tag: **Phase 19 – iOS Alpha**.
-3. **Owner secrets (notarised DMG):** `MAC_CERT_BASE64` + `MAC_CERT_PWD` (optional Apple ID secrets) → rerun `mac-dmg`.
-4. Optional: upload `ai-models/mastering.onnx` (&lt;20 MB) for ONNX path; DSP `phase15.dsp.1` is live without it.
-5. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
-6. Prod smoke: AI credits Checkout → +6000 s → master debit; Enter → VDock → tip → live.
+1. **Phase 19:** exit gate → owner approval → push/PR → merge → tag `v1.1.0-beta1A-phase19` → provision `IOS_CERT_*` + TestFlight.
+2. Parallel: UI-polish micro-PRs to `main` ([issue #20](https://github.com/ALaustrup/VYBZ/issues/20)).
+3. Replace `TEAMID` in `public/.well-known/apple-app-site-association` with real Apple Team ID.
+4. **Phase 18 ops (if pending):** live AI minute Checkout smoke on `/settings/credits`.
+5. **Owner secrets (notarised DMG):** `MAC_CERT_BASE64` + `MAC_CERT_PWD` → rerun `mac-dmg`.
+6. Formalize migration-history workflow (`db push` vs raw SQL + CI checksum guard) — OR-010.
 7. Do **not** expand Spark/dating, Living Home, VR, Bunny, or RN rewrite. Park ideas in Opportunity Register.
 8. Do **not** tag `Beta-1A` yet.
 9. Domain code must **not** import `@tauri-apps/*` or `@capacitor/*` — use Platform Bridge only.

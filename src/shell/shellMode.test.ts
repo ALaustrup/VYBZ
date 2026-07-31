@@ -6,11 +6,13 @@ describe("shellMode", () => {
     expect(shellModeClass("web")).toBe("shell-mode-web");
     expect(shellModeClass("desktop")).toBe("shell-mode-desktop");
     expect(shellModeClass("android")).toBe("shell-mode-android");
+    expect(shellModeClass("ios")).toBe("shell-mode-ios");
   });
 
   it("classifies density / touch", () => {
     expect(isDenseShell("desktop")).toBe(true);
     expect(isTouchShell("android")).toBe(true);
+    expect(isTouchShell("ios")).toBe(true);
     expect(isTouchShell("web")).toBe(false);
   });
 });

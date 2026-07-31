@@ -1,6 +1,7 @@
 import type { PlatformKind } from "@/contracts";
 import { createAndroidBridge } from "@/platform/bridge/android";
 import { createDesktopBridge } from "@/platform/bridge/desktop";
+import { createIosBridge } from "@/platform/bridge/ios";
 import { detectPlatformKind } from "@/platform/bridge/detect";
 import { createMockBridge } from "@/platform/bridge/mock";
 import type { PlatformBridge } from "@/platform/bridge/types";
@@ -12,6 +13,8 @@ export function createBridgeForKind(kind: PlatformKind): PlatformBridge {
       return createDesktopBridge();
     case "android":
       return createAndroidBridge();
+    case "ios":
+      return createIosBridge();
     case "web":
     default:
       return createWebBridge();

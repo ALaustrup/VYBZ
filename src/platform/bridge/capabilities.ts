@@ -29,6 +29,15 @@ export const CAPABILITY_REGISTRY: Record<PlatformKind, ProcessingCapabilities> =
     maxLocalFileBytes: 500 * 1024 * 1024,
     offlineDrafts: true,
   },
+  ios: {
+    portableAudioInspect: true,
+    portableArtworkInspect: true,
+    nativeBatchAudio: false,
+    nativeTranscode: false,
+    remoteJobs: true,
+    maxLocalFileBytes: 500 * 1024 * 1024,
+    offlineDrafts: true,
+  },
 };
 
 export function capabilitiesFor(kind: PlatformKind): ProcessingCapabilities {

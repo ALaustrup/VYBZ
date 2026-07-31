@@ -28,7 +28,8 @@ export function PlatformProvider({
   }, [value.kind]);
 
   useEffect(() => {
-    if (value.kind !== "android") return;
+    if (value.kind !== "android" && value.kind !== "ios") return;
+    const nativePlatform = value.kind === "ios" ? "ios" : "android";
     let unbind: (() => void) | undefined;
     void bindCapacitorDeepLinks((path) => {
       if (typeof window !== "undefined") {
@@ -38,11 +39,11 @@ export function PlatformProvider({
     }).then((fn) => {
       unbind = fn;
     });
-    // FCM token registration (local + optional server hook)
+    // FCM / APNs token registration (local + optional server hook)
     void loadCapacitorPushPlugin().then((plugin) =>
-      registerDeviceToken({ plugin, platform: "android" })
+      registerDeviceToken({ plugin, platform: nativePlatform })
     );
-    // Drain upload queue when coming online
+    // Drain upload queue when coming online (iOS also schedules URLSession bg tasks)
     void getUploadQueue().drain().catch(() => undefined);
     return () => unbind?.();
   }, [value.kind]);

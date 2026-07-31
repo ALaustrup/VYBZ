@@ -10,5 +10,5 @@ export function isDenseShell(mode: ShellMode): boolean {
 }
 
 export function isTouchShell(mode: ShellMode): boolean {
-  return mode === "android";
+  return mode === "android" || mode === "ios";
 }
