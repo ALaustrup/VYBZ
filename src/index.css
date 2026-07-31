@@ -1133,6 +1133,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .suite-accent-wash-coverlab {
     background: color-mix(in srgb, rgb(var(--accent-coverlab) / 0.14) 100%, transparent);
   }
+  /* Semantic banners — pair with border-suite-success / border-suite-warning */
+  .suite-accent-wash-success {
+    background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  }
+  .suite-accent-wash-warning {
+    background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  }
+  .suite-accent-wash-cyan {
+    background: color-mix(in srgb, rgb(var(--accent-rgb) / 0.14) 100%, transparent);
+  }
   .suite-surface-professional {
     background: var(--color-graphite);
     border: 1px solid var(--hairline);

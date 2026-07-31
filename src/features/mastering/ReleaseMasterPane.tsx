@@ -154,7 +154,7 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
 
       {creditBalance !== null && creditBalance < AI_LOW_BALANCE_SECONDS && (
         <div
-          className="rounded-suite-md border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm text-snow"
+          className="suite-accent-wash-warning rounded-suite-md border border-suite-warning/40 px-4 py-3 text-sm text-snow"
           data-testid="master-low-balance-banner"
         >
           AI minute balance low ({Math.floor(creditBalance)}s).{" "}
