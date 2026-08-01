@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `6cc1d7cb` (merge #40)
+**HEAD:** `b3f41aee` (merge #41)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -14,24 +14,23 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `6cc1d7cb711edc539e18e20155fae9f267b4fe6a` | `git rev-parse origin/main` after PR #40 merge |
+| Production SHA | `b3f41aeedf825f10306a6907eda131646aa1add9` | `git rev-parse origin/main` after PR #41 merge |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-BRdmfz-t.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
-| Deployment current | **YES** — bundle changed `index-CMRqBxTU.js` (#39) → `index-BRdmfz-t.js` (#40) |
-
-**Full merge HEAD:** `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e` — Merge pull request #39
+| Deployed bundle | `/assets/index-gvb2DTFG.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
+| Deployment current | **YES** — bundle changed `index-BRdmfz-t.js` (#40) → `index-gvb2DTFG.js` (#41) |
 
 ## Last completed operations
 
 1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36) merged** — M3 Nexus UI redux (landing, auth, intro, prepare-local, design system). Production SHA `6751d506`.
 2. **PR [#37](https://github.com/ALaustrup/VYBZ/pull/37) merged** — M3 truth shell: remove fabricated distribution LUFS/peak/DPI, remove dating onboarding gate, build SHA footer, processing-enqueue stub fix in repo. Production bundle `index-BL_dO-7v.js`.
-3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. `quality` passed. Production bundle `index-6zcp2vdQ.js`.
+3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. Production bundle `index-6zcp2vdQ.js`.
 4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome. Production bundle `index-CMRqBxTU.js`.
-5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) merged** — M3 completion: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS M3 authorisation.
+5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) merged** — M3 completion: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS M3 authorisation. Production bundle `index-BRdmfz-t.js`.
+6. **PR [#41](https://github.com/ALaustrup/VYBZ/pull/41) merged** — M3 hub Nexus: DashHub live/fresh rails, Connect matches, AI credits, Cost Sentinel, release detail header, comment threads, message composer. Production bundle `index-gvb2DTFG.js`.
 
 ## Working tree
 
-Clean on `main` @ `9d2ef864`. Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `b3f41aee`. Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
@@ -56,21 +55,21 @@ Clean on `main` @ `9d2ef864`. Untracked: `.cursor/settings.json` (do not commit)
 
 ## Known contradictions
 
-- `AGENTS.md` still lists M1 docs-only as authorised milestone; owner has explicitly authorised M3 implementation work (#36–#38 merged).
-- `STATUS.md` previously claimed M1 / SHA `53ab9ef9` — **corrected in this update**.
+- None recorded at this checkpoint.
 
 ## Next authorised action
 
-1. Merge PR #39 (shell Nexus) after green CI. **Done** — merged `9d2ef864`.
-2. Owner redeploy `processing-enqueue` edge function (`supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm`).
-3. Continue M3 authenticated surfaces: FeedPage filter drawer, Profile/DashHub, Messages.
-4. Signed-in production verification of Prepare → Distribution → Master flow.
+1. Owner redeploy `processing-enqueue` edge function (`supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm`).
+2. Signed-in production verification: Hub rails, Network, Settings → Costs → AI minutes, Prepare → Distribution → Master.
+3. Remaining M3 legacy surfaces (if any): Profile page, ComposeSheet, VcTipSheet, storefront dashboard — grep for `glass-panel` / `border-white/8`.
+4. M3 exit gate review against Masterplan §M3 acceptance criteria.
 
 ## Latest verification results
 
 ```
-npm run lint   — PASS (2026-08-01, feat/m3-shell-nexus @ a5c7d633)
+npm run lint   — PASS (2026-08-01, feat/m3-hub-nexus @ bcd11f0d)
 npm run test   — PASS 145/145 (2026-08-01)
-npm run build  — PASS (2026-08-01)
-PR #38 quality — PASS (2026-08-01)
+npm run build  — PASS (2026-08-01, local bundle index-BCTgB9UN.js)
+PR #41 quality — PASS (2026-08-01)
+Production bundle — index-gvb2DTFG.js (2026-08-01 live fetch)
 ```
