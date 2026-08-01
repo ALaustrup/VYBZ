@@ -401,10 +401,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     <div className="flex flex-wrap gap-1.5">
                       {RELEASE_TYPES.map((r) => (
                         <button key={r.id} type="button" onClick={() => setReleaseType(r.id)}
-                          className={cx(
-                            "rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95",
-                            releaseType === r.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90",
-                          )}>
+                          className={cx("forge-chip", releaseType === r.id ? "forge-chip--active" : "")}>
                           {r.label}
                         </button>
                       ))}
@@ -412,18 +409,22 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                   </div>
 
                   <div className="flex gap-2">
-                    <input type="number" inputMode="numeric" value={bpm} onChange={(e) => setBpm(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                      placeholder="BPM" className="w-24 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
-                    <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)}
-                      className="flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/85 focus:border-veil-400/60 focus:outline-none">
-                      <option value="">Key (optional)</option>
-                      {MUSICAL_KEYS.map((k) => <option key={k} value={k} className="bg-ink-900">{k}</option>)}
-                    </select>
+                    <div className="forge-field w-24 !py-2">
+                      <input type="number" inputMode="numeric" value={bpm} onChange={(e) => setBpm(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                        placeholder="BPM" />
+                    </div>
+                    <div className="forge-field min-w-0 flex-1 !py-2">
+                      <select value={musicalKey} onChange={(e) => setMusicalKey(e.target.value)}
+                        className="w-full bg-transparent text-sm text-white/85 outline-none">
+                        <option value="">Key (optional)</option>
+                        {MUSICAL_KEYS.map((k) => <option key={k} value={k} className="bg-ink-900">{k}</option>)}
+                      </select>
+                    </div>
                     <button type="button" onClick={() => {
                       setAudio(null); setAutoDetected([]); setId3Meta({}); setAlbum("");
                       setArtworkUrl((prev) => { if (prev) URL.revokeObjectURL(prev); return null; });
                     }} aria-label="Remove"
-                      className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
+                      className="forge-card-icon flex w-11 shrink-0 items-center justify-center text-white/55 transition active:scale-95 hover:text-wild"><Trash2 className="h-4 w-4" /></button>
                   </div>
                   {autoDetected.length > 0 && (
                     <p className="flex items-center gap-1 text-[11px] text-veil-200">
@@ -436,26 +437,29 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     </p>
                   )}
                   <div>
-                    <p className="eyebrow mb-2">Originality</p>
+                    <p className="nexus-eyebrow mb-2">Originality</p>
                     <OriginalityClaim checked={ownershipClaim} onChange={setOwnershipClaim} />
                   </div>
                   <div>
                     <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Song title</label>
-                    <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))}
-                      placeholder="Song title…"
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                    <div className="forge-field">
+                      <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))}
+                        placeholder="Song title…" />
+                    </div>
                   </div>
                   <div>
                     <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Album / EP / Single</label>
-                    <input value={album} onChange={(e) => setAlbum(e.target.value.slice(0, 80))}
-                      placeholder="Leave blank for Single"
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                    <div className="forge-field">
+                      <input value={album} onChange={(e) => setAlbum(e.target.value.slice(0, 80))}
+                        placeholder="Leave blank for Single" />
+                    </div>
                   </div>
                   <div>
                     <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Artist name</label>
-                    <input value={creditedArtist} onChange={(e) => setCreditedArtist(e.target.value.slice(0, 80))}
-                      placeholder="Artist / band credited on the card"
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+                    <div className="forge-field">
+                      <input value={creditedArtist} onChange={(e) => setCreditedArtist(e.target.value.slice(0, 80))}
+                        placeholder="Artist / band credited on the card" />
+                    </div>
                   </div>
 
                   <VisualPicker

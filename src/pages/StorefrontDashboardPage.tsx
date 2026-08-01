@@ -6,6 +6,7 @@ import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
 import { formatPackPrice, type StorefrontPack, type StorefrontOrder } from "@/features/storefront/types";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { StorefrontOrdersPanel } from "@/features/storefront/StorefrontOrdersPanel";
 
 type Tab = "packs" | "orders";
@@ -60,20 +61,18 @@ export function StorefrontDashboardPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-6 pb-28 suite-grid suite-grid-dense" data-testid="storefront-dashboard">
-      <header className="space-y-2 glass-vibrant rounded-2xl px-4 py-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-white">Sample Pack Storefront</h1>
-        <p className="text-sm text-white/55">
-          Upload a pack, generate copy and cover art, publish a storefront. Fans pay VYBZ; you settle
-          manually (ACH / Zelle / Vc) — platform fee 10%.
-        </p>
-      </header>
+      <NexusPageHeader
+        eyebrow="Tools"
+        title="Sample Pack Storefront"
+        subtitle="Upload a pack, generate copy and cover art, publish a storefront. Fans pay VYBZ; you settle manually (ACH / Zelle / Vc) — platform fee 10%."
+      />
 
       <div className="flex gap-2" role="tablist" aria-label="Storefront sections">
         <button
           type="button"
           role="tab"
           aria-selected={tab === "packs"}
-          className={`btn px-3 py-1.5 text-xs ${tab === "packs" ? "btn-primary" : "btn-ghost"}`}
+          className={`forge-chip ${tab === "packs" ? "forge-chip--active" : ""}`}
           onClick={() => setTab("packs")}
         >
           Packs
@@ -83,7 +82,7 @@ export function StorefrontDashboardPage() {
           role="tab"
           aria-selected={tab === "orders"}
           data-testid="storefront-orders-tab"
-          className={`btn px-3 py-1.5 text-xs ${tab === "orders" ? "btn-primary" : "btn-ghost"}`}
+          className={`forge-chip ${tab === "orders" ? "forge-chip--active" : ""}`}
           onClick={() => setTab("orders")}
         >
           Orders
@@ -93,14 +92,14 @@ export function StorefrontDashboardPage() {
       {tab === "packs" ? (
         <>
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-medium uppercase tracking-wide text-white/45">Your packs</h2>
-            <Link to="/tools/packs/new" className="btn btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs">
+            <h2 className="nexus-eyebrow">Your packs</h2>
+            <Link to="/tools/packs/new" className="forge-cta inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
               <Plus className="h-3.5 w-3.5" /> New pack
             </Link>
           </div>
 
           {packs.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-12 text-center">
+            <div className="forge-card py-12 text-center">
               <Package className="mx-auto mb-3 h-8 w-8 text-white/30" />
               <p className="text-sm text-white/50">No packs yet. Create your first storefront.</p>
             </div>
@@ -109,7 +108,7 @@ export function StorefrontDashboardPage() {
               {packs.map((p) => (
                 <li
                   key={p.id}
-                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:border-white/20"
+                  className="forge-card flex items-center gap-3 transition hover:border-white/20"
                 >
                   <Link to={`/tools/packs/${p.id}/edit`} className="min-w-0 flex-1">
                     <div className="truncate font-medium text-white">{p.title || "Untitled pack"}</div>
@@ -122,7 +121,7 @@ export function StorefrontDashboardPage() {
                   {p.status === "published" && (
                     <Link
                       to={`/pack/${p.slug}`}
-                      className="btn btn-ghost px-2 py-1 text-xs"
+                      className="forge-cta-ghost !min-h-8 !px-2 !text-xs"
                       title="Open storefront"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
@@ -135,7 +134,7 @@ export function StorefrontDashboardPage() {
         </>
       ) : (
         <section className="space-y-3" aria-label="Orders">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-white/45">Orders</h2>
+          <h2 className="nexus-eyebrow">Orders</h2>
           <StorefrontOrdersPanel
             orders={orders.slice(0, 50)}
             settlingId={settlingId}
