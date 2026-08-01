@@ -66,7 +66,7 @@ export function ContextualAppBar({
   }
 
   return (
-    <header className="app-bar shrink-0">
+    <header className="app-bar app-bar--nexus shrink-0">
       <div className="app-bar-inner relative grid grid-cols-[auto_1fr_auto] items-center gap-2">
         <div className="flex min-w-0 items-center gap-1.5">
           {bridge.leading ?? (showBack ? (
@@ -74,7 +74,7 @@ export function ContextualAppBar({
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="glass-chip flex h-9 w-9 shrink-0 items-center justify-center text-white/85 transition active:scale-90"
+              className="forge-chip flex h-9 w-9 shrink-0 items-center justify-center active:scale-90"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -83,7 +83,7 @@ export function ContextualAppBar({
             type="button"
             onClick={() => navigate("/")}
             aria-label="VYBZ home"
-            className="glass-chip relative flex h-10 w-10 items-center justify-center overflow-hidden active:scale-95"
+            className="forge-chip relative flex h-10 w-10 items-center justify-center overflow-hidden active:scale-95"
           >
             <BrandMark
               className={cx("h-6 w-6", !reduce && "animate-[vybz-hue_12s_linear_infinite]")}
@@ -92,13 +92,13 @@ export function ContextualAppBar({
         </div>
 
         <div className="min-w-0 text-center">
-          <p className="truncate font-display text-[15px] font-semibold tracking-[0.02em] text-white sm:text-[16px]">
+          <p className="truncate nexus-headline text-[15px] sm:text-[16px]">
             {title}
           </p>
           {player.track?.artist ? (
-            <p className="truncate text-[11px] text-white/45">{player.track.artist}</p>
+            <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/45">{player.track.artist}</p>
           ) : (
-            <p className="truncate text-[11px] text-white/40">Release intelligence</p>
+            <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/40">Release intelligence</p>
           )}
         </div>
 
@@ -108,7 +108,7 @@ export function ContextualAppBar({
             type="button"
             onClick={() => navigate("/discover")}
             aria-label="Discover"
-            className="glass-chip hidden h-10 w-10 items-center justify-center text-white/80 transition duration-suite-fast ease-suite hover:text-white hover:shadow-suite-sm active:scale-90 sm:flex"
+            className="forge-chip hidden h-10 w-10 sm:flex"
           >
             <Search className="h-6 w-6" />
           </button>
@@ -123,8 +123,8 @@ export function ContextualAppBar({
               aria-expanded={uploadOpen}
               aria-haspopup="menu"
               className={cx(
-                "glass-chip flex h-10 w-10 items-center justify-center text-white transition duration-suite-fast ease-suite active:scale-90",
-                uploadOpen && "ring-1 ring-suite-cyan/50 shadow-suite-focus",
+                "forge-chip flex h-10 w-10 active:scale-90",
+                uploadOpen && "forge-chip--active",
               )}
             >
               <Plus className="h-6 w-6" strokeWidth={2.25} />
@@ -138,7 +138,7 @@ export function ContextualAppBar({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                  className="glass-vibrant absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-56 overflow-hidden rounded-2xl border border-[var(--hairline)] p-1.5 shadow-suite-lg"
+                  className="forge-glass absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-56 overflow-hidden p-1.5 shadow-suite-lg"
                 >
                   <button
                     type="button"
@@ -147,9 +147,9 @@ export function ContextualAppBar({
                       setUploadOpen(false);
                       onCompose?.();
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition duration-suite-fast ease-suite hover:bg-white/10 hover:shadow-suite-sm"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition duration-suite-fast ease-suite hover:bg-white/10"
                   >
-                    <span className="glass-chip flex h-8 w-8 items-center justify-center text-suite-cyan/90">
+                    <span className="forge-chip flex h-8 w-8 text-[rgb(var(--accent-rgb))]">
                       <Upload className="h-4 w-4" />
                     </span>
                     <span>
@@ -164,9 +164,9 @@ export function ContextualAppBar({
                       setUploadOpen(false);
                       onBulkUpload?.();
                     }}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition duration-suite-fast ease-suite hover:bg-white/10 hover:shadow-suite-sm"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition duration-suite-fast ease-suite hover:bg-white/10"
                   >
-                    <span className="glass-chip flex h-8 w-8 items-center justify-center text-suite-success">
+                    <span className="forge-chip flex h-8 w-8 text-suite-success">
                       <Disc3 className="h-4 w-4" />
                     </span>
                     <span>

@@ -18,14 +18,14 @@ export function VDock(_props: { onCompose: () => void }) {
 
   return (
     <div
-      className="vdock-shell pointer-events-auto relative flex w-full flex-col overflow-hidden"
+      className="vdock-shell vdock-forge pointer-events-auto relative flex w-full flex-col overflow-hidden"
       data-vdock
       data-dark-stage
       role="complementary"
       aria-label="Music player"
     >
       <DockVisualizer className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-100" />
-      <div className="vdock-shell-veil pointer-events-none absolute inset-0 z-[1]" aria-hidden />
+      <div className="vdock-shell-veil vdock-forge-veil pointer-events-none absolute inset-0 z-[1]" aria-hidden />
       <DockPlaybackProgress />
       <div className="relative z-10 flex min-h-[var(--vdock-h,4.75rem)] flex-1 items-center px-3 pb-[env(safe-area-inset-bottom,0px)] sm:px-5">
         <MusicDockPlayer />
