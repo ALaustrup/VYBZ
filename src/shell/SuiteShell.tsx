@@ -1,12 +1,10 @@
 import type { ReactNode } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
-import { NowPlayingStage } from "@/components/shell/NowPlayingStage";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { ContextInspector } from "@/shell/ContextInspector";
-import { MobileNav } from "@/shell/MobileNav";
-import { PrimaryRail } from "@/shell/PrimaryRail";
+import { OrbMenu } from "@/shell/OrbMenu";
 import { shellModeClass } from "@/shell/shellMode";
 
 export function SuiteShell({
@@ -36,15 +34,11 @@ export function SuiteShell({
       data-surface-mode={surfaceMode}
       data-shell-mode={shellMode}
     >
-      <PrimaryRail />
       <div className="suite-shell-main">
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
         )}
         {showCommandBar ? <CommandBar /> : null}
-        <ErrorBoundary>
-          <NowPlayingStage />
-        </ErrorBoundary>
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <main className="suite-stage">
             <ErrorBoundary>
@@ -53,11 +47,13 @@ export function SuiteShell({
           </main>
           <ContextInspector defaultOpen={showInspector} />
         </div>
-        <MobileNav />
       </div>
       <div className="app-dock" role="complementary" aria-label="V-Dock">
         {dock}
       </div>
+      <ErrorBoundary>
+        <OrbMenu />
+      </ErrorBoundary>
     </div>
   );
 }

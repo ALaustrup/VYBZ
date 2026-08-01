@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
-import { NowPlayingStage } from "@/components/shell/NowPlayingStage";
 
 /**
- * App chrome: sticky app bar, now-playing stage, scroll stage, fixed V-Dock.
+ * App chrome: sticky app bar, scroll stage, fixed V-Dock.
+ *
+ * NowPlayingStage is deliberately not mounted here. It reserved up to 52vh on every
+ * route to show an idle placeholder. It belongs to live playback surfaces and will be
+ * mounted there when live streaming ships.
  */
 export function AppChrome({
   stage,
@@ -22,9 +24,6 @@ export function AppChrome({
     <div className="app-shell">
       <div className="app-shell-main">
         <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
-        <ErrorBoundary>
-          <NowPlayingStage />
-        </ErrorBoundary>
         <main className="app-stage">
           <div className="app-stage-inner">{stage}</div>
         </main>
