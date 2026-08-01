@@ -118,26 +118,21 @@ export function VcTipSheet({
         <button type="button" className="absolute inset-0 bg-ink-950/75 backdrop-blur-sm" aria-label="Close" onClick={onClose} />
         <form
           onSubmit={(e) => void send(e)}
-          className="relative z-10 max-h-[min(85dvh,calc(100dvh-var(--dock-reserve,6.25rem)-2rem))] w-full max-w-md overflow-y-auto rounded-[1.75rem] border border-white/20 p-4 shadow-[0_28px_80px_-24px_rgba(20,80,140,0.55)]"
-          style={{
-            background: "linear-gradient(165deg, rgba(255,255,255,0.16), rgba(180,220,255,0.08) 40%, rgba(10,22,42,0.88))",
-            backdropFilter: "blur(28px) saturate(1.5)",
-            WebkitBackdropFilter: "blur(28px) saturate(1.5)",
-          }}
+          className="forge-glass-edge relative z-10 max-h-[min(85dvh,calc(100dvh-var(--dock-reserve,6.25rem)-2rem))] w-full max-w-md overflow-y-auto rounded-[1.75rem] p-4"
         >
         <p className="font-display text-lg font-semibold text-white">Tip {label}</p>
         <p className="mt-1 text-[12px] text-white/45">
           Send Vc to <span className="font-mono text-cyan-200/90">{addr || "—"}</span>
         </p>
 
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-[12px] text-white/65">
+        <div className="forge-card mt-3 flex items-center gap-2 !py-2 text-[12px] text-white/65">
           <Wallet className="h-3.5 w-3.5 text-cyan-200" />
           Your balance · <span className="font-mono font-semibold text-white">{formatVc(balance, 4)} Vc</span>
         </div>
 
         {goal > 0 && (
-          <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-            <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-white/45">
+          <div className="forge-card mt-3">
+            <p className="mb-1.5 flex items-center gap-1.5 nexus-eyebrow !text-[0.65rem]">
               <Target className="h-3.5 w-3.5 text-[rgb(var(--neon-mint))]" /> Tip goal
             </p>
             <div className="h-2 overflow-hidden rounded-full bg-white/10">
@@ -159,23 +154,22 @@ export function VcTipSheet({
               type="button"
               onClick={() => { setAmount(String(p)); setNeedTopup(false); }}
               className={cx(
-                "rounded-full px-3 py-1.5 text-xs font-semibold transition",
-                parseFloat(amount) === p
-                  ? "bg-[rgb(var(--neon-cyan)/0.25)] text-cyan-100 ring-1 ring-cyan-300/40"
-                  : "bg-white/8 text-white/70",
+                "forge-chip",
+                parseFloat(amount) === p ? "forge-chip--active" : "",
               )}
             >
               {p} Vc
             </button>
           ))}
         </div>
-        <input
-          value={amount}
-          onChange={(e) => { setAmount(e.target.value); setNeedTopup(false); }}
-          inputMode="decimal"
-          placeholder="Custom amount"
-          className="mt-3 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-        />
+        <div className="forge-field mt-3">
+          <input
+            value={amount}
+            onChange={(e) => { setAmount(e.target.value); setNeedTopup(false); }}
+            inputMode="decimal"
+            placeholder="Custom amount"
+          />
+        </div>
 
         {(needTopup || shortfall) && (
           <div className="mt-3 rounded-2xl border border-amber-300/30 bg-amber-500/10 p-3">
@@ -195,7 +189,7 @@ export function VcTipSheet({
           </div>
         )}
 
-        <button type="submit" disabled={busy || self} className="btn btn-primary mt-3 w-full py-2.5 text-sm disabled:opacity-40">
+        <button type="submit" disabled={busy || self} className="forge-cta mt-3 w-full disabled:opacity-40">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Tip with Vc</>}
         </button>
         </form>

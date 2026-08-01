@@ -374,7 +374,7 @@ export function DashListenPanel() {
       </p>
 
       {!filtered.length ? (
-        <p className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-10 text-center text-sm text-white/40">
+        <p className="forge-card py-10 text-center text-sm text-white/40">
           {drops.length === 0
             ? "No playable drops yet — release a track with + to start the wave."
             : "Nothing matches that search / filter. Try voice search or clear filters."}
@@ -395,13 +395,13 @@ export function DashListenPanel() {
               <button
                 type="button"
                 onClick={() => setListFor((v) => (v === d.id ? null : d.id))}
-                className="flex items-center gap-1.5 rounded-xl border border-white/8 px-2.5 py-1.5 text-[11px] font-semibold text-white/50 hover:text-white/80"
+                className="forge-chip gap-1.5 !min-h-8 !px-2.5 !text-[11px]"
               >
                 <ListPlus className="h-3.5 w-3.5" /> Add to list
               </button>
             </div>
             {listFor === d.id && (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <div className="forge-card !p-3">
                 {lists.length === 0 ? (
                   <p className="text-[12px] text-white/45">Create a list under You → Lists first.</p>
                 ) : (
@@ -425,17 +425,19 @@ export function DashListenPanel() {
             )}
             <WaveComments dropId={d.id} />
             {noteFor === d.id && (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+              <div className="forge-card !p-3">
                 <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold text-white/70">
                   <MessageSquareText className="h-3.5 w-3.5" /> Real feedback
                 </p>
-                <textarea
-                  value={note}
-                  onChange={(e) => setNote(e.target.value.slice(0, 280))}
-                  rows={3}
-                  placeholder="What worked? Mix, vibe, hook…"
-                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-                />
+                <div className="forge-field">
+                  <textarea
+                    value={note}
+                    onChange={(e) => setNote(e.target.value.slice(0, 280))}
+                    rows={3}
+                    placeholder="What worked? Mix, vibe, hook…"
+                    className="w-full resize-none bg-transparent text-sm text-white outline-none placeholder:text-white/35"
+                  />
+                </div>
                 <div className="mt-2 flex gap-2">
                   <button
                     type="button"
@@ -455,7 +457,7 @@ export function DashListenPanel() {
               <button
                 type="button"
                 onClick={() => setNoteFor(d.id)}
-                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-white/8 py-2 text-[11px] font-semibold text-white/50 hover:text-white/80"
+                className="forge-chip w-full justify-center gap-1.5 !min-h-9 !text-[11px]"
               >
                 <Star className="h-3 w-3" /> Add written feedback
               </button>

@@ -12,7 +12,7 @@ export function StorefrontOrdersPanel({ orders, settlingId, onSettle }: Props) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03]" data-testid="storefront-orders">
+    <div className="forge-card overflow-x-auto !p-0" data-testid="storefront-orders">
       <table className="w-full min-w-[28rem] text-left text-sm">
         <thead>
           <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-white/45">

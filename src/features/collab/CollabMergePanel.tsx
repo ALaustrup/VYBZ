@@ -85,7 +85,7 @@ export function CollabMergePanel(props: {
 
   return (
     <section
-      className="flex flex-col gap-3 rounded-suite border border-white/10 bg-white/[0.03] p-4"
+      className="forge-card flex flex-col gap-3"
       data-testid="collab-merge-panel"
       aria-label="Conflict-safe merge"
     >

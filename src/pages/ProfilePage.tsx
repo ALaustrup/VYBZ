@@ -124,7 +124,7 @@ export function ProfilePage() {
             </div>
           </div>
 
-          <div className="mb-4 flex gap-1 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+          <div className="forge-card mb-4 flex gap-1 !p-1">
             {([
               { id: "music" as const, label: "Music" },
               { id: "live" as const, label: "Live" },
@@ -152,7 +152,7 @@ export function ProfilePage() {
                 <Discography credits={credits} isOwner />
               </div>
               <div className="mb-2">
-                <p className="eyebrow flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Your uploads</p>
+                <p className="nexus-eyebrow flex items-center gap-1.5"><AudioLines className="h-3.5 w-3.5" /> Your uploads</p>
               </div>
               {loading ? (
                 <div className="mb-4 flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
@@ -177,11 +177,11 @@ export function ProfilePage() {
             <div className="mb-4 space-y-4">
               <DashListsPanel />
               <div>
-                <p className="eyebrow mb-2">Projects</p>
+                <p className="nexus-eyebrow mb-2">Projects</p>
                 <ProjectsPanel userId={userId!} editable />
               </div>
               <div>
-                <p className="eyebrow mb-2">Inbox</p>
+                <p className="nexus-eyebrow mb-2">Inbox</p>
                 <ProfileInbox />
               </div>
             </div>
@@ -190,7 +190,7 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}
-            className="mb-2 flex w-full items-center gap-3 rounded-2xl border border-white/8 px-3 py-2.5 text-left text-[13px] text-white/55 hover:text-white/80"
+            className="forge-card mb-2 flex w-full items-center gap-3 text-left text-[13px] text-white/55 hover:text-white/80"
           >
             <MoreHorizontal className="h-4 w-4" /> Settings & tools
             <ChevronRight className="ml-auto h-4 w-4 text-white/30" />
@@ -214,7 +214,7 @@ export function ProfilePage() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 28, opacity: 0 }}
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
-              className="relative z-10 flex max-h-[88dvh] w-full max-w-lg flex-col rounded-t-3xl border border-white/10 bg-ink-900/95 shadow-card backdrop-blur-2xl sm:rounded-3xl"
+              className="forge-glass-edge relative z-10 flex max-h-[88dvh] w-full max-w-lg flex-col rounded-t-3xl sm:rounded-3xl"
             >
               <div className="flex shrink-0 items-center justify-between border-b border-white/8 px-4 py-3">
                 <p className="text-[13px] font-semibold text-white/90">Settings & tools</p>
@@ -335,7 +335,7 @@ function DisplaySetting() {
   ];
   return (
     <div>
-      <p className="eyebrow mb-2">Visual effects</p>
+      <p className="nexus-eyebrow mb-2">Visual effects</p>
       <div className="flex gap-5">
         {opts.map((o) => (
           <button key={o.id} type="button" onClick={() => setReduceFx(o.val)}
@@ -362,7 +362,7 @@ function IntensitySetting() {
   }
   return (
     <div className="mt-3">
-      <p className="eyebrow mb-2">Reactive intensity</p>
+      <p className="nexus-eyebrow mb-2">Reactive intensity</p>
       <div className="flex flex-wrap gap-5">
         {([
           { id: "off" as const, label: "Off" },
