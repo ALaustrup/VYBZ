@@ -16,7 +16,7 @@ test.describe("Distribution readiness", () => {
     await page.getByTestId("prepare-open-distribution").click();
     await expect(page.getByTestId("distribution-page")).toBeVisible();
     await expect(page.getByTestId("distribution-verdict")).toBeVisible();
-    await expect(page.getByTestId("distribution-cost-alert")).toBeVisible();
+    await expect(page.getByTestId("distribution-loudness")).toContainText(/Not measured|LUFS/i);
 
     const downloadPromise = page.waitForEvent("download");
     await page.getByTestId("distribution-export").click();

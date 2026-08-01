@@ -7,7 +7,6 @@ import { DynamicBackground } from "@/components/DynamicBackground";
 import { PageTransition } from "@/components/PageTransition";
 import { LandingPage } from "@/pages/LandingPage";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
-import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
 import { WelcomeTutorial } from "@/components/WelcomeTutorial";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { BulkUploadSheet } from "@/components/BulkUploadSheet";
@@ -26,7 +25,6 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BrandLockup } from "@/components/Brand";
 import { cx } from "@/lib/utils";
 import { FeedPage } from "@/pages/FeedPage";
-import { needsIntentMixIntake } from "@/lib/intentMix";
 import { ConnectPage } from "@/pages/ConnectPage";
 import { SparkPage } from "@/pages/SparkPage";
 import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
@@ -108,10 +106,6 @@ export function App() {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  const [onboarded, setOnboarded] = useState(false);
-  const authed = !!userId && !!profile?.username;
-  const needsMix = needsIntentMixIntake(profile?.profile);
-
   // Playwright fixtures bypass auth / backend gates, so they exist only in e2e builds.
   if (E2E_FIXTURES_ENABLED) {
     const fixture = resolveE2eFixture(location.pathname);
@@ -165,15 +159,6 @@ export function App() {
   if (!profile.username) {
     if (isPublicDoc) return <PublicDocShell />;
     return <UsernameSetup />;
-  }
-
-  if (!isPublicDoc && authed && needsMix && !onboarded) {
-    return (
-      <>
-        <DynamicBackground variant={BRAND_BG} mode="static" />
-        <RoleIntentOnboarding onComplete={() => setOnboarded(true)} />
-      </>
-    );
   }
 
   const routes = (
