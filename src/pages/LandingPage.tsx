@@ -98,7 +98,7 @@ export function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Link to="/releases/new" className="forge-cta">
+          <Link to="/releases/new" className="forge-cta" data-testid="landing-readiness-cta">
             Run free readiness scan
           </Link>
           <Link to="/enter" className="forge-cta-ghost">
