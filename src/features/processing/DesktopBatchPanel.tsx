@@ -152,7 +152,7 @@ export function DesktopBatchPanel() {
               <p className="text-xs text-fog">
                 {item.status}
                 {item.result
-                  ? ` · peak ${item.result.peakDbfs.toFixed(1)} dBFS · LUFS≈ ${item.result.integratedLufsApprox.toFixed(1)} · ${item.result.engine}`
+                  ? ` · peak ${item.result.peakDbfs.toFixed(1)} dBFS · ~${item.result.integratedLufsApprox.toFixed(1)} LUFS (estimated) · ${item.result.engine}`
                   : ""}
                 {item.error ? ` · ${item.error}` : ""}
               </p>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CREDIT_ROLES, type CreditRole, type ReleaseCredit } from "@vybz/domain/credits";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +19,7 @@ import { SyncConflictPanel } from "@/features/sync/SyncConflictPanel";
 import { CollabPresenceStrip } from "@/features/collab/CollabPresenceStrip";
 import { CommentThreadPanel } from "@/features/collab/CommentThreadPanel";
 import { CollabMergePanel } from "@/features/collab/CollabMergePanel";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 
 function roleLabel(role: CreditRole): string {
   return role.replace(/_/g, " ");
@@ -116,17 +117,14 @@ export function ReleaseCreditsPage() {
       className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-[max(7rem,env(safe-area-inset-bottom))] md:p-8"
       data-testid="credits-page"
     >
-      <div>
-        <Link to={`/release/${id}`} className="text-xs text-fog hover:text-snow">
-          ← Prepare
-        </Link>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-suite-cyan">Credits</p>
-        <h1 className="font-display text-2xl font-semibold text-snow" data-testid="credits-release-title">
-          {releaseTitle}
-        </h1>
-        <p className="mt-1 text-sm text-fog">Every name accounted for. Every split confirmed.</p>
-        {splitWarning ? <p className="mt-1 text-xs text-fog">{splitWarning}</p> : null}
-      </div>
+      <NexusPageHeader
+        eyebrow="Credits"
+        title={releaseTitle}
+        subtitle="Every name accounted for. Every split confirmed."
+        backTo={{ href: `/release/${id}`, label: "← Prepare" }}
+      />
+      <h1 className="sr-only" data-testid="credits-release-title">{releaseTitle}</h1>
+      {splitWarning ? <p className="text-xs text-white/45">{splitWarning}</p> : null}
 
       <CollabPresenceStrip
         releaseId={id}
@@ -140,7 +138,7 @@ export function ReleaseCreditsPage() {
       <SyncConflictPanel projectId={id} />
       <CollabMergePanel releaseId={id} />
 
-      <form className="flex flex-col gap-3 rounded-suite border border-white/10 bg-white/[0.03] p-4" onSubmit={onAdd}>
+      <form className="forge-card flex flex-col gap-3" onSubmit={onAdd}>
         <Input
           label="Display name"
           value={name}
@@ -171,7 +169,7 @@ export function ReleaseCreditsPage() {
           inputMode="decimal"
           data-testid="credits-split"
         />
-        <Button type="submit" loading={saving} className="min-h-11" data-testid="credits-add">
+        <Button type="submit" variant="forge" loading={saving} className="min-h-11" data-testid="credits-add">
           Add credit
         </Button>
       </form>
@@ -187,7 +185,7 @@ export function ReleaseCreditsPage() {
         {credits.map((c) => (
           <li
             key={c.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-suite border border-white/10 bg-white/[0.03] px-4 py-3"
+            className="forge-card flex flex-wrap items-center justify-between gap-3"
             data-testid={`credits-row-${c.id}`}
           >
             <div className="min-w-0">

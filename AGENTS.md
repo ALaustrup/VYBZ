@@ -26,11 +26,12 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M1 — Doctrine refoundation.** Documentation only. No feature code, no schema, no
-dependencies.
+**M3 — Information architecture & truthful shell.** Nexus UI redux on all user-facing
+surfaces; remove fabricated measurements; hide placeholder navigation; surface working
+Prepare routes. Owner authorised via merged PRs #36–#39.
 
-Everything else is prohibited, including: M2 onwards, new features, UI polish, token or CSS
-refactors, phase numbering, tagging, and GitHub issues #20 and #28.
+M1 documentation is landed. M2 product isolation and M4+ remain gated — see
+[`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) decision-required items before expanding scope.
 
 ## Safety rules
 
