@@ -31,12 +31,7 @@ export function ConnectPage() {
         onClick={() => setShowFilters((s) => !s)}
         aria-label="Must-have filters"
         aria-expanded={showFilters}
-        className={cx(
-          "flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
-          showFilters || activeCount > 0
-            ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40"
-            : "glass text-white/70",
-        )}
+        className={cx("forge-chip gap-1.5 !min-h-9 px-3 text-xs font-semibold", showFilters || activeCount > 0 ? "forge-chip--active" : "")}
       >
         <SlidersHorizontal className="h-3.5 w-3.5" />
         {activeCount > 0 ? activeCount : "Filters"}
@@ -74,7 +69,7 @@ export function ConnectPage() {
         <NetworkModes />
         {showFilters && <MatchHardFiltersPanel filters={filters} onChange={updateFilters} />}
 
-        <p className="eyebrow mb-3">Suggested collaborators</p>
+        <p className="nexus-eyebrow mb-3">Suggested collaborators</p>
 
         {loading ? (
           <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
@@ -100,14 +95,14 @@ export function ConnectPage() {
             }
           />
         ) : (
-          <div className="divide-y divide-[var(--hairline)]">
+          <ul className="flex flex-col gap-3">
             {matches.map((m, i) => (
-              <div key={m.userId} style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }} className="reveal py-4">
+              <li key={m.userId} style={{ animationDelay: `${Math.min(i, 12) * 45}ms` }} className="reveal forge-card">
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => navigate(`/u/${m.userId}`)}
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-veil-500/20 font-display text-sm font-bold text-veil-100 ring-1 ring-white/10"
+                    className="forge-card-icon flex h-11 w-11 shrink-0 !rounded-full text-sm font-display font-bold"
                   >
                     {(m.username || "?").charAt(0).toUpperCase()}
                   </button>
@@ -157,9 +152,9 @@ export function ConnectPage() {
                     </p>
                   )}
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </div>

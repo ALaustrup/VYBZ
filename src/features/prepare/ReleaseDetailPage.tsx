@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { StateView } from "@/components/states/StateView";
 import { useSession } from "@/store/session";
@@ -77,20 +78,18 @@ export function ReleaseDetailPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 md:p-8" data-testid="prepare-detail">
-      <div>
-        <Link to="/releases" className="text-xs text-fog hover:text-snow">
-          ← Releases
-        </Link>
-        <p className="nexus-eyebrow mt-3">Prepare</p>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="nexus-headline text-2xl md:text-3xl" data-testid="prepare-detail-title">
-            {project.title}
-          </h1>
+      <NexusPageHeader
+        eyebrow="Prepare"
+        title={project.title}
+        titleTestId="prepare-detail-title"
+        subtitle={project.artistName || "Artist TBD"}
+        backTo={{ href: "/releases", label: "← Releases" }}
+      >
+        <div className="flex flex-wrap items-center gap-3">
           <Badge tone={statusTone(project.status)} data-testid="prepare-detail-status">
             {project.status}
           </Badge>
         </div>
-        <p className="nexus-subline mt-2 text-sm">{project.artistName || "Artist TBD"}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             to={`/release/${project.id}/credits`}
@@ -114,7 +113,7 @@ export function ReleaseDetailPage() {
             Master
           </Link>
         </div>
-      </div>
+      </NexusPageHeader>
 
       <CollabPresenceStrip
         releaseId={project.id}

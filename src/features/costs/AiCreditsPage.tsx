@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { Badge } from "@/components/ui/Badge";
 import * as api from "@/lib/api";
 import {
@@ -105,16 +106,12 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
       className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 md:p-8"
       data-testid="ai-credits-page"
     >
-      <div>
-        <Link to="/settings/costs" className="text-xs text-fog hover:text-snow">
-          ← Cost Sentinel
-        </Link>
-        <h1 className="mt-2 font-display text-2xl font-semibold text-snow">AI minutes</h1>
-        <p className="mt-1 text-sm text-fog">
-          Prepaid mastering seconds. Pack: {AI_MINUTE_PACK_SECONDS / 60} min for $
-          {(AI_MINUTE_PACK_CENTS / 100).toFixed(0)}.
-        </p>
-      </div>
+      <NexusPageHeader
+        eyebrow="Settings"
+        title="AI minutes"
+        subtitle={`Prepaid mastering seconds. Pack: ${AI_MINUTE_PACK_SECONDS / 60} min for $${(AI_MINUTE_PACK_CENTS / 100).toFixed(0)}.`}
+        backTo={{ href: "/settings/costs", label: "← Cost Sentinel" }}
+      />
 
       {topupStatus === "success" && (
         <div
@@ -125,7 +122,7 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
         </div>
       )}
       {topupStatus === "cancel" && (
-        <div className="rounded-suite-md border border-white/10 bg-graphite px-4 py-3 text-sm text-fog">
+        <div className="forge-card text-sm text-fog">
           Checkout canceled — no charge.
         </div>
       )}
@@ -139,9 +136,9 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-end justify-between gap-4 rounded-suite-md border border-white/10 bg-graphite/80 px-5 py-4">
+      <div className="forge-card flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-fog">Balance</p>
+          <p className="nexus-eyebrow !text-[0.65rem]">Balance</p>
           <p className="mt-1 font-display text-3xl font-semibold text-snow" data-testid="ai-credit-balance">
             {Math.floor(balance)}s
           </p>
@@ -154,7 +151,7 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
           data-testid="ai-topup-btn"
           disabled={busy}
           onClick={() => void onPurchase()}
-          className="inline-flex h-10 items-center rounded-suite-md bg-suite-cyan px-4 text-xs font-semibold text-ink disabled:opacity-40"
+          className="forge-cta !min-h-10 !px-4 !text-xs disabled:opacity-40"
         >
           Buy {AI_MINUTE_PACK_SECONDS / 60} min · ${(AI_MINUTE_PACK_CENTS / 100).toFixed(0)}
         </button>
@@ -171,10 +168,7 @@ export function AiCreditsPage({ seedDemo = false }: Props) {
           <h2 className="text-sm font-semibold text-snow">Ledger</h2>
           <Badge tone="info">append-only</Badge>
         </div>
-        <div
-          className="overflow-hidden rounded-suite-md border border-white/10"
-          data-testid="ai-credit-ledger"
-        >
+        <div className="forge-card overflow-hidden !p-0" data-testid="ai-credit-ledger">
           <table className="w-full text-left text-xs">
             <thead className="bg-white/5 text-fog">
               <tr>

@@ -60,7 +60,7 @@ export function CommentThreadPanel(props: {
 
   return (
     <section
-      className="flex flex-col gap-3 rounded-suite border border-white/10 bg-white/[0.03] p-4"
+      className="forge-card flex flex-col gap-3"
       data-testid="collab-comments-panel"
       aria-label={props.title ?? "Collaboration comments"}
     >
@@ -123,7 +123,7 @@ export function CommentThreadPanel(props: {
         {rows.map((r) => (
           <li
             key={r.id}
-            className="rounded-suite-md border border-white/8 bg-abyss/30 px-3 py-2 text-sm"
+            className="forge-card !p-3 text-sm"
             data-testid="collab-comment-row"
           >
             <div className="flex flex-wrap items-baseline gap-2 text-[11px] text-fog">
