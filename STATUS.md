@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `b3f41aee` (merge #41)
+**HEAD:** `836a0c50` (merge #42)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -14,10 +14,10 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `b3f41aeedf825f10306a6907eda131646aa1add9` | `git rev-parse origin/main` after PR #41 merge |
+| Production SHA | `836a0c5057f292c9b1d3f4a05a8cca71f4a38ff6` | `git rev-parse origin/main` after PR #42 merge |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-gvb2DTFG.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
-| Deployment current | **YES** — bundle changed `index-BRdmfz-t.js` (#40) → `index-gvb2DTFG.js` (#41) |
+| Deployed bundle | `/assets/index-C2BsmicC.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
+| Deployment current | **YES** — bundle changed `index-gvb2DTFG.js` (#41) → `index-C2BsmicC.js` (#42) |
 
 ## Last completed operations
 
@@ -27,10 +27,11 @@
 4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome. Production bundle `index-CMRqBxTU.js`.
 5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) merged** — M3 completion: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS M3 authorisation. Production bundle `index-BRdmfz-t.js`.
 6. **PR [#41](https://github.com/ALaustrup/VYBZ/pull/41) merged** — M3 hub Nexus: DashHub live/fresh rails, Connect matches, AI credits, Cost Sentinel, release detail header, comment threads, message composer. Production bundle `index-gvb2DTFG.js`.
+7. **PR [#42](https://github.com/ALaustrup/VYBZ/pull/42) merged** — M3 surfaces Nexus: Profile You tab, DashListen, ComposeSheet, VcTipSheet, Storefront dashboard, CollabMergePanel. Production bundle `index-C2BsmicC.js`.
 
 ## Working tree
 
-Clean on `main` @ `b3f41aee`. Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `836a0c50`. Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
@@ -60,16 +61,15 @@ Clean on `main` @ `b3f41aee`. Untracked: `.cursor/settings.json` (do not commit)
 ## Next authorised action
 
 1. Owner redeploy `processing-enqueue` edge function (`supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm`).
-2. Signed-in production verification: Hub rails, Network, Settings → Costs → AI minutes, Prepare → Distribution → Master.
-3. Remaining M3 legacy surfaces (if any): Profile page, ComposeSheet, VcTipSheet, storefront dashboard — grep for `glass-panel` / `border-white/8`.
-4. M3 exit gate review against Masterplan §M3 acceptance criteria.
+2. Signed-in production verification: Profile You tab, Listen rail, Compose sheet, Storefront, Prepare → Distribution → Master.
+3. M3 exit gate review against Masterplan §M3 acceptance criteria (grep remaining `glass-panel` on user-facing routes).
 
 ## Latest verification results
 
 ```
-npm run lint   — PASS (2026-08-01, feat/m3-hub-nexus @ bcd11f0d)
+npm run lint   — PASS (2026-08-01, feat/m3-surfaces-nexus @ c4f57b8b)
 npm run test   — PASS 145/145 (2026-08-01)
-npm run build  — PASS (2026-08-01, local bundle index-BCTgB9UN.js)
-PR #41 quality — PASS (2026-08-01)
-Production bundle — index-gvb2DTFG.js (2026-08-01 live fetch)
+npm run build  — PASS (2026-08-01, local bundle index-XusxxuJv.js)
+PR #42 quality — PASS (2026-08-01)
+Production bundle — index-C2BsmicC.js (2026-08-01 live fetch)
 ```
