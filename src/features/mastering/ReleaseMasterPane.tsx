@@ -273,27 +273,31 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           </button>
 
           {latest.metadata && (
-            <dl
-              className="grid grid-cols-2 gap-2 rounded-suite-md border border-white/10 bg-graphite/60 p-3 text-xs"
+            <div
+              className="rounded-suite-md border border-white/10 bg-graphite/60 p-3 text-xs"
               data-testid="master-metadata"
             >
-              <div>
-                <dt className="text-fog">Genre</dt>
-                <dd className="text-snow">{latest.metadata.genre}</dd>
-              </div>
-              <div>
-                <dt className="text-fog">Mood</dt>
-                <dd className="text-snow">{latest.metadata.mood}</dd>
-              </div>
-              <div>
-                <dt className="text-fog">BPM</dt>
-                <dd className="text-snow">{latest.metadata.bpm}</dd>
-              </div>
-              <div>
-                <dt className="text-fog">ISRC suggestion</dt>
-                <dd className="text-snow">{latest.metadata.isrcSuggestion}</dd>
-              </div>
-            </dl>
+              <dl className="grid grid-cols-2 gap-2">
+                <div>
+                  <dt className="text-fog">Genre</dt>
+                  <dd className="text-snow" data-testid="master-metadata-genre">
+                    {latest.metadata.genre ?? "Not measured"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-fog">Mood</dt>
+                  <dd className="text-snow" data-testid="master-metadata-mood">
+                    {latest.metadata.mood ?? "Not measured"}
+                  </dd>
+                </div>
+              </dl>
+              <p className="mt-2 text-[11px] leading-relaxed text-fog">
+                {latest.metadata.source === "ai-guess"
+                  ? "AI suggestion from the title and artist name — not measured from the audio."
+                  : "No suggestions available."}{" "}
+                Tempo, key and ISRC are never guessed.
+              </p>
+            </div>
           )}
         </div>
       )}
