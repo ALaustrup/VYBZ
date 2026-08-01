@@ -4,7 +4,53 @@ All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
 > **From 2026-07-31 onward, every entry must declare a delivery state** from
-> [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §0. "Merged" is not "delivered".
+> [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §12. "Merged" is not "delivered".
+
+## [Unreleased] – M1 Doctrine refoundation (2026-08-01)
+
+**Documentation only. No application code changed.** Delivery state: `DOCUMENTED ONLY`.
+
+VYBZ is redefined as an **Audio Intelligence and Release Operating System**: truthful
+measurement, correction, mastering, translation, release preparation, native publishing,
+and verified export — with external DSP distribution as an explicitly gated future
+milestone rather than a claim.
+
+**Documentation authority collapsed from seventeen competing claims to five.**
+`VYBZ_MASTERPLAN.md` (product doctrine), `AGENTS.md` (operating rules), `ARCHITECTURE.md`
+(verified architecture only), the new `STATUS.md` (evidence-backed checkpoint), and
+`IDEAS_BACKLOG.md` (backlog). All four existing files were rewritten from scratch.
+
+- Phase numbering retired in favour of milestones **M0–M14**. Nineteen `v1.1.0-beta1A-phase*`
+  tags remain as immutable history. There will be no "Phase 20".
+- **Seven product laws** adopted, the first being *never fabricate analysis*.
+- Dating, romantic and meetup functionality moved to permanently excluded scope.
+  Multi-human collaboration frozen. Both are M2 work and no code has changed yet.
+- 37 documents archived under `docs/archive/{suite-phases-2026,agent-roles-2026,product-briefs-2026}/`.
+  All 50 archived files now carry a HISTORICAL ONLY banner — previously only two did.
+- `docs/DOCUMENTATION_MANIFEST.md` deleted; its six-tier hierarchy contradicted the stated
+  conflict order and indexed only part of the tree. The document map now lives in
+  `ARCHITECTURE.md` §16.
+- Nine remaining product briefs demoted from "Authoritative product brief" to reference.
+- All inbound links to moved documents repaired across 10 files.
+
+**Recorded but not yet fixed:** fifteen technical-integrity defects, nine of which are
+fabricated values reaching users in production today — a hash-derived ISRC suggestion, a
+hardcoded true peak that is never computed, a hardcoded artwork DPI, hash-derived genre,
+mood, BPM and confidence, a hardcoded cost alert, and a processing endpoint that reports
+success for work it never performs. Catalogued in `IDEAS_BACKLOG.md` §3 and owned by M3/M4.
+
+### D1 — e2e fixtures removed from production · `DELIVERED AND PRODUCTION-VERIFIED`
+
+PR [#30](https://github.com/ALaustrup/VYBZ/pull/30) merged out-of-band as a security fix.
+Five `/__e2e__/*` routes rendered seeded fixture pages before any authentication or backend
+check and were live on `https://vybz.cloud`.
+
+Verified on production at `53ab9ef9`: the served bundle `index-CjRLJawG.js` contains none of
+`__e2e__`, `mastering-e2e-fixture`, `collab-e2e`, `cost-sentinel-e2e` or `ai-credits-e2e`.
+All five were present in the previous bundle.
+
+PR [#31](https://github.com/ALaustrup/VYBZ/pull/31) (landing CTA) closed as superseded by M3;
+branch preserved.
 
 ## [Unreleased] – Production Reality Audit + Master Blueprint v2 (2026-07-31)
 
