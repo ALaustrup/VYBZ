@@ -138,35 +138,41 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           <Link to={projectId ? `/release/${projectId}` : "/releases"} className="text-xs text-fog hover:text-snow">
             ← Release
           </Link>
-          <h1 className="mt-2 font-display text-2xl font-semibold text-snow">MasterReady</h1>
-          <p className="mt-1 text-sm text-fog">
-            Analyze &amp; Master — loudness normalize, peak limit, metadata suggestions.
+          <p className="nexus-eyebrow mt-3">MasterReady</p>
+          <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Analyze &amp; Master</h1>
+          <p className="nexus-subline mt-2 text-sm">
+            Loudness normalize, peak limit, metadata suggestions — measured values only.
           </p>
         </div>
       )}
 
       {e2eMode && (
-        <header className="flex items-center justify-between border-b border-white/10 pb-3">
-          <h1 className="font-display text-xl font-semibold text-snow">MasterReady · e2e</h1>
+        <header className="forge-glass relative flex items-center justify-between p-4">
+          <span className="forge-glass-edge" aria-hidden />
+          <h1 className="nexus-headline text-xl">MasterReady · e2e</h1>
           <Badge tone="info">fixture</Badge>
         </header>
       )}
 
       {creditBalance !== null && creditBalance < AI_LOW_BALANCE_SECONDS && (
         <div
-          className="suite-accent-wash-warning rounded-suite-md border border-suite-warning/40 px-4 py-3 text-sm text-snow"
+          className="forge-card border-suite-warning/40"
           data-testid="master-low-balance-banner"
         >
-          AI minute balance low ({Math.floor(creditBalance)}s).{" "}
-          <Link to="/settings/credits" className="underline hover:text-suite-cyan">
-            Top up credits
-          </Link>
+          <p className="text-sm text-snow">
+            AI minute balance low ({Math.floor(creditBalance)}s).{" "}
+            <Link to="/settings/credits" className="text-[rgb(var(--accent-rgb))] underline hover:brightness-110">
+              Top up credits
+            </Link>
+          </p>
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="forge-glass relative p-4 md:p-5">
+        <span className="forge-glass-edge" aria-hidden />
+        <div className="flex flex-wrap items-center gap-3">
         {!e2eMode && (
-          <label className="inline-flex h-9 cursor-pointer items-center rounded-suite-md border border-white/10 bg-graphite px-3 text-xs font-semibold text-snow hover:border-suite-cyan/40">
+          <label className="forge-cta-ghost !min-h-9 cursor-pointer !px-3 !text-xs">
             Choose WAV
             <input
               type="file"
@@ -182,15 +188,16 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           data-testid="analyze-master-btn"
           disabled={!file || busy}
           onClick={() => void onAnalyze()}
-          className="inline-flex h-9 items-center rounded-suite-md bg-suite-cyan px-4 text-xs font-semibold text-ink disabled:opacity-40"
+          className="forge-cta !min-h-9 !px-4 !text-xs disabled:pointer-events-none disabled:opacity-40"
         >
           Analyze &amp; Master
         </button>
         {file && (
-          <span className="text-xs text-fog" data-testid="master-file-name">
+          <span className="text-xs text-white/45" data-testid="master-file-name">
             {file.name} · {(file.size / 1024).toFixed(1)} KB
           </span>
         )}
+        </div>
       </div>
 
       {(busy || latest) && (
@@ -217,12 +224,12 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
             <Badge tone="success" data-testid="master-status-completed">
               Completed
             </Badge>
-            <span className="text-xs text-fog">{latest.metrics?.procVersion}</span>
+            <span className="text-xs text-white/45">{latest.metrics?.procVersion}</span>
             <div className="ml-auto flex gap-1" role="group" aria-label="A/B preview">
               <button
                 type="button"
                 data-testid="master-ab-a"
-                className={`h-8 rounded-suite-md px-3 text-xs font-semibold ${ab === "A" ? "bg-white/15 text-snow" : "text-fog"}`}
+                className={`forge-cta-ghost !min-h-8 !rounded-full !px-3 !text-xs ${ab === "A" ? "!border-[rgb(var(--accent-rgb)/0.45)] !bg-[rgb(var(--accent-rgb)/0.12)]" : "!border-transparent !bg-transparent text-fog"}`}
                 onClick={() => setAb("A")}
               >
                 A · Original
@@ -230,7 +237,7 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
               <button
                 type="button"
                 data-testid="master-ab-b"
-                className={`h-8 rounded-suite-md px-3 text-xs font-semibold ${ab === "B" ? "bg-white/15 text-snow" : "text-fog"}`}
+                className={`forge-cta-ghost !min-h-8 !rounded-full !px-3 !text-xs ${ab === "B" ? "!border-[rgb(var(--accent-rgb)/0.45)] !bg-[rgb(var(--accent-rgb)/0.12)]" : "!border-transparent !bg-transparent text-fog"}`}
                 onClick={() => setAb("B")}
               >
                 B · Mastered
@@ -247,7 +254,7 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           />
 
           <div
-            className="flex h-16 items-end gap-px overflow-hidden rounded-suite-md bg-white/5 px-1"
+            className="flex h-16 items-end gap-px overflow-hidden rounded-xl bg-white/5 px-1"
             data-testid="master-wave-ab"
             aria-hidden
           >
@@ -256,7 +263,7 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
               return (
                 <div
                   key={i}
-                  className="flex-1 bg-suite-cyan/70"
+                  className="flex-1 bg-[rgb(var(--accent-rgb)/0.7)]"
                   style={{ height: `${12 + seed * 70}%` }}
                 />
               );
@@ -267,16 +274,13 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
             type="button"
             data-testid="download-mastered-wav"
             onClick={onDownload}
-            className="inline-flex h-9 items-center rounded-suite-md border border-white/15 bg-graphite px-4 text-xs font-semibold text-snow hover:border-suite-cyan/40"
+            className="forge-cta-ghost !min-h-9 !px-4 !text-xs"
           >
             Download mastered WAV
           </button>
 
           {latest.metadata && (
-            <div
-              className="rounded-suite-md border border-white/10 bg-graphite/60 p-3 text-xs"
-              data-testid="master-metadata"
-            >
+            <div className="forge-card text-xs" data-testid="master-metadata">
               <dl className="grid grid-cols-2 gap-2">
                 <div>
                   <dt className="text-fog">Genre</dt>

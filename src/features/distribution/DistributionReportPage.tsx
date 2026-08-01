@@ -154,16 +154,16 @@ export function DistributionReportPage() {
         <Link to={`/release/${id}`} className="text-xs text-fog hover:text-snow">
           ← Prepare
         </Link>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-suite-cyan">Distribution</p>
-        <div className="mt-1 flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-2xl font-semibold text-snow" data-testid="distribution-title">
+        <p className="nexus-eyebrow mt-3">Distribution</p>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <h1 className="nexus-headline text-2xl md:text-3xl" data-testid="distribution-title">
             {title}
           </h1>
           <Badge tone={verdictTone(report.verdict)} data-testid="distribution-verdict">
             {report.verdict}
           </Badge>
         </div>
-        <p className="mt-1 text-sm text-fog">
+        <p className="nexus-subline mt-2 text-sm">
           Packaging checks · ISRC · artwork · loudness when measured.
         </p>
         <p className="mt-2 text-xs text-fog/80" data-testid="distribution-loudness">
@@ -174,7 +174,7 @@ export function DistributionReportPage() {
       {error ? <StateView variant="error" title="Export error" body={error} /> : null}
 
       <div className="flex flex-wrap gap-2">
-        <Button loading={busy} onClick={() => void onExport()} data-testid="distribution-export">
+        <Button variant="forge" loading={busy} onClick={() => void onExport()} data-testid="distribution-export">
           {shell === "desktop" ? "Export DDP stub ZIP" : shell === "android" ? "Share export" : "Download ZIP"}
         </Button>
         {exportSha ? (

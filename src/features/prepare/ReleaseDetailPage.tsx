@@ -81,36 +81,39 @@ export function ReleaseDetailPage() {
         <Link to="/releases" className="text-xs text-fog hover:text-snow">
           ← Releases
         </Link>
+        <p className="nexus-eyebrow mt-3">Prepare</p>
         <div className="mt-2 flex flex-wrap items-center gap-3">
-          <h1 className="font-display text-2xl font-semibold text-snow" data-testid="prepare-detail-title">
+          <h1 className="nexus-headline text-2xl md:text-3xl" data-testid="prepare-detail-title">
             {project.title}
           </h1>
           <Badge tone={statusTone(project.status)} data-testid="prepare-detail-status">
             {project.status}
           </Badge>
         </div>
-        <p className="mt-1 text-sm text-fog">{project.artistName || "Artist TBD"}</p>
-        <Link
-          to={`/release/${project.id}/credits`}
-          className="mt-3 inline-flex h-8 items-center rounded-suite-md border border-white/10 bg-graphite px-3 text-xs font-semibold text-snow hover:border-suite-cyan/40"
-          data-testid="prepare-open-credits"
-        >
-          Edit credits
-        </Link>
-        <Link
-          to={`/release/${project.id}/distribution`}
-          className="ml-2 mt-3 inline-flex h-8 items-center rounded-suite-md border border-white/10 bg-graphite px-3 text-xs font-semibold text-snow hover:border-suite-cyan/40"
-          data-testid="prepare-open-distribution"
-        >
-          Distribution
-        </Link>
-        <Link
-          to={`/release/${project.id}/master`}
-          className="ml-2 mt-3 inline-flex h-8 items-center rounded-suite-md border border-white/10 bg-graphite px-3 text-xs font-semibold text-snow hover:border-suite-cyan/40"
-          data-testid="prepare-open-master"
-        >
-          Master
-        </Link>
+        <p className="nexus-subline mt-2 text-sm">{project.artistName || "Artist TBD"}</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            to={`/release/${project.id}/credits`}
+            className="forge-cta-ghost !min-h-8 !px-3 !text-xs"
+            data-testid="prepare-open-credits"
+          >
+            Edit credits
+          </Link>
+          <Link
+            to={`/release/${project.id}/distribution`}
+            className="forge-cta-ghost !min-h-8 !px-3 !text-xs"
+            data-testid="prepare-open-distribution"
+          >
+            Distribution
+          </Link>
+          <Link
+            to={`/release/${project.id}/master`}
+            className="forge-cta-ghost !min-h-8 !px-3 !text-xs"
+            data-testid="prepare-open-master"
+          >
+            Master
+          </Link>
+        </div>
       </div>
 
       <CollabPresenceStrip
@@ -120,7 +123,7 @@ export function ReleaseDetailPage() {
         pane="prepare"
       />
 
-      <div className="flex flex-wrap gap-2 text-xs text-fog">
+      <div className="flex flex-wrap gap-2 text-xs text-white/45">
         <span>{counts.blocking} blocking</span>
         <span>·</span>
         <span>{counts.warning} warnings</span>
@@ -137,10 +140,10 @@ export function ReleaseDetailPage() {
             type="button"
             role="tab"
             aria-selected={severity === s}
-            className={`rounded-suite-sm border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition ${
               severity === s
-                ? "border-suite-cyan/40 bg-suite-cyan/15 text-suite-cyan"
-                : "border-white/10 text-fog"
+                ? "border-[rgb(var(--accent-rgb)/0.45)] bg-[rgb(var(--accent-rgb)/0.12)] text-white"
+                : "border-white/10 text-fog hover:border-white/20 hover:text-snow"
             }`}
             onClick={() => setSeverity(s)}
             data-testid={`prepare-filter-${s}`}
@@ -165,7 +168,7 @@ export function ReleaseDetailPage() {
           {findings.map((f) => (
             <li
               key={f.id}
-              className="rounded-suite border border-white/10 bg-white/[0.03] px-4 py-3"
+              className="forge-card"
               data-testid={`prepare-finding-${f.code}`}
             >
               <div className="flex flex-wrap items-center gap-2">

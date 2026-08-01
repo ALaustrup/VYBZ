@@ -63,11 +63,12 @@ export function ReleasesPage() {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 md:p-8" data-testid="prepare-releases">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-suite-cyan">Prepare</p>
-          <h1 className="font-display text-2xl font-semibold text-snow">Releases</h1>
-          <p className="mt-1 text-sm text-fog">Know what is ready. Fix what is not.</p>
+          <p className="nexus-eyebrow">Prepare</p>
+          <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Releases</h1>
+          <p className="nexus-subline mt-2 text-sm">Know what is ready. Fix what is not.</p>
         </div>
         <Button
+          variant="forge"
           data-testid="prepare-new-release"
           onClick={() => navigate("/releases/new")}
           className="gap-2"
@@ -84,10 +85,10 @@ export function ReleasesPage() {
             type="button"
             role="tab"
             aria-selected={filter === f.id}
-            className={`rounded-suite-sm border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide ${
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition ${
               filter === f.id
-                ? "border-suite-cyan/40 bg-suite-cyan/15 text-suite-cyan"
-                : "border-white/10 text-fog hover:text-snow"
+                ? "border-[rgb(var(--accent-rgb)/0.45)] bg-[rgb(var(--accent-rgb)/0.12)] text-white"
+                : "border-white/10 text-fog hover:border-white/20 hover:text-snow"
             }`}
             onClick={() => setFilter(f.id)}
           >
@@ -112,7 +113,7 @@ export function ReleasesPage() {
             <li key={row.id}>
               <Link
                 to={`/release/${row.id}`}
-                className="flex items-center justify-between gap-3 rounded-suite border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:border-suite-cyan/30 hover:bg-white/[0.05]"
+                className="forge-card flex items-center justify-between gap-3"
                 data-testid={`prepare-release-row-${row.id}`}
               >
                 <div className="min-w-0">
