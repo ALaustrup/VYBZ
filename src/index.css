@@ -338,6 +338,306 @@
     padding-bottom: 0.35rem;
   }
 
+  /* ── Liquid glass ───────────────────────────────────────────────────────────
+     Glass reads as glass because of edges, not blur. The stack below is: a
+     directional body tint, a hard 1px specular catch on the top edge, a dimmer
+     catch on the bottom, an inner coloured bloom for depth, and a wide outer
+     shadow that lifts the surface off the page. Everything animated is
+     transform or opacity so it stays on the compositor. */
+  .lg-surface {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      linear-gradient(
+        152deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(214, 234, 255, 0.05) 34%,
+        rgba(10, 20, 38, 0.28) 100%
+      );
+    backdrop-filter: blur(34px) saturate(185%) brightness(1.06);
+    -webkit-backdrop-filter: blur(34px) saturate(185%) brightness(1.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 18px 40px -30px rgba(150, 210, 255, 0.65),
+      0 2px 8px -3px rgba(0, 0, 0, 0.55),
+      0 32px 80px -34px rgba(8, 34, 78, 0.9);
+  }
+
+  /* Slow travelling highlight — the thing that makes it read as wet glass. */
+  .orb-panel-sheen {
+    position: absolute;
+    inset: -60% -20%;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.1) 46%,
+      rgba(190, 226, 255, 0.16) 50%,
+      rgba(255, 255, 255, 0.1) 54%,
+      transparent 62%
+    );
+    transform: translateX(-40%);
+    animation: lg-sheen 7.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  }
+
+  @keyframes lg-sheen {
+    0%,
+    62% { transform: translateX(-45%); }
+    100% { transform: translateX(45%); }
+  }
+
+  /* ── Orb menu — the single navigation surface ───────────────────────────── */
+  .orb-menu-root {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(var(--dock-reserve, 6.25rem) + env(safe-area-inset-bottom, 0px) + 0.5rem);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .orb-trigger {
+    position: relative;
+    height: 3.25rem;
+    width: 3.25rem;
+    border-radius: 9999px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .orb-trigger:hover { transform: translateY(-2px); }
+  .orb-trigger:active { transform: translateY(0) scale(0.96); }
+  .orb-trigger:focus-visible { outline: 2px solid rgb(var(--accent-rgb)); outline-offset: 4px; }
+
+  /* Outer bloom. Breathes slowly so the control reads as alive, not decorative. */
+  .orb-halo {
+    position: absolute;
+    inset: -60%;
+    border-radius: 9999px;
+    pointer-events: none;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgb(var(--accent-rgb) / 0.42) 0%,
+      rgb(var(--accent-rgb) / 0.14) 38%,
+      transparent 68%
+    );
+    filter: blur(6px);
+    animation: orb-breathe 5.5s ease-in-out infinite;
+  }
+  .orb-trigger.is-open .orb-halo { animation-duration: 3s; }
+
+  @keyframes orb-breathe {
+    0%, 100% { opacity: 0.55; transform: scale(0.92); }
+    50%      { opacity: 1;    transform: scale(1.06); }
+  }
+
+  .orb-body {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.55) 0%, transparent 42%),
+      linear-gradient(158deg, rgba(255, 255, 255, 0.22) 0%, rgba(120, 180, 255, 0.12) 45%, rgba(6, 16, 34, 0.62) 100%);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      inset 0 -8px 16px -10px rgba(0, 0, 0, 0.7),
+      0 10px 26px -10px rgb(var(--accent-rgb) / 0.6);
+  }
+
+  /* Conic sheen rotating behind the glyph — the refraction cue. */
+  .orb-sheen {
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255, 255, 255, 0.3) 34deg,
+      transparent 92deg,
+      transparent 200deg,
+      rgb(var(--accent-rgb) / 0.4) 244deg,
+      transparent 310deg
+    );
+    animation: orb-spin 9s linear infinite;
+    opacity: 0.7;
+  }
+
+  @keyframes orb-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Hard specular dot — a real highlight, not a gradient wash. */
+  .orb-specular {
+    position: absolute;
+    top: 13%;
+    left: 24%;
+    height: 26%;
+    width: 34%;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0));
+    filter: blur(1.5px);
+  }
+
+  .orb-glyph {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+  .orb-glyph span {
+    display: block;
+    height: 1.5px;
+    width: 15px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 8px rgb(var(--accent-rgb) / 0.9);
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 160ms linear;
+  }
+  .orb-glyph span:nth-child(2) { width: 10px; }
+  .orb-trigger.is-open .orb-glyph span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); width: 15px; }
+  .orb-trigger.is-open .orb-glyph span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+  .orb-trigger.is-open .orb-glyph span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+  .orb-panel {
+    width: min(92vw, 34rem);
+    max-height: min(62vh, 30rem);
+    overflow-y: auto;
+    border-radius: 1.6rem;
+    transform-origin: 50% 100%;
+  }
+
+  .orb-panel-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0.9rem;
+  }
+
+  .orb-group-label {
+    padding: 0 0.25rem 0.35rem;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.38);
+  }
+
+  .orb-group-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+  @media (max-width: 30rem) {
+    .orb-group-items { grid-template-columns: 1fr; }
+  }
+
+  .orb-signout {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.6rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.62);
+    transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+  }
+  .orb-signout:hover {
+    border-color: rgba(255, 120, 120, 0.4);
+    background: rgba(255, 90, 90, 0.1);
+    color: rgba(255, 220, 220, 0.95);
+  }
+
+  .orb-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+    padding: 0.6rem 0.7rem;
+    text-align: left;
+    transition:
+      border-color 200ms ease,
+      background 200ms ease,
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .orb-item:hover {
+    transform: translateY(-1px);
+    border-color: rgb(var(--item-accent) / 0.55);
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.13), rgb(var(--item-accent) / 0.1));
+  }
+  .orb-item:focus-visible {
+    outline: 2px solid rgb(var(--item-accent));
+    outline-offset: 2px;
+  }
+  .orb-item.is-active {
+    border-color: rgb(var(--item-accent) / 0.7);
+    background: linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgb(var(--item-accent) / 0.16));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 22px -10px rgb(var(--item-accent) / 0.8);
+  }
+  .orb-item--wide { grid-column: 1 / -1; }
+
+  .orb-item-icon {
+    display: grid;
+    place-items: center;
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+    border-radius: 0.7rem;
+    color: rgb(var(--item-accent));
+    background: rgb(var(--item-accent) / 0.14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  .orb-item-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+  }
+  .orb-item-hint {
+    display: block;
+    overflow: hidden;
+    font-size: 11px;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.45);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orb-halo,
+    .orb-sheen,
+    .orb-panel-sheen { animation: none !important; }
+    .orb-trigger,
+    .orb-item,
+    .orb-glyph span { transition: none !important; }
+  }
+
   @keyframes vybz-hue {
     from { filter: hue-rotate(0deg) saturate(1.35) brightness(1.08); }
     to { filter: hue-rotate(360deg) saturate(1.35) brightness(1.08); }
