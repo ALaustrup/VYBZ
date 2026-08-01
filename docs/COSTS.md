@@ -10,7 +10,7 @@ producer settlement (ACH / Zelle / Vc). See
 cap, free-tier units, kill-switch `edge_flags`, dashboard `/settings/costs`,
 daily Edge alert `cost-alert`. See
 [`architecture/ADR_COST_SENTINEL_UI.md`](./architecture/ADR_COST_SENTINEL_UI.md)
-and [`architecture/PHASE14_EXIT_GATE.md`](./architecture/PHASE14_EXIT_GATE.md).
+and [`archive/suite-phases-2026/PHASE14_EXIT_GATE.md`](./archive/suite-phases-2026/PHASE14_EXIT_GATE.md).
 
 **Remote AI (Phase 15):** `ai_mastering` / `ai_metadata` cost features; free-tier
 **300 s/month** mastering (`AI_MASTERING_FREE_SECONDS`). Soft telemetry via Cost
@@ -22,7 +22,7 @@ Checkout Edge `ai-topup` (default **100 min / $10** → **+6000 s**); webhook
 `debitAICredits` for prepaid seconds. Hard-stop when free-tier + balance
 exhausted. UI `/settings/credits`. See
 [`architecture/ADR_AI_MINUTE_BILLING.md`](./architecture/ADR_AI_MINUTE_BILLING.md)
-and [`architecture/PHASE18_EXIT_GATE.md`](./architecture/PHASE18_EXIT_GATE.md).
+and [`archive/suite-phases-2026/PHASE18_EXIT_GATE.md`](./archive/suite-phases-2026/PHASE18_EXIT_GATE.md).
 
 | Env | Role |
 |-----|------|

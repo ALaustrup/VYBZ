@@ -1,4 +1,9 @@
-﻿# VYBZ ΓÇö Production hardening checklist
+> **HISTORICAL ONLY — NOT AUTHORITATIVE — DO NOT USE FOR CURRENT IMPLEMENTATION OR SEQUENCING.**
+>
+> Superseded on 2026-08-01 by the five authorities: `VYBZ_MASTERPLAN.md`, `AGENTS.md`,
+> `ARCHITECTURE.md`, `STATUS.md`, `IDEAS_BACKLOG.md`. Retained as a historical record only.
+
+# VYBZ ΓÇö Production hardening checklist
 
 > **VYBZ Music Hub infra** ΓÇö tip + live + catalog for indie artists (not a dating product).
 

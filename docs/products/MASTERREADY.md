@@ -1,6 +1,6 @@
 # VYBZ MasterReady
 
-> Authoritative product brief. Accent: **amber / green**. Three compute tiers.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **amber / green**. Three compute tiers.
 
 ## Purpose
 

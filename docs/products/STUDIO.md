@@ -1,6 +1,6 @@
 # VYBZ Studio
 
-> Authoritative product brief. Accent: **orange**. Preserve Music Repos + Engine.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **orange**. Preserve Music Repos + Engine.
 
 ## Purpose
 

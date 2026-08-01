@@ -32,5 +32,5 @@ durable telemetry ledger, monthly USD soft-cap, kill-switch, or owner email aler
 ## Related
 
 - [`COST_CONTROL.md`](../operations/COST_CONTROL.md)
-- [`PHASE14_EXIT_GATE.md`](./PHASE14_EXIT_GATE.md)
+- [`PHASE14_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE14_EXIT_GATE.md)
 - Prior: ADR-017 Processing Engine · ADR-022 Visual polish (`/settings/costs`)

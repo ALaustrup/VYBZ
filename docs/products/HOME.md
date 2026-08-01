@@ -1,6 +1,6 @@
 # VYBZ Home
 
-> Authoritative product brief. Accent: **cyan**.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **cyan**.
 
 ## Purpose
 

@@ -72,7 +72,7 @@ against the fixture build; `lint` and 141 unit tests green.
 ## [1.1.0-beta1A] – Phase 19 (iOS Alpha)
 
 **Merged** — tag `v1.1.0-beta1A-phase19` · exit gate
-[`PHASE19_EXIT_GATE.md`](./docs/architecture/PHASE19_EXIT_GATE.md)
+[`PHASE19_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE19_EXIT_GATE.md)
 · ADR [`ADR_IOS_ALPHA.md`](./docs/architecture/ADR_IOS_ALPHA.md) (ADR-033)
 
 - Phase 19: iOS Alpha – signed IPA, TestFlight upload workflow, deep links, background uploads, Keychain-sealed prefs
@@ -89,7 +89,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 18 (Cost-Minute Billing)
 
 **Merged** — tag `v1.1.0-beta1A-phase18` · exit gate
-[`PHASE18_EXIT_GATE.md`](./docs/architecture/PHASE18_EXIT_GATE.md)
+[`PHASE18_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE18_EXIT_GATE.md)
 · ADR [`ADR_AI_MINUTE_BILLING.md`](./docs/architecture/ADR_AI_MINUTE_BILLING.md) (ADR-032)
 
 - Phase 18: AI processing seconds → billable minutes; Stripe top-up; hard-stop at balance ≤ 0
@@ -100,7 +100,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 17 (Desktop macOS & Linux)
 
 **Merged** — tag `v1.1.0-beta1A-phase17` · exit gate
-[`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/architecture/PHASE17_DESKTOP_EXIT_GATE.md)
+[`PHASE17_DESKTOP_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE17_DESKTOP_EXIT_GATE.md)
 · ADR [`ADR_DESKTOP_CROSS.md`](./docs/architecture/ADR_DESKTOP_CROSS.md) (ADR-031)
 
 - Phase 17: macOS DMG & Linux AppImage released, auto-update feeds per OS
@@ -112,7 +112,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 16 (Collaboration Sessions)
 
 **Merged** — tag `v1.1.0-beta1A-phase16` · exit gate
-[`PHASE16_COLLAB_EXIT_GATE.md`](./docs/architecture/PHASE16_COLLAB_EXIT_GATE.md)
+[`PHASE16_COLLAB_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE16_COLLAB_EXIT_GATE.md)
 · ADR [`ADR_COLLAB_SESSIONS.md`](./docs/architecture/ADR_COLLAB_SESSIONS.md) (ADR-030)
 
 - Phase 16: real-time presence, live cursors, comment threads, conflict-safe merge
@@ -124,7 +124,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 15 (Remote AI Processing)
 
 **Merged** — tag `v1.1.0-beta1A-phase15` · exit gate
-[`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/architecture/PHASE15_REMOTE_AI_EXIT_GATE.md)
+[`PHASE15_REMOTE_AI_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE15_REMOTE_AI_EXIT_GATE.md)
 · ADR [`ADR_AI_MASTERING.md`](./docs/architecture/ADR_AI_MASTERING.md)
 
 - Phase 15: AI mastering & metadata suggestions, remote job billing, free-tier kill-switch
@@ -136,7 +136,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 14 (Cost Sentinel)
 
 **Merged** — tag `v1.1.0-beta1A-phase14` · exit gate
-[`PHASE14_EXIT_GATE.md`](./docs/architecture/PHASE14_EXIT_GATE.md)
+[`PHASE14_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE14_EXIT_GATE.md)
 · ADR [`ADR_COST_SENTINEL_UI.md`](./docs/architecture/ADR_COST_SENTINEL_UI.md)
 
 - Cost telemetry ledger, soft monthly caps, kill-switch flags, dashboard chart
@@ -146,7 +146,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 13 (Android Beta)
 
 **Merged** — tag `v1.1.0-beta1A-phase13` · exit gate
-[`PHASE13_EXIT_GATE.md`](./docs/architecture/PHASE13_EXIT_GATE.md)
+[`PHASE13_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE13_EXIT_GATE.md)
 · ADR [`ADR_ANDROID_BETA.md`](./docs/architecture/ADR_ANDROID_BETA.md)
 
 - Phase 13: Android Beta — signed AAB, Play Console metadata, upload queue retry, in-app update API, AES-GCM prefs
@@ -157,7 +157,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 12 (Desktop Beta)
 
 **Merged** — tag `v1.1.0-beta1A-phase12` · exit gate
-[`PHASE12_EXIT_GATE.md`](./docs/architecture/PHASE12_EXIT_GATE.md)
+[`PHASE12_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE12_EXIT_GATE.md)
 · ADR [`ADR_DESKTOP_UPDATER.md`](./docs/architecture/ADR_DESKTOP_UPDATER.md)
 
 - Desktop Beta signed channel, auto-update feed, multi-window, sealed prefs
@@ -169,7 +169,7 @@ Leave AASA `TEAMID` placeholder until then.
 ## [1.1.0-beta1A] – Phase 11 (perf + premium UI)
 
 **Merged** — tag `v1.1.0-beta1A-phase11` · exit gate
-[`PHASE11_EXIT_GATE.md`](./docs/architecture/PHASE11_EXIT_GATE.md)
+[`PHASE11_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE11_EXIT_GATE.md)
 
 - Phase 11: Premium dark/vibrant redesign, Lighthouse ≥ 99, K6 p95 < 200 ms
 - Cloudflare WAF template & DB indices hardening
@@ -185,7 +185,7 @@ Leave AASA `TEAMID` placeholder until then.
 
 Also in this phase: production flag + secrets; migration `0084`
 (`settlement_status`); Edge Checkout without Connect transfer; ADR-023 /
-[`PHASE10_EXIT_GATE.md`](./docs/architecture/PHASE10_EXIT_GATE.md).
+[`PHASE10_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE10_EXIT_GATE.md).
 
 ## Unreleased — Suite Genesis (Beta-1A planned)
 
@@ -208,7 +208,7 @@ longer professional lifecycle.
 - Brand polish tokens (motion / shadow / accent wash) · a11y smoke extensions
 - Cost Sentinel read-only UI at `/settings/costs`
 - PR #8 merged to `main`; tag `v1.1.0-beta1A-phase9`
-- Exit gate: [`docs/architecture/PHASE9_EXIT_GATE.md`](./docs/architecture/PHASE9_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE9_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE9_EXIT_GATE.md)
 - ADR: [`docs/architecture/ADR_VISUAL_POLISH.md`](./docs/architecture/ADR_VISUAL_POLISH.md)
 
 ### Phase 8 Distribution Readiness (complete — merged + tagged)
@@ -216,28 +216,28 @@ longer professional lifecycle.
 - Loudness / ISRC / DPI rules · ZIP + DDP-stub export · `/release/:id/distribution`
 - Cost Sentinel free-tier alert (no auto-spend) · export SHA via Playwright
 - PR #7 merged to `main`; tag `v1.1.0-beta1A-phase8`
-- Exit gate: [`docs/architecture/PHASE8_EXIT_GATE.md`](./docs/architecture/PHASE8_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE8_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE8_EXIT_GATE.md)
 
 ### Phase 7 Sync & Collaboration (complete — merged + tagged)
 
 - Reconnect mutation flush · field merge · accept mine/theirs conflict UI
 - AES-GCM sealed drafts · two-user RLS Playwright (no secrets) · offline/online e2e
 - PR #6 merged to `main`; tag `v1.1.0-beta1A-phase7`
-- Exit gate: [`docs/architecture/PHASE7_EXIT_GATE.md`](./docs/architecture/PHASE7_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE7_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE7_EXIT_GATE.md)
 
 ### Phase 6 Android Alpha / 2.A (complete — merged + tagged)
 
 - `cloud.vybz.app` signing workflow · APK smoke hash · upload queue · `vybz://` + FCM stub
 - Mobile credits / Findings read-only · sealed prefs · Detox contract (Vitest)
 - PR #5 merged to `main`; tag `v1.1.0-beta1A-phase6`
-- Exit gate: [`docs/architecture/PHASE6_EXIT_GATE.md`](./docs/architecture/PHASE6_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE6_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE6_EXIT_GATE.md)
 
 ### Phase 5 Desktop Alpha / 2.D (complete — merged + tagged)
 
 - NSIS installMode both · updater channels JSON · installer smoke hash workflow
 - `/desktop/process` batch panel · window prefs · secure session store · crash file log
 - PR #4 merged to `main`; tag `v1.1.0-beta1A-phase5`
-- Exit gate: [`docs/architecture/PHASE5_EXIT_GATE.md`](./docs/architecture/PHASE5_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE5_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE5_EXIT_GATE.md)
 
 ### Phase 4 Processing Engine (complete — merged + tagged)
 
@@ -245,7 +245,7 @@ longer professional lifecycle.
 - Tauri `vybz_analyze_audio`; Bridge wiring; Cost Sentinel (log-only alerts)
 - `processing_jobs` + Edge `processing-enqueue` skeleton (no paid AI)
 - PR #3 merged to `main`; tag `v1.1.0-beta1A-phase4`
-- Exit gate: [`docs/architecture/PHASE4_EXIT_GATE.md`](./docs/architecture/PHASE4_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE4_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE4_EXIT_GATE.md)
 
 ### Phase 3 Credits & Metadata (complete — merged + tagged)
 
@@ -253,7 +253,7 @@ longer professional lifecycle.
 - Domain/data packages; metadata seeding; mutation-queue conflicts
 - `/release/:id/credits` in-place edit + Playwright hard-refresh
 - PR #2 merged to `main`; tag `v1.1.0-beta1A-phase3`
-- Exit gate: [`docs/architecture/PHASE3_EXIT_GATE.md`](./docs/architecture/PHASE3_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE3_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE3_EXIT_GATE.md)
 
 ### Phase 2 Prepare MVP (complete — merged + tagged)
 
@@ -261,7 +261,7 @@ longer professional lifecycle.
 - Domain/data/processing packages; Web Worker readiness probes ($0)
 - `/releases`, `/releases/new`, `/release/:id` Findings UI + local hard-refresh
 - PR #1 merged to `main`; tag `v1.1.0-beta1A-phase2`
-- Exit gate: [`docs/architecture/PHASE2_EXIT_GATE.md`](./docs/architecture/PHASE2_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE2_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE2_EXIT_GATE.md)
 
 ### Phase 1.5 Platform readiness (complete on `suite-genesis`)
 
@@ -269,7 +269,7 @@ longer professional lifecycle.
 - Capability registry, shell modes, deep-link/cache/mutation contracts
 - Tauri Windows PoC scaffold (`apps/desktop/`); Capacitor bridge on existing `android/`
 - Workspace Stage A aliases (`@vybz/*`); no source tree moves
-- Exit gate: [`docs/architecture/PHASE15_EXIT_GATE.md`](./docs/architecture/PHASE15_EXIT_GATE.md)
+- Exit gate: [`docs/archive/suite-phases-2026/PHASE15_EXIT_GATE.md`](./docs/archive/suite-phases-2026/PHASE15_EXIT_GATE.md)
 
 ### Multi-platform blueprint expansion (docs)
 

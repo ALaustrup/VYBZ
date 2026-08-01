@@ -16,7 +16,7 @@ In-tree Stage A boundaries (authoritative until extraction):
 | `@vybz/domain/credits` | `packages/domain/credits` |
 | `@vybz/data/credits` | `packages/data/credits` |
 
-Target extraction (later stages — see `docs/architecture/REPO_WORKSPACE_PLAN.md`):
+Target extraction (later stages — see `docs/archive/suite-phases-2026/REPO_WORKSPACE_PLAN.md`):
 
 ```text
 packages/

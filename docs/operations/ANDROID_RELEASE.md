@@ -2,7 +2,7 @@
 
 **Product:** VYBZ for Android · `applicationId` / `appId` **`cloud.vybz.app`** ·
 version **1.1.0** (`versionCode` **113**)  
-**Exit gate:** [`docs/architecture/PHASE13_EXIT_GATE.md`](../architecture/PHASE13_EXIT_GATE.md)  
+**Exit gate:** [`docs/archive/suite-phases-2026/PHASE13_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE13_EXIT_GATE.md)  
 **ADR:** [`ADR_ANDROID_BETA.md`](../architecture/ADR_ANDROID_BETA.md)
 
 ## Build

@@ -31,6 +31,6 @@ without inventing a new wallet (Vc remains social/cosmetics).
 
 ## Related
 
-- [`PHASE18_EXIT_GATE.md`](./PHASE18_EXIT_GATE.md)
+- [`PHASE18_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE18_EXIT_GATE.md)
 - [`COSTS.md`](../COSTS.md)
 - Prior: ADR-028 Cost Sentinel · ADR-029 AI Mastering

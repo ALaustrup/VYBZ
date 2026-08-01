@@ -41,5 +41,5 @@ Play closed/beta testing.
 ## Related
 
 - [`ADR_ANDROID_CAPACITOR.md`](./ADR_ANDROID_CAPACITOR.md) (ADR-012 / ADR-019)
-- [`PHASE13_EXIT_GATE.md`](./PHASE13_EXIT_GATE.md)
+- [`PHASE13_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE13_EXIT_GATE.md)
 - [`ANDROID_RELEASE.md`](../operations/ANDROID_RELEASE.md)

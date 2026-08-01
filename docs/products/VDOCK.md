@@ -1,6 +1,6 @@
 # VDock
 
-> Authoritative product brief. Accent: **shared brand cyan**. Persistent player.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **shared brand cyan**. Persistent player.
 
 ## Purpose
 

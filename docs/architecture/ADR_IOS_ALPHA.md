@@ -34,6 +34,6 @@ shared SPA wrapped for TestFlight, with Keychain-backed prefs, APNs push,
 
 ## Related
 
-- [`PHASE19_EXIT_GATE.md`](./PHASE19_EXIT_GATE.md)
+- [`PHASE19_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE19_EXIT_GATE.md)
 - [`IOS_RELEASE.md`](../operations/IOS_RELEASE.md)
 - Prior: ADR-012 Android Capacitor · ADR-027 Android Beta

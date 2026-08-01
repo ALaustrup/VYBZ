@@ -1,152 +1,127 @@
-# Opportunity Register
+# Backlog
 
-> Replaces the pre–Suite “Ideas Backlog.” Nothing here is committed to build until
-> it is promoted into [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) with phase fit,
-> cost, and legal review. Archived Music Hub backlog:
-> [`docs/archive/pre-suite-2026/IDEAS_BACKLOG.md`](./docs/archive/pre-suite-2026/IDEAS_BACKLOG.md).
+> **Authority 5 of 5.** Approved future work, deferred work, frozen work, decision-required
+> items, external-distribution prerequisites, technical debt, and the opportunity register.
+>
+> **A backlog entry is not authorisation to implement it.** Work begins only when
+> [`AGENTS.md`](./AGENTS.md) names the milestone as authorised.
 
-## Schema
-
-Each entry uses:
-
-| Field | Meaning |
-|-------|---------|
-| **Problem** | What pain exists |
-| **Customer** | Who feels it |
-| **Strategic fit** | Which Suite module / law |
-| **Dependencies** | Tech or business blockers |
-| **Estimated cost** | Fixed / usage / legal |
-| **Legal risk** | Low / medium / high |
-| **Status** | `parked` · `ready` · `active` · `shipped` · `rejected` |
-| **Promotion criteria** | What must be true to enter a phase |
+Last reviewed 2026-08-01.
 
 ---
 
-## Register
+## 1. Decision required — blocking
 
-### OR-001 — Sample Pack Storefront (Market)
-- **Problem:** Producers need a fast path to sell packs with copy, art, and fulfillment.
-- **Customer:** Producers
-- **Strategic fit:** VYBZ Market
-- **Dependencies:** Migration `0080`, `GROQ_API_KEY`, EF deploys, Stripe webhook
-- **Estimated cost:** Groq free tier ceiling; Stripe success fees only
-- **Legal risk:** Medium (seller terms)
-- **Status:** `shipped` (SPA); owner deploy smoke remaining
-- **Promotion criteria:** N/A — expand under Phase 8 Market unification
+These block milestone scoping. Nothing proceeds on any of them.
 
-### OR-002 — AI visualizer stills → Compose
-- **Problem:** Artists need drop backdrops without leaving Studio.
-- **Customer:** Artists
-- **Strategic fit:** CoverLab / Artist presentation (stills only)
-- **Dependencies:** `FAL_KEY`, cost reservation doctrine
-- **Estimated cost:** fal metered — prepaid / Vc debit only
-- **Legal risk:** Low–medium (AI transparency)
-- **Status:** `shipped` (code); secrets/deploy smoke remaining
-- **Promotion criteria:** Keep T2V / generative music `parked` until attribution + cost model
+| ID | Question | Blocks | Size |
+|---|---|---|---|
+| **DR-01** | Live streaming (LiveKit). Does it survive, and what release function does it serve? | M2, M10 | ~1,600 lines |
+| **DR-02** | Messaging, cam calls, video messages, rooms. Retain, redesign, freeze or archive? | M2 | ~2,750 lines |
+| **DR-03** | Opportunities board and cosmetics. Masterplan §6 permits opportunity discovery only if later authorised. | M2 | ~510 lines |
+| **DR-04** | V¢ tipping. Survives as "optional creator support", or separates from utility credits entirely? | M2, M11 | ~350 lines |
+| **DR-05** | Watermarking. Absent from the lifecycle in Masterplan §7. Retain, freeze or archive? | M2 | ~440 lines, 3 edge functions |
+| **DR-06** | Onboarding gate. `App.tsx` forces `RoleIntentOnboarding` before the shell. Delete it, or keep a professional-role intake? | M2 | critical path |
+| **DR-07** | M4 strategy. Build a BS.1770 meter, or integrate a validated implementation? Cost and licensing implications. | M4 | milestone-defining |
+| **DR-08** | Native shell drift. Restructure desktop and Android in lockstep with M3, or let them lag until M9? | M3, M9 | sequencing |
 
-### OR-003 — Tip + live + catalog audience loop
-- **Problem:** Indie artists need a public home and direct support.
-- **Customer:** Artists and fans
-- **Strategic fit:** Artist + VDock + Live (audience third of Suite lifecycle)
-- **Dependencies:** Prod smoke on vybz.cloud
-- **Estimated cost:** $0 fixed beyond existing infra
-- **Legal risk:** Low
-- **Status:** `active` (preserved; no longer sole GTM north star)
-- **Promotion criteria:** Remains continuous with Prepare → Relay → publish
+## 2. Approved — scheduled
 
-### OR-004 — Bunny CDN / Stream
-- **Problem:** Historical alternate media origin.
-- **Customer:** Platform ops
-- **Strategic fit:** None — contradicts Storage-only law
-- **Dependencies:** N/A
-- **Estimated cost:** High (reason retired)
-- **Legal risk:** Low
-- **Status:** `rejected` / retired — do not re-provision
-- **Promotion criteria:** Never, unless Masterplan explicitly reverses media law
+Ordered by milestone. Detail lives in Masterplan §9–10.
 
-### OR-005 — Text-to-video visualizers + generative AI music
-- **Problem:** Motion backdrops and AI tracks.
-- **Customer:** Artists
-- **Strategic fit:** CoverLab / Market — weak until cost + originality rules
-- **Dependencies:** Video API, ffmpeg pipeline, attribution policy
-- **Estimated cost:** High usage
-- **Legal risk:** High
-- **Status:** `parked`
-- **Promotion criteria:** Cosmetics + tip path profitable; written attribution rules; prepaid cost kernel live
+**M2 · Product isolation.** Freeze collaboration (3 files, ~10 import removals). Rename
+device sync away from collaboration language. Remove dating in tiers: six files deleted
+outright, ~14 shared files edited, schema left orphaned and documented. Archive Living
+Home. Delete the orgs stub.
 
-### OR-006 — VYBZ Immersive / VR
-- **Problem:** Spatial listening and collab.
-- **Customer:** Experimenters
-- **Strategic fit:** Frozen — out of Suite Genesis scope
-- **Dependencies:** WebXR / Quest, AudioBus single clock
-- **Estimated cost:** High
-- **Legal risk:** Medium
-- **Status:** `parked`
-- **Promotion criteria:** Suite Phases 2–7 complete and revenue-positive
+**M3 · Truthful shell.** Hide the eight placeholder navigation entries. Surface the working
+Credits, Master and Distribution routes, which have no navigation entry today. Remove all
+nine fabricated measurements (§5). Replace the silent landing-page fallback with a real
+sign-in prompt that preserves the intended destination. Rebuild the landing page around the
+new product identity.
 
-### OR-007 — Engagement habit loops (Daily Drop, Listen Circles, …)
-- **Problem:** Retention beyond release workflow.
-- **Customer:** Fans and artists
-- **Strategic fit:** Artist / Live — after Prepare MVP
-- **Dependencies:** Notification budget (Resend free caps)
-- **Estimated cost:** Low–medium
-- **Legal risk:** Low
-- **Status:** `parked`
-- **Promotion criteria:** Phase 2 exit gate passed; email quota policy enforced
+**M4 · Measurement integrity.** Validated integrated loudness and true peak with documented
+oversampling. Provenance on every result. Reference vectors and tolerances. Clean separation
+of measured, estimated, heuristic and AI outputs.
 
-### OR-008 — Cloudflare Pages commercial host
-- **Problem:** Vercel Hobby is not acceptable permanent commercial host; Pro has fixed cost.
-- **Customer:** Astra Matrix ops
-- **Strategic fit:** Operations / zero-new-fixed-cost launch
-- **Dependencies:** SPA rewrites, PWA, passkeys, DNS
-- **Estimated cost:** $0 Pages static; verify Workers quota unused
-- **Legal risk:** Low
-- **Status:** `ready` (document in Phase 0; execute later)
-- **Promotion criteria:** Phase 1 shell stable; canary `app.vybz.cloud` green
+**M5–M12.** See Masterplan §9.
 
-### OR-009 — Direct distribution (Relay Stage 4)
-- **Problem:** Artists want VYBZ to deliver to DSPs without a partner.
-- **Customer:** Labels / managers
-- **Strategic fit:** Relay — **only after** commercial agreements, fraud, royalty, tax, takedown
-- **Dependencies:** Legal + ops maturity
-- **Estimated cost:** High fixed + compliance
-- **Legal risk:** High
-- **Status:** `parked`
-- **Promotion criteria:** Stage 2–3 partner delivery proven; counsel-approved agreements
+## 3. Immediate technical-integrity corrections
 
-### OR-010 — Migration history formalization (`db push` vs raw SQL)
-- **Problem:** Remote `schema_migrations` drifts from local filenames; `supabase db push` fails while raw SQL apply works.
-- **Customer:** Platform ops / agents
-- **Strategic fit:** Correctness / CI
-- **Dependencies:** Decide single source of truth; checksum table; CI guard
-- **Estimated cost:** Low engineering; care on prod history repair
-- **Legal risk:** Low
-- **Status:** `ready` (noted at Phase 2/3 boundary — not a Phase 3 blocker)
-- **Promotion criteria:** Include in Phase 4 ops hardening or earlier if `db push` blocks a release
+Priority queue once implementation is authorised. Evidence in
+[`docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md`](./docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md).
 
-### OR-011 — Two-user live RLS e2e
-- **Problem:** Owner-only RLS is covered by SQL policies + contract tests, not a live two-session Playwright suite.
-- **Customer:** Platform security
-- **Strategic fit:** Prepare / Credits correctness
-- **Dependencies:** Test users + auth harness against linked Supabase
-- **Estimated cost:** Low–medium
-- **Legal risk:** Low
-- **Status:** `parked` (contract tests sufficient for Phase 2–3)
-- **Promotion criteria:** Before multi-account Credits approval or public beta
+| # | Defect | Location | Milestone |
+|---|---|---|---|
+| 1 | Hash-derived **ISRC suggestion** — can cause an invalid or colliding identifier on a real release | `packages/processing/metadata/infer.ts:42` | M3 |
+| 2 | Hardcoded true peak `-1.5`; true peak never computed anywhere | `DistributionReportPage.tsx:71` | M3 |
+| 3 | Hardcoded integrated loudness `-14` when probe absent | `DistributionReportPage.tsx:71` | M3 |
+| 4 | Artwork DPI defaulted to 300; never parsed, so the rule can never fire | `DistributionReportPage.tsx:89` | M3 |
+| 5 | Hash-derived genre, mood, BPM and confidence score | `infer.ts:39–48` | M3 |
+| 6 | Hardcoded `remoteMinutes = 31` driving a live cost warning | `DistributionReportPage.tsx:97` | M3 |
+| 7 | `processing-enqueue` reports jobs `completed` that never ran | `supabase/functions/processing-enqueue/index.ts:87` | M3 |
+| 8 | Approximate loudness labelled "LUFS" without qualification | `distributionRules.ts:164/174/184` | M3 → M4 |
+| 9 | Non-WAV audio yields no measurements; dependent rules skip silently | `readiness/src/worker.ts:44` | M4 |
+| 10 | Mastering targets −14 dBFS RMS while −14 is the LUFS figure | `mastering/src/master.ts:68` | M6 |
+| 11 | "Limiter" is a linear gain reduction; ceiling mislabelled dBTP | `master.ts:104`, `types.ts:14` | M6 |
+| 12 | `stereoWidth` defaults to 1.05 — undisclosed processing on every master | `master.ts:70` | M3 |
+| 13 | Output always re-encoded to 16-bit with no dither | `master.ts:155` | M6 |
+| 14 | **Suspected** 24-bit stereo path treats a mono mixdown as interleaved stereo | `master.ts:149–154` | M6 — needs a test vector |
+| 15 | Expose a safe production build identifier (commit SHA, version, build time) | build config | M3 |
 
-### OR-012 — iOS TestFlight live upload (Phase 19 ops)
-- **Problem:** Capacitor iOS shell + CI exist, but no signed IPA / TestFlight without Apple Developer + certs.
-- **Customer:** Alpha testers on iPhone
-- **Strategic fit:** Multi-platform shell · Phase 19 follow-up
-- **Dependencies:** Apple Developer Program (~$99/yr); secrets `IOS_CERT_*` / `APPLE_TEAM_ID`; AASA `TEAMID`; optional ASC API key
-- **Estimated cost:** $99/yr Apple + GitHub macOS Actions minutes
-- **Legal risk:** Low
-- **Status:** `parked` (explicitly deferred 2026-07-30 — not blocking Suite)
-- **Promotion criteria:** Owner enrolls Apple Developer + budgets CI minutes; then follow [`IOS_RELEASE.md`](./docs/operations/IOS_RELEASE.md)
+## 4. Frozen
 
----
+Preserved in the tree, imported by nothing, excluded from production bundles. Not on any
+roadmap.
 
-## Ritual
+Multi-human collaboration: `src/features/collab/`, `src/platform/collab/`,
+`packages/domain/collab/`, `RepoCollabPanel.tsx`, migration `0088` tables, `repo_open_mr`
+and `repo_create_branch` in `api.ts`. · VR and immersive. · Bunny as media origin. ·
+React Native rewrite. · Spotify-scale catalogue race. · Living Home. · Workspace extraction
+stages C/E/F.
 
-At each phase boundary, ask: *Any new opportunities to register?* Append with the
-schema above. Promote only via Masterplan amendment + human approval.
+## 5. Deferred — owner-gated by cost or credentials
+
+| ID | Item | Gate |
+|---|---|---|
+| OR-012 | iOS TestFlight | Apple Developer ~$99/yr, signing secrets |
+| — | AASA `TEAMID` | Apple Developer |
+| — | Notarised macOS DMG | `MAC_CERT_*` |
+| — | Android Play listing | Play Console |
+| OR-010 | Formal migration-history workflow (`db push` vs raw SQL, CI checksum guard) | Owner process decision |
+
+## 6. External distribution prerequisites
+
+M13 and M14 remain blocked until every item in Masterplan §11 exists and is verified.
+Nothing in the repository currently addresses any of them: there are **zero** references to
+DDEX, ERN or SFTP, and no DSP delivery code of any kind.
+
+OR-009 (direct distribution) remains parked.
+
+## 7. Technical debt
+
+- Two uninspected stashes: `ops cutover docs WIP` (on `main`), `temp hash drift` (on
+  `suite-genesis`). Inspect and resolve — **DR-09**.
+- Twelve domains resolve to the Vercel project. Consolidate or let some lapse — **DR-10**.
+- Dead feature flags `roleClass` and `liveBoost` are defined and never read.
+  `VITE_FEATURE_PREPARE` is undocumented in `.env.example`.
+- `LEGACY_REDIRECTS` in `routeManifest.ts` is declared but never applied.
+- `CommandBar` is read-only and not mounted. `MoreDrawer`, `OrbDock`, `OrbJoystick`,
+  `OrbFan` and the VDock pin catalogue are defined but unmounted.
+- Nineteen phase tags remain as immutable history and should not be deleted.
+- Historical branch debris: nine `cloud*-b990` branches at an identical old SHA.
+
+## 8. Opportunity register
+
+Ideas with no commitment and no schedule. Promotion into a milestone requires owner
+approval and an entry in the Masterplan.
+
+| ID | Idea | Status |
+|---|---|---|
+| OR-009 | Direct DSP distribution | Parked — see §6 |
+| OR-010 | Migration-history workflow | Deferred |
+| OR-012 | iOS TestFlight | Deferred |
+| OR-013 | Reference-track comparison in the Analysis Engine | Idea — natural M5 extension |
+| OR-014 | Artifact, noise, hum and click/pop detection | Idea — M5 extension |
+| OR-015 | Codec vulnerability estimation | Idea — M7 extension |
+| OR-016 | Podcast and spoken-word specific readiness rules | Idea — M8 extension |
