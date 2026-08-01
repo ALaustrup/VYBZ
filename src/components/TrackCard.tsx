@@ -152,7 +152,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
   return (
     <div
       data-dark-stage
-      className={cx("group relative overflow-hidden rounded-2xl bg-ink-900/85 shadow-card backdrop-blur-sm", className)}
+      className={cx("group relative overflow-hidden forge-card !p-0", className)}
     >
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0">
@@ -170,7 +170,7 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
           <span className="absolute right-2.5 top-2.5 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white/90 backdrop-blur">Lossless</span>
         )}
         {(d.releaseType || d.assetKind) && (
-          <span className="absolute left-2.5 top-2.5 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/85 backdrop-blur">
+          <span className="forge-card-icon absolute left-2.5 top-2.5 !h-auto !w-auto px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/90">
             {d.releaseType ? (RELEASE_LABEL[d.releaseType] ?? d.releaseType) : (KIND_LABEL[d.assetKind ?? "track"] ?? "Track")}
           </span>
         )}
