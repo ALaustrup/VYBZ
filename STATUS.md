@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-01
-**Branch:** `feat/m3-shell-nexus`
-**Base:** `main` @ `eaf8839c85e21d589551226e88880c6960fb6b02`
+**Branch:** `main`
+**HEAD:** `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e`
 **Current milestone:** **M3 — Technical integrity + Nexus UI redux** (owner-authorised)
 
 ---
@@ -14,23 +14,23 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `eaf8839c85e21d589551226e88880c6960fb6b02` | `git rev-parse origin/main` after PR #38 merge |
+| Production SHA | `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e` | `git rev-parse origin/main` after PR #39 merge |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-6zcp2vdQ.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
-| Deployment current | **YES** — Vercel auto-deploy from `main` | bundle changed from `index-BL_dO-7v.js` (#37) → `index-6zcp2vdQ.js` (#38) |
+| Deployed bundle | `/assets/index-CMRqBxTU.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
+| Deployment current | **YES** — Vercel auto-deploy from `main` | bundle `index-6zcp2vdQ.js` (#38) → `index-CMRqBxTU.js` (#39) |
 
-**Full merge HEAD:** `eaf8839c85e21d589551226e88880c6960fb6b02` — Merge pull request #38
+**Full merge HEAD:** `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e` — Merge pull request #39
 
 ## Last completed operations
 
 1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36) merged** — M3 Nexus UI redux (landing, auth, intro, prepare-local, design system). Production SHA `6751d506`.
 2. **PR [#37](https://github.com/ALaustrup/VYBZ/pull/37) merged** — M3 truth shell: remove fabricated distribution LUFS/peak/DPI, remove dating onboarding gate, build SHA footer, processing-enqueue stub fix in repo. Production bundle `index-BL_dO-7v.js`.
 3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. `quality` passed. Production bundle `index-6zcp2vdQ.js`.
-4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) pending** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome.
+4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome; STATUS refresh. Production bundle `index-CMRqBxTU.js`.
 
 ## Working tree
 
-Branch `feat/m3-shell-nexus` with shell Nexus commit `a5c7d633` (local, not yet merged). Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `9d2ef864`. Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
@@ -60,7 +60,7 @@ Branch `feat/m3-shell-nexus` with shell Nexus commit `a5c7d633` (local, not yet 
 
 ## Next authorised action
 
-1. Merge PR #39 (shell Nexus) after green CI.
+1. Merge PR #39 (shell Nexus) after green CI. **Done** — merged `9d2ef864`.
 2. Owner redeploy `processing-enqueue` edge function (`supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm`).
 3. Continue M3 authenticated surfaces: FeedPage filter drawer, Profile/DashHub, Messages.
 4. Signed-in production verification of Prepare → Distribution → Master flow.
