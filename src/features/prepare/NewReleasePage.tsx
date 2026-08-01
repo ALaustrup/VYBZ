@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { Input } from "@/components/ui/Input";
 import { StateView } from "@/components/states/StateView";
 import { usePlatform } from "@/platform/bridge/PlatformProvider";
@@ -108,11 +109,14 @@ export function NewReleasePage() {
 
   return (
     <div className="mx-auto w-full max-w-xl p-4 pb-28 md:p-8" data-testid="prepare-new">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-suite-cyan">Prepare</p>
-      <h1 className="font-display text-2xl font-semibold text-snow">New release</h1>
-      <p className="mt-1 text-sm text-fog">Free browser scan — no cloud compute.</p>
+      <NexusPageHeader
+        eyebrow="Prepare"
+        title="New release"
+        subtitle="Free browser scan — no cloud compute."
+      />
 
-      <form className="mt-6 flex flex-col gap-4" onSubmit={onSubmit}>
+      <form className="forge-glass relative mt-6 flex flex-col gap-4 p-4 md:p-5" onSubmit={onSubmit}>
+        <span className="forge-glass-edge" aria-hidden />
         <Input
           label="Title"
           value={title}
@@ -129,7 +133,7 @@ export function NewReleasePage() {
         />
 
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={() => void pickAudio()} data-testid="prepare-pick-audio">
+          <Button type="button" variant="forge" onClick={() => void pickAudio()} data-testid="prepare-pick-audio">
             {audioMeta ? `Audio: ${audioMeta.fileName}` : "Import audio"}
           </Button>
           <Button type="button" variant="secondary" onClick={() => void pickArtwork()} data-testid="prepare-pick-art">
@@ -139,8 +143,8 @@ export function NewReleasePage() {
 
         {error ? <StateView variant="error" title="Import error" body={error} /> : null}
 
-        <div className="flex gap-2">
-          <Button type="submit" loading={busy} data-testid="prepare-create-submit">
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" variant="forge" loading={busy} data-testid="prepare-create-submit">
             Create & scan
           </Button>
           <Button type="button" variant="ghost" onClick={() => navigate("/releases")}>

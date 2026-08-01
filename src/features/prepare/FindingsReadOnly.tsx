@@ -19,12 +19,12 @@ export function FindingsReadOnly({
 
   return (
     <section className="flex flex-col gap-3" data-testid="findings-readonly">
-      <h2 className="text-sm font-semibold text-snow">{title}</h2>
+      <h2 className="nexus-eyebrow !text-sm">{title}</h2>
       <ul className="flex flex-col gap-2">
         {findings.map((f) => (
           <li
             key={f.id}
-            className="rounded-suite border border-white/10 bg-white/[0.04] px-3 py-3"
+            className="forge-card"
             data-testid={`findings-readonly-${f.code}`}
           >
             <div className="flex items-start justify-between gap-2">

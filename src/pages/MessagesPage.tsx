@@ -45,15 +45,15 @@ function ThreadList() {
               }
             />
           )
-          : <div className="divide-y divide-[var(--hairline)]" role="list" aria-label="Messages">
+          : <ul className="flex flex-col gap-2" role="list" aria-label="Messages">
               {threads.map((t) => (
+                <li key={t.id}>
                 <button
-                  key={t.id}
                   type="button"
                   onClick={() => openThread(t.id)}
-                  className={cx("flex w-full items-center gap-3 py-3.5 text-left active:scale-[0.995]", t.unread && "bg-veil-500/[0.08]")}
+                  className={cx("forge-card flex w-full items-center gap-3 text-left active:scale-[0.995]", t.unread && "border-[rgb(var(--accent-rgb)/0.35)]")}
                 >
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-veil-500/20 font-display font-bold text-veil-100 ring-1 ring-white/10">
+                  <span className="forge-card-icon flex h-11 w-11 shrink-0 !rounded-full text-base font-display font-bold">
                     {(t.peerUsername || "?").charAt(0).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -69,8 +69,9 @@ function ThreadList() {
                   </div>
                   <span className="shrink-0 text-[11px] text-white/35">{timeAgo(t.lastAt)}</span>
                 </button>
+                </li>
               ))}
-            </div>}
+            </ul>}
       </div>
     </div>
   );

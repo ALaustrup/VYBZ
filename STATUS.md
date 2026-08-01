@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e`
-**Current milestone:** **M3 — Technical integrity + Nexus UI redux** (owner-authorised)
+**HEAD:** `cb7717b8` (pending PR #40 merge)
+**Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
 
@@ -26,7 +26,8 @@
 1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36) merged** — M3 Nexus UI redux (landing, auth, intro, prepare-local, design system). Production SHA `6751d506`.
 2. **PR [#37](https://github.com/ALaustrup/VYBZ/pull/37) merged** — M3 truth shell: remove fabricated distribution LUFS/peak/DPI, remove dating onboarding gate, build SHA footer, processing-enqueue stub fix in repo. Production bundle `index-BL_dO-7v.js`.
 3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. `quality` passed. Production bundle `index-6zcp2vdQ.js`.
-4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome; STATUS refresh. Production bundle `index-CMRqBxTU.js`.
+4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome. Production bundle `index-CMRqBxTU.js`.
+5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) pending** — M3 completion slice: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS.md M3 authorisation, estimated loudness label fix.
 
 ## Working tree
 

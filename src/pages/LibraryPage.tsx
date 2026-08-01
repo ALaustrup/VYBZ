@@ -105,7 +105,7 @@ function TabBtn({ on, onClick, label }: { on: boolean; onClick: () => void; labe
       onClick={onClick}
       className={cx(
         "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-semibold transition active:scale-95",
-        on ? "bg-veil-500/25 text-white ring-1 ring-veil-400/50" : "bg-white/[0.04] text-white/55 hover:text-white/85",
+        on ? "border-[rgb(var(--accent-rgb)/0.45)] bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "border border-white/10 bg-white/[0.04] text-white/55 hover:text-white/85",
       )}
     >
       {label}
@@ -173,7 +173,7 @@ function PostsLibrary({
         const isVid = p.kind === "video" || (!!media && /\.(mp4|webm|mov)(\?|$)/i.test(media));
         const isImg = p.kind === "image" || (!!media && /\.(jpe?g|png|webp|gif)(\?|$)/i.test(media));
         return (
-          <li key={p.id} className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+          <li key={p.id} className="forge-card">
             <div className="flex gap-3">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-ink-950/80">
                 {isImg && media ? (
@@ -266,7 +266,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
         const url = d.playbackCustomization?.backdropUrl ?? "";
         const looksLikeImage = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(url);
         return (
-          <li key={d.id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+          <li key={d.id} className="forge-card overflow-hidden !p-0">
             <div className="relative aspect-video bg-ink-950/80">
               {looksLikeImage ? (
                 <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />

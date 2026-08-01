@@ -11,7 +11,7 @@ import { Avatar } from "@/components/Avatar";
 import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
 
-const selCls = "min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/85 focus:border-veil-400/60 focus:outline-none";
+const selCls = "min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/85 focus:border-[rgb(var(--accent-rgb)/0.55)] focus:outline-none";
 
 // Faceted creator finder: name + role/genre/DAW/plugin/key/BPM/location/remote.
 export function DiscoverPage() {
@@ -42,8 +42,8 @@ export function DiscoverPage() {
   useRegisterAppBar({
     actions: (
       <button type="button" onClick={() => setShowFilters((s) => !s)} aria-label="Filters" aria-expanded={showFilters}
-        className={cx("flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
-          showFilters || activeCount > 0 ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "glass text-white/70")}>
+        className={cx("forge-chip gap-1.5 !min-h-9 px-3 text-xs font-semibold",
+          showFilters || activeCount > 0 ? "forge-chip--active" : "")}>
         <SlidersHorizontal className="h-3.5 w-3.5" />
         {activeCount > 0 ? activeCount : "Filters"}
       </button>
@@ -71,10 +71,9 @@ export function DiscoverPage() {
     <div className="flex h-full flex-col">
       <div className="space-y-2.5 px-1 pt-2">
         <NetworkModes />
-        <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 focus-within:border-veil-400/60">
-          <Search className="h-4 w-4 text-white/40" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by name…"
-            className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none" />
+        <label className="forge-field">
+          <Search className="forge-field-icon h-4 w-4" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search by name…" />
         </label>
         <div className="flex gap-2">
           <select value={profession} onChange={(e) => setProfession(e.target.value)} className={selCls}>

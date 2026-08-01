@@ -69,17 +69,17 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
   useRegisterAppBar({
     actions: (
-      <div className="flex items-center gap-0.5 text-paper-900/45">
+      <div className="flex items-center gap-0.5">
         <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Feed options" aria-expanded={filtersOpen}
-          className={cx("rounded-xl p-2 transition hover:text-paper-900/80", filtersOpen && "bg-paper-900/[0.06] text-paper-900")}>
+          className={cx("forge-chip h-9 w-9", filtersOpen && "forge-chip--active")}>
           <SlidersHorizontal className="h-4 w-4" />
         </button>
         <button type="button" onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout"
-          className={cx("rounded-xl p-2 transition", layout === "comfortable" ? "text-paper-900" : "hover:text-paper-900/70")}>
+          className={cx("forge-chip h-9 w-9", layout === "comfortable" && "forge-chip--active")}>
           <Rows3 className="h-4 w-4" />
         </button>
         <button type="button" onClick={() => setLayoutPersist("grid")} aria-label="Grid layout"
-          className={cx("rounded-xl p-2 transition", layout === "grid" ? "text-paper-900" : "hover:text-paper-900/70")}>
+          className={cx("forge-chip h-9 w-9", layout === "grid" && "forge-chip--active")}>
           <LayoutGrid className="h-4 w-4" />
         </button>
       </div>
@@ -107,11 +107,12 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   return (
     <div className="flex h-full flex-col">
       {filtersOpen && (
-        <div className="mb-2 mt-2 flex flex-wrap items-center gap-3 rounded-2xl border border-paper-900/10 bg-white/70 px-3 py-2.5 text-[12px] text-paper-900">
-          <button type="button" onClick={() => setMode("discovery")} className={cx("font-medium", mode === "discovery" ? "text-paper-900" : "text-paper-900/40")}>Explore</button>
-          <button type="button" onClick={() => setMode("latest")} className={cx("font-medium", mode === "latest" ? "text-paper-900" : "text-paper-900/40")}>Latest</button>
+        <div className="forge-glass relative mb-2 mt-2 flex flex-wrap items-center gap-3 p-3 text-[12px]">
+          <span className="forge-glass-edge" aria-hidden />
+          <button type="button" onClick={() => setMode("discovery")} className={cx("rounded-full px-3 py-1 font-semibold transition", mode === "discovery" ? "bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "text-white/45 hover:text-white/75")}>Explore</button>
+          <button type="button" onClick={() => setMode("latest")} className={cx("rounded-full px-3 py-1 font-semibold transition", mode === "latest" ? "bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "text-white/45 hover:text-white/75")}>Latest</button>
           {mode === "discovery" && (
-            <button type="button" onClick={() => setSeed(Math.floor(Math.random() * 1e9))} className="ml-auto flex items-center gap-1 text-paper-900/40 hover:text-paper-900/75">
+            <button type="button" onClick={() => setSeed(Math.floor(Math.random() * 1e9))} className="forge-cta-ghost ml-auto !min-h-8 !px-3 !text-xs">
               <Shuffle className="h-3 w-3" /> Shuffle
             </button>
           )}
