@@ -40,7 +40,7 @@ export function SuiteShell({
         )}
         {showCommandBar ? <CommandBar /> : null}
         <div className="flex min-h-0 flex-1 overflow-hidden">
-          <main className="suite-stage">
+          <main className="suite-stage suite-stage-frame">
             <ErrorBoundary>
               <div className="suite-stage-inner">{stage}</div>
             </ErrorBoundary>

@@ -1,11 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Suite smoke", () => {
-  test("landing renders brand promise", async ({ page }) => {
+  test("landing offers readiness scan entry", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("body")).toBeVisible();
-    const body = await page.locator("body").innerText();
-    expect(body.length).toBeGreaterThan(0);
+    await expect(page.getByRole("link", { name: /Run free readiness scan/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Run free readiness scan/i })).toHaveAttribute(
+      "href",
+      "/releases/new",
+    );
   });
 });
 

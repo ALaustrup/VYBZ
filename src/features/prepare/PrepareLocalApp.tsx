@@ -1,9 +1,7 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import { BrandLockup } from "@/components/Brand";
-import { DynamicBackground } from "@/components/DynamicBackground";
-import { GrainOverlay } from "@/components/GrainOverlay";
+import { Navigate, Route, Routes, Link } from "react-router-dom";
+import { BrandMark } from "@/components/Brand";
+import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { PlatformProvider } from "@/platform/bridge/PlatformProvider";
-import { BRAND_BG } from "@/lib/surfaceTheme";
 import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { NewReleasePage } from "@/features/prepare/NewReleasePage";
 import { ReleaseDetailPage } from "@/features/prepare/ReleaseDetailPage";
@@ -18,14 +16,19 @@ import { ReleaseMasterPane } from "@/features/mastering/ReleaseMasterPane";
 export function PrepareLocalApp() {
   return (
     <PlatformProvider>
-      <DynamicBackground variant={BRAND_BG} mode="static" />
-      <GrainOverlay />
+      <GeometricBackdrop intensity="subtle" />
       <div className="relative z-10 flex min-h-[100dvh] flex-col">
-        <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-          <BrandLockup />
-          <p className="text-xs text-fog">Prepare · local drafts</p>
+        <header className="forge-glass mx-3 mt-3 flex items-center justify-between px-4 py-3 sm:mx-4">
+          <span className="forge-glass-edge" aria-hidden />
+          <Link to="/" className="relative z-[1] flex items-center gap-2.5">
+            <BrandMark className="h-8 w-8" reactive={false} />
+            <span className="font-display text-sm font-semibold text-white">VYBZ Prepare</span>
+          </Link>
+          <Link to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
+            Sign in
+          </Link>
         </header>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto px-3 pb-8 pt-4 sm:px-4">
           <Routes>
             <Route path="/releases" element={<ReleasesPage />} />
             <Route path="/releases/new" element={<NewReleasePage />} />

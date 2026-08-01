@@ -1,27 +1,25 @@
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
-import { BrandMark, Wordmark } from "@/components/Brand";
+import { BrandMark } from "@/components/Brand";
 
 /**
- * Hero brand lockup — idle orbit + hover chromatic scale.
- * Stage black / cyan / magenta / amber (club energy, not purple slop).
+ * Hero brand lockup — matte specular ring, slow orbit, precise tilt on pointer.
+ * Pro-audio futurist; no rainbow gradient slop.
  */
 export function LandingLogo() {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 120, damping: 18 });
-  const sy = useSpring(my, { stiffness: 120, damping: 18 });
+  const sx = useSpring(mx, { stiffness: 90, damping: 22 });
+  const sy = useSpring(my, { stiffness: 90, damping: 22 });
   const rotate = useMotionTemplate`rotateX(${sy}deg) rotateY(${sx}deg)`;
 
   function onMove(e: React.MouseEvent) {
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    const px = (e.clientX - r.left) / r.width - 0.5;
-    const py = (e.clientY - r.top) / r.height - 0.5;
-    mx.set(px * 14);
-    my.set(py * -10);
+    mx.set(((e.clientX - r.left) / r.width - 0.5) * 10);
+    my.set(((e.clientY - r.top) / r.height - 0.5) * -8);
   }
 
   function onLeave() {
@@ -34,45 +32,46 @@ export function LandingLogo() {
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="relative flex flex-col items-center gap-5 perspective-[900px]"
+      className="relative flex flex-col items-center gap-6 perspective-[900px]"
     >
-      {/* Soft orbit particles */}
       <motion.span
         aria-hidden
-        className="pointer-events-none absolute -inset-16 rounded-full"
+        className="pointer-events-none absolute -inset-20 rounded-full"
         style={{
           background:
-            "radial-gradient(circle at 30% 40%, rgba(34,211,238,0.22), transparent 55%), radial-gradient(circle at 70% 60%, rgba(236,72,153,0.18), transparent 50%), radial-gradient(circle at 50% 80%, rgba(251,191,36,0.12), transparent 45%)",
+            "radial-gradient(circle at 50% 50%, rgb(var(--accent-rgb) / 0.18), transparent 62%)",
         }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+        animate={{ scale: [0.92, 1.06, 0.92], opacity: [0.45, 0.85, 0.45] }}
+        transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         style={{ transform: rotate, transformStyle: "preserve-3d" }}
         className="relative"
-        whileHover={{ scale: 1.06 }}
-        transition={{ type: "spring", stiffness: 280, damping: 22 }}
+        whileHover={{ scale: 1.04 }}
+        transition={{ type: "spring", stiffness: 260, damping: 24 }}
       >
         <motion.div
-          className="absolute -inset-6 rounded-full opacity-70 blur-2xl"
+          className="absolute -inset-5 rounded-full opacity-80 blur-xl"
           style={{
             background:
-              "conic-gradient(from 120deg, #22d3ee, #ec4899, #fbbf24, #22d3ee)",
+              "conic-gradient(from 210deg, rgb(var(--accent-rgb) / 0.55), rgba(255,255,255,0.08), rgb(var(--accent-rgb) / 0.35), rgba(255,255,255,0.04), rgb(var(--accent-rgb) / 0.55))",
           }}
-          animate={{ rotate: -360 }}
-          transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
         />
-        <div className="relative grid place-items-center rounded-full bg-ink-950/80 p-5 ring-1 ring-white/15">
-          <BrandMark className="h-20 w-20 sm:h-24 sm:w-24" reactive={false} />
+        <div className="relative grid place-items-center rounded-full border border-white/12 bg-[#05080f]/90 p-6 shadow-[0_0_48px_-12px_rgb(var(--accent-rgb)/0.55)]">
+          <BrandMark className="h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20" reactive={false} />
         </div>
       </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        <Wordmark className="text-4xl font-bold tracking-wide sm:text-5xl" />
-      </motion.div>
+      <motion.img
+        src="/brand/logo-white.svg"
+        alt="VYBZ"
+        className="h-8 w-auto opacity-90 sm:h-9"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 0.9, y: 0 }}
+        transition={{ delay: 0.12 }}
+        draggable={false}
+      />
     </div>
   );
 }

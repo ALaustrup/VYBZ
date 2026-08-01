@@ -1,9 +1,10 @@
 ﻿import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Routes, Route, Navigate, NavLink, useLocation, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useSession } from "@/store/session";
 import { DynamicBackground } from "@/components/DynamicBackground";
+import { PageTransition } from "@/components/PageTransition";
 import { LandingPage } from "@/pages/LandingPage";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { RoleIntentOnboarding } from "@/components/RoleIntentOnboarding";
@@ -16,7 +17,6 @@ import { VDock } from "@/components/vdock/VDock";
 import { SuiteShell } from "@/shell/SuiteShell";
 import { suitePlaceholderRoutes } from "@/app/suitePlaceholderRoutes";
 import { ensureEliteFxDefault } from "@/lib/display";
-import { pageEnter } from "@/lib/motion";
 import { BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
 import { useResolvedCosmetics } from "@/lib/cosmetics";
 import { BG_VARIANTS } from "@/lib/backgrounds";
@@ -130,7 +130,14 @@ export function App() {
     }
     return <div className="flex min-h-[100dvh] items-center justify-center px-8 text-center text-white/60">VYBZ backend not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.</div>;
   }
-  if (!ready) return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
+  if (!ready) return (
+    <>
+      <DynamicBackground variant={BRAND_BG} mode="static" />
+      <div className="relative z-10 flex min-h-[100dvh] items-center justify-center">
+        <Loader2 className="h-7 w-7 animate-spin text-[rgb(var(--accent-rgb)/0.85)]" aria-label="Loading" />
+      </div>
+    </>
+  );
 
   const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
   const isPublicPack = FLAGS.storefront && location.pathname.startsWith("/pack/");
@@ -147,7 +154,7 @@ export function App() {
     if (isPublicPack) return <PublicPackShell />;
     if (isPublicDoc) return <PublicDocShell />;
     if (location.pathname === "/enter" || location.pathname.startsWith("/enter/")) {
-      return <><DynamicBackground variant={BRAND_BG} mode="static" /><Onboarding /></>;
+      return <Onboarding />;
     }
     return <LandingPage />;
   }
@@ -157,7 +164,7 @@ export function App() {
   }
   if (!profile.username) {
     if (isPublicDoc) return <PublicDocShell />;
-    return <><DynamicBackground variant={BRAND_BG} mode="static" /><UsernameSetup /></>;
+    return <UsernameSetup />;
   }
 
   if (!isPublicDoc && authed && needsMix && !onboarded) {
@@ -171,14 +178,9 @@ export function App() {
 
   const routes = (
     <ErrorBoundary key={location.pathname}>
-      <motion.div
-        key={location.pathname}
-        initial={pageEnter.initial}
-        animate={pageEnter.animate}
-        transition={pageEnter.transition}
-        className="h-full min-h-0"
-      >
-      <Routes location={location}>
+      <AnimatePresence mode="wait" initial={false}>
+        <PageTransition routeKey={location.pathname}>
+          <Routes location={location}>
         <Route path="/" element={<ProfilePage />} />
         <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
@@ -223,8 +225,9 @@ export function App() {
         <Route path="/codex/:slug" element={<CodexDocPage />} />
         <Route path="/legal/:slug" element={<CodexDocPage />} />
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      </motion.div>
+          </Routes>
+        </PageTransition>
+      </AnimatePresence>
     </ErrorBoundary>
   );
 
