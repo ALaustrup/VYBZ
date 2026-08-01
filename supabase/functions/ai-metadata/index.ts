@@ -1,54 +1,35 @@
 // Supabase Edge Function: ai-metadata
-// Authenticated POST { title?, artist?, keywords?, durationSeconds?, fixture? }
-// Groq infer-fill genre/mood/BPM/ISRC suggestion. Falls back to heuristic if key missing.
-// Deploy with JWT verification ON. Secret: GROQ_API_KEY (already set).
+// Authenticated POST { title?, artist?, keywords?, fixture? }
+// Suggests genre and mood from the title and artist text. Returns "unavailable" when no
+// model is configured — it never guesses, and it never produces tempo, key or an ISRC.
+// Deploy with JWT verification ON. Secret: GROQ_API_KEY.
 
 import { CORS, admin, callerId, json } from "../_shared/edge.ts";
 
-const PROC_VERSION = "phase15.metadata.1";
+const PROC_VERSION = "metadata.2";
 const MODEL = "llama-3.1-8b-instant";
 const USD_PER_CALL = 0.002;
 
-const FIXTURE = {
-  genre: "Electronic",
-  mood: "Upbeat",
-  bpm: 122,
-  isrcSuggestion: "QZVYZ2500001",
-  confidence: 0.82,
-  procVersion: PROC_VERSION,
-  source: "fixture" as const,
+type Suggestion = {
+  genre: string | null;
+  mood: string | null;
+  procVersion: string;
+  source: "fixture" | "ai-guess" | "unavailable";
 };
 
-function hashSeed(s: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return h >>> 0;
-}
+const FIXTURE: Suggestion = {
+  genre: "Electronic",
+  mood: "Upbeat",
+  procVersion: PROC_VERSION,
+  source: "fixture",
+};
 
-function heuristic(body: {
-  title?: string;
-  artist?: string;
-  keywords?: string;
-  durationSeconds?: number;
-}) {
-  const GENRES = ["Electronic", "Hip-Hop", "Pop", "Indie", "R&B", "Rock", "Ambient"];
-  const MOODS = ["Upbeat", "Melancholic", "Dark", "Dreamy", "Aggressive", "Chill"];
-  const seed = hashSeed(
-    `${body.title ?? ""}|${body.artist ?? ""}|${body.keywords ?? ""}|${body.durationSeconds ?? 0}`
-  );
-  return {
-    genre: GENRES[seed % GENRES.length]!,
-    mood: MOODS[(seed >>> 8) % MOODS.length]!,
-    bpm: 70 + (seed % 90),
-    isrcSuggestion: `QZVYZ${String(2500000 + (seed % 100000)).padStart(7, "0")}`,
-    confidence: 0.55 + ((seed >>> 16) % 30) / 100,
-    procVersion: PROC_VERSION,
-    source: "heuristic" as const,
-  };
-}
+const UNAVAILABLE: Suggestion = {
+  genre: null,
+  mood: null,
+  procVersion: PROC_VERSION,
+  source: "unavailable",
+};
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
@@ -68,7 +49,6 @@ Deno.serve(async (req: Request) => {
     title?: string;
     artist?: string;
     keywords?: string;
-    durationSeconds?: number;
     projectId?: string;
     fixture?: boolean;
   } = {};
@@ -78,15 +58,17 @@ Deno.serve(async (req: Request) => {
     return json({ error: "invalid_json" }, 400);
   }
 
-  let result = body.fixture ? { ...FIXTURE } : heuristic(body);
+  let result: Suggestion = body.fixture ? { ...FIXTURE } : { ...UNAVAILABLE };
   const key = Deno.env.get("GROQ_API_KEY") ?? "";
 
   if (!body.fixture && key) {
     try {
       const system =
-        `You infer music metadata for indie releases on VYBZ. Return ONLY JSON keys: ` +
-        `genre (string), mood (string), bpm (number 60-200), isrcSuggestion (string like QZVYZ########), confidence (0-1).`;
-      const user = `Title: ${body.title ?? ""}\nArtist: ${body.artist ?? ""}\nKeywords: ${body.keywords ?? ""}\nDuration: ${body.durationSeconds ?? 0}s`;
+        `You suggest a genre and a mood for an independent music release, based only on ` +
+        `its title and artist name. Return ONLY JSON with keys: genre (string), mood (string). ` +
+        `If the text gives you no reasonable basis, return null for that key. ` +
+        `Never invent a tempo, a musical key, or an ISRC.`;
+      const user = `Title: ${body.title ?? ""}\nArtist: ${body.artist ?? ""}\nKeywords: ${body.keywords ?? ""}`;
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -96,7 +78,7 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           model: MODEL,
           temperature: 0.2,
-          max_tokens: 300,
+          max_tokens: 200,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: system },
@@ -108,20 +90,22 @@ Deno.serve(async (req: Request) => {
         const payload = await res.json() as {
           choices?: Array<{ message?: { content?: string } }>;
         };
-        const raw = payload.choices?.[0]?.message?.content ?? "";
-        const parsed = JSON.parse(raw) as Record<string, unknown>;
-        result = {
-          genre: String(parsed.genre ?? result.genre).slice(0, 64),
-          mood: String(parsed.mood ?? result.mood).slice(0, 64),
-          bpm: Math.max(60, Math.min(200, Number(parsed.bpm) || result.bpm)),
-          isrcSuggestion: String(parsed.isrcSuggestion ?? result.isrcSuggestion).slice(0, 16),
-          confidence: Math.max(0, Math.min(1, Number(parsed.confidence) || 0.7)),
-          procVersion: PROC_VERSION,
-          source: "groq",
-        };
+        const parsed = JSON.parse(payload.choices?.[0]?.message?.content ?? "{}") as Record<
+          string,
+          unknown
+        >;
+        const text = (v: unknown) =>
+          typeof v === "string" && v.trim() ? v.trim().slice(0, 64) : null;
+        const genre = text(parsed.genre);
+        const mood = text(parsed.mood);
+        // Only claim a guess was made if the model actually returned one.
+        result = genre || mood
+          ? { genre, mood, procVersion: PROC_VERSION, source: "ai-guess" }
+          : { ...UNAVAILABLE };
       }
     } catch (e) {
       console.error("ai-metadata groq", (e as Error).message);
+      result = { ...UNAVAILABLE };
     }
   }
 
@@ -152,7 +136,7 @@ Deno.serve(async (req: Request) => {
   await admin.rpc("record_cost_event", {
     p_feature: "ai_metadata",
     p_units: 1,
-    p_usd_estimate: result.source === "groq" ? USD_PER_CALL : 0,
+    p_usd_estimate: result.source === "ai-guess" ? USD_PER_CALL : 0,
     p_meta: { job_id: job?.id ?? null, source: result.source },
   });
 
