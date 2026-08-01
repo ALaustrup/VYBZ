@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `cb7717b8` (pending PR #40 merge)
+**HEAD:** `6cc1d7cb` (merge #40)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -14,10 +14,10 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e` | `git rev-parse origin/main` after PR #39 merge |
+| Production SHA | `6cc1d7cb711edc539e18e20155fae9f267b4fe6a` | `git rev-parse origin/main` after PR #40 merge |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-CMRqBxTU.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
-| Deployment current | **YES** — Vercel auto-deploy from `main` | bundle `index-6zcp2vdQ.js` (#38) → `index-CMRqBxTU.js` (#39) |
+| Deployed bundle | `/assets/index-BRdmfz-t.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
+| Deployment current | **YES** — bundle changed `index-CMRqBxTU.js` (#39) → `index-BRdmfz-t.js` (#40) |
 
 **Full merge HEAD:** `9d2ef864f1e748111ba0df7e3a7e1ba06c8d926e` — Merge pull request #39
 
@@ -27,7 +27,7 @@
 2. **PR [#37](https://github.com/ALaustrup/VYBZ/pull/37) merged** — M3 truth shell: remove fabricated distribution LUFS/peak/DPI, remove dating onboarding gate, build SHA footer, processing-enqueue stub fix in repo. Production bundle `index-BL_dO-7v.js`.
 3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. `quality` passed. Production bundle `index-6zcp2vdQ.js`.
 4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome. Production bundle `index-CMRqBxTU.js`.
-5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) pending** — M3 completion slice: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS.md M3 authorisation, estimated loudness label fix.
+5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) merged** — M3 completion: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS M3 authorisation.
 
 ## Working tree
 
