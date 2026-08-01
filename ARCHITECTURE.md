@@ -3,17 +3,19 @@
 > Platform map for **VYBZ Suite** (Beta-1A / Suite Genesis) including
 > **multi-client** topology. Product doctrine: [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md).
 > Pre-suite snapshot: [`docs/archive/pre-suite-2026/ARCHITECTURE.md`](./docs/archive/pre-suite-2026/ARCHITECTURE.md).
+> **Layout facts verified 2026-08-01** against the repository and live production.
 
 ## Summary
 
-**One product core · one Platform Services backend · three application shells.**
+**One product core · one Platform Services backend · four application shells.**
 
-| Layer | Technology |
-|-------|------------|
-| **VYBZ Cloud** | Vite 6 + React 18 + TypeScript SPA/PWA (canonical web; complete app) |
-| **VYBZ Desktop** | Tauri 2 packaging shared UI (Windows first) — Phase 1.5 PoC |
-| **VYBZ Mobile** | Capacitor 8 + Android project (`cloud.vybz.app`) — expand in 1.5 / 2.A |
-| **VYBZ Platform Services** | Supabase Auth, Postgres+RLS, Storage, Realtime, Edge Functions; Stripe; LiveKit; Resend |
+| Layer | Technology | Delivery state |
+|-------|------------|----------------|
+| **VYBZ Cloud** | Vite 6 + React 18 + TypeScript SPA/PWA (canonical web; complete app) | Live at https://vybz.cloud |
+| **VYBZ Desktop** | Tauri 2 in `apps/desktop/src-tauri` — Windows/macOS/Linux targets built in CI | `NATIVE-PLATFORM ONLY` — no installer distributed |
+| **VYBZ Android** | Capacitor 8 + root `android/` (`cloud.vybz.app`) | `NATIVE-PLATFORM ONLY` — no Play listing |
+| **VYBZ iOS** | Capacitor shell in `ios/App` + SPM plugins | `NATIVE-PLATFORM ONLY` — no TestFlight build (OR-012) |
+| **VYBZ Platform Services** | Supabase Auth, Postgres+RLS, Storage, Realtime, Edge Functions; Stripe; LiveKit; Resend | Live |
 
 **Media origin is Supabase Storage only.** Dormant `bunny-*` Edge functions must not be
 re-enabled as doctrine. Live voice/SFU = LiveKit.
@@ -21,17 +23,25 @@ re-enabled as doctrine. Live voice/SFU = LiveKit.
 ```text
                          VYBZ PLATFORM SERVICES
                               │
-            ┌─────────────────┼─────────────────┐
-       VYBZ Cloud        VYBZ Desktop      VYBZ Mobile
-       Vite + React         Tauri 2          Capacitor
+        ┌───────────────┬─────┴─────┬───────────────┐
+   VYBZ Cloud     VYBZ Desktop   VYBZ Android    VYBZ iOS
+   Vite + React      Tauri 2      Capacitor      Capacitor
 ```
 
-## Verified layout today
+## Verified layout today (2026-08-01)
 
-Single-root SPA under `src/` — **no** `apps/` or `packages/` workspace yet.
-Capacitor wraps `dist/`; `android/` present. Tauri **not** present.
+Web root is still single-root `src/`. Three packages are extracted —
+`packages/domain`, `packages/data`, `packages/processing` — wired through
+**tsconfig / Vite path aliases**, because `package.json` has **no `workspaces` key**.
+Workspace Stage A and Stage D landed; **Stage B (npm workspaces) did not**, and Stages
+C / E / F are unscheduled.
 
-Staged workspace target: [`docs/architecture/REPO_WORKSPACE_PLAN.md`](./docs/architecture/REPO_WORKSPACE_PLAN.md).
+`apps/desktop/src-tauri` exists (Tauri 2). Capacitor wraps `dist/`; `android/` and
+`ios/` are both present at the repository root.
+
+Staged workspace target and rollback plan:
+[`docs/architecture/REPO_WORKSPACE_PLAN.md`](./docs/architecture/REPO_WORKSPACE_PLAN.md)
+· Masterplan §6.
 
 ## Frontend layout (Phase 1+)
 
@@ -48,9 +58,30 @@ src/
   components/   ui, states, …
 ```
 
-Today: SuiteShell wired; flat routes in [`src/App.tsx`](./src/App.tsx);
-`src/features/storefront/` exists. Platform Bridge lands in Phase 1.5 —
-[`docs/architecture/PLATFORM_BRIDGE.md`](./docs/architecture/PLATFORM_BRIDGE.md).
+Today: SuiteShell wired; flat routes in [`src/App.tsx`](./src/App.tsx) plus Suite routes
+and placeholders in [`src/app/suitePlaceholderRoutes.tsx`](./src/app/suitePlaceholderRoutes.tsx).
+Platform Bridge is implemented for web, desktop, android and ios under
+`src/platform/bridge/` — [`docs/architecture/PLATFORM_BRIDGE.md`](./docs/architecture/PLATFORM_BRIDGE.md).
+
+### Routing and the auth gate (read before changing routes)
+
+`src/App.tsx` resolves, in order, **before** the authenticated shell is constructed:
+
+```text
+/__e2e__/*                    → e2e builds only (VITE_E2E_FIXTURES), absent in prod
+!userId:
+  /start · /releases · /release/*        → PrepareLocalApp   (public)
+  /desktop/process · /desktop/waveform   → DesktopLocalApp   (public)
+  /mobile/uploads · /android/beta        → AndroidLocalApp   (public)
+  /pack/:slug (FLAGS.storefront)         → PublicPackShell   (public)
+  /codex · /codex/:slug · /legal/:slug   → PublicDocShell    (public)
+  /enter · /enter/*                      → Onboarding
+  everything else                        → LandingPage       ← HTTP 200, URL unchanged
+```
+
+That last line means a protected route is **indistinguishable from a marketing page**.
+Seven of fourteen `nav: true` routes additionally render a Suite placeholder. Both are
+scheduled corrections — Masterplan §23 Track D.
 
 ## Platform kernel
 
@@ -110,11 +141,16 @@ Default optional AI (`fal`) = disabled / prepaid_only. Groq free_only ceiling. L
 
 | Concern | Current | Planned |
 |---------|---------|---------|
-| Cloud SPA | Vercel `astramatrix/vybz` ← `main` | Cloudflare Pages canary later |
-| Desktop | — | Tauri Windows installers + signed updates (Phase 2.D / R) |
-| Android | Local `android/` | Signed APK/AAB · internal track → store (2.A / R) |
+| Cloud SPA | Vercel `astramatrix/vybz` ← `main`, native Git integration (**no workflow deploys**); Cloudflare proxies `vybz.cloud` → Vercel `iad1` | Unchanged |
+| Desktop | CI builds `windows-msi` · `mac-dmg` · `linux-appimage` | Signed installers + update channels (Track N) |
+| Android | Local `android/`, signed APK/AAB validated in CI | Internal track → Play listing (Track N) |
+| iOS | `ios/App` builds an unsigned CI stub | TestFlight after Apple Developer + secrets (OR-012) |
 | Backend | Same Supabase project | Same |
 | Email / Live | Resend / LiveKit | Same until quota forces controlled upgrade |
+
+Production deployment identity is verified in
+[`PRODUCTION_REALITY_AUDIT_2026-07-31.md`](./docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md).
+Do not re-investigate the deployment without new evidence.
 
 ## Security note
 
@@ -129,6 +165,15 @@ and Master Blueprint §16.
 - Degraded provider → unavailable / local fallback, not silent cloud spend.
 - Unsupported Platform Bridge capability → degrade with explicit UI, not crash.
 - Offline → drafts + queues only; clear unsynced indicators.
+
+### Known architectural defects (open)
+
+| Defect | Impact | Correction |
+|--------|--------|------------|
+| ~~`/__e2e__/*` fixtures resolve in production and bypass auth~~ | Public auth-bypass surface with seeded data | **Fixed 2026-08-01 (D1)** — `src/app/e2eFixtures.tsx` behind `VITE_E2E_FIXTURES`; CI guard `npm run check:no-fixtures` |
+| Protected routes fall back to `LandingPage` at HTTP 200 with an unchanged URL | A signed-out user cannot tell "sign in required" from "does not exist" | Track D3 — real sign-in prompt preserving the destination |
+| 7 of 14 primary nav entries are Suite placeholders | Navigation advertises capabilities that are not there | Track D4 |
+| Placeholder `phaseNote` strings cite execution-phase numbers that mean other work | Production text is factually wrong | Track D5 — product tracks use names, not numbers |
 
 Deep dives: [`docs/architecture/PLATFORM_OVERVIEW.md`](./docs/architecture/PLATFORM_OVERVIEW.md),
 ADRs [`ADR_DESKTOP_TAURI.md`](./docs/architecture/ADR_DESKTOP_TAURI.md),

@@ -28,6 +28,7 @@ are **never authoritative**.
 
 ## Architecture
 
+- [`architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md`](./architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md) — **evidence baseline for Master Blueprint v2**
 - [`architecture/PLATFORM_OVERVIEW.md`](./architecture/PLATFORM_OVERVIEW.md)
 - [`architecture/FRONTEND_ARCHITECTURE.md`](./architecture/FRONTEND_ARCHITECTURE.md)
 - [`architecture/DATA_ARCHITECTURE.md`](./architecture/DATA_ARCHITECTURE.md)
