@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Headphones, Radio, Sparkles, Shield } from "lucide-react";
+import { Headphones, ListChecks, Radio, Sparkles, Shield } from "lucide-react";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { WaitlistForm } from "@/components/landing/WaitlistForm";
 
 const SECTIONS = [
+  {
+    icon: ListChecks,
+    title: "Prepare",
+    body: "Check a finished track against distribution requirements before you send it anywhere. Findings, credits, and a delivery package — free, no account.",
+    link: { to: "/releases", label: "Run a readiness scan" },
+  },
   {
     icon: Headphones,
     title: "Listen",
@@ -95,12 +101,26 @@ export function LandingPage() {
             Join alpha waitlist
           </a>
           <Link
+            to="/releases"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-cyan-400/45 bg-cyan-400/10 px-7 font-display text-sm font-semibold text-white backdrop-blur-sm hover:border-cyan-400/70 hover:bg-cyan-400/15"
+          >
+            Run a free readiness scan
+          </Link>
+          <Link
             to="/enter"
             className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-white/25 bg-white/5 px-7 font-display text-sm font-semibold text-white backdrop-blur-sm hover:border-cyan-400/40"
           >
             Enter VYBZ
           </Link>
         </motion.div>
+        <motion.p
+          className="mt-4 text-xs text-white/45"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.52 }}
+        >
+          The readiness scan is free and runs in your browser — no account needed.
+        </motion.p>
       </section>
 
       {/* Product breakdown */}
@@ -127,6 +147,15 @@ export function LandingPage() {
               <div>
                 <h3 className="font-display text-lg font-semibold text-white">{s.title}</h3>
                 <p className="mt-1 text-sm leading-relaxed text-white/55">{s.body}</p>
+                {"link" in s && s.link ? (
+                  <Link
+                    to={s.link.to}
+                    className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-cyan-300 underline-offset-4 hover:underline"
+                  >
+                    {s.link.label}
+                    <span aria-hidden>→</span>
+                  </Link>
+                ) : null}
               </div>
             </motion.li>
           ))}

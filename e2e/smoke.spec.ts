@@ -7,6 +7,17 @@ test.describe("Suite smoke", () => {
     const body = await page.locator("body").innerText();
     expect(body.length).toBeGreaterThan(0);
   });
+
+  // A signed-out visitor must be able to reach the free readiness scan by clicking,
+  // not by knowing the URL. Guards the Track D2 entry point.
+  test("landing offers a discoverable path into the readiness scan", async ({ page }) => {
+    await page.goto("/");
+    const cta = page.getByRole("link", { name: /run a free readiness scan/i });
+    await expect(cta).toBeVisible();
+    await cta.click();
+    await expect(page).toHaveURL(/\/releases$/);
+    await expect(page.getByTestId("prepare-releases")).toBeVisible();
+  });
 });
 
 test.describe("a11y smoke", () => {
