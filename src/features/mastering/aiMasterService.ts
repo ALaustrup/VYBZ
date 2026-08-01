@@ -176,9 +176,12 @@ export async function runLocalMasterJob(opts: {
         title: opts.fileName,
         durationSeconds: mastered.metrics.durationSeconds,
       });
-      await recordCost("ai_metadata", 1, 0, {
-        meta: { job_id: jobId, source: metadata.source },
-      });
+      // Only bill an operation that produced something.
+      if (metadata.source !== "unavailable") {
+        await recordCost("ai_metadata", 1, 0, {
+          meta: { job_id: jobId, source: metadata.source },
+        });
+      }
     }
 
     tick("completed", 100, {
