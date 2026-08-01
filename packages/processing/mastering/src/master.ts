@@ -67,7 +67,7 @@ export function masterPcm(
 ): { samples: Float32Array; metrics: Omit<MasteringMetrics, "procVersion"> } {
   const targetRmsDbfs = opts.targetRmsDbfs ?? -14;
   const peakCeiling = opts.peakCeiling ?? 0.95;
-  const stereoWidth = opts.stereoWidth ?? 1.05;
+  const stereoWidth = opts.stereoWidth ?? 1;
 
   const frames = Math.floor(monoOrInterleaved.length / Math.max(1, channels));
   const work = new Float32Array(frames * channels);

@@ -8,6 +8,11 @@ import { fileURLToPath, URL } from "node:url";
 // and predictable for mobile-first deployment; vendors are split into cacheable
 // chunks (see build.rollupOptions) so app updates don't re-download dependencies.
 export default defineConfig({
+  define: {
+    __VYBZ_BUILD_SHA__: JSON.stringify(
+      process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local",
+    ),
+  },
   build: {
     rollupOptions: {
       output: {

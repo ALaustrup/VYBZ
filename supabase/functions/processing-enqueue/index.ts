@@ -1,7 +1,7 @@
 // Supabase Edge Function: processing-enqueue
 // Authenticated POST { kind, engine?, releaseId?, inputMeta?, idempotencyKey? }
-// Inserts a durable processing_jobs row (queued). No paid AI — skeleton only.
-// Deploy with JWT verification ON (default).
+// Inserts a durable processing_jobs row (queued). Does not claim success until a
+// real worker completes the job. Deploy with JWT verification ON (default).
 
 import { admin, CORS, callerId, json } from "../_shared/edge.ts";
 
@@ -74,38 +74,12 @@ Deno.serve(async (req) => {
     return json({ error: "insert_failed", detail: insert.error.message }, 500);
   }
 
-  // Skeleton worker tick: mark running → completed with empty stub (no paid compute).
-  const jobId = insert.data.id as string;
-  await admin
-    .from("processing_jobs")
-    .update({
-      state: "running",
-    })
-    .eq("id", jobId)
-    .eq("owner_id", uid);
-
-  const stubResult = {
-    ok: true,
-    skeleton: true,
-    message: "Remote worker skeleton — no paid AI; client portable/native preferred.",
-  };
-
-  await admin
-    .from("processing_jobs")
-    .update({
-      state: "completed",
-      result: stubResult,
-      job_minutes: 0.001,
-    })
-    .eq("id", jobId)
-    .eq("owner_id", uid);
-
   return json({
     ok: true,
-    jobId,
-    status: "completed",
+    jobId: insert.data.id,
+    status: insert.data.state,
     engine: insert.data.engine,
     createdAt: insert.data.created_at,
-    result: stubResult,
+    message: "Job queued — results appear when a worker completes analysis.",
   });
 });

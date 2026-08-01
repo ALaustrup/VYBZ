@@ -13,7 +13,6 @@ import {
   buildDistributionReport,
   type DistributionReport,
 } from "@/features/distribution/buildReport";
-import { createCostSentinel } from "@/platform/costs/sentinel";
 import type { FindingDraft } from "@vybz/domain/releases";
 
 function verdictTone(v: DistributionReport["verdict"]): "success" | "warning" | "danger" | "neutral" {
@@ -33,8 +32,8 @@ export function DistributionReportPage() {
   const [report, setReport] = useState<DistributionReport | null>(null);
   const [exportSha, setExportSha] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [costAlert, setCostAlert] = useState<string | null>(null);
   const [title, setTitle] = useState("Release");
+  const [loudnessLabel, setLoudnessLabel] = useState<string>("Not measured");
 
   const reload = useCallback(async () => {
     if (!id) return;
@@ -65,11 +64,22 @@ export function DistributionReportPage() {
       };
 
       const loudness =
-        probe.integratedLufs != null
-          ? { integratedLufs: probe.integratedLufs, truePeakDb: probe.truePeakDb ?? null }
+        probe.integratedLufs != null && !Number.isNaN(probe.integratedLufs)
+          ? {
+              integratedLufs: probe.integratedLufs,
+              truePeakDb: probe.truePeakDb ?? null,
+            }
+          : null;
+
+      setLoudnessLabel(
+        loudness?.integratedLufs != null
+          ? `Integrated ${loudness.integratedLufs.toFixed(1)} LUFS${
+              loudness.truePeakDb != null ? ` · true peak ${loudness.truePeakDb.toFixed(1)} dBTP` : ""
+            } (measured)`
           : audio
-            ? { integratedLufs: -14, truePeakDb: -1.5 }
-            : null;
+            ? "Not measured — run loudness analysis before packaging"
+            : "Not measured",
+      );
 
       const meta = bundle.project as { isrc?: string | null };
       const next = buildDistributionReport(id, {
@@ -86,20 +96,12 @@ export function DistributionReportPage() {
               sizeBytes: artProbe.sizeBytes ?? 0,
               width: artProbe.width,
               height: artProbe.height,
-              dpi: artProbe.dpi ?? 300,
+              dpi: artProbe.dpi ?? null,
             }
           : null,
         requireLoudness: Boolean(audio),
       });
       setReport(next);
-
-      // Simulate remote loudness job minutes vs free tier — log-only, no auto-spend.
-      const remoteMinutes = 31;
-      createCostSentinel({
-        sink: (a) => {
-          if (a.code === "FREE_TIER_JOB_MINUTES") setCostAlert(a.message);
-        },
-      }).record({ jobMinutes: remoteMinutes });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to build report");
     } finally {
@@ -161,18 +163,13 @@ export function DistributionReportPage() {
             {report.verdict}
           </Badge>
         </div>
-        <p className="mt-1 text-sm text-fog">Pass / fail packaging checks · loudness · ISRC · artwork DPI.</p>
+        <p className="mt-1 text-sm text-fog">
+          Packaging checks · ISRC · artwork · loudness when measured.
+        </p>
+        <p className="mt-2 text-xs text-fog/80" data-testid="distribution-loudness">
+          Loudness: {loudnessLabel}
+        </p>
       </div>
-
-      {costAlert ? (
-        <div
-          className="rounded-suite border border-amber-400/30 bg-amber-400/5 p-3 text-sm text-snow"
-          data-testid="distribution-cost-alert"
-          role="status"
-        >
-          Cost Sentinel: {costAlert}
-        </div>
-      ) : null}
 
       {error ? <StateView variant="error" title="Export error" body={error} /> : null}
 
@@ -194,7 +191,7 @@ export function DistributionReportPage() {
           report.findings.map((f: FindingDraft) => (
             <li
               key={f.code}
-              className="rounded-suite border border-white/10 bg-white/[0.03] px-4 py-3"
+              className="forge-card"
               data-testid={`distribution-finding-${f.code}`}
             >
               <div className="flex flex-wrap items-center gap-2">

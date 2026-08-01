@@ -11,6 +11,7 @@ import {
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { staggerContainer, staggerItem } from "@/lib/motion";
+import { buildLabel } from "@/lib/buildInfo";
 
 const WORKFLOW = [
   {
@@ -173,6 +174,9 @@ export function LandingPage() {
         <Link to="/legal/terms" className="hover:text-white/50">Terms</Link>
         <span className="px-2">·</span>
         © {new Date().getFullYear()} Astra Matrix, Inc.
+        <span className="mt-2 block font-mono text-[10px] text-white/20" data-testid="build-sha">
+          {buildLabel()}
+        </span>
       </footer>
     </div>
   );

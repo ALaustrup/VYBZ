@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare const __VYBZ_BUILD_SHA__: string;
+
 interface ImportMetaEnv {
   /** Supabase project URL (optional — enables the real backend). */
   readonly VITE_SUPABASE_URL?: string;
