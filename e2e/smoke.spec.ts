@@ -1,22 +1,23 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Suite smoke", () => {
-  test("landing renders brand promise", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.locator("body")).toBeVisible();
-    const body = await page.locator("body").innerText();
-    expect(body.length).toBeGreaterThan(0);
+  test("unsigned readiness scan entry is reachable", async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
+    await page.goto("/releases/new");
+    await expect(page.getByTestId("prepare-new")).toBeVisible();
   });
 });
 
 test.describe("a11y smoke", () => {
   test("document has a main landmark or app root", async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
     await page.goto("/");
     const main = page.locator("main, #root");
     await expect(main.first()).toBeVisible();
   });
 
   test("Prepare releases expose main landmark and focusable CTA", async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
     await page.goto("/releases");
     await expect(page.getByTestId("prepare-releases")).toBeVisible();
     const main = page.locator("main");
@@ -27,6 +28,7 @@ test.describe("a11y smoke", () => {
   });
 
   test("Cost Sentinel path is reachable or falls back safely", async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
     await page.goto("/settings/costs");
     await expect(page.locator("body")).toBeVisible();
     const sentinel = page.getByTestId("cost-sentinel-page");

@@ -1,4 +1,5 @@
 @import "./design/tokens.css";
+@import "./design/nexus.css";
 
 @tailwind base;
 @tailwind components;
@@ -191,7 +192,7 @@
 
   body {
     @apply antialiased;
-    background-color: #0a0e18;
+    background-color: #030508;
     color: #f8fafc;
     /* Lexend — high x-height + reading-proficiency research; full weights for UI. */
     font-family: Lexend, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;

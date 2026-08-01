@@ -124,6 +124,7 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+      <div className="absolute inset-0 nexus-hex-grid opacity-[0.12]" />
       <div className="absolute inset-0" style={{ background: BASE }} />
       <img
         src={SITE_BACKDROP.poster}

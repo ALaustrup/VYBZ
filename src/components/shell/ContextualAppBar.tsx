@@ -37,7 +37,7 @@ export function ContextualAppBar({
       : "Music";
 
   useEffect(() => {
-    document.title = player.track ? `${player.track.title} · VYBZ` : "VYBZ — Find Yours.";
+    document.title = player.track ? `${player.track.title} · VYBZ` : "VYBZ — Release intelligence";
   }, [pathname, player.track?.title]);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export function ContextualAppBar({
           {player.track?.artist ? (
             <p className="truncate text-[11px] text-white/45">{player.track.artist}</p>
           ) : (
-            <p className="truncate text-[11px] text-white/40">Find Yours.</p>
+            <p className="truncate text-[11px] text-white/40">Release intelligence</p>
           )}
         </div>
 
