@@ -4,9 +4,9 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-01
-**Branch:** `docs/m1-doctrine-refoundation`
-**Base:** `main` @ `53ab9ef90dfd8bf88feb7657184abc7ecf2e1d8b`
-**Current milestone:** **M1 — Doctrine refoundation** (documentation only)
+**Branch:** `feat/m3-shell-nexus`
+**Base:** `main` @ `eaf8839c85e21d589551226e88880c6960fb6b02`
+**Current milestone:** **M3 — Technical integrity + Nexus UI redux** (owner-authorised)
 
 ---
 
@@ -14,84 +14,62 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `53ab9ef90dfd8bf88feb7657184abc7ecf2e1d8b` | Vercel deployment `dpl_6AJZUxDyLPAuzQSvYDPjKEqMW7k5`, `target: production`, `state: READY` |
+| Production SHA | `eaf8839c85e21d589551226e88880c6960fb6b02` | `git rev-parse origin/main` after PR #38 merge |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-CjRLJawG.js` (911,432 chars) | live fetch 2026-08-01 |
-| Deployment current | **YES** — production equals `main` | two independent sources: Vercel API and bundle fingerprint |
+| Deployed bundle | `/assets/index-6zcp2vdQ.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
+| Deployment current | **YES** — Vercel auto-deploy from `main` | bundle changed from `index-BL_dO-7v.js` (#37) → `index-6zcp2vdQ.js` (#38) |
 
-**Independent corroboration.** The deployed bundle contains none of `__e2e__`,
-`mastering-e2e-fixture`, `collab-e2e`, `cost-sentinel-e2e`, `ai-credits-e2e`. Before the
-D1 merge all five were present. The change in bundle content matches exactly what D1
-predicts, confirming the deployed SHA without relying on Vercel's own report.
+**Full merge HEAD:** `eaf8839c85e21d589551226e88880c6960fb6b02` — Merge pull request #38
 
 ## Last completed operations
 
-1. **Stage 1 forensic intake** — read-only inspection of git, Vercel, live production,
-   routes, flags, 99 migrations, 30 edge functions, three native shells, all analysis
-   sources, and 145 markdown files. Produced five classification matrices.
-2. **Stage 2 refoundation proposal** — five-document authority, archival structure, dating
-   removal manifest, collaboration freeze boundary, feature disposition, milestone mapping,
-   nineteen owner decisions, destructive-action list.
-3. **D-1 — PR [#30](https://github.com/ALaustrup/VYBZ/pull/30) merged** as an out-of-band
-   security fix. All twelve checks passed. Merge commit `53ab9ef9`.
-4. **D-2 — PR [#31](https://github.com/ALaustrup/VYBZ/pull/31) closed** as superseded by M3.
-   Its `quality` check was failing. Branch `feat/d2-landing-readiness-entry` @ `049cf165`
-   preserved.
-5. **D-3** — `docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md` landed on `main`
-   via #30 and is the M0 evidence artifact.
-6. **Stage 3 in progress** — this document set.
+1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36) merged** — M3 Nexus UI redux (landing, auth, intro, prepare-local, design system). Production SHA `6751d506`.
+2. **PR [#37](https://github.com/ALaustrup/VYBZ/pull/37) merged** — M3 truth shell: remove fabricated distribution LUFS/peak/DPI, remove dating onboarding gate, build SHA footer, processing-enqueue stub fix in repo. Production bundle `index-BL_dO-7v.js`.
+3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. `quality` passed. Production bundle `index-6zcp2vdQ.js`.
+4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) pending** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome.
 
 ## Working tree
 
-Clean apart from the M1 documentation changes on this branch and one pre-existing untracked
-file, `.cursor/settings.json`.
-
-**Two stashes remain uninspected** — `stash@{0}` "ops cutover docs WIP" (on `main`) and
-`stash@{1}` "temp hash drift" (on `suite-genesis`). Tracked as DR-09.
+Branch `feat/m3-shell-nexus` with shell Nexus commit `a5c7d633` (local, not yet merged). Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
 | Check | Result | Date |
 |---|---|---|
-| `/__e2e__/*` fixtures absent from the production bundle | **PASS** | 2026-08-01 |
+| `/__e2e__/*` fixtures absent from production bundle | **PASS** (prior audit) | 2026-08-01 |
 | Anonymous landing page loads | PASS (HTTP 200) | 2026-08-01 |
-| Security headers (CSP, HSTS, X-Frame-Options, nosniff) | PASS | 2026-08-01 |
-| **Authenticated experience** | **NEVER OBSERVED** | — |
-| Prepare → Findings flow, end to end | **NEVER OBSERVED** | — |
-
-The signed-in product has never been exercised against production by anyone. This is the
-single largest evidence gap and is owned by M3.
+| Build SHA in landing footer | **Not verified live** | — |
+| Distribution loudness shows "Not measured" not fabricated LUFS | **PASS in bundle** (`index-BL_dO-7v.js` grep) | 2026-08-01 |
+| Prepare Nexus forge-card rows | **Not verified live** (requires signed-in session) | — |
+| **Authenticated experience end-to-end** | **NEVER OBSERVED** | — |
 
 ## Active blockers
 
 | ID | Blocker | Blocks |
 |---|---|---|
-| DR-01…DR-05 | Scope decisions: live streaming, messaging/cam/rooms, opportunities and cosmetics, V¢ tipping, watermarking (~7,800 lines undecided) | M2 scoping |
-| DR-06 | Onboarding gate — `App.tsx` forces `RoleIntentOnboarding`; removing dating requires deciding its replacement | M2 |
-| DR-07 | M4 strategy — build or integrate a BS.1770 meter | M4 |
-| — | Owner approval of the M1 documentation PR | M2 start |
+| DR-01…DR-05 | Scope decisions: live, messaging/cam, opportunities/cosmetics, V¢ tipping, watermarking | M2 scoping |
+| DR-06 | Dating onboarding gate | **Partially resolved** — gate removed in #37; `RoleIntentOnboarding.tsx` still in tree, unmounted |
+| DR-07 | M4 BS.1770 meter strategy | M4 |
+| — | `processing-enqueue` edge function redeploy to Supabase | Jobs may still auto-complete in production until redeployed |
+| — | Supabase MCP / CLI auth for automated edge deploy | Agent cannot redeploy without owner credentials |
 
 ## Known contradictions
 
-None between the five authorities as of this commit. Previously:
-
-- `VYBZ_MASTERPLAN.md` claimed Prepare was "Not started", Tauri "Not present" and
-  `packages/` absent, while `AGENTS.md` recorded Phases 2–19 complete. **Resolved** — the
-  Masterplan is rewritten and no longer carries state.
-- Seventeen documents claimed supreme or canonical authority. **Resolved** — reduced to
-  five; the rest are reference or archived.
-- `docs/DOCUMENTATION_MANIFEST.md` defined a six-tier hierarchy contradicting the AGENTS
-  conflict order. **Resolved** — deleted; the document map now lives in `ARCHITECTURE.md` §16.
-- `README.md` said "Next engineering: Phase 1.5". **Resolved.**
-
-**Outstanding, tracked not resolved:** fifteen technical-integrity defects listed in
-[`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) §3, nine of which are fabricated values reaching
-users in production today. They are documented and scheduled but **not yet fixed** — M3 and
-M4 own them.
+- `AGENTS.md` still lists M1 docs-only as authorised milestone; owner has explicitly authorised M3 implementation work (#36–#38 merged).
+- `STATUS.md` previously claimed M1 / SHA `53ab9ef9` — **corrected in this update**.
 
 ## Next authorised action
 
-Owner review of the M1 documentation pull request. Nothing else is authorised.
+1. Merge PR #39 (shell Nexus) after green CI.
+2. Owner redeploy `processing-enqueue` edge function (`supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm`).
+3. Continue M3 authenticated surfaces: FeedPage filter drawer, Profile/DashHub, Messages.
+4. Signed-in production verification of Prepare → Distribution → Master flow.
 
-After M1 merges, the next decision point is the DR-01…DR-06 block, which must be answered
-before M2 can be scoped.
+## Latest verification results
+
+```
+npm run lint   — PASS (2026-08-01, feat/m3-shell-nexus @ a5c7d633)
+npm run test   — PASS 145/145 (2026-08-01)
+npm run build  — PASS (2026-08-01)
+PR #38 quality — PASS (2026-08-01)
+```
