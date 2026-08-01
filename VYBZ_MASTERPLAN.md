@@ -7,8 +7,8 @@
 > Pre–Suite Music Hub doctrine: [`docs/archive/pre-suite-2026/`](./docs/archive/pre-suite-2026/)
 > (never authoritative).
 >
-> This document is the **implementation-grade Master Blueprint Prompt** for
-> autonomous agents continuing VYBZ across web, desktop, and Android.
+> This document is the **implementation-grade Master Blueprint** for autonomous
+> agents continuing VYBZ across web, desktop, Android, and iOS.
 
 | Field | Value |
 |-------|--------|
@@ -17,13 +17,56 @@
 | **Tagline** | Find Yours. |
 | **Promise** | Everything between finished and released. |
 | **Category** | Release operating system for independent music |
-| **Generation** | Beta-1A (Suite Genesis) — planned; **untagged** until production gates |
+| **Generation** | Beta-1A (Suite Genesis) — planned; **untagged** until delivery gates pass |
 | **Domain** | https://vybz.cloud |
-| **Repository** | ALaustrup/VYBZ only |
+| **Repository** | `ALaustrup/VYBZ` only |
 | **Integration branch** | `main` (production) |
-| **Suite branch** | `suite-genesis` (active doctrine + foundation) |
-| **Clients** | VYBZ Cloud · VYBZ Desktop · VYBZ Mobile (Android first) |
+| **Clients** | VYBZ Cloud · VYBZ Desktop · VYBZ Mobile (Android, iOS) |
 | **Backend** | VYBZ Platform Services (one Supabase project) |
+| **Blueprint revision** | **v2 — 2026-07-31**, rewritten after the Production Reality Audit |
+
+**What changed in v2 and why it matters:** eighteen phases were merged, tagged, and
+deployed between 2026-06 and 2026-07-31, yet an audit of live production found that an
+ordinary visitor could not reach a single one of them. The engineering was real; the
+*delivery* was not. v2 keeps every piece of durable doctrine from v1 and adds the one
+thing v1 lacked — a definition of "done" that includes the user. Full evidence:
+[`docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md`](./docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md).
+
+---
+
+## 0. Delivery vocabulary (read this before claiming anything is complete)
+
+v1 of this blueprint used a single word — "Complete" — for work that had merged. That
+word silently covered three very different realities: a feature a user can find and
+use, a feature that exists but nobody can reach, and a native app that was never
+distributed. **That ambiguity is now forbidden.**
+
+Every feature, phase, and PR must be described using exactly one of these states:
+
+| State | Means | Proof required |
+|-------|-------|----------------|
+| `CODE MERGED` | Source is on `main` | Commit SHA |
+| `BUILT` | Included in the production bundle | String/asset fingerprint in the deployed artifact |
+| `DEPLOYED` | Live on the production alias | Vercel deployment SHA + alias |
+| `REACHABLE` | A user who knows the URL can load it at the intended auth level | Live request against `vybz.cloud` |
+| `DISCOVERABLE` | A user can *find* it by navigating, without being told a URL | Named entry point in nav, or a documented deliberate alternative |
+| `PRODUCTION-VERIFIED` | The primary flow was exercised against production and observed working | Screenshot or recorded session |
+| `DELIVERED` | All of the above | All of the above |
+
+Allowed phase statuses, in the order of increasing truth:
+
+`DOCUMENTED ONLY` · `STUB OR SCAFFOLD` · `INFRASTRUCTURE ONLY` · `NATIVE-PLATFORM ONLY` ·
+`PARTIALLY IMPLEMENTED` · `IMPLEMENTED BUT NOT DELIVERED` · `DEPLOYED BUT UNVERIFIED` ·
+`DELIVERED AND PRODUCTION-VERIFIED`
+
+Three hard rules follow:
+
+1. **Merged is not delivered.** A green CI run, a merge commit, and a git tag together
+   prove only `CODE MERGED`.
+2. **Reachable is not discoverable.** A route that works only when typed into the
+   address bar has not been delivered to anyone. It is a private API with a URL.
+3. **No phase may be recorded as complete in `AGENTS.md`, `CHANGELOG.md`, or an exit
+   gate without naming its delivery state from the table above.**
 
 ---
 
@@ -36,19 +79,19 @@ social network, or DAW — it connects those activities.
 
 **Governing architectural principle:**
 
-> One VYBZ product core, one shared cloud platform, and three platform-specific
-> application shells.
+> One VYBZ product core, one shared cloud platform, and platform-specific application
+> shells.
 
 | Surface | Role |
 |---------|------|
 | **VYBZ Cloud** | Browser SPA — universally accessible, public-facing, fastest release channel, complete product |
-| **VYBZ Desktop** | Tauri 2 Windows-first workstation — native files, batch, local processing, dense professional UI |
-| **VYBZ Mobile** | Capacitor Android-first client — touch workflows, import/share, push, mobile-safe sessions |
+| **VYBZ Desktop** | Tauri 2 workstation (Windows first, macOS/Linux targets built) — native files, batch, local processing, dense professional UI |
+| **VYBZ Mobile** | Capacitor client — Android first, iOS shell built — touch workflows, import/share, push, mobile-safe sessions |
 | **VYBZ Platform Services** | Shared Auth, Postgres+RLS, Storage, Realtime, Edge Functions, jobs, entitlements, billing, notifications |
 
 A user owns **one account, one creative identity, and one continuous body of work**
 that follows them across browser, desktop, and mobile. Clients must not become
-three disconnected apps with duplicated business logic.
+disconnected apps with duplicated business logic.
 
 ### Core product loop
 
@@ -67,80 +110,117 @@ Create Release Project
 → sell and receive support
 ```
 
-Legacy audience loop `upload → /u/:id → VDock → tip → live` remains the **final
-third** (Artist / VDock / Live / Market), not the sole north star.
+Legacy audience loop `upload → /u/:id → VDock → tip → live` remains the **final third**
+(Artist / VDock / Live / Market), not the sole north star.
+
+### The delivery corollary (new in v2)
+
+The loop above is worthless if a visitor cannot enter it. **VYBZ Cloud's public
+entry path is part of the product, not marketing chrome.** Any phase that adds a
+capability to the loop must also answer: *how does a real person arrive here?*
 
 ---
 
 ## 2. Current verified state
 
-*Facts verified on `suite-genesis` at blueprint expansion. Do not invent missing artifacts.*
+*Every fact below was verified against the live system on **2026-07-31 / 2026-08-01 UTC**.
+Do not invent missing artifacts. Do not soften a status without new evidence.*
 
-### Verified repository facts
+### 2.1 Deployment truth (audit-proven)
 
-| Fact | Evidence |
-|------|----------|
-| Branch | `suite-genesis` (local; not assumed pushed) |
-| Package | `1.1.0` · `release: Beta-1A` · `codename: Suite Genesis` |
-| Stack | Vite 6 + React 18 + TypeScript SPA/PWA; Tailwind; npm; Node 20+ |
-| Layout | **Single-root** `src/` — no `apps/` or `packages/` workspace yet |
-| Backend | Supabase project `xixmneooyufbeftdfpcm` (us-west-1) |
+| Fact | Value | Evidence |
+|------|-------|----------|
+| Repository | `github.com/ALaustrup/VYBZ` (private, repoId `1289727202`) | Vercel deployment meta; local `git remote -v` |
+| Vercel team / project | Astra Matrix `team_gq3IWtz1kK0aO7kzMrrk6N6a` / `vybz` `prj_LY89Q0WAbKMfNmtYTyg1eQRrBfbI` | `.vercel/project.json` matches live project |
+| Production branch | `main` | All `target: production` deployments |
+| Root directory | Repository root | Root `vercel.json`, no override |
+| Framework / build | `vite` · `npm run build` · output `dist` · Node `24.x` | `vercel.json`, project settings |
+| Production SHA | `a84d984ad6a5d242b44f0d6acc3427b450de8446` | Deployment `dpl_4Mngw…` meta **and** PR fingerprints in the live bundle |
+| Deployment currency | **Current — production equals repo HEAD** | Two independent proofs |
+| Domain path | Cloudflare proxy → Vercel origin (`iad1`) | `Server: cloudflare` + `x-vercel-id` |
+| Deployment protection | Password / SSO / trusted-IP all **off** | Vercel project settings |
+| Client env | `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` present | `/` renders landing, not the backend hard-stop |
+
+**There is no deployment problem, and there never was.** Any future "the site looks
+unchanged" report must start from this section, not from a deploy investigation.
+
+### 2.2 Repository layout (actual, not aspirational)
+
+| Fact | Value |
+|------|-------|
+| Package | `1.1.0` · release `Beta-1A` · codename Suite Genesis |
+| Stack | Vite 6 + React 18 + TypeScript 5.6 strict SPA/PWA; Tailwind 3; npm; Node 20+ |
+| Web root | `src/` (single root — **not** moved to `apps/web`) |
+| Extracted packages | `packages/domain`, `packages/data`, `packages/processing` — wired by **tsconfig/Vite path aliases** |
+| npm workspaces | **Not configured** — `package.json` has no `workspaces` key. Stage A landed; **Stage B did not** |
+| Desktop | `apps/desktop/src-tauri` — Tauri 2 present (Windows/macOS/Linux targets) |
+| Android | root `android/` — Capacitor 8, `appId: cloud.vybz.app` |
+| iOS | `ios/App` — Capacitor shell, SPM plugins, fastlane; **no distributed build** |
+| Backend | Supabase `xixmneooyufbeftdfpcm` (us-west-1) |
 | Media origin | Supabase Storage only; Bunny Edge dormant |
-| Live | LiveKit |
-| Payments | Stripe `acct_1TwTEtAnnpt9OYZI` |
-| Email | Resend `@vybz.cloud` |
-| Capacitor | Deps `@capacitor/*` ^8.4 · `capacitor.config.ts` · `appId: cloud.vybz.app` · `android/` project present |
-| Tauri | **Not present** (no `src-tauri/`) |
-| Phase 0 | Complete — doctrine reset, inventories, Storage-only ops |
-| Phase 1 | Complete — tokens, UI primitives, SuiteShell, Vitest/Playwright/CI, platform stubs |
-| Phase 1.1 | Complete — deterministic Playwright preview runner |
-| Phase 2 Prepare | **Not started** |
-| Storefront / visual-generate | WIP may exist in working tree — keep isolated from foundation commits |
-| Tests | `npm run lint` · `npm run test` · `npm run build` · `npm run test:e2e` |
-| Tag `Beta-1A` | **Must not be cut** until shell + cost kernel + Prepare scan pass production gates |
+| Live | LiveKit · Payments Stripe `acct_1TwTEtAnnpt9OYZI` · Email Resend `@vybz.cloud` |
+| Correctness gate | `npm run lint` · `npm run test` · `npm run build` · `npm run test:e2e` |
+| Tag `Beta-1A` | **Must not be cut** until the delivery gates in §22 pass |
 
-### Authority conflict resolutions (final)
+### 2.3 Delivery truth (the actual problem)
 
-| Conflict | Authoritative direction |
-|----------|-------------------------|
-| Tip-loop-only vs Suite OS | **Suite OS**; tip loop = audience third |
-| Bunny vs Storage | **Storage only**; do not re-enable Bunny as origin |
-| Greenfield rewrite vs extend SPA | **Extend** existing React/Vite; no Next.js rewrite |
-| React Native vs Capacitor | **Capacitor** unless spike proves impossibility |
-| Desktop shell | **Tauri 2**, Windows first |
-| Monorepo now | **Target** workspace; **incremental** extraction — no big-bang move |
-| Bridge vs Platform Bridge | `tools/vybz-bridge` → **VYBZ Engine** (local companion); **Platform Bridge** = typed client capability API |
-| Browser-only Phase 2+ | Insert **Phase 1.5 Platform Readiness** before Prepare feature logic hardens browser assumptions |
+| Finding | Detail |
+|---------|--------|
+| **Public entry surface** | `LandingPage.tsx` contains exactly four links: `/enter`, `/legal/terms`, `/legal/privacy`, `#waitlist`. **Nothing links to any Suite feature.** |
+| **Anonymous fallback is silent** | Any unlisted path renders the landing page at HTTP 200 **without changing the URL**. `/settings/costs` looks like a marketing page, not a login wall. |
+| **Suite is reachable but undiscoverable** | Prepare, Credits, Distribution, MasterReady and the Collab panels all work in production, anonymously, with no account — and cannot be found without being handed the URL. |
+| **Placeholder nav** | 7 of 14 `nav: true` routes (`/credits`, `/master`, `/coverlab`, `/sentinel`, `/relay`, `/wallet`, `/settings`) render a "Suite placeholder" empty state. |
+| **Test fixtures exposed** | Five `/__e2e__/*` routes bypassed authentication and served seeded fake data to the public internet. **Fixed 2026-08-01 (D1)** — compiled out behind `VITE_E2E_FIXTURES`, guarded by `npm run check:no-fixtures`. Ships on the next deploy. |
+| **Native undistributed** | Zero desktop installers, zero Play listings, zero TestFlight builds have reached a user. |
+| **Polish invisibility** | PRs #22–#29 = 17 files, +117/−97 lines of pure class substitution. Exactly one artifact (`favicon.svg`) is visible to an anonymous visitor. |
 
-### Assumptions requiring validation
+### 2.4 Resolved numbering collision (important)
 
-- Exact `android/` signing / store readiness (project exists; store listing not verified).
-- Whether workspace tooling should be npm workspaces vs pnpm (default: **keep npm** unless spike proves otherwise).
-- OVH worker / remote job runner maturity beyond stubs.
-- Desktop code-signing identity and Apple/Linux timing (deferred).
+v1 §21 named **product tracks** by number (5 CoverLab, 6 Sentinel, 7 Relay). Execution
+then used the same numbers for **different work** (5 Desktop Alpha, 6 Android Alpha,
+7 Sync & Collaboration). The collision is still visible in production: placeholder
+pages say *"Phase 6 — Sentinel"* while shipped Phase 6 was Android Alpha.
+
+**Resolution, binding from v2 onward:**
+
+- **Execution phases keep integers** (0, 1, 1.5, 2 … 19, 20 …). The ledger in §21 is
+  the only authority for what an integer means.
+- **Product tracks use names, never numbers** — CoverLab, Sentinel, Relay, Market,
+  Artist, Live.
+- Placeholder `phaseNote` strings in `src/app/suitePlaceholderRoutes.tsx` carry stale
+  numbers and must be corrected to track names.
+
+### 2.5 Assumptions still requiring validation
+
+- Authenticated production experience — **never observed**. Every claim about the
+  signed-in shell is code-derived. This is the single largest evidence gap.
+- Android store readiness (project exists; listing not verified).
+- npm workspaces vs pnpm for Stage B (default: **keep npm**).
+- Remote job-runner maturity beyond current Edge functions.
+- Desktop code-signing identity; Apple Developer membership (deferred, OR-012).
 
 ---
 
 ## 3. Product-suite definition
 
-| Product | Function | Accent |
-|---------|----------|--------|
-| **VYBZ Home** | Project, release, and audience command center | Cyan |
-| **VYBZ Studio** | Music Repos, versions, branches, collaboration | Orange |
-| **VYBZ Prepare** | Distribution-readiness workspace | Ice cyan |
-| **VYBZ Credits** | Metadata, contributors, splits, approvals | Indigo |
-| **VYBZ MasterReady** | Audio analysis, mastering, deliverables | Amber / green |
-| **VYBZ CoverLab** | Artwork analysis, repair, visual delivery | Magenta / violet |
-| **VYBZ Sentinel** | Secure prerelease sharing, watermarking, provenance | Red |
-| **VYBZ Relay** | Distribution package delivery and status | Blue / green |
-| **VYBZ Live** | Performances, sessions, listening events | Crimson |
-| **VYBZ Market** | Sample packs and digital music products | Violet / gold |
-| **VYBZ Artist** | Public storefront, catalog, support | Brand cyan |
-| **VDock** | Persistent playback, queue, credits, support | Shared |
+| Product | Function | Accent | Delivery state (2026-07-31) |
+|---------|----------|--------|------------------------------|
+| **VYBZ Home** | Project, release, and audience command center | Cyan | `DEPLOYED BUT UNVERIFIED` (authed) |
+| **VYBZ Studio** | Music Repos, versions, branches, collaboration | Orange | `DEPLOYED BUT UNVERIFIED` (authed; `/studio` redirects to legacy `/projects`) |
+| **VYBZ Prepare** | Distribution-readiness workspace | Ice cyan | `DELIVERED AND PRODUCTION-VERIFIED` — but undiscoverable |
+| **VYBZ Credits** | Metadata, contributors, splits, approvals | Indigo | `DELIVERED AND PRODUCTION-VERIFIED` — but undiscoverable |
+| **VYBZ MasterReady** | Audio analysis, mastering, deliverables | Amber / green | `PARTIALLY IMPLEMENTED` — page verified, job path untested |
+| **VYBZ CoverLab** | Artwork analysis, repair, visual delivery | Magenta / violet | `STUB OR SCAFFOLD` — placeholder page only |
+| **VYBZ Sentinel** | Secure prerelease sharing, watermarking, provenance | Red | `STUB OR SCAFFOLD` — placeholder page; watermark EFs exist |
+| **VYBZ Relay** | Distribution package delivery and status | Blue / green | `STUB OR SCAFFOLD` — placeholder; readiness report lives on the release |
+| **VYBZ Live** | Performances, sessions, listening events | Crimson | `DEPLOYED BUT UNVERIFIED` (authed) |
+| **VYBZ Market** | Sample packs and digital music products | Violet / gold | `PARTIALLY IMPLEMENTED` — public pack shell live, no live packs |
+| **VYBZ Artist** | Public storefront, catalog, support | Brand cyan | `DEPLOYED BUT UNVERIFIED` (authed) |
+| **VDock** | Persistent playback, queue, credits, support | Shared | `DEPLOYED BUT UNVERIFIED` (authed) |
 
-Shared kernel: identity, Release Projects, Findings, Processing Jobs, storage,
-billing, permissions, notifications, audit, cost control, design primitives,
-search, a11y, **Platform Bridge**.
+Shared kernel: identity, Release Projects, Findings, Processing Jobs, storage, billing,
+permissions, notifications, audit, cost control, design primitives, search, a11y,
+**Platform Bridge**.
 
 ### Required product terminology
 
@@ -156,6 +236,7 @@ search, a11y, **Platform Bridge**.
 | **Finding** | Structured issue, warning, recommendation, or validation result |
 | **Processing Job** | Local or remote operation with tracked lifecycle |
 | **Platform Bridge** | Shared interface for platform-specific behavior |
+| **VYBZ Engine** | Local watch/sync companion (`tools/vybz-bridge`) — **not** the Platform Bridge |
 
 Do not invent alternate brand names that fragment the suite.
 
@@ -165,10 +246,10 @@ Do not invent alternate brand names that fragment the suite.
 
 1. **One product core** — domain logic shared; shells adapt composition.
 2. **One account / one database / one storage origin** — Supabase Auth + Postgres + Storage.
-3. **Untrusted clients** — desktop packaging does not secure secrets; RLS + Edge + workers remain the privilege boundary.
+3. **Untrusted clients** — native packaging does not secure secrets; RLS + Edge + workers remain the privilege boundary.
 4. **No scattered platform checks** — use Platform Bridge; domain must not import Tauri/Capacitor/browser globals.
 5. **Three-level processing** — portable · native desktop · remote jobs.
-6. **Cost-first** — local/portable prefer; remote paid only with estimate + reservation; no auto-purchase of vendors.
+6. **Cost-first** — prefer local/portable; remote paid only with estimate + reservation; no auto-purchase of vendors.
 7. **Incremental migration** — extract packages when ownership is clear; keep temporary adapters; plan rollback.
 8. **Additive migrations only** — no DB reset; no second auth system.
 9. **No Bunny reintroduction** as media origin; LiveKit for live.
@@ -176,7 +257,13 @@ Do not invent alternate brand names that fragment the suite.
 11. **No ads / anonymity / connection paywalls / pay-to-win / paid safety.**
 12. **Dating / Spark-home / Living Home / VR stay frozen.**
 13. **Vc** for tips/cosmetics/community — not to obscure dollar prices of professional processing.
-14. **Platform readiness before feature lock-in** — Phase 1.5 before Prepare hardens browser-only paths.
+14. **Platform readiness before feature lock-in.**
+15. **Delivery integrity (new in v2)** — a capability is not finished until a real
+    person can find it, reach it, and use it in production. Navigation, entry points,
+    and production verification are engineering deliverables, not follow-up chores.
+16. **Production is the source of truth about the product (new in v2)** — the
+    repository is the source of truth about the code. When they disagree about what a
+    user experiences, production wins and the docs are wrong.
 
 ### Explicit non-goals (architecture mistakes to prevent)
 
@@ -187,9 +274,12 @@ Do not invent alternate brand names that fragment the suite.
 - Full offline collaboration before reliable sync
 - Heavy Android battery-hostile processing
 - Cloud for every trivial scan; local for credential-bound AI
-- Premature macOS/Linux/iOS commitments delaying Windows + Android
+- Premature platform commitments delaying the ones already started
 - Destructive single-commit monorepo rewrite
-- Declaring native “done” because a webview opens
+- Declaring native "done" because a webview opens
+- **Declaring a phase done because CI was green (new in v2)**
+- **Shipping routes that exist only for tests (new in v2)**
+- **Counting token/CSS refactors as user-visible improvement (new in v2)**
 
 ---
 
@@ -201,21 +291,25 @@ Do not invent alternate brand names that fragment the suite.
        Authentication · PostgreSQL · Storage · Realtime · Functions
           Processing Jobs · Entitlements · Notifications · Billing
                               │
-            ┌─────────────────┼─────────────────┐
-            │                 │                 │
-       VYBZ Cloud        VYBZ Desktop      VYBZ Mobile
-       Vite + React         Tauri 2          Capacitor
-       (canonical web)   (Windows first)   (Android first)
+        ┌───────────────┬─────┴─────┬───────────────┐
+        │               │           │               │
+   VYBZ Cloud     VYBZ Desktop   VYBZ Android    VYBZ iOS
+   Vite + React      Tauri 2      Capacitor      Capacitor
+  (canonical web)  (Win/mac/Lin)  (built)      (shell only)
 ```
 
-Every client uses the same authoritative backend for: identities, profiles,
-artist/producer identities, orgs/teams (when shipped), Release Projects,
-metadata, audio/artwork, Findings, reports, comments, collaborators, activity,
-notifications, job states, exports, subscriptions, entitlements, Vc where
-applicable, billing, audit, and device-independent preferences.
+Every client uses the same authoritative backend for: identities, profiles, artist
+identities, orgs/teams (when shipped), Release Projects, metadata, audio/artwork,
+Findings, reports, comments, collaborators, activity, notifications, job states,
+exports, subscriptions, entitlements, Vc where applicable, billing, audit, and
+device-independent preferences.
 
-**Platform-specific local state** (caches, queues, drafts, native paths) must
-never become an undocumented competing source of truth.
+**Platform-specific local state** (caches, queues, drafts, native paths) must never
+become an undocumented competing source of truth.
+
+**Shell reality check:** only VYBZ Cloud has users. Desktop, Android, and iOS have code
+and CI but no distribution. Treat them as `NATIVE-PLATFORM ONLY` until an installer,
+an APK/AAB, or a TestFlight build reaches a human.
 
 ---
 
@@ -227,41 +321,37 @@ never become an undocumented competing source of truth.
 vybz/
 ├── apps/
 │   ├── web/
-│   ├── desktop/
-│   │   └── src-tauri/
-│   └── android/          # Capacitor android project + thin shell
-│       └── android/
+│   ├── desktop/          # EXISTS — src-tauri
+│   └── android/
 ├── packages/
-│   ├── app/              # feature modules (prepare, credits, …)
-│   ├── ui/               # design system primitives
-│   ├── domain/           # use cases (no platform imports)
-│   ├── data/             # repositories / Supabase adapters
-│   ├── platform/         # PlatformBridge contracts + implementations
-│   ├── processing/       # portable + contracts for native/remote
-│   ├── contracts/        # shared types (Finding, Job, Release)
+│   ├── app/
+│   ├── ui/
+│   ├── domain/           # EXISTS
+│   ├── data/             # EXISTS
+│   ├── platform/
+│   ├── processing/       # EXISTS
+│   ├── contracts/
 │   ├── configuration/
 │   └── testing/
 ├── supabase/
 ├── docs/
-├── tooling/              # includes evolution of tools/vybz-bridge → Engine
+├── tooling/
 └── scripts/
 ```
 
-### Verified today
+### Staged extraction — actual progress
 
-Single-root SPA. Capacitor wraps `dist/` via `capacitor.config.ts` (`webDir: "dist"`).
-Android project at repo `android/`. No Tauri. No npm workspaces.
+| Stage | Action | Status | Rollback |
+|------:|--------|--------|----------|
+| A | `packages/{domain,data,processing}` + `src/platform/bridge` via path aliases | **Done** | Delete dirs; restore relative imports |
+| B | npm workspaces without moving web root | **Not done** — no `workspaces` key in `package.json` | Revert workspace config |
+| C | Extract `packages/ui` from `src/components/ui` | Not started | Path aliases back to `src/` |
+| D | `apps/desktop` Tauri shell consuming shared build | **Done** | Remove Tauri app; web unchanged |
+| E | Relocate Capacitor android under `apps/android` | Not started — root `android/` still authoritative | Keep root `android/` |
+| F | Move web into `apps/web` | Not started — **highest risk**, exit gate requires green CI | — |
 
-### Staged extraction strategy
-
-| Stage | Action | Rollback |
-|------:|--------|----------|
-| A | Introduce `packages/contracts` + `packages/platform` **in-tree** under `src/` first (`src/platform/bridge`, `src/domain`) | Delete new dirs; keep App working |
-| B | Add npm workspaces without moving web root (optional dual package.json) | Revert workspace config |
-| C | Extract `packages/ui` from `src/components/ui` | Path aliases back to `src/` |
-| D | Add `apps/desktop` Tauri shell consuming shared build | Remove Tauri app; web unchanged |
-| E | Relocate Capacitor android under `apps/android` only when scripts/CI updated | Keep root `android/` until cutover proven |
-| F | Move web into `apps/web` last | Highest risk — exit gate requires green CI |
+Stages C, E, and F are **not** priorities. They deliver zero user value and carry real
+regression risk. Do not schedule them ahead of §23 delivery work.
 
 ### Dependency direction
 
@@ -277,33 +367,23 @@ Platform adapters and infrastructure
 
 Forbidden: domain → Tauri/Capacitor/DOM; circular package deps.
 
-### Import conventions (target)
+### Import conventions
 
-- `@vybz/contracts`, `@vybz/domain`, `@vybz/data`, `@vybz/platform`, `@vybz/ui`, `@vybz/processing`
-- Until workspaces exist: path aliases in `tsconfig` / Vite pointing at `src/...`
+`@vybz/domain`, `@vybz/data`, `@vybz/processing` resolve through tsconfig/Vite aliases
+today. `@vybz/contracts`, `@vybz/platform`, `@vybz/ui` remain targets.
 
-### Build commands (target DX; exact scripts evolve in Phase 1.5)
+### Build commands
 
 ```bash
-npm run dev:web
-npm run dev:desktop
-npm run sync:android   # cap sync after web build
-
-npm run typecheck
-npm run lint
-npm run test:shared
-npm run test:web
-npm run test:desktop
-npm run test:android
-npm run test:supabase
-
-npm run build:web
-npm run build:desktop:windows
-npm run build:android:apk
-npm run build:android:aab
+npm run dev            # http://localhost:5173
+npm run lint           # tsc --noEmit
+npm run test
+npm run test:e2e
+npm run build
 ```
 
-**Package manager decision (final for now):** remain on **npm**. Do not casually switch.
+Multi-client scripts live in `package.json`; see the desktop and Android release docs.
+**Package manager decision (final for now): remain on npm.**
 
 ---
 
@@ -312,32 +392,37 @@ npm run build:android:aab
 ### Final decisions
 
 - Supabase Auth remains authoritative identity.
-- Same account across Cloud / Desktop / Android; stable user IDs.
+- Same account across every client; stable user IDs.
 - Existing users need no re-registration; projects appear after sign-in.
 - Entitlements calculated **server-side**; clients never grant privileged access alone.
-- No client may contain service_role, Stripe secret, Resend key, fal/Groq keys, signing secrets, or encryption master keys.
+- No client may contain service_role, Stripe secret, Resend key, fal/Groq keys, signing
+  secrets, or encryption master keys.
 
 ### Session persistence
 
 | Client | Persistence |
 |--------|-------------|
-| Cloud | Existing secure browser-compatible Supabase session storage |
-| Desktop | Encrypted native credential/secret storage via Tauri plugins |
-| Android | Android-backed secure credential storage (Capacitor Preferences + secure plugin as selected in Phase 1.5 spike) |
+| Cloud | Supabase browser session storage |
+| Desktop | Encrypted native store via Tauri (`secure_store.rs`) |
+| Android | Keystore-backed preferences (`VybzSecureStorePlugin`) |
+| iOS | Keychain-sealed preferences (`VybzSecureStorePlugin`, Swift) |
 
 Logout clears platform credentials. Account deletion propagates via Platform Services.
 
 ### Deep links / callbacks
 
-Handle: OAuth, magic link, password recovery, email verification, invitation
-acceptance, open Release Project, open Finding, open Processing Job result.
+Handle: OAuth, magic link, password recovery, email verification, invitation acceptance,
+open Release Project, open Finding, open Processing Job result.
 
-Prefer **domain-based app links** (`vybz.cloud` / verified Android App Links).
-Custom URI schemes only where necessary. Define recovery when app not installed
-or link opens on wrong device (web fallback).
+Prefer **domain-based app links** (`vybz.cloud` / verified Android App Links / Universal
+Links). Custom `vybz://` only where necessary. Define recovery when the app is not
+installed or the link opens on the wrong device (web fallback).
 
-Details: [`docs/architecture/AUTH_AND_DEEPLINKS.md`](./docs/architecture/AUTH_AND_DEEPLINKS.md)
-(created/expanded in Phase 1.5).
+> **Open item:** `public/.well-known/apple-app-site-association` still contains the
+> placeholder `TEAMID`. Universal Links cannot work until a real Apple Team ID replaces
+> it. Parked with OR-012.
+
+Details: [`docs/architecture/AUTH_AND_DEEPLINKS.md`](./docs/architecture/AUTH_AND_DEEPLINKS.md).
 
 ### Database / security (multi-client)
 
@@ -347,7 +432,10 @@ Details: [`docs/architecture/AUTH_AND_DEEPLINKS.md`](./docs/architecture/AUTH_AN
 - Storage policies; signed/scoped uploads where required
 - Idempotent mutations; audit fields; timestamps; soft delete where justified
 - Migration rollback planning; generated types; schema compatibility tests
-- **Desktop is still an untrusted client**
+- **Every client is untrusted**
+
+Migration-history formalisation (`db push` vs raw SQL + CI checksum guard) remains open
+as **OR-010**.
 
 ---
 
@@ -355,11 +443,11 @@ Details: [`docs/architecture/AUTH_AND_DEEPLINKS.md`](./docs/architecture/AUTH_AN
 
 Shared code must **not** scatter `if (isAndroid) / else if (isTauri)`.
 
-### Contract (canonical shape — may refine without changing principle)
+### Contract (canonical shape)
 
 ```ts
 export interface PlatformBridge {
-  readonly kind: "web" | "desktop" | "android";
+  readonly kind: "web" | "desktop" | "android" | "ios";
 
   files: {
     selectAudio(): Promise<SelectedFile[]>;
@@ -400,18 +488,20 @@ export interface PlatformBridge {
 }
 ```
 
-### Implementations
+### Implementations (actual locations)
 
-| Impl | Location (target) |
-|------|-------------------|
-| Browser | `packages/platform/web` (initially `src/platform/bridge/web`) |
-| Tauri | `packages/platform/desktop` |
-| Capacitor | `packages/platform/android` |
-| Test/mock | `packages/platform/test` |
+| Impl | Location |
+|------|----------|
+| Browser | `src/platform/bridge/web.ts` |
+| Tauri | `src/platform/bridge/desktop.ts` + `tauriInvoke.ts` |
+| Capacitor Android | `src/platform/bridge/android.ts` |
+| Capacitor iOS | `src/platform/bridge/ios.ts` |
+| Detection / factory | `src/platform/bridge/detect.ts`, `createBridge.ts`, `capabilities.ts` |
+| Contract tests | `src/platform/bridge/bridge.contract.test.ts` |
 
 Must define: capability detection, graceful degradation, unsupported behavior,
-permission-denied, error normalization, logging, cancellation, progress,
-mockability, **contract tests**.
+permission-denied, error normalization, logging, cancellation, progress, mockability,
+**contract tests**.
 
 Spec: [`docs/architecture/PLATFORM_BRIDGE.md`](./docs/architecture/PLATFORM_BRIDGE.md).
 
@@ -419,8 +509,8 @@ Spec: [`docs/architecture/PLATFORM_BRIDGE.md`](./docs/architecture/PLATFORM_BRID
 
 ## 9. Web requirements (VYBZ Cloud)
 
-**Final:** Continue existing Vite + React SPA as principal shared frontend foundation.
-Do not prescribe a ground-up rewrite to support other platforms.
+**Final:** continue the existing Vite + React SPA as the principal shared frontend.
+No ground-up rewrite to support other platforms.
 
 Cloud remains:
 
@@ -430,27 +520,43 @@ Cloud remains:
 - Canonical browser implementation
 - **A complete application**, not a marketing companion
 
-Must continue: responsive desktop/tablet/mobile-browser layouts, browser file APIs,
-full project access, public + account surfaces, a11y, progressive enhancement.
+Must continue: responsive desktop/tablet/mobile-browser layouts, browser file APIs, full
+project access, public + account surfaces, a11y, progressive enhancement.
 
-Distinguish **Android-native** behavior from ordinary responsive web.
+### 9.1 Entry-path requirements (new in v2 — binding)
+
+The audit proved Cloud is currently *two disconnected applications*: a marketing page
+and a Suite that the marketing page never mentions. The following are now product
+requirements, not polish:
+
+1. **Every shipped capability needs a named entry point.** Nav item, dashboard card,
+   in-flow link, or an explicitly documented deliberate exception with an owner.
+2. **The landing page must lead somewhere real.** At minimum, a visitor must be able to
+   reach the free readiness scan — the product's own primary CTA is *"Run a free
+   readiness scan"*, and that scan works today with no account.
+3. **Auth gates must look like auth gates.** Silently substituting the marketing page
+   for a protected route at HTTP 200 is a bug. Show a sign-in prompt that preserves the
+   intended destination.
+4. **Placeholder routes must not occupy primary navigation.** Either point the nav entry
+   at the real surface or remove it from `suiteNavRoutes()`.
+5. **Test-only routes must never exist in a production build.** `/__e2e__/*` must be
+   compiled out (build-time flag), not merely undocumented.
+
+Distinguish **native** behavior from ordinary responsive web.
 
 ---
 
 ## 10. Desktop requirements (VYBZ Desktop)
 
-**Final:** **Tauri 2** preferred shell. Initial target **Windows**. Avoid barriers to
-future macOS/Linux — but do not expand scope until Windows alpha exits.
-
-Desktop packages the shared React app and exposes native capability through a
+**Final:** **Tauri 2**. Windows first; macOS DMG and Linux AppImage targets are built in
+CI. Desktop packages the shared React app and exposes native capability through a
 **controlled** bridge (Rust commands / plugins). Not a bare webview wrapper.
 
-Must eventually support: native file/folder pickers, DnD import, large local audio,
-batch processing/metadata/artwork, background jobs, local cache, offline drafts,
-native save/export, multi-window where justified, shortcuts, context menus,
-resizable panels, local waveform/analysis/conversion, Reveal in Explorer, native
-notifications, secure session storage, signed updates, crash diagnostics,
-capability detection, professional density layouts.
+Supports: native file/folder pickers, DnD import, large local audio, batch
+processing/metadata/artwork, background jobs, local cache, offline drafts, native
+save/export, shortcuts, resizable panels, local waveform/analysis, native notifications,
+secure session storage, signed updates, crash diagnostics, capability detection,
+professional density layouts.
 
 Conceptual layout:
 
@@ -465,29 +571,32 @@ Conceptual layout:
 └──────────────────────────────────────────────────────────────┘
 ```
 
-ADR: [`docs/architecture/ADR_DESKTOP_TAURI.md`](./docs/architecture/ADR_DESKTOP_TAURI.md).
+**Delivery state: `NATIVE-PLATFORM ONLY`.** Installers are built in CI but none has been
+distributed. Notarised DMG blocked on `MAC_CERT_BASE64` / `MAC_CERT_PWD`.
+
+ADRs: [`ADR_DESKTOP_TAURI.md`](./docs/architecture/ADR_DESKTOP_TAURI.md),
+[`ADR_DESKTOP_CROSS.md`](./docs/architecture/ADR_DESKTOP_CROSS.md).
+Ops: [`DESKTOP_RELEASE.md`](./docs/operations/DESKTOP_RELEASE.md).
 
 **Relationship to VYBZ Engine (`tools/vybz-bridge`):** Engine remains the local
-watch/sync companion for Music Repos; Desktop may **host or invoke** Engine
-capabilities over time. Do not conflate Engine with Platform Bridge.
+watch/sync companion for Music Repos; Desktop may host or invoke Engine capabilities
+over time. Do not conflate Engine with Platform Bridge.
 
 ---
 
-## 11. Android requirements (VYBZ for Android)
+## 11. Mobile requirements (Android and iOS)
 
 **Final:** **Capacitor** wraps the shared React app. Do **not** prescribe React Native
 unless a documented spike proves a required capability impossible or unacceptably
 degraded.
 
-Treat Android as first-class — not “responsive web in a package.”
+Treat mobile as first-class — not "responsive web in a package."
 
-Must support (phased): document/audio/gallery import, camera artwork where useful,
-share-into-VYBZ, App Links, push foundation, upload progress/retry, connectivity,
-background-safe uploads where permitted, secure session, biometric re-entry where
-appropriate, mobile checklists/metadata/Findings/jobs/collaboration, share/export,
-signed APK for testing, signed AAB for store.
-
-Adapt to touch, limited viewport, mobile storage, battery, background limits.
+Supports (built): document/audio/gallery import, share-into-VYBZ, App Links / Universal
+Links, push foundation, upload queue with progress and retry, connectivity awareness,
+background-safe uploads where permitted, secure session storage, mobile checklists /
+metadata / Findings / jobs / collaboration, signed APK, AAB validation, flexible Play
+updates.
 
 Conceptual layout:
 
@@ -501,11 +610,15 @@ Conceptual layout:
 └───────────────────────────┘
 ```
 
-**Verified seed:** `capacitor.config.ts`, Capacitor 8 deps, `android/` Gradle project,
-`appId: cloud.vybz.app`.
+| Platform | Delivery state | Blocker |
+|----------|----------------|---------|
+| Android | `NATIVE-PLATFORM ONLY` | No Play listing; internal track not published |
+| iOS | `NATIVE-PLATFORM ONLY` | Apple Developer Program + signing secrets (**OR-012**, deferred by owner) |
 
-ADR: [`docs/architecture/ADR_ANDROID_CAPACITOR.md`](./docs/architecture/ADR_ANDROID_CAPACITOR.md).
-Existing notes: [`docs/engineering/CAPACITOR.md`](./docs/engineering/CAPACITOR.md).
+ADRs: [`ADR_ANDROID_CAPACITOR.md`](./docs/architecture/ADR_ANDROID_CAPACITOR.md),
+[`ADR_IOS_ALPHA.md`](./docs/architecture/ADR_IOS_ALPHA.md).
+Ops: [`ANDROID_RELEASE.md`](./docs/operations/ANDROID_RELEASE.md),
+[`IOS_RELEASE.md`](./docs/operations/IOS_RELEASE.md).
 
 ---
 
@@ -515,17 +628,17 @@ Existing notes: [`docs/engineering/CAPACITOR.md`](./docs/engineering/CAPACITOR.m
 
 Browser-compatible TS, Web Workers, Audio APIs, WASM where appropriate.
 
-Suitable: identification, duration, codec/container, sample rate, bit depth where
-available, channels, peaks, basic loudness, silence, filename validation, metadata
-extract, basic waveform, preliminary readiness, artwork dimensions/aspect.
+Suitable: identification, duration, codec/container, sample rate, bit depth, channels,
+peaks, basic loudness, silence, filename validation, metadata extract, basic waveform,
+preliminary readiness, artwork dimensions/aspect.
 
-Must not block UI thread. Runs on Cloud / Desktop / Android when capable.
+Must not block the UI thread. Runs on every capable client.
 
 ### 12.2 Native desktop processing
 
 Tauri/native-assisted for: very large audio, batch analysis, high-res waveforms,
-transcoding, conversion, batch artwork, local mastering prep, export packaging,
-offline jobs, temp files, multi-core, long cancellable work.
+transcoding, conversion, batch artwork, local mastering prep, export packaging, offline
+jobs, temp files, multi-core, long cancellable work.
 
 Safe interface: allowlisted commands, path validation, process isolation, binary
 management, progress events, cancel, timeouts, error mapping, temp cleanup, output
@@ -534,8 +647,8 @@ validation, version compatibility, **license review** for codecs/tools.
 ### 12.3 Remote processing
 
 Trusted workers / Edge / server jobs for: protected credentials, server-grade
-consistency, AI recommendations, distribution-specific validation, expensive
-analysis, shared models, cross-client reproducibility.
+consistency, AI recommendations, distribution-specific validation, expensive analysis,
+shared models, cross-client reproducibility.
 
 Job lifecycle:
 
@@ -543,9 +656,9 @@ Job lifecycle:
 queued → claimed → processing → succeeded | failed | canceled | expired
 ```
 
-Every job includes: id, userId, projectId, inputs, processingVersion, status,
-progress, attempts, created/started/completed, error, result ref, idempotency key,
-cancellation state. Results attach to the shared Release Project.
+Every job includes: id, userId, projectId, inputs, processingVersion, status, progress,
+attempts, created/started/completed, error, result ref, idempotency key, cancellation
+state. Results attach to the shared Release Project.
 
 Routing preference (cost):
 
@@ -557,7 +670,7 @@ Portable client → Desktop native → VYBZ Engine → remote free → reserved 
 
 ## 13. Storage and upload architecture
 
-**Authoritative cloud-media origin:** Supabase Storage (verified). No per-client silos.
+**Authoritative cloud-media origin:** Supabase Storage. No per-client silos.
 
 Asset lifecycle:
 
@@ -567,18 +680,21 @@ selected locally → locally inspected → upload queued → upload in progress
 → attached to project → versioned or superseded
 ```
 
-Account for: large audio, interrupted uploads, retries, duplicate detection,
-checksums, type/MIME validation, size limits, quotas, ownership, temp state,
-orphan cleanup, version replace, **local-path privacy**, cancel, cross-device visibility.
+Account for: large audio, interrupted uploads, retries, duplicate detection, checksums,
+type/MIME validation, size limits, quotas, ownership, temp state, orphan cleanup,
+version replace, **local-path privacy**, cancel, cross-device visibility.
 
-Existing buckets remain: `site-visuals`, `media-public`, `audio-assets`,
-`project-files`, `storefront-previews`, `storefront-zips`, plus Music Repos blobs.
+Buckets: `site-visuals`, `media-public`, `audio-assets`, `project-files`,
+`storefront-previews`, `storefront-zips`, plus Music Repos blobs.
+
+Site visuals CDN:
+`https://xixmneooyufbeftdfpcm.supabase.co/storage/v1/object/public/site-visuals/`
 
 ---
 
 ## 14. Offline and synchronization strategy
 
-**Realistic first target** (not full offline collaboration):
+**Realistic target** (not full offline collaboration):
 
 - Cached project summaries and Findings
 - Locally editable metadata drafts
@@ -604,13 +720,16 @@ type PendingMutation = {
 };
 ```
 
-Sync flow: detect connectivity → refresh session → revalidate access → resume
-uploads → apply mutations idempotently → fetch server versions → detect conflicts
-→ auto-merge safe fields → present genuine conflicts → refresh caches → record outcome.
+Sync flow: detect connectivity → refresh session → revalidate access → resume uploads →
+apply mutations idempotently → fetch server versions → detect conflicts → auto-merge safe
+fields → present genuine conflicts → refresh caches → record outcome.
 
 Conflict rules required for: independent fields, same-field edits, deleted projects,
 removed collaborator access, replaced files, expired sessions, entitlement changes,
 account suspension/deletion.
+
+Implemented: `src/platform/sync/*` (mutation queue, field merge, reconnect),
+`src/features/sync/SyncConflictPanel.tsx`, `src/platform/collab/*` (row-version merge).
 
 Spec: [`docs/architecture/OFFLINE_AND_SYNC.md`](./docs/architecture/OFFLINE_AND_SYNC.md).
 
@@ -624,11 +743,25 @@ Shared: design tokens, primitives, content language, feature behavior.
 | Shell | Composition rules |
 |-------|-------------------|
 | Desktop | Persistent suite nav, tabs, multi-panel, inspectors, dense tables, batch selection, keyboard, context menus, DnD, status/queues, window restore |
-| Android | Bottom nav, single-column, full-screen tools, sheets, large targets, condensed editors, card Findings, discoverable gestures only, back button, safe areas, battery-conscious |
+| Mobile | Bottom nav, single-column, full-screen tools, sheets, large targets, condensed editors, card Findings, discoverable gestures only, back button, safe areas, battery-conscious |
 | Cloud | Responsive desktop + tablet + mobile browser; browser file UX; public surfaces |
 
-Phase 1 SuiteShell / tokens / primitives are the shared visual foundation — extend,
-do not replace, for platform modes.
+`data-theme="smoke"` is the **default Suite Genesis dark theme** (tokens v2 /
+`glass-vibrant`). It is not a legacy gray fallback and there is no separate "modern"
+theme id. Do not "fix" it.
+
+### 15.1 What counts as a UI improvement (new in v2)
+
+Swapping a hard-coded hex for a token is **maintenance**, not improvement. It may be
+worth doing, but it must be described as refactoring and must not be scheduled ahead of
+work a user can perceive. Before opening a UI PR, answer:
+
+- Which route renders this component?
+- Can a signed-out visitor see it?
+- What is the observable before/after difference?
+
+If the answer to the last question is "the colour is imperceptibly different," the PR is
+housekeeping. Batch it; do not celebrate it.
 
 ---
 
@@ -637,34 +770,49 @@ do not replace, for platform modes.
 ### Multi-platform threat model (minimum)
 
 Stolen sessions · compromised devices · malicious local files · path traversal ·
-oversized/corrupt media · crafted metadata · unsafe native commands · command
-injection · symlink attacks · temp/cache leakage · unauthorized project access ·
-removed collaborators retaining cache · deep-link interception · OAuth abuse ·
-push privacy · dependency compromise · update-channel compromise · signing-key
-compromise · malicious processing outputs · AI/service_role exposure · webhook spoofing.
+oversized/corrupt media · crafted metadata · unsafe native commands · command injection ·
+symlink attacks · temp/cache leakage · unauthorized project access · removed
+collaborators retaining cache · deep-link interception · OAuth abuse · push privacy ·
+dependency compromise · update-channel compromise · signing-key compromise · malicious
+processing outputs · AI/service_role exposure · webhook spoofing ·
+**auth-bypassing test routes in production (observed 2026-07-31)**.
 
 ### Required controls
 
 Least privilege · input/output validation · secure temp dirs · restricted Tauri
 capabilities · CSP · no arbitrary shell/FS · allowlists · secure credential storage ·
 TLS · RLS · audit logging · dependency review · signed updates · safe errors ·
-user-controlled diagnostic consent.
+user-controlled diagnostic consent ·
+**build-time exclusion of all test fixtures and auth bypasses**.
 
-See [`SECURITY.md`](./SECURITY.md) (amended for multi-client).
+**Resolved 2026-08-01 (Track D1).** `src/App.tsx` used to return five `/__e2e__/*`
+fixture pages before any auth check, live on `vybz.cloud`. Fixtures now live in
+`src/app/e2eFixtures.tsx` behind `VITE_E2E_FIXTURES`, which Vite folds to `false` in
+ordinary builds so the module is tree-shaken out. `npm run check:no-fixtures` fails CI
+if any fixture marker reappears in `dist/`; `npm run build:e2e` is the only entry point
+that enables them, and it must never produce a deployed artifact.
+
+See [`SECURITY.md`](./SECURITY.md).
 
 ---
 
 ## 17. Cost management
 
-Preserve Suite cost doctrine; expand for multi-platform:
-
 - Prefer existing infra, free/compatible OSS, local/portable processing
 - Remote only where it adds genuine value
 - Quotas, size limits, retention, orphan cleanup, cost telemetry, per-feature attribution
-- Kill switches; env spending limits; degrade when paid provider unavailable
+- Kill switches; env spending limits; degrade when a paid provider is unavailable
 - Provider abstraction where financially justified
-- Distinguish: free local dev · free-tier deploy · low-volume prod · scaling · unavoidable paid (signing, store accounts, high-volume compute)
-- **No automated purchase/subscribe/upgrade** without owner authorization
+- Distinguish: free local dev · free-tier deploy · low-volume prod · scaling · unavoidable
+  paid (signing, store accounts, high-volume compute)
+- **No automated purchase / subscribe / upgrade without owner authorization**
+
+Cost Sentinel (`/settings/costs`) and AI-minute billing (`/settings/credits`) are built
+and deployed but have **never been exercised in production**. Neither has a navigation
+entry.
+
+**Known paid dependencies currently deferred by the owner:** Apple Developer Program
+(~$99/yr, OR-012); macOS signing certificates; GitHub Actions minutes for macOS runners.
 
 ---
 
@@ -682,17 +830,31 @@ Components · browser integration · e2e smoke · upload · auth callbacks · re
 ### Desktop
 
 Tauri commands · pickers · DnD · path validation · local processing · installer smoke ·
-updates · window restore · secure storage · Windows compatibility.
+updates · window restore · secure storage.
 
-### Android
+### Mobile
 
-Capacitor plugins · document picker · gallery · App Links · back button · offline ·
-upload interrupt · bg/fg · permission denial · low storage · rotation · APK smoke · AAB validation.
+Capacitor plugins · document picker · gallery · App Links / Universal Links · back button ·
+offline · upload interrupt · bg/fg · permission denial · low storage · rotation · APK
+smoke · AAB validation.
 
 ### Processing
 
 Golden files for format/loudness/peak/silence/artwork/metadata/findings/errors/corrupt/
 large inputs. Git-store only small licensed fixtures; generate large fixtures in CI.
+
+### Production verification (new in v2 — mandatory tier)
+
+Unit and e2e tests prove the code behaves. They do **not** prove a user can reach it.
+After every production deploy that claims user-facing change:
+
+1. Load the affected route on `https://vybz.cloud` in a real browser.
+2. Do it **signed out first**, then signed in.
+3. Capture a screenshot and record it against the phase or PR.
+4. If the route is not reachable by navigation, the phase is not complete — file the
+   gap, do not tag it.
+
+E2E fixtures must run against a preview build, never depend on production routes.
 
 ---
 
@@ -702,19 +864,25 @@ large inputs. Git-store only small licensed fixtures; generate large fixtures in
 Shared validation
   ├── TypeScript · Lint · Unit
   ├── Web build
-  ├── Desktop build (when present)
-  ├── Android debug build (when gated)
+  ├── Desktop build (windows-msi · mac-dmg · linux-appimage)
+  ├── Android debug/release build
+  ├── iOS build (unsigned stub until OR-012)
   ├── Migration tests
   └── Cross-platform contract tests
 ```
 
-Secure release automation: PR validation · main validation · tagged/preview/prod
-releases · artifact retention · provenance · checksums · dependency audit · secret
-handling · signing-key isolation · env promotion · migration gates · rollback ·
-release notes · **version sync across clients**.
+Secure release automation: PR validation · main validation · tagged/preview/prod releases ·
+artifact retention · provenance · checksums · dependency audit · secret handling ·
+signing-key isolation · env promotion · migration gates · rollback · release notes ·
+**version sync across clients**.
 
-Untrusted PRs must not access production signing secrets. Do not name unsigned
-artifacts as production-ready.
+Untrusted PRs must not access production signing secrets. Do not name unsigned artifacts
+as production-ready. Deployment to Vercel is via native Git integration — **no workflow
+deploys**; `ci.yml` only validates.
+
+Operational note: GitHub Actions billing limits have silently produced "no runner
+assigned" failures. If jobs fail instantly with no runner, check billing before
+debugging workflows.
 
 ---
 
@@ -722,322 +890,318 @@ artifacts as production-ready.
 
 ### Web
 
-Production deploy (Vercel today) · env validation · migration validation · error
-monitoring · rollback.
+Vercel `astramatrix/vybz` ← GitHub `main`, auto-deploy on merge. Aliases include
+`vybz.cloud` and `www.vybz.cloud` behind Cloudflare. Env validation · migration
+validation · error monitoring · rollback via Vercel promote.
 
 ### Desktop
 
-Windows app identity · code signing · installer · update manifests · stable/preview
-channels · rollback · release notes · AV false-positive handling · crash-report consent ·
-binary license inventory.
+Windows app identity · code signing · installer · update manifests (`windows/`,
+`darwin/`, `linux/`) · stable/preview channels · rollback · release notes · AV
+false-positive handling · crash-report consent · binary license inventory.
 
-### Android
+### Mobile
 
-Application ID (`cloud.vybz.app`) · signing keys + custody · APK · AAB · internal/
-closed testing · store listing · privacy / data-safety · deep-link verification ·
-staged rollout · rollback.
-
----
-
-## 21. Phased roadmap
-
-Phases **0** and **1** (incl. 1.1) are complete. Do not renumber them.
-Insert **Phase 1.5** for platform readiness before Prepare hardens browser-only assumptions.
-Prepare remains Phase **2**. Later suite phases stay **3–9**.
-
-| Phase | Name | Status |
-|------:|------|--------|
-| **0** | Suite Genesis doctrine | **Complete** |
-| **1** | Engineering + design foundation | **Complete** |
-| **1.1** | Playwright / quality hardening | **Complete** |
-| **1.5** | Platform readiness | **Complete** |
-| **2** | Prepare MVP (shared domain) | **Complete** |
-| **2.D** | Desktop Windows alpha (may overlap 2+) | Pending |
-| **2.A** | Android alpha (may overlap 2+) | Pending |
-| **3** | Credits + metadata | **Next** |
-| **4** | MasterReady | Pending |
-| **5** | CoverLab | Pending |
-| **6** | Sentinel | Pending |
-| **7** | Relay | Pending |
-| **8** | Artist / VDock / Live / Market unification | Pending |
-| **9** | Automation + scale | Pending |
-| **P** | Processing-engine maturation (cross-cutting) | Parallel from 1.5–4 |
-| **R** | Multi-platform distribution readiness | Before store/desktop public |
-
-`Beta-1A` remains **untagged** until Cloud shell + cost kernel + Prepare scan pass
-production gates; Desktop/Android alphas may ship as **unsigned/internal** builds earlier.
+Application ID `cloud.vybz.app` · signing keys + custody · APK · AAB · internal/closed
+testing · store listing · privacy / data-safety · deep-link verification · staged
+rollout · rollback. iOS adds TestFlight, AASA Team ID, and ASC API keys.
 
 ---
 
-## 22. Phase specifications and exit gates
+## 21. Phase ledger — what actually happened
 
-### Phase 0 — Suite Genesis doctrine (COMPLETE)
+Integers below are **execution phases**. They are the only meaning these numbers carry
+(see §2.4). Delivery states are from the 2026-07-31 audit.
 
-Purpose: reset product doctrine from Music Hub–only to release OS.  
-Exit: no active doc contradicts Suite; inventories exist; Bunny-as-origin removed.  
-Non-goals: feature code, monorepo move.
+| Phase | Name | Merged | Tag | Delivery state |
+|------:|------|--------|-----|----------------|
+| 0 | Suite Genesis doctrine | — | — | `DOCUMENTED ONLY` (by design) |
+| 1 | Engineering + design foundation | — | — | `INFRASTRUCTURE ONLY` |
+| 1.1 | Playwright hardening | — | — | `INFRASTRUCTURE ONLY` |
+| 1.5 | Platform readiness | — | — | `INFRASTRUCTURE ONLY` |
+| 2 | Prepare MVP | PR #1 | `…-phase2` | **`DELIVERED AND PRODUCTION-VERIFIED`** — undiscoverable |
+| 3 | Credits + metadata | PR #2 | `…-phase3` | **`DELIVERED AND PRODUCTION-VERIFIED`** — undiscoverable |
+| 4 | Processing Engine | PR #3 | `…-phase4` | `PARTIALLY IMPLEMENTED` |
+| 5 | Desktop Alpha | PR #4 | `…-phase5` | `NATIVE-PLATFORM ONLY` |
+| 6 | Android Alpha | PR #5 | `…-phase6` | `NATIVE-PLATFORM ONLY` |
+| 7 | Sync & Collaboration | PR #6 | `…-phase7` | `IMPLEMENTED BUT NOT DELIVERED` |
+| 8 | Distribution Readiness | PR #7 | `…-phase8` | **`DELIVERED AND PRODUCTION-VERIFIED`** — undiscoverable |
+| 9 | Polish & Visual | PR #8 | `…-phase9` | `DEPLOYED BUT UNVERIFIED` |
+| 10 | Storefront + platform checkout | PR #11 | `…-phase10`, `…-phase10-platform` | `PARTIALLY IMPLEMENTED` |
+| 11 | Perf + Premium UI | PR #12 | `…-phase11` | `DEPLOYED BUT UNVERIFIED` |
+| 12 | Desktop Beta | PR #13 | `…-phase12` | `NATIVE-PLATFORM ONLY` |
+| 13 | Android Beta | PR #14 | `…-phase13` | `NATIVE-PLATFORM ONLY` |
+| 14 | Cost Sentinel | PR #15 | `…-phase14` | `IMPLEMENTED BUT NOT DELIVERED` |
+| 15 | Remote AI Processing | PR #16 | `…-phase15` | `PARTIALLY IMPLEMENTED` |
+| 16 | Collaboration Sessions | PR #17 | `…-phase16` | `PARTIALLY IMPLEMENTED` |
+| 17 | Desktop macOS & Linux | PR #18 | `…-phase17` | `NATIVE-PLATFORM ONLY` |
+| 18 | Cost-Minute Billing | PR #19 | `…-phase18` | `IMPLEMENTED BUT NOT DELIVERED` |
+| 19 | iOS Alpha | PR #21 | `…-phase19` (`617735e6`) | `NATIVE-PLATFORM ONLY` |
+| — | UI polish sweep (#22–#27, #29) | 7 PRs | none | `DEPLOYED BUT UNVERIFIED` — 17 files, +117/−97, one anonymous-visible artifact |
 
-### Phase 1 — Engineering + design foundation (COMPLETE)
+Tag prefix throughout: `v1.1.0-beta1A-`. Repo HEAD at audit: `a84d984a`.
 
-Purpose: tokens, UI primitives, SuiteShell placeholders, CI/unit/e2e stubs, job/cost/audit stubs.  
-Exit: placeholders for suite products; lint/test/build/e2e green locally.  
-Non-goals: Prepare schema, Tauri, monorepo.
+### Effort distribution (the uncomfortable summary)
 
-### Phase 1.1 — Playwright hardening (COMPLETE)
+Of eighteen execution phases, **six** (5, 6, 12, 13, 17, 19) went primarily to native
+shells that have shipped zero installers to zero users. Phase 17 changed 12 native files
+and 1 web file. Phase 19 changed 26 native files and produced no distributable build.
+Meanwhile the landing page — the only surface every visitor sees, and the sole entry to
+the funnel — **was not touched in any of the eighteen phases**.
 
-Purpose: deterministic e2e preview lifecycle on Windows/CI.  
-Exit: `npm run test:e2e` completes without hang.
-
----
-
-### Phase 1.5 — Platform readiness (**NEXT**)
-
-**Purpose:** Establish portability architecture without delaying all web development.
-
-**Preconditions:** Phase 0–1.1 complete on `suite-genesis`.
-
-**Workstreams:**
-
-1. Workspace migration **plan** + ADR (execute Stage A–B only unless exit gate allows more)
-2. Package boundaries documented; path aliases for domain/platform
-3. `PlatformBridge` contract + Browser + Test implementations
-4. Runtime capability registry
-5. Secure-session / file-select / export abstractions (web complete; desktop/android stubs)
-6. Deep-link route handler skeleton
-7. Network-state provider
-8. Local-cache + mutation-queue **contracts** (impl may be minimal in-memory)
-9. Responsive shell **modes** (`web` | `desktop` | `android`) flags in SuiteShell
-10. Platform error normalization
-11. ADRs: Desktop Tauri, Android Capacitor (final decisions recorded)
-12. Cross-platform test strategy + initial contract tests
-13. Build-command conventions in package.json / docs
-14. Tauri **proof of concept** (Windows load shared UI + one native command)
-15. Capacitor **proof of concept** (existing android project: login shell smoke / bridge stub)
-
-**Expected files/packages:**
-
-- `src/platform/bridge/**` (or `packages/platform` if Stage B lands)
-- `docs/architecture/PLATFORM_BRIDGE.md`, `ADR_DESKTOP_TAURI.md`, `ADR_ANDROID_CAPACITOR.md`
-- `docs/architecture/AUTH_AND_DEEPLINKS.md`, `OFFLINE_AND_SYNC.md`
-- `docs/architecture/REPO_WORKSPACE_PLAN.md`
-- Updates: `ARCHITECTURE.md`, `AGENTS.md`, `docs/engineering/DEVELOPMENT.md`, `CAPACITOR.md`
-
-**Database:** none required (optional: none).
-
-**Platform:** web bridge production-quality; desktop/android stubs + PoC.
-
-**Security:** no secrets in clients; Tauri capability allowlist in PoC; document threat deltas.
-
-**Tests:** Platform Bridge contract tests; capability registry unit tests.
-
-**Docs:** as above + CHANGELOG + DOCUMENTATION_MANIFEST.
-
-**Automated checks:** `lint` · `test` · `build` · `test:e2e` remain green.
-
-**Exit gate:**
-
-- [ ] Bridge contract + web + mock impls mergeable
-- [ ] No domain module imports Capacitor/Tauri directly
-- [ ] ADRs accepted
-- [ ] Tauri PoC boots shared UI on Windows OR documented blocker with mitigation
-- [ ] Capacitor PoC uses existing `android/` + bridge stub
-- [ ] AGENTS pickup points to Phase 2 with platform constraints
-- [ ] Docs no longer describe VYBZ as browser-only
-
-**Rollback:** remove Tauri app folder; leave Capacitor as before; delete bridge behind feature flag if needed.
-
-**Non-goals:** Prepare schema; store submission; code signing; full offline; monorepo Stage F; macOS/iOS; React Native spike unless Capacitor PoC fails critically.
+This is recorded so it is not repeated, not to relitigate it. The architecture built
+during those phases is sound and reusable.
 
 ---
 
-### Phase 2 — Prepare MVP (shared domain)
+## 22. Delivery integrity gate (mandatory for every future phase)
 
-**Purpose:** Free distribution-readiness report for a Release Project, built on shared domain/data/processing contracts so Desktop/Android can consume the same logic.
+This gate is **in addition to** each phase's own exit gate. A phase may not be marked
+complete, tagged, or recorded in `CHANGELOG.md` until every box is checked with
+evidence.
 
-**Preconditions:** Phase 1.5 exit gate (or explicit owner waiver for web-only interim with bridge adapters).
+- [ ] **Route registered** — the feature has a path in `src/App.tsx` or
+      `suitePlaceholderRoutes.tsx`, and it is not a placeholder.
+- [ ] **Entry point exists** — a named nav item, dashboard card, or in-flow link leads
+      to it. If deliberately hidden, the exception is written down with an owner and a
+      reason.
+- [ ] **Auth level is intentional** — public, authed, or role-gated by decision, not by
+      accident. Protected routes show a real sign-in prompt.
+- [ ] **No test-only surface** — nothing under `/__e2e__/` or equivalent is in the
+      production bundle.
+- [ ] **Deployed and fingerprinted** — the Vercel production deployment SHA equals the
+      merge commit, and a feature-specific string is present in the served bundle.
+- [ ] **Production-verified signed out** — loaded on `vybz.cloud`, screenshot recorded.
+- [ ] **Production-verified signed in** — primary flow exercised, screenshot recorded.
+- [ ] **Delivery state declared** — one of the §0 statuses, written into the exit gate
+      and `AGENTS.md`.
+- [ ] **User-visible difference stated in one sentence** — if it cannot be stated, the
+      phase is infrastructure and must be labelled as such.
 
-**Workstreams:** Release Project schema · track/artwork import via Bridge · portable readiness checks · Findings UI · no paid providers.
+### Correctness gate (unchanged)
 
-**Target packages (extract when ownership clear):**
-
-```text
-packages/domain/releases   (or src/domain/releases)
-packages/data/releases
-packages/app/prepare
-packages/processing/readiness
-packages/contracts/findings
-```
-
-**Database:** additive migrations for release projects, assets, findings, job refs as needed.
-
-**Platform:** all Bridge file ops used; cloud Storage authoritative.
-
-**Security:** RLS; no service_role in client; entitlement stubs server-side.
-
-**Tests:** domain + findings schema + readiness golden fixtures (small).
-
-**Exit gate:** signed-in user on Cloud can create Release Project, import audio/artwork, run free browser readiness scan, see Findings; results persisted and reloadable.
-
-**Rollback:** migration down plan; feature flag `VITE_FEATURE_PREPARE`.
-
-**Non-goals:** paid mastering; Relay delivery; full Credits passport; Desktop/Android feature parity (alphas are 2.D / 2.A).
+`npm run lint` && `npm run test` && `npm run build`; E2E `npm run test:e2e`.
 
 ---
 
-### Phase 2.D — Desktop Windows alpha
+## 23. Forward roadmap
 
-**Purpose:** Professional workstation shell for Prepare-capable workflows.
+**Development of new phases is paused** until Track D completes. This is a deliberate
+stop, not a backlog reshuffle.
 
-**Deliverables (minimum):** shared login · release list · project access · Prepare workspace · native audio/artwork pickers · DnD · secure session · native export · desktop shell · window-state persistence · basic local processing · job status · diagnostics · signed **dev/test** releases · update-channel PoC.
+### Track D — Delivery correction (do this first)
 
-**Exit gate:** Windows installer/test build completes Prepare free scan using native pickers; session survives restart; no secrets in binary.
+Small, independent, reversible. No new features.
 
-**Non-goals:** macOS/Linux; full batch mastering; store-grade signing if not ready (document).
+| # | Work | Why | Size |
+|--:|------|-----|------|
+| ~~**D1**~~ | ~~Remove `/__e2e__/*` from production builds (build-flag gate)~~ **Done 2026-08-01** — `VITE_E2E_FIXTURES` + `check:no-fixtures` CI guard | Security defect — auth bypass live on the public internet | XS |
+| **D2** | Link the landing page to the free readiness scan (`/releases`) | Prepare works, is free, needs no account, and nobody can find it | XS |
+| **D3** | Replace the silent landing-page fallback for protected routes with a real sign-in prompt that preserves the destination | `/settings/costs` currently impersonates a marketing page | S |
+| **D4** | Resolve the 7 placeholder nav entries — repoint or remove | Half the nav says "reserved for the VYBZ Suite" | S |
+| **D5** | Correct stale `phaseNote` strings to product-track names (§2.4) | Production text cites the wrong phases | XS |
+| **D6** | First authenticated production verification pass; record screenshots | The entire signed-in experience is unobserved | S |
+| **D7** | Give Cost Sentinel and AI credits a discoverable entry from `/settings` | Two shipped phases nobody can reach | XS |
+| **D8** | Delete unused `suite-accent-wash-cyan` from `src/index.css` | Dead code from PR #24 | XS |
 
----
+**Track D exit gate:** an ordinary visitor arriving at `https://vybz.cloud` with no
+account and no instructions can reach the free readiness scan, complete it, and see
+Findings — verified by screenshot. No `/__e2e__/` route resolves in production.
 
-### Phase 2.A — Android alpha
+### Track E — Earn the Beta-1A tag
 
-**Purpose:** First-class mobile client for release continuity.
+Only after Track D. Gate for cutting `Beta-1A`:
 
-**Deliverables (minimum):** shared login · release list · project access · metadata edit · Findings review · document selection · gallery import · upload queue · connectivity · deep links · push foundation · mobile shell · job status · signed APK · AAB build validation.
+1. Track D exit gate passed.
+2. Authenticated smoke of the audience loop: Enter → upload → VDock play → tip Vc →
+   brief live session.
+3. `site-visuals` CDN confirmed serving.
+4. AI-credit Checkout exercised once on `/settings/credits`.
+5. Every phase in §21 carries an evidence-backed delivery state.
 
-**Exit gate:** APK installs; user signs in; opens same Release Project as Cloud; imports file; sees Findings; deep link opens project (or documented partial with web fallback).
+### Track P — Product tracks (resume after D)
 
-**Non-goals:** iOS; heavy on-device DSP; Play production listing without Phase R.
+Named, never numbered. Prioritise by user value, not by architectural tidiness:
 
----
+CoverLab · Sentinel · Relay · Market activation · Artist/VDock/Live unification ·
+Automation and scale.
 
-### Phase P — Processing-engine maturation (parallel)
+### Track N — Native distribution (owner-gated, do not block on it)
 
-Shared contracts · Worker impl · Desktop native impl · Remote worker · capability negotiation · processing-version tracking · result schemas · golden tests · cancel/retry.
+Android internal track → Play listing · Windows signed installer · notarised DMG
+(`MAC_CERT_*`) · iOS TestFlight (**OR-012**, Apple Developer ~$99/yr) · AASA `TEAMID`.
 
-### Phases 3–9
+### Explicitly not scheduled
 
-Unchanged product intent from Suite Genesis (Credits → MasterReady → CoverLab →
-Sentinel → Relay → Artist/VDock/Live/Market unification → Automation/scale), with
-**mandatory** use of Platform Bridge, shared domain packages, and three-level
-processing — no new browser-only assumptions.
-
-### Phase R — Distribution readiness
-
-Web prod gates · Desktop signing/installer/channels · Android store tracks/privacy —
-per §20. Required before public Desktop/Android marketing.
-
----
-
-## 23. Documentation rewrite plan
-
-| Document | Action |
-|----------|--------|
-| `VYBZ_MASTERPLAN.md` | **Rewritten** (this file) |
-| `AGENTS.md` | Amend pickup → Phase 1.5; multi-client truth |
-| `ARCHITECTURE.md` | Amend topology + bridge + clients |
-| `SECURITY.md` | Amend multi-client threat model |
-| `VERSIONING.md` | Note client version sync |
-| `README.md` | Multi-platform overview |
-| `CHANGELOG.md` | Record blueprint expansion |
-| `CONTRIBUTING.md` | Dev env for Tauri/Android |
-| `docs/DOCUMENTATION_MANIFEST.md` | Register new platform docs |
-| `docs/architecture/PLATFORM_OVERVIEW.md` | Rewrite for three shells |
-| `docs/architecture/FRONTEND_ARCHITECTURE.md` | Shell composition modes |
-| `docs/architecture/PLATFORM_BRIDGE.md` | **Create** |
-| `docs/architecture/ADR_DESKTOP_TAURI.md` | **Create** |
-| `docs/architecture/ADR_ANDROID_CAPACITOR.md` | **Create** |
-| `docs/architecture/ADR_INDEX.md` | Link new ADRs |
-| `docs/architecture/AUTH_AND_DEEPLINKS.md` | **Create** |
-| `docs/architecture/OFFLINE_AND_SYNC.md` | **Create** |
-| `docs/architecture/REPO_WORKSPACE_PLAN.md` | **Create** |
-| `docs/architecture/STORAGE_ARCHITECTURE.md` | Amend lifecycle |
-| `docs/architecture/JOB_SYSTEM.md` | Amend three-level routing |
-| `docs/architecture/VYBZ_ENGINE.md` | Clarify vs Desktop/Bridge |
-| `docs/engineering/CAPACITOR.md` | Amend first-class Android |
-| `docs/engineering/DEVELOPMENT.md` | Multi-platform setup |
-| `docs/engineering/TESTING.md` | Cross-platform matrix |
-| `docs/operations/RELEASES.md` | Desktop + Android tracks |
-| `docs/operations/COST_CONTROL.md` | Local vs remote preference |
-| `docs/design/RESPONSIVE_SYSTEM.md` | Shell composition |
-| Pre-suite archive | Remains archived; never authoritative |
-
-Mark any leftover “browser-only product” language as superseded.
+Workspace Stages C/E/F · further token/CSS refactors · Spark/dating expansion · Living
+Home · VR · Bunny reintroduction · React Native rewrite. Park ideas in the Opportunity
+Register.
 
 ---
 
-## 24. Migration and compatibility strategy
+## 24. Documentation map and hygiene
+
+| Document | Role |
+|----------|------|
+| `VYBZ_MASTERPLAN.md` | This file — supreme authority |
+| `AGENTS.md` | Agent ops + pickup state; must never contradict §21/§23 |
+| `ARCHITECTURE.md` | Platform map |
+| `SECURITY.md` | Threat model + controls |
+| `VERSIONING.md` | Labels and client version sync |
+| `IDEAS_BACKLOG.md` | Opportunity Register (OR-###) |
+| `CHANGELOG.md` | Release history — must state a delivery state per entry |
+| `docs/DOCUMENTATION_MANIFEST.md` | Registry of all docs |
+| `docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md` | **Evidence baseline for v2** |
+| `docs/architecture/PHASE*_EXIT_GATE.md` | Per-phase gates — retrofit delivery states when touched |
+| `docs/architecture/ADR_*.md` | Decision records |
+| `docs/operations/*_RELEASE.md` | Desktop / Android / iOS release procedures |
+| `docs/archive/pre-suite-2026/` | Archived; never authoritative |
+
+**Documentation hygiene rules (new in v2):**
+
+1. A doc that states a status must state the evidence date.
+2. If production contradicts a doc, the doc is wrong — fix the doc in the same session.
+3. Never write "Complete" without a §0 delivery state beside it.
+4. Aspirational structure must be labelled aspirational in the same table as the actual
+   structure — v1 §6 caused real confusion by showing only the target.
+
+---
+
+## 25. Migration and compatibility strategy
 
 | Concern | Strategy |
 |---------|----------|
-| Existing SPA routes/users | Backward compatible; SuiteShell already wraps App |
-| Capacitor android/ | Keep root project until apps/android cutover proven |
+| Existing SPA routes/users | Backward compatible; SuiteShell wraps App |
+| Capacitor `android/` | Keep root project until an `apps/android` cutover is proven |
 | Auth sessions | Same Supabase project; platform storage adapters only |
-| Storage paths | Unchanged buckets; clients upload to same origins |
-| Feature flags | Extend `src/lib/flags.ts` for prepare/desktop/android |
-| Storefront WIP | Isolate; migrate under Market later |
+| Storage paths | Unchanged buckets; clients upload to the same origins |
+| Feature flags | `src/lib/flags.ts` — additive, reversible |
+| Storefront | Isolated under Market |
 | Music Repos + Engine | Preserve; Desktop integrates later without replacing CAS |
 | DB | Additive only |
-| Rollback | Feature flags + keep web build path pristine |
+| Rollback | Feature flags + keep the web build path pristine |
+
+### Preserve (do not rewrite from scratch)
+
+| Concern | Anchor |
+|---------|--------|
+| Music Repos CAS | `src/lib/repoSync.ts`, `src/lib/api.ts`, migrations `0059`/`0060`, `src/components/repos/` |
+| Local companion | `tools/vybz-bridge/` (VYBZ Engine) |
+| Feature flags | `src/lib/flags.ts` |
+| Watermark | `supabase/functions/watermark`, `watermark-detect`, `_shared/watermark.mjs` |
+| Capacitor Android | `capacitor.config.ts`, `android/` |
+| Suite shell / tokens | `src/shell/`, `src/design/`, `src/components/ui/`, `src/components/states/` |
+| Platform layer | `src/platform/{bridge,jobs,costs,audit,orgs,sync,collab,cache,deeplinks,push}` |
+
+### Key surface map
+
+| Concern | Path |
+|---------|------|
+| Routing / auth gate | `src/App.tsx` (the auth gate is lines ~115–163 — read before changing routes) |
+| Suite routes + placeholders | `src/app/routeManifest.ts`, `src/app/suitePlaceholderRoutes.tsx` |
+| Shell | `src/shell/SuiteShell.tsx`, `PrimaryRail.tsx`, `MobileNav.tsx`, `CommandBar.tsx`, `ContextInspector.tsx` |
+| Marketing landing | `src/pages/LandingPage.tsx` — **the only anonymous surface** |
+| Signed-in hub | `src/pages/ProfilePage.tsx` (`/`) |
+| Prepare | `src/features/prepare/` · `@vybz/domain/releases` · `@vybz/data/releases` |
+| Credits | `src/features/credits/` · `/release/:id/credits` |
+| Distribution | `src/features/distribution/` · `/release/:id/distribution` |
+| Mastering / AI | `src/features/mastering/` · `/release/:id/master` |
+| Collab | `src/features/collab/`, `src/platform/collab/` |
+| Costs / billing | `src/features/costs/`, `src/platform/costs/` |
+| Market packs | `src/features/storefront/` · `/tools/packs`, `/pack/:slug` |
+| Site visuals CDN | `src/lib/siteVisuals.ts` |
+
+### Edge functions and buckets
+
+Preserve the existing set: `visual-generate`, `storefront-*`, `stripe-*`, `ai-topup`,
+`ai-mastering`, `processing-enqueue`, `livekit-token`, `watermark*`, waitlist, audio-play.
+Deploy JWT rules unchanged unless a phase doc says otherwise; `ai-topup` runs
+`--no-verify-jwt` and verifies in-function.
+
+Newest migrations: `20260730_0088_collab_sessions.sql`,
+`20260730_0087_processing_ai.sql`, `20260728_0080_storefront_packs.sql`.
+
+### Gotchas
+
+- Large media is gitignored — serve from Storage.
+- Bunny retired — never set `VITE_FEATURE_BUNNY_AUDIO=on`.
+- VDock overlays mount via `OverlayPortal` on `document.body`.
+- Desktop packaging ≠ secure secrets.
+- Do not declare native apps done because a webview opens.
+- Destructive monorepo moves are forbidden.
+- Do not commit: `vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`,
+  `.agents/`, `skills-lock.json`, any `service_role` / `sbp_` tokens.
 
 ---
 
-## 25. Risks and mitigations
+## 26. Risks and mitigations
 
 | Risk | Mitigation |
 |------|------------|
-| Monorepo thrash | Stage A–F; Stage F last; CI green each stage |
-| Capacitor limits | Spike in 1.5; RN only with written proof |
-| Tauri learning curve | PoC early; keep web shippable independently |
+| **Delivery illusion — shipping to a repo instead of to users** | §0 vocabulary + §22 gate; production verification is mandatory |
+| **Doc drift restating fixed problems** | Evidence dates; production wins over docs |
+| Monorepo thrash | Stages C/E/F unscheduled; CI green each stage |
+| Capacitor limits | Documented spike required before any RN discussion |
 | Secret leakage in native shells | Threat model; allowlists; secret scanning |
+| Test surfaces reaching production | D1; build-flag exclusion; add a CI check |
 | Offline complexity | Drafts-only first; no full collab offline |
-| Cost blowup remote jobs | Cost Sentinel; reservations; kill switches |
-| Doc drift | Manifest + conflict order; archive superseded |
-| Premature store submission | Phase R gates |
-| Agent mis-scope (“rewrite frontend”) | This blueprint + AGENTS hard laws |
+| Cost blowup on remote jobs | Cost Sentinel; reservations; kill switches |
+| Premature store submission | Track N gates |
+| Agent mis-scope ("rewrite the frontend") | This blueprint + AGENTS hard laws |
+| Owner-cost surprises | No purchase without explicit authorization; park in the Register |
 
 ---
 
-## 26. Definition of completion
+## 27. Definition of completion
 
-### Suite Genesis multi-platform blueprint (this expansion)
+### Blueprint v2
 
 - [x] One shared product core doctrine
 - [x] One account / DB / storage architecture
-- [x] Cloud + Desktop (Tauri) + Android (Capacitor) shells defined
-- [x] Platform Bridge mandated
+- [x] Cloud + Desktop + Android + iOS shells defined
+- [x] Platform Bridge mandated and implemented for four platforms
 - [x] Three-level processing defined
-- [x] Offline/sync realism defined
-- [x] Phase 1.5 inserted; Phases 0–1 preserved
-- [x] Documentation migration inventory
-- [x] Phase 1.5 implementation exit gate
-- [x] Phase 2 Prepare MVP
-- [ ] Desktop + Android alphas
-- [ ] Phase R public distribution
+- [x] Offline/sync realism defined and implemented
+- [x] Phase ledger reconciled against production evidence
+- [x] Delivery vocabulary and delivery integrity gate defined
+- [ ] **Track D — delivery correction**
+- [ ] Track E — Beta-1A tag earned
+- [ ] Track N — native distribution to real users
 
 ### Product completion (north star)
 
-> A VYBZ user owns one account, one creative identity, and one continuous body of
-> work that follows them across browser, desktop, and mobile.
+> A VYBZ user owns one account, one creative identity, and one continuous body of work
+> that follows them across browser, desktop, and mobile —
+> **and can find all of it without being handed a URL.**
 
 ---
 
 ## Brand and copy (platform)
 
-**Eyebrow:** The release operating system for independent music.  
-**Headline:** Everything between finished and released.  
-**Body:** Prepare, protect, credit, master, package and present your music from one connected workspace — on web, desktop, or mobile.  
-**Primary CTA:** Start a release · **Secondary:** Run a free readiness scan  
-**Pricing:** Start free. Pay only when a release needs paid infrastructure or professional processing.  
+**Eyebrow:** The release operating system for independent music.
+**Headline:** Everything between finished and released.
+**Body:** Prepare, protect, credit, master, package and present your music from one
+connected workspace — on web, desktop, or mobile.
+**Primary CTA:** Start a release · **Secondary:** Run a free readiness scan
+**Pricing:** Start free. Pay only when a release needs paid infrastructure or
+professional processing.
 **Brand principle:** *The platform provides precision. The artist provides expression.*
+
+> Note: the secondary CTA describes a capability that already works in production for
+> free, with no account. Track D2 exists to make the copy true in the interface.
 
 ---
 
 ## Future extensibility (non-blocking)
 
-Architecture must not block future macOS, Linux, iOS, tablet layouts, shared native
-libs, plugins, local models, team/org workspaces, collab sessions, or distribution
-providers — but **immediate priority** remains:
+Architecture must not block future tablet layouts, shared native libs, plugins, local
+models, team/org workspaces, or additional distribution providers — but **immediate
+priority** is:
 
-1. Preserve and advance VYBZ Cloud  
-2. Establish platform-safe shared architecture (Phase 1.5)  
-3. Deliver Windows Desktop alpha  
-4. Deliver Android alpha  
-5. Mature processing, sync, and distribution workflows  
+1. Correct the delivery gap (Track D)
+2. Earn the Beta-1A tag (Track E)
+3. Advance product tracks by user value (Track P)
+4. Put native builds in real users' hands (Track N)
+
+Nothing on this list is an architecture problem. The architecture is ahead of the
+product; the product needs to catch up to its own front door.

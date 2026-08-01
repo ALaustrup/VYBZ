@@ -68,13 +68,13 @@ import { AndroidLocalApp, isAndroidLocalPath } from "@/platform/android/AndroidL
 import { StorefrontDashboardPage } from "@/pages/StorefrontDashboardPage";
 import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
-import { StorefrontOrdersE2EFixturePage } from "@/pages/StorefrontOrdersE2EFixturePage";
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
-import { CostSentinelE2EFixturePage } from "@/pages/CostSentinelE2EFixturePage";
-import { MasteringE2EFixturePage } from "@/pages/MasteringE2EFixturePage";
-import { AiCreditsE2EFixturePage } from "@/pages/AiCreditsE2EFixturePage";
-import { CollabSessionsE2EFixturePage } from "@/pages/CollabSessionsE2EFixturePage";
+import { resolveE2eFixture } from "@/app/e2eFixtures";
+
+// Vite inlines import.meta.env at build time, so this folds to `false` for production
+// and the fixture module is tree-shaken out. Enable only via `npm run build:e2e`.
+const E2E_FIXTURES_ENABLED = import.meta.env.VITE_E2E_FIXTURES === "on";
 
 export function App() {
   const { ready, userId, profile, backendEnabled } = useSession();
@@ -112,21 +112,10 @@ export function App() {
   const authed = !!userId && !!profile?.username;
   const needsMix = needsIntentMixIntake(profile?.profile);
 
-  // Playwright fixtures — bypass auth / backend gates (same pattern for all __e2e__ shells).
-  if (location.pathname === "/__e2e__/mastering") {
-    return <MasteringE2EFixturePage />;
-  }
-  if (location.pathname === "/__e2e__/cost-sentinel") {
-    return <CostSentinelE2EFixturePage />;
-  }
-  if (location.pathname === "/__e2e__/ai-credits") {
-    return <AiCreditsE2EFixturePage />;
-  }
-  if (location.pathname === "/__e2e__/collab") {
-    return <CollabSessionsE2EFixturePage />;
-  }
-  if (FLAGS.storefront && location.pathname === "/__e2e__/storefront-orders") {
-    return <StorefrontOrdersE2EFixtureShell />;
+  // Playwright fixtures bypass auth / backend gates, so they exist only in e2e builds.
+  if (E2E_FIXTURES_ENABLED) {
+    const fixture = resolveE2eFixture(location.pathname);
+    if (fixture) return fixture;
   }
 
   if (!backendEnabled) {
@@ -271,17 +260,6 @@ export function App() {
         <Toast /><Confetti />
       </CamCallProvider>
     </MessagePopoutProvider>
-  );
-}
-
-function StorefrontOrdersE2EFixtureShell() {
-  return (
-    <>
-      <DynamicBackground variant={BRAND_BG} mode="static" />
-      <div className="min-h-[100dvh] bg-abyss-950/80">
-        <StorefrontOrdersE2EFixturePage />
-      </div>
-    </>
   );
 }
 

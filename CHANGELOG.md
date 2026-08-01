@@ -3,6 +3,72 @@
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
+> **From 2026-07-31 onward, every entry must declare a delivery state** from
+> [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §0. "Merged" is not "delivered".
+
+## [Unreleased] – Production Reality Audit + Master Blueprint v2 (2026-07-31)
+
+**Documentation and doctrine only. No application code changed.**
+Delivery state: `DOCUMENTED ONLY`.
+
+A strictly read-only audit of live production established that production runs
+repository HEAD `a84d984a` exactly — verified by Vercel deployment metadata **and** by
+fingerprinting merged-PR strings in the served bundle. There was no deployment problem.
+
+What the audit did find:
+
+- The only surface an anonymous visitor sees is `LandingPage.tsx`, and **no phase or
+  polish PR ever modified it**. It links to four places, none of them Suite features.
+- Prepare, Credits, Distribution, MasterReady and the Collab panels all work in
+  production anonymously, and are reachable only by typing a URL.
+- Five `/__e2e__/*` Playwright fixtures bypass authentication and are live on the public
+  internet with seeded data — **security defect**.
+- Seven of fourteen primary nav entries render a "Suite placeholder" empty state.
+- PRs #22–#29 total 17 files and +117/−97 lines of class substitution; the only
+  anonymous-visible artifact of the whole sweep is the favicon. (PR #28 does not exist —
+  `#28` is an open issue.)
+- Six of eighteen phases went primarily to native shells that have distributed zero
+  installers to zero users.
+
+Changes:
+
+- **`VYBZ_MASTERPLAN.md` rewritten as v2** — all durable doctrine retained; §0 delivery
+  vocabulary added; §2 current state replaced with audit-verified facts; §21 phase
+  ledger reconciled against production; §22 delivery integrity gate added; §23 roadmap
+  replaced with Track D (delivery correction) → E (earn Beta-1A) → P (product) → N (native).
+- **`docs/architecture/PRODUCTION_REALITY_AUDIT_2026-07-31.md`** added as the permanent
+  evidence baseline.
+- **`AGENTS.md`** pickup rewritten to Track D; phase table now states delivery states
+  instead of "Complete".
+- **`ARCHITECTURE.md`** corrected — it claimed Tauri was absent and that no `apps/` or
+  `packages/` existed; documented the real routing/auth gate and four known defects.
+- Resolved the phase-numbering collision: execution phases keep integers, product tracks
+  (CoverLab, Sentinel, Relay) use names only.
+
+New development is paused until Track D's exit gate passes: a visitor with no account
+and no instructions can reach the free readiness scan, complete it, and see Findings.
+
+### D1 — e2e fixtures removed from production builds
+
+Delivery state: `DEPLOYED BUT UNVERIFIED` until the next production deploy.
+
+Five `/__e2e__/*` routes rendered seeded data and returned before any auth or backend
+check, and were reachable on `https://vybz.cloud`.
+
+- Fixture shells moved out of `src/App.tsx` into `src/app/e2eFixtures.tsx`, reached only
+  when `VITE_E2E_FIXTURES === "on"`. Vite inlines that at build time, so ordinary builds
+  fold the branch to `false` and tree-shake the module away.
+- `npm run build:e2e` is the only entry point that enables fixtures, and never produces
+  a deployable artifact.
+- `npm run check:no-fixtures` scans `dist/` for six fixture markers and fails CI if any
+  reappear. Wired into the `quality` job right after the production build.
+- `lighthouserc.cjs` pointed at `/__e2e__/storefront-orders`, which the CI perf gate
+  never used — corrected to the static harness URLs that `scripts/perf-audit.mjs`
+  actually audits.
+
+Verified: production bundle contains zero fixture markers; all 26 Playwright specs pass
+against the fixture build; `lint` and 141 unit tests green.
+
 ## [1.1.0-beta1A] – Phase 19 (iOS Alpha)
 
 **Merged** — tag `v1.1.0-beta1A-phase19` · exit gate

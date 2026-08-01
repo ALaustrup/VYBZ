@@ -21,8 +21,12 @@ jobs:
         run: npm run test
       - name: Production build
         run: npm run build
+      - name: Guard — no e2e fixtures in the production bundle
+        run: npm run check:no-fixtures
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
+      - name: E2E build (fixtures enabled — not deployable)
+        run: npm run build:e2e
       - name: E2E + a11y smoke
         run: npm run test:e2e
         env:

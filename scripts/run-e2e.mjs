@@ -1,7 +1,9 @@
 /**
  * Deterministic e2e entry for Suite Genesis Phase 1.1.
  *
- * 1. Ensure production `dist/` exists (build unless PLAYWRIGHT_SKIP_BUILD=1)
+ * 1. Ensure a fixture-enabled `dist/` exists (build unless PLAYWRIGHT_SKIP_BUILD=1).
+ *    The specs hit `/__e2e__/*`, which only exists when VITE_E2E_FIXTURES=on, so
+ *    callers passing PLAYWRIGHT_SKIP_BUILD=1 must have run `npm run build:e2e`.
  * 2. Start Vite preview on 127.0.0.1:4173 (--strictPort)
  * 3. Wait for http://127.0.0.1:4173/index.html (finite timeout)
  * 4. Run Playwright with PLAYWRIGHT_SKIP_WEBSERVER=1
@@ -160,8 +162,8 @@ async function main() {
     }
     log("using existing dist/ (PLAYWRIGHT_SKIP_BUILD=1)");
   } else {
-    log("building production dist/…");
-    runSync("npm", ["run", "build"], { shell: true });
+    log("building dist/ with e2e fixtures enabled…");
+    runSync("npm", ["run", "build:e2e"], { shell: true });
     if (!existsSync(distIndex)) {
       console.error("[e2e] build finished but dist/index.html is still missing.");
       process.exit(1);
