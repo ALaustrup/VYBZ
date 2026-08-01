@@ -25,16 +25,17 @@ main                    ← production
 
 ## Testing
 
-- Today: `npm run lint` && `npm run build`.
-- Phase 1+: unit (Vitest), component (RTL), e2e + a11y smoke (Playwright).
-- Migrations: RLS policy tests when Cost/Prepare tables land.
+- Correctness gate: `npm run lint` && `npm run test` && `npm run build`.
+- Unit (Vitest), component (RTL), e2e + a11y smoke (Playwright: `npm run test:e2e`).
+- `npm run check:no-fixtures` must pass — test fixtures may never reach a production bundle.
+- Migrations: RLS policy tests for any new user-scoped table.
 
 ## Documentation
 
-- Conflict order in [`AGENTS.md`](./AGENTS.md).
-- Active tree listed in [`docs/DOCUMENTATION_MANIFEST.md`](./docs/DOCUMENTATION_MANIFEST.md).
+- Five authorities and their precedence: [`AGENTS.md`](./AGENTS.md).
+- Document map: [`ARCHITECTURE.md`](./ARCHITECTURE.md) §16.
+- Everything under `docs/` other than the five authorities is reference, not law.
 - Archive under `docs/archive/` is never authoritative.
-- `docs:check` (planned) fails CI on drift.
 
 ## Migrations
 

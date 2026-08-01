@@ -1,6 +1,6 @@
 # VYBZ Credits
 
-> Authoritative product brief. Accent: **indigo**. Credit Passport.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **indigo**. Credit Passport.
 
 ## Purpose
 

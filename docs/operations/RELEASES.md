@@ -28,4 +28,4 @@ Do **not** cut the `Beta-1A` tag early.
 6. Tag only when VERSIONING criteria met; announce briefly in CHANGELOG.
 
 Human gate: no agent-only production release.
-[`AGENT_SYSTEM.md`](../agents/AGENT_SYSTEM.md).
+[`AGENTS.md`](../../AGENTS.md).

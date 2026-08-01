@@ -1,4 +1,9 @@
-﻿# AGENTS.md
+> **HISTORICAL ONLY — NOT AUTHORITATIVE — DO NOT USE FOR CURRENT IMPLEMENTATION OR SEQUENCING.**
+>
+> Superseded on 2026-08-01 by the five authorities: `VYBZ_MASTERPLAN.md`, `AGENTS.md`,
+> `ARCHITECTURE.md`, `STATUS.md`, `IDEAS_BACKLOG.md`. Retained as a historical record only.
+
+# AGENTS.md
 
 > **Read this first.** Conflict order below. When in doubt, prefer the GTM wedge
 > and the **Pick up here** section over legacy chrome still present in `src/`.

@@ -17,12 +17,12 @@ Architecture Decision Records for Suite Genesis.
 | ADR-011 | Desktop shell = Tauri 2 (Windows first) | Accepted — [`ADR_DESKTOP_TAURI.md`](./ADR_DESKTOP_TAURI.md) |
 | ADR-012 | Android shell = Capacitor (no RN without proof) | Accepted — [`ADR_ANDROID_CAPACITOR.md`](./ADR_ANDROID_CAPACITOR.md) |
 | ADR-013 | Platform Bridge mandatory; no scattered platform checks | Accepted — [`PLATFORM_BRIDGE.md`](./PLATFORM_BRIDGE.md) |
-| ADR-014 | Incremental workspace; no big-bang monorepo | Accepted — [`REPO_WORKSPACE_PLAN.md`](./REPO_WORKSPACE_PLAN.md) |
+| ADR-014 | Incremental workspace; no big-bang monorepo | Accepted — [`REPO_WORKSPACE_PLAN.md`](../archive/suite-phases-2026/REPO_WORKSPACE_PLAN.md) |
 | ADR-015 | Release Project schema for Prepare MVP | Accepted — [`ADR_RELEASE_PROJECT_SCHEMA.md`](./ADR_RELEASE_PROJECT_SCHEMA.md) |
 | ADR-016 | Release Credits schema for Credits MVP | Accepted — [`ADR_RELEASE_CREDITS.md`](./ADR_RELEASE_CREDITS.md) |
 | ADR-017 | Processing Engine (portable · native · remote) | Accepted — [`ADR_PROCESSING_ENGINE.md`](./ADR_PROCESSING_ENGINE.md) |
-| ADR-018 | Desktop Windows alpha (Phase 5 / 2.D) | Accepted — see [`PHASE5_EXIT_GATE.md`](./PHASE5_EXIT_GATE.md) + [`DESKTOP_RELEASE.md`](../operations/DESKTOP_RELEASE.md) |
-| ADR-019 | Android Capacitor alpha (Phase 6 / 2.A) | Accepted — see [`PHASE6_EXIT_GATE.md`](./PHASE6_EXIT_GATE.md) + [`ANDROID_RELEASE.md`](../operations/ANDROID_RELEASE.md) |
+| ADR-018 | Desktop Windows alpha (Phase 5 / 2.D) | Accepted — see [`PHASE5_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE5_EXIT_GATE.md) + [`DESKTOP_RELEASE.md`](../operations/DESKTOP_RELEASE.md) |
+| ADR-019 | Android Capacitor alpha (Phase 6 / 2.A) | Accepted — see [`PHASE6_EXIT_GATE.md`](../archive/suite-phases-2026/PHASE6_EXIT_GATE.md) + [`ANDROID_RELEASE.md`](../operations/ANDROID_RELEASE.md) |
 | ADR-020 | Sync conflicts (accept mine / theirs) | Accepted — [`ADR_SYNC_CONFLICTS.md`](./ADR_SYNC_CONFLICTS.md) |
 | ADR-021 | Distribution readiness rules | Accepted — [`ADR_DISTRIBUTION_RULES.md`](./ADR_DISTRIBUTION_RULES.md) |
 | ADR-022 | Visual polish & Market cutover | Accepted — [`ADR_VISUAL_POLISH.md`](./ADR_VISUAL_POLISH.md) |

@@ -1,4 +1,9 @@
-﻿# VYBZ ΓÇö Security & Privacy
+> **HISTORICAL ONLY — NOT AUTHORITATIVE — DO NOT USE FOR CURRENT IMPLEMENTATION OR SEQUENCING.**
+>
+> Superseded on 2026-08-01 by the five authorities: `VYBZ_MASTERPLAN.md`, `AGENTS.md`,
+> `ARCHITECTURE.md`, `STATUS.md`, `IDEAS_BACKLOG.md`. Retained as a historical record only.
+
+# VYBZ ΓÇö Security & Privacy
 
 _Astra Matrix, Inc._ ┬╖ **Beta-0B.1**
 

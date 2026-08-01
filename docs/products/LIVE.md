@@ -1,6 +1,6 @@
 # VYBZ Live
 
-> Authoritative product brief. Accent: **crimson**. LiveKit hard-cap degrade.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **crimson**. LiveKit hard-cap degrade.
 
 ## Purpose
 

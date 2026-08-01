@@ -1,6 +1,6 @@
 # VYBZ Market
 
-> Authoritative product brief. Accent: **violet / gold**. Storefront packs first.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **violet / gold**. Storefront packs first.
 
 ## Purpose
 

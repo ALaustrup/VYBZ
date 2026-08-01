@@ -1,6 +1,6 @@
 # VYBZ Prepare
 
-> Authoritative product brief. Accent: **ice cyan**. Phase 2 MVP target.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **ice cyan**. Phase 2 MVP target.
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 # VYBZ Artist
 
-> Authoritative product brief. Accent: **brand cyan**. Public `/u/:id`.
+> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **brand cyan**. Public `/u/:id`.
 
 ## Purpose
 

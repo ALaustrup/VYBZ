@@ -28,4 +28,4 @@ Until scripts land in Phase 1+, use dashboard + CLI manually and record outcomes
 4. Run `infra:verify` / manual probes from [`INFRA_GATES.md`](../INFRA_GATES.md).
 5. Smoke: Enter → upload → VDock → tip → brief live; CDN `site-visuals`.
 
-See [`COST_CONTROL.md`](./COST_CONTROL.md) and [`AGENT_SYSTEM.md`](../agents/AGENT_SYSTEM.md).
+See [`COST_CONTROL.md`](./COST_CONTROL.md) and [`AGENTS.md`](../../AGENTS.md).

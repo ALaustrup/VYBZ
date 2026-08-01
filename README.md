@@ -14,14 +14,14 @@ for fans. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 **VYBZ has no anonymity.** Every account is a durable creator identity. No ads.
 No connection paywalls. Messaging free forever.
 
-> See [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) for Suite + multi-platform doctrine,
-> [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the technical map,
-> [`VERSIONING.md`](./VERSIONING.md) for labels, and
-> [`docs/DOCUMENTATION_MANIFEST.md`](./docs/DOCUMENTATION_MANIFEST.md) for the doc tree.
+> **Five authorities:** [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) (product doctrine) ·
+> [`AGENTS.md`](./AGENTS.md) (how to work here) ·
+> [`ARCHITECTURE.md`](./ARCHITECTURE.md) (verified architecture) ·
+> [`STATUS.md`](./STATUS.md) (current checkpoint) ·
+> [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) (backlog).
+> Everything under `docs/archive/` is historical and never authoritative.
 >
-> **Current line:** **Beta-1A — Suite Genesis** (in progress; **untagged** until
-> Cloud shell, cost kernel, and Prepare scan pass production gates).
-> **Next engineering:** Phase **1.5** Platform readiness (see Master Blueprint).
+> **Current milestone:** see [`STATUS.md`](./STATUS.md). Phase numbering is retired.
 
 ## What VYBZ is
 
@@ -47,8 +47,8 @@ No connection paywalls. Messaging free forever.
 - Watermark embed/detect Edge Functions
 - Supabase Storage media origin (`site-visuals` CDN); Bunny dormant
 
-Suite shell foundation is on `suite-genesis`. Platform Bridge + Desktop/Android
-PoCs = Phase 1.5. Prepare MVP = Phase 2. See masterplan.
+Delivery state for each of these is recorded in [`STATUS.md`](./STATUS.md). Code merging is
+not delivery — see [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §12.
 
 ## Local development
 
