@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `836a0c50` (merge #42)
+**HEAD:** `1f8e4bc0` (STATUS after #42)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -28,10 +28,11 @@
 5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) merged** — M3 completion: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS M3 authorisation. Production bundle `index-BRdmfz-t.js`.
 6. **PR [#41](https://github.com/ALaustrup/VYBZ/pull/41) merged** — M3 hub Nexus: DashHub live/fresh rails, Connect matches, AI credits, Cost Sentinel, release detail header, comment threads, message composer. Production bundle `index-gvb2DTFG.js`.
 7. **PR [#42](https://github.com/ALaustrup/VYBZ/pull/42) merged** — M3 surfaces Nexus: Profile You tab, DashListen, ComposeSheet, VcTipSheet, Storefront dashboard, CollabMergePanel. Production bundle `index-C2BsmicC.js`.
+8. **`processing-enqueue` edge function redeployed** — `npx supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm` (2026-08-01). Live function v1 ACTIVE, `verify_jwt: true`, inserts `state: "queued"` (no auto-complete stub).
 
 ## Working tree
 
-Clean on `main` @ `836a0c50`. Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `1f8e4bc0`. Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
@@ -41,6 +42,7 @@ Clean on `main` @ `836a0c50`. Untracked: `.cursor/settings.json` (do not commit)
 | Anonymous landing page loads | PASS (HTTP 200) | 2026-08-01 |
 | Build SHA in landing footer | **Not verified live** | — |
 | Distribution loudness shows "Not measured" not fabricated LUFS | **PASS in bundle** (`index-BL_dO-7v.js` grep) | 2026-08-01 |
+| `processing-enqueue` returns queued (not auto-completed) | **PASS** — live deploy v1 verified via Supabase MCP + unauthenticated POST → 401 | 2026-08-01 |
 | Prepare Nexus forge-card rows | **Not verified live** (requires signed-in session) | — |
 | **Authenticated experience end-to-end** | **NEVER OBSERVED** | — |
 
@@ -51,8 +53,6 @@ Clean on `main` @ `836a0c50`. Untracked: `.cursor/settings.json` (do not commit)
 | DR-01…DR-05 | Scope decisions: live, messaging/cam, opportunities/cosmetics, V¢ tipping, watermarking | M2 scoping |
 | DR-06 | Dating onboarding gate | **Partially resolved** — gate removed in #37; `RoleIntentOnboarding.tsx` still in tree, unmounted |
 | DR-07 | M4 BS.1770 meter strategy | M4 |
-| — | `processing-enqueue` edge function redeploy to Supabase | Jobs may still auto-complete in production until redeployed |
-| — | Supabase MCP / CLI auth for automated edge deploy | Agent cannot redeploy without owner credentials |
 
 ## Known contradictions
 
@@ -60,9 +60,8 @@ Clean on `main` @ `836a0c50`. Untracked: `.cursor/settings.json` (do not commit)
 
 ## Next authorised action
 
-1. Owner redeploy `processing-enqueue` edge function (`supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm`).
-2. Signed-in production verification: Profile You tab, Listen rail, Compose sheet, Storefront, Prepare → Distribution → Master.
-3. M3 exit gate review against Masterplan §M3 acceptance criteria (grep remaining `glass-panel` on user-facing routes).
+1. Signed-in production verification: Profile You tab, Listen rail, Compose sheet, Storefront, Prepare → Distribution → Master (enqueue a processing job and confirm `queued` state persists).
+2. M3 exit gate review against Masterplan §M3 acceptance criteria (grep remaining `glass-panel` on user-facing routes).
 
 ## Latest verification results
 
@@ -72,4 +71,5 @@ npm run test   — PASS 145/145 (2026-08-01)
 npm run build  — PASS (2026-08-01, local bundle index-XusxxuJv.js)
 PR #42 quality — PASS (2026-08-01)
 Production bundle — index-C2BsmicC.js (2026-08-01 live fetch)
+processing-enqueue deploy — PASS (2026-08-01, Supabase project xixmneooyufbeftdfpcm, v1 ACTIVE)
 ```
