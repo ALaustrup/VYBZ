@@ -6,11 +6,12 @@ export type NexusPageHeaderProps = {
   title: string;
   subtitle?: string;
   backTo?: { href: string; label: string };
+  titleTestId?: string;
   children?: ReactNode;
 };
 
 /** Consistent Nexus typography block for authenticated product pages. */
-export function NexusPageHeader({ eyebrow, title, subtitle, backTo, children }: NexusPageHeaderProps) {
+export function NexusPageHeader({ eyebrow, title, subtitle, backTo, titleTestId, children }: NexusPageHeaderProps) {
   return (
     <header>
       {backTo ? (
@@ -19,7 +20,9 @@ export function NexusPageHeader({ eyebrow, title, subtitle, backTo, children }: 
         </Link>
       ) : null}
       <p className={`nexus-eyebrow ${backTo ? "mt-3" : ""}`}>{eyebrow}</p>
-      <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">{title}</h1>
+      <h1 className="nexus-headline mt-2 text-2xl md:text-3xl" data-testid={titleTestId}>
+        {title}
+      </h1>
       {subtitle ? <p className="nexus-subline mt-2 text-sm">{subtitle}</p> : null}
       {children ? <div className="mt-4">{children}</div> : null}
     </header>

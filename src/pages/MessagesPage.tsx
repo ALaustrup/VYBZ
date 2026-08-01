@@ -231,9 +231,10 @@ function Thread({ threadId }: { threadId: string }) {
         <span className="ml-auto pr-1 text-[10px] text-white/30">Free forever</span>
       </div>
       <form onSubmit={(e) => void send(e)} className="flex items-center gap-2 px-1 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Message…"
-          className="min-w-0 flex-1 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
-        <button type="submit" disabled={!text.trim() || busy} aria-label="Send" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-veil-500 text-white shadow-glow active:scale-90 disabled:opacity-40">
+        <div className="forge-field min-w-0 flex-1 !rounded-full !py-2">
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Message…" />
+        </div>
+        <button type="submit" disabled={!text.trim() || busy} aria-label="Send" className="forge-cta flex h-10 w-10 shrink-0 !min-h-10 !rounded-full !p-0 active:scale-90 disabled:opacity-40">
           <Send className="h-4 w-4" />
         </button>
       </form>

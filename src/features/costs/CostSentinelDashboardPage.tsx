@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { Badge } from "@/components/ui/Badge";
 import {
   createCostSentinel,
@@ -110,16 +110,12 @@ export function CostSentinelDashboardPage({ seedDemo = false }: Props) {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 md:p-8" data-testid="cost-sentinel-page">
-      <div>
-        <Link to="/settings" className="text-xs text-fog hover:text-snow">
-          ← Settings
-        </Link>
-        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-suite-cyan">Cost Sentinel</p>
-        <h1 className="font-display text-2xl font-semibold text-snow">Usage & budgets</h1>
-        <p className="mt-1 text-sm text-fog">
-          Soft-limits and kill-switches only — no auto-spend, no live billing webhooks.
-        </p>
-      </div>
+      <NexusPageHeader
+        eyebrow="Cost Sentinel"
+        title="Usage & budgets"
+        subtitle="Soft-limits and kill-switches only — no auto-spend, no live billing webhooks."
+        backTo={{ href: "/settings", label: "← Settings" }}
+      />
 
       {showCapBanner ? (
         <div
@@ -163,7 +159,7 @@ export function CostSentinelDashboardPage({ seedDemo = false }: Props) {
       <section aria-label="Monthly spend chart">
         <h2 className="mb-2 text-sm font-semibold text-snow">Monthly spend (USD)</h2>
         <div
-          className="flex h-40 items-end gap-2 rounded-suite border border-white/10 bg-white/[0.03] p-4"
+          className="forge-card flex h-40 items-end gap-2 !py-4"
           data-testid="cost-stacked-chart"
         >
           {series.map((m) => (
@@ -274,7 +270,7 @@ export function CostSentinelDashboardPage({ seedDemo = false }: Props) {
 
 function Meter({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-suite border border-white/10 bg-white/[0.03] p-4 shadow-[var(--shadow-md)]">
+    <div className="forge-card">
       <p className="text-xs uppercase tracking-wide text-fog">{label}</p>
       <p className="mt-1 font-display text-xl text-snow" data-testid={`cost-meter-${label}`}>
         {value}
