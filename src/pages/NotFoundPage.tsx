@@ -12,18 +12,18 @@ export function NotFoundPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className="glass-panel w-full max-w-md p-8"
+        className="forge-glass-edge w-full max-w-md p-8"
       >
         <div className="mb-5 flex justify-center"><BrandLockup height="h-8" /></div>
         <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-veil-500/20 text-veil-100">
           <Compass className="h-7 w-7" />
         </span>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/40">404</p>
-        <h1 className="mt-2 font-display text-2xl font-bold text-gradient">Off the map</h1>
-        <p className="mt-2 text-[15px] leading-relaxed text-white/60">
+        <p className="nexus-eyebrow">404</p>
+        <h1 className="nexus-headline mt-2 text-2xl">Off the map</h1>
+        <p className="nexus-subline mt-2 text-[15px]">
           This path doesn't exist on VYBZ — or it moved. Head home and keep creating.
         </p>
-        <button onClick={() => navigate("/")} className="btn btn-primary mt-6 w-full py-3.5 text-[15px]">
+        <button onClick={() => navigate("/")} className="forge-cta mt-6 w-full py-3.5 text-[15px]">
           <Home className="h-4 w-4" /> Back to the feed
         </button>
       </motion.div>

@@ -111,8 +111,8 @@ export function DashConnectPanel() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="font-display text-lg font-semibold text-white">Connection Lab</p>
+      <section className="forge-card">
+        <p className="nexus-headline text-lg">Connection Lab</p>
         <p className="mt-1 text-[12px] leading-relaxed text-white/45">
           Music-taste matches stay front and center. Unlock spice for romance, meetups, and
           adult-consensual intents — never overwhelming unless you ask for it.
@@ -140,13 +140,12 @@ export function DashConnectPanel() {
         )}
       </section>
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+      <div className="forge-field">
+        <Search className="forge-field-icon h-4 w-4" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search anyone · any vibe · any intent…"
-          className="w-full rounded-2xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-white/35 focus:border-cyan-400/50 focus:outline-none"
         />
       </div>
 
@@ -157,12 +156,7 @@ export function DashConnectPanel() {
               key={c}
               type="button"
               onClick={() => setChip(c)}
-              className={cx(
-                "rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
-                chip === c
-                  ? "bg-[rgb(var(--neon-cyan)/0.22)] text-cyan-100 ring-1 ring-cyan-300/40"
-                  : "bg-white/6 text-white/50",
-              )}
+              className={cx("forge-chip", chip === c ? "forge-chip--active" : "")}
             >
               {c}
             </button>
@@ -173,14 +167,14 @@ export function DashConnectPanel() {
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-cyan-300" /></div>
       ) : filtered.length === 0 ? (
-        <p className="rounded-2xl border border-white/8 px-4 py-10 text-center text-sm text-white/40">
+        <p className="forge-card py-10 text-center text-sm text-white/40">
           <Heart className="mx-auto mb-2 h-6 w-6 text-white/25" />
           No matches yet — listen more, leave feedback, or broaden search.
         </p>
       ) : (
         <ul className="space-y-2">
           {filtered.map((m) => (
-            <li key={m.userId} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-3">
+            <li key={m.userId} className="forge-card flex items-center gap-3 !py-3">
               <Avatar url={m.avatarUrl} name={m.displayName || m.username} id={m.userId} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-display text-[15px] font-semibold text-white">
@@ -196,7 +190,7 @@ export function DashConnectPanel() {
                 type="button"
                 disabled={busyId === m.userId}
                 onClick={() => void connect(m.userId)}
-                className="flex h-10 items-center gap-1.5 rounded-full bg-[rgb(var(--neon-cyan)/0.18)] px-3 text-xs font-semibold text-cyan-100 ring-1 ring-cyan-300/30 active:scale-95 disabled:opacity-40"
+                className="forge-cta !min-h-10 !rounded-full !px-3 !text-xs disabled:opacity-40"
               >
                 {busyId === m.userId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
                 Connect

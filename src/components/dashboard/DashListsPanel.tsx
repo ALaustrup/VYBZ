@@ -51,13 +51,14 @@ export function DashListsPanel() {
         onSubmit={(e) => { e.preventDefault(); void create(); }}
         className="flex gap-2"
       >
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value.slice(0, 80))}
-          placeholder="New playlist name…"
-          className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-cyan-400/50 focus:outline-none"
-        />
-        <button type="submit" disabled={busy || !title.trim()} className="btn btn-primary h-10 px-3 text-xs disabled:opacity-40">
+        <div className="forge-field min-w-0 flex-1 !py-2">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value.slice(0, 80))}
+            placeholder="New playlist name…"
+          />
+        </div>
+        <button type="submit" disabled={busy || !title.trim()} className="forge-cta !min-h-10 !px-3 !text-xs disabled:opacity-40">
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <><Plus className="h-3.5 w-3.5" /> Create</>}
         </button>
       </form>
@@ -65,14 +66,14 @@ export function DashListsPanel() {
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-cyan-300" /></div>
       ) : lists.length === 0 ? (
-        <p className="rounded-2xl border border-white/8 px-4 py-8 text-center text-sm text-white/40">
+        <p className="forge-card py-8 text-center text-sm text-white/40">
           <ListMusic className="mx-auto mb-2 h-6 w-6 text-white/25" />
           No lists yet — make one for a late-night listening party.
         </p>
       ) : (
         <ul className="space-y-2">
           {lists.map((l) => (
-            <li key={l.id} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-3">
+            <li key={l.id} className="forge-card flex items-center gap-3 !py-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgb(var(--neon-cyan)/0.15)] text-cyan-200">
                 <ListMusic className="h-5 w-5" />
               </span>

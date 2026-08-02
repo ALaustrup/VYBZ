@@ -87,7 +87,7 @@ export function DiscoverPage() {
         </div>
 
         {showFilters && (
-          <div className="space-y-2.5 rounded-2xl border border-[var(--hairline)] bg-white/[0.02] p-3">
+          <div className="forge-card space-y-2.5 !p-3">
             <select value={genre} onChange={(e) => setGenre(e.target.value)} className={selCls}>
               <option value="">Any genre</option>
               {GENRES.map((g) => <option key={g} value={g} className="bg-ink-900">{g}</option>)}
@@ -121,13 +121,14 @@ export function DiscoverPage() {
                 <option value="">Any key</option>
                 {MUSICAL_KEYS.map((k) => <option key={k} value={k} className="bg-ink-900">{k}</option>)}
               </select>
-              <input value={bpm} onChange={(e) => setBpm(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
-                inputMode="numeric" placeholder="BPM" className="w-24 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
+              <div className="forge-field w-24 !py-2">
+                <input value={bpm} onChange={(e) => setBpm(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                  inputMode="numeric" placeholder="BPM" />
+              </div>
             </div>
-            <label className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 focus-within:border-veil-400/60">
-              <MapPin className="h-4 w-4 text-white/40" />
-              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location — e.g. Berlin, LA…"
-                className="w-full bg-transparent text-sm text-white placeholder:text-white/35 focus:outline-none" />
+            <label className="forge-field !py-2">
+              <MapPin className="forge-field-icon h-4 w-4" />
+              <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location — e.g. Berlin, LA…" />
             </label>
             <div className="flex items-center justify-between">
               <button onClick={() => setRemote((r) => !r)} className="flex items-center gap-2 text-[13px] font-semibold text-white/75">

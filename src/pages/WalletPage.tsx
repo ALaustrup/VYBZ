@@ -74,14 +74,14 @@ export function WalletPage({ embedded = false }: { embedded?: boolean } = {}) {
 
   return (
     <div className={cx("no-scrollbar space-y-4", embedded ? "pb-4" : "h-full overflow-y-auto pb-8 pt-1")}>
-      <section className="glass-panel relative overflow-hidden p-5" data-dark-stage>
+      <section className="forge-card relative overflow-hidden">
         <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-[rgb(var(--neon-cyan)/0.15)] blur-3xl" />
         <div className="flex items-start gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[rgb(var(--neon-cyan)/0.15)] text-[rgb(var(--neon-cyan))]">
+          <span className="forge-card-icon flex h-12 w-12 items-center justify-center text-[rgb(var(--neon-cyan))]">
             <Wallet className="h-6 w-6" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[12px] uppercase tracking-wider text-white/40">{VC_NAME}</p>
+            <p className="nexus-eyebrow !text-[0.65rem]">{VC_NAME}</p>
             <p className="font-display text-3xl font-bold text-white">
               {formatVc(bal, 4)} <span className="text-lg text-cyan-200">{VC_SYMBOL}</span>
             </p>
@@ -97,53 +97,43 @@ export function WalletPage({ embedded = false }: { embedded?: boolean } = {}) {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
-        <div className="glass-panel p-4" data-dark-stage>
-          <p className="mb-2 flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-white/45">
+        <div className="forge-card">
+          <p className="mb-2 flex items-center gap-1.5 nexus-eyebrow !text-[0.65rem]">
             <ArrowDownLeft className="h-3.5 w-3.5 text-[rgb(var(--neon-mint))]" /> Receive
           </p>
-          <p className="font-display text-lg text-white font-mono">
+          <p className="font-display text-lg font-mono text-white">
             {myAddr || "Set a username"}
           </p>
-          <button type="button" onClick={() => void copyReceive()} className="btn btn-ghost mt-3 h-9 w-full text-xs">
+          <button type="button" onClick={() => void copyReceive()} className="forge-cta-ghost mt-3 h-9 w-full !text-xs">
             Copy address
           </button>
         </div>
 
-        <form onSubmit={(e) => void send(e)} className="glass-panel space-y-2 p-4" data-dark-stage>
-          <p className="mb-1 flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-white/45">
+        <form onSubmit={(e) => void send(e)} className="forge-card space-y-2">
+          <p className="mb-1 flex items-center gap-1.5 nexus-eyebrow !text-[0.65rem]">
             <ArrowUpRight className="h-3.5 w-3.5 text-[rgb(var(--neon-cyan))]" /> Send
           </p>
-          <input
-            value={toUser}
-            onChange={(e) => setToUser(e.target.value)}
-            placeholder="~username"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-          />
-          <input
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="Amount (Vc)"
-            inputMode="decimal"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-          />
-          <input
-            value={memo}
-            onChange={(e) => setMemo(e.target.value.slice(0, 120))}
-            placeholder="Memo (optional)"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-          />
-          <button type="submit" disabled={busy} className="btn btn-primary w-full py-2.5 text-sm disabled:opacity-40">
+          <div className="forge-field !py-2">
+            <input value={toUser} onChange={(e) => setToUser(e.target.value)} placeholder="~username" />
+          </div>
+          <div className="forge-field !py-2">
+            <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount (Vc)" inputMode="decimal" />
+          </div>
+          <div className="forge-field !py-2">
+            <input value={memo} onChange={(e) => setMemo(e.target.value.slice(0, 120))} placeholder="Memo (optional)" />
+          </div>
+          <button type="submit" disabled={busy} className="forge-cta w-full disabled:opacity-40">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Send Vc</>}
           </button>
         </form>
       </section>
 
       <section>
-        <p className="eyebrow mb-2">Ledger</p>
+        <p className="nexus-eyebrow mb-2">Ledger</p>
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
         ) : ledger.length === 0 ? (
-          <p className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-6 text-center text-sm text-white/40">
+          <p className="forge-card py-6 text-center text-sm text-white/40">
             No transactions yet — listen and leave feedback to earn Vc.
           </p>
         ) : (
@@ -153,7 +143,7 @@ export function WalletPage({ embedded = false }: { embedded?: boolean } = {}) {
               return (
                 <li
                   key={row.id}
-                  className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2.5"
+                  className="forge-card flex items-center gap-3 !py-2.5"
                 >
                   <span className={cx(
                     "flex h-8 w-8 items-center justify-center rounded-xl",
