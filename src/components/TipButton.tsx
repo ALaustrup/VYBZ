@@ -50,29 +50,31 @@ export function TipButton({ userId, username, className }: { userId: string; use
       </button>
       {open && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center" onClick={() => setOpen(false)}>
-          <div className="glass-panel w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="forge-glass-edge w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center gap-2">
               <Heart className="h-4 w-4 text-feel" />
-              <h2 className="flex-1 font-display text-lg font-bold text-gradient">Tip @{username ?? "musician"}</h2>
-              <button onClick={() => setOpen(false)} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full glass text-white/50 hover:text-white"><X className="h-4 w-4" /></button>
+              <h2 className="nexus-headline flex-1 text-lg">Tip @{username ?? "musician"}</h2>
+              <button onClick={() => setOpen(false)} aria-label="Close" className="forge-chip flex h-8 w-8 items-center justify-center !p-0"><X className="h-4 w-4" /></button>
             </div>
             <p className="mb-3 text-[13px] text-white/55">Support their next track, mix, or stem pack — goes straight via Stripe.</p>
             <div className="mb-3 grid grid-cols-4 gap-2">
               {PRESETS.map((p) => (
                 <button key={p} onClick={() => { setAmount(p); setCustom(""); }}
-                  className={cx("rounded-xl border py-2 text-sm font-bold transition active:scale-95",
-                    (!custom && amount === p) ? "border-feel/60 bg-feel/15 text-white" : "border-white/10 bg-white/[0.03] text-white/70")}>
+                  className={cx("forge-chip justify-center !px-0",
+                    (!custom && amount === p) ? "forge-chip--active" : "")}>
                   ${p}
                 </button>
               ))}
             </div>
-            <input value={custom} onChange={(e) => setCustom(e.target.value.replace(/[^0-9.]/g, ""))} inputMode="decimal"
-              placeholder="Custom amount ($)"
-              className="mb-3 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-feel/50 focus:outline-none" />
-            <input value={message} onChange={(e) => setMessage(e.target.value.slice(0, 200))}
-              placeholder="Add a note (optional)"
-              className="mb-3 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-feel/50 focus:outline-none" />
-            <button onClick={tip} disabled={busy} className="btn btn-primary w-full py-3 disabled:opacity-50">
+            <div className="forge-field mb-3">
+              <input value={custom} onChange={(e) => setCustom(e.target.value.replace(/[^0-9.]/g, ""))} inputMode="decimal"
+                placeholder="Custom amount ($)" />
+            </div>
+            <div className="forge-field mb-3">
+              <input value={message} onChange={(e) => setMessage(e.target.value.slice(0, 200))}
+                placeholder="Add a note (optional)" />
+            </div>
+            <button onClick={tip} disabled={busy} className="forge-cta w-full disabled:opacity-50">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : `Tip $${custom.trim() || amount}`}
             </button>
           </div>

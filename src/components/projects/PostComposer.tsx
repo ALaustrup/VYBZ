@@ -89,10 +89,10 @@ export function PostComposer({ project, onClose, onPosted }: { project: ProfileP
         <div className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm" onClick={onClose} />
         <motion.div initial={{ y: 24, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 24, opacity: 0, scale: 0.98 }}
           transition={{ type: "spring", stiffness: 320, damping: 30 }}
-          className="glass-panel relative z-10 flex max-h-[90dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl">
+          className="forge-glass-edge relative z-10 flex max-h-[90dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl">
           <div className="flex items-center gap-2 border-b border-white/8 px-5 py-4">
-            <h2 className="flex-1 font-display text-lg font-bold text-white">Share to {project.name}</h2>
-            <button onClick={onClose} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
+            <h2 className="nexus-headline flex-1 text-lg">Share to {project.name}</h2>
+            <button onClick={onClose} aria-label="Close" className="forge-chip flex h-8 w-8 items-center justify-center !p-0 active:scale-90"><X className="h-4 w-4" /></button>
           </div>
 
           <div className="no-scrollbar flex-1 space-y-4 overflow-y-auto px-5 py-4">

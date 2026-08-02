@@ -179,12 +179,12 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
           <div className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm" onClick={() => setModal(null)} />
           <motion.div initial={{ y: 24, opacity: 0, scale: 0.98 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 24, opacity: 0, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 320, damping: 30 }}
-            className="glass-panel relative z-10 w-full max-w-md rounded-t-3xl p-5 sm:rounded-3xl">
+            className="forge-glass-edge relative z-10 w-full max-w-md rounded-t-3xl p-5 sm:rounded-3xl">
             <div className="mb-3 flex items-center gap-2">
-              <h2 className="flex-1 font-display text-lg font-bold text-white">
+              <h2 className="nexus-headline flex-1 text-lg">
                 {modal === "project" ? "New Project" : "Add link"}
               </h2>
-              <button onClick={() => setModal(null)} aria-label="Close" className="flex h-8 w-8 items-center justify-center rounded-full glass active:scale-90"><X className="h-4 w-4" /></button>
+              <button onClick={() => setModal(null)} aria-label="Close" className="forge-chip flex h-8 w-8 items-center justify-center !p-0 active:scale-90"><X className="h-4 w-4" /></button>
             </div>
 
             {modal === "project" && (
@@ -195,7 +195,7 @@ function ProjectModals({ modal, setModal, projects, activeProjectId, onCreatedPr
                   <div className="flex flex-wrap gap-1.5">
                     {PROJECT_KINDS.map((k) => (
                       <button key={k.id} onClick={() => setKind(k.id as ProjectKind)}
-                        className={cx("rounded-full px-3 py-1.5 text-[12px] font-medium transition active:scale-95", kind === k.id ? "bg-veil-500/30 text-white ring-1 ring-veil-400/50" : "bg-white/[0.05] text-white/60 hover:text-white/90")}>
+                        className={cx("forge-chip", kind === k.id ? "forge-chip--active" : "")}>
                         {k.label}
                       </button>
                     ))}

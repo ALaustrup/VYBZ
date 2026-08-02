@@ -175,8 +175,8 @@ export function VisualizerTutorialPage() {
         ))}
       </div>
 
-      <section className="glass-panel p-5" data-dark-stage>
-        <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[rgb(var(--neon-cyan)/0.16)] text-[rgb(var(--neon-cyan))]">
+      <section className="forge-card">
+        <span className="forge-card-icon mb-3 flex h-12 w-12 items-center justify-center text-[rgb(var(--neon-cyan))]">
           <S.icon className="h-6 w-6" />
         </span>
         <p className="text-[15px] leading-relaxed text-white/70">{S.body}</p>
@@ -186,7 +186,7 @@ export function VisualizerTutorialPage() {
             {SPECS.map((row) => (
               <li
                 key={row.label}
-                className="flex items-baseline justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5"
+                className="forge-card flex items-baseline justify-between gap-3 !py-2.5"
               >
                 <span className="text-[11px] font-semibold uppercase tracking-wide text-white/40">{row.label}</span>
                 <span className="text-right text-[13px] font-medium text-white/85">{row.value}</span>
