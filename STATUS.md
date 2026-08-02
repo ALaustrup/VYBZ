@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `27ad580b` (docs after PR #45)
+**HEAD:** `04c63be6` (M3 verification docs)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -29,7 +29,7 @@
 
 ## Working tree
 
-Clean on `main` @ `27ad580b` (pending commit: STATUS + smoke doc). Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `04c63be6`. Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
