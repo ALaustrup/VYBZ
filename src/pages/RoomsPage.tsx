@@ -37,8 +37,9 @@ export function RoomsPage() {
     <div className="flex h-full flex-col">
       <ChatTabs active="rooms" />
       <div className="px-1 pb-2">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a room…"
-          className="w-full rounded-xl border border-white/12 bg-ink-950/40 px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[rgb(var(--neon-cyan)/0.45)] focus:outline-none" />
+        <div className="forge-field">
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a room…" />
+        </div>
       </div>
       <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6">
         {loading ? (
@@ -49,8 +50,8 @@ export function RoomsPage() {
               const Meta = KIND_META[g.kind];
               return (
                 <div key={g.kind}>
-                  <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-white/40">
-                    <Meta.icon className="h-3.5 w-3.5 text-[rgb(var(--neon-cyan))]" />{Meta.label}
+                  <p className="nexus-eyebrow mb-2 flex items-center gap-1.5">
+                    <Meta.icon className="h-3.5 w-3.5" />{Meta.label}
                   </p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {g.rooms.map((r) => (
@@ -58,10 +59,9 @@ export function RoomsPage() {
                         key={r.id}
                         type="button"
                         onClick={() => navigate(`/rooms/${r.id}`)}
-                        className="glass-panel flex items-center gap-2.5 px-3.5 py-2.5 text-left transition active:scale-[0.99]"
-                        data-dark-stage
+                        className="forge-card flex items-center gap-2.5 text-left transition active:scale-[0.99]"
                       >
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--neon-cyan)/0.12)] text-[rgb(var(--neon-cyan))]">
+                        <span className="forge-card-icon flex h-9 w-9 shrink-0 items-center justify-center text-[rgb(var(--neon-cyan))]">
                           <Hash className="h-4 w-4" />
                         </span>
                         <span className="min-w-0 flex-1">

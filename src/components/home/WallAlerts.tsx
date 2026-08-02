@@ -105,7 +105,7 @@ export function WallAlerts({
   return (
     <section className="mb-4" aria-live="polite">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="eyebrow">Alerts</p>
+        <p className="nexus-eyebrow">Alerts</p>
         {queue.length > 1 && (
           <div className="flex items-center gap-1">
             <button type="button" aria-label="Previous alert" onClick={() => setIdx((i) => (i - 1 + queue.length) % queue.length)}
@@ -121,9 +121,9 @@ export function WallAlerts({
         )}
       </div>
 
-      <div className="rounded-2xl glass-panel border-feel/30 p-3.5 ring-1 ring-feel/25" data-dark-stage>
+      <div className="forge-card border-feel/30 ring-1 ring-feel/25">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-feel/20 text-feel">
+          <span className="forge-card-icon flex h-10 w-10 shrink-0 items-center justify-center text-feel">
             {isVideo ? <Video className="h-5 w-5" /> : isConn || isExpiredNudge ? <UserPlus className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
           </span>
           <div className="min-w-0 flex-1">
@@ -139,31 +139,31 @@ export function WallAlerts({
           {isConn && (
             <>
               <button type="button" disabled={acting} onClick={() => void respond(true)}
-                className="btn btn-primary h-9 flex-1 px-3 py-0 text-xs disabled:opacity-50">
+                className="forge-cta h-9 flex-1 !min-h-9 !px-3 !text-xs disabled:opacity-50">
                 {acting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Accept
               </button>
               <button type="button" disabled={acting} onClick={() => void respond(false)}
-                className="btn btn-ghost h-9 flex-1 px-3 py-0 text-xs disabled:opacity-50">
+                className="forge-cta-ghost h-9 flex-1 !min-h-9 !px-3 !text-xs disabled:opacity-50">
                 <X className="h-3.5 w-3.5" /> Decline
               </button>
             </>
           )}
           {isVideo && (
             <button type="button" disabled={acting} onClick={() => void openVideo()}
-              className="btn btn-primary h-9 w-full px-3 py-0 text-xs">
+              className="forge-cta h-9 w-full !min-h-9 !px-3 !text-xs">
               <Video className="h-3.5 w-3.5" /> Watch message
             </button>
           )}
           {isExpiredNudge && (
             <button type="button" disabled={acting} onClick={() => void reconnect()}
-              className="btn btn-primary h-9 w-full px-3 py-0 text-xs disabled:opacity-50">
+              className="forge-cta h-9 w-full !min-h-9 !px-3 !text-xs disabled:opacity-50">
               {acting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
               Send again + hello
             </button>
           )}
           {!isConn && !isVideo && !isExpiredNudge && current.actorId && (
             <button type="button" onClick={() => navigate(`/u/${current.actorId}`)}
-              className="btn btn-ghost h-9 w-full px-3 py-0 text-xs">
+              className="forge-cta-ghost h-9 w-full !min-h-9 !px-3 !text-xs">
               View profile
             </button>
           )}
