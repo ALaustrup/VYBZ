@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `0b5c3683` (merge #45)
+**HEAD:** `27ad580b` (docs after PR #45)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -14,32 +14,34 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `0b5c3683f3dc27530a11e4b5f345f0e432900ef0` | `git rev-parse origin/main` after PR #45 merge |
+| Production SHA | `27ad580b99aaa0dd1d4f1e7188081754cf069675` | `git rev-parse origin/main` |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-BsDZh4-F.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
-| Deployment current | **YES** — bundle changed `index-gbAgOcBD.js` (#44) → `index-BsDZh4-F.js` (#45) |
-| Build SHA footer (landing) | `0b5c368` | browser CDP `data-testid="build-sha"` 2026-08-01 |
+| Deployed bundle | `/assets/index-Car-LCS8.js` | live fetch 2026-08-01 |
+| Deployment current | **YES** — bundle tracks #45 code + STATUS doc deploy | live fetch 2026-08-01 |
+| Build SHA footer (landing) | `27ad580` | browser CDP `data-testid="build-sha"` 2026-08-01 |
 
 ## Last completed operations
 
-1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36)–[#44](https://github.com/ALaustrup/VYBZ/pull/44) merged** — M3 Nexus UI across landing, auth, prepare, shell, hub, settings, profile surfaces, modals.
-2. **`processing-enqueue` edge function redeployed** — live v1 ACTIVE, `state: "queued"` (2026-08-01).
-3. **PR [#45](https://github.com/ALaustrup/VYBZ/pull/45) merged** — M3 final chrome: WallAlerts + RoomsPage Nexus tokens. Production bundle `index-BsDZh4-F.js`.
+1. **PR [#45](https://github.com/ALaustrup/VYBZ/pull/45) merged** — M3 final chrome: WallAlerts + RoomsPage Nexus tokens.
+2. **Expanded E2E** — `smoke` + `prepare` + `distribution` specs: **7/7 PASS** (fixture build).
+3. **Production bundle audit** — no `__e2e__` markers; `Not measured` present; no fabricated `-14 LUFS` pattern.
+4. **`docs/operations/M3_SIGNED_IN_SMOKE.md`** — owner checklist for M3 exit gate.
 
 ## Working tree
 
-Clean on `main` @ `0b5c3683`. Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `27ad580b` (pending commit: STATUS + smoke doc). Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
 | Check | Result | Date |
 |---|---|---|
-| `/__e2e__/*` fixtures absent from production bundle | **PASS** (prior audit) | 2026-08-01 |
+| `/__e2e__/*` fixtures absent from production bundle | **PASS** | 2026-08-01 (bundle grep) |
+| `check:no-fixtures` on deployable `dist/` | **PASS** — 6 markers absent | 2026-08-01 |
 | Anonymous landing page loads | PASS (HTTP 200) | 2026-08-01 |
-| Build SHA in landing footer | **PASS** — `0b5c368` matches HEAD | 2026-08-01 |
+| Build SHA in landing footer | **PASS** — `27ad580` matches HEAD | 2026-08-01 |
 | Distribution loudness shows "Not measured" not fabricated LUFS | **PASS in bundle** | 2026-08-01 |
-| `processing-enqueue` returns queued (not auto-completed) | **PASS** — live deploy v1 | 2026-08-01 |
-| Prepare flow (fixture E2E) | **PASS** — `e2e/prepare.spec.ts` 1/1 | 2026-08-01 |
+| `processing-enqueue` live (v1 ACTIVE, `verify_jwt: true`) | **PASS** | 2026-08-01 Supabase MCP |
+| Prepare + distribution + smoke (fixture E2E) | **PASS** — 7/7 | 2026-08-01 |
 | Prepare Nexus on production (signed-in) | **Not verified live** | — |
 | **Authenticated experience end-to-end on production** | **NEVER OBSERVED** | — |
 
@@ -48,13 +50,13 @@ Clean on `main` @ `0b5c3683`. Untracked: `.cursor/settings.json` (do not commit)
 | Criterion | Status | Evidence |
 |---|---|---|
 | Ordinary user understands the product | **Partial** — landing/auth/prepare copy rewritten; Nexus IA on primary routes + modals | PRs #36–#45 |
-| Every visible nav item → functional surface | **Partial** — suite nav routes resolve; `/spark`, `/opportunities`, `/social` remain legacy/frozen-adjacent | `App.tsx`, `routeManifest.ts` |
-| No fabricated measurement remains | **PASS in code** | #37, `distributionTruth.test.ts` |
-| Production visibly reflects new direction | **PASS** — bundle `index-BsDZh4-F.js` deployed | live fetch 2026-08-01 |
+| Every visible nav item → functional surface | **PASS in OrbMenu** — `navGroups()` lists only working surfaces; legacy `/spark`, `/opportunities`, `/social` are deep-link only (not in orb nav) | `navModel.ts`, `OrbMenu.tsx` |
+| No fabricated measurement remains | **PASS in code** | #37, `distributionTruth.test.ts`, production bundle audit |
+| Production visibly reflects new direction | **PASS** — bundle `index-Car-LCS8.js` deployed | live fetch 2026-08-01 |
 
-**Remaining `glass-panel` in tree (not production-nav):** `LivingHomePage.tsx` only (unmounted). All mounted surfaces migrated to Nexus tokens after #45.
+**Remaining `glass-panel` in tree:** `LivingHomePage.tsx` only (unmounted).
 
-**M3 delivery state:** **Not delivered** — production signed-in smoke test still pending; owner sign-off required per Masterplan §12.
+**M3 delivery state:** **Not delivered** — owner signed-in smoke test pending (`docs/operations/M3_SIGNED_IN_SMOKE.md`).
 
 ## Active blockers
 
@@ -67,11 +69,11 @@ Clean on `main` @ `0b5c3683`. Untracked: `.cursor/settings.json` (do not commit)
 
 ## Known contradictions
 
-- None recorded at this checkpoint.
+- `PrimaryRail.tsx` / `MobileNav.tsx` still render `suiteNavRoutes()` (includes placeholder suite entries) but are **not mounted** in `SuiteShell` — live nav is `OrbMenu` → `navGroups()`.
 
 ## Next authorised action
 
-1. Owner signed-in smoke test on https://vybz.cloud (Profile → Prepare → Distribution → enqueue job).
+1. **Owner:** run `docs/operations/M3_SIGNED_IN_SMOKE.md` on https://vybz.cloud and record results in this file.
 2. Owner M3 exit sign-off **or** authorise **M2** (product isolation + DR-01…DR-05 decisions).
 
 ## Latest verification results
@@ -79,9 +81,11 @@ Clean on `main` @ `0b5c3683`. Untracked: `.cursor/settings.json` (do not commit)
 ```
 npm run lint   — PASS (2026-08-01, feat/m3-final-chrome @ 414361d6)
 npm run test   — PASS 145/145 (2026-08-01)
-npm run build  — PASS (2026-08-01, local bundle index-sDrtfL2i.js)
-PR #45 quality — PASS (2026-08-01)
-Production bundle — index-BsDZh4-F.js (2026-08-01 live fetch)
-Build SHA footer — 0b5c368 (2026-08-01 browser CDP)
-processing-enqueue deploy — PASS (2026-08-01, Supabase v1 ACTIVE)
+npm run build  — PASS (2026-08-01)
+npm run check:no-fixtures — PASS (2026-08-01)
+npm run test:e2e -- e2e/smoke.spec.ts e2e/prepare.spec.ts e2e/distribution.spec.ts — PASS 7/7 (2026-08-01)
+Production bundle — index-Car-LCS8.js (2026-08-01 live fetch)
+Production bundle audit — no __e2e__, Not measured present, no fabricated LUFS (2026-08-01)
+Build SHA footer — 27ad580 (2026-08-01 browser CDP)
+processing-enqueue — v1 ACTIVE verify_jwt=true (2026-08-01 Supabase MCP)
 ```
