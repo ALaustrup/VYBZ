@@ -26,11 +26,11 @@ export function DashLivePanel() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="eyebrow mb-2 flex items-center gap-1.5"><Radio className="h-3.5 w-3.5" /> Live now</p>
+        <p className="nexus-eyebrow mb-2 flex items-center gap-1.5"><Radio className="h-3.5 w-3.5" /> Live now</p>
         {loading ? (
           <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
         ) : sessions.length === 0 ? (
-          <p className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-8 text-center text-sm text-white/40">
+          <p className="forge-card py-8 text-center text-sm text-white/40">
             No one is live. When they are, tip them with Vc.
           </p>
         ) : (
@@ -38,7 +38,7 @@ export function DashLivePanel() {
             {sessions.map((s) => {
               const isSelf = s.hostId === userId;
               return (
-                <li key={s.id} className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-3">
+                <li key={s.id} className="forge-card flex items-center gap-3 !py-3">
                   <Avatar url={s.avatarUrl} name={s.displayName || s.username} id={s.hostId} size="md" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-white">{s.title || "Live session"}</p>
@@ -51,7 +51,7 @@ export function DashLivePanel() {
                     <button
                       type="button"
                       onClick={() => setTip(s)}
-                      className="flex h-9 items-center gap-1.5 rounded-full bg-[rgb(var(--neon-mint)/0.18)] px-3 text-xs font-semibold text-[rgb(var(--neon-mint))] ring-1 ring-[rgb(var(--neon-mint)/0.35)] active:scale-95"
+                      className="forge-cta !min-h-9 !rounded-full !px-3 !text-xs"
                     >
                       <Gift className="h-3.5 w-3.5" /> Tip
                     </button>
