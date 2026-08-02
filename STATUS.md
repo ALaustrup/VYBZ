@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-01
 **Branch:** `main`
-**HEAD:** `1f8e4bc0` (STATUS after #42)
+**HEAD:** `10eb4e47` (merge #43)
 **Current milestone:** **M3 — Information architecture & truthful shell** (owner-authorised)
 
 ---
@@ -14,25 +14,20 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `836a0c5057f292c9b1d3f4a05a8cca71f4a38ff6` | `git rev-parse origin/main` after PR #42 merge |
+| Production SHA | `10eb4e47fd935ee7d4e9c14780d24504db95ee0a` | `git rev-parse origin/main` after PR #43 merge |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-C2BsmicC.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
-| Deployment current | **YES** — bundle changed `index-gvb2DTFG.js` (#41) → `index-C2BsmicC.js` (#42) |
+| Deployed bundle | `/assets/index-BynXhHRo.js` | live fetch 2026-08-01, `Cache-Control: no-cache` |
+| Deployment current | **YES** — bundle changed `index-Bx0F5Rro.js` → `index-BynXhHRo.js` (#43) |
 
 ## Last completed operations
 
-1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36) merged** — M3 Nexus UI redux (landing, auth, intro, prepare-local, design system). Production SHA `6751d506`.
-2. **PR [#37](https://github.com/ALaustrup/VYBZ/pull/37) merged** — M3 truth shell: remove fabricated distribution LUFS/peak/DPI, remove dating onboarding gate, build SHA footer, processing-enqueue stub fix in repo. Production bundle `index-BL_dO-7v.js`.
-3. **PR [#38](https://github.com/ALaustrup/VYBZ/pull/38) merged** — M3 Prepare Nexus: forge styling on Releases, Release detail, MasterReady, Distribution. Production bundle `index-6zcp2vdQ.js`.
-4. **PR [#39](https://github.com/ALaustrup/VYBZ/pull/39) merged** — M3 shell Nexus: TrackCard, ContextualAppBar, VDock forge chrome. Production bundle `index-CMRqBxTU.js`.
-5. **PR [#40](https://github.com/ALaustrup/VYBZ/pull/40) merged** — M3 completion: NexusPageHeader, Feed/Discover/Messages/Library/Credits/NewRelease, AGENTS M3 authorisation. Production bundle `index-BRdmfz-t.js`.
-6. **PR [#41](https://github.com/ALaustrup/VYBZ/pull/41) merged** — M3 hub Nexus: DashHub live/fresh rails, Connect matches, AI credits, Cost Sentinel, release detail header, comment threads, message composer. Production bundle `index-gvb2DTFG.js`.
-7. **PR [#42](https://github.com/ALaustrup/VYBZ/pull/42) merged** — M3 surfaces Nexus: Profile You tab, DashListen, ComposeSheet, VcTipSheet, Storefront dashboard, CollabMergePanel. Production bundle `index-C2BsmicC.js`.
-8. **`processing-enqueue` edge function redeployed** — `npx supabase functions deploy processing-enqueue --project-ref xixmneooyufbeftdfpcm` (2026-08-01). Live function v1 ACTIVE, `verify_jwt: true`, inserts `state: "queued"` (no auto-complete stub).
+1. **PR [#36](https://github.com/ALaustrup/VYBZ/pull/36)–[#42](https://github.com/ALaustrup/VYBZ/pull/42) merged** — M3 Nexus UI across landing, auth, prepare, shell, hub, settings, profile surfaces (#36–#42).
+2. **`processing-enqueue` edge function redeployed** — live v1 ACTIVE, `state: "queued"` (2026-08-01).
+3. **PR [#43](https://github.com/ALaustrup/VYBZ/pull/43) merged** — M3 shell complete: Wallet, Connection Lab, Live, Lists, NotFound, Discover filters. Production bundle `index-BynXhHRo.js`.
 
 ## Working tree
 
-Clean on `main` @ `1f8e4bc0`. Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `10eb4e47`. Untracked: `.cursor/settings.json` (do not commit).
 
 ## Production verification
 
@@ -41,10 +36,21 @@ Clean on `main` @ `1f8e4bc0`. Untracked: `.cursor/settings.json` (do not commit)
 | `/__e2e__/*` fixtures absent from production bundle | **PASS** (prior audit) | 2026-08-01 |
 | Anonymous landing page loads | PASS (HTTP 200) | 2026-08-01 |
 | Build SHA in landing footer | **Not verified live** | — |
-| Distribution loudness shows "Not measured" not fabricated LUFS | **PASS in bundle** (`index-BL_dO-7v.js` grep) | 2026-08-01 |
-| `processing-enqueue` returns queued (not auto-completed) | **PASS** — live deploy v1 verified via Supabase MCP + unauthenticated POST → 401 | 2026-08-01 |
+| Distribution loudness shows "Not measured" not fabricated LUFS | **PASS in bundle** | 2026-08-01 |
+| `processing-enqueue` returns queued (not auto-completed) | **PASS** — live deploy v1 | 2026-08-01 |
 | Prepare Nexus forge-card rows | **Not verified live** (requires signed-in session) | — |
 | **Authenticated experience end-to-end** | **NEVER OBSERVED** | — |
+
+## M3 exit gate review (Masterplan §10)
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| Ordinary user understands the product | **Partial** — landing/auth/prepare copy rewritten; Nexus IA on primary routes | PRs #36–#43 |
+| Every visible nav item → functional surface | **Partial** — suite nav routes resolve; `/spark`, `/opportunities`, `/social` remain legacy/frozen-adjacent | `App.tsx` routes |
+| No fabricated measurement remains | **PASS in code** — distribution LUFS/peak/DPI removed; loudness `"Not measured"`; desktop batch labelled `(estimated)` | #37, `distributionTruth.test.ts` |
+| Production visibly reflects new direction | **PASS** — bundle `index-BynXhHRo.js` deployed; Nexus CSS on authenticated shell | live fetch 2026-08-01 |
+
+**M3 delivery state:** **Not delivered** — authenticated production verification never observed; secondary routes (`LivingHomePage`, `VisualizerStudioPage`, `RoomsPage`) still carry legacy `glass-panel` chrome; owner signed-in smoke test pending.
 
 ## Active blockers
 
@@ -53,6 +59,7 @@ Clean on `main` @ `1f8e4bc0`. Untracked: `.cursor/settings.json` (do not commit)
 | DR-01…DR-05 | Scope decisions: live, messaging/cam, opportunities/cosmetics, V¢ tipping, watermarking | M2 scoping |
 | DR-06 | Dating onboarding gate | **Partially resolved** — gate removed in #37; `RoleIntentOnboarding.tsx` still in tree, unmounted |
 | DR-07 | M4 BS.1770 meter strategy | M4 |
+| — | Signed-in production E2E never observed | M3 exit gate sign-off |
 
 ## Known contradictions
 
@@ -60,16 +67,17 @@ Clean on `main` @ `1f8e4bc0`. Untracked: `.cursor/settings.json` (do not commit)
 
 ## Next authorised action
 
-1. Signed-in production verification: Profile You tab, Listen rail, Compose sheet, Storefront, Prepare → Distribution → Master (enqueue a processing job and confirm `queued` state persists).
-2. M3 exit gate review against Masterplan §M3 acceptance criteria (grep remaining `glass-panel` on user-facing routes).
+1. Owner signed-in smoke test on https://vybz.cloud: Profile tabs (Hub/Listen/Live/Connect/You/Wallet) → Prepare → Distribution → enqueue processing job → confirm `queued`.
+2. Owner M3 exit sign-off or authorise M2 (product isolation + DR decisions).
+3. Optional: legacy chrome on frozen/secondary routes (`LivingHomePage`, `RoomsPage`, `VisualizerTutorialPage`) — only if M3 scope includes them.
 
 ## Latest verification results
 
 ```
-npm run lint   — PASS (2026-08-01, feat/m3-surfaces-nexus @ c4f57b8b)
+npm run lint   — PASS (2026-08-01, feat/m3-shell-complete @ dd4d79e4)
 npm run test   — PASS 145/145 (2026-08-01)
-npm run build  — PASS (2026-08-01, local bundle index-XusxxuJv.js)
-PR #42 quality — PASS (2026-08-01)
-Production bundle — index-C2BsmicC.js (2026-08-01 live fetch)
-processing-enqueue deploy — PASS (2026-08-01, Supabase project xixmneooyufbeftdfpcm, v1 ACTIVE)
+npm run build  — PASS (2026-08-01, local bundle index-CsK2p02P.js)
+PR #43 quality — PASS (2026-08-01)
+Production bundle — index-BynXhHRo.js (2026-08-01 live fetch)
+processing-enqueue deploy — PASS (2026-08-01, Supabase v1 ACTIVE)
 ```
