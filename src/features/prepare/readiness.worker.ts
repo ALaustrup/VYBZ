@@ -24,10 +24,18 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
       return { type: "probe-result", requestId: msg.requestId, ok: true, kind: "audio", probe };
     }
 
-    const dims =
-      msg.fileName.toLowerCase().endsWith(".png") || msg.mimeType.includes("png")
-        ? probePng(msg.buffer)
-        : probeJpeg(msg.buffer);
+    const lower = msg.fileName.toLowerCase();
+    const isPng = lower.endsWith(".png") || msg.mimeType.includes("png");
+    const isJpeg =
+      lower.endsWith(".jpg") ||
+      lower.endsWith(".jpeg") ||
+      msg.mimeType.includes("jpeg") ||
+      msg.mimeType.includes("jpg");
+    const dims = isPng
+      ? probePng(msg.buffer)
+      : isJpeg
+        ? probeJpeg(msg.buffer)
+        : { format: lower.split(".").pop() ?? "image" };
     return {
       type: "probe-result",
       requestId: msg.requestId,
