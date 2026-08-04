@@ -53,37 +53,10 @@ export interface ProfileDetails {
   proUntil?: string;
   /** Top-level keys the creator has marked private. */
   hidden?: string[];
-  /** Vibes — lifestyle / scene tags (Social Score interest dimension). */
+  /** Scene / genre affinity tags (Social Score interest dimension). */
   interests?: string[];
-  /** Vibes — activity partners (hiking, coffee, jam…). */
-  meetupIntents?: string[];
-  /** Birth year (age derived server-side); share via shareAge. */
-  birthYear?: number;
-  /** Self-described sex / gender presentation; share via shareSex. */
-  sex?: string;
-  /** Match radius in miles (default 100). */
-  matchRadiusMiles?: number;
-  /** Consent to show age on vibe cards / discovery. */
-  shareAge?: boolean;
-  /** Consent to show sex on vibe cards / discovery. */
-  shareSex?: boolean;
-  /** Consent to show city/region on vibe cards (default true). */
+  /** Consent to show city/region on your public profile (default true). */
   shareLocation?: boolean;
-  /** Preferred match age range (private — never on public_profile). */
-  prefAgeMin?: number;
-  prefAgeMax?: number;
-  /**
-   * Phase 6 — Intent Mix on one identity (Concept F).
-   * Soft pillar weights + Focus; never a second public persona.
-   * Always listed in `_hidden` so Focus/weights never leak via public_profile.
-   */
-  intentMix?: {
-    pillars?: Array<"love" | "meetup" | "social" | "create">;
-    weights?: Partial<Record<"love" | "meetup" | "social" | "create", number>>;
-    focus?: "love" | "meetup" | "create" | "for_you";
-    completedAt?: string;
-    createExpanded?: boolean;
-  };
   /** Keys stripped by `public_profile` RPC (privacy facets). */
   _hidden?: string[];
   /** Phase 8 — connected external playlists (Spotify etc.). */
@@ -128,28 +101,6 @@ export interface SocialScore {
   matchable: boolean;
   whyHints: string[];
   updatedAt: number;
-}
-
-export type VibeCardType = "new_user_vibe" | "nearby_intent";
-
-/** Feed discovery card from feed_vibe_cards (genuine match signal, not an ad). */
-export interface VibeCard {
-  cardType: VibeCardType;
-  userId: string;
-  username: string | null;
-  displayName: string | null;
-  avatarUrl: string | null;
-  age: number | null;
-  sex: string | null;
-  location: string | null;
-  distanceMiles: number | null;
-  sharedInterests: string[];
-  lookingFor: string[];
-  meetupIntents: string[];
-  headline: string;
-  why: string;
-  createdAt: number;
-  score: number;
 }
 
 /** A drop = an audio post carrying the creator's identity. */
@@ -615,7 +566,7 @@ export interface DisciplineCategory {
 }
 
 /** "What are you seeking?" intents, shared across every discipline module. */
-export type SeekingIntent = "paid" | "collab" | "mentorship" | "cofounding" | "spark";
+export type SeekingIntent = "paid" | "collab" | "mentorship" | "cofounding";
 
 export interface PortfolioItem {
   title?: string;
@@ -799,36 +750,6 @@ export type ReportReason =
   | "spam" | "harassment" | "hate" | "nsfw" | "illegal" | "impersonation" | "misinformation"
   | "catfish" | "underage" | "other";
 
-/** Spark Love / Meetup deck card (not Create collab_matches). */
-export type SparkDeck = "love" | "meetup" | "create";
-
-export interface VibeMatch {
-  userId: string;
-  username: string | null;
-  fit: number;
-  confidence: number;
-  distanceMiles: number | null;
-  age: number | null;
-  sex: string | null;
-  location: string | null;
-  lookingFor: string[];
-  meetupIntents: string[];
-  sharedInterests: string[];
-  sharedLooking: string[];
-  sharedMeetup: string[];
-  why: string;
-  /** They already liked you on this deck. */
-  mutualLike: boolean;
-}
-
-export interface SparkActResult {
-  ok: boolean;
-  mutual: boolean;
-  peerId: string;
-  peerUsername: string | null;
-  deck: "love" | "meetup";
-  error?: string;
-}
 export type ModAction = "dismiss" | "warn" | "hide" | "remove" | "escalate";
 
 export interface ContentReport {

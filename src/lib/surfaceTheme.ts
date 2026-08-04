@@ -44,7 +44,6 @@ const LABELS: SurfaceRule[] = [
   { test: (p) => p === "/" || p === "/start" || p.startsWith("/releases"), id: "home", label: "Home", product: "home", mode: "professional" },
   { test: (p) => p.startsWith("/feed"), id: "feed", label: "Drops", mode: "audience" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover", mode: "audience" },
-  { test: (p) => p.startsWith("/spark"), id: "spark", label: "Spark", mode: "audience" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Opportunities", mode: "audience" },
   { test: (p) => p.startsWith("/connect"), id: "network", label: "Network", mode: "audience" },
   { test: (p) => p.startsWith("/social"), id: "social", label: "Social", mode: "audience" },
@@ -114,7 +113,6 @@ export const MODE_HOME: Record<AppMode, string> = {
 export function modeForPath(pathname: string): AppMode {
   if (
     pathname.startsWith("/connect") ||
-    pathname.startsWith("/spark") ||
     pathname.startsWith("/opportunities") ||
     pathname.startsWith("/discover")
   ) {

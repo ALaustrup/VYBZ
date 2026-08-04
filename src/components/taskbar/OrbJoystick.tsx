@@ -20,7 +20,7 @@ const RING_R = 76;
 const ACTION_ANGLES: Record<string, number> = {
   drop: -Math.PI / 2,
   live: 0,
-  spark: Math.PI,
+  releases: Math.PI,
   messages: Math.PI / 2,
 };
 

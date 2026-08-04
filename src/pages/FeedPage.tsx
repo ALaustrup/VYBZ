@@ -3,20 +3,19 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3, SlidersHorizontal } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { FeedHero } from "@/components/FeedHero";
-import { VibeCardView } from "@/components/VibeCard";
 import { EmptyState } from "@/components/EmptyState";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx } from "@/lib/utils";
-import type { Drop, Reaction, VibeCard } from "@/types";
+import type { Drop, Reaction } from "@/types";
 
 type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: number; visibility?: number };
 type Mode = "discovery" | "latest";
 type Layout = "comfortable" | "grid";
 
-/** Drops feed — vibe discovery cards + network sound. */
+/** Drops feed — released work from the network. */
 export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId } = useSession();
   const navigate = useNavigate();
@@ -28,7 +27,6 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   });
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 1e9));
   const [drops, setDrops] = useState<FeedItem[]>([]);
-  const [vibeCards, setVibeCards] = useState<VibeCard[]>([]);
   const [loading, setLoading] = useState(true);
   const setLayoutPersist = (l: Layout) => { setLayout(l); try { localStorage.setItem("vybz.feedLayout", l); } catch { /* ignore */ } };
 
@@ -46,14 +44,10 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
-    const [nextDrops, nextVibes] = await Promise.all([
-      mode === "discovery" ? api.listDiscovery(seed, 50) : api.listDrops(50),
-      userId ? api.feedVibeCards(8).catch(() => [] as VibeCard[]) : Promise.resolve([] as VibeCard[]),
-    ]);
+    const nextDrops = mode === "discovery" ? await api.listDiscovery(seed, 50) : await api.listDrops(50);
     setDrops(nextDrops);
-    setVibeCards(nextVibes);
     setLoading(false);
-  }, [mode, seed, userId]);
+  }, [mode, seed]);
   useEffect(() => { void load(); }, [load]);
 
   const loadRef = useRef(load);
@@ -125,7 +119,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
         </div>
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
-        ) : drops.length === 0 && vibeCards.length === 0 ? (
+        ) : drops.length === 0 ? (
           <EmptyState
             icon={AudioLines}
             title="Your feed is waking up"
@@ -133,13 +127,8 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
           />
         ) : (
           <div className={cx("mx-auto", gridCls)}>
-            {vibeCards.map((card, i) => (
-              <div key={`vibe-${card.userId}-${card.cardType}`} style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }} className="reveal sm:col-span-1">
-                <VibeCardView card={card} />
-              </div>
-            ))}
             {drops.map((d, i) => (
-              <div key={d.id} style={{ animationDelay: `${Math.min(i + vibeCards.length, 16) * 45}ms` }} className="reveal">
+              <div key={d.id} style={{ animationDelay: `${Math.min(i, 16) * 45}ms` }} className="reveal">
                 <TrackCard
                   drop={d}
                   queue={drops}

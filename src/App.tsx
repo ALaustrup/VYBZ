@@ -170,7 +170,6 @@ export function App() {
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/activity" element={<Navigate to="/?tab=live" replace />} />
         <Route path="/connect" element={<ConnectPage />} />
-        <Route path="/spark" element={<Navigate to="/connect" replace />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
         <Route path="/projects" element={<ProjectsPage onBulkUpload={() => setBulkOpen(true)} />} />
         <Route path="/projects/:id" element={<ProjectRoomPage />} />

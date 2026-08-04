@@ -7,7 +7,7 @@ const MODES = [
   { id: "search", label: "Search", to: "/discover" },
 ] as const;
 
-/** Network sub-nav — Matches / Jobs / Search (Spark dating deck archived M2). */
+/** Network sub-nav — collaborators / jobs / search. */
 export function NetworkModes() {
   const { pathname } = useLocation();
   const navigate = useNavigate();

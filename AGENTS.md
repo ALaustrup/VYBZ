@@ -26,11 +26,20 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M3 — Information architecture & truthful shell.** Nexus UI redux on all user-facing
-surfaces; remove fabricated measurements; hide placeholder navigation; surface working
-Prepare routes. Owner authorised via merged PRs #36–#39.
+**M2 — Product isolation.** Remove dating recoverably, freeze collaboration, keep retained
+systems passing regression, and make no destructive database change.
 
-M1 documentation is landed. M2 product isolation and M4+ remain gated — see
+Owner authorised M2 on 2026-08-02 (recorded in `112f4d9f`) and on 2026-08-04 ruled that the
+most recent authorisation is the one to honour. That supersedes the earlier M3 authorisation
+from merged PRs #36–#39.
+
+**M2 is not satisfied yet.** Dating copy and profile fields still reach the production
+bundle — `STATUS.md` holds the audit with file, line and bundle evidence. Close that before
+starting anything else.
+
+M1 documentation is landed. M3 shipped substantial work under its earlier authorisation and
+its exit gate is still unsigned; treat the remaining M3 items as carry-forward to be
+finished after M2, not as licence to open new M3 scope. M4+ remain gated — see
 [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) decision-required items before expanding scope.
 
 ## Safety rules

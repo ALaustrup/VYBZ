@@ -17,7 +17,7 @@ export type OrbFanAction = {
 export const DEFAULT_ORB_ACTIONS: Omit<OrbFanAction, "run">[] = [
   { id: "drop", label: "New drop", icon: Plus, hue: "#a87cf8" },
   { id: "live", label: "Go live", icon: Radio, hue: "#f472b6" },
-  { id: "spark", label: "Spark", icon: Sparkles, hue: "#38bdf8" },
+  { id: "releases", label: "Releases", icon: Sparkles, hue: "#38bdf8" },
   { id: "messages", label: "Messages", icon: MessageSquare, hue: "#34d399" },
 ];
 
