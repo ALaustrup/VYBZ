@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-04
 **Branch:** `fix/prepare-scroll-and-scan-flow`
-**HEAD:** _uncommitted — run `git rev-parse --short HEAD` after commit_
+**HEAD:** `87e9d4b7`
 **Current milestone:** **M2 — Product isolation** (in progress) · **M3 — IA & truthful shell** (Prepare UX push, owner smoke pending)
 
 ---
