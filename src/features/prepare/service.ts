@@ -96,9 +96,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
       const created = await local.createProject(input);
       if (input.ownerId !== LOCAL_OWNER) {
         try {
-          const remoteCreated = await remote.createProject(input);
-          await local.createProject({ ...input, idempotencyKey: input.idempotencyKey });
-          return remoteCreated;
+          return await remote.createProject(input);
         } catch {
           await getPrepareMutationQueue().enqueue({
             userId: input.ownerId,

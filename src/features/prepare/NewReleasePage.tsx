@@ -5,6 +5,7 @@ import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { Input } from "@/components/ui/Input";
 import { StateView } from "@/components/states/StateView";
 import { usePlatform } from "@/platform/bridge/PlatformProvider";
+import { PlatformError } from "@/platform/bridge/errors";
 import { useSession } from "@/store/session";
 import { createReleaseWithScan, getPrepareOwnerId } from "@/features/prepare/service";
 import { ensureMetadataCredits } from "@/features/credits/service";
@@ -32,6 +33,7 @@ export function NewReleasePage() {
   } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorPhase, setErrorPhase] = useState<"import" | "create">("import");
 
   async function pickAudio() {
     setError(null);
@@ -54,6 +56,8 @@ export function NewReleasePage() {
       if (!title && probe.titleFromName) setTitle(probe.titleFromName);
       if (!artistName && probe.artistFromName) setArtistName(probe.artistFromName);
     } catch (err) {
+      if (err instanceof PlatformError && err.code === "cancelled") return;
+      setErrorPhase("import");
       setError(err instanceof Error ? err.message : "Audio import failed");
     }
   }
@@ -77,6 +81,8 @@ export function NewReleasePage() {
         probe,
       });
     } catch (err) {
+      if (err instanceof PlatformError && err.code === "cancelled") return;
+      setErrorPhase("import");
       setError(err instanceof Error ? err.message : "Artwork import failed");
     }
   }
@@ -94,14 +100,19 @@ export function NewReleasePage() {
         artwork: artMeta,
         idempotencyKey: crypto.randomUUID(),
       });
-      await ensureMetadataCredits({
-        ownerId,
-        releaseId: bundle.project.id,
-        artistName: artistName || audioMeta?.probe.artistFromName || null,
-        composerName: audioMeta?.probe.composerFromName ?? null,
-      });
+      try {
+        await ensureMetadataCredits({
+          ownerId,
+          releaseId: bundle.project.id,
+          artistName: artistName || audioMeta?.probe.artistFromName || null,
+          composerName: audioMeta?.probe.composerFromName ?? null,
+        });
+      } catch {
+        /* credits seed is best-effort; release creation already succeeded */
+      }
       navigate(`/release/${bundle.project.id}`, { replace: true });
     } catch (err) {
+      setErrorPhase("create");
       setError(err instanceof Error ? err.message : "Could not create release");
       setBusy(false);
     }
@@ -116,7 +127,8 @@ export function NewReleasePage() {
       />
 
       <form className="forge-glass relative mt-6 flex flex-col gap-4 p-4 md:p-5" onSubmit={onSubmit}>
-        <span className="forge-glass-edge" aria-hidden />
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <div className="relative z-[1] flex flex-col gap-4">
         <Input
           label="Title"
           value={title}
@@ -141,7 +153,13 @@ export function NewReleasePage() {
           </Button>
         </div>
 
-        {error ? <StateView variant="error" title="Import error" body={error} /> : null}
+        {error ? (
+          <StateView
+            variant="error"
+            title={errorPhase === "create" ? "Could not create release" : "Import error"}
+            body={error}
+          />
+        ) : null}
 
         <div className="flex flex-wrap gap-2">
           <Button type="submit" variant="forge" loading={busy} data-testid="prepare-create-submit">
@@ -150,6 +168,7 @@ export function NewReleasePage() {
           <Button type="button" variant="ghost" onClick={() => navigate("/releases")}>
             Cancel
           </Button>
+        </div>
         </div>
       </form>
     </div>

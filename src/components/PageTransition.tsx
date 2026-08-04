@@ -9,13 +9,13 @@ export function PageTransition({ routeKey, children }: { routeKey: string; child
   const reduce = useReducedMotion();
 
   if (reduce) {
-    return <div key={routeKey} className="h-full min-h-0">{children}</div>;
+    return <div key={routeKey} className="w-full min-h-0">{children}</div>;
   }
 
   return (
     <motion.div
       key={routeKey}
-      className="h-full min-h-0"
+      className="w-full min-h-0"
       variants={geometricPageVariants}
       initial="initial"
       animate="animate"
