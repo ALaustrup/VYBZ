@@ -1174,6 +1174,25 @@
   overflow: hidden;
 }
 
+/**
+ * Contextual action affordance. Always visible where hover does not exist (touch), and
+ * revealed by hover, keyboard focus, or an open menu where a real pointer does.
+ */
+.track-action-affordance {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .track-action-affordance {
+    opacity: 0;
+  }
+  .group:hover .track-action-affordance,
+  .track-action-affordance:focus-visible,
+  .track-action-affordance[aria-expanded="true"] {
+    opacity: 1;
+  }
+}
+
 /** Signed-out / auth surfaces scroll inside #root (root stays overflow:hidden for SuiteShell). */
 .public-scroll-frame {
   height: 100dvh;
