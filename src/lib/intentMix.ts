@@ -23,15 +23,11 @@ export interface IntentMix {
 export const INTENT_PILLARS: { id: IntentPillar; label: string; blurb: string }[] = [
   { id: "create", label: "Music & create", blurb: "Upload, collab, share catalog" },
   { id: "social", label: "Fans & friends", blurb: "Chat, follow, listen together" },
-  { id: "meetup", label: "IRL & hangouts", blurb: "Shows, sessions, coffee" },
-  { id: "love", label: "Dates & romance", blurb: "Optional — Connection Lab later" },
 ];
 
 export const FOCUS_OPTIONS: { id: FocusMode; label: string }[] = [
   { id: "for_you", label: "For you" },
   { id: "create", label: "Create" },
-  { id: "meetup", label: "Meetup" },
-  { id: "love", label: "Love" },
 ];
 
 const EMPTY_WEIGHTS: Record<IntentPillar, number> = {
@@ -92,9 +88,7 @@ export function resolveIntentMix(details?: ProfileDetails | null): IntentMix {
   // Soft seed from existing lookingFor / meetup / create signals (existing users).
   const pillars: IntentPillar[] = [];
   const lf = (details?.lookingFor ?? []).map((s) => s.toLowerCase());
-  if (lf.some((s) => s.includes("dat") || s.includes("casual") || s.includes("romance"))) pillars.push("love");
   if (lf.some((s) => s.includes("friend"))) pillars.push("social");
-  if ((details?.meetupIntents?.length ?? 0) > 0 || lf.some((s) => s.includes("activ"))) pillars.push("meetup");
   if (
     (details?.genres?.length ?? 0) > 0
     || (details?.daws?.length ?? 0) > 0
@@ -134,10 +128,8 @@ export function showCreateFacets(details?: ProfileDetails | null): boolean {
 
 export function lookingForFromPillars(pillars: IntentPillar[]): string[] {
   const out: string[] = [];
-  if (pillars.includes("love")) out.push("Dating", "Something casual");
   if (pillars.includes("social")) out.push("Friendship");
-  if (pillars.includes("meetup")) out.push("Activity partner");
-  if (pillars.includes("create")) out.push("Creative collab");
+  if (pillars.includes("create")) out.push("Collaborator", "Creative collab");
   return [...new Set(out)].slice(0, 8);
 }
 

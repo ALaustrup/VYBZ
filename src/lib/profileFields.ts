@@ -285,23 +285,14 @@ export const CHOICE_FIELDS: ChoiceField[] = [
   {
     key: "lookingFor",
     label: "Looking for",
-    hint: "Music collabs first — romance is optional via Connection Lab.",
+    hint: "Music collabs and creative connections — dating removed (M2).",
     multi: true,
     matchable: true,
     options: [
       "Collaborator", "Band member", "Session work", "Co-writer", "Feedback",
       "Sample trade", "Ghost production", "Remix", "Sync", "Mixing", "Mastering",
       "Friendship", "Activity partner", "Mentor", "Mentee", "Just exploring",
-      "Dating", "Something casual",
     ],
-  },
-  {
-    key: "meetupIntents",
-    label: "IRL & sessions",
-    hint: "Shows, studio sessions, hangouts — optional.",
-    multi: true,
-    matchable: true,
-    options: MEETUP_INTENTS,
   },
   {
     key: "interests",
@@ -399,6 +390,19 @@ export const ROMANTIC_LOOKING_FOR = ["Dating", "Something casual"] as const;
 
 export function hasRomanticLookingFor(lookingFor?: string[] | null): boolean {
   return (lookingFor ?? []).some((x) => (ROMANTIC_LOOKING_FOR as readonly string[]).includes(x));
+}
+
+/** Strip dating/meetup profile fields on save (M2 — frozen in DB, inactive in UI). */
+export function stripDatingProfileFields<T extends { lookingFor?: string[]; meetupIntents?: string[] }>(
+  details: T,
+): T {
+  return {
+    ...details,
+    lookingFor: (details.lookingFor ?? []).filter(
+      (x) => !(ROMANTIC_LOOKING_FOR as readonly string[]).includes(x),
+    ),
+    meetupIntents: [],
+  };
 }
 
 /** Client-side age from birthYear (server derives the same way for cards). */

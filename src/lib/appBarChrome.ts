@@ -16,8 +16,7 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname === "/") return { title: "Dashboard" };
   if (pathname.startsWith("/feed")) return { title: "Drops" };
   if (pathname.startsWith("/discover")) return { title: "Discover" };
-  if (pathname.startsWith("/connect")) return { title: "Network" };
-  if (pathname.startsWith("/spark")) return { title: "Spark" };
+  if (pathname.startsWith("/connect") || pathname.startsWith("/spark")) return { title: "Network" };
   if (pathname.startsWith("/opportunities")) return { title: "Roles" };
   if (pathname.startsWith("/projects/") && pathname !== "/projects") {
     return { title: "Repo", showBack: true, backTo: "/" };

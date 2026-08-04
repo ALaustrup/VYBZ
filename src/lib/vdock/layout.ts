@@ -65,7 +65,7 @@ export interface PinDef {
 export const PIN_CATALOG: PinDef[] = [
   { id: "feed", label: "Home", to: "/", icon: Home, end: true },
   { id: "drops", label: "Listen", to: "/?tab=listen", icon: AudioLines },
-  { id: "connect", label: "Match", to: "/?tab=match", icon: Users },
+  { id: "connect", label: "Match", to: "/?tab=connect", icon: Users },
   { id: "collabs", label: "You", to: "/?tab=you", icon: FolderGit2 },
   { id: "social", label: "Live", to: "/?tab=live", icon: Users },
   { id: "live", label: "Live", to: "/?tab=live", icon: Radio },
@@ -73,7 +73,8 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "profile", label: "You", to: "/?tab=you", icon: Users },
   { id: "activity", label: "Live feed", to: "/?tab=live", icon: Bell, badgeUnread: true },
   { id: "discover", label: "Listen", to: "/?tab=listen", icon: Search },
-  { id: "spark", label: "Match", to: "/?tab=match", icon: Sparkles },
+  /** @deprecated M2 — remapped to connect in cleanItems */
+  { id: "spark", label: "Connect", to: "/connect", icon: Sparkles },
   { id: "opportunities", label: "You", to: "/?tab=you", icon: FolderGit2 },
   { id: "store", label: "Flair", to: "/store", icon: Store },
   { id: "codex", label: "Codex", to: "/codex", icon: ScrollText },
@@ -164,7 +165,7 @@ export const MAX_SIDE = MAX_LEFT;
 export const DEFAULT_LAYOUT: VDockLayout = {
   left: [
     { kind: "pin", id: "feed" },
-    { kind: "pin", id: "spark" },
+    { kind: "pin", id: "connect" },
   ],
   right: [
     { kind: "pin", id: "messages" },
@@ -195,6 +196,10 @@ function isWidgetId(id: string): id is WidgetId {
   return id in WIDGET_BY_ID;
 }
 
+function normalizePinId(id: PinId): PinId {
+  return id === "spark" ? "connect" : id;
+}
+
 function cleanItems(arr: unknown, max: number): DockItem[] {
   if (!Array.isArray(arr)) return [];
   const out: DockItem[] = [];
@@ -204,12 +209,12 @@ function cleanItems(arr: unknown, max: number): DockItem[] {
     const o = raw as { kind?: string; id?: string };
     let item: DockItem | null = null;
     if (o.kind === "pin" && typeof o.id === "string" && isPinId(o.id)) {
-      item = { kind: "pin", id: o.id };
+      item = { kind: "pin", id: normalizePinId(o.id) };
     } else if (o.kind === "widget" && typeof o.id === "string" && isWidgetId(o.id)) {
       item = { kind: "widget", id: o.id };
     } else if (typeof o.id === "string" && isPinId(o.id) && !o.kind) {
       // tolerate bare pin ids
-      item = { kind: "pin", id: o.id };
+      item = { kind: "pin", id: normalizePinId(o.id) };
     }
     if (!item) continue;
     const k = itemKey(item);

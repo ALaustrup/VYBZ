@@ -5,7 +5,6 @@ export type PulseId = "spark" | "messages" | "network" | "drops" | "live";
 const KEY = "vybz.livingPulseLayout";
 
 export const PULSE_CATALOG: { id: PulseId; title: string; defaultBody: string; to: string }[] = [
-  { id: "spark", title: "Spark", defaultBody: "", to: "/spark" },
   { id: "messages", title: "Inbox", defaultBody: "", to: "/messages" },
   { id: "network", title: "Network", defaultBody: "", to: "/connect" },
   { id: "drops", title: "Drops", defaultBody: "", to: "/feed" },
@@ -17,16 +16,20 @@ export function defaultPulseOrder(opts: {
   meetupOn: boolean;
   createOn: boolean;
 }): PulseId[] {
-  const out: PulseId[] = [];
-  if (opts.loveOn || opts.meetupOn) out.push("spark");
-  out.push("messages");
+  void opts.loveOn;
+  void opts.meetupOn;
+  const out: PulseId[] = ["messages"];
   if (opts.createOn) out.push("network", "drops");
   out.push("live");
-  // Always allow all modules in customize — seed shows intent-relevant first set.
   for (const p of PULSE_CATALOG) {
     if (!out.includes(p.id)) out.push(p.id);
   }
   return out;
+}
+
+function remapPulseId(id: string): PulseId | null {
+  if (id === "spark") return "network";
+  return PULSE_CATALOG.some((p) => p.id === id) ? (id as PulseId) : null;
 }
 
 export function loadPulseOrder(fallback: PulseId[]): PulseId[] {
@@ -35,9 +38,12 @@ export function loadPulseOrder(fallback: PulseId[]): PulseId[] {
     if (!raw) return fallback;
     const arr = JSON.parse(raw) as unknown;
     if (!Array.isArray(arr)) return fallback;
-    const valid = arr.filter((id): id is PulseId =>
-      typeof id === "string" && PULSE_CATALOG.some((p) => p.id === id),
-    );
+    const valid: PulseId[] = [];
+    for (const rawId of arr) {
+      if (typeof rawId !== "string") continue;
+      const id = remapPulseId(rawId);
+      if (id && !valid.includes(id)) valid.push(id);
+    }
     for (const p of PULSE_CATALOG) {
       if (!valid.includes(p.id)) valid.push(p.id);
     }
