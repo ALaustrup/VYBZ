@@ -8,7 +8,10 @@ import type { ArtworkProbe, FindingDraft } from "./readiness";
 export type LoudnessMetrics = {
   /** Integrated loudness (LUFS). Negative number, e.g. -14. */
   integratedLufs?: number | null;
+  /** True peak in dBTP. Only set by an oversampling true-peak meter. */
   truePeakDb?: number | null;
+  /** Sample peak in dBFS. Not a substitute for true peak. */
+  samplePeakDbfs?: number | null;
 };
 
 export type DistributionContext = {
@@ -186,15 +189,28 @@ export function evaluateLoudness(
     );
   }
 
-  const peak = loudness?.truePeakDb;
-  if (peak != null && !Number.isNaN(peak) && peak > -1) {
+  const truePeak = loudness?.truePeakDb;
+  if (truePeak != null && !Number.isNaN(truePeak) && truePeak > -1) {
     out.push(
       finding(
         "DIST_TRUE_PEAK_HIGH",
         "warning",
         "audio",
         "True peak above −1 dBTP",
-        `True peak ${peak.toFixed(1)} dBTP may clip after codec conversion.`
+        `True peak ${truePeak.toFixed(1)} dBTP may clip after codec conversion.`
+      )
+    );
+  }
+
+  const samplePeak = loudness?.samplePeakDbfs;
+  if (samplePeak != null && !Number.isNaN(samplePeak) && samplePeak > -1) {
+    out.push(
+      finding(
+        "DIST_SAMPLE_PEAK_HIGH",
+        "warning",
+        "audio",
+        "Sample peak above −1 dBFS",
+        `Sample peak ${samplePeak.toFixed(1)} dBFS. True peak is not measured yet, and codec conversion typically adds overshoot above sample peak.`
       )
     );
   }

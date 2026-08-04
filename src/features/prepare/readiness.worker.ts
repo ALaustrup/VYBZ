@@ -1,19 +1,67 @@
 /**
- * Vite Web Worker entry — probes only; no network.
+ * Vite Web Worker entry — container probes plus loudness maths on decoded PCM.
  * Lives under src/ so `?worker` resolves reliably (package alias + ?worker breaks Vite).
  */
-import { probeFixtures } from "@vybz/processing/readiness";
-import { analyzeWavBuffer, PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
+import { probeContainer, probeFixtures } from "@vybz/processing/readiness";
+import { analyzeWavBuffer, computeLoudness, PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 import type { WorkerProbeRequest, WorkerProbeResponse } from "@vybz/processing/readiness";
 
 const { parseArtistTitle, probeWav, probePng, probeJpeg } = probeFixtures;
 
+/** Average channels into a single Float32Array — matches the WAV decoder's downmix. */
+function downmix(channels: Float32Array[]): Float32Array {
+  const first = channels[0];
+  if (!first) return new Float32Array(0);
+  if (channels.length === 1) return first;
+  const mono = new Float32Array(first.length);
+  for (let i = 0; i < first.length; i++) {
+    let sum = 0;
+    for (let ch = 0; ch < channels.length; ch++) sum += channels[ch]![i] ?? 0;
+    mono[i] = sum / channels.length;
+  }
+  return mono;
+}
+
 function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
   try {
+    if (msg.type === "measure-loudness") {
+      const samples = downmix(msg.channels);
+      if (samples.length === 0 || msg.sampleRate <= 0) {
+        return {
+          type: "loudness-result",
+          requestId: msg.requestId,
+          ok: false,
+          error: "Decoded stream contained no samples",
+        };
+      }
+      const durationSeconds = samples.length / msg.sampleRate;
+      const metrics = computeLoudness({
+        samples,
+        sampleRate: msg.sampleRate,
+        channels: msg.channels.length,
+        durationSeconds,
+      });
+      return {
+        type: "loudness-result",
+        requestId: msg.requestId,
+        ok: true,
+        metrics: {
+          ...metrics,
+          analysisSampleRate: msg.sampleRate,
+          channels: msg.channels.length,
+          durationSeconds,
+        },
+      };
+    }
+
     if (msg.type === "probe-audio") {
       const lower = msg.fileName.toLowerCase();
       const isWav = lower.endsWith(".wav") || msg.mimeType.includes("wav");
-      const probe = isWav
+      const container = isWav
+        ? null
+        : probeContainer(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes);
+
+      const probe: Record<string, unknown> = isWav
         ? probeWav(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes)
         : {
             fileName: msg.fileName,
@@ -21,6 +69,7 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
             sizeBytes: msg.sizeBytes,
             container: lower.split(".").pop(),
             ...parseArtistTitle(msg.fileName),
+            ...(container ?? {}),
           };
 
       if (isWav && msg.sizeBytes <= PORTABLE_FFT_MAX_BYTES) {
@@ -35,6 +84,8 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
             rmsDbfs: analysis.rmsDbfs,
             integratedLufsApprox: analysis.integratedLufsApprox,
             loudnessMeasured: true,
+            loudnessMethod: "pcm-wav",
+            loudnessSampleRate: analysis.sampleRate,
             durationSeconds: analysis.durationSeconds,
             sampleRate: analysis.sampleRate,
             channels: analysis.channels,
@@ -72,12 +123,11 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
       },
     };
   } catch (err) {
-    return {
-      type: "probe-result",
-      requestId: msg.requestId,
-      ok: false,
-      error: err instanceof Error ? err.message : "Probe failed",
-    };
+    const error = err instanceof Error ? err.message : "Probe failed";
+    if (msg.type === "measure-loudness") {
+      return { type: "loudness-result", requestId: msg.requestId, ok: false, error };
+    }
+    return { type: "probe-result", requestId: msg.requestId, ok: false, error };
   }
 }
 
