@@ -16,9 +16,9 @@ import { ReleaseMasterPane } from "@/features/mastering/ReleaseMasterPane";
 export function PrepareLocalApp() {
   return (
     <PlatformProvider>
-      <GeometricBackdrop intensity="subtle" />
-      <div className="relative z-10 flex min-h-[100dvh] flex-col">
-        <header className="forge-glass mx-3 mt-3 flex items-center justify-between px-4 py-3 sm:mx-4">
+      <div className="public-scroll-frame nexus-void relative text-white">
+        <GeometricBackdrop intensity="subtle" />
+        <header className="forge-glass relative z-10 mx-3 mt-3 flex shrink-0 items-center justify-between px-4 py-3 sm:mx-4">
           <span className="forge-glass-edge" aria-hidden />
           <Link to="/" className="relative z-[1] flex items-center gap-2.5">
             <BrandMark className="h-8 w-8" reactive={false} />
@@ -28,7 +28,7 @@ export function PrepareLocalApp() {
             Sign in
           </Link>
         </header>
-        <main className="flex-1 overflow-auto px-3 pb-8 pt-4 sm:px-4">
+        <main className="relative z-10 px-3 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4 sm:px-4">
           <Routes>
             <Route path="/releases" element={<ReleasesPage />} />
             <Route path="/releases/new" element={<NewReleasePage />} />

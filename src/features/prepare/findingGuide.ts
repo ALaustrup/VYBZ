@@ -1,0 +1,94 @@
+/** Curated remediation copy — generic guidance; finding.detail holds track-specific measured facts. */
+export type FindingGuide = {
+  why: string;
+  fix: string;
+  target?: string;
+};
+
+const GUIDES: Record<string, FindingGuide> = {
+  METADATA_TITLE_MISSING: {
+    why: "Stores need a release title in metadata — blank titles get rejected at ingestion.",
+    fix: "Set the title that should appear on streaming platforms and download cards.",
+  },
+  METADATA_ARTIST_MISSING: {
+    why: "Primary artist credit is required for royalty routing and store display.",
+    fix: "Add the performing artist name exactly as it should appear to listeners.",
+  },
+  AUDIO_MISSING: {
+    why: "Without a master file there is nothing to measure or package.",
+    fix: "Import your finished master — WAV or FLAC preferred for the most accurate scan.",
+  },
+  ARTWORK_MISSING: {
+    why: "Every major distributor requires cover art with the audio package.",
+    fix: "Upload square cover art — 3000×3000 PNG or JPEG is the common target.",
+    target: "3000×3000 px · square · RGB",
+  },
+  AUDIO_FORMAT_UNKNOWN: {
+    why: "Some stores only accept specific audio containers and codecs.",
+    fix: "Export a WAV, FLAC, or AIFF master from your DAW, then re-import here.",
+  },
+  AUDIO_EMPTY: {
+    why: "The file contains no audio data — it cannot be played or delivered.",
+    fix: "Re-export from your session and confirm the bounce completed before uploading.",
+  },
+  AUDIO_SAMPLE_RATE_LOW: {
+    why: "Sample rates below 44.1 kHz can be rejected or upsampled unpredictably.",
+    fix: "Bounce at 44.1 kHz or 48 kHz before mastering and upload.",
+    target: "≥ 44.1 kHz",
+  },
+  AUDIO_DURATION_SHORT: {
+    why: "Sub-second files are treated as corrupt or incomplete uploads.",
+    fix: "Confirm you selected the full master — not a stub or failed export.",
+  },
+  FILENAME_INVALID: {
+    why: "Special characters in filenames break some automated delivery pipelines.",
+    fix: "Rename to Artist - Title.wav using letters, numbers, spaces, and hyphens only.",
+  },
+  AUDIO_LOSSY_MASTER: {
+    why: "Lossy masters (MP3, AAC) hide clipping and limit remaster headroom.",
+    fix: "Upload the pre-compression WAV/FLAC from your mastering chain instead.",
+  },
+  AUDIO_PEAK_CLIP: {
+    why: "Samples at 0 dBFS clip — codecs and limiters will distort further on playback.",
+    fix: "Lower your limiter ceiling by 1–3 dB and re-export, or remix peaks before mastering.",
+    target: "Peak < −0.1 dBFS before delivery",
+  },
+  AUDIO_PEAK_HOT: {
+    why: "Peaks near full scale leave no headroom for lossy encoding (Spotify, Apple, etc.).",
+    fix: "Set true-peak limiting to −1 dBTP (or lower) and rebounce the master.",
+    target: "True peak ≤ −1 dBTP",
+  },
+  AUDIO_LOUDNESS_HOT: {
+    why: "Louder than platform targets triggers automatic turn-down — your mix loses punch.",
+    fix: "Aim near −14 LUFS integrated for streaming, or match your reference platform spec.",
+    target: "≈ −14 LUFS integrated (streaming)",
+  },
+  AUDIO_LOUDNESS_QUIET: {
+    why: "Very quiet masters get buried in playlists unless listeners crank volume.",
+    fix: "Apply gentle bus compression or limiting until integrated loudness sits in a competitive range.",
+    target: "Typically −14 to −9 LUFS integrated for singles",
+  },
+  ARTWORK_TOO_SMALL: {
+    why: "Below-minimum artwork is rejected outright by most stores.",
+    fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",
+    target: "≥ 1400×1400 px (3000×3000 recommended)",
+  },
+  ARTWORK_BELOW_RECOMMENDED: {
+    why: "Art below 3000 px may look soft on high-DPI phones and TV apps.",
+    fix: "Re-export from your design source at 3000×3000 without upscaling a smaller image.",
+    target: "3000×3000 px square",
+  },
+  ARTWORK_NOT_SQUARE: {
+    why: "Cover art displays as a square tile — non-square images get cropped unpredictably.",
+    fix: "Crop or redesign to 1:1 aspect ratio before upload.",
+    target: "1:1 aspect ratio",
+  },
+  ARTWORK_DIMENSIONS_UNKNOWN: {
+    why: "We could not read pixel dimensions — checks may be incomplete.",
+    fix: "Re-save as PNG or JPEG from your design tool and upload again.",
+  },
+};
+
+export function getFindingGuide(code: string): FindingGuide | null {
+  return GUIDES[code] ?? null;
+}

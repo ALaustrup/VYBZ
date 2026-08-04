@@ -50,8 +50,9 @@ export function DistributionReportPage() {
       const audio = bundle.assets.find((a) => a.kind === "audio");
       const art = bundle.assets.find((a) => a.kind === "artwork");
       const probe = (audio?.probe ?? {}) as {
-        integratedLufs?: number;
-        truePeakDb?: number;
+        integratedLufsApprox?: number;
+        peakDbfs?: number;
+        loudnessMeasured?: boolean;
         isrc?: string;
       };
       const artProbe = (art?.probe ?? {}) as {
@@ -64,20 +65,22 @@ export function DistributionReportPage() {
       };
 
       const loudness =
-        probe.integratedLufs != null && !Number.isNaN(probe.integratedLufs)
+        probe.loudnessMeasured &&
+        probe.integratedLufsApprox != null &&
+        !Number.isNaN(probe.integratedLufsApprox)
           ? {
-              integratedLufs: probe.integratedLufs,
-              truePeakDb: probe.truePeakDb ?? null,
+              integratedLufs: probe.integratedLufsApprox,
+              truePeakDb: probe.peakDbfs ?? null,
             }
           : null;
 
       setLoudnessLabel(
         loudness?.integratedLufs != null
-          ? `Integrated ${loudness.integratedLufs.toFixed(1)} LUFS${
-              loudness.truePeakDb != null ? ` · true peak ${loudness.truePeakDb.toFixed(1)} dBTP` : ""
-            } (measured)`
+          ? `~${loudness.integratedLufs.toFixed(1)} LUFS integrated (estimated — not standards-certified)${
+              loudness.truePeakDb != null ? ` · peak ${loudness.truePeakDb.toFixed(1)} dBFS (measured)` : ""
+            }`
           : audio
-            ? "Not measured — run loudness analysis before packaging"
+            ? "Not measured — upload a WAV under 10 MB for on-device loudness analysis"
             : "Not measured",
       );
 
@@ -137,7 +140,8 @@ export function DistributionReportPage() {
       } else {
         await platform.files.saveExport(file);
       }
-      showToast(`Export ready · SHA ${pkg.sha256.slice(0, 12)}…`);    } catch (err) {
+      showToast(`Export ready · SHA ${pkg.sha256.slice(0, 12)}…`);
+    } catch (err) {
       setError(err instanceof Error ? err.message : "Export failed");
     } finally {
       setBusy(false);

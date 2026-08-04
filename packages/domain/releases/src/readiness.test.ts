@@ -18,6 +18,52 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "ARTWORK_MISSING")).toBe(true);
   });
 
+  it("flags measured loudness when present", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: true,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 44100,
+        durationSeconds: 120,
+        loudnessMeasured: true,
+        peakDbfs: 0.2,
+        integratedLufsApprox: -6,
+      },
+      artwork: {
+        fileName: "cover.png",
+        mimeType: "image/png",
+        sizeBytes: 100,
+        width: 3000,
+        height: 3000,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_PEAK_CLIP")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_HOT")).toBe(true);
+  });
+
+  it("does not fabricate loudness when not measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 44100,
+        durationSeconds: 120,
+      },
+    });
+    expect(findings.some((f) => f.code.startsWith("AUDIO_LOUDNESS"))).toBe(false);
+    expect(findings.some((f) => f.code.startsWith("AUDIO_PEAK"))).toBe(false);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

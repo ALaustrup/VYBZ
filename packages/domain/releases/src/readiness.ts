@@ -19,6 +19,14 @@ export type AudioProbe = {
   artistFromName?: string;
   /** Optional composer tag from audio metadata / filename heuristics. */
   composerFromName?: string;
+  /** Measured peak level in dBFS — present only when PCM was analyzed. */
+  peakDbfs?: number;
+  /** Measured RMS in dBFS — present only when PCM was analyzed. */
+  rmsDbfs?: number;
+  /** Approximate integrated loudness (LUFS-like) — not BS.1770 certified. */
+  integratedLufsApprox?: number;
+  /** True when loudness metrics were measured from PCM, not inferred. */
+  loudnessMeasured?: boolean;
 };
 
 export type ArtworkProbe = {
@@ -175,6 +183,55 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
         `Consider simplifying “${audio.fileName}” before delivery.`
       )
     );
+  }
+
+  if (audio.loudnessMeasured && audio.peakDbfs !== undefined) {
+    if (audio.peakDbfs >= -0.1) {
+      out.push(
+        finding(
+          "AUDIO_PEAK_CLIP",
+          "blocking",
+          "audio",
+          "Peaks at or above 0 dBFS",
+          `Measured peak ${audio.peakDbfs.toFixed(1)} dBFS on this file — reduce limiter ceiling or export headroom before release.`
+        )
+      );
+    } else if (audio.peakDbfs > -1) {
+      out.push(
+        finding(
+          "AUDIO_PEAK_HOT",
+          "warning",
+          "audio",
+          "Peaks very close to full scale",
+          `Measured peak ${audio.peakDbfs.toFixed(1)} dBFS — leave at least 1 dB true-peak headroom for mastering and distribution.`
+        )
+      );
+    }
+  }
+
+  if (audio.loudnessMeasured && audio.integratedLufsApprox !== undefined) {
+    const lufs = audio.integratedLufsApprox;
+    if (lufs > -8) {
+      out.push(
+        finding(
+          "AUDIO_LOUDNESS_HOT",
+          "warning",
+          "audio",
+          "Track reads loud for streaming",
+          `Measured ~${lufs.toFixed(1)} LUFS (approx.) on this master — most streaming targets sit near −14 LUFS integrated.`
+        )
+      );
+    } else if (lufs < -22) {
+      out.push(
+        finding(
+          "AUDIO_LOUDNESS_QUIET",
+          "warning",
+          "audio",
+          "Track reads quiet",
+          `Measured ~${lufs.toFixed(1)} LUFS (approx.) — consider gentle gain or limiting so listeners don't need to turn up.`
+        )
+      );
+    }
   }
 
   if (name.endsWith(".mp3") || audio.mimeType.includes("mpeg")) {
