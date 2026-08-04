@@ -16,9 +16,6 @@ import {
   updateCredit,
 } from "@/features/credits/service";
 import { SyncConflictPanel } from "@/features/sync/SyncConflictPanel";
-import { CollabPresenceStrip } from "@/features/collab/CollabPresenceStrip";
-import { CommentThreadPanel } from "@/features/collab/CommentThreadPanel";
-import { CollabMergePanel } from "@/features/collab/CollabMergePanel";
 import { NexusPageHeader } from "@/components/NexusPageHeader";
 
 function roleLabel(role: CreditRole): string {
@@ -126,17 +123,9 @@ export function ReleaseCreditsPage() {
       <h1 className="sr-only" data-testid="credits-release-title">{releaseTitle}</h1>
       {splitWarning ? <p className="text-xs text-white/45">{splitWarning}</p> : null}
 
-      <CollabPresenceStrip
-        releaseId={id}
-        userId={ownerId}
-        username={null}
-        pane="credits"
-      />
-
       {error ? <StateView variant="error" title="Credits error" body={error} /> : null}
 
       <SyncConflictPanel projectId={id} />
-      <CollabMergePanel releaseId={id} />
 
       <form className="forge-card flex flex-col gap-3" onSubmit={onAdd}>
         <Input
@@ -213,14 +202,6 @@ export function ReleaseCreditsPage() {
         ))}
       </ul>
 
-      <CommentThreadPanel
-        releaseId={id}
-        authorId={ownerId}
-        authorName={null}
-        title="Credit comments"
-        anchorKind="credit_field"
-        anchorRef="displayName"
-      />
     </div>
   );
 }

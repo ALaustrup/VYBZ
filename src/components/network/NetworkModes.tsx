@@ -3,12 +3,11 @@ import { cx } from "@/lib/utils";
 
 const MODES = [
   { id: "matches", label: "Matches", to: "/connect" },
-  { id: "spark", label: "Spark", to: "/spark" },
   { id: "jobs", label: "Jobs", to: "/opportunities" },
   { id: "search", label: "Search", to: "/discover" },
 ] as const;
 
-/** One strip for Network children — Matches / Spark / Jobs / Search. */
+/** Network sub-nav — Matches / Jobs / Search (Spark dating deck archived M2). */
 export function NetworkModes() {
   const { pathname } = useLocation();
   const navigate = useNavigate();

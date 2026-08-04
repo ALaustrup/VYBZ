@@ -61,7 +61,7 @@ export function ProfileLiveFeed({ excludeMustAck = false }: { excludeMustAck?: b
     if ((n.kind === "connection" || n.kind === "follow") && n.actorId) navigate(`/u/${n.actorId}`);
     else if (n.kind === "application") navigate("/opportunities");
     else if (n.kind === "reaction") navigate("/");
-    else if (n.kind === "match" || n.kind === "vibe") navigate("/spark");
+    else if (n.kind === "match" || n.kind === "vibe") navigate("/connect");
     else if (n.kind === "live") navigate(n.refId ? `/live/${n.refId}` : "/live");
     else if (n.kind === "staff") navigate("/mod");
     else if (n.actorId) navigate(`/u/${n.actorId}`);
