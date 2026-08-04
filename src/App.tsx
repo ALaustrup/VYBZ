@@ -7,7 +7,6 @@ import { DynamicBackground } from "@/components/DynamicBackground";
 import { PageTransition } from "@/components/PageTransition";
 import { LandingPage } from "@/pages/LandingPage";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
-import { WelcomeTutorial } from "@/components/WelcomeTutorial";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { BulkUploadSheet } from "@/components/BulkUploadSheet";
 import { GrainOverlay } from "@/components/GrainOverlay";
@@ -166,6 +165,7 @@ export function App() {
         <PageTransition routeKey={location.pathname}>
           <Routes location={location}>
         <Route path="/" element={<ProfilePage />} />
+        <Route path="/enter" element={<Navigate to="/" replace />} />
         <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/activity" element={<Navigate to="/?tab=live" replace />} />
@@ -243,7 +243,6 @@ export function App() {
         <CamCallOverlay />
         <VideoMessageHost />
         <ReactiveFrame />
-        <WelcomeTutorial />
         <Toast /><Confetti />
       </CamCallProvider>
     </MessagePopoutProvider>

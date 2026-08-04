@@ -95,7 +95,7 @@ export function ProfilePage() {
   const facets = profile.profile ?? {};
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1">
+    <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1">
       {tab === "hub" && (
         <DashHubPanel
           onListenMore={() => setTab("listen")}

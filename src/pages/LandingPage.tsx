@@ -51,7 +51,7 @@ const WORKFLOW = [
  */
 export function LandingPage() {
   return (
-    <div className="nexus-void relative min-h-[100dvh] overflow-x-hidden text-white">
+    <div className="nexus-void relative min-h-[100dvh] overflow-x-hidden overflow-y-auto text-white">
       <GeometricBackdrop intensity="hero" />
 
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
@@ -66,7 +66,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-3xl flex-col items-center justify-center px-5 pb-20 pt-8 text-center">
+      <section className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center justify-center px-5 pb-[max(6rem,env(safe-area-inset-bottom))] pt-8 text-center sm:min-h-[calc(100dvh-5rem)]">
         <LandingLogo />
         <motion.p
           className="nexus-eyebrow mt-8"

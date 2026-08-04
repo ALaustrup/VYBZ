@@ -23,7 +23,7 @@ export function AuthShell({
   const reduce = useReduceFx();
 
   return (
-    <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-5 py-10">
+    <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center overflow-y-auto px-5 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
       <GeometricBackdrop intensity="subtle" />
       <motion.div
         className="forge-glass w-full max-w-[22rem] p-7 sm:max-w-sm"
