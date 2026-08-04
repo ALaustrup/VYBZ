@@ -21,7 +21,7 @@ export function PageTransition({ routeKey, children }: { routeKey: string; child
       animate="animate"
       exit="exit"
       transition={geometricPageTransition}
-      style={{ willChange: "clip-path, opacity, transform" }}
+      style={{ willChange: "opacity, transform" }}
     >
       {children}
     </motion.div>

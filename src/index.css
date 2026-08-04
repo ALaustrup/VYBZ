@@ -275,9 +275,10 @@
   }
 
   .suite-stage-inner {
-    @apply mx-auto h-full min-h-0 w-full max-w-5xl overflow-y-auto overflow-x-hidden;
+    @apply mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-y-auto overflow-x-hidden;
     padding-left: var(--stage-pad-x);
     padding-right: var(--stage-pad-x);
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
     -webkit-overflow-scrolling: touch;
   }
 

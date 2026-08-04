@@ -68,27 +68,15 @@ export const pageEnter = {
   transition: { ...easeOutExpo, duration: durationNormal } satisfies Transition,
 };
 
-/** Geometric diagonal reveal — signature page transition for the suite shell. */
+/** Route stage enter — opacity fade only (clip-path clipped scrollable content). */
 export const geometricPageVariants: Variants = {
-  initial: {
-    opacity: 0,
-    clipPath: "polygon(0 0, 100% 0, 100% 0, 0 12%)",
-    y: 10,
-  },
-  animate: {
-    opacity: 1,
-    clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
-    y: 0,
-  },
-  exit: {
-    opacity: 0,
-    clipPath: "polygon(0 88%, 100% 100%, 100% 100%, 0 100%)",
-    y: -6,
-  },
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -4 },
 };
 
 export const geometricPageTransition: Transition = {
-  duration: 0.38,
+  duration: 0.22,
   ease: [0.22, 1, 0.28, 1],
 };
 
