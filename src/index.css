@@ -1174,6 +1174,16 @@
   overflow: hidden;
 }
 
+/** Signed-out / auth surfaces scroll inside #root (root stays overflow:hidden for SuiteShell). */
+.public-scroll-frame {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ── Premium ambience: smoother, glowing, alive interactions ───────────────── */
 .btn { transition: transform .15s ease, box-shadow .3s ease, background-color .2s ease, opacity .2s ease; }
 .btn-primary:hover { box-shadow: 0 0 0 1px rgb(var(--accent-rgb) / 0.45), 0 10px 34px -10px rgb(var(--accent-rgb) / 0.6); }
