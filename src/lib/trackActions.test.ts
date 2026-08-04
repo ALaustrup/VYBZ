@@ -159,14 +159,16 @@ describe("buildTrackActions — targeting", () => {
   });
 
   it("keeps the surface open for actions that swap to another panel", () => {
-    const groups = buildTrackActions(ctx(), handlers());
+    const owner = buildTrackActions(ctx(), handlers());
     // These replace the menu with a dialog, so closing first would discard the stage change.
     for (const id of ["file-details", "rename", "delete"]) {
-      expect(find(groups, id)?.keepOpen).toBe(true);
+      expect(find(owner, id)?.keepOpen).toBe(true);
     }
+    // Report opens a dialog for non-owners and must behave the same way.
+    expect(find(buildTrackActions(ctx({ isOwner: false }), handlers()), "report")?.keepOpen).toBe(true);
     // One-shot actions should close the menu.
     for (const id of ["play", "queue", "download", "open-artist"]) {
-      expect(find(groups, id)?.keepOpen).toBeUndefined();
+      expect(find(owner, id)?.keepOpen).toBeUndefined();
     }
   });
 

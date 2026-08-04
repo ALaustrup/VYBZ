@@ -185,7 +185,7 @@ export function TrackActionMenu({
     />
   );
 
-  if (!open) return reportOpen ? report : null;
+  if (!open) return null;
 
   if (stage === "menu") {
     return (

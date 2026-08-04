@@ -203,18 +203,21 @@ export function TrackCard({
         </button>
       )}
 
-      <TrackActionMenu
-        drop={d}
-        open={menuAnchor !== null}
-        anchor={menuAnchor}
-        onClose={() => setMenuAnchor(null)}
-        returnFocusTo={moreRef.current}
-        onChanged={onChanged}
-        onPlay={() => togglePlayFromMenu()}
-        onReact={onReact}
-        onRate={() => onRate?.(5)}
-        isFeatured={isFeatured}
-      />
+      {/* Mounted only while open — the menu subscribes to player and session state. */}
+      {menuAnchor !== null && (
+        <TrackActionMenu
+          drop={d}
+          open
+          anchor={menuAnchor}
+          onClose={() => setMenuAnchor(null)}
+          returnFocusTo={moreRef.current}
+          onChanged={onChanged}
+          onPlay={() => togglePlayFromMenu()}
+          onReact={onReact}
+          onRate={() => onRate?.(5)}
+          isFeatured={isFeatured}
+        />
+      )}
 
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0">

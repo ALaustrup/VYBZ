@@ -212,9 +212,11 @@ export function buildTrackActions(
         ]
       : [
           {
+            // Opens the report dialog in place of the menu, so the surface must stay mounted.
             id: "report",
             label: "Report this track",
             icon: Flag,
+            keepOpen: true,
             disabledReason: online ? undefined : OFFLINE,
             onSelect: handlers.report,
           },
