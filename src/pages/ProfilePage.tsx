@@ -12,7 +12,6 @@ import { ProfileInbox } from "@/components/profile/ProfileInbox";
 import { DashHubPanel } from "@/components/dashboard/DashHubPanel";
 import { DashListenPanel } from "@/components/dashboard/DashListenPanel";
 import { DashLivePanel } from "@/components/dashboard/DashLivePanel";
-import { DashConnectPanel } from "@/components/dashboard/DashConnectPanel";
 import { DashListsPanel } from "@/components/dashboard/DashListsPanel";
 import { WalletPage } from "@/pages/WalletPage";
 import { useSession } from "@/store/session";
@@ -35,7 +34,7 @@ import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { formatVc, formatVcAddress } from "@/lib/vc";
 import type { Drop, Credit } from "@/types";
 
-type DashTab = "hub" | "listen" | "live" | "connect" | "you" | "wallet";
+type DashTab = "hub" | "listen" | "live" | "you" | "wallet";
 type YouSub = "music" | "live" | "lists";
 
 /** Primary logged-in surface — minimal hub. */
@@ -45,8 +44,8 @@ export function ProfilePage() {
   const [params, setParams] = useSearchParams();
   const raw = params.get("tab") ?? "hub";
   const tab: DashTab =
-    raw === "inbox" || raw === "match" ? (raw === "match" ? "connect" : "you")
-    : ["hub", "listen", "live", "connect", "you", "wallet"].includes(raw)
+    raw === "inbox" ? "you"
+    : ["hub", "listen", "live", "you", "wallet"].includes(raw)
       ? (raw as DashTab)
       : "hub";
   const youSub: YouSub = (["music", "live", "lists"].includes(params.get("sub") ?? "")
@@ -104,7 +103,6 @@ export function ProfilePage() {
       )}
       {tab === "listen" && <DashListenPanel />}
       {tab === "live" && <DashLivePanel />}
-      {tab === "connect" && <DashConnectPanel />}
       {tab === "wallet" && <WalletPage embedded />}
       {tab === "you" && (
         <>

@@ -49,7 +49,7 @@ import {
 
 export type PinId =
   | "feed" | "drops" | "connect" | "collabs" | "social" | "live" | "messages" | "profile"
-  | "activity" | "discover" | "spark" | "opportunities" | "store" | "codex"
+  | "activity" | "discover" | "opportunities" | "store" | "codex"
   | "rooms" | "library" | "mod" | "admin";
 
 export interface PinDef {
@@ -65,7 +65,7 @@ export interface PinDef {
 export const PIN_CATALOG: PinDef[] = [
   { id: "feed", label: "Home", to: "/", icon: Home, end: true },
   { id: "drops", label: "Listen", to: "/?tab=listen", icon: AudioLines },
-  { id: "connect", label: "Match", to: "/?tab=match", icon: Users },
+  { id: "connect", label: "Collaborate", to: "/connect", icon: Users },
   { id: "collabs", label: "You", to: "/?tab=you", icon: FolderGit2 },
   { id: "social", label: "Live", to: "/?tab=live", icon: Users },
   { id: "live", label: "Live", to: "/?tab=live", icon: Radio },
@@ -73,7 +73,6 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "profile", label: "You", to: "/?tab=you", icon: Users },
   { id: "activity", label: "Live feed", to: "/?tab=live", icon: Bell, badgeUnread: true },
   { id: "discover", label: "Listen", to: "/?tab=listen", icon: Search },
-  { id: "spark", label: "Match", to: "/?tab=match", icon: Sparkles },
   { id: "opportunities", label: "You", to: "/?tab=you", icon: FolderGit2 },
   { id: "store", label: "Flair", to: "/store", icon: Store },
   { id: "codex", label: "Codex", to: "/codex", icon: ScrollText },
@@ -164,7 +163,7 @@ export const MAX_SIDE = MAX_LEFT;
 export const DEFAULT_LAYOUT: VDockLayout = {
   left: [
     { kind: "pin", id: "feed" },
-    { kind: "pin", id: "spark" },
+    { kind: "pin", id: "drops" },
   ],
   right: [
     { kind: "pin", id: "messages" },

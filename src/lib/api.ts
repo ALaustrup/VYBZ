@@ -19,7 +19,7 @@ import type {
   Cosmetic, CosmeticStore, CosmeticPackage, AdminCosmeticStats, AdminMatchFairness,
   LiveSessionCard, LiveSessionDetail, LiveMessage, LiveSource,
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
-  SocialScore, VibeCard, VibeCardType, VibeMatch, SparkActResult,
+  SocialScore,
 } from "@/types";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
@@ -145,29 +145,6 @@ export async function recordSocialScoreEvent(
   payload: Record<string, unknown> = {},
 ): Promise<void> {
   await db().rpc("record_social_score_event", { p_kind: kind, p_payload: payload });
-}
-
-export async function feedVibeCards(limit = 12): Promise<VibeCard[]> {
-  const { data, error } = await db().rpc("feed_vibe_cards", { p_limit: limit });
-  if (error || !data) return [];
-  return (data as any[]).map((r) => ({
-    cardType: r.card_type as VibeCardType,
-    userId: r.user_id,
-    username: r.username ?? null,
-    displayName: r.display_name ?? null,
-    avatarUrl: r.avatar_url ?? null,
-    age: r.age != null ? Number(r.age) : null,
-    sex: r.sex ?? null,
-    location: r.location ?? null,
-    distanceMiles: r.distance_miles != null ? Number(r.distance_miles) : null,
-    sharedInterests: (r.shared_interests ?? []) as string[],
-    lookingFor: (r.looking_for ?? []) as string[],
-    meetupIntents: (r.meetup_intents ?? []) as string[],
-    headline: r.headline ?? "",
-    why: r.why ?? "",
-    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
-    score: Number(r.score ?? 0),
-  }));
 }
 
 export async function usernameAvailable(username: string): Promise<boolean> {
@@ -845,77 +822,7 @@ export async function refreshEmbedding(): Promise<void> {
   try { await db().functions.invoke("embed", { body: {} }); } catch { /* non-fatal */ }
 }
 
-// ── Matchmaking ──────────────────────────────────────────────────────────────
-export async function vibeMatches(
-  deck: "love" | "meetup",
-  limit = 40,
-  filters?: {
-    radiusMiles?: number | null;
-    ageMin?: number | null;
-    ageMax?: number | null;
-    lookingFor?: string[];
-    meetupIntents?: string[];
-    mustShareMeetup?: boolean;
-  },
-): Promise<VibeMatch[]> {
-  const { data, error } = await db().rpc("vibe_matches", {
-    p_deck: deck,
-    p_limit: limit,
-    p_radius_miles: filters?.radiusMiles ?? null,
-    p_age_min: filters?.ageMin ?? null,
-    p_age_max: filters?.ageMax ?? null,
-    p_looking: filters?.lookingFor?.length ? filters.lookingFor : null,
-    p_meetup: filters?.meetupIntents?.length ? filters.meetupIntents : null,
-    p_must_share_meetup: !!filters?.mustShareMeetup,
-  });
-  if (error || !data) return [];
-  return (data as any[]).map((r) => ({
-    userId: r.user_id,
-    username: r.username ?? null,
-    fit: Number(r.fit ?? 0),
-    confidence: Number(r.confidence ?? 0),
-    distanceMiles: r.distance_miles != null ? Number(r.distance_miles) : null,
-    age: r.age != null ? Number(r.age) : null,
-    sex: r.sex ?? null,
-    location: r.location ?? null,
-    lookingFor: (r.looking_for ?? []) as string[],
-    meetupIntents: (r.meetup_intents ?? []) as string[],
-    sharedInterests: (r.shared_interests ?? []) as string[],
-    sharedLooking: (r.shared_looking ?? []) as string[],
-    sharedMeetup: (r.shared_meetup ?? []) as string[],
-    why: r.why ?? "",
-    mutualLike: !!r.mutual_like,
-  }));
-}
-
-export async function sparkAct(
-  targetId: string,
-  outcome: "like" | "pass",
-  deck: "love" | "meetup",
-): Promise<SparkActResult> {
-  const { data, error } = await db().rpc("spark_act", {
-    p_target: targetId,
-    p_outcome: outcome,
-    p_deck: deck,
-  });
-  if (error || !data) {
-    return { ok: false, mutual: false, peerId: targetId, peerUsername: null, deck, error: error?.message };
-  }
-  const r = data as any;
-  const result: SparkActResult = {
-    ok: !!r.ok,
-    mutual: !!r.mutual,
-    peerId: r.peerId ?? targetId,
-    peerUsername: r.peerUsername ?? null,
-    deck: (r.deck as "love" | "meetup") ?? deck,
-    error: r.error,
-  };
-  if (result.ok && result.mutual) {
-    void awardSocialVc("spark_match", "spark", targetId).catch(() => undefined);
-  }
-  return result;
-}
-
+// ── Collaborator matching ────────────────────────────────────────────────────
 export async function collabMatches(
   limit = 30,
   category: string | null = null,
@@ -2376,11 +2283,11 @@ export async function respondConnection(requesterId: string, accept: boolean): P
   return !!data;
 }
 
-/** Persist Spark / connection outcomes for future LTR tuning. */
+/** Persist collaborator connection outcomes for future LTR tuning. */
 export async function logMatchFeedback(
   peerId: string,
   outcome: "accepted" | "declined" | "pass" | "connect",
-  source: "spark" | "connection" | "connect_page" = "spark",
+  source: "connection" | "connect_page" = "connect_page",
 ): Promise<void> {
   await db().rpc("log_match_feedback", {
     p_peer: peerId,

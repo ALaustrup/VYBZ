@@ -68,7 +68,7 @@ export const PROFESSIONS: Profession[] = [
   { id: "game_dev", label: "Games", blurb: "Optional secondary — audio + interactive projects", icon: "Gamepad2" },
 ];
 export const PROFESSION_LABEL: Record<string, string> = Object.fromEntries(PROFESSIONS.map((p) => [p.id, p.label]));
-/** Soft-scope Find/Spark/FeedHero: unset craft → music (product default). */
+/** Soft-scope Find / FeedHero: unset craft → music (product default). */
 export function craftScope(profession?: string | null): string {
   return profession && PROFESSIONS.some((p) => p.id === profession) ? profession : PRIMARY_PROFESSION;
 }
@@ -269,39 +269,19 @@ export const INTERESTS: string[] = [
   "Beat battles", "Cyphers", "Open mics", "DJing", "Crate digging",
 ];
 
-/** Activity / meetup intents (Love & Meetup pillar). */
-export const MEETUP_INTENTS: string[] = [
-  "Hiking partner", "Coffee hang", "Gym buddy", "Study buddy", "Jam session",
-  "Concert buddy", "Travel companion", "Climbing partner", "Dog walk",
-  "Local hang", "Creative cowork", "Language exchange",
-];
-
-export const SEX_OPTIONS: string[] = [
-  "Woman", "Man", "Non-binary", "Prefer to self-describe", "Prefer not to say",
-];
-
 /** Single-choice fields. Each is matchable so overlap nudges affinity. */
 export const CHOICE_FIELDS: ChoiceField[] = [
   {
     key: "lookingFor",
     label: "Looking for",
-    hint: "Music collabs first — romance is optional via Connection Lab.",
+    hint: "What you want from a collaborator.",
     multi: true,
     matchable: true,
     options: [
       "Collaborator", "Band member", "Session work", "Co-writer", "Feedback",
       "Sample trade", "Ghost production", "Remix", "Sync", "Mixing", "Mastering",
-      "Friendship", "Activity partner", "Mentor", "Mentee", "Just exploring",
-      "Dating", "Something casual",
+      "Mentor", "Mentee",
     ],
-  },
-  {
-    key: "meetupIntents",
-    label: "IRL & sessions",
-    hint: "Shows, studio sessions, hangouts — optional.",
-    multi: true,
-    matchable: true,
-    options: MEETUP_INTENTS,
   },
   {
     key: "interests",
@@ -389,31 +369,8 @@ export function completeness(
   if (details.bio?.trim()) filled++;
   if (details.lookingFor?.length) filled++;
   if (details.interests?.length) filled++;
-  if (details.meetupIntents?.length) filled++;
   if (details.prompts?.some((p) => p.a.trim())) filled++;
   return Math.round((filled / total) * 100);
-}
-
-/** Romantic looking-for labels — require 18+ (server-enforced). */
-export const ROMANTIC_LOOKING_FOR = ["Dating", "Something casual"] as const;
-
-export function hasRomanticLookingFor(lookingFor?: string[] | null): boolean {
-  return (lookingFor ?? []).some((x) => (ROMANTIC_LOOKING_FOR as readonly string[]).includes(x));
-}
-
-/** Client-side age from birthYear (server derives the same way for cards). */
-export function ageFromBirthYear(birthYear?: number | null): number | null {
-  if (!birthYear || birthYear < 1920 || birthYear > new Date().getFullYear()) return null;
-  const now = new Date();
-  let age = now.getFullYear() - birthYear;
-  // Approximate mid-year birthday (matches SQL make_date(..., 6, 15)).
-  if (now.getMonth() < 5 || (now.getMonth() === 5 && now.getDate() < 15)) age -= 1;
-  return age > 0 ? age : null;
-}
-
-export function isAdultBirthYear(birthYear?: number | null): boolean {
-  const age = ageFromBirthYear(birthYear);
-  return age != null && age >= 18;
 }
 
 /** Local overlap percentage between two string arrays (for previews). */

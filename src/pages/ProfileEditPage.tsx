@@ -8,10 +8,8 @@ import { ModuleAttrsEditor } from "@/components/ModuleAttrsEditor";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import {
   ROLES, ROLE_FAMILIES, GENRES, DAWS, PLUGINS, PROFESSIONS, PRIMARY_PROFESSION,
-  INTERESTS, MEETUP_INTENTS, SEX_OPTIONS, CHOICE_FIELDS, MAX_INTERESTS,
-  hasRomanticLookingFor, isAdultBirthYear, ageFromBirthYear,
+  INTERESTS, CHOICE_FIELDS, MAX_INTERESTS,
 } from "@/lib/profileFields";
-import { resolveIntentMix, showCreateFacets, sealIntentMixPrivacy } from "@/lib/intentMix";
 import { cx } from "@/lib/utils";
 import type { ProfileDetails } from "@/types";
 
@@ -35,20 +33,11 @@ export function ProfileEditPage() {
   const [plugins, setPlugins] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
   const [lookingFor, setLookingFor] = useState<string[]>([]);
-  const [meetupIntents, setMeetupIntents] = useState<string[]>([]);
-  const [birthYear, setBirthYear] = useState("");
-  const [sex, setSex] = useState("");
-  const [matchRadiusMiles, setMatchRadiusMiles] = useState(100);
-  const [prefAgeMin, setPrefAgeMin] = useState("");
-  const [prefAgeMax, setPrefAgeMax] = useState("");
-  const [shareAge, setShareAge] = useState(false);
-  const [shareSex, setShareSex] = useState(false);
   const [shareLocation, setShareLocation] = useState(true);
   const [offers, setOffers] = useState<string[]>([]);
   const [seeks, setSeeks] = useState<string[]>([]);
   const [profession, setProfession] = useState<string | null>(null);
   const [secondaries, setSecondaries] = useState<string[]>([]);
-  const [createExpanded, setCreateExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -60,17 +49,9 @@ export function ProfileEditPage() {
     setOpenToWork(!!f.openToWork); setRemoteOk(f.remoteOk ?? true);
     setGenres(f.genres ?? []); setDaws(f.daws ?? []); setPlugins(f.plugins ?? []);
     setInterests(f.interests ?? []); setLookingFor(f.lookingFor ?? []);
-    setMeetupIntents(f.meetupIntents ?? []);
-    setBirthYear(f.birthYear ? String(f.birthYear) : "");
-    setSex(f.sex ?? "");
-    setMatchRadiusMiles(f.matchRadiusMiles ?? 100);
-    setPrefAgeMin(f.prefAgeMin != null ? String(f.prefAgeMin) : "");
-    setPrefAgeMax(f.prefAgeMax != null ? String(f.prefAgeMax) : "");
-    setShareAge(!!f.shareAge); setShareSex(!!f.shareSex);
     setShareLocation(f.shareLocation !== false);
     setProfession(f.profession ?? null);
     setSecondaries((f.professions ?? []).filter((p) => p !== (f.profession ?? null)));
-    setCreateExpanded(!!resolveIntentMix(f).createExpanded || showCreateFacets(f));
     api.getMyRoles().then((r) => { setOffers(r.offers.map((o) => o.roleId)); setSeeks(r.seeks.map((s) => s.roleId)); });
   }, [profile]);
 
@@ -116,35 +97,17 @@ export function ProfileEditPage() {
   }
 
   async function save() {
-    const year = birthYear.trim() ? Number(birthYear.trim()) : undefined;
-    if (hasRomanticLookingFor(lookingFor) && !isAdultBirthYear(year)) {
-      showToast("Romantic intents require birth year proving 18+");
-      return;
-    }
     setBusy(true);
-    const amin = prefAgeMin.trim() ? Number(prefAgeMin.trim()) : undefined;
-    const amax = prefAgeMax.trim() ? Number(prefAgeMax.trim()) : undefined;
-    const prevMix = resolveIntentMix(profile?.profile);
     const details: ProfileDetails = {
       ...(profile?.profile ?? {}),
       genres, daws, plugins, influences: influences.trim() || undefined, openToWork, remoteOk,
-      interests, lookingFor, meetupIntents,
-      birthYear: year && year >= 1920 && year <= new Date().getFullYear() ? year : undefined,
-      sex: sex.trim() || undefined,
-      matchRadiusMiles,
-      prefAgeMin: amin != null && amin >= 18 && amin <= 99 ? amin : undefined,
-      prefAgeMax: amax != null && amax >= 18 && amax <= 99 ? amax : undefined,
-      shareAge, shareSex, shareLocation,
+      interests, lookingFor,
+      shareLocation,
       profession: profession ?? PRIMARY_PROFESSION,
       professions: [
         profession ?? PRIMARY_PROFESSION,
         ...secondaries.filter((p) => p !== (profession ?? PRIMARY_PROFESSION)),
       ],
-      intentMix: {
-        ...prevMix,
-        createExpanded: createExpanded || prevMix.pillars.includes("create"),
-        completedAt: prevMix.completedAt ?? new Date().toISOString(),
-      },
     };
     await api.updateMyProfile({
       bio: bio.trim(),
@@ -152,7 +115,7 @@ export function ProfileEditPage() {
       lat,
       lng,
       avatarUrl: avatarUrl ?? undefined,
-      profile: sealIntentMixPrivacy(details),
+      profile: details,
     });
     await api.setMyRoles(offers.map((r) => ({ roleId: r, skill: 3 })), seeks.map((r) => ({ roleId: r, priority: 1 })));
     try { await moduleSaveRef.current?.(); } catch { /* module attrs optional */ }
@@ -179,7 +142,7 @@ export function ProfileEditPage() {
           <div className="flex items-center gap-4">
             <Avatar url={avatarUrl} name={profile?.username} id={profile?.id} size="lg" square />
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-white/50">A clear face or brand mark helps people recognize you in Network &amp; Spark.</p>
+              <p className="text-sm text-white/50">A clear face or brand mark helps people recognise your releases.</p>
               <input ref={fileRef} type="file" accept="image/*" className="hidden"
                 onChange={(e) => void pickAvatar(e.target.files?.[0] ?? null)} />
               <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}
@@ -198,27 +161,17 @@ export function ProfileEditPage() {
               <Navigation className="h-3.5 w-3.5" />
               {lat != null && lng != null ? "Update map pin" : "Use my location"}
             </button>
-            {lat != null && lng != null && (
-              <span className="text-[11px] text-white/40">Pin set · radius {matchRadiusMiles} mi</span>
-            )}
+            {lat != null && lng != null && <span className="text-[11px] text-white/40">Pin set</span>}
           </div>
-          <label className="block text-[12px] text-white/45">
-            Match radius (miles)
-            <input
-              type="range" min={10} max={250} step={5} value={matchRadiusMiles}
-              onChange={(e) => setMatchRadiusMiles(Number(e.target.value))}
-              className="mt-2 w-full accent-veil-400"
-            />
-          </label>
           <textarea value={bio} onChange={(e) => setBio(e.target.value.slice(0, 280))} rows={3} placeholder="Short bio — who you are, what you're into" className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
           <textarea value={influences} onChange={(e) => setInfluences(e.target.value.slice(0, 200))} rows={2} placeholder="Influences (optional) — powers creative resonance" className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
           <Toggle label="Open to work / collaboration" on={openToWork} onClick={() => setOpenToWork((v) => !v)} />
           <Toggle label="Open to remote collaboration" on={remoteOk} onClick={() => setRemoteOk((v) => !v)} />
-          <Toggle label="Show city on vibe cards" on={shareLocation} onClick={() => setShareLocation((v) => !v)} />
+          <Toggle label="Show city on your profile" on={shareLocation} onClick={() => setShareLocation((v) => !v)} />
         </Section>
 
-        <Section title="Vibes">
-          <p className="text-[12px] text-white/40">Share what you want — matching can begin as soon as there is signal. Never paywalled.</p>
+        <Section title="Focus">
+          <p className="text-[12px] text-white/40">What you work on and what you want from collaborators.</p>
           <p className="text-[11px] uppercase tracking-wide text-white/35">Interests</p>
           <div className="flex flex-wrap gap-1.5">
             {INTERESTS.map((g) => (
@@ -232,88 +185,14 @@ export function ProfileEditPage() {
                 key={g}
                 label={g}
                 on={lookingFor.includes(g)}
-                onClick={() => {
-                  if (!lookingFor.includes(g) && hasRomanticLookingFor([g]) && !isAdultBirthYear(birthYear.trim() ? Number(birthYear) : undefined)) {
-                    showToast("Set birth year (18+) before Dating / Something casual");
-                    return;
-                  }
-                  tog(lookingFor, setLookingFor, g, 8);
-                }}
+                onClick={() => tog(lookingFor, setLookingFor, g, 8)}
                 tone="veil"
               />
             ))}
           </div>
-          {hasRomanticLookingFor(lookingFor) && (
-            <p className="text-[11px] text-feel/80">
-              Romantic intents require 18+
-              {ageFromBirthYear(birthYear.trim() ? Number(birthYear) : undefined) != null
-                ? ` · you are ${ageFromBirthYear(Number(birthYear))}`
-                : " · add birth year below"}
-            </p>
-          )}
-          <p className="pt-1 text-[11px] uppercase tracking-wide text-white/35">Meetup vibes</p>
-          <div className="flex flex-wrap gap-1.5">
-            {MEETUP_INTENTS.map((g) => (
-              <Chip key={g} label={g} on={meetupIntents.includes(g)} onClick={() => tog(meetupIntents, setMeetupIntents, g, 6)} tone="veil" />
-            ))}
-          </div>
         </Section>
 
-        <Section title="Identity details (optional)">
-          <p className="text-[12px] text-white/40">Shown on vibe cards only when you opt in. Romantic intents require you to be 18+.</p>
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              value={birthYear}
-              onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              placeholder="Birth year"
-              inputMode="numeric"
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-            />
-            <select
-              value={sex}
-              onChange={(e) => setSex(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-3 text-sm text-white focus:border-veil-400/60 focus:outline-none"
-            >
-              <option value="">Sex / presentation</option>
-              {SEX_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              value={prefAgeMin}
-              onChange={(e) => setPrefAgeMin(e.target.value.replace(/\D/g, "").slice(0, 2))}
-              placeholder="Prefer age min"
-              inputMode="numeric"
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-            />
-            <input
-              value={prefAgeMax}
-              onChange={(e) => setPrefAgeMax(e.target.value.replace(/\D/g, "").slice(0, 2))}
-              placeholder="Prefer age max"
-              inputMode="numeric"
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none"
-            />
-          </div>
-          <p className="text-[11px] text-white/35">Age preferences are private — never shown on your public profile.</p>
-          <Toggle label="Show age on vibe cards" on={shareAge} onClick={() => setShareAge((v) => !v)} />
-          <Toggle label="Show sex on vibe cards" on={shareSex} onClick={() => setShareSex((v) => !v)} />
-        </Section>
-
-        {!createExpanded ? (
-          <Section title="Create">
-            <p className="text-[12px] text-white/40">
-              Craft, genres, and tools stay tucked away until you want them — connection first, Create when you&apos;re ready.
-            </p>
-            <button
-              type="button"
-              onClick={() => setCreateExpanded(true)}
-              className="btn btn-ghost mt-1 w-full py-2.5 text-sm"
-            >
-              I also create
-            </button>
-          </Section>
-        ) : (
-          <>
+        <>
             <Section title="Craft">
               <p className="text-[12px] text-white/40">Music is the default lane for Drops and Network. Other crafts are optional secondaries.</p>
               <div className="flex flex-wrap gap-1.5">
@@ -385,8 +264,7 @@ export function ProfileEditPage() {
             <Section title="Plugins">
               <div className="flex flex-wrap gap-1.5">{PLUGINS.map((p) => <Chip key={p.id} label={p.label} on={plugins.includes(p.id)} onClick={() => tog(plugins, setPlugins, p.id, 20)} tone="veil" />)}</div>
             </Section>
-          </>
-        )}
+        </>
       </div>
     </div>
   );

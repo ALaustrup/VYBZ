@@ -34,7 +34,6 @@ export function usdToVc(usd: number): number {
 export type VcEarnEvent =
   | "daily_login"
   | "connection_accept"
-  | "spark_match"
   | "dm_send"
   | "room_message"
   | "cam_call"
@@ -44,7 +43,6 @@ export type VcEarnEvent =
   | "track_feedback"
   | "track_feedback_note"
   | "go_live"
-  | "intent_mix"
   | "profile_complete";
 
 /** Display wallet address: ~Andrew */

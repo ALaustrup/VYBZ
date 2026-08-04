@@ -6,7 +6,7 @@
 
 This Policy explains what personal information we collect, how we use and share it, and your rights. By using VYBZ or joining the alpha waitlist, you agree. If you do not agree, do not use the Service.
 
-VYBZ is an **identity-first music platform** for indie artists and fans (upload, stream, tip with Vc, live) with an **optional Connection Lab** for people matching. We do not offer anonymous accounts. We do not sell personal information for advertising.
+VYBZ is an **identity-first audio intelligence and release preparation platform** for independent artists, producers and engineers (analyse, master, publish, stream, support with Vc, live). We do not offer anonymous accounts. We do not sell personal information for advertising. VYBZ provides no dating or adult-intent features.
 
 ---
 
@@ -19,13 +19,13 @@ Email, auth credentials (passkeys / passwords via our auth provider), username, 
 Email address and join timestamp if you sign up on the marketing landing before or without creating an account. Used only to notify you about launch / alpha access and related product updates. You may unsubscribe via email links.
 
 ### 1.3 Profile & preferences
-Bio, avatar, location (if shared), genres, roles, playlists metadata, Connection Lab preferences (looking-for, meetup/adult intents, age/distance prefs when enabled), privacy toggles, and cosmetics.
+Bio, avatar, location (if shared), genres, roles, DAWs and plugins, collaborator looking-for tags, playlists metadata, privacy toggles, and cosmetics.
 
 ### 1.4 User content
 Audio uploads, waveforms, timestamped comments, images, messages (DM / room / live chat), reactions, live session media metadata, reports, and related metadata.
 
 ### 1.5 Listening & recommendation signals
-Plays, completion, ratings, feedback notes, follows, queue/source choices, co-listen patterns, and other signals used for taste discovery and (if opted in) Connection Lab ranking.
+Plays, completion, ratings, feedback notes, follows, queue/source choices, co-listen patterns, and other signals used for taste discovery and collaborator ranking.
 
 ### 1.6 Payments, tips & Vc
 Tip amounts, Vc ledger events, Stripe session identifiers, optional memos. **Card and bank details are processed by Stripe**, not stored in full by Astra Matrix. Connect KYC for payouts is handled by Stripe.
@@ -34,18 +34,18 @@ Tip amounts, Vc ledger events, Stripe session identifiers, optional memos. **Car
 IP, device/browser, diagnostics, security signals. WebRTC / SFU / TURN metadata as needed for live and cam/voice.
 
 ### 1.8 Cookies & local storage
-Sessions, UI prefs (including Connection Lab opt-in flags stored locally), and similar functional storage.
+Sessions, UI preferences, and similar functional storage.
 
 ---
 
 ## 2. How We Use Information
 
-1. **Operate the music platform** — streaming, uploads, profiles, live, chat, waveforms/comments, VDock.
+1. **Operate the platform** — analysis, release preparation, mastering, streaming, uploads, profiles, live, chat, waveforms/comments, VDock.
 2. **Personalize discovery** — taste-based feeds, playlists, and recommendations from listening and community signals.
 3. **Tips & cosmetics** — Vc ledger, Stripe tips/top-ups, Flair / Profile Enhancement.
-4. **Connection Lab (opt-in)** — match people using profile + behavioral signals you enable; adult intents only for 18+ opt-in users. Never required to use Listen / Live / tip.
+4. **Professional collaboration** — rank collaborator suggestions from craft, roles, genres, tools and catalog signals.
 5. **Alpha waitlist & launch email** — notify waitlisted emails when VYBZ launches or invites expand (Resend).
-6. **Safety & integrity** — moderation, abuse prevention, watermarking/provenance, age gates.
+6. **Safety & integrity** — moderation, abuse prevention, watermarking/provenance.
 7. **Communications** — transactional email/notices; optional digests if enabled.
 8. **Legal compliance.**
 
@@ -54,7 +54,7 @@ We do **not** sell personal information for advertising. We do **not** paywall c
 ---
 
 ## 3. Legal Bases (GDPR / UK GDPR)
-Contract; legitimate interests (security, product improvement, safety); consent (waitlist/marketing email, optional digests, certain cookies, Connection Lab adult preferences, OAuth links); legal obligation.
+Contract; legitimate interests (security, product improvement, safety); consent (waitlist/marketing email, optional digests, certain cookies, OAuth links); legal obligation.
 
 ---
 
@@ -77,8 +77,8 @@ Sell your data for ads. Let affiliate links alter ranking.
 
 ---
 
-## 5. Profile & Connection Lab Privacy
-You control many profile facets. Connection Lab adult intents are **off by default** and require explicit enablement + age eligibility. You can clear or narrow preferences in profile settings.
+## 5. Profile Privacy
+You control many profile facets, including whether your city is shown. You can clear or narrow preferences in profile settings at any time.
 
 ---
 
@@ -122,4 +122,4 @@ Astra Matrix, Inc. — privacy@vybz.cloud — https://vybz.cloud
 
 ---
 
-*Version 4.0 — tip + live + catalog Music Hub; alpha waitlist; optional Connection Lab. Counsel should finalize before heavy commercialization.*
+*Version 5.0 — analysis, release preparation, mastering, catalog, live and Vc credits; alpha waitlist. Dating and adult-intent provisions removed. Counsel should finalize before heavy commercialization.*
