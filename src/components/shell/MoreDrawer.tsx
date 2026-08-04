@@ -14,6 +14,7 @@ import { useReduceFx } from "@/lib/display";
 import { drawerVariants, overlayVariants, springDrawer, withReduce } from "@/lib/motion";
 import { formatVc, formatVcAddress, vcToUsd } from "@/lib/vc";
 import { cx } from "@/lib/utils";
+import { BuildStamp } from "@/components/BuildStamp";
 
 type MoreItem = {
   id: string;
@@ -163,6 +164,9 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 );
               })}
             </nav>
+            <div className="border-t border-[var(--hairline)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+              <BuildStamp />
+            </div>
           </motion.aside>
         </>
       )}

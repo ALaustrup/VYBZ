@@ -1,53 +1,31 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Activity,
-  AudioWaveform,
-  BadgeCheck,
-  Layers,
-  ScanSearch,
-  Share2,
-} from "lucide-react";
+import { AudioWaveform, ScanSearch, Sparkles } from "lucide-react";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
+import { BuildStamp } from "@/components/BuildStamp";
 import { staggerContainer, staggerItem } from "@/lib/motion";
-import { buildLabel } from "@/lib/buildInfo";
 
-const WORKFLOW = [
+const STEPS = [
   {
     icon: ScanSearch,
-    title: "Readiness scan",
-    body: "Upload a track and get a free, honest release-readiness report — loudness, peaks, format, artwork, and metadata gaps.",
+    title: "Drop your master",
+    body: "Track + cover. Measured on your device — free, no account required.",
   },
   {
     icon: AudioWaveform,
-    title: "Measured analysis",
-    body: "Signal-derived facts only. Every value shows its source: measured, imported, user-entered, AI-suggested, or unavailable.",
+    title: "See what's real",
+    body: "Loudness, peaks, artwork size — only facts from your files, never guesswork.",
   },
   {
-    icon: Layers,
-    title: "Prepare & package",
-    body: "Credits, artwork checks, distribution readiness, and export paths built for independent artists and producers.",
-  },
-  {
-    icon: Share2,
-    title: "Release-centered social",
-    body: "Share finished work and connect around releases — not empty feeds or generic social noise.",
-  },
-  {
-    icon: Activity,
-    title: "Master & validate",
-    body: "Translation lab, mastering tools, and validation gates before you publish or distribute.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Distribution ready",
-    body: "VYBZ prepares you for release. Distribution integrations arrive when they meet the same truth standard.",
+    icon: Sparkles,
+    title: "Fix and release",
+    body: "Clear score, actionable fixes, and a path from mix to master to publish.",
   },
 ] as const;
 
 /**
- * Signed-out acquisition surface — release preparation first, premium matte futurist.
+ * Signed-out acquisition — artist-first, progressive disclosure (Masterplan §13).
  */
 export function LandingPage() {
   return (
@@ -68,115 +46,79 @@ export function LandingPage() {
 
       <section className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center px-5 pb-12 pt-10 text-center sm:pb-16 sm:pt-14">
         <LandingLogo />
-        <motion.p
-          className="nexus-eyebrow mt-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.18 }}
-        >
-          Premium release preparation
-        </motion.p>
         <motion.h1
-          className="nexus-headline mt-3 max-w-xl text-4xl sm:text-5xl"
+          className="nexus-headline mt-8 max-w-xl text-4xl sm:text-5xl"
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.24 }}
+          transition={{ delay: 0.2 }}
         >
-          Know your release is ready before the world hears it.
+          Your music deserves the truth before it goes out.
         </motion.h1>
         <motion.p
-          className="nexus-subline mx-auto mt-4 max-w-lg text-[15px] sm:text-base"
+          className="nexus-subline mx-auto mt-4 max-w-md text-[15px] sm:text-base"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.32 }}
+          transition={{ delay: 0.28 }}
         >
-          VYBZ is a pro-audio suite for independent artists — analyze, understand, correct,
-          master, validate, and publish with measured truth at every step.
+          Upload a track. Get a real readiness score. Fix what matters. Release with confidence.
         </motion.p>
         <motion.div
           className="mt-9 flex flex-wrap items-center justify-center gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.36 }}
         >
           <Link to="/releases/new" className="forge-cta" data-testid="landing-readiness-cta">
-            Run free readiness scan
+            Scan my track — free
           </Link>
           <Link to="/enter" className="forge-cta-ghost">
-            Enter VYBZ
+            Sign in
           </Link>
         </motion.div>
-        <motion.p
-          className="mt-4 text-[11px] text-white/32"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.48 }}
-        >
-          No payment required for your first scan · Results you can trust
-        </motion.p>
       </section>
 
-      <section className="relative z-10 mx-auto w-full max-w-4xl px-5 pb-24">
-        <div className="mb-10 text-center">
-          <p className="nexus-eyebrow">Workflow</p>
-          <h2 className="nexus-headline mt-2 text-2xl sm:text-3xl">
-            Import → Analyze → Release
-          </h2>
-          <p className="nexus-subline mx-auto mt-3 max-w-xl text-sm">
-            Built around the lifecycle serious producers actually run — not placeholder menus
-            or fabricated metrics.
-          </p>
-        </div>
+      <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-20">
         <motion.ul
-          className="grid gap-3 sm:grid-cols-2"
+          className="grid gap-3 sm:grid-cols-3"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
+          viewport={{ once: true, margin: "-40px" }}
         >
-          {WORKFLOW.map((item) => (
-            <motion.li key={item.title} variants={staggerItem} className="forge-card">
-              <div className="flex gap-3.5">
-                <span className="forge-card-icon shrink-0">
-                  <item.icon className="h-[18px] w-[18px]" />
-                </span>
-                <div className="min-w-0 text-left">
-                  <h3 className="font-display text-[15px] font-semibold text-white">{item.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-white/48">{item.body}</p>
-                </div>
-              </div>
+          {STEPS.map((item) => (
+            <motion.li key={item.title} variants={staggerItem} className="forge-card text-left">
+              <span className="forge-card-icon mb-3 inline-flex">
+                <item.icon className="h-[18px] w-[18px]" />
+              </span>
+              <h3 className="font-display text-[15px] font-semibold text-white">{item.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-white/48">{item.body}</p>
             </motion.li>
           ))}
         </motion.ul>
       </section>
 
-      <section className="relative z-10 border-t border-white/[0.06] px-5 py-16">
-        <div className="mx-auto max-w-xl text-center">
-          <h2 className="nexus-headline text-2xl">Start with signal, not guesswork.</h2>
-          <p className="nexus-subline mt-3 text-sm">
-            Your first readiness scan runs free. Create an account when you are ready to save
-            projects and share releases.
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+      <section className="relative z-10 border-t border-white/[0.06] px-5 py-14">
+        <div className="mx-auto max-w-md text-center">
+          <h2 className="nexus-headline text-xl">Ready when you are.</h2>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link to="/releases/new" className="forge-cta">
-              Begin scan
-            </Link>
-            <Link to="/enter" className="forge-cta-ghost">
-              Sign in
+              Start free scan
             </Link>
           </div>
         </div>
       </section>
 
-      <footer className="relative z-10 px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-4 text-center text-[11px] text-white/28">
-        <Link to="/legal/privacy" className="hover:text-white/50">Privacy</Link>
+      <footer className="relative z-10 px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-4 text-center text-[11px] text-white/35">
+        <Link to="/legal/privacy" className="hover:text-white/55">
+          Privacy
+        </Link>
         <span className="px-2">·</span>
-        <Link to="/legal/terms" className="hover:text-white/50">Terms</Link>
+        <Link to="/legal/terms" className="hover:text-white/55">
+          Terms
+        </Link>
         <span className="px-2">·</span>
         © {new Date().getFullYear()} Astra Matrix, Inc.
-        <span className="mt-2 block font-mono text-[10px] text-white/20" data-testid="build-sha">
-          {buildLabel()}
-        </span>
+        <BuildStamp className="mt-2" />
       </footer>
     </div>
   );

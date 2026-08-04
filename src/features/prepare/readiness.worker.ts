@@ -3,6 +3,7 @@
  * Lives under src/ so `?worker` resolves reliably (package alias + ?worker breaks Vite).
  */
 import { probeFixtures } from "@vybz/processing/readiness";
+import { analyzeWavBuffer, PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 import type { WorkerProbeRequest, WorkerProbeResponse } from "@vybz/processing/readiness";
 
 const { parseArtistTitle, probeWav, probePng, probeJpeg } = probeFixtures;
@@ -11,16 +12,38 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
   try {
     if (msg.type === "probe-audio") {
       const lower = msg.fileName.toLowerCase();
-      const probe =
-        lower.endsWith(".wav") || msg.mimeType.includes("wav")
-          ? probeWav(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes)
-          : {
-              fileName: msg.fileName,
-              mimeType: msg.mimeType,
-              sizeBytes: msg.sizeBytes,
-              container: lower.split(".").pop(),
-              ...parseArtistTitle(msg.fileName),
-            };
+      const isWav = lower.endsWith(".wav") || msg.mimeType.includes("wav");
+      const probe = isWav
+        ? probeWav(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes)
+        : {
+            fileName: msg.fileName,
+            mimeType: msg.mimeType,
+            sizeBytes: msg.sizeBytes,
+            container: lower.split(".").pop(),
+            ...parseArtistTitle(msg.fileName),
+          };
+
+      if (isWav && msg.sizeBytes <= PORTABLE_FFT_MAX_BYTES) {
+        try {
+          const analysis = analyzeWavBuffer(msg.buffer, {
+            sizeBytes: msg.sizeBytes,
+            includeSpectrum: false,
+            enforcePortableLimit: true,
+          });
+          Object.assign(probe, {
+            peakDbfs: analysis.peakDbfs,
+            rmsDbfs: analysis.rmsDbfs,
+            integratedLufsApprox: analysis.integratedLufsApprox,
+            loudnessMeasured: true,
+            durationSeconds: analysis.durationSeconds,
+            sampleRate: analysis.sampleRate,
+            channels: analysis.channels,
+          });
+        } catch {
+          /* PCM decode failed — keep header-only probe, no fabricated loudness */
+        }
+      }
+
       return { type: "probe-result", requestId: msg.requestId, ok: true, kind: "audio", probe };
     }
 

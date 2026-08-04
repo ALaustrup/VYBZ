@@ -36,8 +36,9 @@ Open the orb menu and confirm each item loads a **working** surface (not placeho
 
 | Step | Action | Expected |
 |---|---|---|
-| 3.1 | `/releases` → **New release** | Create form; save a release |
-| 3.2 | Open release detail | Findings list visible; Nexus chrome |
+| 3.1 | `/releases` → **New release** | Upload tiles; auto-scan when track + cover ready |
+| 3.2 | Open release detail | Readiness score visible; tap **View full breakdown** for findings |
+| 3.3 | Expand breakdown | Each finding shows measured detail + how to fix |
 | 3.3 | Open **Distribution** | `distribution-page` visible |
 | 3.4 | Check loudness row | Shows **Not measured** or measured value — **not** a fabricated default LUFS |
 | 3.5 | Export ZIP (optional) | Download succeeds; SHA shown if implemented |

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Music2, ImageIcon, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { NexusPageHeader } from "@/components/NexusPageHeader";
-import { Input } from "@/components/ui/Input";
+import { Progress } from "@/components/ui/Progress";
 import { StateView } from "@/components/states/StateView";
 import { usePlatform } from "@/platform/bridge/PlatformProvider";
 import { PlatformError } from "@/platform/bridge/errors";
@@ -10,13 +10,64 @@ import { useSession } from "@/store/session";
 import { createReleaseWithScan, getPrepareOwnerId } from "@/features/prepare/service";
 import { ensureMetadataCredits } from "@/features/credits/service";
 import { probeArtworkFile, probeAudioFile } from "@/features/prepare/probeClient";
+import { PrepareScanStage } from "@/features/prepare/PrepareScanStage";
 import type { AudioProbe, ArtworkProbe } from "@vybz/domain/releases";
+
+type Phase = "upload" | "scanning";
+
+const MIN_SCAN_MS = 2400;
+
+function UploadTile({
+  label,
+  hint,
+  fileName,
+  progress,
+  complete,
+  onPick,
+  testId,
+  icon: Icon,
+}: {
+  label: string;
+  hint: string;
+  fileName: string | null;
+  progress: number;
+  complete: boolean;
+  onPick: () => void;
+  testId: string;
+  icon: typeof Music2;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      className="forge-glass relative w-full p-4 text-left transition hover:border-white/20 md:p-5"
+      data-testid={testId}
+    >
+      <span className="forge-glass-edge pointer-events-none" aria-hidden />
+      <div className="relative z-[1] flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-suite-cyan">
+          {complete ? <CheckCircle2 className="h-5 w-5 text-suite-success" /> : <Icon className="h-5 w-5" />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-white">{label}</p>
+          <p className="mt-0.5 text-xs text-white/45">{fileName ?? hint}</p>
+          {progress > 0 && progress < 100 ? (
+            <Progress value={progress} className="mt-3" label={`${label} upload progress`} />
+          ) : complete ? (
+            <p className="mt-2 text-[11px] uppercase tracking-wide text-suite-success">Ready</p>
+          ) : null}
+        </div>
+      </div>
+    </button>
+  );
+}
 
 export function NewReleasePage() {
   const { userId } = useSession();
   const ownerId = getPrepareOwnerId(userId);
   const bridge = usePlatform();
   const navigate = useNavigate();
+  const [phase, setPhase] = useState<Phase>("upload");
   const [title, setTitle] = useState("");
   const [artistName, setArtistName] = useState("");
   const [audioMeta, setAudioMeta] = useState<{
@@ -31,71 +82,24 @@ export function NewReleasePage() {
     sizeBytes: number;
     probe: ArtworkProbe;
   } | null>(null);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [artProgress, setArtProgress] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorPhase, setErrorPhase] = useState<"import" | "create">("import");
+  const autoScanTriggered = useRef(false);
 
-  async function pickAudio() {
-    setError(null);
-    try {
-      const files = await bridge.files.selectAudio();
-      const file = files[0];
-      if (!file?.blob) return;
-      const probe = await probeAudioFile({
-        name: file.name,
-        type: file.mimeType,
-        size: file.sizeBytes,
-        arrayBuffer: () => file.blob!.arrayBuffer(),
-      });
-      setAudioMeta({
-        fileName: file.name,
-        mimeType: file.mimeType,
-        sizeBytes: file.sizeBytes,
-        probe,
-      });
-      if (!title && probe.titleFromName) setTitle(probe.titleFromName);
-      if (!artistName && probe.artistFromName) setArtistName(probe.artistFromName);
-    } catch (err) {
-      if (err instanceof PlatformError && err.code === "cancelled") return;
-      setErrorPhase("import");
-      setError(err instanceof Error ? err.message : "Audio import failed");
-    }
-  }
-
-  async function pickArtwork() {
-    setError(null);
-    try {
-      const files = await bridge.files.selectArtwork();
-      const file = files[0];
-      if (!file?.blob) return;
-      const probe = await probeArtworkFile({
-        name: file.name,
-        type: file.mimeType,
-        size: file.sizeBytes,
-        arrayBuffer: () => file.blob!.arrayBuffer(),
-      });
-      setArtMeta({
-        fileName: file.name,
-        mimeType: file.mimeType,
-        sizeBytes: file.sizeBytes,
-        probe,
-      });
-    } catch (err) {
-      if (err instanceof PlatformError && err.code === "cancelled") return;
-      setErrorPhase("import");
-      setError(err instanceof Error ? err.message : "Artwork import failed");
-    }
-  }
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const runScan = useCallback(async () => {
+    if (busy) return;
     setBusy(true);
     setError(null);
+    setPhase("scanning");
+    const scanStarted = Date.now();
     try {
       const bundle = await createReleaseWithScan({
         ownerId,
-        title: title || "Untitled release",
-        artistName: artistName || null,
+        title: title || audioMeta?.probe.titleFromName || "Untitled release",
+        artistName: artistName || audioMeta?.probe.artistFromName || null,
         audio: audioMeta,
         artwork: artMeta,
         idempotencyKey: crypto.randomUUID(),
@@ -108,68 +112,174 @@ export function NewReleasePage() {
           composerName: audioMeta?.probe.composerFromName ?? null,
         });
       } catch {
-        /* credits seed is best-effort; release creation already succeeded */
+        /* credits seed is best-effort */
+      }
+      const elapsed = Date.now() - scanStarted;
+      if (elapsed < MIN_SCAN_MS) {
+        await new Promise((r) => setTimeout(r, MIN_SCAN_MS - elapsed));
       }
       navigate(`/release/${bundle.project.id}`, { replace: true });
     } catch (err) {
       setErrorPhase("create");
       setError(err instanceof Error ? err.message : "Could not create release");
+      setPhase("upload");
       setBusy(false);
+      autoScanTriggered.current = false;
+    }
+  }, [artistName, artMeta, audioMeta, busy, navigate, ownerId, title]);
+
+  useEffect(() => {
+    if (phase !== "upload" || busy || autoScanTriggered.current) return;
+    if (!audioMeta || !artMeta) return;
+    autoScanTriggered.current = true;
+    void runScan();
+  }, [artMeta, audioMeta, busy, phase, runScan]);
+
+  async function pickAudio() {
+    setError(null);
+    setAudioProgress(12);
+    try {
+      const files = await bridge.files.selectAudio();
+      setAudioProgress(45);
+      const file = files[0];
+      if (!file?.blob) {
+        setAudioProgress(0);
+        return;
+      }
+      setAudioProgress(68);
+      const probe = await probeAudioFile({
+        name: file.name,
+        type: file.mimeType,
+        size: file.sizeBytes,
+        arrayBuffer: () => file.blob!.arrayBuffer(),
+      });
+      setAudioProgress(100);
+      setAudioMeta({
+        fileName: file.name,
+        mimeType: file.mimeType,
+        sizeBytes: file.sizeBytes,
+        probe,
+      });
+      if (!title && probe.titleFromName) setTitle(probe.titleFromName);
+      if (!artistName && probe.artistFromName) setArtistName(probe.artistFromName);
+    } catch (err) {
+      setAudioProgress(0);
+      if (err instanceof PlatformError && err.code === "cancelled") return;
+      setErrorPhase("import");
+      setError(err instanceof Error ? err.message : "Audio import failed");
     }
   }
 
+  async function pickArtwork() {
+    setError(null);
+    setArtProgress(12);
+    try {
+      const files = await bridge.files.selectArtwork();
+      setArtProgress(45);
+      const file = files[0];
+      if (!file?.blob) {
+        setArtProgress(0);
+        return;
+      }
+      setArtProgress(68);
+      const probe = await probeArtworkFile({
+        name: file.name,
+        type: file.mimeType,
+        size: file.sizeBytes,
+        arrayBuffer: () => file.blob!.arrayBuffer(),
+      });
+      setArtProgress(100);
+      setArtMeta({
+        fileName: file.name,
+        mimeType: file.mimeType,
+        sizeBytes: file.sizeBytes,
+        probe,
+      });
+    } catch (err) {
+      setArtProgress(0);
+      if (err instanceof PlatformError && err.code === "cancelled") return;
+      setErrorPhase("import");
+      setError(err instanceof Error ? err.message : "Artwork import failed");
+    }
+  }
+
+  if (phase === "scanning") {
+    return (
+      <PrepareScanStage trackName={audioMeta?.fileName ?? title} artName={artMeta?.fileName} />
+    );
+  }
+
   return (
-    <div className="mx-auto w-full max-w-xl p-4 pb-28 md:p-8" data-testid="prepare-new">
-      <NexusPageHeader
-        eyebrow="Prepare"
-        title="New release"
-        subtitle="Free browser scan — no cloud compute."
-      />
+    <div className="mx-auto w-full max-w-xl pb-8 md:pb-12" data-testid="prepare-new">
+      <header className="text-center md:text-left">
+        <p className="nexus-eyebrow">Your release</p>
+        <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Drop your track. We&apos;ll tell you if it&apos;s ready.</h1>
+        <p className="nexus-subline mt-2 text-sm">Upload your master and cover — measured on your device, no guesswork.</p>
+      </header>
 
-      <form className="forge-glass relative mt-6 flex flex-col gap-4 p-4 md:p-5" onSubmit={onSubmit}>
-        <span className="forge-glass-edge pointer-events-none" aria-hidden />
-        <div className="relative z-[1] flex flex-col gap-4">
-        <Input
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Release title"
-          data-testid="prepare-title"
+      <div className="mt-6 flex flex-col gap-3">
+        <UploadTile
+          label="Your track"
+          hint="WAV, FLAC, or AIFF preferred"
+          fileName={audioMeta?.fileName ?? null}
+          progress={audioProgress}
+          complete={Boolean(audioMeta)}
+          onPick={() => void pickAudio()}
+          testId="prepare-pick-audio"
+          icon={Music2}
         />
-        <Input
-          label="Primary artist"
-          value={artistName}
-          onChange={(e) => setArtistName(e.target.value)}
-          placeholder="Artist name"
-          data-testid="prepare-artist"
+        <UploadTile
+          label="Cover art"
+          hint="Square PNG or JPEG — 3000×3000 ideal"
+          fileName={artMeta?.fileName ?? null}
+          progress={artProgress}
+          complete={Boolean(artMeta)}
+          onPick={() => void pickArtwork()}
+          testId="prepare-pick-art"
+          icon={ImageIcon}
         />
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="forge" onClick={() => void pickAudio()} data-testid="prepare-pick-audio">
-            {audioMeta ? `Audio: ${audioMeta.fileName}` : "Import audio"}
-          </Button>
-          <Button type="button" variant="secondary" onClick={() => void pickArtwork()} data-testid="prepare-pick-art">
-            {artMeta ? `Art: ${artMeta.fileName}` : "Import artwork"}
-          </Button>
+      {/* E2E + manual fallback — hidden fields keep test ids stable */}
+      <form
+        className="mt-6 flex flex-col gap-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void runScan();
+        }}
+      >
+        <div className="sr-only">
+          <label htmlFor="prepare-title">Title</label>
+          <input
+            id="prepare-title"
+            data-testid="prepare-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <label htmlFor="prepare-artist">Artist</label>
+          <input
+            id="prepare-artist"
+            data-testid="prepare-artist"
+            value={artistName}
+            onChange={(e) => setArtistName(e.target.value)}
+          />
         </div>
 
         {error ? (
           <StateView
             variant="error"
-            title={errorPhase === "create" ? "Could not create release" : "Import error"}
+            title={errorPhase === "create" ? "Scan could not finish" : "Import error"}
             body={error}
           />
         ) : null}
 
-        <div className="flex flex-wrap gap-2">
+        {!audioMeta || !artMeta ? (
           <Button type="submit" variant="forge" loading={busy} data-testid="prepare-create-submit">
-            Create & scan
+            Run scan
           </Button>
-          <Button type="button" variant="ghost" onClick={() => navigate("/releases")}>
-            Cancel
-          </Button>
-        </div>
-        </div>
+        ) : (
+          <p className="text-center text-xs text-white/40">Both files ready — starting scan…</p>
+        )}
       </form>
     </div>
   );

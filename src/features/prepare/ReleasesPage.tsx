@@ -60,12 +60,12 @@ export function ReleasesPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-4 pb-28 md:p-8" data-testid="prepare-releases">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-releases">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="nexus-eyebrow">Prepare</p>
-          <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Releases</h1>
-          <p className="nexus-subline mt-2 text-sm">Know what is ready. Fix what is not.</p>
+          <p className="nexus-eyebrow">Your releases</p>
+          <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Every track, measured</h1>
+          <p className="nexus-subline mt-2 text-sm">Pick up where you left off — or start a new scan.</p>
         </div>
         <Button
           variant="forge"
@@ -100,10 +100,10 @@ export function ReleasesPage() {
       {visible.length === 0 ? (
         <EmptyState
           title="No releases yet"
-          body="Create a release, import audio or artwork, and run a free browser readiness scan."
+          body="Drop your first track — we'll scan it and show you exactly where you stand."
           action={
             <Button onClick={() => navigate("/releases/new")} data-testid="prepare-empty-cta">
-              Start a release
+              Scan my track
             </Button>
           }
         />

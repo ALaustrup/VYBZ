@@ -14,6 +14,7 @@ test.describe("Prepare MVP", () => {
 
     await expect(page.getByTestId("prepare-detail")).toBeVisible();
     await expect(page.getByTestId("prepare-detail-title")).toHaveText("Phase 2 Fixture");
+    await page.getByTestId("prepare-view-breakdown").click();
     await expect(page.getByTestId("prepare-findings-list")).toBeVisible();
     await expect(page.getByTestId("prepare-finding-AUDIO_MISSING")).toBeVisible();
 
