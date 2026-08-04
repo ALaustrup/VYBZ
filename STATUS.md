@@ -38,22 +38,31 @@ finished after M2 rather than expanded.
 ## M2 exit gate audit — 2026-08-04
 
 Masterplan §10 requires dating to be "recoverably archived and **absent from production
-builds**". It is not. Evidence below is from a local deployable build (`npm run build`,
-`index-DfPTnYyc.js`, same dating code paths as production) plus source inspection.
+builds**". It is not. Verified directly against the **live** production bundle
+`https://vybz.cloud/assets/index-cQiJuwWY.js` (865,909 bytes, fetched 2026-08-04):
+
+```
+"Dating"          = 3 occurrences
+"Something casual"= 3
+"intentMix"       = 4
+"meetup_intents"  = 2
+"Enable spice"    = 1
+"Connection Lab"  = 5
+```
 
 **Correctly frozen — absent from the bundle:** `SparkPage`, `LoveMeetup*`, `MutualMatch*`,
 `loveFilter`, `swipe deck`.
 
 **Still reaching the production bundle:**
 
-| # | Surface | Location | Bundle evidence |
+| # | Surface | Location | Live-bundle evidence |
 |---|---|---|---|
-| 1 | `"Dating"`, `"Something casual"` in the looking-for option list | `src/lib/profileFields.ts:295` | `"Dating"` present (3 case-insensitive matches) |
+| 1 | `"Dating"`, `"Something casual"` in the looking-for option list | `src/lib/profileFields.ts:295` | `"Dating"` ×3, `"Something casual"` ×3 |
 | 2 | `ROMANTIC_LOOKING_FOR` + `hasRomanticLookingFor()` still exported and consumed | `src/lib/profileFields.ts:398` | reachable from `/profile/edit` |
 | 3 | User-facing romantic copy: "Set birth year (18+) before Dating / Something casual", "Romantic intents require 18+" | `src/pages/ProfileEditPage.tsx:121,237,248,263` | route is live in the signed-in shell |
-| 4 | `love` pillar maps to `"Dating"`, `"Something casual"`; `meetup` pillar to `"Activity partner"` | `src/lib/intentMix.ts:137–139` | `intentMix` present (3 matches) |
-| 5 | "Connection Lab", "Enable spice (18+)", "Spice requires 18+" | `src/components/dashboard/DashConnectPanel.tsx:33,83,129` | rendered on the dashboard |
-| 6 | Dating profile data mapping — `meetup_intents`, `looking_for`, and a `p_meetup` RPC parameter | `src/lib/api.ts` | `meetup` present (13 matches) |
+| 4 | `love` pillar maps to `"Dating"`, `"Something casual"`; `meetup` pillar to `"Activity partner"` | `src/lib/intentMix.ts:137–139` | `intentMix` ×4 |
+| 5 | "Connection Lab", "Enable spice (18+)", "Spice requires 18+" | `src/components/dashboard/DashConnectPanel.tsx:33,83,129` | `Connection Lab` ×5, `Enable spice` ×1 |
+| 6 | Dating profile data mapping — `meetup_intents`, `looking_for`, and a `p_meetup` RPC parameter | `src/lib/api.ts` | `meetup_intents` ×2 |
 | 7 | Legal copy advertising "opt-in Connection Lab (18+ adult intents)" | `src/lib/codex.ts:39` | shipped in Codex/legal surface |
 
 This also violates the standing prohibition in `AGENTS.md` ("No dating, romantic, love,
