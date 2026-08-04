@@ -51,7 +51,7 @@ const WORKFLOW = [
  */
 export function LandingPage() {
   return (
-    <div className="nexus-void relative min-h-[100dvh] overflow-x-hidden overflow-y-auto text-white">
+    <div className="public-scroll-frame nexus-void relative text-white">
       <GeometricBackdrop intensity="hero" />
 
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
@@ -66,7 +66,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <section className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center justify-center px-5 pb-[max(6rem,env(safe-area-inset-bottom))] pt-8 text-center sm:min-h-[calc(100dvh-5rem)]">
+      <section className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center px-5 pb-12 pt-10 text-center sm:pb-16 sm:pt-14">
         <LandingLogo />
         <motion.p
           className="nexus-eyebrow mt-8"
@@ -168,7 +168,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer className="relative z-10 pb-[max(2rem,env(safe-area-inset-bottom))] text-center text-[11px] text-white/28">
+      <footer className="relative z-10 px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-4 text-center text-[11px] text-white/28">
         <Link to="/legal/privacy" className="hover:text-white/50">Privacy</Link>
         <span className="px-2">·</span>
         <Link to="/legal/terms" className="hover:text-white/50">Terms</Link>

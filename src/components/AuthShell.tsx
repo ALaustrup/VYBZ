@@ -23,10 +23,10 @@ export function AuthShell({
   const reduce = useReduceFx();
 
   return (
-    <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center overflow-y-auto px-5 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+    <div className="public-scroll-frame relative z-10 flex flex-col items-center px-5 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
       <GeometricBackdrop intensity="subtle" />
       <motion.div
-        className="forge-glass w-full max-w-[22rem] p-7 sm:max-w-sm"
+        className="forge-glass my-auto w-full max-w-[22rem] p-7 sm:max-w-sm"
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={withReduce(reduce, { type: "spring", stiffness: 320, damping: 32 })}
