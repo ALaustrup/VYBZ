@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Package, SlidersHorizontal, Users } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { StateView } from "@/components/states/StateView";
@@ -15,6 +15,12 @@ import { summarizeReadiness } from "@/features/prepare/readinessScore";
 import type { FindingSeverity, ReleaseBundle } from "@vybz/domain/releases";
 
 const SEVERITY_FILTER: Array<"all" | FindingSeverity> = ["all", "blocking", "warning", "info"];
+
+const NEXT_STEPS = [
+  { slug: "credits", label: "Credits", hint: "Who made it", icon: Users, testId: "prepare-open-credits" },
+  { slug: "master", label: "Master", hint: "Polish the sound", icon: SlidersHorizontal, testId: "prepare-open-master" },
+  { slug: "distribution", label: "Package", hint: "Export for release", icon: Package, testId: "prepare-open-distribution" },
+] as const;
 
 export function ReleaseDetailPage() {
   const { id } = useParams();
@@ -92,14 +98,39 @@ export function ReleaseDetailPage() {
         </Badge>
       </div>
 
-      <ReadinessScoreHero
-        summary={summary}
-        title={project.title}
-        artistName={project.artistName}
-      />
+      <ReadinessScoreHero summary={summary} title={project.title} artistName={project.artistName} />
       <h1 className="sr-only" data-testid="prepare-detail-title">
         {project.title}
       </h1>
+
+      <nav aria-label="Release workspace" className="grid gap-2 sm:grid-cols-3">
+        {NEXT_STEPS.map((step) => (
+          <Link
+            key={step.slug}
+            to={`/release/${project.id}/${step.slug}`}
+            className="forge-card flex items-center gap-3 transition hover:border-white/20"
+            data-testid={step.testId}
+          >
+            <span className="forge-card-icon shrink-0">
+              <step.icon className="h-[18px] w-[18px]" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-snow">{step.label}</span>
+              <span className="block text-xs text-white/40">{step.hint}</span>
+            </span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs text-white/45">
+        <span>{counts.blocking} critical</span>
+        <span>·</span>
+        <span>{counts.warning} review</span>
+        <span>·</span>
+        <span>{counts.info} notes</span>
+        <span>·</span>
+        <span>{bundle.assets.length} files</span>
+      </div>
 
       {!showBreakdown ? (
         <div className="flex flex-col items-center gap-3 text-center">
@@ -117,44 +148,9 @@ export function ReleaseDetailPage() {
         </div>
       ) : (
         <>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="nexus-eyebrow">Your report</p>
-              <h2 className="nexus-headline mt-1 text-xl">What we measured</h2>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                to={`/release/${project.id}/credits`}
-                className="forge-cta-ghost !min-h-8 !px-3 !text-xs"
-                data-testid="prepare-open-credits"
-              >
-                Credits
-              </Link>
-              <Link
-                to={`/release/${project.id}/distribution`}
-                className="forge-cta-ghost !min-h-8 !px-3 !text-xs"
-                data-testid="prepare-open-distribution"
-              >
-                Distribution
-              </Link>
-              <Link
-                to={`/release/${project.id}/master`}
-                className="forge-cta-ghost !min-h-8 !px-3 !text-xs"
-                data-testid="prepare-open-master"
-              >
-                Master
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 text-xs text-white/45">
-            <span>{counts.blocking} critical</span>
-            <span>·</span>
-            <span>{counts.warning} review</span>
-            <span>·</span>
-            <span>{counts.info} notes</span>
-            <span>·</span>
-            <span>{bundle.assets.length} files</span>
+          <div>
+            <p className="nexus-eyebrow">Your report</p>
+            <h2 className="nexus-headline mt-1 text-xl">What we measured</h2>
           </div>
 
           <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter findings">
