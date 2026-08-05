@@ -10,22 +10,32 @@ import { DistributionReportPage } from "@/features/distribution/DistributionRepo
 import { ReleaseMasterPane } from "@/features/mastering/ReleaseMasterPane";
 
 /**
- * Minimal Prepare shell for unsigned / backend-local flows.
- * Same routes as Suite Prepare; local repository for hard-refresh durability.
+ * Prepare for signed-out visitors.
+ *
+ * This is the same product in a reduced mode, not a second app: a signed-out
+ * visitor has no catalog, so there is no dock, library or navigation to show.
+ * The header says so explicitly, because silently swapping chrome on sign-in
+ * reads as two different platforms.
  */
 export function PrepareLocalApp() {
   return (
     <PlatformProvider>
       <div className="public-scroll-frame nexus-void relative text-white">
         <GeometricBackdrop intensity="subtle" />
-        <header className="forge-glass relative z-10 mx-3 mt-3 flex shrink-0 items-center justify-between px-4 py-3 sm:mx-4">
+        <header className="forge-glass relative z-10 mx-3 mt-3 flex shrink-0 flex-wrap items-center gap-2 px-4 py-3 sm:mx-4">
           <span className="forge-glass-edge" aria-hidden />
           <Link to="/" className="relative z-[1] flex items-center gap-2.5">
             <BrandMark className="h-8 w-8" reactive={false} />
-            <span className="font-display text-sm font-semibold text-white">VYBZ Prepare</span>
+            <span className="font-display text-sm font-semibold text-white">VYBZ</span>
           </Link>
-          <Link to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
-            Sign in
+          <span className="relative z-[1] rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/55">
+            Free scan · signed out
+          </span>
+          <Link
+            to="/enter"
+            className="relative z-[1] ml-auto forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs"
+          >
+            Sign in for the full suite
           </Link>
         </header>
         <main className="relative z-10 px-3 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4 sm:px-4">

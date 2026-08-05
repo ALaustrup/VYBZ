@@ -12,6 +12,8 @@ import { FindingReportCard } from "@/features/prepare/FindingReportCard";
 import { countBySeverity, statusTone } from "@/features/prepare/severity";
 import { ReadinessScoreHero } from "@/features/prepare/ReadinessScoreHero";
 import { summarizeReadiness } from "@/features/prepare/readinessScore";
+import { PublishToCatalogCard } from "@/features/prepare/PublishToCatalogCard";
+import { peekPendingAudio, type PendingAudio } from "@/features/prepare/pendingUpload";
 import type { FindingSeverity, ReleaseBundle } from "@vybz/domain/releases";
 
 const SEVERITY_FILTER: Array<"all" | FindingSeverity> = ["all", "blocking", "warning", "info"];
@@ -32,6 +34,12 @@ export function ReleaseDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [severity, setSeverity] = useState<"all" | FindingSeverity>("all");
   const [showBreakdown, setShowBreakdown] = useState(false);
+  const [pending, setPending] = useState<PendingAudio | null>(null);
+  const [publishedDropId, setPublishedDropId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPending(id ? peekPendingAudio(id) : null);
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -102,6 +110,24 @@ export function ReleaseDetailPage() {
       <h1 className="sr-only" data-testid="prepare-detail-title">
         {project.title}
       </h1>
+
+      {publishedDropId ? (
+        <section className="forge-card flex flex-wrap items-center gap-3" data-testid="published-track">
+          <p className="min-w-0 flex-1 text-sm text-white/70">
+            Published to your catalog. It is now playable and open to comments.
+          </p>
+          <Link to={`/track/${publishedDropId}`} className="forge-cta !min-h-9 !px-3 !text-xs">
+            Open track
+          </Link>
+        </section>
+      ) : pending ? (
+        <PublishToCatalogCard pending={pending} onPublished={setPublishedDropId} />
+      ) : (
+        <p className="px-1 text-[11px] leading-relaxed text-white/30" data-testid="audio-not-stored">
+          This scan measured your audio in the browser and did not upload it, so there is nothing to
+          play here. Run a new scan and choose Publish if you want the track in your catalog.
+        </p>
+      )}
 
       <nav aria-label="Release workspace" className="grid gap-2 sm:grid-cols-3">
         {NEXT_STEPS.map((step) => (
