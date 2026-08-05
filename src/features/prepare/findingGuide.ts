@@ -49,14 +49,18 @@ const GUIDES: Record<string, FindingGuide> = {
     fix: "Upload the pre-compression WAV/FLAC from your mastering chain instead.",
   },
   AUDIO_PEAK_CLIP: {
-    why: "Samples at 0 dBFS clip — codecs and limiters will distort further on playback.",
-    fix: "Lower your limiter ceiling by 1–3 dB and re-export, or remix peaks before mastering.",
-    target: "Peak < −0.1 dBFS before delivery",
+    why: "Samples at full scale clip — lossy encoding pushes them further and audibly distorts.",
+    fix: "Lower your limiter ceiling by 1–3 dB and re-export, or fix peaks in the mix before mastering.",
+    target: "Sample peak below −1 dBFS",
   },
   AUDIO_PEAK_HOT: {
-    why: "Peaks near full scale leave no headroom for lossy encoding (Spotify, Apple, etc.).",
-    fix: "Set true-peak limiting to −1 dBTP (or lower) and rebounce the master.",
+    why: "Peaks near full scale leave no headroom for lossy encoding (Spotify, Apple, and others).",
+    fix: "Set true-peak limiting to −1 dBTP or lower in your mastering chain and rebounce.",
     target: "True peak ≤ −1 dBTP",
+  },
+  AUDIO_LOUDNESS_NOT_MEASURED: {
+    why: "Without decodable audio we cannot report loudness or peak, and we will not guess them.",
+    fix: "Import a WAV, FLAC or MP3 master. If this file is one of those, re-export it — the data may be truncated.",
   },
   AUDIO_LOUDNESS_HOT: {
     why: "Louder than platform targets triggers automatic turn-down — your mix loses punch.",

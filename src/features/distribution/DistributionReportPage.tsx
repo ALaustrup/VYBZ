@@ -53,6 +53,8 @@ export function DistributionReportPage() {
         integratedLufsApprox?: number;
         peakDbfs?: number;
         loudnessMeasured?: boolean;
+        loudnessMethod?: "pcm-wav" | "decoded";
+        loudnessResampled?: boolean;
         isrc?: string;
       };
       const artProbe = (art?.probe ?? {}) as {
@@ -70,17 +72,28 @@ export function DistributionReportPage() {
         !Number.isNaN(probe.integratedLufsApprox)
           ? {
               integratedLufs: probe.integratedLufsApprox,
-              truePeakDb: probe.peakDbfs ?? null,
+              // True peak needs an oversampling meter (M4); we only have sample peak.
+              truePeakDb: null,
+              samplePeakDbfs: probe.peakDbfs ?? null,
             }
           : null;
 
+      const source =
+        probe.loudnessMethod === "decoded"
+          ? probe.loudnessResampled
+            ? "decoded audio, resampled"
+            : "decoded audio"
+          : "file PCM";
+
       setLoudnessLabel(
         loudness?.integratedLufs != null
-          ? `~${loudness.integratedLufs.toFixed(1)} LUFS integrated (estimated — not standards-certified)${
-              loudness.truePeakDb != null ? ` · peak ${loudness.truePeakDb.toFixed(1)} dBFS (measured)` : ""
+          ? `${loudness.integratedLufs.toFixed(1)} LUFS integrated — estimated, not standards-certified (from ${source})${
+              loudness.samplePeakDbfs != null
+                ? ` · sample peak ${loudness.samplePeakDbfs.toFixed(1)} dBFS · true peak not measured`
+                : ""
             }`
           : audio
-            ? "Not measured — upload a WAV under 10 MB for on-device loudness analysis"
+            ? "Not measured — this device could not decode the audio"
             : "Not measured",
       );
 

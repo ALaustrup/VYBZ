@@ -19,7 +19,7 @@ export type AudioProbe = {
   artistFromName?: string;
   /** Optional composer tag from audio metadata / filename heuristics. */
   composerFromName?: string;
-  /** Measured peak level in dBFS — present only when PCM was analyzed. */
+  /** Measured sample peak in dBFS — present only when PCM was analyzed. */
   peakDbfs?: number;
   /** Measured RMS in dBFS — present only when PCM was analyzed. */
   rmsDbfs?: number;
@@ -27,6 +27,18 @@ export type AudioProbe = {
   integratedLufsApprox?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
+  /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
+  loudnessMethod?: "pcm-wav" | "decoded";
+  /** Rate the loudness analysis ran at. */
+  loudnessSampleRate?: number;
+  /** True when the decoder resampled, so sample peak may shift slightly. */
+  loudnessResampled?: boolean;
+  /** Declared bitrate for compressed containers. */
+  bitrateKbps?: number;
+  bitrateMode?: "cbr" | "vbr";
+  /** True when duration was derived from bitrate rather than declared. */
+  durationEstimated?: boolean;
+  codecProfile?: string;
 };
 
 export type ArtworkProbe = {
@@ -121,6 +133,20 @@ export function evaluateReadiness(ctx: ReleaseContextProbe): FindingDraft[] {
   return out;
 }
 
+/**
+ * Provenance suffix for measured loudness values. States how the PCM was obtained
+ * so an expert can judge the number and a newcomer is not misled.
+ */
+function loudnessProvenance(audio: AudioProbe): string {
+  if (audio.loudnessMethod === "decoded") {
+    return audio.loudnessResampled
+      ? " (measured from decoded audio; decoder resampled, so peak may differ slightly from the source)"
+      : " (measured from decoded audio)";
+  }
+  if (audio.loudnessMethod === "pcm-wav") return " (measured from file PCM)";
+  return "";
+}
+
 export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
   const out: FindingDraft[] = [];
   const name = audio.fileName.toLowerCase();
@@ -185,6 +211,8 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
     );
   }
 
+  const provenance = loudnessProvenance(audio);
+
   if (audio.loudnessMeasured && audio.peakDbfs !== undefined) {
     if (audio.peakDbfs >= -0.1) {
       out.push(
@@ -192,8 +220,8 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "AUDIO_PEAK_CLIP",
           "blocking",
           "audio",
-          "Peaks at or above 0 dBFS",
-          `Measured peak ${audio.peakDbfs.toFixed(1)} dBFS on this file — reduce limiter ceiling or export headroom before release.`
+          "Sample peak reaches full scale",
+          `Sample peak measured at ${audio.peakDbfs.toFixed(1)} dBFS${provenance}. Lower your limiter ceiling and re-export so peaks land below −1 dBFS.`
         )
       );
     } else if (audio.peakDbfs > -1) {
@@ -202,8 +230,8 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "AUDIO_PEAK_HOT",
           "warning",
           "audio",
-          "Peaks very close to full scale",
-          `Measured peak ${audio.peakDbfs.toFixed(1)} dBFS — leave at least 1 dB true-peak headroom for mastering and distribution.`
+          "Sample peak close to full scale",
+          `Sample peak measured at ${audio.peakDbfs.toFixed(1)} dBFS${provenance}. True peak is not measured yet; leaving 1 dB of headroom protects against codec overshoot.`
         )
       );
     }
@@ -218,7 +246,7 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "warning",
           "audio",
           "Track reads loud for streaming",
-          `Measured ~${lufs.toFixed(1)} LUFS (approx.) on this master — most streaming targets sit near −14 LUFS integrated.`
+          `Integrated loudness estimated at ${lufs.toFixed(1)} LUFS${provenance} — estimated, not standards-certified. Streaming platforms normalise near −14 LUFS.`
         )
       );
     } else if (lufs < -22) {
@@ -228,20 +256,33 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "warning",
           "audio",
           "Track reads quiet",
-          `Measured ~${lufs.toFixed(1)} LUFS (approx.) — consider gentle gain or limiting so listeners don't need to turn up.`
+          `Integrated loudness estimated at ${lufs.toFixed(1)} LUFS${provenance} — estimated, not standards-certified. Consider gentle gain or limiting so listeners do not need to turn up.`
         )
       );
     }
   }
 
+  if (!audio.loudnessMeasured) {
+    out.push(
+      finding(
+        "AUDIO_LOUDNESS_NOT_MEASURED",
+        "info",
+        "audio",
+        "Loudness not measured",
+        "This device could not decode the audio, so loudness and peak are unavailable. Import a WAV, FLAC or MP3 master to measure them."
+      )
+    );
+  }
+
   if (name.endsWith(".mp3") || audio.mimeType.includes("mpeg")) {
+    const bitrate = audio.bitrateKbps ? ` Declared bitrate ${audio.bitrateKbps} kbps.` : "";
     out.push(
       finding(
         "AUDIO_LOSSY_MASTER",
         "warning",
         "audio",
         "Lossy master detected",
-        "Prefer WAV/FLAC/AIFF for distribution masters when available."
+        `MP3 has already discarded audio data that mastering cannot recover.${bitrate} Upload the WAV, FLAC or AIFF from your mastering chain when you have it.`
       )
     );
   }

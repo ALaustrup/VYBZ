@@ -134,11 +134,73 @@ export function makeTinyPng(): ArrayBuffer {
   return bytes.buffer;
 }
 
+/**
+ * Minimal MPEG-1 Layer III stream: optional ID3v2 padding + one valid frame
+ * header (128 kbps, 44.1 kHz, stereo) followed by `audioBytes` of frame body.
+ */
+export function makeMinimalMp3(audioBytes = 16000, id3Bytes = 0): ArrayBuffer {
+  const total = id3Bytes + audioBytes;
+  const bytes = new Uint8Array(total);
+  if (id3Bytes >= 10) {
+    bytes[0] = 0x49;
+    bytes[1] = 0x44;
+    bytes[2] = 0x33;
+    bytes[3] = 0x03;
+    const payload = id3Bytes - 10;
+    bytes[6] = (payload >> 21) & 0x7f;
+    bytes[7] = (payload >> 14) & 0x7f;
+    bytes[8] = (payload >> 7) & 0x7f;
+    bytes[9] = payload & 0x7f;
+  }
+  bytes[id3Bytes] = 0xff;
+  bytes[id3Bytes + 1] = 0xfb;
+  bytes[id3Bytes + 2] = 0x90;
+  bytes[id3Bytes + 3] = 0x00;
+  return bytes.buffer;
+}
+
+/** Native FLAC stream head: "fLaC" + a complete STREAMINFO metadata block. */
+export function makeFlacStreamInfo(
+  sampleRate = 44100,
+  channels = 2,
+  bitDepth = 24,
+  totalSamples = 44100 * 30
+): ArrayBuffer {
+  const bytes = new Uint8Array(4 + 4 + 34);
+  bytes[0] = 0x66;
+  bytes[1] = 0x4c;
+  bytes[2] = 0x61;
+  bytes[3] = 0x43;
+  bytes[4] = 0x00;
+  bytes[5] = 0x00;
+  bytes[6] = 0x00;
+  bytes[7] = 34;
+
+  const b = 8;
+  bytes[b] = 0x10;
+  bytes[b + 1] = 0x00;
+  bytes[b + 2] = 0x10;
+  bytes[b + 3] = 0x00;
+  bytes[b + 10] = (sampleRate >> 12) & 0xff;
+  bytes[b + 11] = (sampleRate >> 4) & 0xff;
+  bytes[b + 12] =
+    ((sampleRate & 0x0f) << 4) | (((channels - 1) & 0x07) << 1) | (((bitDepth - 1) >> 4) & 0x01);
+  bytes[b + 13] =
+    (((bitDepth - 1) & 0x0f) << 4) | (Math.floor(totalSamples / 2 ** 32) & 0x0f);
+  bytes[b + 14] = (totalSamples >>> 24) & 0xff;
+  bytes[b + 15] = (totalSamples >>> 16) & 0xff;
+  bytes[b + 16] = (totalSamples >>> 8) & 0xff;
+  bytes[b + 17] = totalSamples & 0xff;
+  return bytes.buffer;
+}
+
 export const probeFixtures = {
   probeWav,
   probePng,
   probeJpeg,
   makeSilentWavHeader,
   makeTinyPng,
+  makeMinimalMp3,
+  makeFlacStreamInfo,
   parseArtistTitle,
 };

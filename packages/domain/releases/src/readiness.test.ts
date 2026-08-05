@@ -46,7 +46,7 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_HOT")).toBe(true);
   });
 
-  it("does not fabricate loudness when not measured", () => {
+  it("reports Not measured instead of fabricating loudness", () => {
     const findings = evaluateReadiness({
       title: "Song",
       artistName: "Artist",
@@ -60,8 +60,44 @@ describe("evaluateReadiness", () => {
         durationSeconds: 120,
       },
     });
-    expect(findings.some((f) => f.code.startsWith("AUDIO_LOUDNESS"))).toBe(false);
+    expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_NOT_MEASURED")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_HOT")).toBe(false);
+    expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_QUIET")).toBe(false);
     expect(findings.some((f) => f.code.startsWith("AUDIO_PEAK"))).toBe(false);
+  });
+
+  it("discloses decode provenance and never calls sample peak a true peak", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.mp3",
+        mimeType: "audio/mpeg",
+        sizeBytes: 4_000_000,
+        sampleRate: 44100,
+        durationSeconds: 210,
+        bitrateKbps: 320,
+        loudnessMeasured: true,
+        loudnessMethod: "decoded",
+        loudnessResampled: true,
+        peakDbfs: -0.4,
+        integratedLufsApprox: -5.2,
+      },
+    });
+
+    const peak = findings.find((f) => f.code === "AUDIO_PEAK_HOT");
+    expect(peak?.title).toContain("Sample peak");
+    expect(peak?.detail).toContain("decoded audio");
+    expect(peak?.detail).toContain("resampled");
+    expect(peak?.detail).not.toMatch(/measured true peak/i);
+
+    const loud = findings.find((f) => f.code === "AUDIO_LOUDNESS_HOT");
+    expect(loud?.detail).toContain("not standards-certified");
+
+    expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_NOT_MEASURED")).toBe(false);
+    expect(findings.find((f) => f.code === "AUDIO_LOSSY_MASTER")?.detail).toContain("320 kbps");
   });
 
   it("flags small non-square artwork", () => {

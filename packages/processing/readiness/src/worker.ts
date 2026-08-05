@@ -21,7 +21,28 @@ export type WorkerProbeRequest =
       mimeType: string;
       sizeBytes: number;
       buffer: ArrayBuffer;
+    }
+  | {
+      /**
+       * Measure loudness from already-decoded PCM. The host decodes compressed
+       * audio (Web Audio has no worker-side decoder) and transfers channel data
+       * here so the sample loops stay off the main thread.
+       */
+      type: "measure-loudness";
+      requestId: string;
+      channels: Float32Array[];
+      sampleRate: number;
     };
+
+export type MeasuredLoudness = {
+  peakDbfs: number;
+  rmsDbfs: number;
+  integratedLufsApprox: number;
+  /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
+  analysisSampleRate: number;
+  channels: number;
+  durationSeconds: number;
+};
 
 export type WorkerProbeResponse =
   | {
@@ -36,10 +57,31 @@ export type WorkerProbeResponse =
       requestId: string;
       ok: false;
       error: string;
+    }
+  | {
+      type: "loudness-result";
+      requestId: string;
+      ok: true;
+      metrics: MeasuredLoudness;
+    }
+  | {
+      type: "loudness-result";
+      requestId: string;
+      ok: false;
+      error: string;
     };
 
 function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
   try {
+    if (msg.type === "measure-loudness") {
+      return {
+        type: "loudness-result",
+        requestId: msg.requestId,
+        ok: false,
+        error: "Loudness measurement is provided by the application worker",
+      };
+    }
+
     if (msg.type === "probe-audio") {
       const lower = msg.fileName.toLowerCase();
       const probe =
