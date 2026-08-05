@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-05
-**Branch:** `fix/prepare-publish-bridge`
-**HEAD:** `4cb0677724c6c201d5cbe3055fd0506202d3d87c` — 4 commits ahead of `origin/main`, **not pushed**
+**Branch:** `main`
+**HEAD:** `5d1bcc40f10396fc75a04b0b46825c6113b2ec2f`
 **Current milestone:** **M2 — Product isolation** (owner ruled 2026-08-04 that the most recent authorisation governs). Premium suite initiative running in parallel under owner direction of 2026-08-04.
 
 ---
@@ -14,20 +14,21 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `c4033603f4672de342987d9acd0813d73b7f90f7` | merge commit of PR #57; `git log` confirms it is `origin/main` HEAD |
+| Production SHA | `5d1bcc40f10396fc75a04b0b46825c6113b2ec2f` | merge commit of PR #58, merged 2026-08-05T19:40:45Z |
 | Alias | https://vybz.cloud | HTTP 200, live fetch 2026-08-05 |
-| Deployed bundle | `/assets/index-XM2ry_K3.js` | live fetch 2026-08-05 |
-| Deployment current with `main` | **YES** | build SHA in the live bundle = `c4033603f467…`, equal to `origin/main` |
-| Deployment carries this branch's 4 commits | **NO** | they are unpushed |
+| Deployed bundle | `/assets/index-B9yWIVJ_.js` | live fetch 2026-08-05 |
+| Deployed CSS | `/assets/index-U2ZRSgLz.css` | live fetch 2026-08-05 |
+| Deployment current with `main` | **YES** | build SHA in the live bundle = `5d1bcc40f103…`, equal to `origin/main` |
 
 ## Last completed operations
 
 1. **PR [#54](https://github.com/ALaustrup/VYBZ/pull/54) merged** (`33b68802`) — contextual track action system, plus library search, filters, sort, grouping, views, multi-select and batch.
 2. **PR [#55](https://github.com/ALaustrup/VYBZ/pull/55) merged** (`ead8848a`) — MP3/FLAC on-device loudness, the sample-peak honesty fix, and the signed-in command dashboard.
 3. **PR [#56](https://github.com/ALaustrup/VYBZ/pull/56) merged** (`e212ac76`) — design token consolidation (premium suite Phase 2).
-4. **PR [#57](https://github.com/ALaustrup/VYBZ/pull/57) merged** (`c4033603`) — track detail workspace (premium suite Phase 7). **This is production.**
+4. **PR [#57](https://github.com/ALaustrup/VYBZ/pull/57) merged** (`c4033603`) — track detail workspace (premium suite Phase 7).
+5. **PR [#58](https://github.com/ALaustrup/VYBZ/pull/58) merged** (`5d1bcc40`) — publish bridge, surface fusion, Pro hosting design and the Law 6 token withdrawal. **This is production.**
 
-### On `fix/prepare-publish-bridge`, committed and unpushed
+### Delivered in PR #58
 
 | SHA | Change |
 |---|---|
@@ -35,12 +36,25 @@
 | `5663e717` | V-credit hosting plan designed and its rules encoded in `src/lib/proPlan.ts` |
 | `78b1e5d8` | `pro_until` entitlement migration authored; token framing withdrawn from V¢ (Law 6) |
 | `4cb06777` | The three surface systems fused into one `--surface-*` language |
+| `8d254359` | Checkpoint corrected against measured production state |
+
+CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
+`perf-audit`, `android-aab`, `ios-ipa`, `linux-appimage`, `mac-dmg`,
+`windows-msi` and Vercel all passed. `draft-release` skipped by design.
 
 **Merge note (historical):** #53 was authored against the stacked branch `feat/m2-purge-dating-and-nonaudio` and GitHub did not retarget it when #52 merged, so it merged into that intermediate branch rather than `main`. #54's branch already contained all three commits, so retargeting #54 to `main` and merging it delivered the audit and the purge together. Verified by `git ls-tree` on `main`.
 
 ## Working tree
 
-Clean on `fix/prepare-publish-bridge` @ `4cb06777`. Untracked: `.cursor/settings.json` (do not commit).
+Clean on `main` @ `5d1bcc40`. Untracked: `.cursor/settings.json` (do not commit).
+
+Two stashes remain and were **not** touched, per the preservation rule:
+`stash@{0}` "ops cutover docs WIP" and `stash@{1}" "temp hash drift".
+
+`docs/operations/DISTRIBUTION_EXPORT_HASHES.json` is rewritten by every
+`test:e2e` run with a fresh release id, timestamp and hash. The local churn from
+this session's run was reverted rather than committed, since the value is
+nondeterministic and records nothing durable.
 
 ## Production verification — 2026-08-04
 
@@ -58,28 +72,25 @@ Clean on `fix/prepare-publish-bridge` @ `4cb06777`. Untracked: `.cursor/settings
 | `check:no-fixtures` against deployable `dist/` | **PASS** — 8 markers absent | local run on `main` |
 | **Owner signed-in production smoke** | **NOT DONE** — requires owner credentials | `docs/operations/M3_SIGNED_IN_SMOKE.md` |
 
-## Gate on `fix/prepare-publish-bridge` @ `4cb06777` — 2026-08-05
+## Gate on `main` @ `5d1bcc40` — 2026-08-05
 
 ```
 npm run lint              — PASS
 npm run test              — PASS 272/272 (51 files)
 npm run build             — PASS, no CSS warnings
+npm run test:e2e          — PASS 57/57
 npm run check:no-fixtures — PASS (10 markers absent from dist/)
-npm run test:e2e          — NOT RUN on this branch
 ```
 
-`npm run test:e2e` last passed 53/53 on `main` @ `ead8848a`. It has **not** been run
-against the surface-token change, so no claim is made about it.
-
-### Surface unification — measured
+### Surface unification — verified in production
 
 | Check | Result | Evidence |
 |---|---|---|
-| Each `--surface-*` token declared exactly once | **PASS** | scan of built `dist/assets/index-U2ZRSgLz.css` |
-| Eight legacy blue-grey fill literals absent from built CSS | **PASS** | same scan, 0 occurrences each |
+| Each `--surface-*` token declared exactly once | **PASS** | scan of live `/assets/index-U2ZRSgLz.css`, 1 occurrence each |
+| Seven legacy blue-grey fill literals absent | **PASS** | same live scan, 0 occurrences each |
 | Legacy families resolve through the shared tokens | **PASS** | `src/design/tokens.test.ts`, 23 tests |
-| Chrome and content visually match | **PASS** | localhost screenshots of `/` and `/releases/new`, 2026-08-05 |
-| Verified in production | **NO** | the change is unpushed |
+| Chrome and content visually match | **PASS** | production screenshot of `/releases/new`, 2026-08-05 |
+| Signed-in chrome — app bar, dock, sheets, modals | **NOT VERIFIED** | resolves through the shared tokens by construction, but not observed; requires owner credentials |
 
 ## M2 exit gate (Masterplan §10)
 
@@ -97,7 +108,7 @@ against the surface-token change, so no claim is made about it.
 | Phase | State |
 |---|---|
 | 1 — Audit and stabilisation | **Delivered** — `docs/architecture/PRODUCT_AUDIT_2026-08-04.md` |
-| 2 — Shared design foundation | **DEPLOYED BUT UNVERIFIED** (tokens, PR #56) **+ COMMITTED NOT PUSHED** (surface fusion, `4cb06777`) |
+| 2 — Shared design foundation | **DEPLOYED** — tokens (PR #56) and the surface fusion (PR #58); fusion verified in the live CSS, signed-in chrome unobserved |
 | 4 — Media library (search, filter, sort, views, multi-select, batch) | **DEPLOYED BUT UNVERIFIED** — live, owner has not exercised it |
 | 5 — Contextual track actions | **DEPLOYED BUT UNVERIFIED** — same |
 | 6 — Command dashboard | **DEPLOYED BUT UNVERIFIED** — same |
@@ -119,8 +130,7 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 | — | Owner signed-in production smoke | M2 and M3 exit sign-off |
 | — | **No real MP3 or FLAC file has been decoded end to end.** Header parsers are unit-tested against synthesized streams; the decode path is type-checked only | Claiming MP3/FLAC loudness works |
 | — | Bundle has no performance budget defined | Premium suite Phase 11 |
-| — | **Owner authorisation to push `fix/prepare-publish-bridge` and open a PR** | Delivering all 4 commits, including the surface fusion |
-| — | **`20260805_0090_pro_hosting.sql` is authored but not applied.** Requires `supabase db push` against a confirmed target | Any Pro purchase; `purchase_pro` and `pro_status` do not exist server-side |
+| — | **`20260805_0090_pro_hosting.sql` is merged but not applied.** Requires `supabase db push` against an owner-confirmed target | Any Pro purchase; `purchase_pro` and `pro_status` do not exist server-side |
 | — | Nothing measures per-user storage bytes | Billing Pro storage overage |
 | — | Publish-to-catalog is not gated on Pro; any signed-in user can upload | Enforcing the Pro boundary |
 | — | No scheduled sweep flips lapsed users' public tracks private | Enforcing lapse behaviour |
@@ -137,9 +147,9 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 
 ## Next authorised action
 
-1. **Owner:** authorise pushing `fix/prepare-publish-bridge` and opening a PR. Four commits are complete and gated but undelivered.
-2. **Owner:** run `supabase db push` against the confirmed target to apply `20260805_0090_pro_hosting.sql`. Until then a purchase button would be a dead control.
-3. **Owner:** exercise the dashboard, library and track actions on production, and upload a real MP3 or FLAC to confirm loudness measurement works on a genuine file.
+1. **Owner:** confirm the target Supabase project so `20260805_0090_pro_hosting.sql` can be applied with `supabase db push`. It is merged but unapplied, so `purchase_pro` and `pro_status` do not exist server-side and a purchase button would be a dead control. A database migration needs owner approval regardless of the standing push/deploy authorisation.
+2. **Owner:** sign in on production and confirm the app bar, dock, sheets and modals now match the content surfaces. This is the only part of the fusion not verified.
+3. **Owner:** upload a real MP3 or FLAC to confirm loudness measurement works on a genuine file.
 4. Then: wire `api.purchasePro()` into the store, gate publish on `pro_status()`, and build storage accounting.
 
 ## Known contradiction closed 2026-08-05
