@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pause, Play, Star, Heart, Loader2, Download, ShieldCheck } from "lucide-react";
+import { Pause, Play, Star, Heart, Loader2, Download, ShieldCheck, MoreVertical } from "lucide-react";
 import type { Drop, Reaction } from "@/types";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { ReportButton } from "@/components/ReportButton";
-import { usePlayer, playTrack, seekFraction, type PlayerTrack } from "@/lib/audioBus";
+import { TrackActionMenu } from "@/components/TrackActionMenu";
+import type { MenuAnchor } from "@/components/menu/ContextMenu";
+import { usePlayer, playTrack, seekFraction } from "@/lib/audioBus";
+import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { qualityLabel } from "@/lib/waveform";
 import * as api from "@/lib/api";
 import { FLAGS } from "@/lib/flags";
@@ -34,23 +37,7 @@ function fmtTime(s: number): string {
   return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, "0")}`;
 }
 
-export function toPlayerTrack(d: Drop): PlayerTrack {
-  const accent = paletteFor(d.seed)[0];
-  const playback = d.playbackCustomization ?? undefined;
-  return {
-    id: d.id, url: d.audioUrl ?? "",
-    authorId: d.authorId,
-    artistUsername: d.authorUsername ?? undefined,
-    earnEligible: true,
-    title: d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled",
-    artist: d.creditedArtist?.trim() || d.authorUsername || "Creator",
-    waveform: d.waveform, durationSec: d.durationSec,
-    quality: qualityLabel(d.audioFormat ?? undefined, d.sampleRate ?? undefined, d.lossless),
-    lossless: d.lossless, seed: d.seed, accent,
-    fx: playback?.reactiveStyle ?? d.fx ?? "glow",
-    playback,
-  };
-}
+export { toPlayerTrack };
 
 interface TrackCardProps {
   drop: Drop & { myReaction?: Reaction; myRating?: number };
@@ -60,16 +47,46 @@ interface TrackCardProps {
   onRate?: (stars: number) => void;
   onOpenAuthor?: () => void;
   className?: string;
+  /** Owner-manager surfaces pass this so the menu can offer feature/rename/delete state. */
+  isFeatured?: boolean;
+  /** Fired after a mutating menu action so the parent list can refresh. */
+  onChanged?: (change: { kind: "deleted" | "renamed" | "featured"; dropId: string; title?: string }) => void;
+  /** Hide the contextual action affordance (e.g. inside a read-only embed). */
+  disableActions?: boolean;
 }
 
 /** The feed's atomic unit for an audio drop — identity-forward, sound-first. */
-export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, onOpenAuthor, className }: TrackCardProps) {
+export function TrackCard({
+  drop: d,
+  queue,
+  compact = false,
+  onReact,
+  onRate,
+  onOpenAuthor,
+  className,
+  isFeatured = false,
+  onChanged,
+  disableActions = false,
+}: TrackCardProps) {
   const player = usePlayer();
   const navigate = useNavigate();
   const { userId, showToast } = useSession();
   const accent = useMemo(() => paletteFor(d.seed)[0], [d.seed]);
   const [downloading, setDownloading] = useState(false);
   const [prov, setProv] = useState<api.AssetProvenance | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
+  const moreRef = useRef<HTMLButtonElement>(null);
+
+  function openMenuFromButton() {
+    const rect = moreRef.current?.getBoundingClientRect();
+    setMenuAnchor(rect ? { x: rect.right - 248, y: rect.bottom + 6 } : { x: 16, y: 16 });
+  }
+
+  function openMenuFromPointer(e: React.MouseEvent) {
+    if (disableActions) return;
+    e.preventDefault();
+    setMenuAnchor({ x: e.clientX, y: e.clientY });
+  }
 
   function openArtist() {
     if (onOpenAuthor) {
@@ -139,21 +156,69 @@ export function TrackCard({ drop: d, queue, compact = false, onReact, onRate, on
     ?? catalogVisual?.loopMp4
     ?? null;
 
-  function togglePlay(e: React.MouseEvent) {
-    e.stopPropagation();
+  function togglePlayFromMenu() {
     if (!d.audioUrl || !/^(https?:|blob:|data:)/i.test(d.audioUrl)) {
       showToast("This drop has no playable audio URL yet");
       return;
     }
     if (!isCurrent) void api.recordPlay(d.id);
-    playTrack(toPlayerTrack(d), (queue ?? []).filter((x) => x.audioUrl && /^(https?:|blob:|data:)/i.test(x.audioUrl)).map(toPlayerTrack));
+    playTrack(
+      toPlayerTrack(d),
+      (queue ?? [])
+        .filter((x) => x.audioUrl && /^(https?:|blob:|data:)/i.test(x.audioUrl))
+        .map(toPlayerTrack),
+    );
+  }
+
+  function togglePlay(e: React.MouseEvent) {
+    e.stopPropagation();
+    togglePlayFromMenu();
   }
 
   return (
     <div
       data-dark-stage
       className={cx("group relative overflow-hidden forge-card !p-0", className)}
+      onContextMenu={openMenuFromPointer}
     >
+      {!disableActions && (
+        <button
+          ref={moreRef}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            openMenuFromButton();
+          }}
+          aria-label={`Actions for ${d.title?.trim() || "this track"}`}
+          aria-haspopup="menu"
+          aria-expanded={menuAnchor !== null}
+          data-testid={`track-actions-${d.id}`}
+          className={cx(
+            "track-action-affordance absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center",
+            "rounded-full border border-white/20 bg-black/50 text-white/80 backdrop-blur",
+            "hover:border-white/35 hover:text-white active:scale-90",
+          )}
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      )}
+
+      {/* Mounted only while open — the menu subscribes to player and session state. */}
+      {menuAnchor !== null && (
+        <TrackActionMenu
+          drop={d}
+          open
+          anchor={menuAnchor}
+          onClose={() => setMenuAnchor(null)}
+          returnFocusTo={moreRef.current}
+          onChanged={onChanged}
+          onPlay={() => togglePlayFromMenu()}
+          onReact={onReact}
+          onRate={() => onRate?.(5)}
+          isFeatured={isFeatured}
+        />
+      )}
+
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0">
           <TrackVisualizer

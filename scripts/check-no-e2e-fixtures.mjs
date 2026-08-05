@@ -21,6 +21,8 @@ const MARKERS = [
   "ai-credits-e2e-fixture",
   "collab-e2e-fixture",
   "storefront-orders-fixture",
+  "track-actions-fixture",
+  "library-fixture",
 ];
 
 const SCANNED_EXTENSIONS = new Set([".js", ".mjs", ".css", ".html", ".map"]);

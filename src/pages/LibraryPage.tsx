@@ -56,7 +56,7 @@ export function LibraryPage() {
   );
 
   return (
-    <div className="mx-auto flex h-full max-w-2xl flex-col px-4 pb-10 pt-2">
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col px-4 pb-4 pt-2">
       <p className="mb-3 text-[13px] leading-relaxed text-white/45">
         Everything you&apos;ve uploaded — drops, project posts, and stage backdrops — in one place.
         {FLAGS.storefront && (
@@ -85,14 +85,18 @@ export function LibraryPage() {
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
         />
       ) : tab === "posts" ? (
-        <PostsLibrary
-          posts={posts}
-          onChanged={load}
-          onOpenProject={(id) => navigate(`/p/${id}`)}
-          showToast={showToast}
-        />
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
+          <PostsLibrary
+            posts={posts}
+            onChanged={load}
+            onOpenProject={(id) => navigate(`/p/${id}`)}
+            showToast={showToast}
+          />
+        </div>
       ) : (
-        <StagesLibrary drops={staged} onOpenDrop={() => setTab("drops")} />
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
+          <StagesLibrary drops={staged} onOpenDrop={() => setTab("drops")} />
+        </div>
       )}
     </div>
   );
