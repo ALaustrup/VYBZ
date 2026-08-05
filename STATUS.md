@@ -130,9 +130,33 @@ Production bundle            — index-cQiJuwWY.js, build SHA c79948b64ccb… (l
 - `PrimaryRail.tsx` / `MobileNav.tsx` still reference `suiteNavRoutes()` but are unmounted; live navigation is `OrbMenu`.
 - Integrated loudness is a gated-RMS approximation without K-weighting, labelled estimated everywhere it appears; non-certified until M4.
 
+## Premium suite initiative — Phase 1 complete
+
+Owner issued a full product direction on 2026-08-04: VYBZ becomes a premium, audio-reactive
+creative operating system with web/desktop/mobile parity. Deliverable 1 was an evidence-based
+current-state audit, now landed at
+[`docs/architecture/PRODUCT_AUDIT_2026-08-04.md`](./docs/architecture/PRODUCT_AUDIT_2026-08-04.md).
+
+Audit headline findings:
+
+| Finding | Detail |
+|---|---|
+| Playback engine is sound | `src/lib/audioBus.ts` — single `HTMLAudioElement`, route-stable. Extend, do not rewrite |
+| Player visualizers are not live audio | `DockVisualizer` / `DropStage` synthesise bands from stored peaks (`audioBus.ts:148-217`); only Visualizer Studio uses a real `AnalyserNode` |
+| No contextual track action system | `TrackCard` has inline buttons only; no hover/right-click/long-press menu anywhere |
+| No library search, filter, sort or multi-select | `LibraryPage` is three fixed tabs of 80 items |
+| Remote processing has no worker in-repo | `processing-enqueue` inserts `queued`; no consumer found, no client callers |
+| Distribution ZIP has no media | Report JSON + README only (`buildReport.ts:55-58`) |
+| Mastering is real DSP, not AI | RMS normalise + mid/side + hard limit (`master.ts:62-134`); ONNX checked but not executed |
+| One open Law 1 defect | Sample peak presented as true peak (`DistributionReportPage.tsx:73`); fix already written on parked branch |
+| Five previously reported Law 1 defects verified fixed | Hash-derived ISRC/genre/mood, hardcoded LUFS and true peak, undisclosed `stereoWidth` 1.05, missing build id |
+
+Nine dead or dormant components identified for revival rather than deletion, including
+`PrimaryRail`, `MobileNav`, `CommandBar` and `AudioTrimBar`.
+
 ## Next authorised action
 
-1. Update PR #48 against `main` @ `c79948b6` and land it (items 1–4).
-2. Remove the remaining dating surfaces in a follow-up branch: `DashConnectPanel.tsx`, `src/lib/api.ts` dating field mapping, `src/lib/codex.ts` legal copy (items 5–7).
-3. Re-audit the deployable bundle and record a clean result here before claiming the M2 gate.
-4. **Owner:** rule on DR-02, DR-03 and DR-04 so M2 scope can be locked.
+1. **Owner:** merge PR [#52](https://github.com/ALaustrup/VYBZ/pull/52) (dating removal) — closes the M2 exit-gate failure.
+2. **Owner:** close PR #48 as superseded by #52.
+3. Begin premium-suite Phase 2 in the order recommended in the audit §11, starting with the contextual track action system.
+4. **Owner:** decide whether the orphaned dating RPCs and columns should be dropped — that requires an irreversible migration and is not authorised.
