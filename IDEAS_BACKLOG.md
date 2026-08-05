@@ -6,7 +6,73 @@
 > **A backlog entry is not authorisation to implement it.** Work begins only when
 > [`AGENTS.md`](./AGENTS.md) names the milestone as authorised.
 
-Last reviewed 2026-08-01.
+Last reviewed 2026-08-05.
+
+---
+
+## 0. VYBZ Pro — owner-directed, designed, not yet authorised to build
+
+Owner direction, 2026-08-05: users keep their own files; VYBZ hosting is paid. Purchase
+runs on V¢, in the Diablo-style pattern already used for cosmetics — buy a credit pack
+with money, spend credits on the entitlement.
+
+**Design status:** decided and encoded as pure rules in `src/lib/proPlan.ts`, covered by
+17 tests. **No billing exists.** Nothing charges, nothing grants, and no purchase control
+is shown, because the server RPC does not exist yet.
+
+### Recommended configuration
+
+| Decision | Recommendation | Rationale |
+|---|---|---|
+| Price | **60 V¢ / 30 days** | Exactly $3.00 at the existing $0.05 peg |
+| Currency | V¢ only | One currency, one ledger, matches cosmetics |
+| Included hosting | **10 GB** | "Unlimited" is not costable against lossless masters |
+| Overage | 6 V¢ per GB per period | Disclosed per Law 6 rather than silently throttled |
+| Grace after expiry | **30 days public**, with warnings | Nobody's release disappears the hour a payment lapses |
+| On lapse | Tracks go **private, never deleted**; owner keeps download | Deleting a creator's work for non-payment is indefensible |
+| Renewal | Extends an unexpired period | Renewing early must never destroy paid time |
+
+### What stays free forever
+
+Analysis, mastering, readiness, translation, distribution reports, export packages,
+managing and downloading your own files, messaging, live, discovery browsing. All of it
+is on-device compute or already-paid infrastructure, so it costs nothing to leave open.
+
+### What Pro pays for
+
+Hosting audio on VYBZ, publishing to the discovery feed, selling through a storefront —
+the three things that consume storage and bandwidth.
+
+### Already built
+
+- Buying V¢ with Stripe — `startCreditTopup` → `stripe-credit-topup`, packs at $5/$10/$25
+- Spending V¢ on an entitlement — the `purchase_cosmetic` RPC pattern
+- Ledger and history — `vc_award`, `vc_list_ledger`
+- Client entitlement shape — `ProfileDetails.pro`, `proUntil`, `isPro()`, `ProBadge`
+
+### Missing, and each needs owner approval
+
+1. **A `pro_until` column and `purchase_pro` RPC.** No migration in the repository sets
+   `pro` or `proUntil` today, so the entitlement is currently unreachable — `isPro()` can
+   never return true. This is a **database migration**.
+2. **Storage accounting.** Nothing measures per-user bytes, so overage cannot be billed.
+3. **Publish gating.** `PublishToCatalogCard` currently uploads for any signed-in user.
+   Gating it on Pro is a product decision with a migration behind it.
+4. **Lapse enforcement.** A scheduled job to flip lapsed users' tracks to private.
+
+### Blocking compliance issue — must resolve before selling anything
+
+`src/lib/vc.ts:3` states *"Future token ticker VYBZ planned for 2027 exchanges"* and
+exports `VC_TICKER_FUTURE = "VYBZ"`. `src/lib/codex.ts` describes the whitepaper as a
+"2027 token roadmap".
+
+Masterplan **Law 6** forbids cryptocurrency framing and speculative-finance language, and
+`AGENTS.md` carries the same prohibition. Selling credits to people who have been told
+those credits may become a tradeable token is materially different from selling
+closed-loop credits, and it changes the regulatory picture.
+
+**Recommendation:** remove the token language from code, copy and the whitepaper before
+V¢ becomes the payment rail for a subscription. This is cheap now and expensive later.
 
 ---
 
