@@ -94,6 +94,7 @@ export function TrackActionMenu({
             if (isOwner) navigate("/?tab=you");
             else navigate(`/u/${drop.authorId}`);
           },
+          openTrack: () => navigate(`/track/${drop.id}`),
           viewDetails: () => setStage("details"),
           copyArtistLink: () => {
             if (!drop.authorId) return;

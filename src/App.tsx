@@ -55,6 +55,7 @@ import { ArtistPage } from "@/pages/ArtistPage";
 import { AmbientRadioHost } from "@/components/AmbientRadioHost";
 import { ListenEarnHost } from "@/components/ListenEarnHost";
 import { LibraryPage } from "@/pages/LibraryPage";
+import { TrackDetailPage } from "@/pages/TrackDetailPage";
 import { VisualizerTutorialPage } from "@/pages/VisualizerTutorialPage";
 import { VisualizerStudioPage } from "@/pages/VisualizerStudioPage";
 import { FLAGS } from "@/lib/flags";
@@ -183,6 +184,7 @@ export function App() {
         <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/library" element={<LibraryPage />} />
+        <Route path="/track/:id" element={<TrackDetailPage />} />
         <Route path="/visuals/tutorial" element={<VisualizerTutorialPage />} />
         <Route path="/visuals/studio" element={<VisualizerStudioPage />} />
         {FLAGS.storefront ? (

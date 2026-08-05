@@ -24,6 +24,7 @@ const MARKERS = [
   "track-actions-fixture",
   "library-fixture",
   "dashboard-fixture",
+  "track-detail-fixture",
 ];
 
 const SCANNED_EXTENSIONS = new Set([".js", ".mjs", ".css", ".html", ".map"]);
