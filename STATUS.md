@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-04
 **Branch:** `main`
-**HEAD:** `33b6880269fb31cc6d819f54fa36a8990bf12c80`
+**HEAD:** `ead8848a8e23d185d699dd5010f9062e3004d66e`
 **Current milestone:** **M2 — Product isolation** (owner ruled 2026-08-04 that the most recent authorisation governs). Premium suite initiative running in parallel under owner direction of 2026-08-04.
 
 ---
@@ -14,16 +14,17 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `33b6880269fb31cc6d819f54fa36a8990bf12c80` | merge commit of PR #54 |
+| Production SHA | `ead8848a8e23d185d699dd5010f9062e3004d66e` | merge commit of PR #55 |
 | Alias | https://vybz.cloud | HTTP 200, live fetch 2026-08-04 |
-| Deployed bundle | `/assets/index-D3G5pgXQ.js` (887,004 bytes) | live fetch |
-| Deployment current with `main` | **YES** | `__VYBZ_BUILD_SHA__` in the live bundle equals `33b6880269fb31cc6d819f54fa36a8990bf12c80` |
+| Deployed bundle | `/assets/index-C2YJIYdC.js` | live fetch |
+| Deployment current with `main` | **YES** | `__VYBZ_BUILD_SHA__` in the live bundle equals `ead8848a…` |
 
 ## Last completed operations
 
 1. **PR [#52](https://github.com/ALaustrup/VYBZ/pull/52) merged** — dating removed from the product entirely.
 2. **PR [#53](https://github.com/ALaustrup/VYBZ/pull/53) merged** — evidence-based current-state product audit.
 3. **PR [#54](https://github.com/ALaustrup/VYBZ/pull/54) merged** (`33b68802`) — contextual track action system, plus library search, filters, sort, grouping, views, multi-select and batch.
+4. **PR [#55](https://github.com/ALaustrup/VYBZ/pull/55) merged** (`ead8848a`) — MP3/FLAC on-device loudness, the sample-peak honesty fix, and the signed-in command dashboard.
 
 **Merge note:** #53 was authored against the stacked branch `feat/m2-purge-dating-and-nonaudio` and GitHub did not retarget it when #52 merged, so it merged into that intermediate branch rather than `main`. #54's branch already contained all three commits, so retargeting #54 to `main` and merging it delivered the audit and the purge together. Verified by `git ls-tree` on `main`.
 
@@ -40,21 +41,24 @@ Clean on `main` @ `33b68802`. Untracked: `.cursor/settings.json` (do not commit)
 | Dating absent from the live bundle | **PASS** | 0 occurrences of `Dating`, `Something casual`, `intentMix`, `meetup_intents`, `Connection Lab`, `sexting`, `roleplay`, `spark_act`, `vibe_matches` |
 | Track action system deployed | **PASS** | `track-action-` present in the live bundle |
 | Library search / views / batch deployed | **PASS** | `library-search`, `library-view-`, `batch-bar` present |
+| Command dashboard deployed | **PASS** | `command-dashboard`, `action-centre`, `dashboard-first-scan` present |
+| MP3/FLAC decode path deployed | **PASS** | `measure-loudness` worker message present |
+| **Sample peak no longer presented as true peak** | **PASS** | `samplePeakDbfs` ×4, `DIST_SAMPLE_PEAK_HIGH` ×1, "true peak is not measured" ×2 in the live bundle. The two remaining `dBTP` strings are the `DIST_TRUE_PEAK_HIGH` rule — which reads a field the app now always passes as `null`, reserved for a real oversampling meter — and remediation advice about the user's own mastering chain. Neither labels a measured value as true peak |
 | Published legal docs carry no dating provisions | **PASS** | Every remaining match in `terms.md` and `acceptable-use.md` is the new exclusion statement ("VYBZ does **not** provide dating, romantic matching, or adult-intent features") |
 | `check:no-fixtures` against deployable `dist/` | **PASS** — 8 markers absent | local run on `main` |
 | **Owner signed-in production smoke** | **NOT DONE** — requires owner credentials | `docs/operations/M3_SIGNED_IN_SMOKE.md` |
 
-## Gate on `main` @ `33b68802`
+## Gate on `main` @ `ead8848a`
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 206/206 (47 files)
+npm run test              — PASS 235/235 (49 files)
 npm run build             — PASS, no CSS warnings
-npm run test:e2e          — PASS 49/49 (verified on the PR head, same tree)
-npm run check:no-fixtures — PASS (8 markers)
+npm run test:e2e          — PASS 53/53
+npm run check:no-fixtures — PASS (9 markers)
 ```
 
-CI on `main`: `ios` success, `android` success, `CI` and `desktop` were still running at the time of writing — **not verified to completion**.
+CI on PR #55 reached `CLEAN` before merge — quality, android, ios and all three desktop packaging jobs passed.
 
 ## M2 exit gate (Masterplan §10)
 
@@ -72,30 +76,28 @@ CI on `main`: `ios` success, `android` success, `CI` and `desktop` were still ru
 | Phase | State |
 |---|---|
 | 1 — Audit and stabilisation | **Delivered** — `docs/architecture/PRODUCT_AUDIT_2026-08-04.md` |
-| 5 — Contextual track actions | **DEPLOYED BUT UNVERIFIED** — live on production, owner has not exercised it |
-| 4 — Media library (search, filter, sort, views, multi-select, batch) | **DEPLOYED BUT UNVERIFIED** — same |
+| 4 — Media library (search, filter, sort, views, multi-select, batch) | **DEPLOYED BUT UNVERIFIED** — live, owner has not exercised it |
+| 5 — Contextual track actions | **DEPLOYED BUT UNVERIFIED** — same |
+| 6 — Command dashboard | **DEPLOYED BUT UNVERIFIED** — same |
 | 2 — Shared design foundation | Not started |
 | 3 — Application shell and navigation | Not started |
-| 6 — Command dashboard | Not started |
 | 7 — Track detail and release workspaces | Not started |
 | 8 — Audio-reactive visual system | Not started |
 | 9 — Desktop enhancement | Not started |
 | 10 — Store and discovery | Not started |
 | 11 — Quality, performance, release | Not started |
 
-## Parked branches (committed, not merged)
+## Parked branches
 
-| Branch | HEAD | Contents |
-|---|---|---|
-| `feat/audio-loudness-mp3-flac` | `497d4afc` | MPEG/FLAC header probes, Web Audio decode + worker loudness, provenance fields, sample-peak/true-peak correction. Gate was green when parked. **Now behind `main`** and will need rebasing |
+None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `feat/mp3-flac-loudness-rebased` and merged in PR #55.
 
 ## Active blockers
 
 | ID | Blocker | Blocks |
 |---|---|---|
 | — | Owner signed-in production smoke | M2 and M3 exit sign-off |
-| — | Sample peak still presented as true peak (`DistributionReportPage.tsx`) | Law 1 compliance; fix sits on the parked branch |
-| — | Bundle is 887 kB with no performance budget defined | Premium suite Phase 11 |
+| — | **No real MP3 or FLAC file has been decoded end to end.** Header parsers are unit-tested against synthesized streams; the decode path is type-checked only | Claiming MP3/FLAC loudness works |
+| — | Bundle has no performance budget defined | Premium suite Phase 11 |
 | DR-01…DR-05 | Scope decisions: live, messaging/cam, opportunities/cosmetics, V¢ tipping, watermarking | Full M2 scope lock. Owner instructed 2026-08-04 to leave these in place |
 | DR-07 | BS.1770 meter strategy | M4, and any true-peak claim |
 
@@ -108,6 +110,6 @@ CI on `main`: `ios` success, `android` success, `CI` and `desktop` were still ru
 
 ## Next authorised action
 
-1. **Owner:** exercise the new library and track actions on production and report anything broken.
-2. Premium suite Phase 6 — the signed-in command dashboard, assembled from existing data paths.
-3. Rebase and land `feat/audio-loudness-mp3-flac` to close the open Law 1 defect.
+1. **Owner:** exercise the new dashboard, library and track actions on production, and upload a real MP3 or FLAC to confirm loudness measurement works on a genuine file.
+2. Premium suite Phase 2 — consolidate design tokens. This should precede broad visual work or it will be redone.
+3. Premium suite Phase 7 — track detail route, reusing the existing waveform, findings, credits and mastering components.
