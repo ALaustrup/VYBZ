@@ -9,7 +9,7 @@ import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfileInbox } from "@/components/profile/ProfileInbox";
-import { DashHubPanel } from "@/components/dashboard/DashHubPanel";
+import { CommandDashboard } from "@/components/dashboard/CommandDashboard";
 import { DashListenPanel } from "@/components/dashboard/DashListenPanel";
 import { DashLivePanel } from "@/components/dashboard/DashLivePanel";
 import { DashListsPanel } from "@/components/dashboard/DashListsPanel";
@@ -96,7 +96,7 @@ export function ProfilePage() {
   return (
     <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1">
       {tab === "hub" && (
-        <DashHubPanel
+        <CommandDashboard
           onListenMore={() => setTab("listen")}
           onLiveMore={() => setTab("live")}
         />
