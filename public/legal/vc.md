@@ -1,102 +1,118 @@
 # VYBZ Credits (Vc) Whitepaper
 
-**Version 1.2 · Astra Matrix, Inc. · July 28, 2026**
+**Version 2.0 · Astra Matrix, Inc. · August 5, 2026**
+
+> **What changed in 2.0.** Every reference to a future exchange-listed token, a
+> ticker, and a target listing window has been removed. Vc is a closed-loop utility
+> credit and nothing else. Version 1.2 described a possible 2027 digital asset; that
+> language is withdrawn and is not replaced. Vc adds a hosting entitlement (VYBZ Pro)
+> as a spend category.
 
 ---
 
 ## 1. Summary
 
-**VYBZ Credits (Vc)** are the closed-loop social currency of the VYBZ Music Hub. They power tips to indie artists (`~username`), listen-to-earn, and cosmetics (Flair). Cosmetics / Profile Enhancement are the **primary** optional revenue; tips are **secondary**. Vc is also the **precursor unit** for a future exchange-listed digital asset.
+**VYBZ Credits (Vc)** are the closed-loop utility credit of VYBZ. They pay for things
+inside the product: the VYBZ Pro hosting entitlement, cosmetics, and optional support
+sent to other members.
 
 | Parameter | Value |
-|-----------|--------|
+|---|---|
 | Unit name | VYBZ Credits |
-| Symbol (platform) | **Vc** |
-| Peg (reference) | **1 Vc = $0.05 USD** |
-| Starter grant | **20 Vc** (= $1.00 at peg) |
+| Symbol | **Vc** |
+| Reference price | **1 Vc = $0.05 USD** |
+| Starter grant | **20 Vc** (= $1.00) |
 | Wallet address | **`~username`** (e.g. `~Andrew`) |
-| Future ticker | **VYBZ** |
-| Target listing window | **2027** |
-| Cash-out today | **None** (closed-loop) |
+| Cash-out | **None.** Vc cannot be withdrawn or converted to money |
+| Tradeable | **No.** Vc is not transferable off VYBZ and has no market |
 
-This document is product and technical disclosure — not an offer to sell securities or tokens.
-
----
-
-## 2. What Vc is (today)
-
-1. **Internal balance** stored on each member profile and mutated only by server-side, audited procedures.
-2. **Append-only ledger** (`vc_tx_ledger`) recording every mint, earn, transfer, top-up, and spend — a transaction registrar analogous to how major networks keep an ordered history of movements.
-3. **Peer-to-peer send/receive** between VYBZ users addressed as **`~username`** (leading `~` or `@` are stripped on send).
-4. **Listen-to-earn & feedback-to-earn** — meaningful listens and real track feedback award fragments under daily caps.
-5. **Spend inside VYBZ** — tip live streamers, P2P gifts, cosmetics (Flair), and other closed marketplace uses.
-
-Vc is **not** redeemable for USD, bank transfers, or on-chain assets in this generation of the product.
+Vc is **not** an investment, a security, a token, or a cryptocurrency. There is no
+exchange listing, no ticker, and no plan for either. Buying Vc is buying credit toward
+VYBZ features, in the same way a prepaid balance works in a game store.
 
 ---
 
-## 3. Peg and economics
+## 2. What Vc is
 
-The platform hardcodes a **reference peg** of **$0.05 USD per Vc** for display, starter grants, and top-up pack sizing. Example: a $5 pack targets **100 Vc**.
+1. **An internal balance** on your profile, changed only by audited server-side procedures.
+2. **An append-only ledger** (`vc_tx_ledger`) recording every grant, earn, transfer, purchase and spend, with amount, parties, kind, memo and an idempotency key that prevents double charges.
+3. **Peer-to-peer transfer** between members addressed as **`~username`**.
+4. **Earned in fragments** for genuine engagement, under daily caps.
+5. **Spent inside VYBZ only.**
 
-The peg is a **product reference rate** for closed-loop credits. It does not imply convertibility, reserves, or guaranteed redemption.
-
----
-
-## 4. Ledger & security
-
-- Balances change only inside **security-definer** database functions with row locks.
-- Every material movement should appear in **`vc_tx_ledger`** with amount, parties, kind, memo, and optional idempotency key (prevents double-grants).
-- Clients never write balances directly.
-- Abuse controls include minimum transfer size, maximum transfer size, banned-user checks, anti-self listen/feedback, and daily earn caps.
-
-This is the **network fabric** for Vc: accurate, auditable, and ready to inform a future tokenized representation.
+Clients never write balances. Every movement is server-authored and recorded.
 
 ---
 
-## 5. Earning Vc (gamification)
+## 3. Reference price
 
-Members earn fragments for authentic music engagement and social participation, for example:
+VYBZ uses a fixed internal reference of **$0.05 per Vc** to size credit packs and to
+display approximate value. A $5 pack is 100 Vc.
 
-- **Meaningful listen** to another member’s upload (≥30s or ≥50% of the track) — `listen_together`
-- **Star rating** on another member’s track — `track_feedback` (higher than a quick reaction)
-- **Written feedback note** (8–280 characters, spam-gated) — `track_feedback_note`
-- Daily presence / login
-- Accepting connections and high-quality matches
-- Messages (rate-limited), cam / video presence, Live, reactions
-
-Taste matchmaking ranks **who** you meet from shared listens and ratings; earn rewards **how** you engage. Amounts and caps are server-enforced and may evolve.
+This is a fixed product price, not a market rate. It does not imply convertibility,
+reserves, or redemption. Vc does not fluctuate in value and is not traded anywhere.
 
 ---
 
-## 6. Spending Vc
+## 4. Earning Vc
 
-Primary in-app spends:
+Members earn fragments for authentic engagement, for example a meaningful listen to
+another member's upload, a star rating, a written feedback note, daily presence,
+accepting a connection, going live. Amounts and daily caps are enforced by the server
+and may change.
 
-- **Tip live streamers** — send Vc to the host’s `~username` address from Live
-- **Direct transfer** — Wallet send to any `~username`
-- Cosmetics (Flair) and other closed marketplace uses
-
-Core connection (DM, matching) remains free. Pegged packs remain optional top-ups.
-
----
-
-## 7. Roadmap — VYBZ (VYBZ) in 2027
-
-Subject to law, licensing, and corporate decisions, Astra Matrix intends to introduce an exchange-supported digital asset branded **VYBZ** with ticker **VYBZ**, informed by the Vc ledger and economy. Until then:
-
-- Platform balances remain **closed-loop credits**.
-- No promise of listing, conversion ratio, or airdrop is made by this whitepaper.
-- Communications will update members if and when a conversion or listing program is approved.
+Earning is a courtesy, not compensation, and carries no cash value.
 
 ---
 
-## 8. Risks & disclaimers
+## 5. Spending Vc
 
-- Vc has **no cash value** for withdrawal today.
-- Peg is illustrative for UX and packs — not a promise of market price.
-- Future token plans may change or be abandoned.
-- Do not treat Vc as an investment contract.
+| Spend | What it buys |
+|---|---|
+| **VYBZ Pro** | 60 Vc per 30 days — hosting your audio on VYBZ, publishing to discovery, and selling through your storefront |
+| **Pro overage** | 6 Vc per GB per period above the 10 GB included allowance |
+| **Cosmetics (Flair)** | Profile appearance only. Never affects ranking, reach or matching |
+| **Support a member** | Optional transfer to another member's `~username` |
+
+### What Vc never gates
+
+Analysis, readiness scanning, mastering, correction, translation previews,
+distribution reports, export packages, managing and downloading your own files,
+messaging, live, and browsing discovery are **free and always will be**. They run on
+your own device or on infrastructure already paid for, so there is nothing to charge
+for.
+
+Pro exists because storing and serving audio costs real money. Nothing else does.
+
+---
+
+## 6. VYBZ Pro terms
+
+- **Price:** 60 Vc for 30 days, plus disclosed overage above 10 GB.
+- **Renewal is manual.** Nothing auto-charges. There is no recurring subscription.
+- **Renewing early extends your period** rather than replacing it. You never lose paid time.
+- **Grace period:** when a period ends, published tracks stay public for a further 30 days, with warning.
+- **After grace:** published tracks become **private**. They are **not deleted**. They remain in your library and you can download them at any time.
+- **Your audio is never deleted for non-payment.** This is a commitment, not a courtesy.
+
+---
+
+## 7. Ledger and safeguards
+
+- Balances change only inside security-definer database functions holding row locks.
+- Every material movement appears in `vc_tx_ledger`.
+- Idempotency keys prevent duplicate grants and duplicate charges.
+- Abuse controls include minimum and maximum transfer sizes, banned-account checks, anti-self-award rules, and daily earn caps.
+
+---
+
+## 8. Risks and disclaimers
+
+- Vc has **no cash value** and cannot be withdrawn.
+- Vc is **not** a security, token, cryptocurrency, or investment contract. Do not treat it as one.
+- The $0.05 reference is a product price, not a market price.
+- Features that Vc buys may change. Prices may change with notice.
+- Unused Vc is not refundable except where consumer law requires it.
 
 For Terms and Privacy, see `/legal/terms` and `/legal/privacy`.
 
@@ -104,4 +120,4 @@ For Terms and Privacy, see `/legal/terms` and `/legal/privacy`.
 
 ## 9. Contact
 
-Astra Matrix, Inc. · VYBZ platform · [vybz.cloud](https://vybz.cloud)
+Astra Matrix, Inc. · VYBZ · [vybz.cloud](https://vybz.cloud)

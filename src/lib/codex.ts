@@ -37,7 +37,7 @@ export const CODEX_DOCS: CodexDoc[] = [
   { slug: "privacy", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Privacy Policy", summary: "Data for analysis, streaming, live, Vc credits and waitlist email — and your rights.", jurisdiction: "Astra Matrix, Inc.", version: "4.0", path: "/legal/privacy.md" },
   { slug: "dmca", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Copyright & DMCA Policy", summary: "How to report infringement on catalog, live, and profile media (notice & takedown).", jurisdiction: "Astra Matrix, Inc.", version: "1.1", path: "/legal/dmca.md" },
   { slug: "acceptable-use", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "Acceptable Use Policy", summary: "Conduct for uploads, analysis, catalog, live and Vc credits.", jurisdiction: "Astra Matrix, Inc.", version: "3.0", path: "/legal/acceptable-use.md" },
-  { slug: "vc", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "VYBZ Credits (Vc) Whitepaper", summary: "Closed-loop tip currency: $0.05 peg, ledger, cosmetics primary, tips secondary, 2027 token roadmap.", jurisdiction: "Astra Matrix, Inc.", version: "1.2", path: "/legal/vc.md" },
+  { slug: "vc", kind: "policy", category: "Platform Legal · Astra Matrix, Inc.", title: "VYBZ Credits (Vc) Whitepaper", summary: "Closed-loop utility credit: $0.05 fixed price, audited ledger, buys Pro hosting and cosmetics. Not a token, not tradeable, no cash-out.", jurisdiction: "Astra Matrix, Inc.", version: "2.0", path: "/legal/vc.md" },
 ];
 
 export function docBySlug(slug: string): CodexDoc | undefined {

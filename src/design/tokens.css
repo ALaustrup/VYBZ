@@ -25,12 +25,30 @@
   --shadow-focus: 0 0 0 2px var(--color-abyss, #0a0e18), 0 0 0 4px rgb(var(--accent-rgb, 0 194 255) / 0.55);
   --shadow-glow: 0 0 24px -4px rgb(var(--accent-rgb, 0 194 255) / 0.35);
 
-  /* Glass vibrant mats */
-  --glass-vibrant-fill: rgba(16, 28, 48, 0.45);
-  --glass-vibrant-fill-strong: rgba(12, 20, 36, 0.68);
-  --glass-vibrant-border: rgba(0, 194, 255, 0.22);
-  --glass-vibrant-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
-  --glass-vibrant-blur: 18px;
+  /* ── One surface language ───────────────────────────────────────────────
+   * Every translucent surface in the product resolves to these values: the
+   * suite chrome, the dock, sheets, modals, and the Nexus content panels.
+   *
+   * Before this existed there were three independent systems — forge glass at
+   * rgba(4,8,16,0.72) neutral, `.glass` at rgba(24,32,52,0.48) blue-grey, and
+   * glass-vibrant at rgba(16,28,48,0.45) — which read as two different
+   * products depending on which surface you were looking at. Near-black and
+   * neutral is the house look; blur and depth are kept, the blue tint is not.
+   */
+  --surface-fill: rgba(8, 13, 22, 0.62);
+  --surface-fill-strong: rgba(5, 9, 16, 0.82);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --surface-border-strong: rgba(255, 255, 255, 0.16);
+  --surface-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+  --surface-blur: 28px;
+  --surface-saturate: 1.35;
+
+  /* Glass vibrant mats — now aliases of the shared surface. */
+  --glass-vibrant-fill: var(--surface-fill);
+  --glass-vibrant-fill-strong: var(--surface-fill-strong);
+  --glass-vibrant-border: var(--surface-border);
+  --glass-vibrant-specular: var(--surface-specular);
+  --glass-vibrant-blur: var(--surface-blur);
 
   /* Motion v2 */
   --motion-fast: 120ms;

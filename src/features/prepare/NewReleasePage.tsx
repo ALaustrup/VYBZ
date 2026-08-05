@@ -11,6 +11,7 @@ import { createReleaseWithScan, getPrepareOwnerId } from "@/features/prepare/ser
 import { ensureMetadataCredits } from "@/features/credits/service";
 import { probeArtworkFile, probeAudioFile } from "@/features/prepare/probeClient";
 import { PrepareScanStage } from "@/features/prepare/PrepareScanStage";
+import { stashPendingAudio } from "@/features/prepare/pendingUpload";
 import type { AudioProbe, ArtworkProbe } from "@vybz/domain/releases";
 
 type Phase = "upload" | "scanning";
@@ -75,6 +76,8 @@ export function NewReleasePage() {
     mimeType: string;
     sizeBytes: number;
     probe: AudioProbe;
+    /** Held in memory only, so the user can opt into publishing after the scan. */
+    blob: Blob | null;
   } | null>(null);
   const [artMeta, setArtMeta] = useState<{
     fileName: string;
@@ -114,6 +117,24 @@ export function NewReleasePage() {
       } catch {
         /* credits seed is best-effort */
       }
+      // The scan never uploads. Keep the analysed audio in memory so the results
+      // page can offer an explicit publish without asking for the file again.
+      if (audioMeta?.blob) {
+        stashPendingAudio({
+          releaseId: bundle.project.id,
+          blob: audioMeta.blob,
+          fileName: audioMeta.fileName,
+          mimeType: audioMeta.mimeType,
+          sizeBytes: audioMeta.sizeBytes,
+          durationSec: audioMeta.probe.durationSeconds,
+          sampleRate: audioMeta.probe.sampleRate,
+          audioFormat: audioMeta.probe.container,
+          lossless: audioMeta.probe.container === "wav" || audioMeta.probe.container === "flac",
+          title: bundle.project.title,
+          artistName: bundle.project.artistName,
+        });
+      }
+
       const elapsed = Date.now() - scanStarted;
       if (elapsed < MIN_SCAN_MS) {
         await new Promise((r) => setTimeout(r, MIN_SCAN_MS - elapsed));
@@ -159,6 +180,7 @@ export function NewReleasePage() {
         mimeType: file.mimeType,
         sizeBytes: file.sizeBytes,
         probe,
+        blob: file.blob ?? null,
       });
       if (!title && probe.titleFromName) setTitle(probe.titleFromName);
       if (!artistName && probe.artistFromName) setArtistName(probe.artistFromName);
@@ -214,7 +236,10 @@ export function NewReleasePage() {
       <header className="text-center md:text-left">
         <p className="nexus-eyebrow">Your release</p>
         <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Drop your track. We&apos;ll tell you if it&apos;s ready.</h1>
-        <p className="nexus-subline mt-2 text-sm">Upload your master and cover — measured on your device, no guesswork.</p>
+        <p className="nexus-subline mt-2 text-sm">
+          Measured in your browser. Your audio is not uploaded, and you can publish it to your
+          catalog afterwards if you want it playable.
+        </p>
       </header>
 
       <div className="mt-6 flex flex-col gap-3">

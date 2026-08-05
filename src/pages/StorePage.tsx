@@ -186,7 +186,8 @@ export function StorePage() {
       <div className="mb-6">
         <p className="eyebrow mb-2">Buy Vc · 1 Vc = $0.05</p>
         <p className="mb-2 text-[11px] text-white/40">
-          Closed-loop until 2027 · <a href="/legal/vc" className="text-cyan-200/80 underline-offset-2 hover:underline">Whitepaper</a>
+          Credit for use inside VYBZ · not tradeable · no cash-out ·{" "}
+          <a href="/legal/vc" className="text-cyan-200/80 underline-offset-2 hover:underline">Whitepaper</a>
           {" · "}
           <a href="/wallet" className="text-cyan-200/80 underline-offset-2 hover:underline">Wallet</a>
         </p>

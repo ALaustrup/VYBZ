@@ -68,6 +68,12 @@ export async function currentUserId(): Promise<string | null> {
 // ── Profiles ─────────────────────────────────────────────────────────────────
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function toProfile(r: any): Profile {
+  // `pro_until` is a real column and the only authority on entitlement. Drop any
+  // stale copy inside the jsonb so a cached write can never grant Pro.
+  const details = { ...((r.profile ?? {}) as ProfileDetails) };
+  delete details.proUntil;
+  if (r.pro_until) details.proUntil = r.pro_until;
+
   return {
     id: r.id,
     username: r.username ?? null,
@@ -84,10 +90,21 @@ function toProfile(r: any): Profile {
     modPoints: Number(r.mod_points ?? 0),
     equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
     banned: r.banned ?? false,
-    profile: (r.profile ?? {}) as ProfileDetails,
+    profile: details,
     featuredDropId: r.featured_drop_id ?? null,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
   };
+}
+
+export type ProPurchaseResult =
+  | { ok: true; already: boolean; proUntil: string; charged: number; overageGb?: number; balance: number }
+  | { ok: false; reason: string; required?: number; balance?: number; shortfall?: number };
+
+/** Charge Vc for one Pro hosting period. The server is the only authority. */
+export async function purchasePro(storageGb = 0): Promise<ProPurchaseResult> {
+  const { data, error } = await db().rpc("purchase_pro", { p_storage_gb: storageGb });
+  if (error) return { ok: false, reason: error.message };
+  return (data ?? { ok: false, reason: "no_response" }) as ProPurchaseResult;
 }
 
 export async function getMyProfile(id: string): Promise<Profile | null> {
