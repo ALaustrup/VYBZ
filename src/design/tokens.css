@@ -60,7 +60,9 @@
     --density-rail-pad: 0.375rem;
     --density-stage-gap: 0.5rem;
     --suite-grid-gap: 0.75rem;
-    --stage-pad-x: 0.875rem;
+    /* `--stage-pad-x` intentionally omitted. Its responsive ladder lives with the
+       other shell geometry in index.css. A copy here was emitted earlier in the
+       cascade and never took effect. */
   }
 }
 

@@ -69,11 +69,10 @@
     --border-color: var(--hairline);
     --border-color-strong: var(--hairline-strong);
 
-    /* Elevation / shadows — base; v2 ramp overrides in tokens.css */
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.24);
-    --shadow-md: 0 8px 24px -12px rgb(6 12 28 / 0.55);
-    --shadow-lg: 0 22px 52px -28px rgb(6 12 28 / 0.55);
-    --shadow-focus: 0 0 0 2px var(--color-abyss), 0 0 0 4px rgb(var(--accent-rgb) / 0.55);
+    /* Elevation, motion and easing are declared once in design/tokens.css.
+       They were previously redeclared here, which silently overrode the v2 ramp
+       because this block is emitted after the import. Do not reintroduce them —
+       `src/design/tokens.test.ts` fails the build if a token is declared twice. */
 
     /* Z-index layers */
     --z-base: 0;
@@ -84,13 +83,6 @@
     --z-modal: 90;
     --z-toast: 100;
     --z-max: 110;
-
-    /* Motion — v2 aligns base/normal to 240ms via tokens.css */
-    --motion-fast: 120ms;
-    --motion-base: 240ms;
-    --motion-slow: 360ms;
-    --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
-    --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
     /* Typography aliases */
     --font-sans: Lexend, "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
@@ -129,13 +121,8 @@
     --neon-electric: 0 194 255;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    :root {
-      --motion-fast: 0.01ms;
-      --motion-base: 0.01ms;
-      --motion-slow: 0.01ms;
-    }
-  }
+  /* Reduced-motion collapses the motion scale in design/tokens.css, next to the
+     durations themselves. Do not redeclare it here. */
 
   @media (min-width: 640px) {
     :root {
