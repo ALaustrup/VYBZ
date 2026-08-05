@@ -60,19 +60,20 @@ the three things that consume storage and bandwidth.
    Gating it on Pro is a product decision with a migration behind it.
 4. **Lapse enforcement.** A scheduled job to flip lapsed users' tracks to private.
 
-### Blocking compliance issue — must resolve before selling anything
+### Compliance issue — resolved 2026-08-05
 
-`src/lib/vc.ts:3` states *"Future token ticker VYBZ planned for 2027 exchanges"* and
-exports `VC_TICKER_FUTURE = "VYBZ"`. `src/lib/codex.ts` describes the whitepaper as a
-"2027 token roadmap".
+The code, store copy, wallet copy and whitepaper previously described V¢ as the precursor
+to an exchange-listed asset with a ticker and a target listing window. Masterplan **Law 6**
+forbids cryptocurrency and speculative-finance framing, and selling credits to people told
+those credits may become tradeable is materially different from selling closed-loop credits.
 
-Masterplan **Law 6** forbids cryptocurrency framing and speculative-finance language, and
-`AGENTS.md` carries the same prohibition. Selling credits to people who have been told
-those credits may become a tradeable token is materially different from selling
-closed-loop credits, and it changes the regulatory picture.
+Owner confirmed removal on 2026-08-05. `VC_TICKER_FUTURE` is deleted, the whitepaper is
+reissued as v2.0 with the withdrawal stated in the document, and the store, wallet and
+Codex summary now say plainly that V¢ is not tradeable and cannot be withdrawn.
 
-**Recommendation:** remove the token language from code, copy and the whitepaper before
-V¢ becomes the payment rail for a subscription. This is cheap now and expensive later.
+The comment header of `20260727_0071_vc_wallet_ledger.sql` still mentions a future ticker.
+Applied migration history is never rewritten, so it stays as a historical record; the
+authoritative table comment is corrected in `20260805_0090_pro_hosting.sql`.
 
 ---
 

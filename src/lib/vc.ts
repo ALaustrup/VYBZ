@@ -1,12 +1,14 @@
 /**
- * VYBZ Credits (Vc) — closed-loop social currency.
- * Peg: 1 Vc = $0.05 USD. Future token ticker VYBZ planned for 2027 exchanges.
- * No cash-out / no on-chain in this product generation.
+ * VYBZ Credits (Vc) — the closed-loop utility credit.
+ *
+ * Fixed internal price of $0.05 per credit, used to size packs and display
+ * approximate value. Not a market rate: Vc is not tradeable, not withdrawable,
+ * and not a token. Masterplan Law 6 forbids speculative or cryptocurrency
+ * framing anywhere it is described.
  */
 
 export const VC_USD = 0.05;
 export const VC_STARTER_GRANT = 20;
-export const VC_TICKER_FUTURE = "VYBZ";
 export const VC_NAME = "VYBZ Credits";
 export const VC_SYMBOL = "Vc";
 

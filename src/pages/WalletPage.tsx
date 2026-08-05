@@ -5,14 +5,14 @@ import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import {
-  formatVc, vcToUsd, VC_USD, VC_NAME, VC_SYMBOL, VC_TICKER_FUTURE,
+  formatVc, vcToUsd, VC_USD, VC_NAME, VC_SYMBOL,
   formatVcAddress, parseVcAddress,
 } from "@/lib/vc";
 import { cx } from "@/lib/utils";
 
 /**
- * Full-featured Vc wallet — balance, send/receive (~username), ledger.
- * Closed-loop social currency; peg 1 Vc = $0.05; future ticker VYBZ (2027).
+ * Vc wallet — balance, send/receive (~username), ledger.
+ * Closed-loop utility credit at a fixed $0.05. Not tradeable, no cash-out.
  */
 export function WalletPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { profile, showToast, refreshProfile, userId } = useSession();
@@ -89,7 +89,8 @@ export function WalletPage({ embedded = false }: { embedded?: boolean } = {}) {
               ≈ ${vcToUsd(bal).toFixed(2)} USD · 1 {VC_SYMBOL} = ${VC_USD.toFixed(2)}
             </p>
             <p className="mt-2 text-[11px] leading-relaxed text-white/35">
-              Closed-loop social credit. Future exchange ticker {VC_TICKER_FUTURE} planned for 2027 — no cash-out today.{" "}
+              Credit for use inside VYBZ — buys Pro hosting and cosmetics. Not tradeable and
+              cannot be withdrawn.{" "}
               <Link to="/legal/vc" className="text-cyan-200/80 underline-offset-2 hover:underline">Whitepaper</Link>
             </p>
           </div>
