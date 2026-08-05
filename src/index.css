@@ -107,9 +107,10 @@
     --stage-pad-x: 1rem;
 
     /* Soft dark glass — frosted, next-gen, not muddy black */
-    --mat-fill: rgba(22, 30, 48, 0.52);
-    --mat-fill-strong: rgba(18, 24, 40, 0.72);
-    --mat-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+    /* Aliases of the shared surface language in design/tokens.css. */
+    --mat-fill: var(--surface-fill);
+    --mat-fill-strong: var(--surface-fill-strong);
+    --mat-specular: var(--surface-specular);
     --mat-press: 0 1px 0 rgba(0, 0, 0, 0.2);
     --mat-depth: 0 22px 52px -28px rgba(6, 12, 28, 0.55);
     --hairline: rgba(255, 255, 255, 0.12);
@@ -286,15 +287,15 @@
     @apply relative z-40 shrink-0;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(18, 40, 72, 0.45) 100%
+      rgba(255, 255, 255, 0.055) 0%,
+      var(--surface-fill) 100%
     );
     color: #f8fafc;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    border-bottom: 1px solid var(--surface-border);
     padding-top: env(safe-area-inset-top);
-    backdrop-filter: blur(28px) saturate(1.55);
-    -webkit-backdrop-filter: blur(28px) saturate(1.55);
-    box-shadow: 0 10px 40px -28px rgba(40, 120, 200, 0.45);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    box-shadow: 0 10px 40px -28px rgba(0, 0, 0, 0.6);
   }
 
   .app-bar-inner {
@@ -305,20 +306,19 @@
   }
 
   /* Frosted glass chip — reference UX language */
+  /* Neutral to match `.forge-chip`; the blue-tinted gradient read as a second product. */
   .glass-chip {
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    border: 1px solid var(--surface-border-strong);
     background: linear-gradient(
-      165deg,
-      rgba(255, 255, 255, 0.22) 0%,
-      rgba(180, 210, 255, 0.08) 48%,
-      rgba(12, 28, 52, 0.35) 100%
+      160deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 45%,
+      var(--surface-fill) 100%
     );
-    backdrop-filter: blur(18px) saturate(1.45);
-    -webkit-backdrop-filter: blur(18px) saturate(1.45);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.28),
-      0 8px 28px -16px rgba(40, 100, 180, 0.45);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    box-shadow: var(--surface-specular), 0 8px 28px -16px rgba(0, 0, 0, 0.6);
   }
 
   .app-bar--sub .app-bar-inner {
@@ -672,21 +672,24 @@
     height: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
     border-radius: 0;
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.22);
+    border-top: 1px solid var(--surface-border-strong);
     margin: 0;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(20, 48, 88, 0.28) 42%, rgba(8, 16, 32, 0.55) 100%);
-    backdrop-filter: blur(28px) saturate(1.65);
-    -webkit-backdrop-filter: blur(28px) saturate(1.65);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
-      0 -16px 48px -28px rgba(30, 90, 160, 0.4);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      var(--surface-fill) 42%,
+      var(--surface-fill-strong) 100%
+    );
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    box-shadow: var(--surface-specular), 0 -16px 48px -28px rgba(0, 0, 0, 0.65);
   }
+  /* Follows the theme accent instead of hardcoded blue/teal. */
   .vdock-shell-veil {
     background:
-      radial-gradient(120% 90% at 12% 50%, rgba(120, 190, 255, 0.14), transparent 55%),
-      radial-gradient(100% 80% at 88% 40%, rgba(80, 200, 180, 0.1), transparent 50%),
-      linear-gradient(180deg, rgba(8, 16, 32, 0.05) 0%, rgba(8, 16, 32, 0.22) 100%);
+      radial-gradient(120% 90% at 12% 50%, rgb(var(--accent-rgb) / 0.09), transparent 55%),
+      radial-gradient(100% 80% at 88% 40%, rgb(var(--accent-rgb) / 0.05), transparent 50%),
+      linear-gradient(180deg, rgba(3, 6, 12, 0.05) 0%, rgba(3, 6, 12, 0.24) 100%);
   }
 
   .vdock-action {
@@ -809,27 +812,24 @@
   }
 
   /* Soft dark glass — translucent, luminous, not heavy black. */
+  /* Reads from the shared surface language so chrome and content match. */
   .glass {
-    background: rgba(24, 32, 52, 0.48);
+    background: var(--surface-fill);
     color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(28px) saturate(1.55);
-    -webkit-backdrop-filter: blur(28px) saturate(1.55);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
-      0 18px 44px -28px rgba(6, 12, 28, 0.5);
+    border: 1px solid var(--surface-border);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    box-shadow: var(--surface-specular), 0 18px 44px -28px rgba(0, 0, 0, 0.6);
   }
 
   .glass-panel {
     @apply rounded-3xl;
-    background: rgba(22, 30, 48, 0.55);
+    background: var(--surface-fill-strong);
     color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(32px) saturate(1.6);
-    -webkit-backdrop-filter: blur(32px) saturate(1.6);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
-      0 28px 60px -34px rgba(6, 12, 28, 0.55);
+    border: 1px solid var(--surface-border);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    box-shadow: var(--surface-specular), 0 28px 60px -34px rgba(0, 0, 0, 0.7);
   }
 
   .text-gradient {
@@ -871,7 +871,7 @@
     pointer-events: none;
     opacity: 0;
     z-index: 80;
-    box-shadow: 0 10px 24px -12px rgba(15, 30, 70, 0.55);
+    box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
     transition: opacity 120ms ease, transform 120ms ease;
   }
   [data-tip]:hover::after,

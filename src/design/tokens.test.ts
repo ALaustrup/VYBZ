@@ -73,6 +73,62 @@ describe("token declarations are single-sourced", () => {
   });
 });
 
+describe("one surface language", () => {
+  // The product used to ship three unrelated translucent systems: forge glass
+  // (near-black), `.glass` (blue-grey at 0.48 alpha) and glass-vibrant. Chrome
+  // and content therefore looked like two different applications. These guards
+  // keep every translucent surface resolving to the same tokens.
+  const SURFACE_TOKENS = [
+    "--surface-fill",
+    "--surface-fill-strong",
+    "--surface-border",
+    "--surface-border-strong",
+    "--surface-specular",
+    "--surface-blur",
+    "--surface-saturate",
+  ] as const;
+
+  it("declares the surface tokens only in the token layer", () => {
+    for (const name of SURFACE_TOKENS) {
+      const files = [...new Set(DECLARATIONS.filter((d) => d.name === name).map((d) => d.file))];
+      expect(files, name).toEqual(["src/design/tokens.css"]);
+    }
+  });
+
+  it("routes the legacy surface families through the shared tokens", () => {
+    const aliases: Array<[string, string]> = [
+      ["--mat-fill", "--surface-fill"],
+      ["--mat-fill-strong", "--surface-fill-strong"],
+      ["--glass-vibrant-fill", "--surface-fill"],
+      ["--glass-vibrant-fill-strong", "--surface-fill-strong"],
+      ["--glass-vibrant-border", "--surface-border"],
+    ];
+    for (const [alias, target] of aliases) {
+      expect(referencedVars(tokenValue(DECLARATIONS, alias) ?? ""), alias).toContain(target);
+    }
+  });
+
+  it("has no blue-tinted surface fills left in the stylesheets", () => {
+    // Each literal below was a distinct surface system's base fill.
+    const legacyFills = [
+      "rgba(24, 32, 52, 0.48)",
+      "rgba(22, 30, 48, 0.55)",
+      "rgba(22, 30, 48, 0.52)",
+      "rgba(18, 24, 40, 0.72)",
+      "rgba(18, 40, 72, 0.45)",
+      "rgba(20, 48, 88, 0.28)",
+      "rgba(180, 210, 255, 0.08)",
+      "rgba(16, 28, 48, 0.45)",
+    ];
+    const offenders: string[] = [];
+    for (const rel of FILES) {
+      const css = readFileSync(path.join(ROOT, rel), "utf8");
+      for (const fill of legacyFills) if (css.includes(fill)) offenders.push(`${rel}: ${fill}`);
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
 describe("TypeScript mirror matches CSS", () => {
   it("every mirrored var referenced by the mirror is actually declared", () => {
     const declared = new Set(DECLARATIONS.map((d) => d.name));
