@@ -52,6 +52,7 @@ function handlers(): TrackActionHandlers {
     favourite: vi.fn(),
     rate: vi.fn(),
     openArtist: vi.fn(),
+    openTrack: vi.fn(),
     viewDetails: vi.fn(),
     copyArtistLink: vi.fn(),
     download: vi.fn(),
@@ -167,9 +168,20 @@ describe("buildTrackActions — targeting", () => {
     // Report opens a dialog for non-owners and must behave the same way.
     expect(find(buildTrackActions(ctx({ isOwner: false }), handlers()), "report")?.keepOpen).toBe(true);
     // One-shot actions should close the menu.
-    for (const id of ["play", "queue", "download", "open-artist"]) {
+    for (const id of ["play", "queue", "download", "open-artist", "open-track"]) {
       expect(find(owner, id)?.keepOpen).toBeUndefined();
     }
+  });
+
+  it("offers a route into the full track workspace", () => {
+    const h = handlers();
+    const groups = buildTrackActions(ctx(), h);
+    const open = find(groups, "open-track");
+    expect(open?.label).toBe("Open track");
+    expect(open?.disabledReason).toBeUndefined();
+    open?.onSelect?.();
+    expect(h.openTrack).toHaveBeenCalledTimes(1);
+    expect(h.viewDetails).not.toHaveBeenCalled();
   });
 
   it("reflects current playback state in the primary label", () => {

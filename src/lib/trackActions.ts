@@ -6,6 +6,7 @@ import {
   Link2,
   ListEnd,
   ListPlus,
+  Maximize2,
   Pause,
   Pencil,
   Play,
@@ -46,6 +47,7 @@ export type TrackActionHandlers = {
   favourite: () => void;
   rate: () => void;
   openArtist: () => void;
+  openTrack: () => void;
   viewDetails: () => void;
   copyArtistLink: () => void;
   download: () => void;
@@ -130,9 +132,15 @@ export function buildTrackActions(
     label: "Details",
     actions: [
       {
+        id: "open-track",
+        label: "Open track",
+        icon: Maximize2,
+        onSelect: handlers.openTrack,
+      },
+      {
         // Swaps the surface to a detail panel, so the menu must not close first.
         id: "file-details",
-        label: "View file details",
+        label: "Quick file details",
         icon: FileAudio,
         keepOpen: true,
         onSelect: handlers.viewDetails,

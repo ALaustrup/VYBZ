@@ -11,6 +11,7 @@ import { ShellOrbE2EFixturePage } from "@/pages/ShellOrbE2EFixturePage";
 import { TrackActionsE2EFixturePage } from "@/pages/TrackActionsE2EFixturePage";
 import { LibraryE2EFixturePage } from "@/pages/LibraryE2EFixturePage";
 import { DashboardE2EFixturePage } from "@/pages/DashboardE2EFixturePage";
+import { TrackDetailE2EFixturePage } from "@/pages/TrackDetailE2EFixturePage";
 
 /**
  * Playwright / Lighthouse fixture shells. These render seeded data and deliberately
@@ -38,6 +39,8 @@ export function resolveE2eFixture(pathname: string): ReactElement | null {
       return <LibraryE2EFixturePage />;
     case "/__e2e__/dashboard":
       return <DashboardE2EFixturePage />;
+    case "/__e2e__/track-detail":
+      return <TrackDetailE2EFixturePage />;
     case "/__e2e__/storefront-orders":
       return FLAGS.storefront ? <StorefrontOrdersE2EFixtureShell /> : null;
     default:
