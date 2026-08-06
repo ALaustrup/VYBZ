@@ -3,10 +3,13 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
-**Date:** 2026-08-05
+**Date:** 2026-08-06
 **Branch:** `main`
-**HEAD:** `5d1bcc40f10396fc75a04b0b46825c6113b2ec2f`
-**Current milestone:** **M2 — Product isolation** (owner ruled 2026-08-04 that the most recent authorisation governs). Premium suite initiative running in parallel under owner direction of 2026-08-04.
+**HEAD:** `0e911c4b6f2402ed9db0a1e324227558a213b00d` — 2 commits ahead of `origin/main`, **not pushed**
+**Current milestone:** **M4 — Measurement Integrity Foundation.** Owner chose the Audio
+Intelligence and Release Operating System direction on 2026-08-06 and directed that
+competing plans be eradicated. The parallel premium-suite phase track is **withdrawn**;
+the Masterplan milestone sequence is the only plan.
 
 ---
 
@@ -72,15 +75,34 @@ nondeterministic and records nothing durable.
 | `check:no-fixtures` against deployable `dist/` | **PASS** — 8 markers absent | local run on `main` |
 | **Owner signed-in production smoke** | **NOT DONE** — requires owner credentials | `docs/operations/M3_SIGNED_IN_SMOKE.md` |
 
-## Gate on `main` @ `5d1bcc40` — 2026-08-05
+## Gate on `main` @ `0e911c4b` — 2026-08-06
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 272/272 (51 files)
+npm run test              — PASS 307/307 (53 files)
 npm run build             — PASS, no CSS warnings
-npm run test:e2e          — PASS 57/57
 npm run check:no-fixtures — PASS (10 markers absent from dist/)
+e2e command-palette.spec  — PASS 36/36 across 3 repeats
+e2e full suite            — 68 passed, 1 failed
 ```
+
+The single e2e failure is `library.spec.ts` "shift-click extends a range", which reported
+4 selected instead of 2. It passes **48/48 across 3 repeats in isolation**, so it is a
+pre-existing flake under parallel load rather than a regression. Recorded rather than
+described as clean.
+
+### Environment problems observed 2026-08-06
+
+- **Git identity was cleared mid-session.** `user.name` and `user.email` are empty in local,
+  global and effective config, though `381a0270` was authored earlier the same day as
+  `ALaustrup <ALaustrup@users.noreply.github.com>`. These two commits were made by passing
+  the identity per-invocation with `git -c`; **the config was not modified**. It still needs
+  restoring.
+- **Something rewrites line endings.** Nineteen files were reported modified with no
+  substantive change — line endings only, plus one removed BOM in `src/App.tsx`. Reverted
+  rather than committed, to keep the real diff legible.
+- **Stale `vite preview` processes hold port 4173** after an interrupted e2e run and must be
+  killed by matching the command line; killing the npm wrapper leaves the node child alive.
 
 ### Surface unification — verified in production
 
@@ -103,21 +125,45 @@ npm run check:no-fixtures — PASS (10 markers absent from dist/)
 
 **M2 delivery state:** **DEPLOYED BUT UNVERIFIED** — the dating criterion is met and verified in production; owner signed-in smoke still outstanding.
 
-## Premium suite initiative
+## Premium suite initiative — WITHDRAWN 2026-08-06
 
-| Phase | State |
+The eleven-phase track is cancelled by owner direction. It ran alongside the Masterplan
+milestone sequence, which meant two plans competing for the same surface; breadth without
+completion was the result. Its phase numbers carry no authority. Work it already delivered
+is retained and recorded above under the PRs that shipped it.
+
+## Direction reset — 2026-08-06
+
+| Item | State |
 |---|---|
-| 1 — Audit and stabilisation | **Delivered** — `docs/architecture/PRODUCT_AUDIT_2026-08-04.md` |
-| 2 — Shared design foundation | **DEPLOYED** — tokens (PR #56) and the surface fusion (PR #58); fusion verified in the live CSS, signed-in chrome unobserved |
-| 4 — Media library (search, filter, sort, views, multi-select, batch) | **DEPLOYED BUT UNVERIFIED** — live, owner has not exercised it |
-| 5 — Contextual track actions | **DEPLOYED BUT UNVERIFIED** — same |
-| 6 — Command dashboard | **DEPLOYED BUT UNVERIFIED** — same |
-| 7 — Track detail and release workspaces | **DEPLOYED BUT UNVERIFIED** — track detail live via PR #57; release workspace staging not started |
-| 3 — Application shell and navigation | Not started |
-| 8 — Audio-reactive visual system | Not started |
-| 9 — Desktop enhancement | Not started |
-| 10 — Store and discovery | Not started |
-| 11 — Quality, performance, release | Not started |
+| Direction chosen | Audio Intelligence and Release Operating System — already Masterplan §1, so doctrine was not the failure |
+| Competing plan | Premium-suite phase track withdrawn |
+| Authorised milestone | **M4 — Measurement Integrity Foundation** |
+| Law 3 during M4 | Social, live, messaging, rooms, connect, opportunities, discovery: reachable and maintained, **no new feature work** |
+| Removal policy | **Freeze in tree**, imported by nothing, recoverable — owner chose this over deletion |
+| Structural fix | An exit gate that can be automated must be. `src/app/routeTruth.test.ts` is the reference |
+
+### Correction to a prior claim in this document
+
+An earlier assistant statement that "seven of fourteen navigation entries are dead ends"
+was **wrong**. That is true of `SUITE_ROUTES`, the intent manifest, but that manifest does
+not drive the menu. `src/shell/navModel.ts` does, and it already excluded every placeholder
+deliberately. The eleven placeholder pages are reachable by URL and linked from nowhere.
+The navigation façade was closed before 2026-08-06; it is now closed *by test*.
+
+## Committed on `main`, not pushed
+
+| SHA | Change |
+|---|---|
+| `6fab11be` | One plan; M4 authorised; exit gates must be executable |
+| `0e911c4b` | `routeTruth` + the M3 gate as a test; real command palette replacing the read-only search stub |
+
+### What the new enforcement caught
+
+Making the gate executable found two errors the hand-maintained version had missed:
+`/mod` and `/admin` were absent from the truth table despite rendering real pages, and
+`/market` was modelled as an unconditional placeholder when it redirects to a working
+storefront whenever the flag is on.
 
 ## Parked branches
 
@@ -147,10 +193,18 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 
 ## Next authorised action
 
-1. **Owner:** confirm the target Supabase project so `20260805_0090_pro_hosting.sql` can be applied with `supabase db push`. It is merged but unapplied, so `purchase_pro` and `pro_status` do not exist server-side and a purchase button would be a dead control. A database migration needs owner approval regardless of the standing push/deploy authorisation.
-2. **Owner:** sign in on production and confirm the app bar, dock, sheets and modals now match the content surfaces. This is the only part of the fusion not verified.
-3. **Owner:** upload a real MP3 or FLAC to confirm loudness measurement works on a genuine file.
-4. Then: wire `api.purchasePro()` into the store, gate publish on `pro_status()`, and build storage accounting.
+1. **Owner:** restore the git identity (`git config --global user.name` / `user.email`).
+2. **Owner:** authorise pushing `main` and opening a PR for `6fab11be` and `0e911c4b`.
+3. Begin **M4**: a BS.1770-4 / EBU R128 integrated, momentary and short-term loudness meter
+   with loudness range, plus true peak by oversampling, validated against published test
+   vectors within documented tolerances, with provenance on every measurement.
+4. **Owner:** upload a real MP3 or FLAC to confirm the decode path works on a genuine file.
+   No real MP3 or FLAC has been decoded end to end; this blocks any M4 completion claim.
+
+**VYBZ Pro remains designed and unauthorised.** The migration is merged but unapplied, so
+`purchase_pro` and `pro_status` do not exist server-side. No purchase control exists, and
+publish is not gated. Per `IDEAS_BACKLOG.md` §0 it is not authorised to build, and a backlog
+entry is not authorisation.
 
 ## Known contradiction closed 2026-08-05
 
