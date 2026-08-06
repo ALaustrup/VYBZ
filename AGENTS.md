@@ -26,21 +26,48 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M2 — Product isolation.** Remove dating recoverably, freeze collaboration, keep retained
-systems passing regression, and make no destructive database change.
+**M4 — Measurement Integrity Foundation.** Owner directed 2026-08-06, choosing the Audio
+Intelligence and Release Operating System direction and eradicating all competing plans.
 
-Owner authorised M2 on 2026-08-02 (recorded in `112f4d9f`) and on 2026-08-04 ruled that the
-most recent authorisation is the one to honour. That supersedes the earlier M3 authorisation
-from merged PRs #36–#39.
+Scope: a defensible BS.1770-4 / EBU R128 integrated, momentary and short-term loudness
+meter with loudness range; true peak by oversampling; published test vectors passing within
+documented tolerances; provenance recorded on every measurement; consistency across web and
+desktop, or an explicit disclosure of the difference.
 
-**M2 is not satisfied yet.** Dating copy and profile fields still reach the production
-bundle — `STATUS.md` holds the audit with file, line and bundle evidence. Close that before
-starting anything else.
+Why this and nothing else: VYBZ's central claim is that it tells you the truth about your
+audio. Today integrated loudness is a gated-RMS **approximation** and true peak is **not
+measured at all**. Every downstream promise — findings, correction, mastering, translation,
+readiness, export — inherits that weakness. M4 is the milestone that makes the rest worth
+building.
 
-M1 documentation is landed. M3 shipped substantial work under its earlier authorisation and
-its exit gate is still unsigned; treat the remaining M3 items as carry-forward to be
-finished after M2, not as licence to open new M3 scope. M4+ remain gated — see
-[`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) decision-required items before expanding scope.
+### There is exactly one plan
+
+The parallel "premium suite" phase track is **withdrawn**. Running an eleven-phase
+initiative alongside the milestone sequence produced two competing plans, and breadth
+without completion was the result. The milestone sequence in
+[`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan. Phase numbers from that
+initiative carry no authority.
+
+### Law 3 during M4
+
+Breadth is retained — VYBZ remains an operating system, not a single-purpose tool. But
+social, live, messaging, rooms, connect, opportunities and discovery surfaces receive **no
+new feature work** until the audio core milestones land. They stay reachable and
+maintained; they do not grow. Bug fixes and shared-shell changes are permitted.
+
+### Exit gates must be executable
+
+A gate written only in prose cannot fail a build. M3's gate — "every visible navigation item
+leads to a functional surface" — was satisfied by hand and nothing stopped it regressing.
+Where a gate can be expressed as a test, it must be, and the test must cite the gate.
+`src/app/routeTruth.test.ts` is the reference: it enforces that M3 gate against the real
+navigation model, and it caught two errors the prose version had missed.
+
+### Carry-forward
+
+M1 documentation is landed. M2 removed dating from the production bundle and is verified in
+production. M3's navigation gate is now enforced by test. Anything else previously described
+as M3 scope is closed; reopen it only by owner authorisation.
 
 ## Safety rules
 

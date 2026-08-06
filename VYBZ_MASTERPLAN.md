@@ -232,6 +232,23 @@ authority. There is no "Phase 20."
 Exactly one milestone is authorised at a time. The authorised milestone is named in
 [`AGENTS.md`](./AGENTS.md). Never begin the next one silently.
 
+**This is the only plan.** No parallel initiative, phase track, or programme may run
+alongside it. The 2026-08 "premium suite" initiative did exactly that and is withdrawn:
+two plans competing for the same surface produced breadth without completion, which is the
+failure Law 2 exists to prevent. A second plan is not permitted even when it is described
+as complementary.
+
+### Gates must be executable
+
+An exit gate below that can be expressed as an automated check **must** be, and the check
+must cite the gate it enforces. A gate that lives only in prose cannot fail a build, so it
+cannot stop a regression — §10's M3 gate was satisfied by hand, and nothing prevented it
+from silently decaying afterwards.
+
+Where a gate is irreducibly human — "an ordinary user understands the product" — it
+requires named owner sign-off recorded in [`STATUS.md`](./STATUS.md), and the milestone is
+not closed without it.
+
 ## 10. Exit gates
 
 | M | Gate |
@@ -239,7 +256,7 @@ Exactly one milestone is authorised at a time. The authorised milestone is named
 | M0 | Repository and production state proven; production SHA known or explicitly unresolved; every existing feature has a disposition; no user work overwritten |
 | M1 | One active authority per responsibility; no active file cites stale doctrine; owner approves; no feature code changed |
 | M2 | Dating recoverably archived and absent from production builds; collaboration inaccessible and frozen; retained systems pass regression; no destructive database operation |
-| M3 | An ordinary user understands the product; every visible navigation item leads to a functional surface; **no fabricated measurement remains**; production visibly reflects the new direction |
+| M3 | An ordinary user understands the product (**owner sign-off required**); every visible navigation item leads to a functional surface (**enforced by `src/app/routeTruth.test.ts`**); **no fabricated measurement remains**; production visibly reflects the new direction |
 | M4 | Core meters defensible; test vectors pass within documented tolerances; results consistent across environments or the difference is disclosed; no placeholder measurement reaches users |
 | M5 | Analysis provides value beyond basic readiness; findings reproducible, understandable, actionable; performance acceptable on supported files and devices |
 | M6 | Users can safely improve audio; every render reproducible; operations reversible; before/after analysis available; no ambiguous credit deduction |
