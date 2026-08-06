@@ -7,7 +7,9 @@ import { chromeForPath } from "@/lib/appBarChrome";
 import { useAppBarBridge } from "@/lib/appBarBridge";
 import { usePlayer } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
+import { isApplePlatform } from "@/lib/platformKeys";
 import { cx } from "@/lib/utils";
+import { openCommandPalette } from "@/shell/commandPaletteStore";
 
 /**
  * Soft frosted top bar — brand · living title · upload · profile.
@@ -106,8 +108,10 @@ export function ContextualAppBar({
           {bridge.actions}
           <button
             type="button"
-            onClick={() => navigate("/discover")}
-            aria-label="Discover"
+            onClick={openCommandPalette}
+            aria-label="Search VYBZ"
+            aria-keyshortcuts={isApplePlatform() ? "Meta+K" : "Control+K"}
+            data-tip="Search"
             className="forge-chip hidden h-10 w-10 sm:flex"
           >
             <Search className="h-6 w-6" />

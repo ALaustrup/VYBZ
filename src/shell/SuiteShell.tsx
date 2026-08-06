@@ -3,6 +3,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
+import { CommandPalette } from "@/shell/CommandPalette";
 import { ContextInspector } from "@/shell/ContextInspector";
 import { OrbMenu } from "@/shell/OrbMenu";
 import { shellModeClass } from "@/shell/shellMode";
@@ -53,6 +54,10 @@ export function SuiteShell({
       </div>
       <ErrorBoundary>
         <OrbMenu />
+      </ErrorBoundary>
+      {/* Renders nothing until invoked, but owns the global Ctrl/Cmd+K binding. */}
+      <ErrorBoundary>
+        <CommandPalette onCompose={onCompose} onBulkUpload={onBulkUpload} />
       </ErrorBoundary>
     </div>
   );
