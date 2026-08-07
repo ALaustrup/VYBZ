@@ -60,6 +60,12 @@ export type AudioProbe = {
   channelBalanceDb?: number;
   leftRmsDbfs?: number;
   rightRmsDbfs?: number;
+  /** True peak (dBTP) − integrated LUFS when both measured. */
+  plrDb?: number;
+  midRmsDbfs?: number;
+  sideRmsDbfs?: number;
+  /** side RMS − mid RMS (dB). */
+  sideToMidDb?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -508,6 +514,38 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
             ? ` · L ${audio.leftRmsDbfs.toFixed(1)} / R ${audio.rightRmsDbfs.toFixed(1)} dBFS`
             : ""
         }. Check panning, bus gains, and monitoring.`
+      )
+    );
+  }
+
+  if (audio.loudnessMeasured && audio.plrDb != null && audio.plrDb < 6) {
+    out.push(
+      finding(
+        "AUDIO_PLR_LOW",
+        "warning",
+        "audio",
+        "Peak-to-loudness ratio is very low",
+        `PLR measured at ${audio.plrDb.toFixed(1)} dB${provenance} (true peak − integrated). Ease limiting if the master feels crushed.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.sideToMidDb != null &&
+    audio.sideToMidDb > -6
+  ) {
+    out.push(
+      finding(
+        "AUDIO_STEREO_SIDE_HEAVY",
+        "warning",
+        "audio",
+        "Side energy is unusually high vs mid",
+        `Side−mid RMS measured at ${audio.sideToMidDb.toFixed(1)} dB${provenance}${
+          audio.midRmsDbfs != null && audio.sideRmsDbfs != null
+            ? ` · mid ${audio.midRmsDbfs.toFixed(1)} / side ${audio.sideRmsDbfs.toFixed(1)} dBFS`
+            : ""
+        }. Check mid/side widening and polarity — mono may collapse.`
       )
     );
   }

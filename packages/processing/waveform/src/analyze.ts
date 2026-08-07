@@ -1,10 +1,11 @@
 import { computeSpectrum } from "./fft";
 import { computeLoudness } from "./loudness";
 import { measureBs1770 } from "./bs1770";
-import { measureCrestFactorDb } from "./dynamics";
+import { measureCrestFactorDb, measurePlrDb } from "./dynamics";
 import { measureClipIntegrity, measureEdgeSilence } from "./integrity";
 import { measureDcOffset, measureMonoCompat } from "./monoCompat";
 import { measureChannelBalance } from "./channelBalance";
+import { measureMidSide } from "./midSide";
 import { measureStereoCorrelation } from "./stereo";
 import { measureSpectralBalance } from "./spectralBalance";
 import { decodeWavPcm } from "./pcm";
@@ -51,6 +52,11 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
   const dc = measureDcOffset(planar);
   const mono = measureMonoCompat(planar);
   const balanceCh = measureChannelBalance(planar);
+  const ms = measureMidSide(planar);
+  const plrDb =
+    bs.truePeakDbtp != null && bs.integratedLufs != null
+      ? measurePlrDb(bs.truePeakDbtp, bs.integratedLufs)
+      : undefined;
 
   return {
     ...peaks,
@@ -82,6 +88,10 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
     channelBalanceDb: balanceCh?.deltaDb,
     leftRmsDbfs: balanceCh?.leftRmsDbfs,
     rightRmsDbfs: balanceCh?.rightRmsDbfs,
+    plrDb,
+    midRmsDbfs: ms?.midRmsDbfs,
+    sideRmsDbfs: ms?.sideRmsDbfs,
+    sideToMidDb: ms?.sideToMidDb,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,

@@ -138,6 +138,16 @@ const GUIDES: Record<string, FindingGuide> = {
     why: "Short bursts much louder than the integrated level can pump limiters and sound jumpy.",
     fix: "Ride or clip the peak events, or ease limiter release so momentary stays closer to integrated.",
   },
+  AUDIO_PLR_LOW: {
+    why: "Very low peak-to-loudness ratio usually means the limiter erased punch and micro-dynamics.",
+    fix: "Back off the limiter / clipper ceiling so true peak sits farther above integrated loudness.",
+    target: "PLR typically ≥ 6 dB (VYBZ heuristic)",
+  },
+  AUDIO_STEREO_SIDE_HEAVY: {
+    why: "Excess side energy widens the image but often collapses or phases on mono systems.",
+    fix: "Reduce mid/side widening, check polarity flips, and audition in mono.",
+    target: "Side−mid RMS typically under −6 dB (VYBZ heuristic)",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

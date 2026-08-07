@@ -4,9 +4,9 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
-**Branch:** `main`
-**HEAD:** `a87da96f31aa03a87e620c637a3130883c0257fe` (STATUS after PR #69)
-**Working tree:** dirty until this write is committed
+**Branch:** `feat/m5-plr-midside`
+**HEAD:** pending until commit — based on `main` @ `7a39fd1c`
+**Working tree:** dirty until commit
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
 ---
@@ -15,24 +15,24 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | HTTP 200 |
-| Production SHA | `7300955a` | live `index-fFxaiKGn.js` contains `7300955a` |
-| PR #69 markers | **PASS** | live JS contains `AUDIO_CHANNEL_IMBALANCE`, `AUDIO_MOMENTARY_SPIKE`, `channelBalanceDb`, `prepare-advanced-analysis` |
+| Alias | https://vybz.cloud | prior verify |
+| Production SHA | `7300955a` (PR #69) | prior live JS check; this branch not on prod |
+| This branch on production | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#69](https://github.com/ALaustrup/VYBZ/pull/69) merged** (`7300955a`) — L/R channel balance + momentary spike findings.
-2. **Production verify** — string markers present in live bundle (2026-08-07). Signed-in Finalize scan of uneven stereo not re-run this unit.
+1. **PR [#69](https://github.com/ALaustrup/VYBZ/pull/69) merged + verified** — channel balance / momentary spike.
+2. **M5 slice 5 (this unit)** — PLR (`AUDIO_PLR_LOW`) + mid/side width (`AUDIO_STEREO_SIDE_HEAVY`); panel rows; gate codes.
 
-## Gate (pre-merge)
+## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 354/354 (64 files)
+npm run test              — PASS 360/360 (65 files)
 npm run build             — PASS
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED** (bundle markers). Interactive scan UX not re-verified this unit.
+Delivery state: **IMPLEMENTED** (local) — not merged.
 
 ## Direction
 
@@ -40,4 +40,3 @@ Delivery state: **DEPLOYED AND VERIFIED** (bundle markers). Interactive scan UX 
 |---|---|
 | Authorised milestone | **M5 — Advanced Analysis Suite** |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next | Owner-directed next M5 analysis slice |
