@@ -1,6 +1,9 @@
 import { computeSpectrum } from "./fft";
 import { computeLoudness } from "./loudness";
 import { measureBs1770 } from "./bs1770";
+import { measureCrestFactorDb } from "./dynamics";
+import { measureStereoCorrelation } from "./stereo";
+import { measureSpectralBalance } from "./spectralBalance";
 import { decodeWavPcm } from "./pcm";
 import { computePeaks } from "./peaks";
 import {
@@ -27,15 +30,19 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
   }
 
   const pcm = decodeWavPcm(buffer);
+  const planar = pcm.planar ?? [pcm.samples];
   const peaks = computePeaks(pcm, opts.bucketCount ?? 800);
   const approx = computeLoudness(pcm);
   const bs = measureBs1770(
-    pcm.planar ?? [pcm.samples],
+    planar,
     pcm.sampleRate,
     engine === "native" ? "native-pending" : "portable",
   );
   const spectrum =
     opts.includeSpectrum === false ? undefined : computeSpectrum(pcm.samples, 1024);
+  const balance = spectrum
+    ? measureSpectralBalance(spectrum.magnitudes, spectrum.fftSize, pcm.sampleRate)
+    : null;
 
   return {
     ...peaks,
@@ -48,6 +55,15 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
     loudnessRangeLu: bs.loudnessRangeLu,
     truePeakDbtp: bs.truePeakDbtp,
     loudnessProvenance: bs.provenance,
+    crestFactorDb: measureCrestFactorDb(bs.samplePeakDbfs, approx.rmsDbfs),
+    stereoCorrelation: measureStereoCorrelation(planar),
+    spectralBalance: balance
+      ? {
+          lowShare: balance.lowShare,
+          midShare: balance.midShare,
+          highShare: balance.highShare,
+        }
+      : undefined,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,

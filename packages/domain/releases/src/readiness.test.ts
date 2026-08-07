@@ -136,6 +136,34 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_TRUE_PEAK_HOT")).toBe(true);
   });
 
+  it("emits M5 dynamics and stereo findings from measured metrics only", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 120,
+        loudnessMeasured: true,
+        peakDbfs: -1,
+        rmsDbfs: -4,
+        crestFactorDb: 3,
+        stereoCorrelation: -0.5,
+        loudnessRangeLu: 2,
+        spectralBalance: { lowShare: 0.7, midShare: 0.2, highShare: 0.1 },
+        integratedLufs: -14,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_DYNAMICS_CRUSHED")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_STEREO_OUT_OF_PHASE")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_LRA_LOW")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_SPECTRAL_BASS_HEAVY")).toBe(true);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

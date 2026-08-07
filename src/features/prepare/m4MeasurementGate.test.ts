@@ -20,7 +20,7 @@ const ROOT = path.resolve(__dirname, "../../..");
 describe("M4 measurement integrity exit gate", () => {
   it("cites the M4 gate and ships a versioned BS.1770 meter", () => {
     expect(BS1770_METER_VERSION).toMatch(/^m4\.bs1770/);
-    expect(PROCESSING_VERSION).toMatch(/^m4\.waveform/);
+    expect(PROCESSING_VERSION).toMatch(/^m[45]\.waveform/);
   });
 
   it("publishes the stereo −23 dBFS vector within ±0.5 LU", () => {

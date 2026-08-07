@@ -48,7 +48,7 @@ describe("waveform golden fixtures", () => {
     expect(result.integratedLufsApprox).toBeGreaterThan(-20);
     expect(result.spectrum?.fftSize).toBe(1024);
     expect(result.spectrum?.magnitudes.length).toBe(512);
-    expect(result.processingVersion).toMatch(/^m4\.waveform/);
+    expect(result.processingVersion).toMatch(/^m5\.waveform/);
     expect(result.engine).toBe("portable");
   });
 

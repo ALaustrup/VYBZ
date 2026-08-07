@@ -72,6 +72,40 @@ const GUIDES: Record<string, FindingGuide> = {
     fix: "Apply gentle bus compression or limiting until integrated loudness sits in a competitive range.",
     target: "Typically −14 to −9 LUFS integrated for singles",
   },
+  AUDIO_TRUE_PEAK_HOT: {
+    why: "True peaks near full scale overshoot after AAC/MP3 conversion and can distort.",
+    fix: "Lower true-peak limiting to −1 dBTP or below and re-export.",
+    target: "True peak ≤ −1 dBTP",
+  },
+  AUDIO_DYNAMICS_CRUSHED: {
+    why: "Very low crest factor usually means heavy limiting — punch and depth disappear.",
+    fix: "Back off the limiter / maximizer and leave more peak-to-RMS headroom.",
+    target: "Crest factor typically ≥ 6 dB on music masters (VYBZ heuristic)",
+  },
+  AUDIO_LRA_LOW: {
+    why: "Tiny loudness range means little contrast between quiet and loud sections.",
+    fix: "Reduce constant brickwall limiting so short-term loudness can breathe.",
+  },
+  AUDIO_STEREO_NARROW: {
+    why: "Nearly identical L/R channels collapse to mono — width and immersion are lost.",
+    fix: "Check mid/side balance, stereo wideners, and double-tracked parts.",
+  },
+  AUDIO_STEREO_OUT_OF_PHASE: {
+    why: "Negative L/R correlation often means polarity issues that cancel in mono.",
+    fix: "Flip polarity on one side or inspect mid/side processing and mic setups.",
+  },
+  AUDIO_SPECTRAL_BASS_HEAVY: {
+    why: "Excess low-band energy can muddy small speakers and trip store loudness turn-down.",
+    fix: "High-pass non-bass elements and check the mix on small monitors.",
+  },
+  AUDIO_SPECTRAL_BRIGHT: {
+    why: "Excess high-band energy can sound harsh on earbuds and after lossy codecs.",
+    fix: "Ease presence/air bands or de-ess before the final limiter.",
+  },
+  AUDIO_SPECTRAL_THIN: {
+    why: "Weak low+mid energy often means the track lacks body on phones and cars.",
+    fix: "Restore fundamental energy or ease aggressive high-pass filters.",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

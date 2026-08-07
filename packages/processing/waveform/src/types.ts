@@ -35,6 +35,16 @@ export type LoudnessMetrics = {
     truePeakOversample: number;
     environment: string;
   };
+  /** Peak − RMS (dB). Present when both levels were measured. */
+  crestFactorDb?: number;
+  /** L/R Pearson correlation (−1…+1). Null/absent for mono. */
+  stereoCorrelation?: number | null;
+  /** Power-weighted spectral band shares from mid-file FFT. */
+  spectralBalance?: {
+    lowShare: number;
+    midShare: number;
+    highShare: number;
+  };
 };
 
 export type SpectrumSnapshot = {
@@ -50,4 +60,4 @@ export type PortableAudioAnalysis = WaveformPeaks &
     processingVersion: string;
   };
 
-export const PROCESSING_VERSION = "m4.waveform.1";
+export const PROCESSING_VERSION = "m5.waveform.1";

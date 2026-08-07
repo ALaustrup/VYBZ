@@ -6,7 +6,11 @@ import { probeContainer, probeFixtures } from "@vybz/processing/readiness";
 import {
   analyzeWavBuffer,
   computeLoudness,
+  computeSpectrum,
   measureBs1770,
+  measureCrestFactorDb,
+  measureSpectralBalance,
+  measureStereoCorrelation,
   PORTABLE_FFT_MAX_BYTES,
 } from "@vybz/processing/waveform";
 import type { WorkerProbeRequest, WorkerProbeResponse } from "@vybz/processing/readiness";
@@ -61,6 +65,8 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
   postProgress(msg.requestId, "measuring", 72);
   // Preserve planar channels — BS.1770 channel weights require stereo/surround layout.
   const bs = measureBs1770(msg.channels, msg.sampleRate, "web-worker");
+  const spectrum = computeSpectrum(samples, 1024);
+  const balance = measureSpectralBalance(spectrum.magnitudes, spectrum.fftSize, msg.sampleRate);
   postProgress(msg.requestId, "measuring", 88);
   return {
     type: "loudness-result",
@@ -76,6 +82,15 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
       loudnessRangeLu: bs.loudnessRangeLu,
       truePeakDbtp: bs.truePeakDbtp,
       loudnessProvenance: bs.provenance,
+      crestFactorDb: measureCrestFactorDb(bs.samplePeakDbfs, approx.rmsDbfs),
+      stereoCorrelation: measureStereoCorrelation(msg.channels),
+      spectralBalance: balance
+        ? {
+            lowShare: balance.lowShare,
+            midShare: balance.midShare,
+            highShare: balance.highShare,
+          }
+        : undefined,
       analysisSampleRate: msg.sampleRate,
       channels: msg.channels.length,
       durationSeconds,
@@ -109,7 +124,7 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
       postProgress(msg.requestId, "measuring", 45);
       const analysis = analyzeWavBuffer(msg.buffer, {
         sizeBytes: msg.sizeBytes,
-        includeSpectrum: false,
+        includeSpectrum: true,
         enforcePortableLimit: true,
       });
       postProgress(msg.requestId, "measuring", 82);
@@ -123,6 +138,9 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
         loudnessRangeLu: analysis.loudnessRangeLu,
         truePeakDbtp: analysis.truePeakDbtp,
         loudnessProvenance: analysis.loudnessProvenance,
+        crestFactorDb: analysis.crestFactorDb,
+        stereoCorrelation: analysis.stereoCorrelation,
+        spectralBalance: analysis.spectralBalance,
         loudnessMeasured: true,
         loudnessMethod: "pcm-wav",
         loudnessSampleRate: analysis.sampleRate,
