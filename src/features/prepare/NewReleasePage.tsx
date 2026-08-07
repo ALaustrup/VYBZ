@@ -12,11 +12,24 @@ import { ensureMetadataCredits } from "@/features/credits/service";
 import { probeArtworkFile, probeAudioFile } from "@/features/prepare/probeClient";
 import { PrepareScanStage } from "@/features/prepare/PrepareScanStage";
 import { stashPendingAudio } from "@/features/prepare/pendingUpload";
-import type { AudioProbe, ArtworkProbe } from "@vybz/domain/releases";
+import { scanProgress, type ScanProgress } from "@/features/prepare/scanProgress";
+import { parseArtistTitleFromFilename, type AudioProbe, type ArtworkProbe } from "@vybz/domain/releases";
 
 type Phase = "upload" | "scanning";
 
-const MIN_SCAN_MS = 2400;
+type PendingAudio = {
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  blob: Blob;
+};
+
+type PendingArt = {
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  blob: Blob;
+};
 
 function UploadTile({
   label,
@@ -53,9 +66,9 @@ function UploadTile({
           <p className="font-medium text-white">{label}</p>
           <p className="mt-0.5 text-xs text-white/45">{fileName ?? hint}</p>
           {progress > 0 && progress < 100 ? (
-            <Progress value={progress} className="mt-3" label={`${label} upload progress`} />
+            <Progress value={progress} className="mt-3" label={`${label} import progress`} />
           ) : complete ? (
-            <p className="mt-2 text-[11px] uppercase tracking-wide text-suite-success">Ready</p>
+            <p className="mt-2 text-[11px] uppercase tracking-wide text-suite-success">Ready to scan</p>
           ) : null}
         </div>
       </div>
@@ -71,119 +84,142 @@ export function NewReleasePage() {
   const [phase, setPhase] = useState<Phase>("upload");
   const [title, setTitle] = useState("");
   const [artistName, setArtistName] = useState("");
-  const [audioMeta, setAudioMeta] = useState<{
-    fileName: string;
-    mimeType: string;
-    sizeBytes: number;
-    probe: AudioProbe;
-    /** Held in memory only, so the user can opt into publishing after the scan. */
-    blob: Blob | null;
-  } | null>(null);
-  const [artMeta, setArtMeta] = useState<{
-    fileName: string;
-    mimeType: string;
-    sizeBytes: number;
-    probe: ArtworkProbe;
-  } | null>(null);
+  const [pendingAudio, setPendingAudio] = useState<PendingAudio | null>(null);
+  const [pendingArt, setPendingArt] = useState<PendingArt | null>(null);
   const [audioProgress, setAudioProgress] = useState(0);
   const [artProgress, setArtProgress] = useState(0);
+  const [scanProgressState, setScanProgressState] = useState<ScanProgress>(() =>
+    scanProgress("idle", 0)
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorPhase, setErrorPhase] = useState<"import" | "create">("import");
   const autoScanTriggered = useRef(false);
 
+  const reportScan = useCallback((next: ScanProgress) => {
+    setScanProgressState((prev) => (next.percent < prev.percent ? prev : next));
+  }, []);
+
   const runScan = useCallback(async () => {
-    if (busy) return;
+    if (busy || !pendingAudio || !pendingArt) return;
     setBusy(true);
     setError(null);
     setPhase("scanning");
-    const scanStarted = Date.now();
+    reportScan(scanProgress("reading", 4));
+
     try {
+      const audioProbe = await probeAudioFile(
+        {
+          name: pendingAudio.fileName,
+          type: pendingAudio.mimeType,
+          size: pendingAudio.sizeBytes,
+          arrayBuffer: () => pendingAudio.blob.arrayBuffer(),
+        },
+        reportScan
+      );
+
+      reportScan(scanProgress("artwork", 84));
+      const artProbe = await probeArtworkFile(
+        {
+          name: pendingArt.fileName,
+          type: pendingArt.mimeType,
+          size: pendingArt.sizeBytes,
+          arrayBuffer: () => pendingArt.blob.arrayBuffer(),
+        },
+        reportScan
+      );
+
+      reportScan(scanProgress("saving", 93));
+      const audioMeta = {
+        fileName: pendingAudio.fileName,
+        mimeType: pendingAudio.mimeType,
+        sizeBytes: pendingAudio.sizeBytes,
+        probe: audioProbe as AudioProbe,
+        blob: pendingAudio.blob,
+      };
+      const artMeta = {
+        fileName: pendingArt.fileName,
+        mimeType: pendingArt.mimeType,
+        sizeBytes: pendingArt.sizeBytes,
+        probe: artProbe as ArtworkProbe,
+      };
+
       const bundle = await createReleaseWithScan({
         ownerId,
-        title: title || audioMeta?.probe.titleFromName || "Untitled release",
-        artistName: artistName || audioMeta?.probe.artistFromName || null,
+        title: title || audioProbe.titleFromName || "Untitled release",
+        artistName: artistName || audioProbe.artistFromName || null,
         audio: audioMeta,
         artwork: artMeta,
         idempotencyKey: crypto.randomUUID(),
       });
+
       try {
         await ensureMetadataCredits({
           ownerId,
           releaseId: bundle.project.id,
-          artistName: artistName || audioMeta?.probe.artistFromName || null,
-          composerName: audioMeta?.probe.composerFromName ?? null,
+          artistName: artistName || audioProbe.artistFromName || null,
+          composerName: audioProbe.composerFromName ?? null,
         });
       } catch {
         /* credits seed is best-effort */
       }
+
       // The scan never uploads. Keep the analysed audio in memory so the results
       // page can offer an explicit publish without asking for the file again.
-      if (audioMeta?.blob) {
-        stashPendingAudio({
-          releaseId: bundle.project.id,
-          blob: audioMeta.blob,
-          fileName: audioMeta.fileName,
-          mimeType: audioMeta.mimeType,
-          sizeBytes: audioMeta.sizeBytes,
-          durationSec: audioMeta.probe.durationSeconds,
-          sampleRate: audioMeta.probe.sampleRate,
-          audioFormat: audioMeta.probe.container,
-          lossless: audioMeta.probe.container === "wav" || audioMeta.probe.container === "flac",
-          title: bundle.project.title,
-          artistName: bundle.project.artistName,
-        });
-      }
+      stashPendingAudio({
+        releaseId: bundle.project.id,
+        blob: pendingAudio.blob,
+        fileName: pendingAudio.fileName,
+        mimeType: pendingAudio.mimeType,
+        sizeBytes: pendingAudio.sizeBytes,
+        durationSec: audioProbe.durationSeconds,
+        sampleRate: audioProbe.sampleRate,
+        audioFormat: audioProbe.container,
+        lossless: audioProbe.container === "wav" || audioProbe.container === "flac",
+        title: bundle.project.title,
+        artistName: bundle.project.artistName,
+      });
 
-      const elapsed = Date.now() - scanStarted;
-      if (elapsed < MIN_SCAN_MS) {
-        await new Promise((r) => setTimeout(r, MIN_SCAN_MS - elapsed));
-      }
+      reportScan(scanProgress("done", 100));
       navigate(`/release/${bundle.project.id}`, { replace: true });
     } catch (err) {
       setErrorPhase("create");
       setError(err instanceof Error ? err.message : "Could not create release");
       setPhase("upload");
       setBusy(false);
+      setScanProgressState(scanProgress("idle", 0));
       autoScanTriggered.current = false;
     }
-  }, [artistName, artMeta, audioMeta, busy, navigate, ownerId, title]);
+  }, [artistName, busy, navigate, ownerId, pendingArt, pendingAudio, reportScan, title]);
 
   useEffect(() => {
     if (phase !== "upload" || busy || autoScanTriggered.current) return;
-    if (!audioMeta || !artMeta) return;
+    if (!pendingAudio || !pendingArt) return;
     autoScanTriggered.current = true;
     void runScan();
-  }, [artMeta, audioMeta, busy, phase, runScan]);
+  }, [busy, pendingArt, pendingAudio, phase, runScan]);
 
   async function pickAudio() {
     setError(null);
-    setAudioProgress(12);
+    setAudioProgress(20);
     try {
       const files = await bridge.files.selectAudio();
-      setAudioProgress(45);
+      setAudioProgress(70);
       const file = files[0];
       if (!file?.blob) {
         setAudioProgress(0);
         return;
       }
-      setAudioProgress(68);
-      const probe = await probeAudioFile({
-        name: file.name,
-        type: file.mimeType,
-        size: file.sizeBytes,
-        arrayBuffer: () => file.blob!.arrayBuffer(),
-      });
-      setAudioProgress(100);
-      setAudioMeta({
+      const parsed = parseArtistTitleFromFilename(file.name);
+      if (!title && parsed.titleFromName) setTitle(parsed.titleFromName);
+      if (!artistName && parsed.artistFromName) setArtistName(parsed.artistFromName);
+      setPendingAudio({
         fileName: file.name,
         mimeType: file.mimeType,
         sizeBytes: file.sizeBytes,
-        probe,
-        blob: file.blob ?? null,
+        blob: file.blob,
       });
-      if (!title && probe.titleFromName) setTitle(probe.titleFromName);
-      if (!artistName && probe.artistFromName) setArtistName(probe.artistFromName);
+      setAudioProgress(100);
     } catch (err) {
       setAudioProgress(0);
       if (err instanceof PlatformError && err.code === "cancelled") return;
@@ -194,29 +230,22 @@ export function NewReleasePage() {
 
   async function pickArtwork() {
     setError(null);
-    setArtProgress(12);
+    setArtProgress(20);
     try {
       const files = await bridge.files.selectArtwork();
-      setArtProgress(45);
+      setArtProgress(70);
       const file = files[0];
       if (!file?.blob) {
         setArtProgress(0);
         return;
       }
-      setArtProgress(68);
-      const probe = await probeArtworkFile({
-        name: file.name,
-        type: file.mimeType,
-        size: file.sizeBytes,
-        arrayBuffer: () => file.blob!.arrayBuffer(),
-      });
-      setArtProgress(100);
-      setArtMeta({
+      setPendingArt({
         fileName: file.name,
         mimeType: file.mimeType,
         sizeBytes: file.sizeBytes,
-        probe,
+        blob: file.blob,
       });
+      setArtProgress(100);
     } catch (err) {
       setArtProgress(0);
       if (err instanceof PlatformError && err.code === "cancelled") return;
@@ -227,7 +256,11 @@ export function NewReleasePage() {
 
   if (phase === "scanning") {
     return (
-      <PrepareScanStage trackName={audioMeta?.fileName ?? title} artName={artMeta?.fileName} />
+      <PrepareScanStage
+        trackName={pendingAudio?.fileName ?? title}
+        artName={pendingArt?.fileName}
+        progress={scanProgressState}
+      />
     );
   }
 
@@ -246,9 +279,9 @@ export function NewReleasePage() {
         <UploadTile
           label="Your track"
           hint="WAV, FLAC, or AIFF preferred"
-          fileName={audioMeta?.fileName ?? null}
+          fileName={pendingAudio?.fileName ?? null}
           progress={audioProgress}
-          complete={Boolean(audioMeta)}
+          complete={Boolean(pendingAudio)}
           onPick={() => void pickAudio()}
           testId="prepare-pick-audio"
           icon={Music2}
@@ -256,9 +289,9 @@ export function NewReleasePage() {
         <UploadTile
           label="Cover art"
           hint="Square PNG or JPEG — 3000×3000 ideal"
-          fileName={artMeta?.fileName ?? null}
+          fileName={pendingArt?.fileName ?? null}
           progress={artProgress}
-          complete={Boolean(artMeta)}
+          complete={Boolean(pendingArt)}
           onPick={() => void pickArtwork()}
           testId="prepare-pick-art"
           icon={ImageIcon}
@@ -298,12 +331,12 @@ export function NewReleasePage() {
           />
         ) : null}
 
-        {!audioMeta || !artMeta ? (
+        {!pendingAudio || !pendingArt ? (
           <Button type="submit" variant="forge" loading={busy} data-testid="prepare-create-submit">
             Run scan
           </Button>
         ) : (
-          <p className="text-center text-xs text-white/40">Both files ready — starting scan…</p>
+          <p className="text-center text-xs text-white/40">Both files ready — starting live analysis…</p>
         )}
       </form>
     </div>
