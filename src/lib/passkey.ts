@@ -10,6 +10,7 @@ import {
   browserSupportsWebAuthn,
   browserSupportsWebAuthnAutofill,
 } from "@simplewebauthn/browser";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
 export interface PasskeyRow {
@@ -59,12 +60,41 @@ export async function passkeyAutofillSupported(): Promise<boolean> {
   }
 }
 
+/**
+ * Pull the real `{ error }` body out of a Functions invoke failure.
+ *
+ * `functions.invoke` otherwise surfaces the generic "Edge Function returned a
+ * non-2xx status code", which hid `account_exists`, `origin not allowed`, and
+ * every other actionable failure from the UI.
+ */
+async function extractFunctionError(error: unknown, data: unknown): Promise<string> {
+  if (data && typeof data === "object" && "error" in data) {
+    const msg = (data as { error?: unknown }).error;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  if (error instanceof FunctionsHttpError) {
+    try {
+      const body = await error.context.json();
+      if (body && typeof body === "object" && typeof (body as { error?: unknown }).error === "string") {
+        return (body as { error: string }).error;
+      }
+    } catch {
+      /* body was not JSON */
+    }
+  }
+  if (error && typeof error === "object" && "message" in error) {
+    const msg = (error as { message?: unknown }).message;
+    if (typeof msg === "string" && msg.trim()) return msg;
+  }
+  return "Passkey request failed";
+}
+
 async function call<T>(action: string, payload: Record<string, unknown> = {}): Promise<T> {
   if (!supabase) throw new Error("Backend not configured");
   const { data, error } = await supabase.functions.invoke("passkey", {
     body: { action, ...payload },
   });
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(await extractFunctionError(error, data));
   if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
   return data as T;
 }
@@ -83,17 +113,25 @@ export async function registerPasskey(): Promise<{ verified: boolean }> {
 /** Exchange a verified passkey ceremony's token_hash for a real session. */
 async function establishSession(tokenHash?: string): Promise<boolean> {
   if (!tokenHash || !supabase) return false;
-  const { error } = await supabase.auth.verifyOtp({
+  // generateLink({ type: "magiclink" }) returns a hashed_token that verifyOtp
+  // accepts as either magiclink or email depending on project auth settings.
+  const first = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
     type: "magiclink",
   });
-  return !error;
+  if (!first.error) return true;
+  const second = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "email",
+  });
+  if (!second.error) return true;
+  throw new Error(first.error.message || second.error?.message || "Could not start a session");
 }
 
 /**
  * Passkey-first sign-up: create an email-anchored account and register a passkey
  * as the PRIMARY credential in a single ceremony, then establish a session.
- * Throws { code: "account_exists" } if the email already has an account.
+ * Throws { code: "account_exists" } if the email already has a passkey.
  */
 export async function signUpWithPasskey(email: string): Promise<boolean> {
   let optionsRes: { options: unknown; flowId: string };
@@ -107,6 +145,7 @@ export async function signUpWithPasskey(email: string): Promise<boolean> {
       throw Object.assign(new Error("account_exists"), { code: "account_exists" });
     throw e;
   }
+  if (!optionsRes.flowId) throw new Error("Could not start passkey sign-up. Try again.");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const response = await startRegistration({ optionsJSON: optionsRes.options as any });
   const res = await call<{ verified: boolean; tokenHash?: string }>("signup-verify", {
@@ -130,6 +169,7 @@ export async function signInWithPasskey(
   const { options, flowId } = await call<{ options: unknown; flowId: string }>(
     "auth-options"
   );
+  if (!flowId) throw new Error("Could not start passkey sign-in. Try again.");
   const response = await startAuthentication({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     optionsJSON: options as any,

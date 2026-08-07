@@ -150,36 +150,55 @@ Deno.serve(async (req: Request) => {
       const email = String(body.email ?? "").trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))
         return json({ error: "enter a valid email" }, 400);
+
+      // Prefer resuming an incomplete signup (account created, no passkey yet)
+      // over failing with account_exists. That dead-end was the most common
+      // "Create account with passkey" failure: the user cancelled the OS sheet
+      // once, then every retry looked like a collision.
+      let userId: string | null = null;
       const created = await admin.auth.admin.createUser({
         email,
         email_confirm: true,
       });
-      if (created.error || !created.data.user) {
+      if (created.data?.user) {
+        userId = created.data.user.id;
+      } else {
         const msg = created.error?.message ?? "could not create account";
-        // Already-registered email → tell the client to sign in / add a passkey.
-        if (/registered|already|exists/i.test(msg))
-          return json({ error: "account_exists" }, 409);
-        return json({ error: msg }, 400);
+        if (!/registered|already|exists/i.test(msg)) return json({ error: msg }, 400);
+        // generateLink resolves the existing user by email without paging auth.users.
+        const link = await admin.auth.admin.generateLink({ type: "magiclink", email });
+        const existingId = link.data.user?.id;
+        if (!existingId) return json({ error: "account_exists" }, 409);
+        const hasPasskey = await admin
+          .from("passkeys")
+          .select("credential_id")
+          .eq("user_id", existingId)
+          .limit(1)
+          .maybeSingle();
+        if (hasPasskey.data) return json({ error: "account_exists" }, 409);
+        userId = existingId;
       }
-      const user = created.data.user;
+
       const options = await generateRegistrationOptions({
         rpName: RP_NAME,
         rpID: rp.rpID,
-        userID: new TextEncoder().encode(user.id),
+        userID: new TextEncoder().encode(userId),
         userName: email,
         userDisplayName: email,
         attestationType: "none",
         authenticatorSelection: {
           residentKey: "required",
           userVerification: "preferred",
+          authenticatorAttachment: "platform",
         },
       });
       const ins = await admin
         .from("webauthn_challenges")
-        .insert({ user_id: user.id, challenge: options.challenge, kind: "signup" })
+        .insert({ user_id: userId, challenge: options.challenge, kind: "signup" })
         .select("id")
         .single();
-      return json({ options, flowId: ins.data?.id });
+      if (!ins.data?.id) return json({ error: "could not start passkey ceremony" }, 500);
+      return json({ options, flowId: ins.data.id });
     }
 
     if (action === "signup-verify") {
@@ -243,6 +262,7 @@ Deno.serve(async (req: Request) => {
         authenticatorSelection: {
           residentKey: "required",
           userVerification: "preferred",
+          authenticatorAttachment: "platform",
         },
       });
       await admin
@@ -289,17 +309,20 @@ Deno.serve(async (req: Request) => {
 
     // --- Authentication (public, usernameless) -----------------------------
     if (action === "auth-options") {
+      // Omit allowCredentials so the authenticator can discover resident keys.
+      // An explicit empty array is valid for discoverable credentials, but some
+      // browsers treat the property more reliably when it is absent entirely.
       const options = await generateAuthenticationOptions({
         rpID: rp.rpID,
         userVerification: "preferred",
-        allowCredentials: [],
       });
       const ins = await admin
         .from("webauthn_challenges")
         .insert({ challenge: options.challenge, kind: "auth" })
         .select("id")
         .single();
-      return json({ options, flowId: ins.data?.id });
+      if (!ins.data?.id) return json({ error: "could not start passkey ceremony" }, 500);
+      return json({ options, flowId: ins.data.id });
     }
 
     if (action === "auth-verify") {

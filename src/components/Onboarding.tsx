@@ -11,18 +11,33 @@ import {
   signUpWithPasskey,
 } from "@/lib/passkey";
 
-/** Map a raw WebAuthn/backend error to a calm, human message (or null to ignore). */
-function friendlyPasskeyError(e: unknown): string | null {
-  const err = e as { name?: string; message?: string };
+/**
+ * Map a raw WebAuthn/backend error to a calm, human message.
+ * Returns null only when the user deliberately dismissed the OS prompt.
+ */
+function friendlyPasskeyError(e: unknown, opts: { conditional?: boolean } = {}): string | null {
+  const err = e as { name?: string; message?: string; code?: string };
   const name = err?.name ?? "";
   const msg = err?.message ?? String(e);
-  if (name === "NotAllowedError" || name === "AbortError") return null;
+  // Conditional autofill failing silently is expected when the user ignores it.
+  if (opts.conditional && (name === "NotAllowedError" || name === "AbortError")) return null;
+  if (name === "AbortError") return null;
+  if (name === "NotAllowedError")
+    return "No passkey found on this device, or the prompt was cancelled. Create an account, or use a password.";
+  if (err?.code === "account_exists" || /account_exists/i.test(msg))
+    return "You already have an account — sign in with your passkey, or use a password.";
   if (/no passkey|unknown passkey|not found/i.test(msg))
     return "No passkey found on this device. Create an account to add one.";
   if (name === "InvalidStateError")
-    return "A passkey already exists for this device.";
+    return "A passkey already exists for this device. Try signing in instead.";
   if (/origin not allowed/i.test(msg))
     return "Passkeys aren't available on this domain yet.";
+  if (/session|verifyOtp|token/i.test(msg))
+    return "Passkey verified, but we couldn't start your session. Try again.";
+  if (/Edge Function|non-2xx|Failed to send/i.test(msg))
+    return "Couldn't reach the passkey service. Check your connection and try again.";
+  // Prefer the backend's own message when it is already human-readable.
+  if (msg && msg.length < 120 && !/Error:|Exception/i.test(msg)) return msg;
   return "Passkey didn't complete. Try again, or use a password.";
 }
 
@@ -43,15 +58,19 @@ export function Onboarding() {
 
   useEffect(() => {
     if (!pk || conditionalArmed.current) return;
+    // Conditional UI needs an email field with autocomplete="… webauthn".
+    // That exists on join, and on the password form — not on the bare one-tap view.
     if (!(mode === "join" || usePassword)) return;
     conditionalArmed.current = true;
     (async () => {
       if (!(await passkeyAutofillSupported())) return;
+      // Wait a tick so the email input is in the DOM after the mode switch.
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
       if (!document.querySelector('input[autocomplete~="webauthn"]')) return;
       try {
         await signInWithPasskey({ conditional: true });
       } catch (e) {
-        const m = friendlyPasskeyError(e);
+        const m = friendlyPasskeyError(e, { conditional: true });
         if (m) setErr(m);
       }
     })();
@@ -80,8 +99,9 @@ export function Onboarding() {
       const ok = await signUpWithPasskey(email);
       if (!ok) setErr("Couldn't finish creating your passkey. Try again or use a password.");
     } catch (e) {
-      if ((e as { code?: string }).code === "account_exists") {
+      if ((e as { code?: string }).code === "account_exists" || /account_exists/i.test((e as Error).message ?? "")) {
         setMode("signin");
+        setUsePassword(false);
         setNote("You already have an account — tap to sign in with your passkey.");
       } else {
         const m = friendlyPasskeyError(e);
