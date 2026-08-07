@@ -271,7 +271,7 @@ export function ProfileEditPage() {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="space-y-2.5"><p className="eyebrow">{title}</p>{children}</div>;
+  return <div className="forge-card space-y-2.5"><p className="eyebrow">{title}</p>{children}</div>;
 }
 function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
   return (
