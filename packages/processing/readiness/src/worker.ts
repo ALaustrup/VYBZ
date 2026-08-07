@@ -68,6 +68,9 @@ export type MeasuredLoudness = {
   dcOffsetAbs?: number;
   dcOffsetDbfs?: number;
   monoLossDb?: number;
+  channelBalanceDb?: number;
+  leftRmsDbfs?: number;
+  rightRmsDbfs?: number;
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;

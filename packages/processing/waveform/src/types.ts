@@ -59,6 +59,10 @@ export type LoudnessMetrics = {
   dcOffsetDbfs?: number;
   /** Mono fold-down level vs stereo RMS (dB); negative = quieter in mono. */
   monoLossDb?: number;
+  /** Left RMS − right RMS (dB). */
+  channelBalanceDb?: number;
+  leftRmsDbfs?: number;
+  rightRmsDbfs?: number;
 };
 
 export type SpectrumSnapshot = {
