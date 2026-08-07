@@ -71,6 +71,10 @@ export type MeasuredLoudness = {
   channelBalanceDb?: number;
   leftRmsDbfs?: number;
   rightRmsDbfs?: number;
+  plrDb?: number;
+  midRmsDbfs?: number;
+  sideRmsDbfs?: number;
+  sideToMidDb?: number;
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;

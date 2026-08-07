@@ -63,6 +63,14 @@ export type LoudnessMetrics = {
   channelBalanceDb?: number;
   leftRmsDbfs?: number;
   rightRmsDbfs?: number;
+  /** True peak (dBTP) − integrated LUFS when both measured. */
+  plrDb?: number;
+  /** Mid-channel RMS (dBFS) from L/R mid/side. */
+  midRmsDbfs?: number;
+  /** Side-channel RMS (dBFS) from L/R mid/side. */
+  sideRmsDbfs?: number;
+  /** sideRms − midRms (dB). */
+  sideToMidDb?: number;
 };
 
 export type SpectrumSnapshot = {

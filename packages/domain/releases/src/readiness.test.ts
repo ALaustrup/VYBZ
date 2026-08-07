@@ -240,6 +240,32 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_MOMENTARY_SPIKE")).toBe(true);
   });
 
+  it("flags low PLR and side-heavy stereo when measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -1,
+        truePeakDbtp: -0.5,
+        integratedLufs: -8,
+        plrDb: 4.5,
+        sideToMidDb: -3,
+        midRmsDbfs: -14,
+        sideRmsDbfs: -17,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_PLR_LOW")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_STEREO_SIDE_HEAVY")).toBe(true);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

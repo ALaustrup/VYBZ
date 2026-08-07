@@ -13,7 +13,9 @@ import {
   measureChannelBalance,
   measureDcOffset,
   measureEdgeSilence,
+  measureMidSide,
   measureMonoCompat,
+  measurePlrDb,
   measureSpectralBalance,
   measureStereoCorrelation,
   PORTABLE_FFT_MAX_BYTES,
@@ -77,6 +79,11 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
   const dc = measureDcOffset(msg.channels);
   const mono = measureMonoCompat(msg.channels);
   const chBal = measureChannelBalance(msg.channels);
+  const ms = measureMidSide(msg.channels);
+  const plrDb =
+    bs.truePeakDbtp != null && bs.integratedLufs != null
+      ? measurePlrDb(bs.truePeakDbtp, bs.integratedLufs)
+      : undefined;
   postProgress(msg.requestId, "measuring", 88);
   return {
     type: "loudness-result",
@@ -111,6 +118,10 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
       channelBalanceDb: chBal?.deltaDb,
       leftRmsDbfs: chBal?.leftRmsDbfs,
       rightRmsDbfs: chBal?.rightRmsDbfs,
+      plrDb,
+      midRmsDbfs: ms?.midRmsDbfs,
+      sideRmsDbfs: ms?.sideRmsDbfs,
+      sideToMidDb: ms?.sideToMidDb,
       analysisSampleRate: msg.sampleRate,
       channels: msg.channels.length,
       durationSeconds,
@@ -171,6 +182,10 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
         channelBalanceDb: analysis.channelBalanceDb,
         leftRmsDbfs: analysis.leftRmsDbfs,
         rightRmsDbfs: analysis.rightRmsDbfs,
+        plrDb: analysis.plrDb,
+        midRmsDbfs: analysis.midRmsDbfs,
+        sideRmsDbfs: analysis.sideRmsDbfs,
+        sideToMidDb: analysis.sideToMidDb,
         loudnessMeasured: true,
         loudnessMethod: "pcm-wav",
         loudnessSampleRate: analysis.sampleRate,

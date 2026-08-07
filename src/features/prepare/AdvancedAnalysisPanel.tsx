@@ -79,6 +79,20 @@ export function AdvancedAnalysisPanel({ probe }: { probe: AudioProbe | null | un
     });
   }
 
+  if (probe.plrDb != null) {
+    rows.push({ label: "PLR", value: fmt(probe.plrDb, 1, " dB") });
+  }
+
+  if (probe.sideToMidDb != null) {
+    rows.push({
+      label: "Side−mid",
+      value:
+        probe.midRmsDbfs != null && probe.sideRmsDbfs != null
+          ? `${probe.sideToMidDb.toFixed(1)} dB (M ${probe.midRmsDbfs.toFixed(1)} / S ${probe.sideRmsDbfs.toFixed(1)})`
+          : fmt(probe.sideToMidDb, 1, " dB"),
+    });
+  }
+
   if (probe.momentaryLufs != null || probe.shortTermLufs != null) {
     rows.push({
       label: "Momentary / short-term",
