@@ -11,7 +11,7 @@ export function VDock(_props: { onCompose: () => void }) {
     const root = document.documentElement;
     root.style.setProperty(
       "--dock-reserve",
-      "calc(var(--vdock-h, 4.75rem) + env(safe-area-inset-bottom, 0px))",
+      "calc(var(--vdock-h, 5.25rem) + env(safe-area-inset-bottom, 0px))",
     );
     return () => { root.style.removeProperty("--dock-reserve"); };
   }, []);
@@ -27,7 +27,7 @@ export function VDock(_props: { onCompose: () => void }) {
       <DockVisualizer className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-100" />
       <div className="vdock-shell-veil vdock-forge-veil pointer-events-none absolute inset-0 z-[1]" aria-hidden />
       <DockPlaybackProgress />
-      <div className="relative z-10 flex min-h-[var(--vdock-h,4.75rem)] flex-1 items-center px-3 pb-[env(safe-area-inset-bottom,0px)] sm:px-5">
+      <div className="relative z-10 flex min-h-[var(--vdock-h,5.25rem)] flex-1 items-center px-3 pb-[env(safe-area-inset-bottom,0px)] sm:px-5">
         <MusicDockPlayer />
       </div>
     </div>

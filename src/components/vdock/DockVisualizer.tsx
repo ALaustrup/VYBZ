@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { frequencyBinCount, readFrequencies, usePlayer } from "@/lib/audioBus";
+import { frequencyBinCount, readFrequencies, usePlayerShell } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
 import { vdockVisual } from "@/lib/vdockVisualManifest";
 
@@ -10,7 +10,7 @@ import { vdockVisual } from "@/lib/vdockVisualManifest";
  */
 export function DockVisualizer({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { playing, track } = usePlayer();
+  const { playing, track } = usePlayerShell();
   const reduce = useReduceFx();
   const accent = track?.accent ?? "#00C2FF";
   const catalog = vdockVisual(track?.playback?.vdockVisualId);
@@ -25,14 +25,17 @@ export function DockVisualizer({ className }: { className?: string }) {
 
     let raf = 0;
     let running = true;
+    let cssW = 0;
+    let cssH = 0;
+    let lastIdle = 0;
     const buf = new Uint8Array(Math.max(frequencyBinCount(), 512));
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      canvas.width = Math.max(1, Math.floor(w * dpr));
-      canvas.height = Math.max(1, Math.floor(h * dpr));
+      cssW = canvas.clientWidth;
+      cssH = canvas.clientHeight;
+      canvas.width = Math.max(1, Math.floor(cssW * dpr));
+      canvas.height = Math.max(1, Math.floor(cssH * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
@@ -45,37 +48,49 @@ export function DockVisualizer({ className }: { className?: string }) {
       return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
     };
     const { r, g, b } = hexToRgb(accent);
+    const barFill = `rgba(${r},${g},${b},0.55)`;
+    const barFillLo = `rgba(${r},${g},${b},0.28)`;
+    const mint = "rgba(0,214,143,0.38)";
 
-    const draw = () => {
+    const draw = (now: number) => {
       if (!running) return;
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
+      if (document.hidden) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+
+      const idle = !playing;
+      // Idle / paused: ~12 fps. Playing: full RAF.
+      if (idle && now - lastIdle < 80) {
+        raf = requestAnimationFrame(draw);
+        return;
+      }
+      lastIdle = now;
+
+      const w = cssW;
+      const h = cssH;
       ctx.clearRect(0, 0, w, h);
 
       const hasAudio = readFrequencies(buf);
-      const bars = 64;
+      const bars = w < 420 ? 32 : 48;
       const gap = 2;
       const barW = (w - gap * (bars - 1)) / bars;
       const dim = playing ? 1 : 0.48;
       const barAlpha = hasStageVisual ? 0.85 : 1;
 
-      const wash = ctx.createLinearGradient(0, 0, w, 0);
-      wash.addColorStop(0, `rgba(${r},${g},${b},${0.08 * dim * barAlpha})`);
-      wash.addColorStop(0.45, `rgba(${r},${g},${b},${0.2 * dim * barAlpha})`);
-      wash.addColorStop(0.75, `rgba(0,214,143,${0.12 * dim * barAlpha})`);
-      wash.addColorStop(1, `rgba(${r},${g},${b},${0.06 * dim * barAlpha})`);
-      ctx.fillStyle = wash;
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.14 * dim * barAlpha})`;
       ctx.fillRect(0, 0, w, h);
 
+      ctx.fillStyle = barFill;
       for (let i = 0; i < bars; i++) {
         let level = 0.08;
         if (hasAudio && !reduce) {
           const bin = Math.floor((i / bars) * (buf.length * 0.55));
           level = Math.max(0.06, Math.min(1, (buf[bin] / 255) ** 0.85));
         } else if (!reduce && playing) {
-          level = 0.12 + 0.08 * Math.sin(Date.now() / 400 + i * 0.35);
+          level = 0.12 + 0.08 * Math.sin(now / 400 + i * 0.35);
         } else if (!reduce) {
-          level = 0.1 + 0.04 * Math.sin(Date.now() / 1800 + i * 0.28);
+          level = 0.1 + 0.04 * Math.sin(now / 1800 + i * 0.28);
         } else {
           level = 0.1 + (i % 5) * 0.02;
         }
@@ -83,29 +98,40 @@ export function DockVisualizer({ className }: { className?: string }) {
         const bh = level * h * 0.96 * dim;
         const x = i * (barW + gap);
         const y = (h - bh) / 2;
-        const grad = ctx.createLinearGradient(x, y, x, y + bh);
-        grad.addColorStop(0, `rgba(${r},${g},${b},${0.7 * dim * barAlpha})`);
-        grad.addColorStop(0.45, `rgba(${r},${g},${b},${0.32 * dim * barAlpha})`);
-        grad.addColorStop(1, `rgba(0,214,143,${0.42 * dim * barAlpha})`);
-        ctx.fillStyle = grad;
-        const radius = Math.min(4, barW / 2);
-        roundRect(ctx, x, y, barW, bh, radius);
+        // Two solid fills instead of per-bar linear gradients.
+        ctx.fillStyle = i % 3 === 0 ? mint : i % 2 === 0 ? barFill : barFillLo;
+        const radius = Math.min(3.5, barW / 2);
+        roundRect(ctx, x, y, barW, Math.max(1, bh), radius);
+        ctx.globalAlpha = barAlpha * dim;
         ctx.fill();
+        ctx.globalAlpha = 1;
       }
 
       raf = requestAnimationFrame(draw);
     };
 
     raf = requestAnimationFrame(draw);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible" && running) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [accent, playing, reduce, track?.id, hasStageVisual]);
 
   return (
-    <div className={className ?? "pointer-events-none absolute inset-0 h-full w-full"}>
+    <div
+      className={className ?? "pointer-events-none absolute inset-0 h-full w-full"}
+      style={{ contain: "paint" }}
+    >
       <canvas
         ref={canvasRef}
         aria-hidden

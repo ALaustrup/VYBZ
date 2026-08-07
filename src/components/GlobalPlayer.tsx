@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import {
   usePlayer,
+  usePlayerShell,
+  getPlaybackProgress,
   toggle,
   next,
   prev,
@@ -156,7 +158,7 @@ export function NowPlayingWidget({
  * left meta · centered prev/play/next (beat-reactive) · right comment/heart/tip.
  */
 export function MusicDockPlayer() {
-  const p = usePlayer();
+  const p = usePlayerShell();
   const reduce = useReduceFx();
   const { showToast, userId } = useSession();
   const [expanded, setExpanded] = useState(false);
@@ -164,7 +166,9 @@ export function MusicDockPlayer() {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
   const [favBusy, setFavBusy] = useState(false);
-  const [beat, setBeat] = useState({ bass: 0, mid: 0, high: 0, level: 0 });
+  const rootRef = useRef<HTMLDivElement>(null);
+  const playBtnRef = useRef<HTMLButtonElement>(null);
+  const metaFillRef = useRef<HTMLSpanElement>(null);
 
   const favorited = useSyncExternalStore(
     subscribeFavorites,
@@ -173,8 +177,6 @@ export function MusicDockPlayer() {
   );
 
   const accent = p.track?.accent ?? DEFAULT_ACCENT;
-  const dur = p.duration || p.track?.durationSec || 0;
-  const progress = dur > 0 ? p.currentTime / dur : 0;
   const networkDrop = !!p.track?.authorId && p.track.earnEligible !== false;
 
   useEffect(() => {
@@ -192,29 +194,63 @@ export function MusicDockPlayer() {
     showToast(hints[p.lastError] ?? `Audio error ${p.lastError}`);
   }, [p.lastError, p.track?.id, showToast]);
 
+  // Beat + progress via CSS vars / transforms — no per-frame React re-renders.
   useEffect(() => {
-    if (reduce || !p.playing) {
-      setBeat({ bass: 0, mid: 0, high: 0, level: 0 });
-      return;
-    }
     let raf = 0;
+    let running = true;
+    const baseAccent = accent;
+
+    const applyIdle = () => {
+      const btn = playBtnRef.current;
+      const root = rootRef.current;
+      if (root) root.style.setProperty("--vdock-accent", baseAccent);
+      if (btn) {
+        btn.style.setProperty("--vdock-beat-scale", "1");
+        btn.style.setProperty("--vdock-beat-glow", "14px");
+        btn.style.setProperty("--vdock-halo-scale", "0.92");
+        btn.style.background =
+          `radial-gradient(circle at 40% 35%, ${baseAccent}, color-mix(in srgb, ${baseAccent} 35%, var(--color-abyss)) 70%)`;
+        btn.style.boxShadow =
+          `0 0 14px -2px ${baseAccent}, 0 0 22px -8px ${baseAccent}, inset 0 1px 0 rgba(255,255,255,0.35)`;
+        btn.style.border = `1px solid color-mix(in srgb, ${baseAccent} 55%, white)`;
+      }
+      const fill = metaFillRef.current;
+      if (fill) fill.style.transform = `scaleX(${getPlaybackProgress().fraction})`;
+    };
+
     const tick = () => {
-      setBeat(readBands());
+      if (!running) return;
+      const { fraction } = getPlaybackProgress();
+      const fill = metaFillRef.current;
+      if (fill) fill.style.transform = `scaleX(${fraction})`;
+
+      const btn = playBtnRef.current;
+      const root = rootRef.current;
+      if (!reduce && p.playing && btn && root) {
+        const beat = readBands();
+        const color = hueShift(baseAccent, beat.bass, beat.mid, beat.high);
+        const scale = 1 + beat.bass * 0.22 + beat.level * 0.08;
+        const glow = 18 + beat.bass * 36 + beat.level * 20;
+        root.style.setProperty("--vdock-accent", color);
+        btn.style.setProperty("--vdock-beat-scale", String(scale));
+        btn.style.setProperty("--vdock-beat-glow", `${glow}px`);
+        btn.style.setProperty("--vdock-halo-scale", String(0.92 + beat.bass * 0.28));
+        btn.style.background =
+          `radial-gradient(circle at 40% 35%, ${color}, color-mix(in srgb, ${color} 35%, var(--color-abyss)) 70%)`;
+        btn.style.boxShadow =
+          `0 0 ${glow}px -2px ${color}, 0 0 ${glow * 1.6}px -8px ${color}, inset 0 1px 0 rgba(255,255,255,0.35)`;
+        btn.style.border = `1px solid color-mix(in srgb, ${color} 55%, white)`;
+      }
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [p.playing, reduce, p.track?.id]);
 
-  const reactiveColor = p.playing && !reduce
-    ? hueShift(accent, beat.bass, beat.mid, beat.high)
-    : accent;
-  const playScale = p.playing && !reduce
-    ? 1 + beat.bass * 0.22 + beat.level * 0.08
-    : 1;
-  const playGlow = p.playing && !reduce
-    ? 18 + beat.bass * 36 + beat.level * 20
-    : 14;
+    applyIdle();
+    raf = requestAnimationFrame(tick);
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+  }, [p.playing, reduce, p.track?.id, accent]);
 
   async function onHeart() {
     if (!p.track || !userId) {
@@ -238,9 +274,10 @@ export function MusicDockPlayer() {
   return (
     <>
       <div
+        ref={rootRef}
         className="grid h-full w-full min-h-[3.25rem] grid-cols-[1fr_auto_1fr] items-center gap-1 sm:gap-2"
         data-taskbar-widget="music-dock"
-        style={{ ["--vdock-accent" as string]: reactiveColor }}
+        style={{ ["--vdock-accent" as string]: accent }}
       >
         {/* Left — track meta */}
         <button
@@ -258,8 +295,9 @@ export function MusicDockPlayer() {
           </span>
           <span className="vdock-meta-rail mt-1 block max-w-[11rem] overflow-hidden sm:max-w-[16rem]" aria-hidden>
             <span
-              className="vdock-meta-fill block h-full origin-left rounded-full transition-transform duration-150"
-              style={{ transform: `scaleX(${Math.max(0, Math.min(1, progress))})` }}
+              ref={metaFillRef}
+              className="vdock-meta-fill block h-full origin-left rounded-full"
+              style={{ transform: "scaleX(0)" }}
             />
           </span>
         </button>
@@ -272,30 +310,36 @@ export function MusicDockPlayer() {
             disabled={!p.track || p.queueLength <= 1}
             data-tip="Previous"
             aria-label="Previous"
-            className="vdock-ctrl vdock-ctrl--side relative flex h-9 w-9 items-center justify-center rounded-xl text-white/85 transition active:scale-90 disabled:opacity-30 sm:h-10 sm:w-10"
+            className={cx(
+              "vdock-ctrl vdock-ctrl--side relative flex h-9 w-9 items-center justify-center rounded-xl text-white/85 transition active:scale-90 disabled:opacity-30 sm:h-10 sm:w-10",
+              p.playing && !reduce ? "vdock-pulse-side" : "",
+            )}
           >
+            <span className="vdock-ctrl-glow" aria-hidden />
             <SkipBack className="relative z-[1] h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.25} />
           </button>
 
           <button
+            ref={playBtnRef}
             type="button"
             onClick={() => void toggle()}
             disabled={!p.track}
             data-tip={p.playing ? "Pause" : "Play"}
             aria-label={p.playing ? "Pause" : "Play"}
-            className="vdock-play-center relative flex h-12 w-12 items-center justify-center rounded-full text-white transition active:scale-95 disabled:opacity-40 sm:h-14 sm:w-14"
+            className={cx(
+              "vdock-play-center relative flex h-12 w-12 items-center justify-center rounded-full text-white transition active:scale-95 disabled:opacity-40 sm:h-14 sm:w-14",
+              p.playing && !reduce ? "vdock-pulse-play" : "vdock-pulse-idle",
+            )}
             style={{
-              transform: `scale(${playScale})`,
-              background: `radial-gradient(circle at 40% 35%, ${reactiveColor}, color-mix(in srgb, ${reactiveColor} 35%, var(--color-abyss)) 70%)`,
-              boxShadow: `0 0 ${playGlow}px -2px ${reactiveColor}, 0 0 ${playGlow * 1.6}px -8px ${reactiveColor}, inset 0 1px 0 rgba(255,255,255,0.35)`,
-              border: `1px solid color-mix(in srgb, ${reactiveColor} 55%, white)`,
+              background: `radial-gradient(circle at 40% 35%, ${accent}, color-mix(in srgb, ${accent} 35%, var(--color-abyss)) 70%)`,
+              boxShadow: `0 0 14px -2px ${accent}, 0 0 22px -8px ${accent}, inset 0 1px 0 rgba(255,255,255,0.35)`,
+              border: `1px solid color-mix(in srgb, ${accent} 55%, white)`,
             }}
           >
             <span
-              className="pointer-events-none absolute inset-[-6px] rounded-full opacity-70"
+              className="vdock-play-halo pointer-events-none absolute inset-[-6px] rounded-full opacity-70"
               style={{
-                background: `radial-gradient(circle, color-mix(in srgb, ${reactiveColor} 55%, transparent), transparent 68%)`,
-                transform: `scale(${0.92 + beat.bass * 0.28})`,
+                background: `radial-gradient(circle, color-mix(in srgb, ${accent} 55%, transparent), transparent 68%)`,
                 filter: "blur(6px)",
               }}
               aria-hidden
@@ -317,8 +361,12 @@ export function MusicDockPlayer() {
             disabled={!p.track || p.queueLength <= 1}
             data-tip="Next"
             aria-label="Next"
-            className="vdock-ctrl vdock-ctrl--side relative flex h-9 w-9 items-center justify-center rounded-xl text-white/85 transition active:scale-90 disabled:opacity-30 sm:h-10 sm:w-10"
+            className={cx(
+              "vdock-ctrl vdock-ctrl--side relative flex h-9 w-9 items-center justify-center rounded-xl text-white/85 transition active:scale-90 disabled:opacity-30 sm:h-10 sm:w-10",
+              p.playing && !reduce ? "vdock-pulse-side" : "",
+            )}
           >
+            <span className="vdock-ctrl-glow" aria-hidden />
             <SkipForward className="relative z-[1] h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.25} />
           </button>
         </div>
@@ -412,18 +460,36 @@ export function MusicDockPlayer() {
 
 /** Soft accent progress along the top of the translucent dock. */
 export function DockPlaybackProgress() {
-  const p = usePlayer();
+  const p = usePlayerShell();
+  const barRef = useRef<HTMLSpanElement>(null);
+  const accent = p.track?.accent ?? DEFAULT_ACCENT;
+
+  useEffect(() => {
+    if (!p.track) return;
+    let raf = 0;
+    let running = true;
+    const tick = () => {
+      if (!running) return;
+      const el = barRef.current;
+      if (el) el.style.transform = `scaleX(${getPlaybackProgress().fraction})`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+  }, [p.track?.id]);
+
   if (!p.track) return null;
-  const accent = p.track.accent ?? DEFAULT_ACCENT;
-  const dur = p.duration || p.track.durationSec || 0;
-  const progress = dur > 0 ? p.currentTime / dur : 0;
   return (
     <span
+      ref={barRef}
       aria-hidden
       className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-[2px] origin-left"
       style={{
         background: `linear-gradient(90deg, ${accent}, rgba(0,214,143,0.85))`,
-        transform: `scaleX(${Math.max(0, Math.min(1, progress))})`,
+        transform: "scaleX(0)",
         boxShadow: `0 0 12px ${accent}`,
       }}
     />
