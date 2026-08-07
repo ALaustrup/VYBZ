@@ -392,3 +392,57 @@ export function stop() {
 export function usePlayer(): PlayerSnapshot {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
+
+/**
+ * Dock / chrome subscription — stable across `currentTime` ticks so transport
+ * chrome does not re-render on every `timeupdate`. Progress bars should read
+ * the clock via RAF + `getSnapshot()` instead.
+ */
+export type PlayerShellSnapshot = Omit<PlayerSnapshot, "currentTime">;
+
+let shellCache: PlayerShellSnapshot | null = null;
+
+function getShellSnapshot(): PlayerShellSnapshot {
+  const s = snapshot;
+  if (
+    shellCache &&
+    shellCache.track === s.track &&
+    shellCache.playing === s.playing &&
+    shellCache.duration === s.duration &&
+    shellCache.volume === s.volume &&
+    shellCache.muted === s.muted &&
+    shellCache.loading === s.loading &&
+    shellCache.queueIndex === s.queueIndex &&
+    shellCache.queueLength === s.queueLength &&
+    shellCache.lastError === s.lastError
+  ) {
+    return shellCache;
+  }
+  shellCache = {
+    track: s.track,
+    playing: s.playing,
+    duration: s.duration,
+    volume: s.volume,
+    muted: s.muted,
+    loading: s.loading,
+    queueIndex: s.queueIndex,
+    queueLength: s.queueLength,
+    lastError: s.lastError,
+  };
+  return shellCache;
+}
+
+export function usePlayerShell(): PlayerShellSnapshot {
+  return useSyncExternalStore(subscribe, getShellSnapshot, getShellSnapshot);
+}
+
+/** Instant clock read for ref-driven progress (no React subscription). */
+export function getPlaybackProgress(): { currentTime: number; duration: number; fraction: number } {
+  const dur = snapshot.duration || snapshot.track?.durationSec || 0;
+  const t = audioEl?.currentTime ?? snapshot.currentTime;
+  return {
+    currentTime: t,
+    duration: dur,
+    fraction: dur > 0 ? Math.max(0, Math.min(1, t / dur)) : 0,
+  };
+}

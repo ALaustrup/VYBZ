@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-06
-**Branch:** `main`
-**HEAD:** `0e911c4b6f2402ed9db0a1e324227558a213b00d` — 2 commits ahead of `origin/main`, **not pushed**
+**Branch:** `feat/premium-shell-vdock` (shipping to `main`)
+**HEAD:** (set after commit) — premium shell / VDock polish
 **Current milestone:** **M4 — Measurement Integrity Foundation.** Owner chose the Audio
 Intelligence and Release Operating System direction on 2026-08-06 and directed that
 competing plans be eradicated. The parallel premium-suite phase track is **withdrawn**;
@@ -17,19 +17,19 @@ the Masterplan milestone sequence is the only plan.
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `5d1bcc40f10396fc75a04b0b46825c6113b2ec2f` | merge commit of PR #58, merged 2026-08-05T19:40:45Z |
-| Alias | https://vybz.cloud | HTTP 200, live fetch 2026-08-05 |
-| Deployed bundle | `/assets/index-B9yWIVJ_.js` | live fetch 2026-08-05 |
-| Deployed CSS | `/assets/index-U2ZRSgLz.css` | live fetch 2026-08-05 |
-| Deployment current with `main` | **YES** | build SHA in the live bundle = `5d1bcc40f103…`, equal to `origin/main` |
+| Production SHA | `2d42fd290942aeed498b2a110b9742472e6fbc63` | prior deploy; pending polish merge |
+| Alias | https://vybz.cloud | HTTP 200, live fetch 2026-08-06 |
+| Deployed bundle | `/assets/index-Bh0Gvn_G.js` | live fetch 2026-08-06 |
+| Deployed CSS | `/assets/index-Dk4IOxVk.css` | live fetch 2026-08-06 |
+| Deployment current with `main` | **pending polish merge** | verify after Vercel Ready |
+| Passkey edge function | Deployed to `xixmneooyufbeftdfpcm` with `--no-verify-jwt` | `npx supabase functions deploy passkey …` exit 0, 2026-08-06T19:42Z |
 
 ## Last completed operations
 
-1. **PR [#54](https://github.com/ALaustrup/VYBZ/pull/54) merged** (`33b68802`) — contextual track action system, plus library search, filters, sort, grouping, views, multi-select and batch.
-2. **PR [#55](https://github.com/ALaustrup/VYBZ/pull/55) merged** (`ead8848a`) — MP3/FLAC on-device loudness, the sample-peak honesty fix, and the signed-in command dashboard.
-3. **PR [#56](https://github.com/ALaustrup/VYBZ/pull/56) merged** (`e212ac76`) — design token consolidation (premium suite Phase 2).
-4. **PR [#57](https://github.com/ALaustrup/VYBZ/pull/57) merged** (`c4033603`) — track detail workspace (premium suite Phase 7).
-5. **PR [#58](https://github.com/ALaustrup/VYBZ/pull/58) merged** (`5d1bcc40`) — publish bridge, surface fusion, Pro hosting design and the Law 6 token withdrawal. **This is production.**
+1. **Premium shell + VDock polish** on `feat/premium-shell-vdock` — darker backdrop, higher surface saturate, forge/VDock alias `--surface-*`, dock beat/progress via refs (no per-frame React thrash), cheaper `DockVisualizer`. Gate: lint PASS, test 309/309, build PASS.
+2. **Pushed `main` → `origin/main`** (`381a0270..2d42fd29`) — direction reset, command palette / `routeTruth`, passkey signup fix.
+3. **Vercel production Ready** (prior) — live JS contained `2d42fd29` and `account_exists`.
+4. **Supabase `passkey` function redeployed** on project `xixmneooyufbeftdfpcm` (`Deployed Functions.`, exit 0).
 
 ### Delivered in PR #58
 
@@ -49,15 +49,11 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-Clean on `main` @ `5d1bcc40`. Untracked: `.cursor/settings.json` (do not commit).
+On `feat/premium-shell-vdock`. Untracked: `.cursor/settings.json` (do not commit).
+Unrelated local line-ending diffs remain on several tracked files and are **not** staged.
 
 Two stashes remain and were **not** touched, per the preservation rule:
-`stash@{0}` "ops cutover docs WIP" and `stash@{1}" "temp hash drift".
-
-`docs/operations/DISTRIBUTION_EXPORT_HASHES.json` is rewritten by every
-`test:e2e` run with a fresh release id, timestamp and hash. The local churn from
-this session's run was reverted rather than committed, since the value is
-nondeterministic and records nothing durable.
+`stash@{0}` "ops cutover docs WIP" and `stash@{1}` "temp hash drift".
 
 ## Production verification — 2026-08-04
 
@@ -75,7 +71,15 @@ nondeterministic and records nothing durable.
 | `check:no-fixtures` against deployable `dist/` | **PASS** — 8 markers absent | local run on `main` |
 | **Owner signed-in production smoke** | **NOT DONE** — requires owner credentials | `docs/operations/M3_SIGNED_IN_SMOKE.md` |
 
-## Gate on `main` @ `0e911c4b` — 2026-08-06
+## Gate on `feat/premium-shell-vdock` — 2026-08-06
+
+```
+npm run lint              — PASS
+npm run test              — PASS 309/309 (54 files), including tokens.test.ts
+npm run build             — PASS
+```
+
+## Gate on `main` @ `0e911c4b` — 2026-08-06 (historical)
 
 ```
 npm run lint              — PASS
@@ -151,19 +155,23 @@ not drive the menu. `src/shell/navModel.ts` does, and it already excluded every 
 deliberately. The eleven placeholder pages are reachable by URL and linked from nowhere.
 The navigation façade was closed before 2026-08-06; it is now closed *by test*.
 
-## Committed on `main`, not pushed
+## Shipped on `main` @ `2d42fd29` (pushed 2026-08-06)
 
 | SHA | Change |
 |---|---|
 | `6fab11be` | One plan; M4 authorised; exit gates must be executable |
 | `0e911c4b` | `routeTruth` + the M3 gate as a test; real command palette replacing the read-only search stub |
+| `2d42fd29` | Passkey signup resume + real edge-function error surfacing (`account_exists`); session mint hardening |
 
-### What the new enforcement caught
+### Passkey fix — what failed and what shipped
 
-Making the gate executable found two errors the hand-maintained version had missed:
-`/mod` and `/admin` were absent from the truth table despite rendering real pages, and
-`/market` was modelled as an unconditional placeholder when it redirects to a working
-storefront whenever the flag is on.
+Signup called `createUser` before the OS passkey sheet. Cancel left an email-only account;
+retry hit `409 account_exists`, but the client threw a generic non-2xx before reading the
+body, so the UI never pivoted. Fix: parse `FunctionsHttpError` bodies; resume incomplete
+signup server-side; prefer platform authenticators; clearer Onboarding errors.
+
+**Owner signed-in passkey smoke on production:** **NOT DONE** — needs a real device
+create / cancel-once-then-retry / sign-in pass on https://vybz.cloud/enter.
 
 ## Parked branches
 
@@ -193,13 +201,15 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 
 ## Next authorised action
 
-1. **Owner:** restore the git identity (`git config --global user.name` / `user.email`).
-2. **Owner:** authorise pushing `main` and opening a PR for `6fab11be` and `0e911c4b`.
+1. Confirm premium shell polish is live on https://vybz.cloud (bundle SHA = merge HEAD).
+2. **Owner:** signed-in passkey smoke on `/enter` if not already done.
 3. Begin **M4**: a BS.1770-4 / EBU R128 integrated, momentary and short-term loudness meter
    with loudness range, plus true peak by oversampling, validated against published test
    vectors within documented tolerances, with provenance on every measurement.
 4. **Owner:** upload a real MP3 or FLAC to confirm the decode path works on a genuine file.
    No real MP3 or FLAC has been decoded end to end; this blocks any M4 completion claim.
+5. **Owner:** restore the git identity (`git config --global user.name` / `user.email`) —
+   still empty locally; commits used per-invocation `-c` only.
 
 **VYBZ Pro remains designed and unauthorised.** The migration is merged but unapplied, so
 `purchase_pro` and `pro_status` do not exist server-side. No purchase control exists, and

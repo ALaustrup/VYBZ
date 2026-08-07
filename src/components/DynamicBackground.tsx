@@ -19,7 +19,7 @@ interface Blob {
   color: string;
 }
 
-const BASE = "#07121f";
+const BASE = "#02040a";
 
 /**
  * Soft luminous atmosphere — poster still + reactive glass blooms.
@@ -35,7 +35,7 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
     new URLSearchParams(window.location.search).get("audit") === "1";
   const effectiveMode = auditMode ? "static" : mode;
   const blobAlpha =
-    (effectiveMode === "static" ? 0.08 : 0.2) * (reduce || auditMode ? 0.5 : 0.85 + 0.15 * fxScale);
+    (effectiveMode === "static" ? 0.1 : 0.28) * (reduce || auditMode ? 0.5 : 0.9 + 0.15 * fxScale);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -97,7 +97,8 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
         drawBlob(b.x, b.y, b.r * pulse, b.color, blobAlpha * (0.85 + bands.bass * 0.4));
       }
       // Center bloom — soft “glass light”
-      drawBlob(w * 0.5, h * 0.35, Math.max(w, h) * (0.22 + bands.level * 0.08), "#7ec8ff", 0.14 + bands.high * 0.12);
+      drawBlob(w * 0.5, h * 0.35, Math.max(w, h) * (0.26 + bands.level * 0.1), "#7ec8ff", 0.2 + bands.high * 0.16);
+      drawBlob(w * 0.72, h * 0.62, Math.max(w, h) * 0.18, "#00D68F", 0.1 + bands.mid * 0.1);
       raf = requestAnimationFrame(loop);
     };
 
@@ -124,15 +125,15 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      <div className="absolute inset-0 nexus-hex-grid opacity-[0.12]" />
+      <div className="absolute inset-0 nexus-hex-grid opacity-[0.1]" />
       <div className="absolute inset-0" style={{ background: BASE }} />
       <img
         src={SITE_BACKDROP.poster}
         alt=""
         className="absolute inset-0 h-full w-full object-cover"
         style={{
-          opacity: effectiveMode === "static" || auditMode ? 0.18 : playing ? 0.2 : 0.28,
-          filter: "blur(18px) saturate(1.15)",
+          opacity: effectiveMode === "static" || auditMode ? 0.12 : playing ? 0.14 : 0.18,
+          filter: "blur(22px) saturate(1.45)",
           transform: "scale(1.12)",
         }}
       />
@@ -140,13 +141,13 @@ export function DynamicBackground({ variant, mode = "live" }: DynamicBackgroundP
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(30,80,140,0.35) 0%, rgba(7,18,31,0.45) 42%, rgba(7,18,31,0.82) 100%)",
+            "linear-gradient(180deg, rgba(0,120,200,0.28) 0%, rgba(2,4,10,0.55) 40%, rgba(2,4,10,0.92) 100%)",
         }}
       />
       <canvas
         ref={canvasRef}
         className="absolute inset-0 h-full w-full"
-        style={{ filter: "blur(32px)", transform: "scale(1.05)", opacity: 0.85 }}
+        style={{ filter: "blur(28px) saturate(1.35)", transform: "scale(1.05)", opacity: 0.95 }}
       />
     </div>
   );

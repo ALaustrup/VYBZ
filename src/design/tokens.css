@@ -35,13 +35,13 @@
    * products depending on which surface you were looking at. Near-black and
    * neutral is the house look; blur and depth are kept, the blue tint is not.
    */
-  --surface-fill: rgba(8, 13, 22, 0.62);
-  --surface-fill-strong: rgba(5, 9, 16, 0.82);
-  --surface-border: rgba(255, 255, 255, 0.1);
-  --surface-border-strong: rgba(255, 255, 255, 0.16);
-  --surface-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
-  --surface-blur: 28px;
-  --surface-saturate: 1.35;
+  --surface-fill: rgba(6, 10, 16, 0.52);
+  --surface-fill-strong: rgba(3, 6, 12, 0.78);
+  --surface-border: rgba(255, 255, 255, 0.11);
+  --surface-border-strong: rgba(255, 255, 255, 0.18);
+  --surface-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  --surface-blur: 32px;
+  --surface-saturate: 1.65;
 
   /* Glass vibrant mats — now aliases of the shared surface. */
   --glass-vibrant-fill: var(--surface-fill);
@@ -88,8 +88,8 @@
   background: var(--glass-vibrant-fill);
   border: 1px solid var(--glass-vibrant-border);
   box-shadow: var(--glass-vibrant-specular), var(--shadow-md);
-  backdrop-filter: blur(var(--glass-vibrant-blur));
-  -webkit-backdrop-filter: blur(var(--glass-vibrant-blur));
+  backdrop-filter: blur(var(--glass-vibrant-blur)) saturate(var(--surface-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-vibrant-blur)) saturate(var(--surface-saturate));
 }
 
 .suite-grid {
