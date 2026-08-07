@@ -1,4 +1,5 @@
-//! High-res waveform peaks + batch loudness for WAV PCM (Phase 4 Processing Engine).
+//! High-res waveform peaks + gated-RMS loudness approx for WAV PCM.
+//! Not BS.1770-4 — web/portable `packages/processing/waveform` remains authoritative (M4).
 //! Pure Rust — no FFmpeg / paid services.
 
 use serde::Serialize;
@@ -198,7 +199,7 @@ pub fn analyze_wav_bytes(bytes: &[u8], bucket_count: Option<u32>) -> Result<Nati
     rms_dbfs: db_from_linear(rms),
     integrated_lufs_approx: integrated_lufs,
     engine: "native",
-    processing_version: "phase4.waveform.1",
+    processing_version: "native.approx.1",
   })
 }
 
