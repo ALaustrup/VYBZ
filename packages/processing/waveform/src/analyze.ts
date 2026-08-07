@@ -4,6 +4,7 @@ import { measureBs1770 } from "./bs1770";
 import { measureCrestFactorDb } from "./dynamics";
 import { measureClipIntegrity, measureEdgeSilence } from "./integrity";
 import { measureDcOffset, measureMonoCompat } from "./monoCompat";
+import { measureChannelBalance } from "./channelBalance";
 import { measureStereoCorrelation } from "./stereo";
 import { measureSpectralBalance } from "./spectralBalance";
 import { decodeWavPcm } from "./pcm";
@@ -49,6 +50,7 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
   const edges = measureEdgeSilence(planar, pcm.sampleRate);
   const dc = measureDcOffset(planar);
   const mono = measureMonoCompat(planar);
+  const balanceCh = measureChannelBalance(planar);
 
   return {
     ...peaks,
@@ -77,6 +79,9 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
     dcOffsetAbs: dc ? Math.abs(dc.mean) : undefined,
     dcOffsetDbfs: dc?.meanAbsDbfs,
     monoLossDb: mono?.monoLossDb,
+    channelBalanceDb: balanceCh?.deltaDb,
+    leftRmsDbfs: balanceCh?.leftRmsDbfs,
+    rightRmsDbfs: balanceCh?.rightRmsDbfs,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,

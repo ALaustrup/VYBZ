@@ -57,6 +57,9 @@ export type AudioProbe = {
   dcOffsetAbs?: number;
   dcOffsetDbfs?: number;
   monoLossDb?: number;
+  channelBalanceDb?: number;
+  leftRmsDbfs?: number;
+  rightRmsDbfs?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -484,6 +487,47 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
         "audio",
         "Level drops when folded to mono",
         `Mono fold-down measured ${audio.monoLossDb.toFixed(1)} dB vs stereo RMS${provenance}. Check polarity and mid/side processing for mono listeners.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.channelBalanceDb != null &&
+    Math.abs(audio.channelBalanceDb) > 3
+  ) {
+    const side = audio.channelBalanceDb > 0 ? "left" : "right";
+    out.push(
+      finding(
+        "AUDIO_CHANNEL_IMBALANCE",
+        "warning",
+        "audio",
+        "Left/right levels are uneven",
+        `L−R RMS measured at ${audio.channelBalanceDb.toFixed(1)} dB (${side} louder)${provenance}${
+          audio.leftRmsDbfs != null && audio.rightRmsDbfs != null
+            ? ` · L ${audio.leftRmsDbfs.toFixed(1)} / R ${audio.rightRmsDbfs.toFixed(1)} dBFS`
+            : ""
+        }. Check panning, bus gains, and monitoring.`
+      )
+    );
+  }
+
+  const integratedForMom =
+    audio.integratedLufs ??
+    (audio.loudnessMeasured ? audio.integratedLufsApprox : undefined);
+  if (
+    audio.loudnessMeasured &&
+    audio.momentaryLufs != null &&
+    integratedForMom != null &&
+    audio.momentaryLufs - integratedForMom > 8
+  ) {
+    out.push(
+      finding(
+        "AUDIO_MOMENTARY_SPIKE",
+        "info",
+        "audio",
+        "Momentary loudness spikes far above integrated",
+        `Max momentary ${audio.momentaryLufs.toFixed(1)} LUFS vs integrated ${integratedForMom.toFixed(1)} LUFS${provenance} (Δ ${(audio.momentaryLufs - integratedForMom).toFixed(1)} LU). Check hits / limiter recovery.`
       )
     );
   }

@@ -49,5 +49,10 @@ export {
   type DcOffsetResult,
   type MonoCompatResult,
 } from "./monoCompat";
+export {
+  measureChannelBalance,
+  CHANNEL_IMBALANCE_WARN_DB,
+  type ChannelBalance,
+} from "./channelBalance";
 export { computeSpectrum } from "./fft";
 export { analyzeWavBuffer, type AnalyzeOptions } from "./analyze";

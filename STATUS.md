@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
-**Branch:** `feat/m5-dc-mono-compat`
-**HEAD:** pending commit — based on `main` @ `e8f76881` (PR #67 merge)
+**Branch:** `feat/m5-channel-balance-momentary`
+**HEAD:** pending commit — based on `main` @ `8353e4d7` (PR #68 merge)
 **Working tree:** dirty until commit
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
@@ -15,21 +15,20 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | HTTP 200 |
-| Production SHA | `e8f76881fdf5edc0ab647a0b55c3aa28364720de` | live JS 2026-08-07 |
-| M5 Advanced Analysis panel | **PASS** | `prepare-advanced-analysis` in live bundle |
-| This branch (DC/mono) on production | **NO** | not merged |
+| Alias | https://vybz.cloud | HTTP 200 (prior) |
+| Production SHA | Not re-verified this unit | last known `e8f76881` before PR #68; merge `8353e4d7` may not be live yet |
+| This branch on production | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#67](https://github.com/ALaustrup/VYBZ/pull/67) merged** (`e8f76881`) — clip/silence + Advanced Analysis panel; live verified.
-2. **M5 slice 3 (this unit)** — DC offset + mono fold-down compatibility findings; panel rows for DC/mono/momentary.
+1. **PR [#68](https://github.com/ALaustrup/VYBZ/pull/68) merged** (`8353e4d7`) — DC offset + mono fold-down.
+2. **M5 slice 4 (this unit)** — L/R channel balance (`AUDIO_CHANNEL_IMBALANCE`) + momentary spike vs integrated (`AUDIO_MOMENTARY_SPIKE`); panel rows; m5 gate codes extended.
 
 ## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 350/350 (63 files)
+npm run test              — PASS 354/354 (64 files)
 npm run build             — PASS
 ```
 

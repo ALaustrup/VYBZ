@@ -129,6 +129,15 @@ const GUIDES: Record<string, FindingGuide> = {
     why: "Large level drop in mono means phase cancellation — phones and clubs often sum to mono.",
     fix: "Check polarity flips and extreme mid/side widening against a mono monitor.",
   },
+  AUDIO_CHANNEL_IMBALANCE: {
+    why: "Uneven L/R energy pulls the image off-centre and can fail store QC.",
+    fix: "Balance bus gains / panning and check the mix in mono and on headphones.",
+    target: "|L−R| RMS typically under 3 dB (VYBZ heuristic)",
+  },
+  AUDIO_MOMENTARY_SPIKE: {
+    why: "Short bursts much louder than the integrated level can pump limiters and sound jumpy.",
+    fix: "Ride or clip the peak events, or ease limiter release so momentary stays closer to integrated.",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

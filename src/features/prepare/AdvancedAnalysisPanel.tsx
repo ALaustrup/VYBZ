@@ -69,6 +69,16 @@ export function AdvancedAnalysisPanel({ probe }: { probe: AudioProbe | null | un
     rows.push({ label: "Mono fold-down", value: fmt(probe.monoLossDb, 1, " dB") });
   }
 
+  if (probe.channelBalanceDb != null) {
+    rows.push({
+      label: "L−R balance",
+      value:
+        probe.leftRmsDbfs != null && probe.rightRmsDbfs != null
+          ? `${probe.channelBalanceDb.toFixed(1)} dB (L ${probe.leftRmsDbfs.toFixed(1)} / R ${probe.rightRmsDbfs.toFixed(1)})`
+          : fmt(probe.channelBalanceDb, 1, " dB"),
+    });
+  }
+
   if (probe.momentaryLufs != null || probe.shortTermLufs != null) {
     rows.push({
       label: "Momentary / short-term",

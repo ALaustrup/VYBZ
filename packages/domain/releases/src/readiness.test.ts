@@ -215,6 +215,31 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_MONO_COMPAT_LOSS")).toBe(true);
   });
 
+  it("flags channel imbalance and momentary spikes when measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -3,
+        channelBalanceDb: 4.5,
+        leftRmsDbfs: -12,
+        rightRmsDbfs: -16.5,
+        integratedLufs: -14,
+        momentaryLufs: -4,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_CHANNEL_IMBALANCE")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_MOMENTARY_SPIKE")).toBe(true);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

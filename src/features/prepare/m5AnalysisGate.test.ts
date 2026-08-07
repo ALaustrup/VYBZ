@@ -25,6 +25,8 @@ const M5_CODES = [
   "AUDIO_SILENCE_LEAD_OUT",
   "AUDIO_DC_OFFSET",
   "AUDIO_MONO_COMPAT_LOSS",
+  "AUDIO_CHANNEL_IMBALANCE",
+  "AUDIO_MOMENTARY_SPIKE",
 ] as const;
 
 /** Minimal mono 16-bit PCM WAV. */
