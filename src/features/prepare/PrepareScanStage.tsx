@@ -1,31 +1,22 @@
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
-
-const SCAN_LINES = [
-  "Reading your master…",
-  "Measuring loudness and peaks…",
-  "Checking artwork dimensions…",
-  "Building your release report…",
-];
+import { useMemo } from "react";
+import { Progress } from "@/components/ui/Progress";
+import type { ScanProgress } from "@/features/prepare/scanProgress";
 
 type PrepareScanStageProps = {
   trackName?: string | null;
   artName?: string | null;
+  /** Live analysis progress — drives the determinate scanning meter. */
+  progress: ScanProgress;
 };
 
 /**
  * Full-screen scanning visual — shown while probes and readiness run client-side.
+ * Progress is driven by real probe stages (not a cosmetic timer).
  */
-export function PrepareScanStage({ trackName, artName }: PrepareScanStageProps) {
+export function PrepareScanStage({ trackName, artName, progress }: PrepareScanStageProps) {
   const reduce = useReducedMotion();
-  const [lineIdx, setLineIdx] = useState(0);
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setLineIdx((i) => (i + 1) % SCAN_LINES.length);
-    }, 2200);
-    return () => window.clearInterval(id);
-  }, []);
+  const pct = progress.percent;
 
   const bars = useMemo(
     () => Array.from({ length: 32 }, (_, i) => 0.25 + ((i * 17) % 13) / 16),
@@ -38,62 +29,52 @@ export function PrepareScanStage({ trackName, artName }: PrepareScanStageProps) 
       data-testid="prepare-scan-stage"
       role="status"
       aria-live="polite"
-      aria-busy="true"
+      aria-busy={pct < 100}
     >
       <div className="forge-glass relative w-full overflow-hidden p-6 md:p-8">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <div className="relative z-[1]">
           <p className="nexus-eyebrow">Analyzing your release</p>
-          <p className="mt-3 font-display text-lg text-white">
-            {trackName ?? "Your track"}
-          </p>
-          {artName ? (
-            <p className="mt-1 text-xs text-white/45">Cover: {artName}</p>
-          ) : null}
+          <p className="mt-3 font-display text-lg text-white">{trackName ?? "Your track"}</p>
+          {artName ? <p className="mt-1 text-xs text-white/45">Cover: {artName}</p> : null}
 
           <div
             className="relative mx-auto mt-8 flex h-28 w-full max-w-md items-end justify-center gap-[3px] px-2"
             aria-hidden
+            data-testid="prepare-scan-meter"
           >
-            {bars.map((base, i) =>
-              reduce ? (
-                <span
-                  key={i}
-                  className="w-1 rounded-full bg-suite-cyan/50"
-                  style={{ height: `${base * 100}%` }}
-                />
-              ) : (
+            {bars.map((base, i) => {
+              const activity = 0.35 + (pct / 100) * 0.65;
+              const heightPct = Math.max(8, base * 100 * activity);
+              if (reduce) {
+                return (
+                  <span
+                    key={i}
+                    className="w-1 rounded-full bg-suite-cyan/50"
+                    style={{ height: `${heightPct}%` }}
+                  />
+                );
+              }
+              return (
                 <motion.span
                   key={i}
                   className="w-1 rounded-full bg-gradient-to-t from-suite-cyan/20 to-suite-cyan"
-                  initial={{ height: `${base * 40}%` }}
-                  animate={{ height: [`${base * 35}%`, `${base * 100}%`, `${base * 45}%`] }}
-                  transition={{
-                    duration: 0.9 + (i % 5) * 0.08,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: i * 0.03,
-                  }}
+                  animate={{ height: `${heightPct}%` }}
+                  transition={{ duration: 0.35, ease: "easeOut", delay: i * 0.008 }}
                 />
-              )
-            )}
+              );
+            })}
           </div>
 
-          <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
-            {!reduce ? (
-              <motion.div
-                className="h-full rounded-full bg-suite-cyan/80"
-                initial={{ width: "8%" }}
-                animate={{ width: ["8%", "72%", "94%"] }}
-                transition={{ duration: 2.4, ease: "easeOut" }}
-              />
-            ) : (
-              <div className="h-full w-2/3 rounded-full bg-suite-cyan/80" />
-            )}
+          <div className="mt-6 w-full" data-testid="prepare-scan-progress">
+            <Progress value={pct} label="Track analysis scan progress" className="h-2" />
+            <div className="mt-2 flex items-center justify-between text-[11px] tabular-nums text-white/40">
+              <span data-testid="prepare-scan-stage-label">{progress.label}</span>
+              <span data-testid="prepare-scan-percent">{pct}%</span>
+            </div>
           </div>
 
-          <p className="mt-5 text-sm text-white/55">{SCAN_LINES[lineIdx]}</p>
-          <p className="mt-2 text-[11px] text-white/30">
+          <p className="mt-5 text-[11px] text-white/30">
             Measured on your device — no cloud upload during the scan.
           </p>
         </div>

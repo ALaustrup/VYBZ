@@ -13,6 +13,19 @@ import type { WorkerProbeRequest, WorkerProbeResponse } from "@vybz/processing/r
 
 const { parseArtistTitle, probeWav, probePng, probeJpeg } = probeFixtures;
 
+const scope = globalThis as unknown as {
+  onmessage: ((ev: MessageEvent<WorkerProbeRequest>) => void) | null;
+  postMessage: (msg: WorkerProbeResponse) => void;
+};
+
+function postProgress(
+  requestId: string,
+  stage: Extract<WorkerProbeResponse, { type: "progress" }>["stage"],
+  percent: number
+) {
+  scope.postMessage({ type: "progress", requestId, stage, percent });
+}
+
 /** Average channels into a single Float32Array — for legacy RMS / approx only. */
 function downmix(channels: Float32Array[]): Float32Array {
   const first = channels[0];
@@ -27,122 +40,137 @@ function downmix(channels: Float32Array[]): Float32Array {
   return mono;
 }
 
-function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
-  try {
-    if (msg.type === "measure-loudness") {
-      const samples = downmix(msg.channels);
-      if (samples.length === 0 || msg.sampleRate <= 0) {
-        return {
-          type: "loudness-result",
-          requestId: msg.requestId,
-          ok: false,
-          error: "Decoded stream contained no samples",
-        };
-      }
-      const durationSeconds = samples.length / msg.sampleRate;
-      const approx = computeLoudness({
-        samples,
-        sampleRate: msg.sampleRate,
-        channels: msg.channels.length,
-        durationSeconds,
-      });
-      // Preserve planar channels — BS.1770 channel weights require stereo/surround layout.
-      const bs = measureBs1770(msg.channels, msg.sampleRate, "web-worker");
-      return {
-        type: "loudness-result",
-        requestId: msg.requestId,
-        ok: true,
-        metrics: {
-          peakDbfs: bs.samplePeakDbfs,
-          rmsDbfs: approx.rmsDbfs,
-          integratedLufsApprox: approx.integratedLufsApprox,
-          integratedLufs: bs.integratedLufs,
-          momentaryLufs: bs.momentaryLufs,
-          shortTermLufs: bs.shortTermLufs,
-          loudnessRangeLu: bs.loudnessRangeLu,
-          truePeakDbtp: bs.truePeakDbtp,
-          loudnessProvenance: bs.provenance,
-          analysisSampleRate: msg.sampleRate,
-          channels: msg.channels.length,
-          durationSeconds,
-        },
-      };
-    }
-
-    if (msg.type === "probe-audio") {
-      const lower = msg.fileName.toLowerCase();
-      const isWav = lower.endsWith(".wav") || msg.mimeType.includes("wav");
-      const container = isWav
-        ? null
-        : probeContainer(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes);
-
-      const probe: Record<string, unknown> = isWav
-        ? probeWav(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes)
-        : {
-            fileName: msg.fileName,
-            mimeType: msg.mimeType,
-            sizeBytes: msg.sizeBytes,
-            container: lower.split(".").pop(),
-            ...parseArtistTitle(msg.fileName),
-            ...(container ?? {}),
-          };
-
-      if (isWav && msg.sizeBytes <= PORTABLE_FFT_MAX_BYTES) {
-        try {
-          const analysis = analyzeWavBuffer(msg.buffer, {
-            sizeBytes: msg.sizeBytes,
-            includeSpectrum: false,
-            enforcePortableLimit: true,
-          });
-          Object.assign(probe, {
-            peakDbfs: analysis.peakDbfs,
-            rmsDbfs: analysis.rmsDbfs,
-            integratedLufsApprox: analysis.integratedLufsApprox,
-            integratedLufs: analysis.integratedLufs,
-            momentaryLufs: analysis.momentaryLufs,
-            shortTermLufs: analysis.shortTermLufs,
-            loudnessRangeLu: analysis.loudnessRangeLu,
-            truePeakDbtp: analysis.truePeakDbtp,
-            loudnessProvenance: analysis.loudnessProvenance,
-            loudnessMeasured: true,
-            loudnessMethod: "pcm-wav",
-            loudnessSampleRate: analysis.sampleRate,
-            durationSeconds: analysis.durationSeconds,
-            sampleRate: analysis.sampleRate,
-            channels: analysis.channels,
-          });
-        } catch {
-          /* PCM decode failed — keep header-only probe, no fabricated loudness */
-        }
-      }
-
-      return { type: "probe-result", requestId: msg.requestId, ok: true, kind: "audio", probe };
-    }
-
-    const lower = msg.fileName.toLowerCase();
-    const isPng = lower.endsWith(".png") || msg.mimeType.includes("png");
-    const isJpeg =
-      lower.endsWith(".jpg") ||
-      lower.endsWith(".jpeg") ||
-      msg.mimeType.includes("jpeg") ||
-      msg.mimeType.includes("jpg");
-    const dims = isPng
-      ? probePng(msg.buffer)
-      : isJpeg
-        ? probeJpeg(msg.buffer)
-        : { format: lower.split(".").pop() ?? "image" };
+function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure-loudness" }>): WorkerProbeResponse {
+  const samples = downmix(msg.channels);
+  if (samples.length === 0 || msg.sampleRate <= 0) {
     return {
-      type: "probe-result",
+      type: "loudness-result",
       requestId: msg.requestId,
-      ok: true,
-      kind: "artwork",
-      probe: {
+      ok: false,
+      error: "Decoded stream contained no samples",
+    };
+  }
+  postProgress(msg.requestId, "measuring", 58);
+  const durationSeconds = samples.length / msg.sampleRate;
+  const approx = computeLoudness({
+    samples,
+    sampleRate: msg.sampleRate,
+    channels: msg.channels.length,
+    durationSeconds,
+  });
+  postProgress(msg.requestId, "measuring", 72);
+  // Preserve planar channels — BS.1770 channel weights require stereo/surround layout.
+  const bs = measureBs1770(msg.channels, msg.sampleRate, "web-worker");
+  postProgress(msg.requestId, "measuring", 88);
+  return {
+    type: "loudness-result",
+    requestId: msg.requestId,
+    ok: true,
+    metrics: {
+      peakDbfs: bs.samplePeakDbfs,
+      rmsDbfs: approx.rmsDbfs,
+      integratedLufsApprox: approx.integratedLufsApprox,
+      integratedLufs: bs.integratedLufs,
+      momentaryLufs: bs.momentaryLufs,
+      shortTermLufs: bs.shortTermLufs,
+      loudnessRangeLu: bs.loudnessRangeLu,
+      truePeakDbtp: bs.truePeakDbtp,
+      loudnessProvenance: bs.provenance,
+      analysisSampleRate: msg.sampleRate,
+      channels: msg.channels.length,
+      durationSeconds,
+    },
+  };
+}
+
+function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio" }>): WorkerProbeResponse {
+  postProgress(msg.requestId, "container", 18);
+  const lower = msg.fileName.toLowerCase();
+  const isWav = lower.endsWith(".wav") || msg.mimeType.includes("wav");
+  const container = isWav
+    ? null
+    : probeContainer(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes);
+
+  const probe: Record<string, unknown> = isWav
+    ? probeWav(msg.buffer, msg.fileName, msg.mimeType, msg.sizeBytes)
+    : {
         fileName: msg.fileName,
         mimeType: msg.mimeType,
         sizeBytes: msg.sizeBytes,
-        ...dims,
-      },
-    };
+        container: lower.split(".").pop(),
+        ...parseArtistTitle(msg.fileName),
+        ...(container ?? {}),
+      };
+
+  postProgress(msg.requestId, "container", 28);
+
+  if (isWav && msg.sizeBytes <= PORTABLE_FFT_MAX_BYTES) {
+    try {
+      postProgress(msg.requestId, "measuring", 45);
+      const analysis = analyzeWavBuffer(msg.buffer, {
+        sizeBytes: msg.sizeBytes,
+        includeSpectrum: false,
+        enforcePortableLimit: true,
+      });
+      postProgress(msg.requestId, "measuring", 82);
+      Object.assign(probe, {
+        peakDbfs: analysis.peakDbfs,
+        rmsDbfs: analysis.rmsDbfs,
+        integratedLufsApprox: analysis.integratedLufsApprox,
+        integratedLufs: analysis.integratedLufs,
+        momentaryLufs: analysis.momentaryLufs,
+        shortTermLufs: analysis.shortTermLufs,
+        loudnessRangeLu: analysis.loudnessRangeLu,
+        truePeakDbtp: analysis.truePeakDbtp,
+        loudnessProvenance: analysis.loudnessProvenance,
+        loudnessMeasured: true,
+        loudnessMethod: "pcm-wav",
+        loudnessSampleRate: analysis.sampleRate,
+        durationSeconds: analysis.durationSeconds,
+        sampleRate: analysis.sampleRate,
+        channels: analysis.channels,
+      });
+    } catch {
+      /* PCM decode failed — keep header-only probe, no fabricated loudness */
+    }
+  }
+
+  return { type: "probe-result", requestId: msg.requestId, ok: true, kind: "audio", probe };
+}
+
+function handleProbeArtwork(msg: Extract<WorkerProbeRequest, { type: "probe-artwork" }>): WorkerProbeResponse {
+  postProgress(msg.requestId, "artwork", 86);
+  const lower = msg.fileName.toLowerCase();
+  const isPng = lower.endsWith(".png") || msg.mimeType.includes("png");
+  const isJpeg =
+    lower.endsWith(".jpg") ||
+    lower.endsWith(".jpeg") ||
+    msg.mimeType.includes("jpeg") ||
+    msg.mimeType.includes("jpg");
+  const dims = isPng
+    ? probePng(msg.buffer)
+    : isJpeg
+      ? probeJpeg(msg.buffer)
+      : { format: lower.split(".").pop() ?? "image" };
+  return {
+    type: "probe-result",
+    requestId: msg.requestId,
+    ok: true,
+    kind: "artwork",
+    probe: {
+      fileName: msg.fileName,
+      mimeType: msg.mimeType,
+      sizeBytes: msg.sizeBytes,
+      ...dims,
+    },
+  };
+}
+
+function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
+  try {
+    if (msg.type === "measure-loudness") return handleMeasureLoudness(msg);
+    if (msg.type === "probe-audio") return handleProbeAudio(msg);
+    return handleProbeArtwork(msg);
   } catch (err) {
     const error = err instanceof Error ? err.message : "Probe failed";
     if (msg.type === "measure-loudness") {
@@ -151,11 +179,6 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
     return { type: "probe-result", requestId: msg.requestId, ok: false, error };
   }
 }
-
-const scope = globalThis as unknown as {
-  onmessage: ((ev: MessageEvent<WorkerProbeRequest>) => void) | null;
-  postMessage: (msg: WorkerProbeResponse) => void;
-};
 
 scope.onmessage = (ev) => {
   scope.postMessage(handle(ev.data));

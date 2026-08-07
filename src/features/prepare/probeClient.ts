@@ -1,6 +1,7 @@
 import type { AudioProbe, ArtworkProbe } from "@vybz/domain/releases";
 import type { MeasuredLoudness, WorkerProbeRequest, WorkerProbeResponse } from "@vybz/processing/readiness";
 import { decodeAudioChannels } from "@/features/prepare/audioDecode";
+import { scanProgress, type ScanProgress } from "@/features/prepare/scanProgress";
 import ReadinessWorker from "./readiness.worker?worker";
 
 let worker: Worker | null = null;
@@ -10,50 +11,74 @@ function getWorker(): Worker {
   return worker;
 }
 
-function send(request: WorkerProbeRequest, transfer: Transferable[]): Promise<WorkerProbeResponse> {
+export type ProbeProgressHandler = (progress: ScanProgress) => void;
+
+function mapWorkerStage(
+  stage: Extract<WorkerProbeResponse, { type: "progress" }>["stage"],
+  percent: number
+): ScanProgress {
+  if (stage === "artwork") return scanProgress("artwork", percent);
+  if (stage === "measuring") return scanProgress("measuring", percent);
+  return scanProgress("container", percent);
+}
+
+function send(
+  request: WorkerProbeRequest,
+  transfer: Transferable[],
+  onProgress?: ProbeProgressHandler
+): Promise<WorkerProbeResponse> {
   const w = getWorker();
   return new Promise((resolve, reject) => {
     const onMessage = (ev: MessageEvent<WorkerProbeResponse>) => {
       if (ev.data.requestId !== request.requestId) return;
+      if (ev.data.type === "progress") {
+        onProgress?.(mapWorkerStage(ev.data.stage, ev.data.percent));
+        return;
+      }
       w.removeEventListener("message", onMessage);
+      w.removeEventListener("error", onError);
       resolve(ev.data);
     };
     const onError = (ev: ErrorEvent) => {
+      w.removeEventListener("message", onMessage);
       w.removeEventListener("error", onError);
       reject(new Error(ev.message || "Readiness worker failed"));
     };
     w.addEventListener("message", onMessage);
-    w.addEventListener("error", onError, { once: true });
+    w.addEventListener("error", onError);
     w.postMessage(request, transfer);
   });
 }
 
 async function runProbe(
-  request: Extract<WorkerProbeRequest, { type: "probe-audio" | "probe-artwork" }>
+  request: Extract<WorkerProbeRequest, { type: "probe-audio" | "probe-artwork" }>,
+  onProgress?: ProbeProgressHandler
 ): Promise<Record<string, unknown>> {
-  const res = await send(request, [request.buffer]);
+  const res = await send(request, [request.buffer], onProgress);
   if (res.type !== "probe-result") throw new Error("Unexpected worker response");
   if (!res.ok) throw new Error(res.error);
   return res.probe;
 }
 
 /**
- * Measure loudness from decoded PCM. Resolves `null` whenever decode or
- * measurement is unavailable so the caller reports "Not measured".
+ * Measure loudness from an already-read buffer. Resolves `null` whenever decode
+ * or measurement is unavailable so the caller reports "Not measured".
  */
-async function measureLoudness(
-  file: { arrayBuffer: () => Promise<ArrayBuffer> },
-  nativeSampleRate?: number
+async function measureLoudnessFromBuffer(
+  buffer: ArrayBuffer,
+  nativeSampleRate: number | undefined,
+  onProgress?: ProbeProgressHandler
 ): Promise<(MeasuredLoudness & { resampled: boolean }) | null> {
+  onProgress?.(scanProgress("decoding", 38));
   let decoded: Awaited<ReturnType<typeof decodeAudioChannels>> = null;
   try {
-    const buffer = await file.arrayBuffer();
     decoded = await decodeAudioChannels(buffer, { nativeSampleRate });
   } catch {
     return null;
   }
   if (!decoded) return null;
 
+  onProgress?.(scanProgress("measuring", 52));
   try {
     const res = await send(
       {
@@ -62,7 +87,8 @@ async function measureLoudness(
         channels: decoded.channels,
         sampleRate: decoded.sampleRate,
       },
-      decoded.channels.map((c) => c.buffer)
+      decoded.channels.map((c) => c.buffer),
+      onProgress
     );
     if (res.type !== "loudness-result" || !res.ok) return null;
     return { ...res.metrics, resampled: decoded.resampled };
@@ -71,28 +97,41 @@ async function measureLoudness(
   }
 }
 
-export async function probeAudioFile(file: {
-  name: string;
-  type: string;
-  size: number;
-  arrayBuffer: () => Promise<ArrayBuffer>;
-}): Promise<AudioProbe> {
+export async function probeAudioFile(
+  file: {
+    name: string;
+    type: string;
+    size: number;
+    arrayBuffer: () => Promise<ArrayBuffer>;
+  },
+  onProgress?: ProbeProgressHandler
+): Promise<AudioProbe> {
+  onProgress?.(scanProgress("reading", 6));
   const buffer = await file.arrayBuffer();
-  const probe = (await runProbe({
-    type: "probe-audio",
-    requestId: crypto.randomUUID(),
-    fileName: file.name,
-    mimeType: file.type || "application/octet-stream",
-    sizeBytes: file.size,
-    buffer,
-  })) as unknown as AudioProbe;
+  onProgress?.(scanProgress("container", 14));
+
+  const probe = (await runProbe(
+    {
+      type: "probe-audio",
+      requestId: crypto.randomUUID(),
+      fileName: file.name,
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      buffer,
+    },
+    onProgress
+  )) as unknown as AudioProbe;
 
   // WAV already measured in-worker from PCM. Everything else needs a host decode.
-  if (probe.loudnessMeasured) return probe;
+  if (probe.loudnessMeasured) {
+    onProgress?.(scanProgress("measuring", 90));
+    return probe;
+  }
 
-  const measured = await measureLoudness(file, probe.sampleRate);
+  const measured = await measureLoudnessFromBuffer(buffer, probe.sampleRate, onProgress);
   if (!measured) return probe;
 
+  onProgress?.(scanProgress("measuring", 92));
   return {
     ...probe,
     peakDbfs: measured.peakDbfs,
@@ -118,20 +157,27 @@ export async function probeAudioFile(file: {
   };
 }
 
-export async function probeArtworkFile(file: {
-  name: string;
-  type: string;
-  size: number;
-  arrayBuffer: () => Promise<ArrayBuffer>;
-}): Promise<ArtworkProbe> {
+export async function probeArtworkFile(
+  file: {
+    name: string;
+    type: string;
+    size: number;
+    arrayBuffer: () => Promise<ArrayBuffer>;
+  },
+  onProgress?: ProbeProgressHandler
+): Promise<ArtworkProbe> {
+  onProgress?.(scanProgress("artwork", 84));
   const buffer = await file.arrayBuffer();
-  const probe = await runProbe({
-    type: "probe-artwork",
-    requestId: crypto.randomUUID(),
-    fileName: file.name,
-    mimeType: file.type || "application/octet-stream",
-    sizeBytes: file.size,
-    buffer,
-  });
+  const probe = await runProbe(
+    {
+      type: "probe-artwork",
+      requestId: crypto.randomUUID(),
+      fileName: file.name,
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      buffer,
+    },
+    onProgress
+  );
   return probe as unknown as ArtworkProbe;
 }

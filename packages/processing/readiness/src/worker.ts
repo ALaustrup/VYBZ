@@ -62,6 +62,12 @@ export type MeasuredLoudness = {
 
 export type WorkerProbeResponse =
   | {
+      type: "progress";
+      requestId: string;
+      stage: "container" | "measuring" | "artwork";
+      percent: number;
+    }
+  | {
       type: "probe-result";
       requestId: string;
       ok: true;
