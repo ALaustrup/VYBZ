@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-07
 **Branch:** `feat/m5-channel-balance-momentary`
-**HEAD:** `c14f908eda7527c66f3db1b1242b07768a2f3d6c`
+**HEAD:** `43b017787f91718fdd52e4ac09590783f1133b48` (PR [#69](https://github.com/ALaustrup/VYBZ/pull/69))
 **Working tree:** clean on branch
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
