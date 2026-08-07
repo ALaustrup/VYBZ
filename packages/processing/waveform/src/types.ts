@@ -53,6 +53,12 @@ export type LoudnessMetrics = {
   silenceLeadInSeconds?: number;
   /** Trailing digital silence (seconds). */
   silenceLeadOutSeconds?: number;
+  /** Absolute DC mean of the downmix (linear). */
+  dcOffsetAbs?: number;
+  /** DC mean as dBFS-like when measurable. */
+  dcOffsetDbfs?: number;
+  /** Mono fold-down level vs stereo RMS (dB); negative = quieter in mono. */
+  monoLossDb?: number;
 };
 
 export type SpectrumSnapshot = {

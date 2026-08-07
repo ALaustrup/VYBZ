@@ -10,7 +10,9 @@ import {
   measureBs1770,
   measureClipIntegrity,
   measureCrestFactorDb,
+  measureDcOffset,
   measureEdgeSilence,
+  measureMonoCompat,
   measureSpectralBalance,
   measureStereoCorrelation,
   PORTABLE_FFT_MAX_BYTES,
@@ -71,6 +73,8 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
   const balance = measureSpectralBalance(spectrum.magnitudes, spectrum.fftSize, msg.sampleRate);
   const clips = measureClipIntegrity(msg.channels);
   const edges = measureEdgeSilence(msg.channels, msg.sampleRate);
+  const dc = measureDcOffset(msg.channels);
+  const mono = measureMonoCompat(msg.channels);
   postProgress(msg.requestId, "measuring", 88);
   return {
     type: "loudness-result",
@@ -99,6 +103,9 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
       maxClipRun: clips.maxClipRun,
       silenceLeadInSeconds: edges?.leadInSeconds,
       silenceLeadOutSeconds: edges?.leadOutSeconds,
+      dcOffsetAbs: dc ? Math.abs(dc.mean) : undefined,
+      dcOffsetDbfs: dc?.meanAbsDbfs,
+      monoLossDb: mono?.monoLossDb,
       analysisSampleRate: msg.sampleRate,
       channels: msg.channels.length,
       durationSeconds,
@@ -153,6 +160,9 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
         maxClipRun: analysis.maxClipRun,
         silenceLeadInSeconds: analysis.silenceLeadInSeconds,
         silenceLeadOutSeconds: analysis.silenceLeadOutSeconds,
+        dcOffsetAbs: analysis.dcOffsetAbs,
+        dcOffsetDbfs: analysis.dcOffsetDbfs,
+        monoLossDb: analysis.monoLossDb,
         loudnessMeasured: true,
         loudnessMethod: "pcm-wav",
         loudnessSampleRate: analysis.sampleRate,

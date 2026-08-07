@@ -191,6 +191,30 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_SILENCE_LEAD_OUT")).toBe(true);
   });
 
+  it("flags DC offset and mono fold-down loss when measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -3,
+        dcOffsetAbs: 0.02,
+        dcOffsetDbfs: -34,
+        monoLossDb: -9.5,
+        integratedLufs: -14,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_DC_OFFSET")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_MONO_COMPAT_LOSS")).toBe(true);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

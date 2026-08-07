@@ -121,6 +121,14 @@ const GUIDES: Record<string, FindingGuide> = {
     fix: "Trim the tail or leave a deliberate short reverb decay only.",
     target: "Typically under 3 s of dead air at the end",
   },
+  AUDIO_DC_OFFSET: {
+    why: "DC bias wastes headroom and can click on edits or after high-pass-free chains.",
+    fix: "Insert a DC blocker or gentle high-pass on the master bus and re-export.",
+  },
+  AUDIO_MONO_COMPAT_LOSS: {
+    why: "Large level drop in mono means phase cancellation — phones and clubs often sum to mono.",
+    fix: "Check polarity flips and extreme mid/side widening against a mono monitor.",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",
