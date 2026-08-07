@@ -3,12 +3,17 @@
  * Lives under src/ so `?worker` resolves reliably (package alias + ?worker breaks Vite).
  */
 import { probeContainer, probeFixtures } from "@vybz/processing/readiness";
-import { analyzeWavBuffer, computeLoudness, PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
+import {
+  analyzeWavBuffer,
+  computeLoudness,
+  measureBs1770,
+  PORTABLE_FFT_MAX_BYTES,
+} from "@vybz/processing/waveform";
 import type { WorkerProbeRequest, WorkerProbeResponse } from "@vybz/processing/readiness";
 
 const { parseArtistTitle, probeWav, probePng, probeJpeg } = probeFixtures;
 
-/** Average channels into a single Float32Array — matches the WAV decoder's downmix. */
+/** Average channels into a single Float32Array — for legacy RMS / approx only. */
 function downmix(channels: Float32Array[]): Float32Array {
   const first = channels[0];
   if (!first) return new Float32Array(0);
@@ -35,18 +40,28 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
         };
       }
       const durationSeconds = samples.length / msg.sampleRate;
-      const metrics = computeLoudness({
+      const approx = computeLoudness({
         samples,
         sampleRate: msg.sampleRate,
         channels: msg.channels.length,
         durationSeconds,
       });
+      // Preserve planar channels — BS.1770 channel weights require stereo/surround layout.
+      const bs = measureBs1770(msg.channels, msg.sampleRate, "web-worker");
       return {
         type: "loudness-result",
         requestId: msg.requestId,
         ok: true,
         metrics: {
-          ...metrics,
+          peakDbfs: bs.samplePeakDbfs,
+          rmsDbfs: approx.rmsDbfs,
+          integratedLufsApprox: approx.integratedLufsApprox,
+          integratedLufs: bs.integratedLufs,
+          momentaryLufs: bs.momentaryLufs,
+          shortTermLufs: bs.shortTermLufs,
+          loudnessRangeLu: bs.loudnessRangeLu,
+          truePeakDbtp: bs.truePeakDbtp,
+          loudnessProvenance: bs.provenance,
           analysisSampleRate: msg.sampleRate,
           channels: msg.channels.length,
           durationSeconds,
@@ -83,6 +98,12 @@ function handle(msg: WorkerProbeRequest): WorkerProbeResponse {
             peakDbfs: analysis.peakDbfs,
             rmsDbfs: analysis.rmsDbfs,
             integratedLufsApprox: analysis.integratedLufsApprox,
+            integratedLufs: analysis.integratedLufs,
+            momentaryLufs: analysis.momentaryLufs,
+            shortTermLufs: analysis.shortTermLufs,
+            loudnessRangeLu: analysis.loudnessRangeLu,
+            truePeakDbtp: analysis.truePeakDbtp,
+            loudnessProvenance: analysis.loudnessProvenance,
             loudnessMeasured: true,
             loudnessMethod: "pcm-wav",
             loudnessSampleRate: analysis.sampleRate,

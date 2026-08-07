@@ -1,10 +1,13 @@
 /** Minimal PCM WAV decoder (PCM 16/24/32 + float32). */
 
 export type DecodedPcm = {
+  /** Downmixed mono (mean of channels) — peaks / legacy approx. */
   samples: Float32Array;
   sampleRate: number;
   channels: number;
   durationSeconds: number;
+  /** Planar channel buffers (required for BS.1770 channel weighting). */
+  planar?: Float32Array[];
 };
 
 function readAscii(view: DataView, offset: number, len: number): string {
@@ -59,6 +62,7 @@ export function decodeWavPcm(buffer: ArrayBuffer): DecodedPcm {
   if (![1, 2, 3, 4].includes(bytesPerSample)) throw new Error(`Unsupported bit depth ${bitsPerSample}`);
 
   const frameCount = Math.floor(dataSize / (bytesPerSample * channels));
+  const planar: Float32Array[] = Array.from({ length: channels }, () => new Float32Array(frameCount));
   const mono = new Float32Array(frameCount);
 
   for (let i = 0; i < frameCount; i++) {
@@ -82,6 +86,7 @@ export function decodeWavPcm(buffer: ArrayBuffer): DecodedPcm {
       } else {
         sample = (view.getUint8(pos) - 128) / 128;
       }
+      planar[ch]![i] = sample;
       sum += sample;
     }
     mono[i] = sum / channels;
@@ -92,5 +97,6 @@ export function decodeWavPcm(buffer: ArrayBuffer): DecodedPcm {
     sampleRate,
     channels,
     durationSeconds: frameCount / sampleRate,
+    planar,
   };
 }

@@ -152,7 +152,13 @@ export function DesktopBatchPanel() {
               <p className="text-xs text-fog">
                 {item.status}
                 {item.result
-                  ? ` · peak ${item.result.peakDbfs.toFixed(1)} dBFS · ~${item.result.integratedLufsApprox.toFixed(1)} LUFS (estimated) · ${item.result.engine}`
+                  ? item.result.integratedLufs != null
+                    ? ` · peak ${item.result.peakDbfs.toFixed(1)} dBFS · ${item.result.integratedLufs.toFixed(1)} LUFS (BS.1770-4)${
+                        item.result.truePeakDbtp != null
+                          ? ` · TP ${item.result.truePeakDbtp.toFixed(1)} dBTP`
+                          : ""
+                      } · ${item.result.engine}`
+                    : ` · peak ${item.result.peakDbfs.toFixed(1)} dBFS · ~${item.result.integratedLufsApprox.toFixed(1)} LUFS (estimated — native BS.1770 pending) · ${item.result.engine}`
                   : ""}
                 {item.error ? ` · ${item.error}` : ""}
               </p>

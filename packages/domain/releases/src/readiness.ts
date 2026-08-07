@@ -23,8 +23,23 @@ export type AudioProbe = {
   peakDbfs?: number;
   /** Measured RMS in dBFS — present only when PCM was analyzed. */
   rmsDbfs?: number;
-  /** Approximate integrated loudness (LUFS-like) — not BS.1770 certified. */
+  /** Approximate integrated loudness (LUFS-like) — pre-M4 gated RMS; prefer `integratedLufs`. */
   integratedLufsApprox?: number;
+  /** BS.1770-4 integrated loudness when measured (LUFS). */
+  integratedLufs?: number;
+  momentaryLufs?: number;
+  shortTermLufs?: number;
+  loudnessRangeLu?: number;
+  /** True peak via oversampling (dBTP). */
+  truePeakDbtp?: number;
+  loudnessProvenance?: {
+    standard: "BS.1770-4";
+    meterVersion: string;
+    sampleRate: number;
+    channelCount: number;
+    truePeakOversample: number;
+    environment: string;
+  };
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -225,20 +240,44 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
         )
       );
     } else if (audio.peakDbfs > -1) {
+      const truePeakNote =
+        audio.truePeakDbtp != null
+          ? ` True peak measured at ${audio.truePeakDbtp.toFixed(1)} dBTP.`
+          : " True peak was not measured on this path.";
       out.push(
         finding(
           "AUDIO_PEAK_HOT",
           "warning",
           "audio",
           "Sample peak close to full scale",
-          `Sample peak measured at ${audio.peakDbfs.toFixed(1)} dBFS${provenance}. True peak is not measured yet; leaving 1 dB of headroom protects against codec overshoot.`
+          `Sample peak measured at ${audio.peakDbfs.toFixed(1)} dBFS${provenance}.${truePeakNote} Leaving 1 dB of headroom protects against codec overshoot.`
         )
       );
     }
   }
 
-  if (audio.loudnessMeasured && audio.integratedLufsApprox !== undefined) {
-    const lufs = audio.integratedLufsApprox;
+  if (audio.loudnessMeasured && audio.truePeakDbtp != null && audio.truePeakDbtp > -1) {
+    out.push(
+      finding(
+        "AUDIO_TRUE_PEAK_HOT",
+        "warning",
+        "audio",
+        "True peak close to full scale",
+        `True peak measured at ${audio.truePeakDbtp.toFixed(1)} dBTP${provenance} (BS.1770-4 oversampled). Codec conversion may clip; leave more limiter headroom.`
+      )
+    );
+  }
+
+  const integrated =
+    audio.integratedLufs ??
+    (audio.loudnessMeasured ? audio.integratedLufsApprox : undefined);
+  const bsCertified = audio.integratedLufs != null && audio.loudnessProvenance?.standard === "BS.1770-4";
+  const methodLabel = bsCertified
+    ? "BS.1770-4"
+    : "estimated, not standards-certified";
+
+  if (audio.loudnessMeasured && integrated !== undefined) {
+    const lufs = integrated;
     if (lufs > -8) {
       out.push(
         finding(
@@ -246,7 +285,7 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "warning",
           "audio",
           "Track reads loud for streaming",
-          `Integrated loudness estimated at ${lufs.toFixed(1)} LUFS${provenance} — estimated, not standards-certified. Streaming platforms normalise near −14 LUFS.`
+          `Integrated loudness ${lufs.toFixed(1)} LUFS${provenance} — ${methodLabel}. Streaming platforms normalise near −14 LUFS.`
         )
       );
     } else if (lufs < -22) {
@@ -256,7 +295,7 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "warning",
           "audio",
           "Track reads quiet",
-          `Integrated loudness estimated at ${lufs.toFixed(1)} LUFS${provenance} — estimated, not standards-certified. Consider gentle gain or limiting so listeners do not need to turn up.`
+          `Integrated loudness ${lufs.toFixed(1)} LUFS${provenance} — ${methodLabel}. Consider gentle gain or limiting so listeners do not need to turn up.`
         )
       );
     }
