@@ -192,3 +192,4 @@ approval and an entry in the Masterplan.
 | OR-014 | Artifact, noise, hum and click/pop detection | Idea — M5 extension |
 | OR-015 | Codec vulnerability estimation | Idea — M7 extension |
 | OR-016 | Podcast and spoken-word specific readiness rules | Idea — M8 extension |
+| OR-017 | Separate Chats section (Messages stays DMs-only; Rooms unlinked) | Parked — Artist OS Surface Overhaul 2026-08-07 |

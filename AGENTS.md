@@ -26,10 +26,14 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**Artist OS Chrome Foundation.** Owner directed 2026-08-06 (evening): pause M4 and
-authorise a signed-in Artist OS surface — dim high-fidelity chrome, Orb → left sidebar,
-Home as artist profile + album library, Discover hover preview, refined VDock. Studio,
-Live, and Market are archived from navigation (freeze-not-delete).
+**Artist OS Surface Overhaul.** Owner directed 2026-08-07: continue Artist OS UI/IA work
+on top of Chrome Foundation — centered brand, Now Playing right rail, player/title fix,
+Library media OS, Discover public feed, Releases→Finalize, Messages without Rooms,
+archive AI minutes / Cost Sentinel / Flair from nav, Profile Packages (V¢), Codex views.
+
+Chrome Foundation (Orb → rail, Home albums, Discover hover, Studio/Live/Market archived)
+remains landed. This milestone extends that surface work; it is **not** a second parallel
+premium-suite track.
 
 **M4 — Measurement Integrity Foundation is paused.** Resume only by later owner
 authorisation. Scope when resumed: BS.1770-4 / EBU R128 meters, true peak by oversampling,
@@ -39,14 +43,13 @@ published test vectors, provenance, cross-environment consistency or disclosed d
 
 The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
 sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 remains the long-term plan;
-this Chrome Foundation is the single owner-authorised interruption of M4, delivered as
-sequenced PRs under one milestone — not a second parallel track.
+Artist OS Surface Overhaul is the single owner-authorised interruption of M4.
 
-### Law 3 during Artist OS Chrome Foundation
+### Law 3 during Artist OS Surface Overhaul
 
-Discovery and shared-shell work are in scope for this milestone by owner authorisation.
-Social / live / messaging still receive no unrelated feature growth; Live is archived from
-nav. Bug fixes and shared-shell changes remain permitted.
+Discovery, Library, shell, and Messages polish are in scope by owner authorisation. Do not
+grow Live / Rooms / Connect as products — archive or freeze. Rooms stay URL-reachable but
+unlinked from Messages. Bug fixes and shared-shell changes remain permitted.
 
 ### Exit gates must be executable
 

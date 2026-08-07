@@ -1,14 +1,12 @@
 import {
   BookOpen,
   Compass,
-  CreditCard,
-  Gauge,
   Home,
   Library,
   ListChecks,
   MessageSquare,
+  Package,
   ShieldCheck,
-  Sparkles,
   UserCog,
   Wrench,
   type LucideIcon,
@@ -30,6 +28,7 @@ export type NavGroup = { id: string; label: string; items: NavItem[] };
  *
  * Studio (`/studio`), Live (`/live`), and Market (`/market`) are archived from
  * navigation under Artist OS Chrome Foundation (freeze-not-delete — routes remain).
+ * AI minutes / Cost Sentinel / Flair archived under Surface Overhaul.
  */
 export function navGroups(): NavGroup[] {
   return [
@@ -39,8 +38,8 @@ export function navGroups(): NavGroup[] {
       items: [
         {
           path: "/releases",
-          label: "Releases",
-          hint: "Scan a master for release readiness",
+          label: "Finalize",
+          hint: "Finish scans and release readiness",
           icon: ListChecks,
           productId: "prepare",
         },
@@ -53,14 +52,14 @@ export function navGroups(): NavGroup[] {
         {
           path: "/discover",
           label: "Discover",
-          hint: "New work from other creators",
+          hint: "Public feed of songs and samples",
           icon: Compass,
           productId: "home",
         },
         {
           path: "/library",
           label: "Library",
-          hint: "Everything you saved or bought",
+          hint: "Organize tracks, projects, and stages",
           icon: Library,
           productId: "home",
         },
@@ -75,20 +74,6 @@ export function navGroups(): NavGroup[] {
           label: "Messages",
           hint: "Direct conversations",
           icon: MessageSquare,
-          productId: "home",
-        },
-        {
-          path: "/settings/credits",
-          label: "AI minutes",
-          hint: "Prepaid processing balance",
-          icon: CreditCard,
-          productId: "home",
-        },
-        {
-          path: "/settings/costs",
-          label: "Usage",
-          hint: "What your account has spent",
-          icon: Gauge,
           productId: "home",
         },
       ],
@@ -110,7 +95,13 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
       icon: UserCog,
       productId: "home",
     },
-    { path: "/store", label: "Flair", hint: "Cosmetics", icon: Sparkles, productId: "home" },
+    {
+      path: "/profile/edit#packages",
+      label: "Packages",
+      hint: "Buy V¢ for tips and support",
+      icon: Package,
+      productId: "home",
+    },
     { path: "/codex", label: "Codex", hint: "Docs and legal", icon: BookOpen, productId: "home" },
   ];
   const mod = isAdmin || role === "admin" || role === "moderator";
@@ -148,4 +139,12 @@ export function navItems(): NavItem[] {
 }
 
 /** Paths archived from nav but still linkable by URL (freeze-not-delete). */
-export const ARCHIVED_NAV_PATHS = ["/studio", "/live", "/market"] as const;
+export const ARCHIVED_NAV_PATHS = [
+  "/studio",
+  "/live",
+  "/market",
+  "/settings/credits",
+  "/settings/costs",
+  "/store",
+  "/rooms",
+] as const;

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Pause, Play, Search, Compass } from "lucide-react";
+import { LayoutGrid, List, Loader2, Pause, Play, Search, Compass } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
@@ -12,9 +12,21 @@ import { useSession } from "@/store/session";
 import { paletteFor, cx } from "@/lib/utils";
 import type { DiscoveryDrop } from "@/lib/api";
 
+type ViewMode = "grid" | "list";
+type AudioFilter = "all" | "audio" | "recent";
+
+const VIEW_KEY = "vybz.discover.view";
+
+function readView(): ViewMode {
+  try {
+    const v = localStorage.getItem(VIEW_KEY);
+    if (v === "list" || v === "grid") return v;
+  } catch { /* ignore */ }
+  return "grid";
+}
+
 /**
  * Dedicated preview element — does not steal AudioBus main queue.
- * Pauses briefly when committing a track to the dock player.
  */
 function useHoverPreview() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -99,29 +111,21 @@ function DiscoverCard({
         {cover ? (
           <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75" />
         ) : (
-          <div
-            className="absolute inset-0"
-            style={{ background: `linear-gradient(160deg, ${accent}44, #04060c 70%)` }}
-          />
-        )}
-        <div className="absolute inset-0 opacity-80">
           <TrackVisualizer
-            seed={drop.seed}
+            seed={drop.seed ?? 1}
             accent={accent}
             active={previewing}
-            backdropUrl={cover ?? undefined}
-            className="h-full w-full"
+            className="absolute inset-0"
           />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-3.5">
-          <p className="truncate font-display text-[15px] font-semibold text-white">{drop.title}</p>
+        )}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 pt-10">
+          <p className="truncate text-[13px] font-semibold text-white">{drop.title || "Untitled"}</p>
           <button
             type="button"
-            className="mt-0.5 truncate text-[12px] text-white/55 hover:text-cyan-200"
+            className="truncate text-[11px] text-white/55 hover:text-white/80"
             onClick={(e) => {
               e.stopPropagation();
-              if (drop.authorUsername) navigate(`/u/${drop.authorUsername}`);
+              if (drop.authorId) navigate(`/u/${drop.authorId}`);
             }}
           >
             {drop.creditedArtist || drop.authorUsername || "Artist"}
@@ -141,25 +145,80 @@ function DiscoverCard({
   );
 }
 
-/** Music-first Discover — glass cards with hover preview playback. */
+function DiscoverListRow({
+  drop,
+  previewing,
+  onEnter,
+  onLeave,
+  onCommit,
+}: {
+  drop: DiscoveryDrop;
+  previewing: boolean;
+  onEnter: () => void;
+  onLeave: () => void;
+  onCommit: () => void;
+}) {
+  const navigate = useNavigate();
+  const accent = paletteFor(drop.seed)[0];
+  const cover = drop.playbackCustomization?.backdropUrl;
+
+  return (
+    <li
+      className="forge-card flex items-center gap-3 !p-2.5"
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      <button
+        type="button"
+        onClick={onCommit}
+        className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10"
+        aria-label={`Play ${drop.title}`}
+        style={{ background: `radial-gradient(circle at 30% 30%, ${accent}66, transparent 70%)` }}
+      >
+        {cover ? <img src={cover} alt="" className="h-full w-full object-cover" /> : null}
+        <span className="absolute inset-0 flex items-center justify-center bg-black/25 text-white">
+          {previewing ? <Pause className="h-4 w-4" fill="currentColor" /> : <Play className="ml-0.5 h-4 w-4" fill="currentColor" />}
+        </span>
+      </button>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[14px] font-medium text-white">{drop.title || "Untitled"}</p>
+        <button
+          type="button"
+          className="truncate text-[12px] text-white/45 hover:text-white/70"
+          onClick={() => drop.authorId && navigate(`/u/${drop.authorId}`)}
+        >
+          {drop.creditedArtist || drop.authorUsername || "Artist"}
+          {drop.album ? ` · ${drop.album}` : ""}
+        </button>
+      </div>
+      <span className="shrink-0 text-[10px] uppercase tracking-wider text-white/30">
+        {drop.audioUrl ? "Audio" : "No audio"}
+      </span>
+    </li>
+  );
+}
+
+/** Public live feed of uploaded songs and samples. */
 export function DiscoverPage() {
   const { showToast } = useSession();
   const player = usePlayer();
   const [query, setQuery] = useState("");
+  const [audioFilter, setAudioFilter] = useState<AudioFilter>("all");
+  const [view, setView] = useState<ViewMode>(readView);
   const [drops, setDrops] = useState<DiscoveryDrop[]>([]);
   const [loading, setLoading] = useState(true);
   const { previewId, start, stop } = useHoverPreview();
 
   useRegisterAppBar({
     title: "Discover",
-    subtitle: "Fresh work from the network",
+    subtitle: "Public feed",
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     const seed = Math.floor(Date.now() / 60_000) % 10_000;
-    api.listDiscovery(seed, 48).then((list) => {
+    api.listDiscovery(seed, 64).then((list) => {
       if (!cancelled) {
         setDrops(list);
         setLoading(false);
@@ -172,22 +231,31 @@ export function DiscoverPage() {
 
   useEffect(() => () => stop(), [stop]);
 
-  const filtered = query.trim()
-    ? drops.filter((d) => {
-        const q = query.toLowerCase();
-        return (
-          d.title?.toLowerCase().includes(q) ||
-          d.creditedArtist?.toLowerCase().includes(q) ||
-          d.authorUsername?.toLowerCase().includes(q) ||
-          d.album?.toLowerCase().includes(q)
-        );
-      })
-    : drops;
+  function setViewMode(next: ViewMode) {
+    setView(next);
+    try { localStorage.setItem(VIEW_KEY, next); } catch { /* ignore */ }
+  }
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return drops.filter((d) => {
+      if (audioFilter === "audio" && !d.audioUrl) return false;
+      if (audioFilter === "recent" && (d.createdAt ?? 0) < weekAgo) return false;
+      if (!q) return true;
+      return (
+        d.title?.toLowerCase().includes(q) ||
+        d.creditedArtist?.toLowerCase().includes(q) ||
+        d.authorUsername?.toLowerCase().includes(q) ||
+        d.album?.toLowerCase().includes(q)
+      );
+    });
+  }, [drops, query, audioFilter]);
 
   function commit(d: DiscoveryDrop) {
     stop();
     if (!d.audioUrl) {
-      showToast("No playable audio on this drop");
+      showToast("No playable audio on this upload");
       return;
     }
     playTrack(
@@ -197,16 +265,63 @@ export function DiscoverPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 px-1 pb-4 pt-2">
-      <label className="forge-field max-w-md">
-        <Search className="forge-field-icon h-4 w-4" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Filter by title, artist, album…"
-          aria-label="Filter discoveries"
-        />
-      </label>
+    <div className="flex h-full flex-col gap-3 px-1 pb-4 pt-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="forge-field min-w-[12rem] max-w-md flex-1">
+          <Search className="forge-field-icon h-4 w-4" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search songs and samples…"
+            aria-label="Search discover feed"
+          />
+        </label>
+        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label="Filters">
+          {([
+            ["all", "All"],
+            ["audio", "Has audio"],
+            ["recent", "7 days"],
+          ] as const).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setAudioFilter(id)}
+              aria-pressed={audioFilter === id}
+              className={cx(
+                "rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition",
+                audioFilter === id ? "bg-white/12 text-white" : "text-white/45 hover:text-white/75",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label="View mode">
+          <button
+            type="button"
+            onClick={() => setViewMode("grid")}
+            aria-pressed={view === "grid"}
+            aria-label="Grid view"
+            className={cx("rounded-lg p-2", view === "grid" ? "bg-white/12 text-white" : "text-white/45")}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("list")}
+            aria-pressed={view === "list"}
+            aria-label="List view"
+            className={cx("rounded-lg p-2", view === "list" ? "bg-white/12 text-white" : "text-white/45")}
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <p className="text-[12px] text-white/40">
+        Live public catalog of uploaded songs and samples
+        {!loading ? ` · ${filtered.length} shown` : ""}
+      </p>
 
       {loading ? (
         <div className="flex flex-1 items-center justify-center py-20">
@@ -215,10 +330,10 @@ export function DiscoverPage() {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={Compass}
-          title="Nothing to discover yet"
-          body="When creators publish drops, they appear here as glass cards you can preview on hover."
+          title="Nothing matches"
+          body="Try a broader search, or clear filters. New public uploads appear here as creators publish."
         />
-      ) : (
+      ) : view === "grid" ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {filtered.map((d) => (
             <DiscoverCard
@@ -234,6 +349,22 @@ export function DiscoverPage() {
             />
           ))}
         </div>
+      ) : (
+        <ul className="flex flex-col gap-2" role="list">
+          {filtered.map((d) => (
+            <DiscoverListRow
+              key={d.id}
+              drop={d}
+              previewing={previewId === d.id && !(player.playing && player.track?.id === d.id)}
+              onEnter={() => {
+                if (player.playing && player.track?.id === d.id) return;
+                start(d.id, d.audioUrl);
+              }}
+              onLeave={stop}
+              onCommit={() => commit(d)}
+            />
+          ))}
+        </ul>
       )}
     </div>
   );

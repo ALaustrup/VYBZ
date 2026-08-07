@@ -82,8 +82,8 @@ export function isPlaceholderPath(path: string, flags?: { storefront: boolean })
 export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/", title: "Home", keywords: ["profile", "dashboard", "start"] },
   { path: "/library", title: "Library", keywords: ["tracks", "media", "files", "catalog"] },
-  { path: "/releases", title: "Releases", keywords: ["prepare", "projects"] },
-  { path: "/releases/new", title: "New release scan", keywords: ["upload", "scan", "readiness", "analyse", "analyze"] },
+  { path: "/releases", title: "Finalize", keywords: ["prepare", "projects", "scan", "finalize"] },
+  { path: "/releases/new", title: "New Finalize scan", keywords: ["upload", "scan", "readiness", "analyse", "analyze"] },
   { path: "/projects", title: "Projects", keywords: ["studio", "rooms", "work"] },
   { path: "/discover", title: "Discover", keywords: ["browse", "explore", "find music"] },
   { path: "/feed", title: "Feed", keywords: ["activity", "posts"] },
@@ -137,8 +137,9 @@ export const REDIRECTS: readonly { from: string; to: string; flag?: "storefront"
  * item leads to a functional surface."
  */
 export function isLinkable(path: string, flags: { storefront: boolean }): boolean {
-  if (availableDestinations(flags).some((d) => d.path === path)) return true;
-  const redirect = REDIRECTS.find((r) => r.from === path);
+  const bare = path.split("#")[0] ?? path;
+  if (availableDestinations(flags).some((d) => d.path === bare)) return true;
+  const redirect = REDIRECTS.find((r) => r.from === bare);
   if (!redirect) return false;
   if (redirect.flag === "storefront" && !flags.storefront) return false;
   return availableDestinations(flags).some((d) => d.path === redirect.to) || redirect.to === "/";

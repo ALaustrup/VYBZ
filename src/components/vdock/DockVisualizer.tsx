@@ -1,17 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { frequencyBinCount, readFrequencies, usePlayerShell } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
+import { getVdockVizMode, subscribeVdockVizMode, type VdockVizMode } from "@/lib/vdockVizMode";
 import { vdockVisual } from "@/lib/vdockVisualManifest";
 
 /**
- * Frequency bars for the music dock.
- * Track Vizualz / custom video live on NowPlayingStage only — decoding the same
- * clip twice was starving AudioBus playback on some browsers.
+ * Audio-reactive dock visualizer — mode from vybz.vdock.vizMode.
+ * Track Vizualz / custom video live on NowPlayingStage only.
  */
 export function DockVisualizer({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { playing, track } = usePlayerShell();
   const reduce = useReduceFx();
+  const mode = useSyncExternalStore(subscribeVdockVizMode, getVdockVizMode, getVdockVizMode);
   const accent = track?.accent ?? "#00C2FF";
   const catalog = vdockVisual(track?.playback?.vdockVisualId);
   const customUrl = track?.playback?.backdropUrl;
@@ -52,6 +53,96 @@ export function DockVisualizer({ className }: { className?: string }) {
     const barFillLo = `rgba(${r},${g},${b},0.28)`;
     const mint = "rgba(0,214,143,0.38)";
 
+    const sampleLevel = (i: number, bars: number, now: number, hasAudio: boolean) => {
+      if (hasAudio && !reduce) {
+        const bin = Math.floor((i / bars) * (buf.length * 0.55));
+        return Math.max(0.06, Math.min(1, (buf[bin] / 255) ** 0.85));
+      }
+      if (!reduce && playing) return 0.12 + 0.08 * Math.sin(now / 400 + i * 0.35);
+      if (!reduce) return 0.1 + 0.04 * Math.sin(now / 1800 + i * 0.28);
+      return 0.1 + (i % 5) * 0.02;
+    };
+
+    const drawBars = (
+      w: number,
+      h: number,
+      now: number,
+      hasAudio: boolean,
+      dim: number,
+      barAlpha: number,
+      mirror: boolean,
+    ) => {
+      const bars = w < 420 ? 32 : 48;
+      const gap = 2;
+      const barW = (w - gap * (bars - 1)) / bars;
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.14 * dim * barAlpha})`;
+      ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < bars; i++) {
+        const level = sampleLevel(i, bars, now, hasAudio);
+        const bh = level * h * (mirror ? 0.46 : 0.96) * dim;
+        const x = i * (barW + gap);
+        ctx.fillStyle = i % 3 === 0 ? mint : i % 2 === 0 ? barFill : barFillLo;
+        ctx.globalAlpha = barAlpha * dim;
+        if (mirror) {
+          roundRect(ctx, x, h / 2 - bh, barW, Math.max(1, bh), Math.min(3.5, barW / 2));
+          ctx.fill();
+          roundRect(ctx, x, h / 2, barW, Math.max(1, bh), Math.min(3.5, barW / 2));
+          ctx.fill();
+        } else {
+          const y = (h - bh) / 2;
+          roundRect(ctx, x, y, barW, Math.max(1, bh), Math.min(3.5, barW / 2));
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+    };
+
+    const drawWave = (w: number, h: number, now: number, hasAudio: boolean, dim: number, barAlpha: number) => {
+      const pts = w < 420 ? 48 : 72;
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.1 * dim * barAlpha})`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      for (let i = 0; i < pts; i++) {
+        const level = sampleLevel(i, pts, now, hasAudio);
+        const x = (i / (pts - 1)) * w;
+        const y = h / 2 - (level - 0.5) * h * 0.85 * dim;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = `rgba(${r},${g},${b},${0.75 * dim * barAlpha})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.12 * dim * barAlpha})`;
+      ctx.fill();
+    };
+
+    const drawPulse = (w: number, h: number, now: number, hasAudio: boolean, dim: number, barAlpha: number) => {
+      let avg = 0.15;
+      if (hasAudio && !reduce) {
+        let sum = 0;
+        for (let i = 0; i < 64; i++) sum += buf[i] ?? 0;
+        avg = Math.max(0.08, Math.min(1, sum / (64 * 255)));
+      } else if (!reduce && playing) {
+        avg = 0.35 + 0.15 * Math.sin(now / 280);
+      }
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.08 * dim * barAlpha})`;
+      ctx.fillRect(0, 0, w, h);
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = Math.min(w, h) * (0.18 + avg * 0.32) * dim;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+      grad.addColorStop(0, `rgba(${r},${g},${b},${0.55 * barAlpha})`);
+      grad.addColorStop(0.55, `rgba(0,214,143,${0.22 * barAlpha})`);
+      grad.addColorStop(1, "transparent");
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+    };
+
     const draw = (now: number) => {
       if (!running) return;
       if (document.hidden) {
@@ -60,7 +151,6 @@ export function DockVisualizer({ className }: { className?: string }) {
       }
 
       const idle = !playing;
-      // Idle / paused: ~12 fps. Playing: full RAF.
       if (idle && now - lastIdle < 80) {
         raf = requestAnimationFrame(draw);
         return;
@@ -72,40 +162,13 @@ export function DockVisualizer({ className }: { className?: string }) {
       ctx.clearRect(0, 0, w, h);
 
       const hasAudio = readFrequencies(buf);
-      const bars = w < 420 ? 32 : 48;
-      const gap = 2;
-      const barW = (w - gap * (bars - 1)) / bars;
       const dim = playing ? 1 : 0.48;
       const barAlpha = hasStageVisual ? 0.85 : 1;
+      const m: VdockVizMode = mode;
 
-      ctx.fillStyle = `rgba(${r},${g},${b},${0.14 * dim * barAlpha})`;
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.fillStyle = barFill;
-      for (let i = 0; i < bars; i++) {
-        let level = 0.08;
-        if (hasAudio && !reduce) {
-          const bin = Math.floor((i / bars) * (buf.length * 0.55));
-          level = Math.max(0.06, Math.min(1, (buf[bin] / 255) ** 0.85));
-        } else if (!reduce && playing) {
-          level = 0.12 + 0.08 * Math.sin(now / 400 + i * 0.35);
-        } else if (!reduce) {
-          level = 0.1 + 0.04 * Math.sin(now / 1800 + i * 0.28);
-        } else {
-          level = 0.1 + (i % 5) * 0.02;
-        }
-
-        const bh = level * h * 0.96 * dim;
-        const x = i * (barW + gap);
-        const y = (h - bh) / 2;
-        // Two solid fills instead of per-bar linear gradients.
-        ctx.fillStyle = i % 3 === 0 ? mint : i % 2 === 0 ? barFill : barFillLo;
-        const radius = Math.min(3.5, barW / 2);
-        roundRect(ctx, x, y, barW, Math.max(1, bh), radius);
-        ctx.globalAlpha = barAlpha * dim;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
+      if (m === "wave") drawWave(w, h, now, hasAudio, dim, barAlpha);
+      else if (m === "pulse") drawPulse(w, h, now, hasAudio, dim, barAlpha);
+      else drawBars(w, h, now, hasAudio, dim, barAlpha, m === "mirror");
 
       raf = requestAnimationFrame(draw);
     };
@@ -125,7 +188,7 @@ export function DockVisualizer({ className }: { className?: string }) {
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [accent, playing, reduce, track?.id, hasStageVisual]);
+  }, [accent, playing, reduce, track?.id, hasStageVisual, mode]);
 
   return (
     <div

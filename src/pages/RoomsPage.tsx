@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Hash, Loader2, Music2, Disc3, SlidersHorizontal, Sparkles } from "lucide-react";
 import * as api from "@/lib/api";
-import { ChatTabs } from "@/components/ChatTabs";
 import { cx, timeAgo } from "@/lib/utils";
 import type { Room, RoomKind } from "@/types";
 
@@ -14,7 +13,7 @@ const KIND_META: Record<RoomKind, { label: string; icon: typeof Hash }> = {
 };
 const ORDER: RoomKind[] = ["social", "role", "genre", "daw"];
 
-/** Unified Rooms discovery — taxonomy + social under one cyber glass entry. */
+/** Unified Rooms discovery — archived from Messages; URL still works. */
 export function RoomsPage() {
   const navigate = useNavigate();
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -35,7 +34,9 @@ export function RoomsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <ChatTabs active="rooms" />
+      <p className="px-4 pb-2 pt-2 text-[12px] text-white/40">
+        Rooms are archived from Messages. A dedicated Chats section is planned later.
+      </p>
       <div className="px-1 pb-2">
         <div className="forge-field">
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a room…" />

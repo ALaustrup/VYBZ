@@ -12,7 +12,6 @@ import {
   Volume2,
   VolumeX,
   Loader2,
-  Plus,
   Coins,
 } from "lucide-react";
 import {
@@ -31,9 +30,9 @@ import { COLOR_V2 } from "@/design/tokens";
 import { Waveform } from "@/components/Waveform";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { ExtractMidiButton } from "@/components/ExtractMidiButton";
-import { MusicSourceSheet } from "@/components/MusicSourceSheet";
 import { TrackCommentsSheet } from "@/components/TrackCommentsSheet";
 import { VcTipSheet } from "@/components/VcTipSheet";
+import { VizModeCycleButton, VizModeSelector } from "@/components/vdock/VizModePicker";
 import {
   isFavoriteCached,
   subscribeFavorites,
@@ -162,7 +161,6 @@ export function MusicDockPlayer() {
   const reduce = useReduceFx();
   const { showToast, userId } = useSession();
   const [expanded, setExpanded] = useState(false);
-  const [sourceOpen, setSourceOpen] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
   const [favBusy, setFavBusy] = useState(false);
@@ -288,10 +286,10 @@ export function MusicDockPlayer() {
           aria-label={p.track ? `Now playing: ${p.track.title}` : "No track"}
         >
           <span className="vdock-meta-title block truncate font-display text-[13px] font-semibold sm:text-[15px]">
-            {p.track?.title ?? "VYBZ Radio"}
+            {p.track?.title ?? "Nothing playing"}
           </span>
           <span className="vdock-meta-artist block truncate text-[10px] sm:text-[11px]">
-            {p.track?.artist ?? "Soundtrack starts after login"}
+            {p.track?.artist ?? "Pick a track from Library or Discover"}
           </span>
           <span className="vdock-meta-rail mt-1 block max-w-[11rem] overflow-hidden sm:max-w-[16rem]" aria-hidden>
             <span
@@ -428,18 +426,14 @@ export function MusicDockPlayer() {
           >
             <Coins className="h-4 w-4 sm:h-[18px] sm:w-[18px]" strokeWidth={2.1} />
           </button>
+          <VizModeCycleButton />
         </div>
       </div>
 
       <NowPlayingExpanded
         open={expanded}
         onClose={() => setExpanded(false)}
-        onOpenSource={() => {
-          setExpanded(false);
-          setSourceOpen(true);
-        }}
       />
-      <MusicSourceSheet open={sourceOpen} onClose={() => setSourceOpen(false)} />
       <TrackCommentsSheet
         open={commentsOpen}
         onClose={() => setCommentsOpen(false)}
@@ -499,11 +493,9 @@ export function DockPlaybackProgress() {
 function NowPlayingExpanded({
   open,
   onClose,
-  onOpenSource,
 }: {
   open: boolean;
   onClose: () => void;
-  onOpenSource?: () => void;
 }) {
   const p = usePlayer();
   const navigate = useNavigate();
@@ -643,19 +635,11 @@ function NowPlayingExpanded({
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenSource?.();
-                }}
-                aria-label="Add music"
-                data-tip="Music"
-                className="btn btn-ghost flex-1 justify-center gap-2 py-2.5 text-sm"
-              >
-                <Plus className="h-4 w-4" /> Add music
-              </button>
+            <div className="flex flex-col gap-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">
+                Visualizer
+              </p>
+              <VizModeSelector />
               {p.track.url && (
                 <ExtractMidiButton source={p.track.url} title={p.track.title} />
               )}
