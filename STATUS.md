@@ -1,4 +1,4 @@
-﻿# STATUS
+# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 > Update this at the end of any unit of work. If it is stale, it is wrong.
@@ -6,7 +6,7 @@
 **Date:** 2026-08-07
 **Branch:** `feat/m4-exit-gate-native-disclosure`
 **HEAD:** pending commit — based on `main` @ `8a4dffbe`
-**Working tree:** dirty until commit
+**Working tree:** clean
 **Current milestone:** **M4 — Measurement Integrity Foundation.** Owner confirmed production Finalize scan (**DEPLOYED AND VERIFIED**). Follow-up: executable exit gate + native disclosure harden.
 
 ---
