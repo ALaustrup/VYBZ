@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-06
 **Branch:** `feat/artist-os-chrome`
-**HEAD:** `4642393c` — Artist OS Chrome Foundation on branch
+**HEAD:** `9fd9f646` — Artist OS Chrome Foundation on branch
 **Current milestone:** **Artist OS Chrome Foundation.** Owner paused M4 on 2026-08-06.
 M4 resumes only by later owner authorisation. Premium-suite phase track remains withdrawn.
 
