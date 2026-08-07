@@ -16,10 +16,25 @@ export type LoudnessMetrics = {
   /** RMS level in dBFS. */
   rmsDbfs: number;
   /**
-   * Approximate integrated loudness (LUFS-like) from gated RMS windows.
-   * Not a certified BS.1770 meter — suitable for Prepare gating only.
+   * Legacy gated-RMS LUFS-like estimate (pre-M4). Kept for parity/tests.
+   * Prefer `integratedLufs` from BS.1770 when present.
    */
   integratedLufsApprox: number;
+  /** BS.1770-4 integrated loudness when measured. */
+  integratedLufs?: number;
+  momentaryLufs?: number;
+  shortTermLufs?: number;
+  loudnessRangeLu?: number;
+  /** True peak (oversampled), dBTP — never confuse with sample peak. */
+  truePeakDbtp?: number;
+  loudnessProvenance?: {
+    standard: "BS.1770-4";
+    meterVersion: string;
+    sampleRate: number;
+    channelCount: number;
+    truePeakOversample: number;
+    environment: string;
+  };
 };
 
 export type SpectrumSnapshot = {
@@ -35,4 +50,4 @@ export type PortableAudioAnalysis = WaveformPeaks &
     processingVersion: string;
   };
 
-export const PROCESSING_VERSION = "phase4.waveform.1";
+export const PROCESSING_VERSION = "m4.waveform.1";

@@ -92,12 +92,48 @@ describe("evaluateReadiness", () => {
     expect(peak?.detail).toContain("decoded audio");
     expect(peak?.detail).toContain("resampled");
     expect(peak?.detail).not.toMatch(/measured true peak/i);
+    expect(peak?.detail).toMatch(/True peak was not measured/i);
 
     const loud = findings.find((f) => f.code === "AUDIO_LOUDNESS_HOT");
     expect(loud?.detail).toContain("not standards-certified");
 
     expect(findings.some((f) => f.code === "AUDIO_LOUDNESS_NOT_MEASURED")).toBe(false);
     expect(findings.find((f) => f.code === "AUDIO_LOSSY_MASTER")?.detail).toContain("320 kbps");
+  });
+
+  it("prefers BS.1770 integrated loudness and reports true peak when measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 120,
+        loudnessMeasured: true,
+        loudnessMethod: "pcm-wav",
+        peakDbfs: -0.5,
+        integratedLufsApprox: -4,
+        integratedLufs: -5.5,
+        truePeakDbtp: -0.2,
+        loudnessProvenance: {
+          standard: "BS.1770-4",
+          meterVersion: "m4.bs1770.1",
+          sampleRate: 48000,
+          channelCount: 2,
+          truePeakOversample: 4,
+          environment: "portable",
+        },
+      },
+    });
+    const loud = findings.find((f) => f.code === "AUDIO_LOUDNESS_HOT");
+    expect(loud?.detail).toContain("-5.5 LUFS");
+    expect(loud?.detail).toContain("BS.1770-4");
+    expect(loud?.detail).not.toContain("not standards-certified");
+    expect(findings.some((f) => f.code === "AUDIO_TRUE_PEAK_HOT")).toBe(true);
   });
 
   it("flags small non-square artwork", () => {

@@ -37,7 +37,23 @@ export type WorkerProbeRequest =
 export type MeasuredLoudness = {
   peakDbfs: number;
   rmsDbfs: number;
+  /** Legacy gated-RMS estimate — prefer `integratedLufs` when present. */
   integratedLufsApprox: number;
+  /** BS.1770-4 integrated loudness (LUFS). */
+  integratedLufs?: number;
+  momentaryLufs?: number;
+  shortTermLufs?: number;
+  loudnessRangeLu?: number;
+  /** True peak via oversampling (dBTP). */
+  truePeakDbtp?: number;
+  loudnessProvenance?: {
+    standard: "BS.1770-4";
+    meterVersion: string;
+    sampleRate: number;
+    channelCount: number;
+    truePeakOversample: number;
+    environment: string;
+  };
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;

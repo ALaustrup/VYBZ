@@ -26,30 +26,33 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**Artist OS Surface Overhaul.** Owner directed 2026-08-07: continue Artist OS UI/IA work
-on top of Chrome Foundation — centered brand, Now Playing right rail, player/title fix,
-Library media OS, Discover public feed, Releases→Finalize, Messages without Rooms,
-archive AI minutes / Cost Sentinel / Flair from nav, Profile Packages (V¢), Codex views.
+**M4 — Measurement Integrity Foundation.** Owner directed 2026-08-07 (resume): Surface
+Overhaul is **DEPLOYED AND VERIFIED**; M4 is the single authorised milestone again.
 
-Chrome Foundation (Orb → rail, Home albums, Discover hover, Studio/Live/Market archived)
-remains landed. This milestone extends that surface work; it is **not** a second parallel
-premium-suite track.
+Scope: a defensible BS.1770-4 / EBU R128 integrated, momentary and short-term loudness
+meter with loudness range; true peak by oversampling; published test vectors passing within
+documented tolerances; provenance on every measurement; consistency across web and desktop,
+or an explicit disclosure of the difference.
 
-**M4 — Measurement Integrity Foundation is paused.** Resume only by later owner
-authorisation. Scope when resumed: BS.1770-4 / EBU R128 meters, true peak by oversampling,
-published test vectors, provenance, cross-environment consistency or disclosed difference.
+**DR-07 locked for this resume:** build the meter **in-repo** under
+`packages/processing/waveform` (no new npm dependency). Desktop Rust parity may lag with an
+explicit disclosure until a follow-up PR.
+
+Artist OS Surface Overhaul / Chrome Foundation remain landed. Premium-suite phase track
+remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
 
 The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
-sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 remains the long-term plan;
-Artist OS Surface Overhaul is the single owner-authorised interruption of M4.
+sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan.
 
-### Law 3 during Artist OS Surface Overhaul
+### Law 3 during M4
 
-Discovery, Library, shell, and Messages polish are in scope by owner authorisation. Do not
-grow Live / Rooms / Connect as products — archive or freeze. Rooms stay URL-reachable but
-unlinked from Messages. Bug fixes and shared-shell changes remain permitted.
+Breadth is retained — VYBZ remains an operating system. Social, live, messaging, rooms,
+connect, opportunities and discovery surfaces receive **no new feature work** until audio
+core milestones land. They stay reachable and maintained; they do not grow. Bug fixes and
+shared-shell changes are permitted.
+
 
 ### Exit gates must be executable
 

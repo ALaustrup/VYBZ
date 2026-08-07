@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
-**Branch:** `main`
-**HEAD:** `5ca43a46bf2eb183caebff82a93c85b0ad6aef4e` — synced with `origin/main`
-**Current milestone:** **Artist OS Surface Overhaul.** Owner authorised 2026-08-07.
-M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundation landed.
+**Branch:** `feat/m4-measurement-integrity`
+**HEAD:** `03a644ccd2128538c59f6185dc5ab656e8695c75` — based on `origin/main` @ `f2aea1d5`
+**Working tree:** clean
+**Current milestone:** **M4 — Measurement Integrity Foundation.** Owner directed resume 2026-08-07 after Surface Overhaul exited **DEPLOYED AND VERIFIED**. Premium-suite phase track remains withdrawn.
 
 ---
 
@@ -15,27 +15,43 @@ M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundatio
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `5ca43a46bf2eb183caebff82a93c85b0ad6aef4e` | live JS contains full SHA; Vercel `dpl_81PPk2d475KzZzDnFYp59NjXd3HZ` Ready |
-| Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-JECT1-td.js` | live fetch 2026-08-07 |
-| Deployed CSS | `/assets/index-svqxrOvn.css` | `--surface-saturate: 1.28`; `forge-sheen-rare`; `.forge-card` |
-| Deployment current with `main` | **YES** | live SHA = STATUS checkpoint tip |
+| Production SHA | Not re-measured this unit | Prior Surface Overhaul tip was `origin/main` @ `f2aea1d5`; M4 not on production |
+| Alias | https://vybz.cloud | Not re-fetched this unit |
+| Deployment current with this branch | **NO** | M4 work is local on `feat/m4-measurement-integrity` only |
 
 ## Last completed operations
 
-1. **Signed-in production smoke (agent browser session)** — Home rail shows Finalize (not Releases); Discover search/filters/grid-list; Library Tracks/Projects/Stages; Messages Direct with no Rooms tab; Now Playing rail shows track while top bar stays page title; VDock viz cycles Bars→Mirror; Profile `#packages` shows Starter/Plus/Studio V¢ packs. No AI minutes / Usage / Flair in nav.
-2. **PR [#62](https://github.com/ALaustrup/VYBZ/pull/62) merged** (`ab1434f3`) — Artist OS Surface Overhaul; follow-up STATUS `5ca43a46` on Production.
-3. **PR [#61](https://github.com/ALaustrup/VYBZ/pull/61) merged** (`d1f71370`) — forge-card surface sweep.
+1. **M4 portable meter foundation committed** — `03a644cc` — in-repo BS.1770-4 / EBU R128 under `packages/processing/waveform/src/bs1770.ts` (`m4.bs1770.1`); true peak via 4× Catmull–Rom; wired through readiness worker, probes, readiness findings, distribution report; native desktop path disclosed as approx-only / BS.1770 pending.
+2. **Measured vector evidence (local)** — stereo 1 kHz −23 dBFS/ch → **−22.993 LUFS**; mono → **−26.004 LUFS**; true peak ≈ sample peak (−23.000 dBTP) on the same sine. Gate tests cite Masterplan §10 M4.
+3. **Correctness gate on this branch @ `03a644cc`** — lint PASS; test **319/319** (55 files); build PASS (2026-08-07).
+4. **Prior:** Surface Overhaul PR [#62](https://github.com/ALaustrup/VYBZ/pull/62) — **DEPLOYED AND VERIFIED** on production (signed-in smoke 2026-08-07).
 
-## Gate on `main` @ `5ca43a46` — 2026-08-07
+## Gate on `feat/m4-measurement-integrity` @ `03a644cc` — 2026-08-07
 
 ```
-npm run lint              — PASS (pre-merge on feature branch)
-npm run test              — PASS 312/312 (54 files)
+npm run lint              — PASS
+npm run test              — PASS 319/319 (55 files), including bs1770.test.ts M4 vectors
 npm run build             — PASS
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED** — signed-in smoke evidence above (2026-08-07).
+Delivery state: **IMPLEMENTED** — committed on feature branch; not merged, not deployed, not production-verified.
+
+### M4 disclosures (Law 1)
+
+| Claim | State | Evidence |
+|---|---|---|
+| Web/portable integrated LUFS | BS.1770-4 gated | stereo vector −22.993 LUFS @ −23 dBFS/ch |
+| True peak (web/portable) | Measured 4× oversample | sine TP within 0.3 dB of sample peak |
+| Native Tauri analyze | Approx only | `tauriInvoke` / DesktopBatchPanel disclose “native BS.1770 pending” |
+| Desktop Rust BS.1770 | Not measured | DR-07: in-repo first; native may lag |
+
+### Next authorised action
+
+Owner confirmed proceed: push branch and open PR for review/merge.
+
+## Gate on `main` @ `f2aea1d5` — 2026-08-07 (pre-M4 tip)
+
+Surface Overhaul tip. Prior STATUS rows below remain historical evidence for that delivery.
 
 ### Delivered in PR #58
 
@@ -55,7 +71,7 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `main` @ `5ca43a46`. Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
+On `feat/m4-measurement-integrity` @ `03a644cc` (tip `698dc5fc848d7249627e00c59d3bfb1eba4d8fab`). Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
 
 ## Production verification — 2026-08-04
 
@@ -68,10 +84,10 @@ On `main` @ `5ca43a46`. Unrelated WIP remains in stash (`wip unrelated before st
 | Library search / views / batch deployed | **PASS** | `library-search`, `library-view-`, `batch-bar` present |
 | Command dashboard deployed | **PASS** | `command-dashboard`, `action-centre`, `dashboard-first-scan` present |
 | MP3/FLAC decode path deployed | **PASS** | `measure-loudness` worker message present |
-| **Sample peak no longer presented as true peak** | **PASS** | `samplePeakDbfs` ×4, `DIST_SAMPLE_PEAK_HIGH` ×1, "true peak is not measured" ×2 in the live bundle. The two remaining `dBTP` strings are the `DIST_TRUE_PEAK_HIGH` rule — which reads a field the app now always passes as `null`, reserved for a real oversampling meter — and remediation advice about the user's own mastering chain. Neither labels a measured value as true peak |
+| **Sample peak no longer presented as true peak** | **PASS** (pre-M4 production) | historical; M4 will ship real `truePeakDbtp` when merged |
 | Published legal docs carry no dating provisions | **PASS** | Every remaining match in `terms.md` and `acceptable-use.md` is the new exclusion statement ("VYBZ does **not** provide dating, romantic matching, or adult-intent features") |
 | `check:no-fixtures` against deployable `dist/` | **PASS** — 8 markers absent | local run on `main` |
-| **Owner signed-in production smoke** | **NOT DONE** — requires owner credentials | `docs/operations/M3_SIGNED_IN_SMOKE.md` |
+| **Owner signed-in production smoke** | **DONE** for Surface Overhaul (2026-08-07) | see prior smoke notes; M4 not yet in production |
 
 ## Gate on `feat/premium-shell-vdock` — 2026-08-06
 

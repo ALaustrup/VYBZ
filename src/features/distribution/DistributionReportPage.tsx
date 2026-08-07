@@ -51,10 +51,13 @@ export function DistributionReportPage() {
       const art = bundle.assets.find((a) => a.kind === "artwork");
       const probe = (audio?.probe ?? {}) as {
         integratedLufsApprox?: number;
+        integratedLufs?: number;
         peakDbfs?: number;
+        truePeakDbtp?: number;
         loudnessMeasured?: boolean;
         loudnessMethod?: "pcm-wav" | "decoded";
         loudnessResampled?: boolean;
+        loudnessProvenance?: { standard?: string; meterVersion?: string };
         isrc?: string;
       };
       const artProbe = (art?.probe ?? {}) as {
@@ -66,14 +69,17 @@ export function DistributionReportPage() {
         dpi?: number;
       };
 
+      const integrated =
+        probe.integratedLufs ??
+        (probe.loudnessMeasured ? probe.integratedLufsApprox : undefined);
+      const bsCertified =
+        probe.integratedLufs != null && probe.loudnessProvenance?.standard === "BS.1770-4";
+
       const loudness =
-        probe.loudnessMeasured &&
-        probe.integratedLufsApprox != null &&
-        !Number.isNaN(probe.integratedLufsApprox)
+        probe.loudnessMeasured && integrated != null && !Number.isNaN(integrated)
           ? {
-              integratedLufs: probe.integratedLufsApprox,
-              // True peak needs an oversampling meter (M4); we only have sample peak.
-              truePeakDb: null,
+              integratedLufs: integrated,
+              truePeakDb: probe.truePeakDbtp ?? null,
               samplePeakDbfs: probe.peakDbfs ?? null,
             }
           : null;
@@ -85,13 +91,22 @@ export function DistributionReportPage() {
             : "decoded audio"
           : "file PCM";
 
+      const methodNote = bsCertified
+        ? `BS.1770-4 (${probe.loudnessProvenance?.meterVersion ?? "m4"})`
+        : "estimated, not standards-certified";
+
+      const peakBits =
+        loudness?.samplePeakDbfs != null
+          ? ` · sample peak ${loudness.samplePeakDbfs.toFixed(1)} dBFS${
+              loudness.truePeakDb != null
+                ? ` · true peak ${loudness.truePeakDb.toFixed(1)} dBTP`
+                : " · true peak not measured"
+            }`
+          : "";
+
       setLoudnessLabel(
         loudness?.integratedLufs != null
-          ? `${loudness.integratedLufs.toFixed(1)} LUFS integrated — estimated, not standards-certified (from ${source})${
-              loudness.samplePeakDbfs != null
-                ? ` · sample peak ${loudness.samplePeakDbfs.toFixed(1)} dBFS · true peak not measured`
-                : ""
-            }`
+          ? `${loudness.integratedLufs.toFixed(1)} LUFS integrated — ${methodNote} (from ${source})${peakBits}`
           : audio
             ? "Not measured — this device could not decode the audio"
             : "Not measured",

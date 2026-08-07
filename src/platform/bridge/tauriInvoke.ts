@@ -61,8 +61,10 @@ export async function invokeAnalyzeAudio(
       peakDbfs: Number(raw.peakDbfs ?? -120),
       rmsDbfs: Number(raw.rmsDbfs ?? -120),
       integratedLufsApprox: Number(raw.integratedLufsApprox ?? -70),
+      // Native Rust path has not yet shipped BS.1770 / true peak (M4 disclosure).
+      // Web/portable meters remain authoritative until native catches up.
       engine: "native",
-      processingVersion: String(raw.processingVersion ?? "phase4.waveform.1"),
+      processingVersion: String(raw.processingVersion ?? "native.approx.1"),
     };
   } catch {
     return null;

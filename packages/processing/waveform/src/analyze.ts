@@ -1,5 +1,6 @@
 import { computeSpectrum } from "./fft";
 import { computeLoudness } from "./loudness";
+import { measureBs1770 } from "./bs1770";
 import { decodeWavPcm } from "./pcm";
 import { computePeaks } from "./peaks";
 import {
@@ -27,13 +28,26 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
 
   const pcm = decodeWavPcm(buffer);
   const peaks = computePeaks(pcm, opts.bucketCount ?? 800);
-  const loudness = computeLoudness(pcm);
+  const approx = computeLoudness(pcm);
+  const bs = measureBs1770(
+    pcm.planar ?? [pcm.samples],
+    pcm.sampleRate,
+    engine === "native" ? "native-pending" : "portable",
+  );
   const spectrum =
     opts.includeSpectrum === false ? undefined : computeSpectrum(pcm.samples, 1024);
 
   return {
     ...peaks,
-    ...loudness,
+    peakDbfs: bs.samplePeakDbfs,
+    rmsDbfs: approx.rmsDbfs,
+    integratedLufsApprox: approx.integratedLufsApprox,
+    integratedLufs: bs.integratedLufs,
+    momentaryLufs: bs.momentaryLufs,
+    shortTermLufs: bs.shortTermLufs,
+    loudnessRangeLu: bs.loudnessRangeLu,
+    truePeakDbtp: bs.truePeakDbtp,
+    loudnessProvenance: bs.provenance,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,
