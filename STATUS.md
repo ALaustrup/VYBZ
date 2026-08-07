@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-06
-**Branch:** `feat/premium-shell-vdock` (shipping to `main`)
-**HEAD:** (set after commit) — premium shell / VDock polish
+**Branch:** `main`
+**HEAD:** `ad89cbb73298571d342b694575f71f1fceeea66c` — synced with `origin/main`
 **Current milestone:** **M4 — Measurement Integrity Foundation.** Owner chose the Audio
 Intelligence and Release Operating System direction on 2026-08-06 and directed that
 competing plans be eradicated. The parallel premium-suite phase track is **withdrawn**;
@@ -17,19 +17,18 @@ the Masterplan milestone sequence is the only plan.
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `2d42fd290942aeed498b2a110b9742472e6fbc63` | prior deploy; pending polish merge |
+| Production SHA | `ad89cbb73298571d342b694575f71f1fceeea66c` | live bundle contains `ad89cbb7`; Vercel prod `dpl_FHLda5WpynJowRBm9r2fR4dGfMXo` Ready, aliases include https://vybz.cloud |
 | Alias | https://vybz.cloud | HTTP 200, live fetch 2026-08-06 |
-| Deployed bundle | `/assets/index-Bh0Gvn_G.js` | live fetch 2026-08-06 |
-| Deployed CSS | `/assets/index-Dk4IOxVk.css` | live fetch 2026-08-06 |
-| Deployment current with `main` | **pending polish merge** | verify after Vercel Ready |
+| Deployed bundle | `/assets/index-R_iBuMc0.js` | live fetch 2026-08-06 |
+| Deployed CSS | `/assets/index-CyeWOzAe.css` | live fetch 2026-08-06 (matches local build) |
+| Deployment current with `main` | **YES** | build SHA in the live bundle = `ad89cbb7…`, equal to `origin/main` |
 | Passkey edge function | Deployed to `xixmneooyufbeftdfpcm` with `--no-verify-jwt` | `npx supabase functions deploy passkey …` exit 0, 2026-08-06T19:42Z |
 
 ## Last completed operations
 
-1. **Premium shell + VDock polish** on `feat/premium-shell-vdock` — darker backdrop, higher surface saturate, forge/VDock alias `--surface-*`, dock beat/progress via refs (no per-frame React thrash), cheaper `DockVisualizer`. Gate: lint PASS, test 309/309, build PASS.
+1. **PR [#59](https://github.com/ALaustrup/VYBZ/pull/59) merged** (`ad89cbb7`) — premium shell + VDock polish: darker backdrop, higher `--surface-saturate`, forge/VDock alias `--surface-*`, ref-driven dock beat/progress, cheaper `DockVisualizer`. Gate before merge: lint PASS, test 309/309, build PASS. Production verified Ready with live SHA `ad89cbb7`.
 2. **Pushed `main` → `origin/main`** (`381a0270..2d42fd29`) — direction reset, command palette / `routeTruth`, passkey signup fix.
-3. **Vercel production Ready** (prior) — live JS contained `2d42fd29` and `account_exists`.
-4. **Supabase `passkey` function redeployed** on project `xixmneooyufbeftdfpcm` (`Deployed Functions.`, exit 0).
+3. **Supabase `passkey` function redeployed** on project `xixmneooyufbeftdfpcm` (`Deployed Functions.`, exit 0).
 
 ### Delivered in PR #58
 
@@ -49,8 +48,9 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `feat/premium-shell-vdock`. Untracked: `.cursor/settings.json` (do not commit).
-Unrelated local line-ending diffs remain on several tracked files and are **not** staged.
+On `main` @ `ad89cbb7`, synced with `origin/main` after STATUS checkpoint. Untracked:
+`.cursor/settings.json` (do not commit). Unrelated local line-ending diffs remain on
+several tracked files and are **not** staged.
 
 Two stashes remain and were **not** touched, per the preservation rule:
 `stash@{0}` "ops cutover docs WIP" and `stash@{1}` "temp hash drift".
