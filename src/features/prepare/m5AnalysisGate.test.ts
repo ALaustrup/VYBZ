@@ -20,6 +20,9 @@ const M5_CODES = [
   "AUDIO_SPECTRAL_BASS_HEAVY",
   "AUDIO_SPECTRAL_BRIGHT",
   "AUDIO_SPECTRAL_THIN",
+  "AUDIO_CLIPPING_SAMPLES",
+  "AUDIO_SILENCE_LEAD_IN",
+  "AUDIO_SILENCE_LEAD_OUT",
 ] as const;
 
 /** Minimal mono 16-bit PCM WAV. */
@@ -119,6 +122,22 @@ describe("M5 advanced analysis gate", () => {
     const ms = Date.now() - t0;
     expect(result.crestFactorDb).toBeTypeOf("number");
     expect(result.spectralBalance).toBeTruthy();
+    expect(result.clippedSamples).toBeTypeOf("number");
+    expect(result.silenceLeadInSeconds).toBeTypeOf("number");
     expect(ms).toBeLessThan(2000);
+  });
+
+  it("surfaces an Advanced Analysis panel component for measured probes", () => {
+    const panel = readFileSync(
+      path.join(ROOT, "src/features/prepare/AdvancedAnalysisPanel.tsx"),
+      "utf8"
+    );
+    const detail = readFileSync(
+      path.join(ROOT, "src/features/prepare/ReleaseDetailPage.tsx"),
+      "utf8"
+    );
+    expect(panel).toContain("prepare-advanced-analysis");
+    expect(panel).toContain("Not measured");
+    expect(detail).toContain("AdvancedAnalysisPanel");
   });
 });

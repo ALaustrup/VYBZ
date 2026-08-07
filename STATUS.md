@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
-**Branch:** `feat/m5-advanced-analysis-foundation`
-**HEAD:** pending commit — based on `main` @ `a576a865` (PR #65 merge)
+**Branch:** `feat/m5-clip-silence-metrics`
+**HEAD:** pending commit — based on `main` @ `7bddc63f` (PR #66 merge)
 **Working tree:** dirty until commit
-**Current milestone:** **M5 — Advanced Analysis Suite.** Owner authorised 2026-08-07.
+**Current milestone:** **M5 — Advanced Analysis Suite.**
 
 ---
 
@@ -15,40 +15,34 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | HTTP 200 (prior); M5 not deployed yet |
-| App tip on `main` | `a576a865` | PR #65 M4 exit gate merged |
-| M4 delivery | **DEPLOYED AND VERIFIED** | owner confirmed Finalize scan 2026-08-07 |
-| M5 on production | **NO** | this branch only |
+| Alias | https://vybz.cloud | HTTP 200 |
+| Production SHA | `7bddc63f42bbc4d846a06dec965e153cd643546e` | live JS |
+| Deployed bundle | `/assets/index-CICQ-8hN.js` | live fetch 2026-08-07 |
+| M5 slice 1 on production | **YES** | `AUDIO_DYNAMICS_CRUSHED` + Crest factor copy present |
+| M5 slice 2 on production | **NO** | this branch only |
 
 ## Last completed operations
 
-1. **Owner authorised M5** (2026-08-07) — Advanced Analysis Suite is the single authorised milestone.
-2. **PR [#65](https://github.com/ALaustrup/VYBZ/pull/65) merged** (`a576a865`) — M4 executable exit gate + native approx disclosure.
-3. **M5 first slice (this unit)** — Dynamics & Stereo Integrity: crest factor, L/R correlation, spectral band balance, LRA findings from measured PCM; guides; `m5AnalysisGate.test.ts`.
+1. **PR [#66](https://github.com/ALaustrup/VYBZ/pull/66) merged** (`7bddc63f`) — Dynamics & Stereo Integrity.
+2. **M5 slice 2 (this unit)** — clip sample counts, edge silence findings, Advanced Analysis panel on release detail.
 
 ## Gate on this branch (working tree)
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 339/339 (61 files), including m5AnalysisGate.test.ts
+npm run test              — PASS 344/344 (62 files)
 npm run build             — PASS
 ```
 
-Delivery state: **IMPLEMENTED** (local) for M5 Dynamics & Stereo Integrity — not merged.
+Delivery state: **IMPLEMENTED** (local) — not merged.
 
 ### Next authorised action
 
-Finish gate, open PR for M5 foundation; do not start M6 until owner authorises.
-
-## Working tree
-
-On `feat/m5-advanced-analysis-foundation`. Unrelated WIP remains in stash.
+Open PR; after merge verify production markers (`prepare-advanced-analysis`, clip/silence codes).
 
 ## Direction
 
 | Item | State |
 |---|---|
 | Authorised milestone | **M5 — Advanced Analysis Suite** |
-| M4 | **DEPLOYED AND VERIFIED** (native BS.1770 still disclosed approx) |
 | Premium-suite phase track | **WITHDRAWN** |
-| Law 3 | Social/live/messaging: maintain only |

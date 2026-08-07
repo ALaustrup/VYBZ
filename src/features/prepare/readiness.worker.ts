@@ -8,7 +8,9 @@ import {
   computeLoudness,
   computeSpectrum,
   measureBs1770,
+  measureClipIntegrity,
   measureCrestFactorDb,
+  measureEdgeSilence,
   measureSpectralBalance,
   measureStereoCorrelation,
   PORTABLE_FFT_MAX_BYTES,
@@ -67,6 +69,8 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
   const bs = measureBs1770(msg.channels, msg.sampleRate, "web-worker");
   const spectrum = computeSpectrum(samples, 1024);
   const balance = measureSpectralBalance(spectrum.magnitudes, spectrum.fftSize, msg.sampleRate);
+  const clips = measureClipIntegrity(msg.channels);
+  const edges = measureEdgeSilence(msg.channels, msg.sampleRate);
   postProgress(msg.requestId, "measuring", 88);
   return {
     type: "loudness-result",
@@ -91,6 +95,10 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
             highShare: balance.highShare,
           }
         : undefined,
+      clippedSamples: clips.clippedSamples,
+      maxClipRun: clips.maxClipRun,
+      silenceLeadInSeconds: edges?.leadInSeconds,
+      silenceLeadOutSeconds: edges?.leadOutSeconds,
       analysisSampleRate: msg.sampleRate,
       channels: msg.channels.length,
       durationSeconds,
@@ -141,6 +149,10 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
         crestFactorDb: analysis.crestFactorDb,
         stereoCorrelation: analysis.stereoCorrelation,
         spectralBalance: analysis.spectralBalance,
+        clippedSamples: analysis.clippedSamples,
+        maxClipRun: analysis.maxClipRun,
+        silenceLeadInSeconds: analysis.silenceLeadInSeconds,
+        silenceLeadOutSeconds: analysis.silenceLeadOutSeconds,
         loudnessMeasured: true,
         loudnessMethod: "pcm-wav",
         loudnessSampleRate: analysis.sampleRate,

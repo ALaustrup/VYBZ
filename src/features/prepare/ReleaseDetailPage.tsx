@@ -13,8 +13,9 @@ import { countBySeverity, statusTone } from "@/features/prepare/severity";
 import { ReadinessScoreHero } from "@/features/prepare/ReadinessScoreHero";
 import { summarizeReadiness } from "@/features/prepare/readinessScore";
 import { PublishToCatalogCard } from "@/features/prepare/PublishToCatalogCard";
+import { AdvancedAnalysisPanel } from "@/features/prepare/AdvancedAnalysisPanel";
 import { peekPendingAudio, type PendingAudio } from "@/features/prepare/pendingUpload";
-import type { FindingSeverity, ReleaseBundle } from "@vybz/domain/releases";
+import type { AudioProbe, FindingSeverity, ReleaseBundle } from "@vybz/domain/releases";
 
 const SEVERITY_FILTER: Array<"all" | FindingSeverity> = ["all", "blocking", "warning", "info"];
 
@@ -94,6 +95,7 @@ export function ReleaseDetailPage() {
   }
 
   const { project } = bundle;
+  const audioProbe = (bundle.assets.find((a) => a.kind === "audio")?.probe ?? null) as AudioProbe | null;
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-detail">
@@ -107,6 +109,7 @@ export function ReleaseDetailPage() {
       </div>
 
       <ReadinessScoreHero summary={summary} title={project.title} artistName={project.artistName} />
+      <AdvancedAnalysisPanel probe={audioProbe} />
       <h1 className="sr-only" data-testid="prepare-detail-title">
         {project.title}
       </h1>

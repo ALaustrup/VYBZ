@@ -106,6 +106,21 @@ const GUIDES: Record<string, FindingGuide> = {
     why: "Weak low+mid energy often means the track lacks body on phones and cars.",
     fix: "Restore fundamental energy or ease aggressive high-pass filters.",
   },
+  AUDIO_CLIPPING_SAMPLES: {
+    why: "Samples pinned at full scale become distortion after lossy encoding.",
+    fix: "Lower the limiter ceiling and re-bounce so peaks never hit digital full scale.",
+    target: "Zero clipped samples; sample peak below −1 dBFS",
+  },
+  AUDIO_SILENCE_LEAD_IN: {
+    why: "Long lead-in silence feels broken on playlists and wastes listener attention.",
+    fix: "Trim to a short breath or count-in before the first musical event.",
+    target: "Typically under 2 s of dead air at the start",
+  },
+  AUDIO_SILENCE_LEAD_OUT: {
+    why: "Long trailing silence pads streams and can confuse gapless playback.",
+    fix: "Trim the tail or leave a deliberate short reverb decay only.",
+    target: "Typically under 3 s of dead air at the end",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",
