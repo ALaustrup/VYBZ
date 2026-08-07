@@ -6,7 +6,7 @@
 **Date:** 2026-08-07
 **Branch:** `feat/m4-measurement-integrity`
 **HEAD:** `03a644ccd2128538c59f6185dc5ab656e8695c75` — based on `origin/main` @ `f2aea1d5`
-**Working tree:** clean after feat commit (STATUS tip update may follow)
+**Working tree:** clean
 **Current milestone:** **M4 — Measurement Integrity Foundation.** Owner directed resume 2026-08-07 after Surface Overhaul exited **DEPLOYED AND VERIFIED**. Premium-suite phase track remains withdrawn.
 
 ---
@@ -71,7 +71,7 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `feat/m4-measurement-integrity` @ `03a644cc` (STATUS tip update may be one commit ahead). Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
+On `feat/m4-measurement-integrity` @ `03a644cc` (tip `698dc5fc848d7249627e00c59d3bfb1eba4d8fab`). Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
 
 ## Production verification — 2026-08-04
 
