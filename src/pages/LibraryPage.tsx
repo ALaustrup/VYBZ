@@ -5,6 +5,7 @@ import {
   Film,
   Image as ImageIcon,
   Layers,
+  ListChecks,
   Loader2,
   Pencil,
   Trash2,
@@ -18,28 +19,35 @@ import * as api from "@/lib/api";
 import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 import type { Drop, FeedPost } from "@/types";
+import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
+import type { ReleaseProject } from "@vybz/domain/releases";
 
-type Tab = "drops" | "posts" | "stages";
+type Tab = "tracks" | "projects" | "stages";
 
 /**
- * Uploader Library — one place to manage drops, project posts, and stage
- * backdrops attached to drops. Profile still shows a drops preview; full
- * management lives here.
+ * Media Library — tracks, project posts, stage backdrops, plus Finalize strip.
  */
 export function LibraryPage() {
   const { userId, profile, refreshProfile, showToast } = useSession();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("drops");
+  const [tab, setTab] = useState<Tab>("tracks");
   const [drops, setDrops] = useState<Drop[]>([]);
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [finalize, setFinalize] = useState<ReleaseProject[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
-    const [d, p] = await Promise.all([api.dropsBy(userId, 80), api.myProjectPosts(80)]);
+    const ownerId = getPrepareOwnerId(userId);
+    const [d, p, releases] = await Promise.all([
+      api.dropsBy(userId, 80),
+      api.myProjectPosts(80),
+      listReleases(ownerId).catch(() => [] as ReleaseProject[]),
+    ]);
     setDrops(d);
     setPosts(p);
+    setFinalize(releases.slice(0, 6));
     setLoading(false);
   }, [userId]);
 
@@ -47,7 +55,7 @@ export function LibraryPage() {
 
   useRegisterAppBar({
     title: "Library",
-    subtitle: "Manage your media",
+    subtitle: "Media management",
   }, []);
 
   const staged = useMemo(
@@ -58,7 +66,7 @@ export function LibraryPage() {
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col px-4 pb-4 pt-2">
       <p className="mb-3 text-[13px] leading-relaxed text-white/45">
-        Everything you&apos;ve uploaded — drops, project posts, and stage backdrops — in one place.
+        Organize uploaded tracks, project posts, and stage visuals in one place.
         {FLAGS.storefront && (
           <>
             {" "}
@@ -70,21 +78,51 @@ export function LibraryPage() {
         )}
       </p>
 
+      {finalize.length > 0 && (
+        <section className="mb-4" aria-label="Finalize projects">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              <ListChecks className="h-3.5 w-3.5" /> Finalize
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate("/releases")}
+              className="text-[11px] font-semibold text-white/50 hover:text-white/80"
+            >
+              Open all
+            </button>
+          </div>
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
+            {finalize.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => navigate(`/release/${r.id}`)}
+                className="forge-card min-w-[10.5rem] shrink-0 !p-3 text-left active:scale-[0.99]"
+              >
+                <p className="truncate text-[13px] font-medium text-white/90">{r.title || "Untitled scan"}</p>
+                <p className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{r.status}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div className="no-scrollbar mb-4 flex gap-1.5 overflow-x-auto">
-        <TabBtn on={tab === "drops"} onClick={() => setTab("drops")} label={`Drops (${drops.length})`} />
-        <TabBtn on={tab === "posts"} onClick={() => setTab("posts")} label={`Posts (${posts.length})`} />
+        <TabBtn on={tab === "tracks"} onClick={() => setTab("tracks")} label={`Tracks (${drops.length})`} />
+        <TabBtn on={tab === "projects"} onClick={() => setTab("projects")} label={`Projects (${posts.length})`} />
         <TabBtn on={tab === "stages"} onClick={() => setTab("stages")} label={`Stages (${staged.length})`} />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
-      ) : tab === "drops" ? (
+      ) : tab === "tracks" ? (
         <UploadsLibrary
           initialDrops={drops}
           featuredId={profile?.featuredDropId}
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
         />
-      ) : tab === "posts" ? (
+      ) : tab === "projects" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
           <PostsLibrary
             posts={posts}
@@ -95,7 +133,7 @@ export function LibraryPage() {
         </div>
       ) : (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
-          <StagesLibrary drops={staged} onOpenDrop={() => setTab("drops")} />
+          <StagesLibrary drops={staged} onOpenDrop={() => setTab("tracks")} />
         </div>
       )}
     </div>
@@ -260,7 +298,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
       <EmptyState
         icon={ImageIcon}
         title="No stage backdrops yet"
-        body="When you attach a video or still backdrop to a drop in Compose, it appears here."
+        body="When you attach a video or still backdrop to a track, it appears here."
       />
     );
   }
@@ -280,7 +318,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
             </div>
             <div className="flex items-center gap-2 px-3 py-2.5">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white/90">{d.title || "Untitled drop"}</p>
+                <p className="truncate text-sm font-medium text-white/90">{d.title || "Untitled track"}</p>
                 <p className="text-[11px] text-white/40">Stage backdrop</p>
               </div>
               <button
@@ -288,7 +326,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
                 onClick={onOpenDrop}
                 className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/70 hover:text-white active:scale-95"
               >
-                Manage drop
+                Manage track
               </button>
             </div>
           </li>

@@ -117,13 +117,30 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     }
   });
 
-  it("never links Studio, Live, or Market after Artist OS archive", () => {
-    // Artist OS Chrome Foundation — freeze-not-delete: routes stay linkable by URL,
-    // but navModel must not advertise them.
-    const linked = navItems().map((i) => i.path);
+  it("never links Studio, Live, Market, Flair, AI minutes, Cost Sentinel, or Rooms after Artist OS archive", () => {
+    // Artist OS — freeze-not-delete: routes stay linkable by URL, navModel must not advertise them.
+    const linked = [
+      ...navItems().map((i) => i.path),
+      ...accountItems("admin", true).map((i) => i.path.split("#")[0]),
+    ];
     expect(linked).not.toContain("/studio");
     expect(linked).not.toContain("/live");
     expect(linked).not.toContain("/market");
+    expect(linked).not.toContain("/store");
+    expect(linked).not.toContain("/settings/credits");
+    expect(linked).not.toContain("/settings/costs");
+    expect(linked).not.toContain("/rooms");
+  });
+
+  it("labels Releases as Finalize in the rail", () => {
+    const releases = navItems().find((i) => i.path === "/releases");
+    expect(releases?.label).toBe("Finalize");
+  });
+
+  it("offers Packages via Edit profile hash, not Flair store", () => {
+    const pkgs = accountItems("member", false).find((i) => i.label === "Packages");
+    expect(pkgs?.path).toBe("/profile/edit#packages");
+    expect(accountItems("member", false).some((i) => i.path === "/store")).toBe(false);
   });
 
   it("accepts a redirect but rejects an unrouted path", () => {

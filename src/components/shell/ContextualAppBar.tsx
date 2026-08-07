@@ -12,8 +12,8 @@ import { cx } from "@/lib/utils";
 import { openCommandPalette } from "@/shell/commandPaletteStore";
 
 /**
- * Soft frosted top bar — brand · living title · upload · profile.
- * Inspired by luminous glass music shells; keeps VYBZ cyan/mint identity.
+ * Soft frosted top bar — page title · centered brand · search/upload.
+ * Track titles belong on VDock / Now Playing rail, never here.
  */
 export function ContextualAppBar({
   onCompose,
@@ -32,11 +32,9 @@ export function ContextualAppBar({
   const [uploadOpen, setUploadOpen] = useState(false);
   const uploadRef = useRef<HTMLDivElement>(null);
 
-  const title = player.track?.title
-    ? player.track.title
-    : chrome.title && chrome.title !== "Home"
-      ? chrome.title
-      : "Music";
+  const pageTitle =
+    bridge.title ??
+    (chrome.title && chrome.title !== "Home" ? chrome.title : "Music");
 
   useEffect(() => {
     document.title = player.track ? `${player.track.title} · VYBZ` : "VYBZ — Release intelligence";
@@ -69,8 +67,8 @@ export function ContextualAppBar({
 
   return (
     <header className="app-bar app-bar--nexus shrink-0">
-      <div className="app-bar-inner relative grid grid-cols-[auto_1fr_auto] items-center gap-2">
-        <div className="flex min-w-0 items-center gap-1.5">
+      <div className="app-bar-inner relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1.5 justify-self-start">
           {bridge.leading ?? (showBack ? (
             <button
               type="button"
@@ -81,30 +79,32 @@ export function ContextualAppBar({
               <ArrowLeft className="h-4 w-4" />
             </button>
           ) : null)}
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            aria-label="VYBZ home"
-            className="forge-chip relative flex h-10 w-10 items-center justify-center overflow-hidden active:scale-95"
-          >
-            <BrandMark
-              className={cx("h-6 w-6", !reduce && "animate-[vybz-hue_12s_linear_infinite]")}
-            />
-          </button>
+          <div className="min-w-0 pl-0.5">
+            <p className="truncate nexus-headline text-[15px] sm:text-[16px]">{pageTitle}</p>
+            {(bridge.subtitle || chrome.subtitle) ? (
+              <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/40">
+                {bridge.subtitle ?? chrome.subtitle}
+              </p>
+            ) : (
+              <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/40">
+                Release intelligence
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="min-w-0 text-center">
-          <p className="truncate nexus-headline text-[15px] sm:text-[16px]">
-            {title}
-          </p>
-          {player.track?.artist ? (
-            <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/45">{player.track.artist}</p>
-          ) : (
-            <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/40">Release intelligence</p>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          aria-label="VYBZ home"
+          className="forge-chip relative z-[1] flex h-10 w-10 items-center justify-center overflow-hidden justify-self-center active:scale-95"
+        >
+          <BrandMark
+            className={cx("h-6 w-6", !reduce && "animate-[vybz-hue_12s_linear_infinite]")}
+          />
+        </button>
 
-        <div className="flex min-w-0 items-center justify-end gap-1.5">
+        <div className="flex min-w-0 items-center justify-end gap-1.5 justify-self-end">
           {bridge.actions}
           <button
             type="button"
@@ -157,8 +157,8 @@ export function ContextualAppBar({
                       <Upload className="h-4 w-4" />
                     </span>
                     <span>
-                      <span className="block">New drop</span>
-                      <span className="block text-[10px] font-normal text-white/40">Track or music video</span>
+                      <span className="block">New track</span>
+                      <span className="block text-[10px] font-normal text-white/40">Audio or music video</span>
                     </span>
                   </button>
                   <button

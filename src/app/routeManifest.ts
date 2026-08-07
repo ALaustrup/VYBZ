@@ -12,7 +12,7 @@ export type SuiteRoute = {
 export const SUITE_ROUTES: readonly SuiteRoute[] = [
   { path: "/", productId: "home", title: "Home", nav: true },
   { path: "/start", productId: "home", title: "Start" },
-  { path: "/releases", productId: "prepare", title: "Releases", nav: true },
+  { path: "/releases", productId: "prepare", title: "Finalize", nav: true },
   { path: "/release/:id", productId: "prepare", title: "Release" },
   { path: "/studio", productId: "studio", title: "Studio", nav: true, legacyAliases: ["/projects"] },
   {

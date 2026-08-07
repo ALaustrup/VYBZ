@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Loader2, MessageSquare, Send, Mic, MonitorSpeaker, Video, Square } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
-import { ChatTabs } from "@/components/ChatTabs";
 import { useMessagePopout } from "@/lib/messagePopout";
 import { useCamCall } from "@/lib/camCall";
 import { useInboxThreads } from "@/hooks/useInboxThreads";
@@ -23,25 +22,27 @@ function ThreadList() {
   const { openThread } = useMessagePopout();
   const { threads, loading } = useInboxThreads();
 
+  useRegisterAppBar({
+    title: "Messages",
+    subtitle: "Direct",
+  }, []);
+
   return (
     <div className="flex h-full flex-col">
-      <ChatTabs active="direct" />
-      <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-1">
+      <div className="no-scrollbar flex-1 overflow-y-auto px-3 pb-6 pt-2 sm:px-4">
+        <p className="mb-3 text-[13px] text-white/40">
+          Private conversations with other creators. A separate Chats section for rooms comes later.
+        </p>
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : threads.length === 0 ? (
             <EmptyState
               icon={MessageSquare}
-              title="No direct messages yet"
-              body="Message someone from Network, or open Profile → Inbox."
+              title="No messages yet"
+              body="Start a conversation from someone's profile. Your inbox will show up here."
               action={
-                <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-                  <button type="button" onClick={() => navigate("/connect")} className="btn btn-primary h-9 px-4 py-0 text-xs">
-                    Open Network
-                  </button>
-                  <button type="button" onClick={() => navigate("/profile?tab=inbox")} className="btn btn-ghost h-9 px-4 py-0 text-xs">
-                    Profile inbox
-                  </button>
-                </div>
+                <button type="button" onClick={() => navigate("/discover")} className="btn btn-primary h-9 px-4 py-0 text-xs">
+                  Browse Discover
+                </button>
               }
             />
           )
@@ -51,7 +52,7 @@ function ThreadList() {
                 <button
                   type="button"
                   onClick={() => openThread(t.id)}
-                  className={cx("forge-card flex w-full items-center gap-3 text-left active:scale-[0.995]", t.unread && "border-[rgb(var(--accent-rgb)/0.35)]")}
+                  className={cx("forge-card flex w-full items-center gap-3 !py-3 text-left transition hover:border-white/20 active:scale-[0.995]", t.unread && "border-[rgb(var(--accent-rgb)/0.35)]")}
                 >
                   <span className="forge-card-icon flex h-11 w-11 shrink-0 !rounded-full text-base font-display font-bold">
                     {(t.peerUsername || "?").charAt(0).toUpperCase()}

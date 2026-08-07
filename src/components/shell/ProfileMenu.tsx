@@ -95,11 +95,11 @@ const SECONDARY: NavItem[] = [
     match: (p) => p.startsWith("/library"),
   },
   {
-    id: "flair",
-    label: "Flair",
-    to: "/store",
+    id: "packages",
+    label: "Packages",
+    to: "/profile/edit#packages",
     icon: Sparkles,
-    match: (p) => p.startsWith("/store"),
+    match: (p) => p.startsWith("/profile/edit"),
   },
   {
     id: "codex",

@@ -12,12 +12,12 @@ import type { Cosmetic, CosmeticPackage, CosmeticStore } from "@/types";
 const CREDIT_PACKS = [
   { id: "starter", dollars: 5, credits: 100, label: "Starter" },
   { id: "plus", dollars: 10, credits: 200, label: "Plus" },
-  { id: "pro", dollars: 25, credits: 500, label: "Flare" },
+  { id: "pro", dollars: 25, credits: 500, label: "Studio" },
 ] as const;
 
 /**
- * Profile Enhancement store — primary monetization.
- * Looks only: never gates matches, messages, voice, or cam.
+ * Legacy cosmetics store — Flair archived from nav.
+ * Credit top-up packs remain; primary Packages UX lives on Edit profile.
  */
 export function StorePage() {
   const { refreshProfile, showToast } = useSession();

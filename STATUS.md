@@ -3,11 +3,11 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
-**Date:** 2026-08-06
-**Branch:** `main`
-**HEAD:** `17d52bbf3c938e1be4290c09b11a5d304e53cd06` — synced with `origin/main`
-**Current milestone:** **Artist OS Chrome Foundation.** Owner paused M4 on 2026-08-06.
-M4 resumes only by later owner authorisation. Premium-suite phase track remains withdrawn.
+**Date:** 2026-08-07
+**Branch:** `feat/artist-os-surface-overhaul`
+**HEAD:** `6f425578` — tip of `feat/artist-os-surface-overhaul` (not pushed)
+**Current milestone:** **Artist OS Surface Overhaul.** Owner authorised 2026-08-07.
+M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundation landed.
 
 ---
 
@@ -15,28 +15,25 @@ M4 resumes only by later owner authorisation. Premium-suite phase track remains 
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `17d52bbf3c938e1be4290c09b11a5d304e53cd06` | live bundle contains `17d52bbf`; Vercel `dpl_7PTrcfDFzog3MdLcmZqQwiEYPGGV` Ready → https://vybz.cloud |
-| Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-Dnkr8KtU.js` | live fetch 2026-08-06 |
-| Deployed CSS | `/assets/index-3CHHJBzI.css` | `--surface-saturate: 1.28`; `forge-sheen-rare` present |
-| Deployment current with `main` | **YES** | live SHA = merge HEAD of PR #60 |
+| Production SHA | `2c2826de1aeef9533e0fcad30307dbb79abceda4` | prior checkpoint — branch not deployed |
+| Alias | https://vybz.cloud | unchanged until merge + promote |
+| Deployment current with branch | **NO** | Surface Overhaul is local on feature branch |
 
 ## Last completed operations
 
-1. **PR [#60](https://github.com/ALaustrup/VYBZ/pull/60) merged** (`17d52bbf`) — Artist OS Chrome Foundation. Gate: lint PASS, test 310/310, build PASS. Production verified Ready with live SHA `17d52bbf`, rare glass sheen CSS, dimmer surface tokens.
-2. **PR [#59](https://github.com/ALaustrup/VYBZ/pull/59) merged** (`ad89cbb7`) — prior shell/VDock polish.
+1. **Artist OS Surface Overhaul implemented** on `feat/artist-os-surface-overhaul` — centered brand, Now Playing rail, VDock titles + viz modes, Library Tracks/Projects/Stages + Finalize strip, Discover search/filter/grid-list, Releases→Finalize, Messages without Rooms, AI/Usage/Flair archived from nav, Profile Packages (V¢), Codex list/cards. Gate below.
+2. **PR [#61](https://github.com/ALaustrup/VYBZ/pull/61) merged** (`d1f71370`) — forge-card surface sweep (production).
+3. **PR [#60](https://github.com/ALaustrup/VYBZ/pull/60) merged** (`17d52bbf`) — Chrome Foundation.
 
-## Gate on `feat/artist-os-chrome` / `main` @ `17d52bbf` — 2026-08-06
+## Gate on `feat/artist-os-surface-overhaul` — 2026-08-07
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 310/310 (54 files), including archived-nav routeTruth case
-npm run build             — PASS
+npm run test              — PASS 312/312 (54 files)
+npm run build             — PASS (assets index-CPwN25j5.js / index-svqxrOvn.css)
 ```
 
-OrbMenu is no longer mounted from SuiteShell; PrimaryRail + MobileNav use navModel.
-Studio / Live / Market absent from navItems. Home hub is ArtistHome (profile + albums).
-Delivery state: **DEPLOYED BUT UNVERIFIED** — owner signed-in smoke outstanding.
+Delivery state: **BUILT LOCALLY — NOT DEPLOYED**. Push / PR / production promote require owner authorisation.
 
 ### Delivered in PR #58
 
@@ -56,8 +53,8 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `feat/artist-os-chrome`. Untracked: `.cursor/settings.json` (do not commit).
-Unrelated local line-ending diffs on other tracked files are **not** staged.
+On `feat/artist-os-surface-overhaul` branched from `d1f71370`. Untracked: `.cursor/settings.json` (do not commit).
+Unrelated local line-ending diffs on other tracked files are **not** staged with this overhaul.
 
 Two stashes remain and were **not** touched, per the preservation rule:
 `stash@{0}` "ops cutover docs WIP" and `stash@{1}` "temp hash drift".
@@ -208,10 +205,9 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 
 ## Next authorised action
 
-1. **Owner:** review and authorise merging `feat/artist-os-chrome` (PR) to `main` for Vercel deploy.
-2. **Owner:** signed-in smoke — left rail, Home albums + lightbox, Discover hover preview, dim backdrop.
-3. Finish Artist OS Chrome Foundation exit gate, then resume **M4** only when owner re-authorises.
-4. **Owner:** restore the git identity (`git config --global user.name` / `user.email`).
+1. **Owner:** signed-in smoke on https://vybz.cloud — left rail, Home albums + lightbox, Discover hover preview, dim backdrop (hard-refresh / clear site data if PWA caches).
+2. Close Artist OS Chrome Foundation exit gate after smoke, then resume **M4** only when owner re-authorises.
+3. **Owner:** restore the git identity (`git config --global user.name` / `user.email`).
 
 **VYBZ Pro remains designed and unauthorised.** The migration is merged but unapplied, so
 `purchase_pro` and `pro_status` do not exist server-side. No purchase control exists, and

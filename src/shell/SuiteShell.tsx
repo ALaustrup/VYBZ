@@ -4,7 +4,7 @@ import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
-import { ContextInspector } from "@/shell/ContextInspector";
+import { NowPlayingRail } from "@/shell/NowPlayingRail";
 import { MobileNav } from "@/shell/MobileNav";
 import { PrimaryRail } from "@/shell/PrimaryRail";
 import { shellModeClass } from "@/shell/shellMode";
@@ -17,7 +17,7 @@ export function SuiteShell({
   onBulkUpload,
   surfaceMode = "professional",
   showCommandBar = false,
-  showInspector = false,
+  showInspector: _showInspector = false,
 }: {
   stage: ReactNode;
   dock: ReactNode;
@@ -27,6 +27,7 @@ export function SuiteShell({
   onBulkUpload?: () => void;
   surfaceMode?: "professional" | "audience";
   showCommandBar?: boolean;
+  /** @deprecated Context inspector replaced by NowPlayingRail. */
   showInspector?: boolean;
 }) {
   const shellMode = useShellMode();
@@ -49,7 +50,7 @@ export function SuiteShell({
               <div className="suite-stage-inner">{stage}</div>
             </ErrorBoundary>
           </main>
-          <ContextInspector defaultOpen={showInspector} />
+          <NowPlayingRail />
         </div>
       </div>
       <div className="app-dock" role="complementary" aria-label="V-Dock">
