@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
-**Branch:** `feat/m5-clip-silence-metrics`
-**HEAD:** pending commit — based on `main` @ `7bddc63f` (PR #66 merge)
+**Branch:** `feat/m5-dc-mono-compat`
+**HEAD:** pending commit — based on `main` @ `e8f76881` (PR #67 merge)
 **Working tree:** dirty until commit
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
@@ -16,29 +16,24 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | HTTP 200 |
-| Production SHA | `7bddc63f42bbc4d846a06dec965e153cd643546e` | live JS |
-| Deployed bundle | `/assets/index-CICQ-8hN.js` | live fetch 2026-08-07 |
-| M5 slice 1 on production | **YES** | `AUDIO_DYNAMICS_CRUSHED` + Crest factor copy present |
-| M5 slice 2 on production | **NO** | this branch only |
+| Production SHA | `e8f76881fdf5edc0ab647a0b55c3aa28364720de` | live JS 2026-08-07 |
+| M5 Advanced Analysis panel | **PASS** | `prepare-advanced-analysis` in live bundle |
+| This branch (DC/mono) on production | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#66](https://github.com/ALaustrup/VYBZ/pull/66) merged** (`7bddc63f`) — Dynamics & Stereo Integrity.
-2. **M5 slice 2 (this unit)** — clip sample counts, edge silence findings, Advanced Analysis panel on release detail.
+1. **PR [#67](https://github.com/ALaustrup/VYBZ/pull/67) merged** (`e8f76881`) — clip/silence + Advanced Analysis panel; live verified.
+2. **M5 slice 3 (this unit)** — DC offset + mono fold-down compatibility findings; panel rows for DC/mono/momentary.
 
-## Gate on this branch (working tree)
+## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 344/344 (62 files)
+npm run test              — PASS 350/350 (63 files)
 npm run build             — PASS
 ```
 
 Delivery state: **IMPLEMENTED** (local) — not merged.
-
-### Next authorised action
-
-Open PR; after merge verify production markers (`prepare-advanced-analysis`, clip/silence codes).
 
 ## Direction
 

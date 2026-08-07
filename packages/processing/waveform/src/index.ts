@@ -41,5 +41,13 @@ export {
   type ClipIntegrity,
   type EdgeSilence,
 } from "./integrity";
+export {
+  measureDcOffset,
+  measureMonoCompat,
+  DC_OFFSET_LINEAR_WARN,
+  MONO_LOSS_WARN_DB,
+  type DcOffsetResult,
+  type MonoCompatResult,
+} from "./monoCompat";
 export { computeSpectrum } from "./fft";
 export { analyzeWavBuffer, type AnalyzeOptions } from "./analyze";

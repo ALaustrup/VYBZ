@@ -55,6 +55,27 @@ export function AdvancedAnalysisPanel({ probe }: { probe: AudioProbe | null | un
     });
   }
 
+  if (probe.dcOffsetAbs != null) {
+    rows.push({
+      label: "DC offset",
+      value:
+        probe.dcOffsetDbfs != null
+          ? `${probe.dcOffsetAbs.toFixed(4)} (${probe.dcOffsetDbfs.toFixed(1)} dBFS)`
+          : probe.dcOffsetAbs.toFixed(4),
+    });
+  }
+
+  if (probe.monoLossDb != null) {
+    rows.push({ label: "Mono fold-down", value: fmt(probe.monoLossDb, 1, " dB") });
+  }
+
+  if (probe.momentaryLufs != null || probe.shortTermLufs != null) {
+    rows.push({
+      label: "Momentary / short-term",
+      value: `${fmt(probe.momentaryLufs, 1, " LUFS")} / ${fmt(probe.shortTermLufs, 1, " LUFS")}`,
+    });
+  }
+
   return (
     <section className="forge-glass relative p-4 md:p-5" data-testid="prepare-advanced-analysis">
       <span className="forge-glass-edge pointer-events-none" aria-hidden />

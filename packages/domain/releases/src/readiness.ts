@@ -54,6 +54,9 @@ export type AudioProbe = {
   maxClipRun?: number;
   silenceLeadInSeconds?: number;
   silenceLeadOutSeconds?: number;
+  dcOffsetAbs?: number;
+  dcOffsetDbfs?: number;
+  monoLossDb?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -455,6 +458,32 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
         "audio",
         "Long silence at the end",
         `Lead-out silence measured at ${audio.silenceLeadOutSeconds.toFixed(1)} s${provenance}. Trim trailing dead air if unintended.`
+      )
+    );
+  }
+
+  if (audio.loudnessMeasured && audio.dcOffsetAbs != null && audio.dcOffsetAbs > 0.01) {
+    out.push(
+      finding(
+        "AUDIO_DC_OFFSET",
+        "warning",
+        "audio",
+        "DC offset detected",
+        `Downmix DC mean measured at ${audio.dcOffsetAbs.toFixed(4)} linear${
+          audio.dcOffsetDbfs != null ? ` (${audio.dcOffsetDbfs.toFixed(1)} dBFS)` : ""
+        }${provenance}. Apply a DC blocker / high-pass at the end of the chain.`
+      )
+    );
+  }
+
+  if (audio.loudnessMeasured && audio.monoLossDb != null && audio.monoLossDb < -6) {
+    out.push(
+      finding(
+        "AUDIO_MONO_COMPAT_LOSS",
+        "warning",
+        "audio",
+        "Level drops when folded to mono",
+        `Mono fold-down measured ${audio.monoLossDb.toFixed(1)} dB vs stereo RMS${provenance}. Check polarity and mid/side processing for mono listeners.`
       )
     );
   }
