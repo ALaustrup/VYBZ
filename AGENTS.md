@@ -26,34 +26,27 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M4 — Measurement Integrity Foundation.** Owner directed 2026-08-06, choosing the Audio
-Intelligence and Release Operating System direction and eradicating all competing plans.
+**Artist OS Chrome Foundation.** Owner directed 2026-08-06 (evening): pause M4 and
+authorise a signed-in Artist OS surface — dim high-fidelity chrome, Orb → left sidebar,
+Home as artist profile + album library, Discover hover preview, refined VDock. Studio,
+Live, and Market are archived from navigation (freeze-not-delete).
 
-Scope: a defensible BS.1770-4 / EBU R128 integrated, momentary and short-term loudness
-meter with loudness range; true peak by oversampling; published test vectors passing within
-documented tolerances; provenance recorded on every measurement; consistency across web and
-desktop, or an explicit disclosure of the difference.
-
-Why this and nothing else: VYBZ's central claim is that it tells you the truth about your
-audio. Today integrated loudness is a gated-RMS **approximation** and true peak is **not
-measured at all**. Every downstream promise — findings, correction, mastering, translation,
-readiness, export — inherits that weakness. M4 is the milestone that makes the rest worth
-building.
+**M4 — Measurement Integrity Foundation is paused.** Resume only by later owner
+authorisation. Scope when resumed: BS.1770-4 / EBU R128 meters, true peak by oversampling,
+published test vectors, provenance, cross-environment consistency or disclosed difference.
 
 ### There is exactly one plan
 
-The parallel "premium suite" phase track is **withdrawn**. Running an eleven-phase
-initiative alongside the milestone sequence produced two competing plans, and breadth
-without completion was the result. The milestone sequence in
-[`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan. Phase numbers from that
-initiative carry no authority.
+The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
+sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 remains the long-term plan;
+this Chrome Foundation is the single owner-authorised interruption of M4, delivered as
+sequenced PRs under one milestone — not a second parallel track.
 
-### Law 3 during M4
+### Law 3 during Artist OS Chrome Foundation
 
-Breadth is retained — VYBZ remains an operating system, not a single-purpose tool. But
-social, live, messaging, rooms, connect, opportunities and discovery surfaces receive **no
-new feature work** until the audio core milestones land. They stay reachable and
-maintained; they do not grow. Bug fixes and shared-shell changes are permitted.
+Discovery and shared-shell work are in scope for this milestone by owner authorisation.
+Social / live / messaging still receive no unrelated feature growth; Live is archived from
+nav. Bug fixes and shared-shell changes remain permitted.
 
 ### Exit gates must be executable
 
@@ -67,7 +60,8 @@ navigation model, and it caught two errors the prose version had missed.
 
 M1 documentation is landed. M2 removed dating from the production bundle and is verified in
 production. M3's navigation gate is now enforced by test. Anything else previously described
-as M3 scope is closed; reopen it only by owner authorisation.
+as M3 scope is closed; reopen it only by owner authorisation. M4 remains the next audio-core
+milestone after this Chrome Foundation exits.
 
 ## Safety rules
 

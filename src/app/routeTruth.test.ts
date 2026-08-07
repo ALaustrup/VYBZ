@@ -117,6 +117,15 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     }
   });
 
+  it("never links Studio, Live, or Market after Artist OS archive", () => {
+    // Artist OS Chrome Foundation — freeze-not-delete: routes stay linkable by URL,
+    // but navModel must not advertise them.
+    const linked = navItems().map((i) => i.path);
+    expect(linked).not.toContain("/studio");
+    expect(linked).not.toContain("/live");
+    expect(linked).not.toContain("/market");
+  });
+
   it("accepts a redirect but rejects an unrouted path", () => {
     expect(isLinkable("/studio", { storefront: true })).toBe(true);
     expect(isLinkable("/market", { storefront: true })).toBe(true);

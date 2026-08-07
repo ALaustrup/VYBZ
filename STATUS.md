@@ -4,12 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-06
-**Branch:** `main`
-**HEAD:** `ad89cbb73298571d342b694575f71f1fceeea66c` — synced with `origin/main`
-**Current milestone:** **M4 — Measurement Integrity Foundation.** Owner chose the Audio
-Intelligence and Release Operating System direction on 2026-08-06 and directed that
-competing plans be eradicated. The parallel premium-suite phase track is **withdrawn**;
-the Masterplan milestone sequence is the only plan.
+**Branch:** `feat/artist-os-chrome`
+**HEAD:** `4642393c` — Artist OS Chrome Foundation on branch
+**Current milestone:** **Artist OS Chrome Foundation.** Owner paused M4 on 2026-08-06.
+M4 resumes only by later owner authorisation. Premium-suite phase track remains withdrawn.
 
 ---
 
@@ -17,18 +15,25 @@ the Masterplan milestone sequence is the only plan.
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `ad89cbb73298571d342b694575f71f1fceeea66c` | live bundle contains `ad89cbb7`; Vercel prod `dpl_FHLda5WpynJowRBm9r2fR4dGfMXo` Ready, aliases include https://vybz.cloud |
-| Alias | https://vybz.cloud | HTTP 200, live fetch 2026-08-06 |
-| Deployed bundle | `/assets/index-R_iBuMc0.js` | live fetch 2026-08-06 |
-| Deployed CSS | `/assets/index-CyeWOzAe.css` | live fetch 2026-08-06 (matches local build) |
-| Deployment current with `main` | **YES** | build SHA in the live bundle = `ad89cbb7…`, equal to `origin/main` |
-| Passkey edge function | Deployed to `xixmneooyufbeftdfpcm` with `--no-verify-jwt` | `npx supabase functions deploy passkey …` exit 0, 2026-08-06T19:42Z |
+| Production SHA | `c60437a93ed09b6b9f7c2f1f87bb158bc281e492` | prior main; Chrome Foundation not yet merged |
+| Alias | https://vybz.cloud | prior deploy |
+| Deployment current with this branch | **NO** | awaiting PR merge |
 
 ## Last completed operations
 
-1. **PR [#59](https://github.com/ALaustrup/VYBZ/pull/59) merged** (`ad89cbb7`) — premium shell + VDock polish: darker backdrop, higher `--surface-saturate`, forge/VDock alias `--surface-*`, ref-driven dock beat/progress, cheaper `DockVisualizer`. Gate before merge: lint PASS, test 309/309, build PASS. Production verified Ready with live SHA `ad89cbb7`.
-2. **Pushed `main` → `origin/main`** (`381a0270..2d42fd29`) — direction reset, command palette / `routeTruth`, passkey signup fix.
-3. **Supabase `passkey` function redeployed** on project `xixmneooyufbeftdfpcm` (`Deployed Functions.`, exit 0).
+1. **Artist OS Chrome Foundation on `feat/artist-os-chrome`** — authority docs, dim backdrop + rare glass sheen, Orb → left rail, Studio/Live/Market archived from nav, Home = ArtistHome + AlbumLightbox, Discover glass hover preview, VDock/landing token sweep. Gate: lint PASS, test 310/310, build PASS. `orb-menu-root` absent from production build bundle.
+2. **PR [#59](https://github.com/ALaustrup/VYBZ/pull/59) merged** (`ad89cbb7`) — prior shell/VDock polish.
+
+## Gate on `feat/artist-os-chrome` — 2026-08-06
+
+```
+npm run lint              — PASS
+npm run test              — PASS 310/310 (54 files), including archived-nav routeTruth case
+npm run build             — PASS
+```
+
+OrbMenu is no longer mounted from SuiteShell; PrimaryRail + MobileNav use navModel.
+Studio / Live / Market absent from navItems. Home hub is ArtistHome (profile + albums).
 
 ### Delivered in PR #58
 
@@ -48,9 +53,8 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `main` @ `ad89cbb7`, synced with `origin/main` after STATUS checkpoint. Untracked:
-`.cursor/settings.json` (do not commit). Unrelated local line-ending diffs remain on
-several tracked files and are **not** staged.
+On `feat/artist-os-chrome`. Untracked: `.cursor/settings.json` (do not commit).
+Unrelated local line-ending diffs on other tracked files are **not** staged.
 
 Two stashes remain and were **not** touched, per the preservation rule:
 `stash@{0}` "ops cutover docs WIP" and `stash@{1}` "temp hash drift".
@@ -201,15 +205,10 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 
 ## Next authorised action
 
-1. Confirm premium shell polish is live on https://vybz.cloud (bundle SHA = merge HEAD).
-2. **Owner:** signed-in passkey smoke on `/enter` if not already done.
-3. Begin **M4**: a BS.1770-4 / EBU R128 integrated, momentary and short-term loudness meter
-   with loudness range, plus true peak by oversampling, validated against published test
-   vectors within documented tolerances, with provenance on every measurement.
-4. **Owner:** upload a real MP3 or FLAC to confirm the decode path works on a genuine file.
-   No real MP3 or FLAC has been decoded end to end; this blocks any M4 completion claim.
-5. **Owner:** restore the git identity (`git config --global user.name` / `user.email`) —
-   still empty locally; commits used per-invocation `-c` only.
+1. **Owner:** review and authorise merging `feat/artist-os-chrome` (PR) to `main` for Vercel deploy.
+2. **Owner:** signed-in smoke — left rail, Home albums + lightbox, Discover hover preview, dim backdrop.
+3. Finish Artist OS Chrome Foundation exit gate, then resume **M4** only when owner re-authorises.
+4. **Owner:** restore the git identity (`git config --global user.name` / `user.email`).
 
 **VYBZ Pro remains designed and unauthorised.** The migration is merged but unapplied, so
 `purchase_pro` and `pro_status` do not exist server-side. No purchase control exists, and

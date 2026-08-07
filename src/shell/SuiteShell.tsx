@@ -5,7 +5,8 @@ import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
 import { ContextInspector } from "@/shell/ContextInspector";
-import { OrbMenu } from "@/shell/OrbMenu";
+import { MobileNav } from "@/shell/MobileNav";
+import { PrimaryRail } from "@/shell/PrimaryRail";
 import { shellModeClass } from "@/shell/shellMode";
 
 export function SuiteShell({
@@ -35,10 +36,12 @@ export function SuiteShell({
       data-surface-mode={surfaceMode}
       data-shell-mode={shellMode}
     >
+      <PrimaryRail />
       <div className="suite-shell-main">
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
         )}
+        <MobileNav />
         {showCommandBar ? <CommandBar /> : null}
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <main className="suite-stage suite-stage-frame">
@@ -52,9 +55,6 @@ export function SuiteShell({
       <div className="app-dock" role="complementary" aria-label="V-Dock">
         {dock}
       </div>
-      <ErrorBoundary>
-        <OrbMenu />
-      </ErrorBoundary>
       {/* Renders nothing until invoked, but owns the global Ctrl/Cmd+K binding. */}
       <ErrorBoundary>
         <CommandPalette onCompose={onCompose} onBulkUpload={onBulkUpload} />

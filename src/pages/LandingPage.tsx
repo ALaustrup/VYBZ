@@ -86,12 +86,13 @@ export function LandingPage() {
           viewport={{ once: true, margin: "-40px" }}
         >
           {STEPS.map((item) => (
-            <motion.li key={item.title} variants={staggerItem} className="forge-card text-left">
-              <span className="forge-card-icon mb-3 inline-flex">
+            <motion.li key={item.title} variants={staggerItem} className="forge-glass relative text-left !rounded-2xl p-4">
+              <span className="forge-glass-edge pointer-events-none" aria-hidden />
+              <span className="relative z-[1] mb-3 inline-flex rounded-xl border border-white/10 bg-white/[0.04] p-2 text-cyan-200/80">
                 <item.icon className="h-[18px] w-[18px]" />
               </span>
-              <h3 className="font-display text-[15px] font-semibold text-white">{item.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-white/48">{item.body}</p>
+              <h3 className="relative z-[1] font-display text-[15px] font-semibold text-white">{item.title}</h3>
+              <p className="relative z-[1] mt-1.5 text-sm leading-relaxed text-white/48">{item.body}</p>
             </motion.li>
           ))}
         </motion.ul>
