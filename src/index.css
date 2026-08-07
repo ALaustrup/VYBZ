@@ -233,7 +233,7 @@
 
   /* ── Suite shell — rail + main + dock ───────────────────────────────────── */
   .suite-shell {
-    @apply relative mx-auto flex h-[100dvh] w-full max-w-7xl overflow-hidden;
+    @apply relative mx-auto flex h-[100dvh] w-full max-w-none overflow-hidden;
   }
 
   /* Phase 1.5 shell composition hooks — denser desktop / touch-first Android */
@@ -250,7 +250,10 @@
   }
 
   .suite-rail {
-    @apply hidden w-52 shrink-0 flex-col border-r border-white/10 bg-white/[0.02] lg:flex;
+    @apply relative z-20 hidden w-[13.5rem] shrink-0 flex-col overflow-hidden border-r border-white/[0.08] lg:flex;
+    background: var(--surface-fill-strong);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
   }
 
   .suite-shell-main {
@@ -672,17 +675,17 @@
     height: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
     border-radius: 0;
     border: none;
-    border-top: 1px solid var(--surface-border-strong);
+    border-top: 1px solid var(--surface-border);
     margin: 0;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      var(--surface-fill) 42%,
+      rgba(255, 255, 255, 0.04) 0%,
+      var(--surface-fill) 40%,
       var(--surface-fill-strong) 100%
     );
     backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
     -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-saturate));
-    box-shadow: var(--surface-specular), 0 -16px 48px -28px rgba(0, 0, 0, 0.65);
+    box-shadow: var(--surface-specular), 0 -12px 40px -28px rgba(0, 0, 0, 0.75);
   }
   /* Follows the theme accent instead of hardcoded blue/teal. */
   .vdock-shell-veil {

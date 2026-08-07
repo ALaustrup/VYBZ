@@ -7,9 +7,9 @@ import {
 } from "lucide-react";
 import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
+import { ArtistHome } from "@/components/home/ArtistHome";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfileInbox } from "@/components/profile/ProfileInbox";
-import { CommandDashboard } from "@/components/dashboard/CommandDashboard";
 import { DashListenPanel } from "@/components/dashboard/DashListenPanel";
 import { DashLivePanel } from "@/components/dashboard/DashLivePanel";
 import { DashListsPanel } from "@/components/dashboard/DashListsPanel";
@@ -57,15 +57,6 @@ export function ProfilePage() {
   const [bugOpen, setBugOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  function setTab(next: DashTab) {
-    setParams((prev) => {
-      const p = new URLSearchParams(prev);
-      p.set("tab", next);
-      if (next !== "you") p.delete("sub");
-      return p;
-    }, { replace: true });
-  }
-
   function setYouSub(next: YouSub) {
     setParams((prev) => {
       const p = new URLSearchParams(prev);
@@ -95,12 +86,7 @@ export function ProfilePage() {
 
   return (
     <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1">
-      {tab === "hub" && (
-        <CommandDashboard
-          onListenMore={() => setTab("listen")}
-          onLiveMore={() => setTab("live")}
-        />
-      )}
+      {tab === "hub" && <ArtistHome />}
       {tab === "listen" && <DashListenPanel />}
       {tab === "live" && <DashLivePanel />}
       {tab === "wallet" && <WalletPage embedded />}

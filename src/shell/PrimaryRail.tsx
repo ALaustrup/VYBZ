@@ -1,68 +1,129 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { motion, useReducedMotion } from "framer-motion";
-import { suiteNavRoutes } from "@/app/routeManifest";
-import { PRODUCT_ACCENT_RGB, PRODUCT_LABEL } from "@/design/tokens";
-import { SuiteSwitcher } from "@/shell/SuiteSwitcher";
-import { durationFast } from "@/lib/motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { PRODUCT_ACCENT_RGB } from "@/design/tokens";
+import { HOME_ITEM, accountItems, navGroups, type NavGroup, type NavItem } from "@/shell/navModel";
+import { durationFast, durationNormal } from "@/lib/motion";
 import { cx } from "@/lib/utils";
+import { useSession } from "@/store/session";
 
-export function PrimaryRail() {
-  const routes = suiteNavRoutes();
+function RailLink({ item, end }: { item: NavItem; end?: boolean }) {
+  const accent = PRODUCT_ACCENT_RGB[item.productId];
+  const reduce = useReducedMotion();
+  const Icon = item.icon;
+  return (
+    <NavLink
+      to={item.path}
+      end={end}
+      title={item.hint}
+      className={({ isActive }) =>
+        cx(
+          "group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition",
+          "motion-reduce:transition-none",
+          isActive
+            ? "bg-white/[0.08] text-white"
+            : "text-white/50 hover:bg-white/[0.04] hover:text-white/85",
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <motion.span
+            className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full"
+            style={{ background: `rgb(${accent})` }}
+            aria-hidden
+            initial={false}
+            animate={{ opacity: isActive ? 1 : 0, scaleY: isActive ? 1 : 0.5 }}
+            transition={reduce ? { duration: 0.01 } : { duration: durationFast, ease: "easeOut" }}
+          />
+          <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
+          <span className="truncate">{item.label}</span>
+        </>
+      )}
+    </NavLink>
+  );
+}
+
+function RailGroup({ group, defaultOpen }: { group: NavGroup; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(!!defaultOpen);
   const reduce = useReducedMotion();
 
   return (
-    <aside className="suite-rail" aria-label="Suite navigation">
-      <div className="flex flex-col gap-1 px-2 pb-3 pt-4">
-        <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
-          Suite
-        </p>
-        <SuiteSwitcher />
+    <div className="px-1">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-1 rounded-md px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35 transition hover:text-white/55"
+      >
+        <span className="flex-1 text-left">{group.label}</span>
+        <motion.span
+          animate={{ rotate: open ? 0 : -90 }}
+          transition={reduce ? { duration: 0.01 } : { duration: durationFast }}
+          className="inline-flex"
+        >
+          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+        </motion.span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            key={group.id}
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={reduce ? undefined : { height: 0, opacity: 0 }}
+            transition={
+              reduce
+                ? { duration: 0.01 }
+                : { duration: durationNormal, ease: [0.2, 0.8, 0.2, 1] }
+            }
+            className="overflow-hidden"
+            style={{ clipPath: "inset(0 0 0 0)" }}
+          >
+            <div className="flex flex-col gap-0.5 pb-2 pt-0.5">
+              {group.items.map((item) => (
+                <RailLink key={item.path} item={item} />
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/**
+ * Left suite rail — driven exclusively by `navModel` (never `suiteNavRoutes`).
+ */
+export function PrimaryRail() {
+  const { profile } = useSession();
+  const account = accountItems(profile?.platformRole ?? "member", !!profile?.isAdmin);
+  const groups = navGroups();
+
+  return (
+    <aside className="suite-rail forge-glass !rounded-none !border-y-0 !border-l-0" aria-label="Suite navigation">
+      <div className="relative z-[2] flex min-h-0 flex-1 flex-col">
+        <div className="border-b border-white/[0.06] px-2 pb-3 pt-4">
+          <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+            VYBZ
+          </p>
+          <div className="mt-2">
+            <RailLink item={HOME_ITEM} end />
+          </div>
+        </div>
+        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-2">
+          {groups.map((g, i) => (
+            <RailGroup key={g.id} group={g} defaultOpen={i < 2} />
+          ))}
+          {account.length > 0 ? (
+            <RailGroup
+              group={{ id: "more", label: "More", items: account }}
+              defaultOpen={false}
+            />
+          ) : null}
+        </nav>
       </div>
-      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-4">
-        {routes.map((route) => {
-          const accent = PRODUCT_ACCENT_RGB[route.productId];
-          return (
-            <NavLink
-              key={route.path}
-              to={route.path}
-              end={route.path === "/"}
-              className={({ isActive }) =>
-                cx(
-                  "group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition",
-                  "motion-reduce:transition-none",
-                  isActive
-                    ? "bg-white/10 text-white glass-vibrant"
-                    : "text-white/55 hover:bg-white/[0.06] hover:text-white/85",
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <motion.span
-                    className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full"
-                    style={{ background: `rgb(${accent})` }}
-                    aria-hidden
-                    initial={false}
-                    animate={{
-                      opacity: isActive ? 1 : 0,
-                      scaleY: isActive ? 1 : 0.6,
-                    }}
-                    transition={
-                      reduce
-                        ? { duration: 0.01 }
-                        : { duration: durationFast, ease: "easeOut" }
-                    }
-                  />
-                  <span className="truncate">{route.title}</span>
-                  <span className="ml-auto truncate text-[10px] text-white/30">
-                    {PRODUCT_LABEL[route.productId]}
-                  </span>
-                </>
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
     </aside>
   );
 }

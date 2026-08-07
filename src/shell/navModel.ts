@@ -7,16 +7,12 @@ import {
   Library,
   ListChecks,
   MessageSquare,
-  Radio,
   ShieldCheck,
   Sparkles,
-  Store,
   UserCog,
-  Waves,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { FLAGS } from "@/lib/flags";
 import type { SuiteProductId } from "@/design/tokens";
 
 export type NavItem = {
@@ -32,15 +28,11 @@ export type NavGroup = { id: string; label: string; items: NavItem[] };
 /**
  * Only destinations that render a working surface.
  *
- * `suiteNavRoutes()` advertised fourteen entries, eight of which rendered
- * `SuitePlaceholderPage` — Credits, MasterReady, CoverLab, Sentinel, Relay, Wallet,
- * Settings, and Market when the storefront flag is off. Meanwhile the Credits, Master and
- * Distribution surfaces that do work are per-release and had no entry at all. Advertising
- * products that do not exist is the façade this model removes; a destination earns a place
- * here by being reachable and functional, not by being planned.
+ * Studio (`/studio`), Live (`/live`), and Market (`/market`) are archived from
+ * navigation under Artist OS Chrome Foundation (freeze-not-delete — routes remain).
  */
 export function navGroups(): NavGroup[] {
-  const groups: NavGroup[] = [
+  return [
     {
       id: "create",
       label: "Create",
@@ -51,13 +43,6 @@ export function navGroups(): NavGroup[] {
           hint: "Scan a master for release readiness",
           icon: ListChecks,
           productId: "prepare",
-        },
-        {
-          path: "/studio",
-          label: "Studio",
-          hint: "Projects and version history",
-          icon: Waves,
-          productId: "studio",
         },
       ],
     },
@@ -71,13 +56,6 @@ export function navGroups(): NavGroup[] {
           hint: "New work from other creators",
           icon: Compass,
           productId: "home",
-        },
-        {
-          path: "/live",
-          label: "Live",
-          hint: "Sessions happening now",
-          icon: Radio,
-          productId: "live",
         },
         {
           path: "/library",
@@ -116,18 +94,6 @@ export function navGroups(): NavGroup[] {
       ],
     },
   ];
-
-  if (FLAGS.storefront) {
-    groups[1]!.items.splice(2, 0, {
-      path: "/market",
-      label: "Market",
-      hint: "Sample packs and downloads",
-      icon: Store,
-      productId: "market",
-    });
-  }
-
-  return groups;
 }
 
 /**
@@ -172,7 +138,7 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 export const HOME_ITEM: NavItem = {
   path: "/",
   label: "Home",
-  hint: "Your hub",
+  hint: "Your catalog and artist profile",
   icon: Home,
   productId: "home",
 };
@@ -180,3 +146,6 @@ export const HOME_ITEM: NavItem = {
 export function navItems(): NavItem[] {
   return [HOME_ITEM, ...navGroups().flatMap((g) => g.items)];
 }
+
+/** Paths archived from nav but still linkable by URL (freeze-not-delete). */
+export const ARCHIVED_NAV_PATHS = ["/studio", "/live", "/market"] as const;

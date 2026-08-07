@@ -5,8 +5,8 @@ import { SuiteShell } from "@/shell/SuiteShell";
 import { BRAND_BG } from "@/lib/surfaceTheme";
 
 /**
- * Renders the real SuiteShell — and therefore the real OrbMenu and command
- * palette — without the auth gate, so navigation can be exercised in Playwright
+ * Renders the real SuiteShell — left rail, mobile nav, and command palette —
+ * without the auth gate, so navigation can be exercised in Playwright
  * and inspected visually. The stage content is deliberately inert; this fixture
  * exists to test the shell, not a page.
  *
@@ -27,8 +27,8 @@ export function ShellOrbE2EFixturePage() {
           <div className="flex flex-col gap-4 py-8" data-testid="shell-fixture-stage">
             <h1 className="font-display text-2xl font-semibold text-snow">Shell harness</h1>
             <p className="max-w-prose text-sm text-fog">
-              The orb below is the only navigation surface. It is collapsed by default and
-              opens on hover with a pointer, or on tap.
+              The left rail is the primary navigation surface. On narrow viewports the
+              mobile chip strip appears under the app bar.
             </p>
             <p data-testid="shell-fixture-fired">{fired.join(",")}</p>
             {Array.from({ length: 8 }, (_, i) => (

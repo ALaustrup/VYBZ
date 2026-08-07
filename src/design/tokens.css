@@ -35,13 +35,13 @@
    * products depending on which surface you were looking at. Near-black and
    * neutral is the house look; blur and depth are kept, the blue tint is not.
    */
-  --surface-fill: rgba(6, 10, 16, 0.52);
-  --surface-fill-strong: rgba(3, 6, 12, 0.78);
-  --surface-border: rgba(255, 255, 255, 0.11);
-  --surface-border-strong: rgba(255, 255, 255, 0.18);
-  --surface-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
-  --surface-blur: 32px;
-  --surface-saturate: 1.65;
+  --surface-fill: rgba(4, 7, 12, 0.72);
+  --surface-fill-strong: rgba(2, 4, 8, 0.88);
+  --surface-border: rgba(255, 255, 255, 0.09);
+  --surface-border-strong: rgba(255, 255, 255, 0.14);
+  --surface-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  --surface-blur: 24px;
+  --surface-saturate: 1.28;
 
   /* Glass vibrant mats — now aliases of the shared surface. */
   --glass-vibrant-fill: var(--surface-fill);
