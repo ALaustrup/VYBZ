@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-07
 **Branch:** `main`
-**HEAD:** `ab1434f39860cf9865f00a3fb12b24928805e259` — synced with `origin/main`
+**HEAD:** `5ca43a46bf2eb183caebff82a93c85b0ad6aef4e` — synced with `origin/main`
 **Current milestone:** **Artist OS Surface Overhaul.** Owner authorised 2026-08-07.
 M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundation landed.
 
@@ -15,19 +15,19 @@ M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundatio
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `ab1434f3` | live JS contains merge SHA; Vercel `dpl_4qqqkB3uacMiJQfqVsAVFzd25KZy` Ready |
+| Production SHA | `5ca43a46bf2eb183caebff82a93c85b0ad6aef4e` | live JS contains full SHA; Vercel `dpl_81PPk2d475KzZzDnFYp59NjXd3HZ` Ready |
 | Alias | https://vybz.cloud | HTTP 200 |
-| Deployed bundle | `/assets/index-BkDcxBzm.js` | live fetch 2026-08-07 |
-| Deployed CSS | `/assets/index-svqxrOvn.css` | matches pre-merge build CSS hash |
-| Deployment current with `main` | **YES** | live stamp = merge of PR #62 |
+| Deployed bundle | `/assets/index-JECT1-td.js` | live fetch 2026-08-07 |
+| Deployed CSS | `/assets/index-svqxrOvn.css` | `--surface-saturate: 1.28`; `forge-sheen-rare`; `.forge-card` |
+| Deployment current with `main` | **YES** | live SHA = STATUS checkpoint tip |
 
 ## Last completed operations
 
-1. **PR [#62](https://github.com/ALaustrup/VYBZ/pull/62) merged** (`ab1434f3`) — Artist OS Surface Overhaul. Production Ready; live markers `Finalize`, `Nothing playing`, `Now playing` present.
-2. **PR [#61](https://github.com/ALaustrup/VYBZ/pull/61) merged** (`d1f71370`) — forge-card surface sweep.
-3. **PR [#60](https://github.com/ALaustrup/VYBZ/pull/60) merged** (`17d52bbf`) — Chrome Foundation.
+1. **Signed-in production smoke (agent browser session)** — Home rail shows Finalize (not Releases); Discover search/filters/grid-list; Library Tracks/Projects/Stages; Messages Direct with no Rooms tab; Now Playing rail shows track while top bar stays page title; VDock viz cycles Bars→Mirror; Profile `#packages` shows Starter/Plus/Studio V¢ packs. No AI minutes / Usage / Flair in nav.
+2. **PR [#62](https://github.com/ALaustrup/VYBZ/pull/62) merged** (`ab1434f3`) — Artist OS Surface Overhaul; follow-up STATUS `5ca43a46` on Production.
+3. **PR [#61](https://github.com/ALaustrup/VYBZ/pull/61) merged** (`d1f71370`) — forge-card surface sweep.
 
-## Gate on `main` @ `ab1434f3` — 2026-08-07
+## Gate on `main` @ `5ca43a46` — 2026-08-07
 
 ```
 npm run lint              — PASS (pre-merge on feature branch)
@@ -35,8 +35,7 @@ npm run test              — PASS 312/312 (54 files)
 npm run build             — PASS
 ```
 
-Centered brand; Now Playing rail; VDock viz modes; Library Tracks/Projects/Stages; Discover feed controls; Finalize nav label; Messages without Rooms; Packages on profile; Flair/AI/Usage archived from nav.
-Delivery state: **DEPLOYED BUT UNVERIFIED** — owner signed-in smoke outstanding (hard-refresh / clear PWA cache).
+Delivery state: **DEPLOYED AND VERIFIED** — signed-in smoke evidence above (2026-08-07).
 
 ### Delivered in PR #58
 
@@ -56,9 +55,7 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `main` @ `ab1434f3`. Clean for Surface Overhaul. Unrelated WIP stashed as
-`stash@{0}` "wip unrelated before status" (plus prior ops/hash stashes). Do not drop
-stashes without inspection.
+On `main` @ `5ca43a46`. Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
 
 ## Production verification — 2026-08-04
 
