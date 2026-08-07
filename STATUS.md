@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-07
 **Branch:** `feat/m5-channel-balance-momentary`
-**HEAD:** pending commit — based on `main` @ `8353e4d7` (PR #68 merge)
-**Working tree:** dirty until commit
+**HEAD:** `c14f908eda7527c66f3db1b1242b07768a2f3d6c`
+**Working tree:** clean on branch
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
 ---
