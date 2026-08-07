@@ -164,6 +164,33 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_SPECTRAL_BASS_HEAVY")).toBe(true);
   });
 
+  it("flags clipped samples and long edge silence when measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        channels: 2,
+        loudnessMeasured: true,
+        peakDbfs: -0.5,
+        clippedSamples: 120,
+        maxClipRun: 8,
+        silenceLeadInSeconds: 4.2,
+        silenceLeadOutSeconds: 5.5,
+        integratedLufs: -14,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_CLIPPING_SAMPLES")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_SILENCE_LEAD_IN")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_SILENCE_LEAD_OUT")).toBe(true);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

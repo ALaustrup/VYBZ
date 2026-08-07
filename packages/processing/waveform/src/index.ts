@@ -32,5 +32,14 @@ export {
   SPECTRAL_THIN_LOW_MID_SHARE,
   type SpectralBalance,
 } from "./spectralBalance";
+export {
+  measureClipIntegrity,
+  measureEdgeSilence,
+  CLIP_SHARE_WARN,
+  SILENCE_LEAD_IN_WARN_SEC,
+  SILENCE_LEAD_OUT_WARN_SEC,
+  type ClipIntegrity,
+  type EdgeSilence,
+} from "./integrity";
 export { computeSpectrum } from "./fft";
 export { analyzeWavBuffer, type AnalyzeOptions } from "./analyze";

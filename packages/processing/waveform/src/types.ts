@@ -45,6 +45,14 @@ export type LoudnessMetrics = {
     midShare: number;
     highShare: number;
   };
+  /** Count of near-full-scale samples across channels. */
+  clippedSamples?: number;
+  /** Longest consecutive clipped run. */
+  maxClipRun?: number;
+  /** Leading digital silence (seconds). */
+  silenceLeadInSeconds?: number;
+  /** Trailing digital silence (seconds). */
+  silenceLeadOutSeconds?: number;
 };
 
 export type SpectrumSnapshot = {

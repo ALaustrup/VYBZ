@@ -50,6 +50,10 @@ export type AudioProbe = {
     midShare: number;
     highShare: number;
   };
+  clippedSamples?: number;
+  maxClipRun?: number;
+  silenceLeadInSeconds?: number;
+  silenceLeadOutSeconds?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -399,6 +403,60 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
         )
       );
     }
+  }
+
+  if (audio.loudnessMeasured && audio.clippedSamples != null && audio.clippedSamples > 0) {
+    const totalHint =
+      audio.durationSeconds && audio.sampleRate && audio.channels
+        ? audio.durationSeconds * audio.sampleRate
+        : null;
+    const share =
+      totalHint && totalHint > 0 ? audio.clippedSamples / totalHint : null;
+    if (share == null || share >= 0.0001 || (audio.maxClipRun ?? 0) >= 3) {
+      out.push(
+        finding(
+          "AUDIO_CLIPPING_SAMPLES",
+          "warning",
+          "audio",
+          "Clipped samples detected",
+          `Counted ${audio.clippedSamples} near-full-scale sample${audio.clippedSamples === 1 ? "" : "s"}${
+            audio.maxClipRun != null ? ` (longest run ${audio.maxClipRun})` : ""
+          }${provenance}. Lower the limiter ceiling and re-export.`
+        )
+      );
+    }
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.silenceLeadInSeconds != null &&
+    audio.silenceLeadInSeconds > 2
+  ) {
+    out.push(
+      finding(
+        "AUDIO_SILENCE_LEAD_IN",
+        "info",
+        "audio",
+        "Long silence at the start",
+        `Lead-in silence measured at ${audio.silenceLeadInSeconds.toFixed(1)} s${provenance}. Trim dead air before the first hit.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.silenceLeadOutSeconds != null &&
+    audio.silenceLeadOutSeconds > 3
+  ) {
+    out.push(
+      finding(
+        "AUDIO_SILENCE_LEAD_OUT",
+        "info",
+        "audio",
+        "Long silence at the end",
+        `Lead-out silence measured at ${audio.silenceLeadOutSeconds.toFixed(1)} s${provenance}. Trim trailing dead air if unintended.`
+      )
+    );
   }
 
   if (!audio.loudnessMeasured) {

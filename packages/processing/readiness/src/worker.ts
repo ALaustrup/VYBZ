@@ -61,6 +61,10 @@ export type MeasuredLoudness = {
     midShare: number;
     highShare: number;
   };
+  clippedSamples?: number;
+  maxClipRun?: number;
+  silenceLeadInSeconds?: number;
+  silenceLeadOutSeconds?: number;
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;

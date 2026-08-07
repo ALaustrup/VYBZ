@@ -2,6 +2,7 @@ import { computeSpectrum } from "./fft";
 import { computeLoudness } from "./loudness";
 import { measureBs1770 } from "./bs1770";
 import { measureCrestFactorDb } from "./dynamics";
+import { measureClipIntegrity, measureEdgeSilence } from "./integrity";
 import { measureStereoCorrelation } from "./stereo";
 import { measureSpectralBalance } from "./spectralBalance";
 import { decodeWavPcm } from "./pcm";
@@ -43,6 +44,8 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
   const balance = spectrum
     ? measureSpectralBalance(spectrum.magnitudes, spectrum.fftSize, pcm.sampleRate)
     : null;
+  const clips = measureClipIntegrity(planar);
+  const edges = measureEdgeSilence(planar, pcm.sampleRate);
 
   return {
     ...peaks,
@@ -64,6 +67,10 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
           highShare: balance.highShare,
         }
       : undefined,
+    clippedSamples: clips.clippedSamples,
+    maxClipRun: clips.maxClipRun,
+    silenceLeadInSeconds: edges?.leadInSeconds,
+    silenceLeadOutSeconds: edges?.leadOutSeconds,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,
