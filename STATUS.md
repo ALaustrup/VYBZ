@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-07
 **Branch:** `feat/artist-os-surface-overhaul`
-**HEAD:** (local — not yet committed; branched from `d1f71370`)
+**HEAD:** `66588278` — Surface Overhaul commit on `feat/artist-os-surface-overhaul` (not pushed)
 **Current milestone:** **Artist OS Surface Overhaul.** Owner authorised 2026-08-07.
 M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundation landed.
 
