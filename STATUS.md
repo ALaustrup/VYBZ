@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-07
 **Branch:** `feat/m4-measurement-integrity`
-**HEAD:** see tip after commit — Status will record exact SHA in the follow-up checkpoint
-**Working tree:** M4 meter foundation committed on this branch
+**HEAD:** `03a644ccd2128538c59f6185dc5ab656e8695c75` — based on `origin/main` @ `f2aea1d5`
+**Working tree:** clean after feat commit (STATUS tip update may follow)
 **Current milestone:** **M4 — Measurement Integrity Foundation.** Owner directed resume 2026-08-07 after Surface Overhaul exited **DEPLOYED AND VERIFIED**. Premium-suite phase track remains withdrawn.
 
 ---
@@ -21,12 +21,12 @@
 
 ## Last completed operations
 
-1. **M4 portable meter foundation (this unit, uncommitted)** — in-repo BS.1770-4 / EBU R128 path under `packages/processing/waveform/src/bs1770.ts` (`m4.bs1770.1`); true peak via 4× Catmull–Rom; wired through readiness worker, probes, readiness findings, distribution report; native desktop path disclosed as approx-only / BS.1770 pending.
+1. **M4 portable meter foundation committed** — `03a644cc` — in-repo BS.1770-4 / EBU R128 under `packages/processing/waveform/src/bs1770.ts` (`m4.bs1770.1`); true peak via 4× Catmull–Rom; wired through readiness worker, probes, readiness findings, distribution report; native desktop path disclosed as approx-only / BS.1770 pending.
 2. **Measured vector evidence (local)** — stereo 1 kHz −23 dBFS/ch → **−22.993 LUFS**; mono → **−26.004 LUFS**; true peak ≈ sample peak (−23.000 dBTP) on the same sine. Gate tests cite Masterplan §10 M4.
-3. **Correctness gate on this branch (working tree)** — lint PASS; test **319/319** (55 files); build PASS (2026-08-07).
+3. **Correctness gate on this branch @ `03a644cc`** — lint PASS; test **319/319** (55 files); build PASS (2026-08-07).
 4. **Prior:** Surface Overhaul PR [#62](https://github.com/ALaustrup/VYBZ/pull/62) — **DEPLOYED AND VERIFIED** on production (signed-in smoke 2026-08-07).
 
-## Gate on `feat/m4-measurement-integrity` (working tree) — 2026-08-07
+## Gate on `feat/m4-measurement-integrity` @ `03a644cc` — 2026-08-07
 
 ```
 npm run lint              — PASS
@@ -34,7 +34,7 @@ npm run test              — PASS 319/319 (55 files), including bs1770.test.ts 
 npm run build             — PASS
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged, not deployed, not production-verified.
+Delivery state: **IMPLEMENTED** — committed on feature branch; not merged, not deployed, not production-verified.
 
 ### M4 disclosures (Law 1)
 
@@ -47,7 +47,7 @@ Delivery state: **IMPLEMENTED** (local) — not merged, not deployed, not produc
 
 ### Next authorised action
 
-Commit M4 work on `feat/m4-measurement-integrity`, then ask owner before push / PR / merge / deploy.
+Owner confirmed proceed: push branch and open PR for review/merge.
 
 ## Gate on `main` @ `f2aea1d5` — 2026-08-07 (pre-M4 tip)
 
@@ -71,7 +71,7 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `feat/m4-measurement-integrity` (dirty). Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
+On `feat/m4-measurement-integrity` @ `03a644cc` (STATUS tip update may be one commit ahead). Unrelated WIP remains in stash (`wip unrelated before status` plus prior ops/hash stashes). Do not drop without inspection.
 
 ## Production verification — 2026-08-04
 
