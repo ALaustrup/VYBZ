@@ -19,5 +19,18 @@ export {
   type Bs1770Metrics,
   type MeasurementProvenance,
 } from "./bs1770";
+export { measureCrestFactorDb, CREST_CRUSHED_THRESHOLD_DB } from "./dynamics";
+export {
+  measureStereoCorrelation,
+  STEREO_NARROW_THRESHOLD,
+  STEREO_OUT_OF_PHASE_THRESHOLD,
+} from "./stereo";
+export {
+  measureSpectralBalance,
+  SPECTRAL_BASS_HEAVY_SHARE,
+  SPECTRAL_BRIGHT_SHARE,
+  SPECTRAL_THIN_LOW_MID_SHARE,
+  type SpectralBalance,
+} from "./spectralBalance";
 export { computeSpectrum } from "./fft";
 export { analyzeWavBuffer, type AnalyzeOptions } from "./analyze";

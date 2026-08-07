@@ -54,6 +54,13 @@ export type MeasuredLoudness = {
     truePeakOversample: number;
     environment: string;
   };
+  crestFactorDb?: number;
+  stereoCorrelation?: number | null;
+  spectralBalance?: {
+    lowShare: number;
+    midShare: number;
+    highShare: number;
+  };
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;

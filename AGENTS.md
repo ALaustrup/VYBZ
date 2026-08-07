@@ -26,48 +26,41 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M4 — Measurement Integrity Foundation.** Owner directed 2026-08-07 (resume): Surface
-Overhaul is **DEPLOYED AND VERIFIED**; M4 is the single authorised milestone again.
+**M5 — Advanced Analysis Suite.** Owner authorised 2026-08-07 after M4 exited
+**DEPLOYED AND VERIFIED** (BS.1770 meters, scan progress, executable M4 gate, native
+approx disclosure).
 
-Scope: a defensible BS.1770-4 / EBU R128 integrated, momentary and short-term loudness
-meter with loudness range; true peak by oversampling; published test vectors passing within
-documented tolerances; provenance on every measurement; consistency across web and desktop,
-or an explicit disclosure of the difference.
+Scope: analysis that provides value beyond basic readiness — findings reproducible,
+understandable, and actionable; performance acceptable on supported files and devices
+(Masterplan §10). First slice: Dynamics & Stereo Integrity (crest factor, L/R
+correlation, spectral band balance, LRA) from measured PCM only (Law 1).
 
-**DR-07 locked for this resume:** build the meter **in-repo** under
-`packages/processing/waveform` (no new npm dependency). Desktop Rust parity may lag with an
-explicit disclosure until a follow-up PR.
-
-Artist OS Surface Overhaul / Chrome Foundation remain landed. Premium-suite phase track
-remains withdrawn. The Masterplan §9 sequence is the only plan.
+M4 remains landed. Premium-suite phase track remains withdrawn. The Masterplan §9
+sequence is the only plan.
 
 ### There is exactly one plan
 
 The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
 sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan.
 
-### Law 3 during M4
+### Law 3 during M5
 
 Breadth is retained — VYBZ remains an operating system. Social, live, messaging, rooms,
 connect, opportunities and discovery surfaces receive **no new feature work** until audio
 core milestones land. They stay reachable and maintained; they do not grow. Bug fixes and
 shared-shell changes are permitted.
 
-
 ### Exit gates must be executable
 
-A gate written only in prose cannot fail a build. M3's gate — "every visible navigation item
-leads to a functional surface" — was satisfied by hand and nothing stopped it regressing.
-Where a gate can be expressed as a test, it must be, and the test must cite the gate.
-`src/app/routeTruth.test.ts` is the reference: it enforces that M3 gate against the real
-navigation model, and it caught two errors the prose version had missed.
+A gate written only in prose cannot fail a build. Where a gate can be expressed as a test,
+it must be, and the test must cite the gate. References: `src/app/routeTruth.test.ts` (M3),
+`src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5).
 
 ### Carry-forward
 
-M1 documentation is landed. M2 removed dating from the production bundle and is verified in
-production. M3's navigation gate is now enforced by test. Anything else previously described
-as M3 scope is closed; reopen it only by owner authorisation. M4 remains the next audio-core
-milestone after this Chrome Foundation exits.
+M1–M3 closed as previously recorded. M4 Measurement Integrity is **DEPLOYED AND VERIFIED**
+with native desktop BS.1770 still disclosed as approx-pending. Do not begin M6 until the
+owner authorises it.
 
 ## Safety rules
 

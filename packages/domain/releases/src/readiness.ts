@@ -40,6 +40,16 @@ export type AudioProbe = {
     truePeakOversample: number;
     environment: string;
   };
+  /** Peak − RMS (dB) when both measured. */
+  crestFactorDb?: number;
+  /** L/R correlation (−1…+1); absent/null for mono. */
+  stereoCorrelation?: number | null;
+  /** Power-weighted spectral band shares. */
+  spectralBalance?: {
+    lowShare: number;
+    midShare: number;
+    highShare: number;
+  };
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -296,6 +306,96 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
           "audio",
           "Track reads quiet",
           `Integrated loudness ${lufs.toFixed(1)} LUFS${provenance} — ${methodLabel}. Consider gentle gain or limiting so listeners do not need to turn up.`
+        )
+      );
+    }
+  }
+
+  // M5 — Dynamics & stereo integrity (heuristics on measured metrics only).
+  if (audio.loudnessMeasured && audio.crestFactorDb != null && audio.crestFactorDb < 6) {
+    out.push(
+      finding(
+        "AUDIO_DYNAMICS_CRUSHED",
+        "warning",
+        "audio",
+        "Dynamics look heavily limited",
+        `Crest factor measured at ${audio.crestFactorDb.toFixed(1)} dB${provenance} (peak − RMS). Ease the limiter if the mix feels flat.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.loudnessRangeLu != null &&
+    !Number.isNaN(audio.loudnessRangeLu) &&
+    audio.loudnessRangeLu < 4
+  ) {
+    out.push(
+      finding(
+        "AUDIO_LRA_LOW",
+        "info",
+        "audio",
+        "Loudness range is very small",
+        `Loudness range measured at ${audio.loudnessRangeLu.toFixed(1)} LU${provenance} (BS.1770 short-term distribution). Over-limiting can erase contrast.`
+      )
+    );
+  }
+
+  if (audio.loudnessMeasured && audio.stereoCorrelation != null) {
+    const corr = audio.stereoCorrelation;
+    if (corr > 0.95) {
+      out.push(
+        finding(
+          "AUDIO_STEREO_NARROW",
+          "info",
+          "audio",
+          "Stereo image looks nearly mono",
+          `L/R correlation measured at ${corr.toFixed(2)}${provenance}. Check mid/side width if you expected a wide image.`
+        )
+      );
+    } else if (corr < -0.3) {
+      out.push(
+        finding(
+          "AUDIO_STEREO_OUT_OF_PHASE",
+          "warning",
+          "audio",
+          "Channels look out of phase",
+          `L/R correlation measured at ${corr.toFixed(2)}${provenance}. Check polarity — mono playback may cancel.`
+        )
+      );
+    }
+  }
+
+  if (audio.loudnessMeasured && audio.spectralBalance) {
+    const { lowShare, midShare, highShare } = audio.spectralBalance;
+    if (lowShare > 0.55) {
+      out.push(
+        finding(
+          "AUDIO_SPECTRAL_BASS_HEAVY",
+          "info",
+          "audio",
+          "Low band dominates the spectrum",
+          `Low-band power share measured at ${(lowShare * 100).toFixed(0)}%${provenance} (mid-file FFT heuristic). Check monitoring / HPF.`
+        )
+      );
+    } else if (highShare > 0.45) {
+      out.push(
+        finding(
+          "AUDIO_SPECTRAL_BRIGHT",
+          "info",
+          "audio",
+          "High band is unusually strong",
+          `High-band power share measured at ${(highShare * 100).toFixed(0)}%${provenance} (mid-file FFT heuristic). Soften harshness if needed.`
+        )
+      );
+    } else if (lowShare + midShare < 0.35) {
+      out.push(
+        finding(
+          "AUDIO_SPECTRAL_THIN",
+          "info",
+          "audio",
+          "Spectrum looks thin in the body",
+          `Low+mid power share measured at ${((lowShare + midShare) * 100).toFixed(0)}%${provenance} (mid-file FFT heuristic). Add body or check high-pass filters.`
         )
       );
     }
