@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
-**Branch:** `feat/artist-os-surface-overhaul`
-**HEAD:** `6f425578` — tip of `feat/artist-os-surface-overhaul` (not pushed)
+**Branch:** `main`
+**HEAD:** `ab1434f39860cf9865f00a3fb12b24928805e259` — synced with `origin/main`
 **Current milestone:** **Artist OS Surface Overhaul.** Owner authorised 2026-08-07.
 M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundation landed.
 
@@ -15,25 +15,28 @@ M4 remains paused. Premium-suite phase track remains withdrawn. Chrome Foundatio
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `2c2826de1aeef9533e0fcad30307dbb79abceda4` | prior checkpoint — branch not deployed |
-| Alias | https://vybz.cloud | unchanged until merge + promote |
-| Deployment current with branch | **NO** | Surface Overhaul is local on feature branch |
+| Production SHA | `ab1434f3` | live JS contains merge SHA; Vercel `dpl_4qqqkB3uacMiJQfqVsAVFzd25KZy` Ready |
+| Alias | https://vybz.cloud | HTTP 200 |
+| Deployed bundle | `/assets/index-BkDcxBzm.js` | live fetch 2026-08-07 |
+| Deployed CSS | `/assets/index-svqxrOvn.css` | matches pre-merge build CSS hash |
+| Deployment current with `main` | **YES** | live stamp = merge of PR #62 |
 
 ## Last completed operations
 
-1. **Artist OS Surface Overhaul implemented** on `feat/artist-os-surface-overhaul` — centered brand, Now Playing rail, VDock titles + viz modes, Library Tracks/Projects/Stages + Finalize strip, Discover search/filter/grid-list, Releases→Finalize, Messages without Rooms, AI/Usage/Flair archived from nav, Profile Packages (V¢), Codex list/cards. Gate below.
-2. **PR [#61](https://github.com/ALaustrup/VYBZ/pull/61) merged** (`d1f71370`) — forge-card surface sweep (production).
+1. **PR [#62](https://github.com/ALaustrup/VYBZ/pull/62) merged** (`ab1434f3`) — Artist OS Surface Overhaul. Production Ready; live markers `Finalize`, `Nothing playing`, `Now playing` present.
+2. **PR [#61](https://github.com/ALaustrup/VYBZ/pull/61) merged** (`d1f71370`) — forge-card surface sweep.
 3. **PR [#60](https://github.com/ALaustrup/VYBZ/pull/60) merged** (`17d52bbf`) — Chrome Foundation.
 
-## Gate on `feat/artist-os-surface-overhaul` — 2026-08-07
+## Gate on `main` @ `ab1434f3` — 2026-08-07
 
 ```
-npm run lint              — PASS
+npm run lint              — PASS (pre-merge on feature branch)
 npm run test              — PASS 312/312 (54 files)
-npm run build             — PASS (assets index-CPwN25j5.js / index-svqxrOvn.css)
+npm run build             — PASS
 ```
 
-Delivery state: **BUILT LOCALLY — NOT DEPLOYED**. Push / PR / production promote require owner authorisation.
+Centered brand; Now Playing rail; VDock viz modes; Library Tracks/Projects/Stages; Discover feed controls; Finalize nav label; Messages without Rooms; Packages on profile; Flair/AI/Usage archived from nav.
+Delivery state: **DEPLOYED BUT UNVERIFIED** — owner signed-in smoke outstanding (hard-refresh / clear PWA cache).
 
 ### Delivered in PR #58
 
@@ -53,11 +56,9 @@ CI on PR #58 was fully green before merge: `quality`, `ai-test`, `load-test`,
 
 ## Working tree
 
-On `feat/artist-os-surface-overhaul` branched from `d1f71370`. Untracked: `.cursor/settings.json` (do not commit).
-Unrelated local line-ending diffs on other tracked files are **not** staged with this overhaul.
-
-Two stashes remain and were **not** touched, per the preservation rule:
-`stash@{0}` "ops cutover docs WIP" and `stash@{1}` "temp hash drift".
+On `main` @ `ab1434f3`. Clean for Surface Overhaul. Unrelated WIP stashed as
+`stash@{0}` "wip unrelated before status" (plus prior ops/hash stashes). Do not drop
+stashes without inspection.
 
 ## Production verification — 2026-08-04
 
