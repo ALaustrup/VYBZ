@@ -1,12 +1,12 @@
-﻿# STATUS
+﻿ï»¿# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-07
 **Branch:** `feat/m4-scan-progress-meter`
-**HEAD:** pending commit (based on `main` @ `7344cdd1` = PR #63 merge)
-**Working tree:** dirty until commit
+**HEAD:** `fbe7c72f` — based on `main` @ `7344cdd1` (PR #63 merge)
+**Working tree:** clean
 **Current milestone:** **M4 - Measurement Integrity Foundation.** PR #63 merged. Follow-up: live scan progress meter.
 
 ---
@@ -60,7 +60,7 @@ On `feat/m4-scan-progress-meter`. Unrelated WIP remains in stash. Do not drop wi
 | Check | Result | Evidence |
 |---|---|---|
 | Landing loads | **PASS** | HTTP 200 |
-| Live bundle matches `main` HEAD | **PASS** | build SHA in bundle = `33b68802…` |
+| Live bundle matches `main` HEAD | **PASS** | build SHA in bundle = `33b68802â¦` |
 | Dating absent from the live bundle | **PASS** | 0 occurrences of `Dating`, `Something casual`, `intentMix`, `meetup_intents`, `Connection Lab`, `sexting`, `roleplay`, `spark_act`, `vibe_matches` |
 | Track action system deployed | **PASS** | `track-action-` present in the live bundle |
 | Library search / views / batch deployed | **PASS** | `library-search`, `library-view-`, `batch-bar` present |
@@ -118,7 +118,7 @@ described as clean.
 | Chrome and content visually match | **PASS** | production screenshot of `/releases/new`, 2026-08-05 |
 | Signed-in chrome - app bar, dock, sheets, modals | **NOT VERIFIED** | resolves through the shared tokens by construction, but not observed; requires owner credentials |
 
-## M2 exit gate (Masterplan §10)
+## M2 exit gate (Masterplan Â§10)
 
 | Criterion | Status | Evidence |
 |---|---|---|
@@ -140,7 +140,7 @@ is retained and recorded above under the PRs that shipped it.
 
 | Item | State |
 |---|---|
-| Direction chosen | Audio Intelligence and Release Operating System - already Masterplan §1, so doctrine was not the failure |
+| Direction chosen | Audio Intelligence and Release Operating System - already Masterplan Â§1, so doctrine was not the failure |
 | Competing plan | Premium-suite phase track withdrawn |
 | Authorised milestone | **M4 - Measurement Integrity Foundation** |
 | Law 3 during M4 | Social, live, messaging, rooms, connect, opportunities, discovery: reachable and maintained, **no new feature work** |
@@ -153,7 +153,7 @@ An earlier assistant statement that "seven of fourteen navigation entries are de
 was **wrong**. That is true of `SUITE_ROUTES`, the intent manifest, but that manifest does
 not drive the menu. `src/shell/navModel.ts` does, and it already excluded every placeholder
 deliberately. The eleven placeholder pages are reachable by URL and linked from nowhere.
-The navigation façade was closed before 2026-08-06; it is now closed *by test*.
+The navigation faÃ§ade was closed before 2026-08-06; it is now closed *by test*.
 
 ## Shipped on `main` @ `2d42fd29` (pushed 2026-08-06)
 
@@ -189,13 +189,13 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 | - | Publish-to-catalog is not gated on Pro; any signed-in user can upload | Enforcing the Pro boundary |
 | - | No scheduled sweep flips lapsed users' public tracks private | Enforcing lapse behaviour |
 | - | Surface fusion has not been seen on a signed-in surface | Confirming the app bar, dock, sheets and modals match content in the real suite |
-| DR-01…DR-05 | Scope decisions: live, messaging/cam, opportunities/cosmetics, V¢ tipping, watermarking | Full M2 scope lock. Owner instructed 2026-08-04 to leave these in place |
+| DR-01â¦DR-05 | Scope decisions: live, messaging/cam, opportunities/cosmetics, VÂ¢ tipping, watermarking | Full M2 scope lock. Owner instructed 2026-08-04 to leave these in place |
 | DR-07 | BS.1770 meter strategy | M4, and any true-peak claim |
 
 ## Known contradictions
 
 - Orphaned dating RPCs (`vibe_matches`, `spark_act`, `feed_vibe_cards`) and their columns still exist server-side with no client caller. Dropping them needs an irreversible migration and is **not authorised**.
-- `AGENTS.md` names M2 as the authorised milestone while the premium suite initiative spans M3–M11 work. Owner directed both; treat the suite work as owner-authorised in parallel.
+- `AGENTS.md` names M2 as the authorised milestone while the premium suite initiative spans M3âM11 work. Owner directed both; treat the suite work as owner-authorised in parallel.
 - `PrimaryRail.tsx` / `MobileNav.tsx` / `CommandBar.tsx` remain unmounted dead code, flagged in the audit for revival rather than deletion.
 - Integrated loudness remains a gated-RMS approximation, labelled estimated everywhere it appears.
 
@@ -207,7 +207,7 @@ None. `feat/audio-loudness-mp3-flac` was cherry-picked onto current `main` as `f
 
 **VYBZ Pro remains designed and unauthorised.** The migration is merged but unapplied, so
 `purchase_pro` and `pro_status` do not exist server-side. No purchase control exists, and
-publish is not gated. Per `IDEAS_BACKLOG.md` §0 it is not authorised to build, and a backlog
+publish is not gated. Per `IDEAS_BACKLOG.md` Â§0 it is not authorised to build, and a backlog
 entry is not authorisation.
 
 ## Known contradiction closed 2026-08-05
