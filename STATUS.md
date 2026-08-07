@@ -4,8 +4,8 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-06
-**Branch:** `feat/artist-os-chrome`
-**HEAD:** `9fd9f646` — Artist OS Chrome Foundation on branch
+**Branch:** `main`
+**HEAD:** `17d52bbf3c938e1be4290c09b11a5d304e53cd06` — synced with `origin/main`
 **Current milestone:** **Artist OS Chrome Foundation.** Owner paused M4 on 2026-08-06.
 M4 resumes only by later owner authorisation. Premium-suite phase track remains withdrawn.
 
@@ -15,16 +15,18 @@ M4 resumes only by later owner authorisation. Premium-suite phase track remains 
 
 | Item | Value | Evidence |
 |---|---|---|
-| Production SHA | `c60437a93ed09b6b9f7c2f1f87bb158bc281e492` | prior main; Chrome Foundation not yet merged |
-| Alias | https://vybz.cloud | prior deploy |
-| Deployment current with this branch | **NO** | awaiting PR merge |
+| Production SHA | `17d52bbf3c938e1be4290c09b11a5d304e53cd06` | live bundle contains `17d52bbf`; Vercel `dpl_7PTrcfDFzog3MdLcmZqQwiEYPGGV` Ready → https://vybz.cloud |
+| Alias | https://vybz.cloud | HTTP 200 |
+| Deployed bundle | `/assets/index-Dnkr8KtU.js` | live fetch 2026-08-06 |
+| Deployed CSS | `/assets/index-3CHHJBzI.css` | `--surface-saturate: 1.28`; `forge-sheen-rare` present |
+| Deployment current with `main` | **YES** | live SHA = merge HEAD of PR #60 |
 
 ## Last completed operations
 
-1. **Artist OS Chrome Foundation on `feat/artist-os-chrome`** — authority docs, dim backdrop + rare glass sheen, Orb → left rail, Studio/Live/Market archived from nav, Home = ArtistHome + AlbumLightbox, Discover glass hover preview, VDock/landing token sweep. Gate: lint PASS, test 310/310, build PASS. `orb-menu-root` absent from production build bundle.
+1. **PR [#60](https://github.com/ALaustrup/VYBZ/pull/60) merged** (`17d52bbf`) — Artist OS Chrome Foundation. Gate: lint PASS, test 310/310, build PASS. Production verified Ready with live SHA `17d52bbf`, rare glass sheen CSS, dimmer surface tokens.
 2. **PR [#59](https://github.com/ALaustrup/VYBZ/pull/59) merged** (`ad89cbb7`) — prior shell/VDock polish.
 
-## Gate on `feat/artist-os-chrome` — 2026-08-06
+## Gate on `feat/artist-os-chrome` / `main` @ `17d52bbf` — 2026-08-06
 
 ```
 npm run lint              — PASS
@@ -34,6 +36,7 @@ npm run build             — PASS
 
 OrbMenu is no longer mounted from SuiteShell; PrimaryRail + MobileNav use navModel.
 Studio / Live / Market absent from navItems. Home hub is ArtistHome (profile + albums).
+Delivery state: **DEPLOYED BUT UNVERIFIED** — owner signed-in smoke outstanding.
 
 ### Delivered in PR #58
 
