@@ -45,6 +45,14 @@ export {
   type LevelSnapshot,
 } from "./dcRemove";
 export {
+  applyPeakSafety,
+  PEAK_SAFETY_VERSION,
+  PEAK_SAFETY_CEILING_DBFS,
+  PEAK_SAFETY_CEILING_LINEAR,
+  type PeakSafetyResult,
+} from "./peakSafety";
+export { snapshotLevels } from "./correctionLevels";
+export {
   measureStereoCorrelation,
   STEREO_NARROW_THRESHOLD,
   STEREO_OUT_OF_PHASE_THRESHOLD,

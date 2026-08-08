@@ -1,15 +1,33 @@
 /**
- * M6 kickoff — DC offset correction preview (bypass + before/after metrics).
- * No credit deduction. Local-only; download is optional WAV.
+ * M6 Correct — reversible ops with bypass + before/after metrics.
+ * Ops: DC offset remove, peak-safety gain. No credit deduction. Local-only.
  */
 
 import { useEffect, useMemo, useState } from "react";
 import { Download, Loader2, Upload } from "lucide-react";
-import { CORRECTION_VERSION, removeDcOffset, type DcRemoveResult } from "@vybz/processing/waveform";
+import {
+  CORRECTION_VERSION,
+  PEAK_SAFETY_CEILING_DBFS,
+  PEAK_SAFETY_VERSION,
+  applyPeakSafety,
+  removeDcOffset,
+  type LevelSnapshot,
+} from "@vybz/processing/waveform";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+
+type CorrectOp = "dc" | "peak";
+
+type PreviewState = {
+  before: LevelSnapshot;
+  after: LevelSnapshot;
+  detailLabel: string;
+  detailValue: string;
+  version: string;
+  downloadSuffix: string;
+};
 
 function planarFromBuffer(buf: AudioBuffer): Float32Array[] {
   const out: Float32Array[] = [];
@@ -36,14 +54,20 @@ function fmtDb(n: number | undefined): string {
 
 export function DcOffsetCorrectPage() {
   const { showToast } = useSession();
+  const [op, setOp] = useState<CorrectOp>("dc");
   const [busy, setBusy] = useState(false);
   const [fileName, setFileName] = useState("");
-  const [result, setResult] = useState<DcRemoveResult | null>(null);
+  const [planar, setPlanar] = useState<Float32Array[] | null>(null);
+  const [sampleRate, setSampleRate] = useState(48000);
+  const [preview, setPreview] = useState<PreviewState | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [correctedUrl, setCorrectedUrl] = useState<string | null>(null);
   const [bypass, setBypass] = useState(false);
 
-  useRegisterAppBar({ title: "Correct", subtitle: "DC offset" }, []);
+  useRegisterAppBar(
+    { title: "Correct", subtitle: op === "dc" ? "DC offset" : "Peak safety" },
+    [op]
+  );
 
   useEffect(() => {
     return () => {
@@ -55,9 +79,51 @@ export function DcOffsetCorrectPage() {
   const activeUrl = bypass ? originalUrl : correctedUrl;
 
   const metrics = useMemo(() => {
-    if (!result) return null;
-    return bypass ? result.before : result.after;
-  }, [bypass, result]);
+    if (!preview) return null;
+    return bypass ? preview.before : preview.after;
+  }, [bypass, preview]);
+
+  function runOp(channels: Float32Array[], rate: number, chosen: CorrectOp) {
+    const result =
+      chosen === "dc"
+        ? (() => {
+            const r = removeDcOffset(channels);
+            return {
+              channels: r.channels,
+              preview: {
+                before: r.before,
+                after: r.after,
+                detailLabel: "Removed mean",
+                detailValue: r.removedMean.toExponential(3),
+                version: CORRECTION_VERSION,
+                downloadSuffix: "dc-fixed",
+              } satisfies PreviewState,
+            };
+          })()
+        : (() => {
+            const r = applyPeakSafety(channels);
+            return {
+              channels: r.channels,
+              preview: {
+                before: r.before,
+                after: r.after,
+                detailLabel: `Gain → ${PEAK_SAFETY_CEILING_DBFS} dBFS ceil`,
+                detailValue: `${r.gainDb.toFixed(2)} dB`,
+                version: PEAK_SAFETY_VERSION,
+                downloadSuffix: "peak-safe",
+              } satisfies PreviewState,
+            };
+          })();
+
+    const outBuf = bufferFromPlanar(result.channels, rate);
+    const wav = encodeWav(outBuf);
+    setCorrectedUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(wav);
+    });
+    setPreview(result.preview);
+    setBypass(false);
+  }
 
   async function onFile(file: File | undefined) {
     if (!file || !isAudioFile(file)) {
@@ -67,32 +133,62 @@ export function DcOffsetCorrectPage() {
     setBusy(true);
     try {
       const buf = await decodeToBuffer(file);
-      const planar = planarFromBuffer(buf);
-      const corrected = removeDcOffset(planar);
-      const outBuf = bufferFromPlanar(corrected.channels, buf.sampleRate);
-      const wav = encodeWav(outBuf);
+      const nextPlanar = planarFromBuffer(buf);
       if (originalUrl) URL.revokeObjectURL(originalUrl);
-      if (correctedUrl) URL.revokeObjectURL(correctedUrl);
       setOriginalUrl(URL.createObjectURL(file));
-      setCorrectedUrl(URL.createObjectURL(wav));
-      setResult(corrected);
+      setPlanar(nextPlanar);
+      setSampleRate(buf.sampleRate);
       setFileName(file.name);
-      setBypass(false);
-      showToast("DC correction preview ready — bypass toggles original");
+      runOp(nextPlanar, buf.sampleRate, op);
+      showToast("Correction preview ready — bypass toggles original");
     } catch {
       showToast("Couldn't decode that file");
-      setResult(null);
+      setPreview(null);
+      setPlanar(null);
     } finally {
       setBusy(false);
+    }
+  }
+
+  function onSelectOp(next: CorrectOp) {
+    setOp(next);
+    if (planar) {
+      setBusy(true);
+      try {
+        runOp(planar, sampleRate, next);
+      } finally {
+        setBusy(false);
+      }
     }
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 kickoff: remove measured DC offset. Bypass keeps the original (reversible). Before/after
-        peak and RMS are measured on-device. No credits charged. Proc {CORRECTION_VERSION}.
+        M6 corrections: remove measured DC, or apply peak-safety gain to a −1 dBFS sample-peak
+        ceiling (not a true-peak / ISP limiter). Bypass keeps the original. No credits charged.
       </p>
+
+      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
+        <button
+          type="button"
+          data-testid="correct-op-dc"
+          aria-pressed={op === "dc"}
+          onClick={() => onSelectOp("dc")}
+          className={`btn px-3 py-2 text-sm ${op === "dc" ? "btn-primary" : "btn-ghost"}`}
+        >
+          DC offset
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-peak"
+          aria-pressed={op === "peak"}
+          onClick={() => onSelectOp("peak")}
+          className={`btn px-3 py-2 text-sm ${op === "peak" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Peak safety
+        </button>
+      </div>
 
       <label className="btn btn-primary mb-5 cursor-pointer px-4 py-2.5 text-sm">
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
@@ -109,7 +205,7 @@ export function DcOffsetCorrectPage() {
         />
       </label>
 
-      {result && (
+      {preview && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -124,14 +220,16 @@ export function DcOffsetCorrectPage() {
             {correctedUrl && (
               <a
                 href={correctedUrl}
-                download={`${fileName.replace(/\.[^.]+$/, "") || "vybz"}-dc-fixed.wav`}
+                download={`${fileName.replace(/\.[^.]+$/, "") || "vybz"}-${preview.downloadSuffix}.wav`}
                 className="btn btn-ghost px-3 py-2 text-sm"
                 data-testid="correct-download"
               >
                 <Download className="h-4 w-4" /> Download corrected WAV
               </a>
             )}
-            <span className="text-[11px] text-white/35">{fileName}</span>
+            <span className="text-[11px] text-white/35">
+              {fileName} · {preview.version}
+            </span>
           </div>
 
           {activeUrl && (
@@ -140,8 +238,8 @@ export function DcOffsetCorrectPage() {
 
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3" data-testid="correct-metrics">
             <div>
-              <dt className="text-[10px] uppercase text-white/35">Removed mean</dt>
-              <dd className="tabular-nums">{result.removedMean.toExponential(3)}</dd>
+              <dt className="text-[10px] uppercase text-white/35">{preview.detailLabel}</dt>
+              <dd className="tabular-nums">{preview.detailValue}</dd>
             </div>
             <div>
               <dt className="text-[10px] uppercase text-white/35">Peak (active)</dt>
@@ -152,12 +250,12 @@ export function DcOffsetCorrectPage() {
               <dd className="tabular-nums">{fmtDb(metrics?.rmsDbfs)}</dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase text-white/35">DC before</dt>
-              <dd className="tabular-nums">{result.before.dc?.mean.toExponential(3) ?? "Not measured"}</dd>
+              <dt className="text-[10px] uppercase text-white/35">Peak before</dt>
+              <dd className="tabular-nums">{fmtDb(preview.before.peakDbfs)}</dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase text-white/35">DC after</dt>
-              <dd className="tabular-nums">{result.after.dc?.mean.toExponential(3) ?? "Not measured"}</dd>
+              <dt className="text-[10px] uppercase text-white/35">Peak after</dt>
+              <dd className="tabular-nums">{fmtDb(preview.after.peakDbfs)}</dd>
             </div>
             <div>
               <dt className="text-[10px] uppercase text-white/35">Listening</dt>
