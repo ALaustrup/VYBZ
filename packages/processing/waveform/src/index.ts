@@ -51,6 +51,11 @@ export {
   PEAK_SAFETY_CEILING_LINEAR,
   type PeakSafetyResult,
 } from "./peakSafety";
+export {
+  applyChannelBalance,
+  CHANNEL_BALANCE_VERSION,
+  type ChannelBalanceCorrectResult,
+} from "./channelBalanceCorrect";
 export { snapshotLevels } from "./correctionLevels";
 export {
   measureStereoCorrelation,

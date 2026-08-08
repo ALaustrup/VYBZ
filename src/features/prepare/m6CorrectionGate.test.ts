@@ -2,9 +2,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  CHANNEL_BALANCE_VERSION,
   CORRECTION_VERSION,
   PEAK_SAFETY_CEILING_LINEAR,
   PEAK_SAFETY_VERSION,
+  applyChannelBalance,
   applyPeakSafety,
   removeDcOffset,
 } from "@vybz/processing/waveform";
@@ -22,6 +24,7 @@ describe("M6 correction gate", () => {
     expect(masterplan).toMatch(/M6.*Correction|Correction & Mastering/s);
     expect(CORRECTION_VERSION).toMatch(/^m6\./);
     expect(PEAK_SAFETY_VERSION).toMatch(/^m6\./);
+    expect(CHANNEL_BALANCE_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -52,7 +55,23 @@ describe("M6 correction gate", () => {
     expect(first.after.peakLinear).toBeLessThanOrEqual(PEAK_SAFETY_CEILING_LINEAR + 1e-5);
   });
 
-  it("surfaces Correct tool ops including peak safety", () => {
+  it("channel balance is reproducible and reduces L/R delta", () => {
+    const n = 4096;
+    const left = new Float32Array(n);
+    const right = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      left[i] = Math.sin(i / 7) * 0.6;
+      right[i] = Math.sin(i / 7) * 0.15;
+    }
+    const clone = left.slice();
+    const first = applyChannelBalance([left, right]);
+    const second = applyChannelBalance([left, right]);
+    expect(left).toEqual(clone);
+    expect(first.leftGainLinear).toBe(second.leftGainLinear);
+    expect(Math.abs(first.balanceDeltaDbAfter!)).toBeLessThan(0.05);
+  });
+
+  it("surfaces Correct tool ops including peak safety and balance", () => {
     const page = readFileSync(
       path.join(ROOT, "src/features/correction/DcOffsetCorrectPage.tsx"),
       "utf8"
@@ -60,6 +79,7 @@ describe("M6 correction gate", () => {
     const app = readFileSync(path.join(ROOT, "src/App.tsx"), "utf8");
     expect(page).toContain("dc-offset-correct");
     expect(page).toContain("correct-op-peak");
+    expect(page).toContain("correct-op-balance");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
   });
