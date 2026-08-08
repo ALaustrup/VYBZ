@@ -39,6 +39,12 @@ export {
   type ClickPopResult,
 } from "./clickPop";
 export {
+  removeDcOffset,
+  CORRECTION_VERSION,
+  type DcRemoveResult,
+  type LevelSnapshot,
+} from "./dcRemove";
+export {
   measureStereoCorrelation,
   STEREO_NARROW_THRESHOLD,
   STEREO_OUT_OF_PHASE_THRESHOLD,

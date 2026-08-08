@@ -88,6 +88,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/tools/art-check", title: "Art Check", keywords: ["artwork", "cover", "album art"] },
   { path: "/tools/midi", title: "Midi Maker", keywords: ["midi", "piano", "notes"] },
   { path: "/tools/convert", title: "Media Converter", keywords: ["wav", "convert", "transcode", "format"] },
+  { path: "/tools/correct", title: "Correct", keywords: ["dc", "offset", "correction", "bypass", "master"] },
   { path: "/projects", title: "Projects", keywords: ["studio", "rooms", "work"] },
   { path: "/discover", title: "Discover", keywords: ["browse", "explore", "find music"] },
   { path: "/feed", title: "Feed", keywords: ["activity", "posts"] },

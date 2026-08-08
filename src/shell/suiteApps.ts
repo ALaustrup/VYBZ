@@ -1,6 +1,6 @@
 /**
- * Suite app rail registry — Wave 1 tools only (real routes).
- * Unfinished modules (Master, Translation, Instrument Creator) stay out.
+ * Suite app rail registry — Wave 1 tools + M6 Correct kickoff (real routes).
+ * Unfinished modules (full Master suite, Translation, Instrument Creator) stay out.
  */
 
 import type { LucideIcon } from "lucide-react";
@@ -13,6 +13,7 @@ import {
   Piano,
   RefreshCw,
   Settings,
+  SlidersHorizontal,
   Store,
   Tags,
   Waves,
@@ -26,6 +27,7 @@ export type SuiteAppId =
   | "art-check"
   | "midi-maker"
   | "media-converter"
+  | "correct"
   | "library"
   | "codex"
   | "store"
@@ -91,6 +93,14 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/convert",
     icon: RefreshCw,
     match: (p) => p.startsWith("/tools/convert"),
+    overflow: true,
+  },
+  {
+    id: "correct",
+    label: "Correct",
+    path: "/tools/correct",
+    icon: SlidersHorizontal,
+    match: (p) => p.startsWith("/tools/correct"),
     overflow: true,
   },
   {

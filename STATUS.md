@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `feat/suite-metadata-artcheck-deepen`
-**HEAD:** pending commit — based on `main` @ `1ebe9c03`
+**Branch:** `feat/m6-correction-kickoff-dc`
+**HEAD:** pending commit — based on `main` @ `d85f8d64`
 **Working tree:** dirty until commit
-**Current milestone:** **M5** + Suite Apps IA.
+**Current milestone:** **M6** kickoff (DC correct) after M5 deepen A+B verified.
 
 ---
 
@@ -16,21 +16,22 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| PR #77 click/pop | **DEPLOYED AND VERIFIED** | prod `index-D3hj0V22.js` contains `AUDIO_CLICK_POP`, `clickPopCount` |
-| PR #78 Midi preview | **pending** | Vercel status pending; markers not yet in prod bundle |
+| PR #77 click/pop | **DEPLOYED AND VERIFIED** | prod bundle contains `AUDIO_CLICK_POP` |
+| PR #78 Midi preview | **DEPLOYED AND VERIFIED** | prod bundle contains `midi-preview-play` / `midi-preview-stop` |
+| PR #79 Metadata/Art | merged `d85f8d64` | prod markers pending at STATUS write |
 | This branch | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#77](https://github.com/ALaustrup/VYBZ/pull/77)** `AUDIO_CLICK_POP` — **DEPLOYED AND VERIFIED**.
-2. **PR [#78](https://github.com/ALaustrup/VYBZ/pull/78)** Midi preview + velocity — merged `1ebe9c03`; prod verify pending.
-3. **This unit** — Metadata JSON export/import + Art Check file-size soft caps.
+1. M5 `AUDIO_CLICK_POP` + Midi preview — **DEPLOYED AND VERIFIED** (A+B handoff gate met).
+2. Metadata JSON + Art file-size gate — merged PR #79.
+3. **This unit** — M6 kickoff: `removeDcOffset`, `/tools/correct` with bypass + before/after, `m6CorrectionGate`.
 
 ## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 383/383 (73 files)
+npm run test              — PASS 388/388 (75 files)
 npm run build             — PASS
 ```
 
@@ -40,5 +41,6 @@ Delivery state: **IMPLEMENTED** (local) — not merged.
 
 | Item | State |
 |---|---|
-| Authorised milestone | **M5** + Suite Apps IA; M6 after A+B verify |
-| Next authorised action | Merge this PR → verify #78 → M6 kickoff |
+| Authorised milestone | **M6** kickoff in flight; M5 analysis depth continues in parallel as needed |
+| Premium-suite phase track | **WITHDRAWN** |
+| Next authorised action | Merge + verify M6 Correct markers on prod |
