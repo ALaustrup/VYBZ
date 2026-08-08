@@ -4,7 +4,18 @@ import { activeSuiteAppId, visibleSuiteApps } from "@/shell/suiteApps";
 describe("suiteApps", () => {
   it("exposes Wave 1 tools including Analyzer and Metadata", () => {
     const ids = visibleSuiteApps().map((a) => a.id);
-    expect(ids).toEqual(expect.arrayContaining(["analyzer", "metadata", "art-check", "midi-maker", "media-converter", "library", "codex"]));
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        "analyzer",
+        "metadata",
+        "art-check",
+        "midi-maker",
+        "media-converter",
+        "correct",
+        "library",
+        "codex",
+      ])
+    );
   });
 
   it("selects Analyzer for release routes", () => {
@@ -16,5 +27,6 @@ describe("suiteApps", () => {
     expect(activeSuiteAppId("/tools/metadata")).toBe("metadata");
     expect(activeSuiteAppId("/tools/midi")).toBe("midi-maker");
     expect(activeSuiteAppId("/tools/convert")).toBe("media-converter");
+    expect(activeSuiteAppId("/tools/correct")).toBe("correct");
   });
 });

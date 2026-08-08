@@ -26,15 +26,14 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M5 — Advanced Analysis Suite** remains the Masterplan milestone. Owner additionally
-authorised **2026-08-08** a Suite Apps IA slice (not a parallel phase track): apps
-selector in the **right rail** (replacing Now Playing) plus Wave 1 tools — Analyzer
-(Finalize rename), Metadata Editor, Art Check, Midi Maker, Media Converter. Instrument
-Creator (VST3) stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
+**M5 — Advanced Analysis Suite** remains active alongside the Suite Apps IA slice.
+Owner authorised **2026-08-08** Wave 1 deepen + M5 click/pop, and pre-authorised
+**M6** kickoff after A+B deploy verify. M6 kickoff is DC-offset correction at
+`/tools/correct` (bypass + before/after) — not a full mastering suite.
 
-M5 analysis depth continues; social/live/messaging still receive no new feature work
-(Law 3). Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the
-only plan.
+Instrument Creator (VST3) stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
+Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
+track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
 
