@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `feat/m5-hum-intersample`
-**HEAD:** `3cbde97de11086405e1c66db1c254fea8c8ae645` (PR [#71](https://github.com/ALaustrup/VYBZ/pull/71))
+**Branch:** `feat/library-drag-drop-ingest`
+**HEAD:** `1cd2195c2357754876c5ea6a05e7bfae47272eab` (PR [#72](https://github.com/ALaustrup/VYBZ/pull/72))
 **Working tree:** clean after this commit
-**Current milestone:** **M5 — Advanced Analysis Suite.**
+**Current milestone:** **M5 — Advanced Analysis Suite** (library DnD is owner-authorised adjacent plumbing).
 
 ---
 
@@ -15,24 +15,24 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | prior verify |
-| Production SHA | `d70246c5` (PR #70) | prior live JS; this branch not on prod |
-| This branch on production | **NO** | not merged |
+| Alias | https://vybz.cloud | HTTP 200 |
+| Live bundle check (pre-this-PR) | SHA marker `93160a5c` | `index-bcDBKhoW.js` 2026-08-08 — PR #71 markers (`AUDIO_MAINS_HUM`) not yet in that bundle |
+| PR #71 merge | `858bd1fb` | merged; deploy may still be rolling |
 
 ## Last completed operations
 
-1. **PR [#70](https://github.com/ALaustrup/VYBZ/pull/70) merged + verified** — PLR + mid/side.
-2. **M5 slice 6 (this unit)** — intersample overshoot (`AUDIO_IS_PEAK_RISK`) + mains hum FFT heuristic (`AUDIO_MAINS_HUM`); panel rows; gate codes.
+1. **PR [#71](https://github.com/ALaustrup/VYBZ/pull/71) merged** (`858bd1fb`) — ISP overshoot + mains hum.
+2. **Library drag-drop ingest (this unit)** — signed-in shell drop → background private `createDrop` queue; no track-count cap; BulkUpload 24-cap removed.
 
 ## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 366/366 (66 files)
+npm run test              — PASS 369/369 (67 files)
 npm run build             — PASS
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged. PR [#71](https://github.com/ALaustrup/VYBZ/pull/71).
+Delivery state: **IMPLEMENTED** (local) — not merged. PR [#72](https://github.com/ALaustrup/VYBZ/pull/72).
 
 ## Direction
 
@@ -40,3 +40,4 @@ Delivery state: **IMPLEMENTED** (local) — not merged. PR [#71](https://github.
 |---|---|
 | Authorised milestone | **M5 — Advanced Analysis Suite** |
 | Premium-suite phase track | **WITHDRAWN** |
+| Owner-authorised adjacent | Library drag-drop ingest |

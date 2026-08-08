@@ -9,6 +9,7 @@ import { LandingPage } from "@/pages/LandingPage";
 import { Onboarding, UsernameSetup } from "@/components/Onboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { BulkUploadSheet } from "@/components/BulkUploadSheet";
+import { LibraryDropHost } from "@/components/LibraryDropHost";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { VDock } from "@/components/vdock/VDock";
@@ -183,7 +184,7 @@ export function App() {
         <Route path="/rooms/:id" element={<RoomPage />} />
         <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
-        <Route path="/library" element={<LibraryPage />} />
+        <Route path="/library" element={<LibraryPage key={feedKey} />} />
         <Route path="/track/:id" element={<TrackDetailPage />} />
         <Route path="/visuals/tutorial" element={<VisualizerTutorialPage />} />
         <Route path="/visuals/studio" element={<VisualizerStudioPage />} />
@@ -238,6 +239,10 @@ export function App() {
         />
         <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
         <BulkUploadSheet open={bulkOpen} onClose={() => setBulkOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+        <LibraryDropHost
+          enabled={!composeOpen && !bulkOpen}
+          onIngested={() => setFeedKey((k) => k + 1)}
+        />
         <AmbientRadioHost />
         <ListenEarnHost />
         <MessagePopoutHost />

@@ -66,7 +66,7 @@ export function LibraryPage() {
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col px-4 pb-4 pt-2">
       <p className="mb-3 text-[13px] leading-relaxed text-white/45">
-        Organize uploaded tracks, project posts, and stage visuals in one place.
+        Drop audio anywhere in VYBZ to add private tracks to your library. Organize uploads, project posts, and stage visuals in one place.
         {FLAGS.storefront && (
           <>
             {" "}

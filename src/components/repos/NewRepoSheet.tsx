@@ -140,6 +140,7 @@ export function NewRepoSheet({
 
   async function onDrop(e: React.DragEvent) {
     e.preventDefault();
+    e.stopPropagation();
     setDragOver(false);
     const files = e.dataTransfer.files;
     if (files?.length) await onFileInput(files);
@@ -250,6 +251,7 @@ export function NewRepoSheet({
               Drop your Ableton / FL / Logic project folder — we version the sound with content-addressed commits, not a blind zip.
             </p>
             <div
+              data-no-library-drop
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={onDrop}

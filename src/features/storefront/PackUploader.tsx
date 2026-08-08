@@ -48,6 +48,7 @@ export function PackUploader({
       <div className="text-xs font-medium uppercase tracking-wide text-white/45">{label}</div>
       <button
         type="button"
+        data-no-library-drop
         disabled={disabled || busy}
         onClick={() => inputRef.current?.click()}
         onDragEnter={(e) => { e.preventDefault(); setDragging(true); }}
@@ -55,6 +56,7 @@ export function PackUploader({
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => {
           e.preventDefault();
+          e.stopPropagation();
           setDragging(false);
           void run(e.dataTransfer.files?.[0]);
         }}

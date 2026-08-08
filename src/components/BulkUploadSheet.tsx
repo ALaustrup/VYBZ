@@ -16,7 +16,6 @@ import { cx } from "@/lib/utils";
 import type { PostAudience } from "@/types";
 
 const MAX_AUDIO_BYTES = 1024 * 1024 * 1024;
-const MAX_BATCH = 24;
 
 function prettyBytes(n: number): string {
   if (n >= 1024 ** 3) return `${(n / 1024 ** 3).toFixed(1)} GB`;
@@ -75,15 +74,12 @@ export function BulkUploadSheet({
   async function addFiles(list: FileList | File[]) {
     const incoming = Array.from(list).filter((f) => f.size > 0);
     if (!incoming.length) return;
-    const room = MAX_BATCH - rows.length;
-    if (room <= 0) { showToast(`Max ${MAX_BATCH} tracks per batch.`); return; }
-    const take = incoming.slice(0, room);
-    const oversized = take.find((f) => f.size > MAX_AUDIO_BYTES);
+    const oversized = incoming.find((f) => f.size > MAX_AUDIO_BYTES);
     if (oversized) {
       showToast(`${oversized.name} is ${prettyBytes(oversized.size)} — max is 1 GB.`);
       return;
     }
-    const softHit = take.find((f) => softUploadHint(f.size, profile?.profile));
+    const softHit = incoming.find((f) => softUploadHint(f.size, profile?.profile));
     if (softHit) {
       const hint = softUploadHint(softHit.size, profile?.profile);
       if (hint) showToast(hint);
@@ -91,7 +87,7 @@ export function BulkUploadSheet({
     setDecoding(true);
     try {
       const next: BulkRow[] = [];
-      for (const file of take) {
+      for (const file of incoming) {
         const [tags, meta, wf] = await Promise.all([
           readId3Tags(file),
           Promise.resolve(audioMeta(file)),
@@ -241,7 +237,7 @@ export function BulkUploadSheet({
 
             <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 pb-4 pt-4">
               <input ref={fileRef} type="file" accept={AUDIO_ACCEPT} multiple onChange={onPick} className="hidden" />
-              <button type="button" onClick={() => fileRef.current?.click()} disabled={decoding || posting || rows.length >= MAX_BATCH}
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={decoding || posting}
                 className="btn btn-primary mb-4 w-full py-3 disabled:opacity-60">
                 {decoding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                 {decoding ? "Reading tags…" : rows.length ? "Add more audio" : "Choose audio files"}
