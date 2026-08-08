@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `feat/m6-peak-safety`
-**HEAD:** pending commit — based on `main` @ `fd0ecde3`
-**Working tree:** dirty until commit
-**Current milestone:** **M6** deepen (peak safety) after DC kickoff.
+**Branch:** `main`
+**HEAD:** `9bba4d29` (merge PR #82 peak safety)
+**Working tree:** clean after STATUS checkpoint
+**Current milestone:** **M6** (DC + peak-safety corrections).
 
 ---
 
@@ -16,27 +16,36 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Prior tip | `94f3537a` / STATUS `fd0ecde3` | PRs #77–#81 verified |
-| This branch | **NO** | not merged |
+| Production SHA | `9bba4d29` | Vercel SUCCESS |
+| Bundle | `index-Ccmbs-ed.js` | contains `correct-op-peak`, `correct-op-dc`, `m6.peak-safety` |
 
 ## Last completed operations
 
-1. PRs #77–#80 Wave1/M5/M6 kickoff — **DEPLOYED AND VERIFIED**.
-2. **This unit** — M6 peak-safety gain (`m6.peak-safety.1`) + Correct op selector (DC | Peak).
+| PR | Unit | State |
+|---|---|---|
+| [#80](https://github.com/ALaustrup/VYBZ/pull/80) | M6 DC correction kickoff | **DEPLOYED AND VERIFIED** |
+| [#82](https://github.com/ALaustrup/VYBZ/pull/82) | M6 peak-safety + Correct op selector | **DEPLOYED AND VERIFIED** |
 
-## Gate on this branch
+## Gate
 
 ```
-npm run lint              — PASS
-npm run test              — PASS 391/391 (76 files)
-npm run build             — PASS
+npm run lint / test / build — PASS (391 tests on feature tip)
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged.
+Delivery state: **DEPLOYED AND VERIFIED**.
 
 ## Direction
 
 | Item | State |
 |---|---|
 | Authorised milestone | **M6** + M5 depth as needed |
-| Next authorised action | Merge + verify `correct-op-peak` on prod |
+| Premium-suite phase track | **WITHDRAWN** |
+| Next authorised action | Owner-directed: next M6 op (e.g. channel balance) or M5 broadband noise / OR-013 |
+
+## Blockers
+
+None.
+
+## Known contradictions
+
+Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety is sample-peak only — not true-peak/ISP.
