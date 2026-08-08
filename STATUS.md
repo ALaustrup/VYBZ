@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `main`
-**HEAD:** `e631aaa3823e5c5068a37674b72ab27329784630` (merge PR #73)
-**Working tree:** dirty until STATUS commit
-**Current milestone:** **M5** + Suite Apps IA slice.
+**Branch:** `feat/suite-apps-midi-piano-polish`
+**HEAD:** pending commit — based on `main` @ `f930b056`
+**Working tree:** dirty until commit
+**Current milestone:** **M5** + Suite Apps IA.
 
 ---
 
@@ -15,24 +15,23 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | HTTP 200 |
-| Production SHA | `e631aaa3` | live `index-IcEJ1EI_.js` contains `e631aaa3` |
-| PR #73 markers | **PASS** | live JS contains `suite-app-rail`, `metadata-editor`, `art-check`, `midi-maker`, `media-converter` |
+| Alias | https://vybz.cloud | prior PR #73 verify |
+| This branch on production | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#73](https://github.com/ALaustrup/VYBZ/pull/73) merged** (`e631aaa3`) — suite apps right rail + Wave 1 tools.
-2. **Production verify** — bundle markers present (2026-08-08). Interactive UI not re-run this unit.
+1. **PR [#73](https://github.com/ALaustrup/VYBZ/pull/73)** suite apps right rail — **DEPLOYED AND VERIFIED**.
+2. **This unit** — Midi Maker visual piano roll (click place/remove); AGENTS right-rail wording fix.
 
-## Gate (pre-merge)
+## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 373/373 (69 files)
+npm run test              — PASS 374/374 (70 files)
 npm run build             — PASS
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED** (bundle markers).
+Delivery state: **IMPLEMENTED** (local) — not merged.
 
 ## Direction
 
@@ -40,4 +39,3 @@ Delivery state: **DEPLOYED AND VERIFIED** (bundle markers).
 |---|---|
 | Authorised milestone | **M5** + Suite Apps IA |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next | Owner-directed (deeper tool apps or M5 analysis) |
