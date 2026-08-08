@@ -33,6 +33,12 @@ export {
   type MainsHumResult,
 } from "./mainsHum";
 export {
+  measureClickPop,
+  CLICK_POP_COUNT_WARN,
+  CLICK_POP_PROMINENCE_WARN_DB,
+  type ClickPopResult,
+} from "./clickPop";
+export {
   measureStereoCorrelation,
   STEREO_NARROW_THRESHOLD,
   STEREO_OUT_OF_PHASE_THRESHOLD,

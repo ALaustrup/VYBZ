@@ -4,11 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `main`
-**HEAD:** `5092e22a` (STATUS checkpoint after PR #74 verify)
-**Feature tip on prod:** `5b9648c6` (merge PR #74)
-**Working tree:** clean
-**Current milestone:** **M5** + Suite Apps IA.
+**Branch:** `feat/m5-click-pop`
+**HEAD:** pending commit — based on `main` @ `d21bf14f`
+**Working tree:** dirty until commit
+**Current milestone:** **M5** + Suite Apps IA (Wave 1 deepen queued).
 
 ---
 
@@ -17,31 +16,31 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `5b9648c6` | Vercel commit status SUCCESS → https://vercel.com/astramatrix/vybz/CUsqMvgaayHTqJT4dBTw61PmbnTB |
-| This HEAD on production | **YES** | prod `index-CjuCdT0-.js` contains `piano-roll`, `midi-maker`, `suite-app-rail` |
+| Production feature tip | `5b9648c6` (PR #74 piano roll) | prior verify |
+| This branch on production | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#73](https://github.com/ALaustrup/VYBZ/pull/73)** suite apps right rail — **DEPLOYED AND VERIFIED**.
-2. **PR [#74](https://github.com/ALaustrup/VYBZ/pull/74)** Midi Maker visual piano roll — **DEPLOYED AND VERIFIED** (merged `5b9648c6` @ 2026-08-08T20:28:01Z).
+1. **PR [#74](https://github.com/ALaustrup/VYBZ/pull/74)** Midi Maker piano roll — **DEPLOYED AND VERIFIED**.
+2. **This unit** — M5 `AUDIO_CLICK_POP` time-domain heuristic (OR-014 remainder).
 
-## Gate (merge tip)
+## Gate on this branch
 
 ```
-npm run lint              — PASS (pre-merge on feat branch)
-npm run test              — PASS 374/374 (pre-merge)
-npm run build             — PASS (pre-merge)
+npm run lint              — PASS
+npm run test              — PASS 378/378 (71 files)
+npm run build             — PASS
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED**.
+Delivery state: **IMPLEMENTED** (local) — not merged.
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised milestone | **M5** + Suite Apps IA |
+| Authorised milestone | **M5** + Suite Apps IA; M6 pre-authorised after A+B verify |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next authorised action | Owner-directed: deepen Wave 1 tools, or next M5 analysis slice; do not start M6 |
+| Next authorised action | Merge click/pop → Midi preview deepen → Metadata/Art Check → M6 kickoff after A+B verify |
 
 ## Blockers
 

@@ -77,6 +77,10 @@ export type LoudnessMetrics = {
   mainsHumHz?: 50 | 60;
   /** Prominence of mains-hum candidate vs local spectrum (dB). */
   mainsHumProminenceDb?: number;
+  /** Distinct click/pop candidates (time-domain heuristic). */
+  clickPopCount?: number;
+  /** Strongest click prominence vs local RMS (dB). */
+  clickPopProminenceDb?: number;
 };
 
 export type SpectrumSnapshot = {

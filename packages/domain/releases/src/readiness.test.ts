@@ -284,10 +284,13 @@ describe("evaluateReadiness", () => {
         ispOvershootDb: 1.7,
         mainsHumHz: 60,
         mainsHumProminenceDb: 18,
+        clickPopCount: 2,
+        clickPopProminenceDb: 28,
       },
     });
     expect(findings.some((f) => f.code === "AUDIO_IS_PEAK_RISK")).toBe(true);
     expect(findings.some((f) => f.code === "AUDIO_MAINS_HUM")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_CLICK_POP")).toBe(true);
   });
 
   it("flags small non-square artwork", () => {

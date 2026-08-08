@@ -5,6 +5,7 @@ import { measureCrestFactorDb, measureIspOvershootDb, measurePlrDb } from "./dyn
 import { measureClipIntegrity, measureEdgeSilence } from "./integrity";
 import { measureDcOffset, measureMonoCompat } from "./monoCompat";
 import { measureChannelBalance } from "./channelBalance";
+import { measureClickPop } from "./clickPop";
 import { measureMainsHum } from "./mainsHum";
 import { measureMidSide } from "./midSide";
 import { measureStereoCorrelation } from "./stereo";
@@ -55,6 +56,7 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
   const balanceCh = measureChannelBalance(planar);
   const ms = measureMidSide(planar);
   const hum = measureMainsHum(pcm.samples, pcm.sampleRate);
+  const clicks = measureClickPop(pcm.samples, pcm.sampleRate);
   const plrDb =
     bs.truePeakDbtp != null && bs.integratedLufs != null
       ? measurePlrDb(bs.truePeakDbtp, bs.integratedLufs)
@@ -101,6 +103,8 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
     ispOvershootDb,
     mainsHumHz: hum?.frequencyHz,
     mainsHumProminenceDb: hum?.prominenceDb,
+    clickPopCount: clicks?.count,
+    clickPopProminenceDb: clicks?.peakProminenceDb,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,

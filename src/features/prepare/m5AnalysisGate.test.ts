@@ -5,6 +5,7 @@ import { evaluateReadiness } from "@vybz/domain/releases";
 import {
   PROCESSING_VERSION,
   analyzeWavBuffer,
+  measureClickPop,
   measureCrestFactorDb,
   measureStereoCorrelation,
 } from "@vybz/processing/waveform";
@@ -31,6 +32,7 @@ const M5_CODES = [
   "AUDIO_STEREO_SIDE_HEAVY",
   "AUDIO_IS_PEAK_RISK",
   "AUDIO_MAINS_HUM",
+  "AUDIO_CLICK_POP",
 ] as const;
 
 /** Minimal mono 16-bit PCM WAV. */
@@ -79,13 +81,17 @@ describe("M5 advanced analysis gate", () => {
     }
   });
 
-  it("is reproducible for crest and correlation helpers", () => {
+  it("is reproducible for crest, correlation, and click/pop helpers", () => {
     expect(measureCrestFactorDb(-6, -12)).toBe(measureCrestFactorDb(-6, -12));
     const a = new Float32Array(128);
     for (let i = 0; i < a.length; i++) a[i] = Math.sin(i / 7);
     expect(measureStereoCorrelation([a, a.slice()])).toBe(
       measureStereoCorrelation([a, a.slice()])
     );
+    const pcm = new Float32Array(4800);
+    for (let i = 0; i < pcm.length; i++) pcm[i] = Math.sin((2 * Math.PI * 440 * i) / 48000) * 0.2;
+    pcm[2400] = 0.95;
+    expect(measureClickPop(pcm, 48000)).toEqual(measureClickPop(pcm, 48000));
   });
 
   it("emits actionable findings beyond basic readiness", () => {
@@ -132,6 +138,8 @@ describe("M5 advanced analysis gate", () => {
     expect(result.spectralBalance).toBeTruthy();
     expect(result.clippedSamples).toBeTypeOf("number");
     expect(result.silenceLeadInSeconds).toBeTypeOf("number");
+    expect(result.clickPopCount).toBeTypeOf("number");
+    expect(result.clickPopProminenceDb).toBeTypeOf("number");
     expect(ms).toBeLessThan(2000);
   });
 

@@ -70,6 +70,10 @@ export type AudioProbe = {
   ispOvershootDb?: number;
   mainsHumHz?: 50 | 60;
   mainsHumProminenceDb?: number;
+  /** Distinct click/pop candidates (time-domain heuristic). */
+  clickPopCount?: number;
+  /** Strongest click prominence vs local RMS (dB). */
+  clickPopProminenceDb?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -587,6 +591,23 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
         "audio",
         `Possible ${audio.mainsHumHz} Hz mains hum`,
         `${audio.mainsHumHz} Hz bin prominence measured at ${audio.mainsHumProminenceDb.toFixed(1)} dB vs local spectrum${provenance} (FFT heuristic). Check ground loops / DI paths if audible.`
+      )
+    );
+  }
+
+  if (
+    audio.clickPopCount != null &&
+    audio.clickPopProminenceDb != null &&
+    audio.clickPopCount >= 1 &&
+    audio.clickPopProminenceDb >= 20
+  ) {
+    out.push(
+      finding(
+        "AUDIO_CLICK_POP",
+        "warning",
+        "audio",
+        `Possible click/pop artifacts (${audio.clickPopCount})`,
+        `${audio.clickPopCount} impulsive jump(s); peak prominence ${audio.clickPopProminenceDb.toFixed(1)} dB vs local RMS${provenance} (time-domain heuristic). Audition edits, fades, and digital glitches.`
       )
     );
   }
