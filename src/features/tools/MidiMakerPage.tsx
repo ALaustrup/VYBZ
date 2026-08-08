@@ -1,11 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
-import { Download, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Download, Loader2, Plus, Square, Trash2, Upload, Play } from "lucide-react";
 import { Midi } from "@tonejs/midi";
 import { audioToMidi } from "@/lib/audioToMidi";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 import { PianoRoll, type PianoNote } from "@/features/tools/PianoRoll";
+import { playMidiPreview, type MidiPreviewHandle } from "@/features/tools/midiPreview";
 
 type Note = PianoNote;
 
@@ -47,8 +48,39 @@ export function MidiMakerPage() {
   const [title, setTitle] = useState("untitled");
   const [busy, setBusy] = useState(false);
   const [showList, setShowList] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const previewRef = useRef<MidiPreviewHandle | null>(null);
 
   useRegisterAppBar({ title: "Midi Maker" }, []);
+
+  useEffect(() => {
+    return () => {
+      previewRef.current?.stop();
+      previewRef.current = null;
+    };
+  }, []);
+
+  const stopPreview = useCallback(() => {
+    previewRef.current?.stop();
+    previewRef.current = null;
+    setPlaying(false);
+  }, []);
+
+  const startPreview = useCallback(() => {
+    if (!notes.length) {
+      showToast("Add notes to preview");
+      return;
+    }
+    stopPreview();
+    previewRef.current = playMidiPreview(notes);
+    setPlaying(true);
+    const endMs =
+      Math.ceil(Math.max(...notes.map((n) => n.time + n.duration)) * 1000) + 120;
+    window.setTimeout(() => {
+      setPlaying(false);
+      previewRef.current = null;
+    }, endMs);
+  }, [notes, showToast, stopPreview]);
 
   const sorted = useMemo(
     () => [...notes].sort((a, b) => a.time - b.time || a.midi - b.midi),
@@ -182,6 +214,26 @@ export function MidiMakerPage() {
         >
           <Download className="h-4 w-4" /> Export .mid
         </button>
+        {playing ? (
+          <button
+            type="button"
+            data-testid="midi-preview-stop"
+            onClick={stopPreview}
+            className="btn btn-ghost px-3 py-2 text-sm"
+          >
+            <Square className="h-4 w-4" /> Stop
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-testid="midi-preview-play"
+            disabled={!notes.length}
+            onClick={startPreview}
+            className="btn btn-ghost px-3 py-2 text-sm disabled:opacity-40"
+          >
+            <Play className="h-4 w-4" /> Preview
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setShowList((v) => !v)}
@@ -227,7 +279,7 @@ export function MidiMakerPage() {
           {sorted.map((n) => (
             <li
               key={n.id}
-              className="grid grid-cols-[4rem_1fr_1fr_1fr_auto] items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-2 py-1.5 text-[12px]"
+              className="grid grid-cols-[3.5rem_1fr_1fr_1fr_1fr_auto] items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-2 py-1.5 text-[12px]"
             >
               <span className="font-mono text-white/70">{noteLabel(n.midi)}</span>
               <label className="flex items-center gap-1 text-white/40">
@@ -275,6 +327,23 @@ export function MidiMakerPage() {
                       )
                     )
                   }
+                />
+              </label>
+              <label className="flex items-center gap-1 text-white/40" title="Velocity 1–127">
+                v
+                <input
+                  type="number"
+                  min={1}
+                  max={127}
+                  data-testid="midi-note-velocity"
+                  className="w-full bg-transparent text-white outline-none"
+                  value={Math.round(Math.max(0.05, Math.min(1, n.velocity)) * 127)}
+                  onChange={(e) => {
+                    const midiVel = Math.max(1, Math.min(127, Number(e.target.value) || 1));
+                    setNotes((list) =>
+                      list.map((x) => (x.id === n.id ? { ...x, velocity: midiVel / 127 } : x))
+                    );
+                  }}
                 />
               </label>
               <button
