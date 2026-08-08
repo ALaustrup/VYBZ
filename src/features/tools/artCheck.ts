@@ -2,6 +2,8 @@
  * Artwork validation + fix helpers (Art Check). Law 1: only measured pixels.
  */
 
+export type ArtFileSizeVerdict = "pass" | "warn" | "fail";
+
 export type ArtCheckResult = {
   width: number;
   height: number;
@@ -9,6 +11,8 @@ export type ArtCheckResult = {
   minEdge: number;
   meetsStoreMin: boolean; // ≥ 3000 on both edges
   fileBytes: number;
+  /** VYBZ guidance vs common store upload soft caps — not a DSP submission claim. */
+  fileSizeVerdict: ArtFileSizeVerdict;
   mimeType: string;
   meanLuma: number; // 0..1
   needsBrighten: boolean;
@@ -18,6 +22,16 @@ export const ART_STORE_MIN_PX = 3000;
 export const ART_TARGET_PX = 3000;
 /** Mean luma below this suggests a lift may help visibility. */
 export const ART_DIM_LUMA = 0.22;
+/** Soft warn when file is large for common store uploads (VYBZ guidance). */
+export const ART_FILE_WARN_BYTES = 8 * 1024 * 1024;
+/** Soft fail-style severity at typical ~10 MiB upload caps (VYBZ guidance). */
+export const ART_FILE_FAIL_BYTES = 10 * 1024 * 1024;
+
+export function artFileSizeVerdict(fileBytes: number): ArtFileSizeVerdict {
+  if (fileBytes >= ART_FILE_FAIL_BYTES) return "fail";
+  if (fileBytes >= ART_FILE_WARN_BYTES) return "warn";
+  return "pass";
+}
 
 export async function probeArtworkFile(file: File): Promise<ArtCheckResult> {
   const bitmap = await createImageBitmap(file);
@@ -49,6 +63,7 @@ export async function probeArtworkFile(file: File): Promise<ArtCheckResult> {
       minEdge,
       meetsStoreMin: width >= ART_STORE_MIN_PX && height >= ART_STORE_MIN_PX,
       fileBytes: file.size,
+      fileSizeVerdict: artFileSizeVerdict(file.size),
       mimeType: file.type || "image/*",
       meanLuma,
       needsBrighten: meanLuma < ART_DIM_LUMA,

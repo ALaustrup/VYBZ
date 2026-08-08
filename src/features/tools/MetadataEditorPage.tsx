@@ -1,53 +1,20 @@
 import { useEffect, useState } from "react";
-import { FileAudio, Loader2, Save } from "lucide-react";
+import { Download, FileAudio, Loader2, Save, Upload } from "lucide-react";
 import { readId3Tags, titleFromFilename, type Id3Tags } from "@/lib/id3Tags";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+import {
+  emptyMetadataDraft,
+  parseMetadataDraftJson,
+  serializeMetadataDraft,
+  type MetadataDraft,
+} from "@/features/tools/metadataDraft";
 
 const STORAGE_KEY = "vybz.metadataEditor.draft.v1";
 
-export type MetadataDraft = {
-  title: string;
-  artist: string;
-  album: string;
-  trackNumber: string;
-  year: string;
-  genre: string;
-  isrc: string;
-  upc: string;
-  catalogNumber: string;
-  copyright: string;
-  publisher: string;
-  songwriter: string;
-  producer: string;
-  mixer: string;
-  masteringEngineer: string;
-  language: string;
-  sourceFileName?: string;
-};
-
-function emptyDraft(): MetadataDraft {
-  return {
-    title: "",
-    artist: "",
-    album: "",
-    trackNumber: "",
-    year: "",
-    genre: "",
-    isrc: "",
-    upc: "",
-    catalogNumber: "",
-    copyright: "",
-    publisher: "",
-    songwriter: "",
-    producer: "",
-    mixer: "",
-    masteringEngineer: "",
-    language: "",
-  };
-}
+export type { MetadataDraft };
 
 function Field({
   label,
@@ -79,7 +46,7 @@ function Field({
  */
 export function MetadataEditorPage() {
   const { showToast } = useSession();
-  const [draft, setDraft] = useState<MetadataDraft>(emptyDraft);
+  const [draft, setDraft] = useState<MetadataDraft>(emptyMetadataDraft);
   const [busy, setBusy] = useState(false);
 
   useRegisterAppBar({ title: "Metadata", subtitle: "Editor" }, []);
@@ -87,7 +54,7 @@ export function MetadataEditorPage() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setDraft({ ...emptyDraft(), ...JSON.parse(raw) });
+      if (raw) setDraft({ ...emptyMetadataDraft(), ...JSON.parse(raw) });
     } catch {
       /* ignore */
     }
@@ -128,6 +95,30 @@ export function MetadataEditorPage() {
     showToast("Draft saved on this device");
   }
 
+  function downloadJson() {
+    const blob = new Blob([serializeMetadataDraft(draft)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(draft.title || "vybz-metadata").replace(/[^\w.-]+/g, "_").slice(0, 40)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("Draft JSON downloaded");
+  }
+
+  async function importJson(file: File | undefined) {
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const next = parseMetadataDraftJson(text);
+      setDraft(next);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      showToast("Draft loaded from JSON");
+    } catch {
+      showToast("Not a valid VYBZ metadata draft");
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="metadata-editor">
       <p className="mb-4 text-[13px] text-white/45">
@@ -152,6 +143,27 @@ export function MetadataEditorPage() {
         <button type="button" onClick={saveDraft} className="btn btn-ghost px-4 py-2.5 text-sm">
           <Save className="h-4 w-4" /> Save draft
         </button>
+        <button
+          type="button"
+          data-testid="metadata-json-download"
+          onClick={downloadJson}
+          className="btn btn-ghost px-4 py-2.5 text-sm"
+        >
+          <Download className="h-4 w-4" /> Export JSON
+        </button>
+        <label className="btn btn-ghost cursor-pointer px-4 py-2.5 text-sm" data-testid="metadata-json-upload">
+          <Upload className="h-4 w-4" /> Import JSON
+          <input
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              void importJson(f);
+            }}
+          />
+        </label>
         {draft.sourceFileName && (
           <span className="text-[11px] text-white/35">Source · {draft.sourceFileName}</span>
         )}
@@ -198,7 +210,8 @@ export function MetadataEditorPage() {
       </section>
 
       <p className={cx("mt-6 text-[11px] text-white/30")}>
-        Drafts stay on this device. Cloud write-back to assets lands when release schema is wired.
+        Drafts stay on this device. JSON export/import is for handoff — cloud write-back lands when
+        release schema is wired. Never invent ISRC/UPC.
       </p>
     </div>
   );

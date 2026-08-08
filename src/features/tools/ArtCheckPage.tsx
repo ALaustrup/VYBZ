@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Download, ImagePlus, Loader2, Sparkles } from "lucide-react";
 import {
+  ART_FILE_FAIL_BYTES,
+  ART_FILE_WARN_BYTES,
   ART_STORE_MIN_PX,
   fixArtworkFile,
   probeArtworkFile,
@@ -66,8 +68,10 @@ export function ArtCheckPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="art-check">
       <p className="mb-4 text-[13px] text-white/45">
-        Measure cover art against store-style square / {ART_STORE_MIN_PX}px rules. Fix resizes and
-        pads; brighten only when measured luma is low.
+        Measure cover art against store-style square / {ART_STORE_MIN_PX}px rules and common upload
+        size guidance ({ART_FILE_WARN_BYTES / (1024 * 1024)}–{ART_FILE_FAIL_BYTES / (1024 * 1024)}{" "}
+        MiB soft caps — not a DSP submission claim). Fix resizes and pads; brighten only when
+        measured luma is low.
       </p>
 
       <label
@@ -131,6 +135,14 @@ export function ArtCheckPage() {
             <div>
               <dt className="text-[10px] uppercase text-white/35">File</dt>
               <dd>{prettyBytes(result.fileBytes)}</dd>
+            </div>
+            <div data-testid="art-file-size-verdict">
+              <dt className="text-[10px] uppercase text-white/35">File size gate</dt>
+              <dd>
+                {result.fileSizeVerdict === "pass" && "Pass"}
+                {result.fileSizeVerdict === "warn" && "Warn (≥ 8 MiB)"}
+                {result.fileSizeVerdict === "fail" && "Fail-style (≥ 10 MiB)"}
+              </dd>
             </div>
             <div>
               <dt className="text-[10px] uppercase text-white/35">Brighten?</dt>
