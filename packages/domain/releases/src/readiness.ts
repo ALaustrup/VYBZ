@@ -66,6 +66,10 @@ export type AudioProbe = {
   sideRmsDbfs?: number;
   /** side RMS − mid RMS (dB). */
   sideToMidDb?: number;
+  /** True peak − sample peak (dB). */
+  ispOvershootDb?: number;
+  mainsHumHz?: 50 | 60;
+  mainsHumProminenceDb?: number;
   /** True when loudness metrics were measured from PCM, not inferred. */
   loudnessMeasured?: boolean;
   /** How the PCM was obtained: in-worker WAV decode, or host Web Audio decode. */
@@ -546,6 +550,43 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
             ? ` · mid ${audio.midRmsDbfs.toFixed(1)} / side ${audio.sideRmsDbfs.toFixed(1)} dBFS`
             : ""
         }. Check mid/side widening and polarity — mono may collapse.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.ispOvershootDb != null &&
+    audio.ispOvershootDb > 1
+  ) {
+    out.push(
+      finding(
+        "AUDIO_IS_PEAK_RISK",
+        "warning",
+        "audio",
+        "True peak overshoots sample peak",
+        `Intersample overshoot measured at ${audio.ispOvershootDb.toFixed(1)} dB${provenance}${
+          audio.truePeakDbtp != null && audio.peakDbfs != null
+            ? ` (TP ${audio.truePeakDbtp.toFixed(1)} dBTP vs sample ${audio.peakDbfs.toFixed(1)} dBFS)`
+            : ""
+        }. Lower the limiter ceiling before lossy encode.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.mainsHumProminenceDb != null &&
+    audio.mainsHumHz != null &&
+    audio.mainsHumProminenceDb >= 12
+  ) {
+    out.push(
+      finding(
+        "AUDIO_MAINS_HUM",
+        "info",
+        "audio",
+        `Possible ${audio.mainsHumHz} Hz mains hum`,
+        `${audio.mainsHumHz} Hz bin prominence measured at ${audio.mainsHumProminenceDb.toFixed(1)} dB vs local spectrum${provenance} (FFT heuristic). Check ground loops / DI paths if audible.`
       )
     );
   }

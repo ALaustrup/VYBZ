@@ -71,6 +71,12 @@ export type LoudnessMetrics = {
   sideRmsDbfs?: number;
   /** sideRms − midRms (dB). */
   sideToMidDb?: number;
+  /** True peak − sample peak (dB). */
+  ispOvershootDb?: number;
+  /** Stronger mains-hum candidate (50 or 60 Hz). */
+  mainsHumHz?: 50 | 60;
+  /** Prominence of mains-hum candidate vs local spectrum (dB). */
+  mainsHumProminenceDb?: number;
 };
 
 export type SpectrumSnapshot = {

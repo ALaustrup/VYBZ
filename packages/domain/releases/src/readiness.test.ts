@@ -266,6 +266,30 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_STEREO_SIDE_HEAVY")).toBe(true);
   });
 
+  it("flags intersample overshoot and mains hum when measured", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -2,
+        truePeakDbtp: -0.3,
+        ispOvershootDb: 1.7,
+        mainsHumHz: 60,
+        mainsHumProminenceDb: 18,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_IS_PEAK_RISK")).toBe(true);
+    expect(findings.some((f) => f.code === "AUDIO_MAINS_HUM")).toBe(true);
+  });
+
   it("flags small non-square artwork", () => {
     const findings = evaluateReadiness({
       title: "Song",

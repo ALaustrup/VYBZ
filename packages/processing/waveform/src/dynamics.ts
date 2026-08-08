@@ -22,3 +22,16 @@ export function measurePlrDb(truePeakDbtp: number, integratedLufs: number): numb
 
 /** VYBZ heuristic: PLR below this often sounds crushed for streaming. */
 export const PLR_LOW_THRESHOLD_DB = 6;
+
+/**
+ * Intersample overshoot: true peak (dBTP) − sample peak (dBFS).
+ * Both must be measured (Law 1). Large positive values mean the oversampled
+ * peak exceeds sample peak — codec / DAC risk even when sample peak looks safe.
+ */
+export function measureIspOvershootDb(truePeakDbtp: number, samplePeakDbfs: number): number {
+  if (!Number.isFinite(truePeakDbtp) || !Number.isFinite(samplePeakDbfs)) return 0;
+  return truePeakDbtp - samplePeakDbfs;
+}
+
+/** VYBZ heuristic: warn when true peak sits this far above sample peak. */
+export const ISP_OVERSHOOT_WARN_DB = 1;

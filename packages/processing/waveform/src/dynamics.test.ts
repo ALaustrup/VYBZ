@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   CREST_CRUSHED_THRESHOLD_DB,
+  ISP_OVERSHOOT_WARN_DB,
   PLR_LOW_THRESHOLD_DB,
   measureCrestFactorDb,
+  measureIspOvershootDb,
   measurePlrDb,
 } from "./dynamics";
 
@@ -25,5 +27,15 @@ describe("measurePlrDb", () => {
 
   it("flags low PLR below the documented heuristic", () => {
     expect(measurePlrDb(-1, -5)).toBeLessThan(PLR_LOW_THRESHOLD_DB);
+  });
+});
+
+describe("measureIspOvershootDb", () => {
+  it("is true peak minus sample peak", () => {
+    expect(measureIspOvershootDb(-0.2, -1.5)).toBeCloseTo(1.3, 5);
+  });
+
+  it("flags overshoot above the documented heuristic", () => {
+    expect(measureIspOvershootDb(-0.1, -2)).toBeGreaterThan(ISP_OVERSHOOT_WARN_DB);
   });
 });

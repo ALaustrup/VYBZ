@@ -21,10 +21,17 @@ export {
 } from "./bs1770";
 export {
   measureCrestFactorDb,
+  measureIspOvershootDb,
   measurePlrDb,
   CREST_CRUSHED_THRESHOLD_DB,
+  ISP_OVERSHOOT_WARN_DB,
   PLR_LOW_THRESHOLD_DB,
 } from "./dynamics";
+export {
+  measureMainsHum,
+  MAINS_HUM_PROMINENCE_WARN_DB,
+  type MainsHumResult,
+} from "./mainsHum";
 export {
   measureStereoCorrelation,
   STEREO_NARROW_THRESHOLD,
