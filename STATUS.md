@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `feat/suite-app-rail-tools`
-**HEAD:** pending commit
-**Working tree:** dirty until commit
-**Current milestone:** **M5** + owner-authorised Suite Apps IA slice (2026-08-08).
+**Branch:** `main`
+**HEAD:** `e631aaa3823e5c5068a37674b72ab27329784630` (merge PR #73)
+**Working tree:** dirty until STATUS commit
+**Current milestone:** **M5** + Suite Apps IA slice.
 
 ---
 
@@ -15,15 +15,16 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | prior |
-| This branch on production | **NO** | not merged |
+| Alias | https://vybz.cloud | HTTP 200 |
+| Production SHA | `e631aaa3` | live `index-IcEJ1EI_.js` contains `e631aaa3` |
+| PR #73 markers | **PASS** | live JS contains `suite-app-rail`, `metadata-editor`, `art-check`, `midi-maker`, `media-converter` |
 
 ## Last completed operations
 
-1. Suite Apps IA — right-rail app selector (replaces Now Playing rail); Wave 1 tools: Analyzer rename, Metadata Editor, Art Check, Midi Maker, Media Converter; Instrument Creator parked as OR-018.
-2. Playback remains on VDock; `NowPlayingRail` unused (recoverable).
+1. **PR [#73](https://github.com/ALaustrup/VYBZ/pull/73) merged** (`e631aaa3`) — suite apps right rail + Wave 1 tools.
+2. **Production verify** — bundle markers present (2026-08-08). Interactive UI not re-run this unit.
 
-## Gate on this branch
+## Gate (pre-merge)
 
 ```
 npm run lint              — PASS
@@ -31,11 +32,12 @@ npm run test              — PASS 373/373 (69 files)
 npm run build             — PASS
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged.
+Delivery state: **DEPLOYED AND VERIFIED** (bundle markers).
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised milestone | **M5** + Suite Apps IA slice |
+| Authorised milestone | **M5** + Suite Apps IA |
 | Premium-suite phase track | **WITHDRAWN** |
+| Next | Owner-directed (deeper tool apps or M5 analysis) |
