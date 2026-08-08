@@ -5,8 +5,9 @@
 
 **Date:** 2026-08-08
 **Branch:** `main`
-**HEAD:** `5b9648c6` (merge PR #74)
-**Working tree:** clean (STATUS update pending on docs branch)
+**HEAD:** `5092e22a` (STATUS checkpoint after PR #74 verify)
+**Feature tip on prod:** `5b9648c6` (merge PR #74)
+**Working tree:** clean
 **Current milestone:** **M5** + Suite Apps IA.
 
 ---
