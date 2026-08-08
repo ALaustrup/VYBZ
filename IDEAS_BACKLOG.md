@@ -193,3 +193,4 @@ approval and an entry in the Masterplan.
 | OR-015 | Codec vulnerability estimation | Idea — M7 extension |
 | OR-016 | Podcast and spoken-word specific readiness rules | Idea — M8 extension |
 | OR-017 | Separate Chats section (Messages stays DMs-only; Rooms unlinked) | Parked — Artist OS Surface Overhaul 2026-08-07 |
+| OR-018 | Instrument Creator — paid one-time unlock for a full VST3 instrument design studio (native DSP / JUCE-class work; not a web placeholder) | Idea — horizon add-on; no suite rail tile until a signed plug-in exists |

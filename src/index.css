@@ -330,6 +330,64 @@
     padding-bottom: 0.35rem;
   }
 
+  /* Suite app rail — right column (replaces Now Playing); hover / selected glow */
+  .suite-app-rail {
+    z-index: 30;
+    padding-bottom: calc(var(--dock-reserve, 6.25rem) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .suite-app-rail-mobile {
+    z-index: 35;
+    background: rgba(7, 11, 20, 0.45);
+    backdrop-filter: blur(12px);
+  }
+
+  .suite-app-tile {
+    color: rgba(255, 255, 255, 0.45);
+    border-radius: 0.75rem;
+    transition: color 160ms ease, transform 160ms ease;
+  }
+
+  .suite-app-tile-glow {
+    position: absolute;
+    inset: 0.1rem;
+    border-radius: 0.65rem;
+    opacity: 0;
+    background: radial-gradient(
+      circle at 50% 40%,
+      rgb(var(--accent-rgb) / 0.35),
+      transparent 70%
+    );
+    transition: opacity 180ms ease;
+    pointer-events: none;
+  }
+
+  .suite-app-tile:hover {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .suite-app-tile:hover .suite-app-tile-glow {
+    opacity: 1;
+  }
+
+  .suite-app-tile--active {
+    color: #fff;
+  }
+
+  .suite-app-tile--active .suite-app-tile-glow {
+    opacity: 1;
+    background: radial-gradient(
+      circle at 50% 40%,
+      rgb(var(--accent-rgb) / 0.55),
+      rgb(var(--accent-rgb) / 0.08) 65%,
+      transparent 78%
+    );
+  }
+
+  .suite-app-tile--active .suite-app-tile-icon {
+    filter: drop-shadow(0 0 6px rgb(var(--accent-rgb) / 0.65));
+  }
+
   /* ── Liquid glass ───────────────────────────────────────────────────────────
      Glass reads as glass because of edges, not blur. The stack below is: a
      directional body tint, a hard 1px specular catch on the top edge, a dimmer

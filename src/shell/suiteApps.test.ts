@@ -1,0 +1,20 @@
+import { describe, expect, it } from "vitest";
+import { activeSuiteAppId, visibleSuiteApps } from "@/shell/suiteApps";
+
+describe("suiteApps", () => {
+  it("exposes Wave 1 tools including Analyzer and Metadata", () => {
+    const ids = visibleSuiteApps().map((a) => a.id);
+    expect(ids).toEqual(expect.arrayContaining(["analyzer", "metadata", "art-check", "midi-maker", "media-converter", "library", "codex"]));
+  });
+
+  it("selects Analyzer for release routes", () => {
+    expect(activeSuiteAppId("/releases")).toBe("analyzer");
+    expect(activeSuiteAppId("/release/abc")).toBe("analyzer");
+  });
+
+  it("selects tool apps by path", () => {
+    expect(activeSuiteAppId("/tools/metadata")).toBe("metadata");
+    expect(activeSuiteAppId("/tools/midi")).toBe("midi-maker");
+    expect(activeSuiteAppId("/tools/convert")).toBe("media-converter");
+  });
+});

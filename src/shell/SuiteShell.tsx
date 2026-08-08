@@ -4,9 +4,9 @@ import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
-import { NowPlayingRail } from "@/shell/NowPlayingRail";
 import { MobileNav } from "@/shell/MobileNav";
 import { PrimaryRail } from "@/shell/PrimaryRail";
+import { SuiteAppRail, SuiteAppRailMobile } from "@/shell/SuiteAppRail";
 import { shellModeClass } from "@/shell/shellMode";
 
 export function SuiteShell({
@@ -27,7 +27,7 @@ export function SuiteShell({
   onBulkUpload?: () => void;
   surfaceMode?: "professional" | "audience";
   showCommandBar?: boolean;
-  /** @deprecated Context inspector replaced by NowPlayingRail. */
+  /** @deprecated Right rail is SuiteAppRail (apps), not an inspector. */
   showInspector?: boolean;
 }) {
   const shellMode = useShellMode();
@@ -42,6 +42,7 @@ export function SuiteShell({
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
         )}
+        <SuiteAppRailMobile />
         <MobileNav />
         {showCommandBar ? <CommandBar /> : null}
         <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -50,7 +51,7 @@ export function SuiteShell({
               <div className="suite-stage-inner">{stage}</div>
             </ErrorBoundary>
           </main>
-          <NowPlayingRail />
+          <SuiteAppRail />
         </div>
       </div>
       <div className="app-dock" role="complementary" aria-label="V-Dock">
