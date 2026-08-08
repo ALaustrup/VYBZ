@@ -1,19 +1,13 @@
 /**
- * M6 kickoff — reversible DC offset removal (Law 1: measured mean only).
+ * M6 — reversible DC offset removal (Law 1: measured mean only).
  * Non-destructive: caller keeps the original buffer; this returns a new planar copy.
  */
 
-import { measureDcOffset, type DcOffsetResult } from "./monoCompat";
+import { snapshotLevels, type LevelSnapshot } from "./correctionLevels";
 
 export const CORRECTION_VERSION = "m6.dc-remove.1";
 
-export type LevelSnapshot = {
-  peakLinear: number;
-  rmsLinear: number;
-  peakDbfs: number;
-  rmsDbfs: number;
-  dc: DcOffsetResult | null;
-};
+export type { LevelSnapshot };
 
 export type DcRemoveResult = {
   /** Corrected planar channels (new arrays). */
@@ -24,36 +18,6 @@ export type DcRemoveResult = {
   removedMean: number;
   correctionVersion: typeof CORRECTION_VERSION;
 };
-
-function dbFromLinear(x: number): number {
-  if (x <= 1e-12) return -120;
-  return 20 * Math.log10(x);
-}
-
-function snapshotLevels(channels: Float32Array[]): LevelSnapshot {
-  const n = channels[0]?.length ?? 0;
-  let peak = 0;
-  let sumSq = 0;
-  let count = 0;
-  for (let c = 0; c < channels.length; c++) {
-    const ch = channels[c]!;
-    for (let i = 0; i < n; i++) {
-      const s = ch[i]!;
-      const a = Math.abs(s);
-      if (a > peak) peak = a;
-      sumSq += s * s;
-      count++;
-    }
-  }
-  const rms = count > 0 ? Math.sqrt(sumSq / count) : 0;
-  return {
-    peakLinear: peak,
-    rmsLinear: rms,
-    peakDbfs: dbFromLinear(peak),
-    rmsDbfs: dbFromLinear(rms),
-    dc: measureDcOffset(channels),
-  };
-}
 
 /**
  * Subtract the measured downmix DC mean from every sample in every channel.
