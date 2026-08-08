@@ -5,8 +5,9 @@ import { audioToMidi } from "@/lib/audioToMidi";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import { PianoRoll, type PianoNote } from "@/features/tools/PianoRoll";
 
-type Note = { id: string; midi: number; time: number; duration: number; velocity: number };
+type Note = PianoNote;
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
@@ -37,7 +38,7 @@ function downloadMidi(notes: Note[], tempo: number, name: string) {
 }
 
 /**
- * Midi Maker v1 — single-track piano list + audio→MIDI import + .mid export.
+ * Midi Maker — piano roll + note list + audio→MIDI / .mid import-export.
  */
 export function MidiMakerPage() {
   const { showToast } = useSession();
@@ -45,6 +46,7 @@ export function MidiMakerPage() {
   const [tempo, setTempo] = useState(120);
   const [title, setTitle] = useState("untitled");
   const [busy, setBusy] = useState(false);
+  const [showList, setShowList] = useState(false);
 
   useRegisterAppBar({ title: "Midi Maker" }, []);
 
@@ -52,6 +54,12 @@ export function MidiMakerPage() {
     () => [...notes].sort((a, b) => a.time - b.time || a.midi - b.midi),
     [notes]
   );
+
+  const rollSeconds = useMemo(() => {
+    if (!notes.length) return 8;
+    const end = Math.max(...notes.map((n) => n.time + n.duration));
+    return Math.max(8, Math.ceil(end + 1));
+  }, [notes]);
 
   const addNote = useCallback(() => {
     setNotes((list) => [
@@ -63,6 +71,13 @@ export function MidiMakerPage() {
         duration: 0.5,
         velocity: 0.8,
       },
+    ]);
+  }, []);
+
+  const placeOnRoll = useCallback((midi: number, time: number) => {
+    setNotes((list) => [
+      ...list,
+      { id: crypto.randomUUID(), midi, time, duration: 0.25, velocity: 0.85 },
     ]);
   }, []);
 
@@ -123,9 +138,9 @@ export function MidiMakerPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="midi-maker">
+    <div className="mx-auto max-w-4xl px-4 py-4 pb-28" data-testid="midi-maker">
       <p className="mb-4 text-[13px] text-white/45">
-        Create or extract a single MIDI track. Export downloads a standard .mid file.
+        Draw notes on the piano roll, or extract from audio. Export downloads a standard .mid file.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2">
@@ -167,6 +182,13 @@ export function MidiMakerPage() {
         >
           <Download className="h-4 w-4" /> Export .mid
         </button>
+        <button
+          type="button"
+          onClick={() => setShowList((v) => !v)}
+          className="btn btn-ghost px-3 py-2 text-sm"
+        >
+          {showList ? "Hide list" : "Edit list"}
+        </button>
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
@@ -191,10 +213,17 @@ export function MidiMakerPage() {
         </label>
       </div>
 
-      {sorted.length === 0 ? (
-        <p className="py-12 text-center text-[13px] text-white/35">No notes yet — add, import MIDI, or extract from audio.</p>
-      ) : (
-        <ul className="space-y-1.5">
+      <div className="mb-4">
+        <PianoRoll
+          notes={notes}
+          seconds={rollSeconds}
+          onPlace={placeOnRoll}
+          onRemove={(id) => setNotes((list) => list.filter((x) => x.id !== id))}
+        />
+      </div>
+
+      {showList && (
+        <ul className="mb-4 space-y-1.5">
           {sorted.map((n) => (
             <li
               key={n.id}
@@ -260,7 +289,7 @@ export function MidiMakerPage() {
           ))}
         </ul>
       )}
-      <p className="mt-4 text-[11px] text-white/30">{notes.length} notes · single track</p>
+      <p className="text-[11px] text-white/30">{notes.length} notes · single track</p>
     </div>
   );
 }
