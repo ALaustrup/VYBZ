@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-08
 **Branch:** `feat/library-drag-drop-ingest`
-**HEAD:** pending commit — based on `main` @ `858bd1fb` (PR #71 merge)
-**Working tree:** dirty until commit
+**HEAD:** `1cd2195c2357754876c5ea6a05e7bfae47272eab` (PR [#72](https://github.com/ALaustrup/VYBZ/pull/72))
+**Working tree:** clean after this commit
 **Current milestone:** **M5 — Advanced Analysis Suite** (library DnD is owner-authorised adjacent plumbing).
 
 ---
@@ -32,7 +32,7 @@ npm run test              — PASS 369/369 (67 files)
 npm run build             — PASS
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged.
+Delivery state: **IMPLEMENTED** (local) — not merged. PR [#72](https://github.com/ALaustrup/VYBZ/pull/72).
 
 ## Direction
 
