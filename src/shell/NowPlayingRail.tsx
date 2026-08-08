@@ -4,8 +4,8 @@ import { next, prev, toggle, usePlayerShell } from "@/lib/audioBus";
 import { cx } from "@/lib/utils";
 
 /**
- * Desktop right rail — Now Playing when a track is loaded; slim when idle.
- * Replaces the ContextInspector product/path debug panel.
+ * @deprecated Unused — right rail is SuiteAppRail (suite apps).
+ * Kept in tree for recovery; imported by nothing. Playback remains on VDock.
  */
 export function NowPlayingRail() {
   const p = usePlayerShell();

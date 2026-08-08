@@ -68,6 +68,10 @@ import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
+import { MetadataEditorPage } from "@/features/tools/MetadataEditorPage";
+import { ArtCheckPage } from "@/features/tools/ArtCheckPage";
+import { MidiMakerPage } from "@/features/tools/MidiMakerPage";
+import { MediaConverterPage } from "@/features/tools/MediaConverterPage";
 import { resolveE2eFixture } from "@/app/e2eFixtures";
 
 // Vite inlines import.meta.env at build time, so this folds to `false` for production
@@ -185,6 +189,10 @@ export function App() {
         <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/library" element={<LibraryPage key={feedKey} />} />
+        <Route path="/tools/metadata" element={<MetadataEditorPage />} />
+        <Route path="/tools/art-check" element={<ArtCheckPage />} />
+        <Route path="/tools/midi" element={<MidiMakerPage />} />
+        <Route path="/tools/convert" element={<MediaConverterPage />} />
         <Route path="/track/:id" element={<TrackDetailPage />} />
         <Route path="/visuals/tutorial" element={<VisualizerTutorialPage />} />
         <Route path="/visuals/studio" element={<VisualizerStudioPage />} />

@@ -26,17 +26,15 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M5 — Advanced Analysis Suite.** Owner authorised 2026-08-07 after M4 exited
-**DEPLOYED AND VERIFIED** (BS.1770 meters, scan progress, executable M4 gate, native
-approx disclosure).
+**M5 — Advanced Analysis Suite** remains the Masterplan milestone. Owner additionally
+authorised **2026-08-08** a Suite Apps IA slice (not a parallel phase track): app rail
+under the header plus Wave 1 tools — Analyzer (Finalize rename), Metadata Editor, Art
+Check, Midi Maker, Media Converter — remapping real routes. Instrument Creator (VST3)
+stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
 
-Scope: analysis that provides value beyond basic readiness — findings reproducible,
-understandable, and actionable; performance acceptable on supported files and devices
-(Masterplan §10). First slice: Dynamics & Stereo Integrity (crest factor, L/R
-correlation, spectral band balance, LRA) from measured PCM only (Law 1).
-
-M4 remains landed. Premium-suite phase track remains withdrawn. The Masterplan §9
-sequence is the only plan.
+M5 analysis depth continues; social/live/messaging still receive no new feature work
+(Law 3). Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the
+only plan.
 
 ### There is exactly one plan
 

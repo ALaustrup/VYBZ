@@ -36,7 +36,7 @@ export function ReleasesPage() {
         const list = await listReleases(ownerId);
         if (!cancelled) setRows(list);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load Finalize projects");
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load Analyzer projects");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -52,18 +52,18 @@ export function ReleasesPage() {
   );
 
   if (loading) {
-    return <StateView variant="loading" title="Loading Finalize" body="Fetching scan projects…" />;
+    return <StateView variant="loading" title="Loading Analyzer" body="Fetching scan projects…" />;
   }
 
   if (error) {
-    return <StateView variant="error" title="Could not load Finalize" body={error} />;
+    return <StateView variant="error" title="Could not load Analyzer" body={error} />;
   }
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-releases">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="nexus-eyebrow">Finalize</p>
+          <p className="nexus-eyebrow">Analyzer</p>
           <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Finish what you scanned</h1>
           <p className="nexus-subline mt-2 text-sm">Pick up a readiness project — or start a new scan.</p>
         </div>
