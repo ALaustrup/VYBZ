@@ -56,6 +56,12 @@ export {
   CHANNEL_BALANCE_VERSION,
   type ChannelBalanceCorrectResult,
 } from "./channelBalanceCorrect";
+export {
+  applySilenceTrim,
+  SILENCE_TRIM_VERSION,
+  SILENCE_TRIM_PAD_SEC,
+  type SilenceTrimResult,
+} from "./silenceTrim";
 export { snapshotLevels } from "./correctionLevels";
 export {
   measureStereoCorrelation,
