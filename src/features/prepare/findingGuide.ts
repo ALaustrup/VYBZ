@@ -148,6 +148,15 @@ const GUIDES: Record<string, FindingGuide> = {
     fix: "Reduce mid/side widening, check polarity flips, and audition in mono.",
     target: "Side−mid RMS typically under −6 dB (VYBZ heuristic)",
   },
+  AUDIO_IS_PEAK_RISK: {
+    why: "Oversampled true peak above sample peak means intersample peaks that codecs and DACs may clip.",
+    fix: "Lower the true-peak limiter ceiling (often −1 dBTP) and re-export.",
+    target: "True peak − sample peak typically under 1 dB (VYBZ heuristic)",
+  },
+  AUDIO_MAINS_HUM: {
+    why: "A sharp 50/60 Hz tone often comes from ground loops, cheap DI boxes, or guitar amps.",
+    fix: "Check cabling/grounding; audition with a narrow notch if the hum is audible.",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

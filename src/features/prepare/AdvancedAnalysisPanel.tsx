@@ -93,6 +93,17 @@ export function AdvancedAnalysisPanel({ probe }: { probe: AudioProbe | null | un
     });
   }
 
+  if (probe.ispOvershootDb != null) {
+    rows.push({ label: "ISP overshoot", value: fmt(probe.ispOvershootDb, 1, " dB") });
+  }
+
+  if (probe.mainsHumProminenceDb != null && probe.mainsHumHz != null) {
+    rows.push({
+      label: "Mains hum",
+      value: `${probe.mainsHumHz} Hz · ${probe.mainsHumProminenceDb.toFixed(1)} dB`,
+    });
+  }
+
   if (probe.momentaryLufs != null || probe.shortTermLufs != null) {
     rows.push({
       label: "Momentary / short-term",

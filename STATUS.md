@@ -3,9 +3,9 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
-**Date:** 2026-08-07
-**Branch:** `main`
-**HEAD:** `fea237411a8842fba7e17ac9d78d9ee8b38ef713`
+**Date:** 2026-08-08
+**Branch:** `feat/m5-hum-intersample`
+**HEAD:** `3cbde97de11086405e1c66db1c254fea8c8ae645` (PR [#71](https://github.com/ALaustrup/VYBZ/pull/71))
 **Working tree:** clean after this commit
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
@@ -15,24 +15,24 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | HTTP 200 |
-| Production SHA | `d70246c5` | live `index-Div_yBQl.js` contains `d70246c5` |
-| PR #70 markers | **PASS** | live JS contains `AUDIO_PLR_LOW`, `AUDIO_STEREO_SIDE_HEAVY`, `plrDb`, `sideToMidDb` |
+| Alias | https://vybz.cloud | prior verify |
+| Production SHA | `d70246c5` (PR #70) | prior live JS; this branch not on prod |
+| This branch on production | **NO** | not merged |
 
 ## Last completed operations
 
-1. **PR [#70](https://github.com/ALaustrup/VYBZ/pull/70) merged** (`d70246c5`) — PLR + mid/side stereo width findings.
-2. **Production verify** — string markers present in live bundle (2026-08-07). Interactive Finalize scan not re-run this unit.
+1. **PR [#70](https://github.com/ALaustrup/VYBZ/pull/70) merged + verified** — PLR + mid/side.
+2. **M5 slice 6 (this unit)** — intersample overshoot (`AUDIO_IS_PEAK_RISK`) + mains hum FFT heuristic (`AUDIO_MAINS_HUM`); panel rows; gate codes.
 
-## Gate (pre-merge)
+## Gate on this branch
 
 ```
 npm run lint              — PASS
-npm run test              — PASS 360/360 (65 files)
+npm run test              — PASS 366/366 (66 files)
 npm run build             — PASS
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED** (bundle markers).
+Delivery state: **IMPLEMENTED** (local) — not merged. PR [#71](https://github.com/ALaustrup/VYBZ/pull/71).
 
 ## Direction
 
@@ -40,4 +40,3 @@ Delivery state: **DEPLOYED AND VERIFIED** (bundle markers).
 |---|---|
 | Authorised milestone | **M5 — Advanced Analysis Suite** |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next | Owner-directed next M5 analysis slice |

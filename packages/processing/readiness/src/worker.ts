@@ -75,6 +75,9 @@ export type MeasuredLoudness = {
   midRmsDbfs?: number;
   sideRmsDbfs?: number;
   sideToMidDb?: number;
+  ispOvershootDb?: number;
+  mainsHumHz?: 50 | 60;
+  mainsHumProminenceDb?: number;
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;

@@ -13,6 +13,8 @@ import {
   measureChannelBalance,
   measureDcOffset,
   measureEdgeSilence,
+  measureIspOvershootDb,
+  measureMainsHum,
   measureMidSide,
   measureMonoCompat,
   measurePlrDb,
@@ -80,9 +82,14 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
   const mono = measureMonoCompat(msg.channels);
   const chBal = measureChannelBalance(msg.channels);
   const ms = measureMidSide(msg.channels);
+  const hum = measureMainsHum(samples, msg.sampleRate);
   const plrDb =
     bs.truePeakDbtp != null && bs.integratedLufs != null
       ? measurePlrDb(bs.truePeakDbtp, bs.integratedLufs)
+      : undefined;
+  const ispOvershootDb =
+    bs.truePeakDbtp != null
+      ? measureIspOvershootDb(bs.truePeakDbtp, bs.samplePeakDbfs)
       : undefined;
   postProgress(msg.requestId, "measuring", 88);
   return {
@@ -122,6 +129,9 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
       midRmsDbfs: ms?.midRmsDbfs,
       sideRmsDbfs: ms?.sideRmsDbfs,
       sideToMidDb: ms?.sideToMidDb,
+      ispOvershootDb,
+      mainsHumHz: hum?.frequencyHz,
+      mainsHumProminenceDb: hum?.prominenceDb,
       analysisSampleRate: msg.sampleRate,
       channels: msg.channels.length,
       durationSeconds,
@@ -186,6 +196,9 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
         midRmsDbfs: analysis.midRmsDbfs,
         sideRmsDbfs: analysis.sideRmsDbfs,
         sideToMidDb: analysis.sideToMidDb,
+        ispOvershootDb: analysis.ispOvershootDb,
+        mainsHumHz: analysis.mainsHumHz,
+        mainsHumProminenceDb: analysis.mainsHumProminenceDb,
         loudnessMeasured: true,
         loudnessMethod: "pcm-wav",
         loudnessSampleRate: analysis.sampleRate,

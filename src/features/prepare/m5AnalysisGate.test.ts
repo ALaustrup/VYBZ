@@ -29,6 +29,8 @@ const M5_CODES = [
   "AUDIO_MOMENTARY_SPIKE",
   "AUDIO_PLR_LOW",
   "AUDIO_STEREO_SIDE_HEAVY",
+  "AUDIO_IS_PEAK_RISK",
+  "AUDIO_MAINS_HUM",
 ] as const;
 
 /** Minimal mono 16-bit PCM WAV. */

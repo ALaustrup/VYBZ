@@ -1,10 +1,11 @@
 import { computeSpectrum } from "./fft";
 import { computeLoudness } from "./loudness";
 import { measureBs1770 } from "./bs1770";
-import { measureCrestFactorDb, measurePlrDb } from "./dynamics";
+import { measureCrestFactorDb, measureIspOvershootDb, measurePlrDb } from "./dynamics";
 import { measureClipIntegrity, measureEdgeSilence } from "./integrity";
 import { measureDcOffset, measureMonoCompat } from "./monoCompat";
 import { measureChannelBalance } from "./channelBalance";
+import { measureMainsHum } from "./mainsHum";
 import { measureMidSide } from "./midSide";
 import { measureStereoCorrelation } from "./stereo";
 import { measureSpectralBalance } from "./spectralBalance";
@@ -53,9 +54,14 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
   const mono = measureMonoCompat(planar);
   const balanceCh = measureChannelBalance(planar);
   const ms = measureMidSide(planar);
+  const hum = measureMainsHum(pcm.samples, pcm.sampleRate);
   const plrDb =
     bs.truePeakDbtp != null && bs.integratedLufs != null
       ? measurePlrDb(bs.truePeakDbtp, bs.integratedLufs)
+      : undefined;
+  const ispOvershootDb =
+    bs.truePeakDbtp != null
+      ? measureIspOvershootDb(bs.truePeakDbtp, bs.samplePeakDbfs)
       : undefined;
 
   return {
@@ -92,6 +98,9 @@ export function analyzeWavBuffer(buffer: ArrayBuffer, opts: AnalyzeOptions = {})
     midRmsDbfs: ms?.midRmsDbfs,
     sideRmsDbfs: ms?.sideRmsDbfs,
     sideToMidDb: ms?.sideToMidDb,
+    ispOvershootDb,
+    mainsHumHz: hum?.frequencyHz,
+    mainsHumProminenceDb: hum?.prominenceDb,
     spectrum,
     engine,
     processingVersion: PROCESSING_VERSION,
