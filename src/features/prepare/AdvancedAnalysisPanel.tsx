@@ -104,6 +104,13 @@ export function AdvancedAnalysisPanel({ probe }: { probe: AudioProbe | null | un
     });
   }
 
+  if (probe.clickPopCount != null && probe.clickPopProminenceDb != null) {
+    rows.push({
+      label: "Click / pop",
+      value: `${probe.clickPopCount} · ${probe.clickPopProminenceDb.toFixed(1)} dB`,
+    });
+  }
+
   if (probe.momentaryLufs != null || probe.shortTermLufs != null) {
     rows.push({
       label: "Momentary / short-term",

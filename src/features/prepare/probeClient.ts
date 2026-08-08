@@ -163,6 +163,8 @@ export async function probeAudioFile(
     ispOvershootDb: measured.ispOvershootDb,
     mainsHumHz: measured.mainsHumHz,
     mainsHumProminenceDb: measured.mainsHumProminenceDb,
+    clickPopCount: measured.clickPopCount,
+    clickPopProminenceDb: measured.clickPopProminenceDb,
     loudnessMeasured: true,
     loudnessMethod: "decoded",
     loudnessSampleRate: measured.analysisSampleRate,

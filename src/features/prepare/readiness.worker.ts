@@ -14,6 +14,7 @@ import {
   measureDcOffset,
   measureEdgeSilence,
   measureIspOvershootDb,
+  measureClickPop,
   measureMainsHum,
   measureMidSide,
   measureMonoCompat,
@@ -83,6 +84,7 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
   const chBal = measureChannelBalance(msg.channels);
   const ms = measureMidSide(msg.channels);
   const hum = measureMainsHum(samples, msg.sampleRate);
+  const clicks = measureClickPop(samples, msg.sampleRate);
   const plrDb =
     bs.truePeakDbtp != null && bs.integratedLufs != null
       ? measurePlrDb(bs.truePeakDbtp, bs.integratedLufs)
@@ -132,6 +134,8 @@ function handleMeasureLoudness(msg: Extract<WorkerProbeRequest, { type: "measure
       ispOvershootDb,
       mainsHumHz: hum?.frequencyHz,
       mainsHumProminenceDb: hum?.prominenceDb,
+      clickPopCount: clicks?.count,
+      clickPopProminenceDb: clicks?.peakProminenceDb,
       analysisSampleRate: msg.sampleRate,
       channels: msg.channels.length,
       durationSeconds,
@@ -199,6 +203,8 @@ function handleProbeAudio(msg: Extract<WorkerProbeRequest, { type: "probe-audio"
         ispOvershootDb: analysis.ispOvershootDb,
         mainsHumHz: analysis.mainsHumHz,
         mainsHumProminenceDb: analysis.mainsHumProminenceDb,
+        clickPopCount: analysis.clickPopCount,
+        clickPopProminenceDb: analysis.clickPopProminenceDb,
         loudnessMeasured: true,
         loudnessMethod: "pcm-wav",
         loudnessSampleRate: analysis.sampleRate,

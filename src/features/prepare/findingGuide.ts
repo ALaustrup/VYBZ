@@ -157,6 +157,11 @@ const GUIDES: Record<string, FindingGuide> = {
     why: "A sharp 50/60 Hz tone often comes from ground loops, cheap DI boxes, or guitar amps.",
     fix: "Check cabling/grounding; audition with a narrow notch if the hum is audible.",
   },
+  AUDIO_CLICK_POP: {
+    why: "Impulsive sample jumps usually come from bad edits, zipper fades, dropouts, or digital glitches.",
+    fix: "Audition the flagged region; re-export with longer crossfades or repair the edit in your DAW.",
+    target: "No impulsive jumps ≥ 20 dB above local RMS (VYBZ heuristic)",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

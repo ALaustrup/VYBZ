@@ -78,6 +78,8 @@ export type MeasuredLoudness = {
   ispOvershootDb?: number;
   mainsHumHz?: 50 | 60;
   mainsHumProminenceDb?: number;
+  clickPopCount?: number;
+  clickPopProminenceDb?: number;
   /** Rate the analysis ran at — may differ from the container rate if the host resampled. */
   analysisSampleRate: number;
   channels: number;
