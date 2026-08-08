@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-08
 **Branch:** `feat/m5-hum-intersample`
-**HEAD:** see tip of branch after commit
-**Working tree:** dirty until commit
+**HEAD:** `3cbde97de11086405e1c66db1c254fea8c8ae645` (PR [#71](https://github.com/ALaustrup/VYBZ/pull/71))
+**Working tree:** clean after this commit
 **Current milestone:** **M5 — Advanced Analysis Suite.**
 
 ---
@@ -32,7 +32,7 @@ npm run test              — PASS 366/366 (66 files)
 npm run build             — PASS
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged.
+Delivery state: **IMPLEMENTED** (local) — not merged. PR [#71](https://github.com/ALaustrup/VYBZ/pull/71).
 
 ## Direction
 
