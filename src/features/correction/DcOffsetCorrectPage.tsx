@@ -1,6 +1,6 @@
 /**
  * M6 Correct — reversible ops with bypass + before/after metrics.
- * Ops: DC offset, peak-safety, L/R channel balance. No credit deduction. Local-only.
+ * Ops: DC, peak-safety, L/R balance, silence trim. No credit deduction. Local-only.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -10,8 +10,10 @@ import {
   CORRECTION_VERSION,
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
+  SILENCE_TRIM_VERSION,
   applyChannelBalance,
   applyPeakSafety,
+  applySilenceTrim,
   removeDcOffset,
   type LevelSnapshot,
 } from "@vybz/processing/waveform";
@@ -20,12 +22,13 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type CorrectOp = "dc" | "peak" | "balance";
+type CorrectOp = "dc" | "peak" | "balance" | "silence";
 
 const OP_SUBTITLE: Record<CorrectOp, string> = {
   dc: "DC offset",
   peak: "Peak safety",
   balance: "Channel balance",
+  silence: "Silence trim",
 };
 
 type PreviewState = {
@@ -116,7 +119,7 @@ export function DcOffsetCorrectPage() {
           downloadSuffix: "peak-safe",
         },
       };
-    } else {
+    } else if (chosen === "balance") {
       const r = applyChannelBalance(channels);
       const beforeDb =
         r.balanceDeltaDbBefore == null ? "mono" : `${r.balanceDeltaDbBefore.toFixed(1)} dB`;
@@ -131,6 +134,19 @@ export function DcOffsetCorrectPage() {
           detailValue: `${beforeDb} → ${afterDb}`,
           version: CHANNEL_BALANCE_VERSION,
           downloadSuffix: "balanced",
+        },
+      };
+    } else {
+      const r = applySilenceTrim(channels, rate);
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: "Duration (before → after)",
+          detailValue: `${r.durationBeforeSec.toFixed(2)}s → ${r.durationAfterSec.toFixed(2)}s (−${(r.trimmedLeadSec + r.trimmedTrailSec).toFixed(2)}s)`,
+          version: SILENCE_TRIM_VERSION,
+          downloadSuffix: "silence-trim",
         },
       };
     }
@@ -185,8 +201,8 @@ export function DcOffsetCorrectPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: remove measured DC, peak-safety gain to −1 dBFS sample-peak (not true-peak /
-        ISP), or match L/R RMS. Bypass keeps the original. No credits charged.
+        M6 corrections: DC remove, peak-safety (−1 dBFS sample peak), L/R RMS match, or edge silence
+        trim (keeps ~50 ms pad). Bypass keeps the original. No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -216,6 +232,15 @@ export function DcOffsetCorrectPage() {
           className={`btn px-3 py-2 text-sm ${op === "balance" ? "btn-primary" : "btn-ghost"}`}
         >
           Channel balance
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-silence"
+          aria-pressed={op === "silence"}
+          onClick={() => onSelectOp("silence")}
+          className={`btn px-3 py-2 text-sm ${op === "silence" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Silence trim
         </button>
       </div>
 

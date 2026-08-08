@@ -6,8 +6,10 @@ import {
   CORRECTION_VERSION,
   PEAK_SAFETY_CEILING_LINEAR,
   PEAK_SAFETY_VERSION,
+  SILENCE_TRIM_VERSION,
   applyChannelBalance,
   applyPeakSafety,
+  applySilenceTrim,
   removeDcOffset,
 } from "@vybz/processing/waveform";
 
@@ -25,6 +27,7 @@ describe("M6 correction gate", () => {
     expect(CORRECTION_VERSION).toMatch(/^m6\./);
     expect(PEAK_SAFETY_VERSION).toMatch(/^m6\./);
     expect(CHANNEL_BALANCE_VERSION).toMatch(/^m6\./);
+    expect(SILENCE_TRIM_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -71,7 +74,22 @@ describe("M6 correction gate", () => {
     expect(Math.abs(first.balanceDeltaDbAfter!)).toBeLessThan(0.05);
   });
 
-  it("surfaces Correct tool ops including peak safety and balance", () => {
+  it("silence trim is reproducible and shortens padded edges", () => {
+    const sr = 48000;
+    const lead = sr;
+    const tone = Math.floor(0.25 * sr);
+    const trail = sr;
+    const ch = new Float32Array(lead + tone + trail);
+    for (let i = 0; i < tone; i++) ch[lead + i] = Math.sin(i / 9) * 0.4;
+    const clone = ch.slice();
+    const first = applySilenceTrim([ch], sr);
+    const second = applySilenceTrim([ch], sr);
+    expect(ch).toEqual(clone);
+    expect(first.durationAfterSec).toBe(second.durationAfterSec);
+    expect(first.durationAfterSec).toBeLessThan(first.durationBeforeSec);
+  });
+
+  it("surfaces Correct tool ops including peak, balance, and silence", () => {
     const page = readFileSync(
       path.join(ROOT, "src/features/correction/DcOffsetCorrectPage.tsx"),
       "utf8"
@@ -80,6 +98,7 @@ describe("M6 correction gate", () => {
     expect(page).toContain("dc-offset-correct");
     expect(page).toContain("correct-op-peak");
     expect(page).toContain("correct-op-balance");
+    expect(page).toContain("correct-op-silence");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
   });
