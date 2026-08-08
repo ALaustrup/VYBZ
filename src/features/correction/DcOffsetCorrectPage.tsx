@@ -1,14 +1,16 @@
 /**
  * M6 Correct — reversible ops with bypass + before/after metrics.
- * Ops: DC offset remove, peak-safety gain. No credit deduction. Local-only.
+ * Ops: DC offset, peak-safety, L/R channel balance. No credit deduction. Local-only.
  */
 
 import { useEffect, useMemo, useState } from "react";
 import { Download, Loader2, Upload } from "lucide-react";
 import {
+  CHANNEL_BALANCE_VERSION,
   CORRECTION_VERSION,
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
+  applyChannelBalance,
   applyPeakSafety,
   removeDcOffset,
   type LevelSnapshot,
@@ -18,7 +20,13 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type CorrectOp = "dc" | "peak";
+type CorrectOp = "dc" | "peak" | "balance";
+
+const OP_SUBTITLE: Record<CorrectOp, string> = {
+  dc: "DC offset",
+  peak: "Peak safety",
+  balance: "Channel balance",
+};
 
 type PreviewState = {
   before: LevelSnapshot;
@@ -64,10 +72,7 @@ export function DcOffsetCorrectPage() {
   const [correctedUrl, setCorrectedUrl] = useState<string | null>(null);
   const [bypass, setBypass] = useState(false);
 
-  useRegisterAppBar(
-    { title: "Correct", subtitle: op === "dc" ? "DC offset" : "Peak safety" },
-    [op]
-  );
+  useRegisterAppBar({ title: "Correct", subtitle: OP_SUBTITLE[op] }, [op]);
 
   useEffect(() => {
     return () => {
@@ -84,36 +89,51 @@ export function DcOffsetCorrectPage() {
   }, [bypass, preview]);
 
   function runOp(channels: Float32Array[], rate: number, chosen: CorrectOp) {
-    const result =
-      chosen === "dc"
-        ? (() => {
-            const r = removeDcOffset(channels);
-            return {
-              channels: r.channels,
-              preview: {
-                before: r.before,
-                after: r.after,
-                detailLabel: "Removed mean",
-                detailValue: r.removedMean.toExponential(3),
-                version: CORRECTION_VERSION,
-                downloadSuffix: "dc-fixed",
-              } satisfies PreviewState,
-            };
-          })()
-        : (() => {
-            const r = applyPeakSafety(channels);
-            return {
-              channels: r.channels,
-              preview: {
-                before: r.before,
-                after: r.after,
-                detailLabel: `Gain → ${PEAK_SAFETY_CEILING_DBFS} dBFS ceil`,
-                detailValue: `${r.gainDb.toFixed(2)} dB`,
-                version: PEAK_SAFETY_VERSION,
-                downloadSuffix: "peak-safe",
-              } satisfies PreviewState,
-            };
-          })();
+    let result: { channels: Float32Array[]; preview: PreviewState };
+    if (chosen === "dc") {
+      const r = removeDcOffset(channels);
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: "Removed mean",
+          detailValue: r.removedMean.toExponential(3),
+          version: CORRECTION_VERSION,
+          downloadSuffix: "dc-fixed",
+        },
+      };
+    } else if (chosen === "peak") {
+      const r = applyPeakSafety(channels);
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: `Gain → ${PEAK_SAFETY_CEILING_DBFS} dBFS ceil`,
+          detailValue: `${r.gainDb.toFixed(2)} dB`,
+          version: PEAK_SAFETY_VERSION,
+          downloadSuffix: "peak-safe",
+        },
+      };
+    } else {
+      const r = applyChannelBalance(channels);
+      const beforeDb =
+        r.balanceDeltaDbBefore == null ? "mono" : `${r.balanceDeltaDbBefore.toFixed(1)} dB`;
+      const afterDb =
+        r.balanceDeltaDbAfter == null ? "mono" : `${r.balanceDeltaDbAfter.toFixed(1)} dB`;
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: "L−R Δ (before → after)",
+          detailValue: `${beforeDb} → ${afterDb}`,
+          version: CHANNEL_BALANCE_VERSION,
+          downloadSuffix: "balanced",
+        },
+      };
+    }
 
     const outBuf = bufferFromPlanar(result.channels, rate);
     const wav = encodeWav(outBuf);
@@ -165,8 +185,8 @@ export function DcOffsetCorrectPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: remove measured DC, or apply peak-safety gain to a −1 dBFS sample-peak
-        ceiling (not a true-peak / ISP limiter). Bypass keeps the original. No credits charged.
+        M6 corrections: remove measured DC, peak-safety gain to −1 dBFS sample-peak (not true-peak /
+        ISP), or match L/R RMS. Bypass keeps the original. No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -187,6 +207,15 @@ export function DcOffsetCorrectPage() {
           className={`btn px-3 py-2 text-sm ${op === "peak" ? "btn-primary" : "btn-ghost"}`}
         >
           Peak safety
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-balance"
+          aria-pressed={op === "balance"}
+          onClick={() => onSelectOp("balance")}
+          className={`btn px-3 py-2 text-sm ${op === "balance" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Channel balance
         </button>
       </div>
 

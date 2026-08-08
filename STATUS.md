@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `main`
-**HEAD:** `9bba4d29` (merge PR #82 peak safety)
-**Working tree:** clean after STATUS checkpoint
-**Current milestone:** **M6** (DC + peak-safety corrections).
+**Branch:** `feat/m6-channel-balance-correct`
+**HEAD:** pending commit — based on `main` @ `1514e94f`
+**Working tree:** dirty until commit
+**Current milestone:** **M6** (DC + peak-safety + channel balance).
 
 ---
 
@@ -16,36 +16,27 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `9bba4d29` | Vercel SUCCESS |
-| Bundle | `index-Ccmbs-ed.js` | contains `correct-op-peak`, `correct-op-dc`, `m6.peak-safety` |
+| Prior tip | `9bba4d29` peak safety | PR #82 verified |
+| This branch | **NO** | not merged |
 
 ## Last completed operations
 
-| PR | Unit | State |
-|---|---|---|
-| [#80](https://github.com/ALaustrup/VYBZ/pull/80) | M6 DC correction kickoff | **DEPLOYED AND VERIFIED** |
-| [#82](https://github.com/ALaustrup/VYBZ/pull/82) | M6 peak-safety + Correct op selector | **DEPLOYED AND VERIFIED** |
+1. PR #82 peak safety — **DEPLOYED AND VERIFIED**.
+2. **This unit** — M6 L/R channel-balance correct (`m6.channel-balance.1`) + Correct op tile.
 
-## Gate
+## Gate on this branch
 
 ```
-npm run lint / test / build — PASS (391 tests on feature tip)
+npm run lint              — PASS
+npm run test              — PASS 394/394 (77 files)
+npm run build             — PASS
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED**.
+Delivery state: **IMPLEMENTED** (local) — not merged.
 
 ## Direction
 
 | Item | State |
 |---|---|
 | Authorised milestone | **M6** + M5 depth as needed |
-| Premium-suite phase track | **WITHDRAWN** |
-| Next authorised action | Owner-directed: next M6 op (e.g. channel balance) or M5 broadband noise / OR-013 |
-
-## Blockers
-
-None.
-
-## Known contradictions
-
-Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety is sample-peak only — not true-peak/ISP.
+| Next authorised action | Merge + verify `correct-op-balance` on prod |
