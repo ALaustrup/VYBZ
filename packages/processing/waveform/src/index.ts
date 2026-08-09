@@ -38,6 +38,12 @@ export {
   type MainsHumCorrectResult,
 } from "./mainsHumCorrect";
 export {
+  applyStereoWidth,
+  STEREO_WIDTH_VERSION,
+  type StereoWidthResult,
+  type StereoWidthMode,
+} from "./stereoWidthCorrect";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,

@@ -3,6 +3,7 @@ import {
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
+  applyStereoWidth,
   removeDcOffset,
 } from "@vybz/processing/waveform";
 import { masterPcm, encodeWavPcm16 } from "@vybz/processing/mastering";
@@ -60,6 +61,8 @@ export async function applyAutoFixToBlob(blob: Blob, op: AutoFixOp): Promise<Blo
   else if (op === "peak") next = applyPeakSafety(planar).channels;
   else if (op === "balance") next = applyChannelBalance(planar).channels;
   else if (op === "hum") next = applyMainsHumReduce(planar, rate).channels;
+  else if (op === "widthWiden") next = applyStereoWidth(planar, { mode: "widen" }).channels;
+  else if (op === "widthNarrow") next = applyStereoWidth(planar, { mode: "narrow" }).channels;
   else next = applySilenceTrim(planar, rate).channels;
 
   const outBuf = bufferFromPlanar(next, rate);

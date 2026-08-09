@@ -12,10 +12,12 @@ import {
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
   SILENCE_TRIM_VERSION,
+  STEREO_WIDTH_VERSION,
   applyChannelBalance,
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
+  applyStereoWidth,
   removeDcOffset,
   type LevelSnapshot,
 } from "@vybz/processing/waveform";
@@ -24,7 +26,7 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum";
+type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width";
 
 const OP_SUBTITLE: Record<CorrectOp, string> = {
   dc: "DC offset",
@@ -32,6 +34,7 @@ const OP_SUBTITLE: Record<CorrectOp, string> = {
   balance: "Channel balance",
   silence: "Silence trim",
   hum: "Mains hum",
+  width: "Stereo width",
 };
 
 type PreviewState = {
@@ -152,7 +155,7 @@ export function DcOffsetCorrectPage() {
           downloadSuffix: "silence-trim",
         },
       };
-    } else {
+    } else if (chosen === "hum") {
       const r = applyMainsHumReduce(channels, rate);
       const before =
         r.prominenceDbBefore == null ? "Not measured" : `${r.prominenceDbBefore.toFixed(1)} dB`;
@@ -167,6 +170,21 @@ export function DcOffsetCorrectPage() {
           detailValue: `${before} → ${after}`,
           version: MAINS_HUM_CORRECT_VERSION,
           downloadSuffix: "hum-reduce",
+        },
+      };
+    } else {
+      const r = applyStereoWidth(channels, { mode: "auto" });
+      const corrB = r.correlationBefore == null ? "—" : r.correlationBefore.toFixed(2);
+      const corrA = r.correlationAfter == null ? "—" : r.correlationAfter.toFixed(2);
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: `Width ${r.modeApplied} · corr (before → after)`,
+          detailValue: `${corrB} → ${corrA} (×${r.sideGain.toFixed(2)} side)`,
+          version: STEREO_WIDTH_VERSION,
+          downloadSuffix: "width",
         },
       };
     }
@@ -221,9 +239,8 @@ export function DcOffsetCorrectPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: DC remove, peak-safety (−1 dBFS sample peak), L/R RMS match, edge silence
-        trim (~50 ms pad), or mains-hum notch (50/60 Hz + light harmonics). Bypass keeps the
-        original. No credits charged.
+        M6 corrections: DC, peak-safety, L/R balance, silence trim, mains-hum, or stereo width
+        (auto mid/side). Bypass keeps the original. No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -271,6 +288,15 @@ export function DcOffsetCorrectPage() {
           className={`btn px-3 py-2 text-sm ${op === "hum" ? "btn-primary" : "btn-ghost"}`}
         >
           Mains hum
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-width"
+          aria-pressed={op === "width"}
+          onClick={() => onSelectOp("width")}
+          className={`btn px-3 py-2 text-sm ${op === "width" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Stereo width
         </button>
       </div>
 

@@ -12,6 +12,8 @@ import {
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
+  applyStereoWidth,
+  STEREO_WIDTH_VERSION,
   removeDcOffset,
 } from "@vybz/processing/waveform";
 
@@ -31,6 +33,7 @@ describe("M6 correction gate", () => {
     expect(CHANNEL_BALANCE_VERSION).toMatch(/^m6\./);
     expect(SILENCE_TRIM_VERSION).toMatch(/^m6\./);
     expect(MAINS_HUM_CORRECT_VERSION).toMatch(/^m6\./);
+    expect(STEREO_WIDTH_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -103,8 +106,27 @@ describe("M6 correction gate", () => {
     expect(page).toContain("correct-op-balance");
     expect(page).toContain("correct-op-silence");
     expect(page).toContain("correct-op-hum");
+    expect(page).toContain("correct-op-width");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
+  });
+
+  it("stereo width widen is reproducible and changes correlation", () => {
+    const n = 8192;
+    const L = new Float32Array(n);
+    const R = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const t = Math.sin(i / 19) * 0.4;
+      L[i] = t;
+      R[i] = t * 0.99;
+    }
+    const clone = L.slice();
+    const first = applyStereoWidth([L, R], { mode: "widen" });
+    const second = applyStereoWidth([L, R], { mode: "widen" });
+    expect(L).toEqual(clone);
+    expect(first.channels[0]).toEqual(second.channels[0]);
+    expect(first.modeApplied).toBe("widen");
+    expect(first.correlationAfter!).toBeLessThan(first.correlationBefore!);
   });
 
   it("mains-hum reduce is reproducible and lowers prominence", () => {
