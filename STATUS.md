@@ -5,9 +5,9 @@
 
 **Date:** 2026-08-08
 **Branch:** `main`
-**HEAD:** `4fa11d71` (merge PR #92 OR-023 Alpha invite keys)
+**HEAD:** `246234b9` (merge PR #94 master password lock)
 **Working tree:** clean after STATUS checkpoint
-**Current milestone:** **M6** + **OR-019 Stem Maker V1** + **OR-023 Alpha invite keys**.
+**Current milestone:** **M6** + **OR-019** + **OR-023** + master password lock.
 
 ---
 
@@ -16,21 +16,22 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `4fa11d71` | Vercel SUCCESS (`vybz-93y9ihoiz`) |
-| Bundle | `index-nCGjMPvr.js` | contains `redeem_invite_key`, `mint_invite_keys`, `VYBZ-A1-`, `Invite-only alpha` |
-| DB | migration `alpha_invite_keys` | applied to `xixmneooyufbeftdfpcm`; RPCs `mint_invite_keys` / `redeem_invite_key` / `has_alpha_access` present |
+| Production SHA | `246234b9` | Vercel SUCCESS (`vybz-bgrst89ra`) |
+| Bundle | `index-YfO5dPBd.js` | contains `Set master password`, `lock_account_password`, `andrewiguess@gmail.com` |
+| Auth users | 1 | only `andrewiguess@gmail.com` (admin); others wiped under owner override 2026-08-08 |
+| Password lock | `password_locked_at` null until master locks | migration `master_password_lock` applied |
 
 ## Last completed operations
 
 | PR | Unit | State |
 |---|---|---|
-| [#90](https://github.com/ALaustrup/VYBZ/pull/90) | OR-019 Stem Maker V1 assembly | **DEPLOYED AND VERIFIED** |
-| [#92](https://github.com/ALaustrup/VYBZ/pull/92) | OR-023 Alpha invite keys hard gate | **DEPLOYED AND VERIFIED** |
+| [#92](https://github.com/ALaustrup/VYBZ/pull/92) | OR-023 Alpha invite keys | **DEPLOYED AND VERIFIED** |
+| [#94](https://github.com/ALaustrup/VYBZ/pull/94) | Master password lock screen | **DEPLOYED AND VERIFIED** |
 
 ## Gate
 
 ```
-npm run lint / test / build — PASS (404 tests on feature tip)
+npm run lint / test / build — PASS (406 tests on feature tip)
 ```
 
 Delivery state: **DEPLOYED AND VERIFIED**.
@@ -41,7 +42,7 @@ Delivery state: **DEPLOYED AND VERIFIED**.
 |---|---|
 | Authorised | **M6** + **OR-019 V1** + **OR-023**; OR-020–022 and OR-019 V2 parked |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next authorised action | Owner: mint giveaway batches in Admin → Invites; deepen M6 / OR-020 when authorised |
+| Next authorised action | Owner: sign in → lock master password on screen; then mint invite batches |
 
 ## Blockers
 
