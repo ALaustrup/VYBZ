@@ -63,9 +63,39 @@ Authorization: Bearer <AI_REVIEW_AGENT_TOKEN>
 
 Local equivalent remains `GET http://127.0.0.1:4173/e2e/ai-review` (fixture paths, Vite preview).
 
+### Ingest agent (Grok) output → SCHEMA run
+
+Do **not** leave reviews only in chat. Pipe them into the catalog:
+
+```bash
+# Preferred: structured JSON in docs/ai-review/inbox/
+npm run ai-review:ingest -- --file docs/ai-review/inbox/YYYY-MM-DD-prod-grok-unauth.input.json
+
+# Or paste Grok prose (id: / evidence: blocks):
+npm run ai-review:ingest -- --file path/to/grok-paste.txt --run-id YYYY-MM-DD-prod-grok-unauth
+```
+
+Writes `runs/<id>.md` + `.observations.json`, merges `observations/catalog.json`, updates `INDEX.md`. Status stays **`draft`** until the owner sets `accepted_for_planning`. Does **not** auto-commit.
+
+### Authenticated walk (suite chrome)
+
+Signed-out passes cannot see Library/Correct/Stems/etc. For authenticated observations:
+
+```bash
+# Non-admin demo account with alpha_access_at (never commit):
+#   AI_REVIEW_EMAIL / AI_REVIEW_PASSWORD
+npm run ai-review:prod
+```
+
+Then ingest any Grok narrative the same way, or rely on the walker sidecar JSON.
+
+### Scheduling (later — not authorised yet)
+
+Cron / CI for Stage 1b–1c is **parked**. Keep runs `draft` until the owner accepts. No auto-planning or auto-implementation.
+
 ### Stage 2 — Versioned observation artifacts
 
-After Stage 1a/1b, ensure the run uses [`SCHEMA.md`](./SCHEMA.md) and is listed in [`INDEX.md`](./INDEX.md).
+After Stage 1a/1b/ingest, ensure the run uses [`SCHEMA.md`](./SCHEMA.md) and is listed in [`INDEX.md`](./INDEX.md).
 
 Do **not** put patches, tickets, or “do this next” imperatives in the run file.
 

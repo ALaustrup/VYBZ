@@ -1,29 +1,33 @@
 {
-  "home.landing-primary-cta": {
-    "observation": {
-      "id": "home.landing-primary-cta",
-      "surface": "home",
-      "category": "copy",
+  "context": {
+    "projectId": "vybz-app",
+    "artifactId": "2026-08-09-prod-grok-unauth",
+    "version": "Not measured",
+    "sessionId": "grok-unauth-2026-08-09"
+  },
+  "observations": [
+    {
+      "id": "admin.expect-bounce",
+      "surface": "admin",
+      "category": "gate",
       "severity": "info",
       "confidence": "high",
-      "summary": "Landing shows truth-before-release headline with free scan and sign-in CTAs.",
+      "summary": "Admin soft-falls to marketing home with no admin chrome (expectAdminBounce).",
       "origin": {
         "detector": "grok.ui-review",
         "version": "1.0.0",
         "sourceType": "web"
       },
       "evidence": {
-        "url": "https://vybz.cloud/",
-        "bodySample": "Headline “Your music deserves the truth before it goes out.” + dual CTAs “Scan my track — free” / “Sign in”. Top nav shows Codex + Sign in. Dark theme with glowing waveform mark."
+        "url": "https://vybz.cloud/admin",
+        "bodySample": "Soft-falls to marketing home (no hard 403 page, no admin chrome). Matches the surface map note expectAdminBounce: true."
       },
       "lifecycle": "new",
       "firstSeenRun": "2026-08-09-prod-grok-unauth",
       "lastSeenRun": "2026-08-09-prod-grok-unauth",
       "appSha": "Not measured"
-    }
-  },
-  "analyzer.signed-out-dropzone": {
-    "observation": {
+    },
+    {
       "id": "analyzer.signed-out-dropzone",
       "surface": "analyzer",
       "category": "chrome",
@@ -43,10 +47,8 @@
       "firstSeenRun": "2026-08-09-prod-grok-unauth",
       "lastSeenRun": "2026-08-09-prod-grok-unauth",
       "appSha": "Not measured"
-    }
-  },
-  "codex.public-document-library": {
-    "observation": {
+    },
+    {
       "id": "codex.public-document-library",
       "surface": "codex",
       "category": "chrome",
@@ -66,33 +68,8 @@
       "firstSeenRun": "2026-08-09-prod-grok-unauth",
       "lastSeenRun": "2026-08-09-prod-grok-unauth",
       "appSha": "Not measured"
-    }
-  },
-  "library.unauthenticated-fallback": {
-    "observation": {
-      "id": "library.unauthenticated-fallback",
-      "surface": "library",
-      "category": "gate",
-      "severity": "notice",
-      "confidence": "high",
-      "summary": "Library soft-falls to marketing landing while signed out; no library chrome.",
-      "origin": {
-        "detector": "grok.ui-review",
-        "version": "1.0.0",
-        "sourceType": "web"
-      },
-      "evidence": {
-        "url": "https://vybz.cloud/library",
-        "bodySample": "Resolves to the same marketing landing shell as / (headline + Scan/Sign-in CTAs). No distinct library chrome visible while signed out."
-      },
-      "lifecycle": "new",
-      "firstSeenRun": "2026-08-09-prod-grok-unauth",
-      "lastSeenRun": "2026-08-09-prod-grok-unauth",
-      "appSha": "Not measured"
-    }
-  },
-  "correct.unauthenticated-fallback": {
-    "observation": {
+    },
+    {
       "id": "correct.unauthenticated-fallback",
       "surface": "correct",
       "category": "gate",
@@ -112,10 +89,113 @@
       "firstSeenRun": "2026-08-09-prod-grok-unauth",
       "lastSeenRun": "2026-08-09-prod-grok-unauth",
       "appSha": "Not measured"
-    }
-  },
-  "stems.unauthenticated-fallback": {
-    "observation": {
+    },
+    {
+      "id": "discover.unauthenticated-fallback",
+      "surface": "discover",
+      "category": "gate",
+      "severity": "notice",
+      "confidence": "high",
+      "summary": "Discover soft-falls to home marketing shell; no public feed while signed out.",
+      "origin": {
+        "detector": "grok.ui-review",
+        "version": "1.0.0",
+        "sourceType": "web"
+      },
+      "evidence": {
+        "url": "https://vybz.cloud/discover",
+        "bodySample": "Falls through to home marketing shell. No public Discover feed visible."
+      },
+      "lifecycle": "new",
+      "firstSeenRun": "2026-08-09-prod-grok-unauth",
+      "lastSeenRun": "2026-08-09-prod-grok-unauth",
+      "appSha": "Not measured"
+    },
+    {
+      "id": "home.landing-primary-cta",
+      "surface": "home",
+      "category": "copy",
+      "severity": "info",
+      "confidence": "high",
+      "summary": "Landing shows truth-before-release headline with free scan and sign-in CTAs.",
+      "origin": {
+        "detector": "grok.ui-review",
+        "version": "1.0.0",
+        "sourceType": "web"
+      },
+      "evidence": {
+        "url": "https://vybz.cloud/",
+        "bodySample": "Headline “Your music deserves the truth before it goes out.” + dual CTAs “Scan my track — free” / “Sign in”. Top nav shows Codex + Sign in. Dark theme with glowing waveform mark."
+      },
+      "lifecycle": "new",
+      "firstSeenRun": "2026-08-09-prod-grok-unauth",
+      "lastSeenRun": "2026-08-09-prod-grok-unauth",
+      "appSha": "Not measured"
+    },
+    {
+      "id": "library.unauthenticated-fallback",
+      "surface": "library",
+      "category": "gate",
+      "severity": "notice",
+      "confidence": "high",
+      "summary": "Library soft-falls to marketing landing while signed out; no library chrome.",
+      "origin": {
+        "detector": "grok.ui-review",
+        "version": "1.0.0",
+        "sourceType": "web"
+      },
+      "evidence": {
+        "url": "https://vybz.cloud/library",
+        "bodySample": "Resolves to the same marketing landing shell as / (headline + Scan/Sign-in CTAs). No distinct library chrome visible while signed out."
+      },
+      "lifecycle": "new",
+      "firstSeenRun": "2026-08-09-prod-grok-unauth",
+      "lastSeenRun": "2026-08-09-prod-grok-unauth",
+      "appSha": "Not measured"
+    },
+    {
+      "id": "profile.unauthenticated-fallback",
+      "surface": "profile",
+      "category": "gate",
+      "severity": "notice",
+      "confidence": "high",
+      "summary": "Profile edit soft-falls to marketing landing while signed out.",
+      "origin": {
+        "detector": "grok.ui-review",
+        "version": "1.0.0",
+        "sourceType": "web"
+      },
+      "evidence": {
+        "url": "https://vybz.cloud/profile/edit",
+        "bodySample": "Marketing landing. Profile edit surface gated."
+      },
+      "lifecycle": "new",
+      "firstSeenRun": "2026-08-09-prod-grok-unauth",
+      "lastSeenRun": "2026-08-09-prod-grok-unauth",
+      "appSha": "Not measured"
+    },
+    {
+      "id": "settings.unauthenticated-fallback",
+      "surface": "settings",
+      "category": "gate",
+      "severity": "notice",
+      "confidence": "high",
+      "summary": "Credits/settings soft-falls to marketing landing while signed out.",
+      "origin": {
+        "detector": "grok.ui-review",
+        "version": "1.0.0",
+        "sourceType": "web"
+      },
+      "evidence": {
+        "url": "https://vybz.cloud/settings/credits",
+        "bodySample": "Marketing landing. Credits/settings surface not reachable anonymously."
+      },
+      "lifecycle": "new",
+      "firstSeenRun": "2026-08-09-prod-grok-unauth",
+      "lastSeenRun": "2026-08-09-prod-grok-unauth",
+      "appSha": "Not measured"
+    },
+    {
       "id": "stems.unauthenticated-fallback",
       "surface": "stems",
       "category": "gate",
@@ -136,97 +216,6 @@
       "lastSeenRun": "2026-08-09-prod-grok-unauth",
       "appSha": "Not measured"
     }
-  },
-  "discover.unauthenticated-fallback": {
-    "observation": {
-      "id": "discover.unauthenticated-fallback",
-      "surface": "discover",
-      "category": "gate",
-      "severity": "notice",
-      "confidence": "high",
-      "summary": "Discover soft-falls to home marketing shell; no public feed while signed out.",
-      "origin": {
-        "detector": "grok.ui-review",
-        "version": "1.0.0",
-        "sourceType": "web"
-      },
-      "evidence": {
-        "url": "https://vybz.cloud/discover",
-        "bodySample": "Falls through to home marketing shell. No public Discover feed visible."
-      },
-      "lifecycle": "new",
-      "firstSeenRun": "2026-08-09-prod-grok-unauth",
-      "lastSeenRun": "2026-08-09-prod-grok-unauth",
-      "appSha": "Not measured"
-    }
-  },
-  "profile.unauthenticated-fallback": {
-    "observation": {
-      "id": "profile.unauthenticated-fallback",
-      "surface": "profile",
-      "category": "gate",
-      "severity": "notice",
-      "confidence": "high",
-      "summary": "Profile edit soft-falls to marketing landing while signed out.",
-      "origin": {
-        "detector": "grok.ui-review",
-        "version": "1.0.0",
-        "sourceType": "web"
-      },
-      "evidence": {
-        "url": "https://vybz.cloud/profile/edit",
-        "bodySample": "Marketing landing. Profile edit surface gated."
-      },
-      "lifecycle": "new",
-      "firstSeenRun": "2026-08-09-prod-grok-unauth",
-      "lastSeenRun": "2026-08-09-prod-grok-unauth",
-      "appSha": "Not measured"
-    }
-  },
-  "settings.unauthenticated-fallback": {
-    "observation": {
-      "id": "settings.unauthenticated-fallback",
-      "surface": "settings",
-      "category": "gate",
-      "severity": "notice",
-      "confidence": "high",
-      "summary": "Credits/settings soft-falls to marketing landing while signed out.",
-      "origin": {
-        "detector": "grok.ui-review",
-        "version": "1.0.0",
-        "sourceType": "web"
-      },
-      "evidence": {
-        "url": "https://vybz.cloud/settings/credits",
-        "bodySample": "Marketing landing. Credits/settings surface not reachable anonymously."
-      },
-      "lifecycle": "new",
-      "firstSeenRun": "2026-08-09-prod-grok-unauth",
-      "lastSeenRun": "2026-08-09-prod-grok-unauth",
-      "appSha": "Not measured"
-    }
-  },
-  "admin.expect-bounce": {
-    "observation": {
-      "id": "admin.expect-bounce",
-      "surface": "admin",
-      "category": "gate",
-      "severity": "info",
-      "confidence": "high",
-      "summary": "Admin soft-falls to marketing home with no admin chrome (expectAdminBounce).",
-      "origin": {
-        "detector": "grok.ui-review",
-        "version": "1.0.0",
-        "sourceType": "web"
-      },
-      "evidence": {
-        "url": "https://vybz.cloud/admin",
-        "bodySample": "Soft-falls to marketing home (no hard 403 page, no admin chrome). Matches the surface map note expectAdminBounce: true."
-      },
-      "lifecycle": "new",
-      "firstSeenRun": "2026-08-09-prod-grok-unauth",
-      "lastSeenRun": "2026-08-09-prod-grok-unauth",
-      "appSha": "Not measured"
-    }
-  }
+  ],
+  "edges": []
 }
