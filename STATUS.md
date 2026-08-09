@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-09
 **Branch:** `main`
-**HEAD:** `cca5759bd291e646992770ea8d93f492681ee037`
+**HEAD:** `e1326a5caabe6ecf77810333cfa046fcf645f1c1`
 **Current milestone:** **M6** — OR-026 Tier B sequence **DEPLOYED**
 
 ## Production
@@ -12,7 +12,8 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel alias on READY deploy |
-| Production SHA | `cca5759b` (includes merge `ba175612` / PR #111) | `get_deployment` `dpl_BHonf3y3nWhEHTaAx5LwHcRh33fw` READY |
+| Production SHA (feature settle) | `cca5759b` (includes merge `ba175612` / PR #111) | `get_deployment` `dpl_BHonf3y3nWhEHTaAx5LwHcRh33fw` READY |
+| Docs tip (this commit) | `e1326a5c` | git; Vercel may still be settling |
 | Feature merge | `ba175612` | [PR #111](https://github.com/ALaustrup/VYBZ/pull/111) MERGED |
 
 ## Last completed operation
