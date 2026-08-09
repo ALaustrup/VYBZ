@@ -4,10 +4,10 @@
 > Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `feat/app-bar-wordmark-suite-shell`
-**HEAD:** `27fb6951` (feature) + docs tip on this branch
+**Branch:** `feat/landing-invite-key-gate`
+**HEAD:** (tip after commit)
 **Working tree:** clean after commit
-**Current milestone:** **M6** - Correct deepen next after this shell UX lands
+**Current milestone:** **M6** - landing alpha gate then Correct deepen
 
 ---
 
@@ -16,30 +16,30 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `286f9434` | `origin/main` at start of this unit (Merge PR #104) |
-| Agent API | `GET /api/ai-review/manifest` | Bearer `AI_REVIEW_AGENT_TOKEN` (owner set; Grok confirmed live) |
+| Production SHA | `5adba9ee` | Merge PR #105 (app-bar wordmark) at branch start |
+| Agent API | `GET /api/ai-review/manifest` | Bearer `AI_REVIEW_AGENT_TOKEN` |
 
 ## Last completed operations
 
 | Unit | State |
 |---|---|
-| First Grok unauth review -> `docs/ai-review/runs/2026-08-09-prod-grok-unauth` | **draft** (parked; schedule not authorised) |
-| Authenticated `ai-review:prod` | **Skipped** - owner cancelled pickup step C |
-| App-bar wordmark + drop MobileNav pills | **CODED · LOCAL VALIDATED** - commits on branch; push/PR pending owner auth |
+| PR #105 app-bar wordmark + MobileNav freeze | **MERGED** (`5adba9ee`) - Vercel deploy not re-verified in this unit |
+| Landing invite-key gate (strip manifesto) | **CODED · LOCAL VALIDATED** - this branch |
 
-## This unit (A - shell UX)
+## This unit (landing gate)
 
 | Change | Detail |
 |---|---|
-| App bar | Page title -> `<AppBarWordmark />` + hue/neon CSS (`public/brand/wordmark-letters.svg`) |
-| MobileNav | Frozen stub (`return null`); unmounted from `SuiteShell` (SuiteAppRailMobile retained) |
-| Stash | `stash@{0}` still present - not dropped |
+| Landing | Logo + hue/hover mark; key field; pulsing neon Enter + Sign in ghost |
+| Flow | Key stashed in sessionStorage -> `/enter` -> auto-redeem on InviteRedeemPage |
+| Removed | Headline, steps, free-scan CTAs from signed-out landing |
+| Kept | Privacy / Terms footer; Codex link on redeem |
 
 ## Gate (local)
 
 ```
 npm run lint - PASS
-npm run test - 435 passed (88 files)
+npm run test - 436 passed
 npm run build - PASS
 npm run check:no-fixtures - OK
 ```
@@ -48,14 +48,13 @@ npm run check:no-fixtures - OK
 
 | Item | State |
 |---|---|
-| AI review | Draft run filed; auth walk cancelled; schedule parked |
-| Shell UX (A) | Local commits ready - push/PR needs owner authorisation |
-| Product track (B) | M6 Correct deepen after A - kickoff ops already ship; Tier B / OR-026 stays parked until authorised |
-| Parked | OR-020-022, OR-024-026; Instrument Creator |
+| Next | Push/PR/merge landing gate; then M6 Correct deepen (OR-026 hum still needs authorisation) |
+| Parked | OR-020-022, OR-024-026; auth AI-review walk; Instrument Creator |
+| Stash | `stash@{0}` still present - not dropped |
 
 ## Blockers
 
-Push / open PR / merge for this branch - awaiting owner authorisation (AGENTS.md).
+None for local validation.
 
 ## Known contradictions
 

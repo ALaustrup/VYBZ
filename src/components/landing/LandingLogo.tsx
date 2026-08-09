@@ -3,23 +3,23 @@ import { useRef } from "react";
 import { BrandMark } from "@/components/Brand";
 
 /**
- * Hero brand lockup — matte specular ring, slow orbit, precise tilt on pointer.
- * Pro-audio futurist; no rainbow gradient slop.
+ * Hero brand lockup — matte specular ring, slow orbit, pointer tilt + hover bloom.
+ * Landing gate: mark + lettermark only (no marketing copy).
  */
 export function LandingLogo() {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 90, damping: 22 });
-  const sy = useSpring(my, { stiffness: 90, damping: 22 });
+  const sx = useSpring(mx, { stiffness: 110, damping: 20 });
+  const sy = useSpring(my, { stiffness: 110, damping: 20 });
   const rotate = useMotionTemplate`rotateX(${sy}deg) rotateY(${sx}deg)`;
 
   function onMove(e: React.MouseEvent) {
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    mx.set(((e.clientX - r.left) / r.width - 0.5) * 10);
-    my.set(((e.clientY - r.top) / r.height - 0.5) * -8);
+    mx.set(((e.clientX - r.left) / r.width - 0.5) * 14);
+    my.set(((e.clientY - r.top) / r.height - 0.5) * -12);
   }
 
   function onLeave() {
@@ -32,44 +32,45 @@ export function LandingLogo() {
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      className="relative flex flex-col items-center gap-6 perspective-[900px]"
+      className="landing-logo relative flex flex-col items-center gap-7 perspective-[1000px]"
+      data-testid="landing-logo"
     >
       <motion.span
         aria-hidden
-        className="pointer-events-none absolute -inset-20 rounded-full"
+        className="pointer-events-none absolute -inset-24 rounded-full"
         style={{
           background:
-            "radial-gradient(circle at 50% 50%, rgb(var(--accent-rgb) / 0.18), transparent 62%)",
+            "radial-gradient(circle at 50% 45%, rgb(var(--accent-rgb) / 0.28), transparent 58%)",
         }}
-        animate={{ scale: [0.92, 1.06, 0.92], opacity: [0.45, 0.85, 0.45] }}
-        transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ scale: [0.88, 1.1, 0.88], opacity: [0.4, 0.95, 0.4] }}
+        transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         style={{ transform: rotate, transformStyle: "preserve-3d" }}
         className="relative"
-        whileHover={{ scale: 1.04 }}
-        transition={{ type: "spring", stiffness: 260, damping: 24 }}
+        whileHover={{ scale: 1.07 }}
+        transition={{ type: "spring", stiffness: 280, damping: 22 }}
       >
         <motion.div
-          className="absolute -inset-5 rounded-full opacity-80 blur-xl"
+          className="absolute -inset-6 rounded-full opacity-90 blur-2xl"
           style={{
             background:
-              "conic-gradient(from 210deg, rgb(var(--accent-rgb) / 0.55), rgba(255,255,255,0.08), rgb(var(--accent-rgb) / 0.35), rgba(255,255,255,0.04), rgb(var(--accent-rgb) / 0.55))",
+              "conic-gradient(from 200deg, rgb(var(--accent-rgb) / 0.7), rgba(255,255,255,0.12), rgb(0 214 143 / 0.45), rgba(255,255,255,0.06), rgb(var(--accent-rgb) / 0.7))",
           }}
           animate={{ rotate: 360 }}
-          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
         />
-        <div className="relative grid place-items-center rounded-full border border-white/12 bg-[#05080f]/90 p-6 shadow-[0_0_48px_-12px_rgb(var(--accent-rgb)/0.55)]">
-          <BrandMark className="h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20" reactive={false} />
+        <div className="landing-logo-mark relative grid place-items-center rounded-full border border-white/14 bg-[#05080f]/92 p-7 shadow-[0_0_64px_-10px_rgb(var(--accent-rgb)/0.7)] sm:p-8">
+          <BrandMark className="h-20 w-20 sm:h-[5.5rem] sm:w-[5.5rem]" reactive={false} />
         </div>
       </motion.div>
       <motion.img
-        src="/brand/logo-white.svg"
+        src="/brand/wordmark-letters.svg"
         alt="VYBZ"
-        className="h-8 w-auto opacity-90 sm:h-9"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 0.9, y: 0 }}
-        transition={{ delay: 0.12 }}
+        className="landing-logo-wordmark h-9 w-auto sm:h-10"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
         draggable={false}
       />
     </div>

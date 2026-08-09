@@ -330,6 +330,108 @@
     .app-bar-wordmark--neon { filter: none !important; }
   }
 
+  /* Landing / invite gate — logo + neon Enter */
+  .landing-logo-wordmark {
+    animation: app-bar-wordmark-hue 16s linear infinite;
+    filter: drop-shadow(0 0 10px rgb(var(--accent-rgb) / 0.45));
+  }
+  .landing-logo-mark {
+    transition: box-shadow 280ms ease, border-color 280ms ease;
+  }
+  .landing-logo:hover .landing-logo-mark {
+    border-color: rgb(var(--accent-rgb) / 0.45);
+    box-shadow:
+      0 0 0 1px rgb(var(--accent-rgb) / 0.25),
+      0 0 72px -8px rgb(var(--accent-rgb) / 0.85),
+      0 0 120px -20px rgb(0 214 143 / 0.35);
+  }
+  .landing-key-field {
+    @apply relative flex items-center;
+  }
+  .landing-key-field-icon {
+    @apply pointer-events-none absolute left-3.5 h-4 w-4 text-white/35;
+  }
+  .landing-key-input {
+    @apply w-full rounded-2xl border border-white/10 bg-black/45 py-3.5 pl-10 pr-4 font-mono text-[15px] tracking-wide text-white outline-none;
+    @apply placeholder:text-white/30;
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+  }
+  .landing-key-input:focus {
+    border-color: rgb(var(--accent-rgb) / 0.55);
+    box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / 0.18), 0 0 28px -8px rgb(var(--accent-rgb) / 0.55);
+  }
+  .landing-neon-cta {
+    @apply relative inline-flex min-h-[3.1rem] w-full items-center justify-center gap-2 rounded-full px-6 font-display text-sm font-bold tracking-wide text-ink-950;
+    background: linear-gradient(
+      105deg,
+      rgb(0 220 255),
+      rgb(120 255 200) 42%,
+      rgb(255 210 90) 78%,
+      rgb(0 220 255)
+    );
+    background-size: 200% 100%;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.18),
+      0 0 22px rgb(0 220 255 / 0.45),
+      0 0 48px rgb(120 255 200 / 0.25);
+    transition: transform 160ms ease, filter 160ms ease, box-shadow 200ms ease;
+  }
+  .landing-neon-cta:hover:not(:disabled) {
+    filter: brightness(1.08);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.28),
+      0 0 28px rgb(0 220 255 / 0.65),
+      0 0 64px rgb(120 255 200 / 0.4);
+  }
+  .landing-neon-cta:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .landing-neon-cta:disabled {
+    @apply opacity-60;
+  }
+  .landing-neon-cta--pulse {
+    animation: landing-neon-pulse 2.8s ease-in-out infinite;
+  }
+  .landing-neon-cta-ghost {
+    @apply inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.03] px-5 font-display text-sm font-semibold text-white/75;
+    box-shadow: 0 0 18px rgb(var(--accent-rgb) / 0.12);
+    transition: color 160ms ease, border-color 160ms ease, box-shadow 200ms ease, background 160ms ease;
+  }
+  .landing-neon-cta-ghost:hover {
+    @apply text-white;
+    border-color: rgb(var(--accent-rgb) / 0.4);
+    background: rgb(var(--accent-rgb) / 0.08);
+    box-shadow: 0 0 28px rgb(var(--accent-rgb) / 0.28);
+  }
+  .landing-neon-cta-ghost--pulse {
+    animation: landing-neon-ghost-pulse 3.6s ease-in-out infinite;
+  }
+  @keyframes landing-neon-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.16),
+        0 0 18px rgb(0 220 255 / 0.35),
+        0 0 40px rgb(120 255 200 / 0.18);
+      filter: brightness(1);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.28),
+        0 0 32px rgb(0 220 255 / 0.7),
+        0 0 72px rgb(120 255 200 / 0.4);
+      filter: brightness(1.06);
+    }
+  }
+  @keyframes landing-neon-ghost-pulse {
+    0%, 100% { box-shadow: 0 0 14px rgb(var(--accent-rgb) / 0.1); }
+    50% { box-shadow: 0 0 28px rgb(var(--accent-rgb) / 0.32); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .landing-logo-wordmark { animation: none !important; }
+    .landing-neon-cta--pulse,
+    .landing-neon-cta-ghost--pulse { animation: none !important; }
+  }
+
   /* Frosted glass chip — reference UX language */
   /* Neutral to match `.forge-chip`; the blue-tinted gradient read as a second product. */
   .glass-chip {

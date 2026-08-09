@@ -1,115 +1,105 @@
-import { Link } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { AudioWaveform, ScanSearch, Sparkles } from "lucide-react";
+import { KeyRound, Loader2 } from "lucide-react";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { BuildStamp } from "@/components/BuildStamp";
-import { staggerContainer, staggerItem } from "@/lib/motion";
-
-const STEPS = [
-  {
-    icon: ScanSearch,
-    title: "Drop your master",
-    body: "Track + cover. Measured on your device — free, no account required.",
-  },
-  {
-    icon: AudioWaveform,
-    title: "See what's real",
-    body: "Loudness, peaks, artwork size — only facts from your files, never guesswork.",
-  },
-  {
-    icon: Sparkles,
-    title: "Fix and release",
-    body: "Clear score, actionable fixes, and a path from mix to master to publish.",
-  },
-] as const;
+import { normalizeInviteCode } from "@/lib/alphaAccess";
+import { stashPendingInviteKey } from "@/lib/pendingInviteKey";
+import { useReduceFx } from "@/lib/display";
+import { cx } from "@/lib/utils";
 
 /**
- * Signed-out acquisition — artist-first, progressive disclosure (Masterplan §13).
+ * Signed-out alpha gate — brand + invite key only (Masterplan §13 progressive disclosure).
+ * Marketing copy intentionally absent; redeem runs after sign-in.
  */
 export function LandingPage() {
+  const navigate = useNavigate();
+  const reduce = useReduceFx();
+  const [code, setCode] = useState("");
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  function onEnter(e: FormEvent) {
+    e.preventDefault();
+    const normalized = normalizeInviteCode(code);
+    if (normalized.length < 10) {
+      setErr("Enter your full invite key.");
+      return;
+    }
+    setBusy(true);
+    setErr(null);
+    stashPendingInviteKey(normalized);
+    navigate("/enter");
+  }
+
   return (
-    <div className="public-scroll-frame nexus-void relative text-white">
+    <div className="public-scroll-frame nexus-void relative flex min-h-[100dvh] flex-col text-white">
       <GeometricBackdrop intensity="hero" />
 
-      <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
-        <span className="nexus-eyebrow">VYBZ</span>
-        <div className="flex items-center gap-3 text-xs">
-          <Link to="/codex" className="text-white/40 transition hover:text-white/70">
-            Codex
-          </Link>
-          <Link to="/enter" className="forge-cta-ghost min-h-[2.25rem] px-4 py-1.5 text-xs">
-            Sign in
-          </Link>
-        </div>
-      </header>
-
-      <section className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center px-5 pb-12 pt-10 text-center sm:pb-16 sm:pt-14">
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-12">
         <LandingLogo />
-        <motion.h1
-          className="nexus-headline mt-8 max-w-xl text-4xl sm:text-5xl"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          Your music deserves the truth before it goes out.
-        </motion.h1>
-        <motion.p
-          className="nexus-subline mx-auto mt-4 max-w-md text-[15px] sm:text-base"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}
-        >
-          Upload a track. Get a real readiness score. Fix what matters. Release with confidence.
-        </motion.p>
-        <motion.div
-          className="mt-9 flex flex-wrap items-center justify-center gap-3"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.36 }}
-        >
-          <Link to="/releases/new" className="forge-cta" data-testid="landing-readiness-cta">
-            Scan my track — free
-          </Link>
-          <Link to="/enter" className="forge-cta-ghost">
-            Sign in
-          </Link>
-        </motion.div>
-      </section>
 
-      <section className="relative z-10 mx-auto w-full max-w-3xl px-5 pb-20">
-        <motion.ul
-          className="grid gap-3 sm:grid-cols-3"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-40px" }}
+        <motion.form
+          onSubmit={onEnter}
+          className="mt-10 flex w-full max-w-sm flex-col items-stretch gap-3"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          data-testid="landing-invite-gate"
         >
-          {STEPS.map((item) => (
-            <motion.li key={item.title} variants={staggerItem} className="forge-glass relative text-left !rounded-2xl p-4">
-              <span className="forge-glass-edge pointer-events-none" aria-hidden />
-              <span className="relative z-[1] mb-3 inline-flex rounded-xl border border-white/10 bg-white/[0.04] p-2 text-cyan-200/80">
-                <item.icon className="h-[18px] w-[18px]" />
-              </span>
-              <h3 className="relative z-[1] font-display text-[15px] font-semibold text-white">{item.title}</h3>
-              <p className="relative z-[1] mt-1.5 text-sm leading-relaxed text-white/48">{item.body}</p>
-            </motion.li>
-          ))}
-        </motion.ul>
-      </section>
-
-      <section className="relative z-10 border-t border-white/[0.06] px-5 py-14">
-        <div className="mx-auto max-w-md text-center">
-          <h2 className="nexus-headline text-xl">Ready when you are.</h2>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/releases/new" className="forge-cta">
-              Start free scan
-            </Link>
+          <label className="sr-only" htmlFor="landing-invite-code">
+            Invite key
+          </label>
+          <div className="landing-key-field">
+            <KeyRound className="landing-key-field-icon" aria-hidden />
+            <input
+              id="landing-invite-code"
+              name="invite-code"
+              autoComplete="off"
+              spellCheck={false}
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (err) setErr(null);
+              }}
+              placeholder="VYBZ-A1-····-········"
+              className="landing-key-input"
+              data-testid="landing-invite-input"
+            />
           </div>
-        </div>
-      </section>
 
-      <footer className="relative z-10 px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-4 text-center text-[11px] text-white/35">
+          <button
+            type="submit"
+            disabled={busy}
+            className={cx("landing-neon-cta", !reduce && "landing-neon-cta--pulse")}
+            data-testid="landing-invite-enter"
+          >
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Enter"
+            )}
+          </button>
+
+          {err ? (
+            <p className="text-center text-xs text-rose-300" role="alert">
+              {err}
+            </p>
+          ) : null}
+
+          <Link
+            to="/enter"
+            className={cx("landing-neon-cta-ghost", !reduce && "landing-neon-cta-ghost--pulse")}
+            data-testid="landing-signin"
+          >
+            Already in? Sign in
+          </Link>
+        </motion.form>
+      </main>
+
+      <footer className="relative z-10 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-center text-[11px] text-white/30">
         <Link to="/legal/privacy" className="hover:text-white/55">
           Privacy
         </Link>
@@ -117,9 +107,7 @@ export function LandingPage() {
         <Link to="/legal/terms" className="hover:text-white/55">
           Terms
         </Link>
-        <span className="px-2">·</span>
-        © {new Date().getFullYear()} Astra Matrix, Inc.
-        <BuildStamp className="mt-2" />
+        <BuildStamp className="mt-1.5 opacity-70" />
       </footer>
     </div>
   );
