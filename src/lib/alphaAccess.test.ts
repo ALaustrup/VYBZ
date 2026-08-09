@@ -38,4 +38,12 @@ describe("OR-023 alpha invite gate", () => {
     expect(redeemInviteErrorMessage("expired")).toMatch(/expired/i);
     expect(redeemInviteErrorMessage("already_used")).toMatch(/already been used/i);
   });
+
+  it("signed-out landing is invite-key gate without marketing manifesto", () => {
+    const landing = readFileSync(path.join(ROOT, "src/pages/LandingPage.tsx"), "utf8");
+    expect(landing).toMatch(/landing-invite-gate/);
+    expect(landing).toMatch(/stashPendingInviteKey/);
+    expect(landing).not.toMatch(/Your music deserves the truth/);
+    expect(landing).not.toMatch(/Scan my track/);
+  });
 });
