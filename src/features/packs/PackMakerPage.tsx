@@ -1,5 +1,5 @@
 /**
- * OR-020 V1 — Sample Pack Creator (assemble measured ZIP → optional storefront handoff).
+ * OR-020 — Sample Pack Creator (assemble measured ZIP → optional storefront handoff).
  */
 
 import { useState } from "react";
@@ -14,11 +14,14 @@ import {
   buildPackZip,
   type AssembledSample,
 } from "@/features/packs/packAssemble";
+import type { PackSampleKind } from "@/features/packs/packManifest";
 import { savePackHandoff } from "@/features/packs/packHandoff";
 
 function fmtDb(n: number): string {
   return `${n.toFixed(1)} dBFS`;
 }
+
+const KINDS: PackSampleKind[] = ["oneshot", "loop", "other"];
 
 export function PackMakerPage() {
   const navigate = useNavigate();
@@ -26,6 +29,8 @@ export function PackMakerPage() {
   const [title, setTitle] = useState("untitled-pack");
   const [samples, setSamples] = useState<AssembledSample[]>([]);
   const [busy, setBusy] = useState(false);
+  const [lastZipSha, setLastZipSha] = useState<string | null>(null);
+  const [lastContentSha, setLastContentSha] = useState<string | null>(null);
 
   useRegisterAppBar({ title: "Pack Maker", subtitle: "Assemble" }, []);
 
@@ -55,7 +60,9 @@ export function PackMakerPage() {
     }
     setBusy(true);
     try {
-      const { zip } = await buildPackZip({ title, samples });
+      const { zip, manifest, zipSha256 } = await buildPackZip({ title, samples });
+      setLastZipSha(zipSha256);
+      setLastContentSha(manifest.contentSha256);
       return new Blob([new Uint8Array(zip)], { type: "application/zip" });
     } catch {
       showToast("ZIP export failed");
@@ -87,6 +94,10 @@ export function PackMakerPage() {
     });
     showToast("Handed off to storefront — upload the ZIP on the next screen");
     navigate("/tools/packs/new");
+  }
+
+  function setKind(id: string, kind: PackSampleKind) {
+    setSamples((prev) => prev.map((s) => (s.id === id ? { ...s, kind } : s)));
   }
 
   return (
@@ -142,6 +153,13 @@ export function PackMakerPage() {
         </button>
       </div>
 
+      {(lastZipSha || lastContentSha) && (
+        <p className="mb-3 text-[11px] text-white/40" data-testid="pack-checksums">
+          {lastContentSha ? `Content SHA ${lastContentSha.slice(0, 16)}…` : ""}
+          {lastZipSha ? ` · ZIP SHA ${lastZipSha.slice(0, 16)}…` : ""}
+        </p>
+      )}
+
       {samples.length > 0 && (
         <ul className="space-y-2" data-testid="pack-sample-list">
           {samples.map((s) => (
@@ -152,9 +170,24 @@ export function PackMakerPage() {
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-white/90">{s.sourceName}</p>
                 <p className="text-[11px] text-white/40">
-                  {s.kind} · peak {fmtDb(s.metrics.peakDbfs)} · {s.metrics.durationSeconds.toFixed(2)}s
+                  peak {fmtDb(s.metrics.peakDbfs)} · {s.metrics.durationSeconds.toFixed(2)}s
                 </p>
               </div>
+              <label className="shrink-0 text-[11px] text-white/45">
+                <span className="sr-only">Kind for {s.sourceName}</span>
+                <select
+                  value={s.kind}
+                  onChange={(e) => setKind(s.id, e.target.value as PackSampleKind)}
+                  className="rounded-lg border border-white/10 bg-black/40 px-2 py-1 text-[11px] text-white"
+                  data-testid={`pack-kind-${s.id}`}
+                >
+                  {KINDS.map((k) => (
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <button
                 type="button"
                 aria-label={`Remove ${s.sourceName}`}

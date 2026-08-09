@@ -167,6 +167,16 @@ const GUIDES: Record<string, FindingGuide> = {
     fix: "Ease limiting, restore micro-dynamics, or rebuild the loudness stage. Use Correct peak/loudness assists only as a starting point, then re-check by ear.",
     target: "Finish heuristic — not an AI detector; cites measured crest + LRA + PLR only",
   },
+  AUDIO_FINISH_LOSSY_OVERPROCESSED: {
+    why: "A crushed master that is already MP3 cannot be “fixed” back to the discarded high-frequency and dynamics detail.",
+    fix: "Re-export WAV/FLAC from the mastering session, then ease limiting before any delivery encode. Do not expect Correct to restore lossy data.",
+    target: "Finish heuristic on lossy container — not an AI detector; advises when DSP cannot recover",
+  },
+  AUDIO_FINISH_HARSH_BRIGHT: {
+    why: "High treble share with low crest often reads as harsh or brittle after brighten + brickwall chains.",
+    fix: "Check top-end EQ and limiter ceiling by ear; reduce high-shelf / saturation before re-limiting.",
+    target: "Finish heuristic — measured highShare ≥ 45% and crest < 7 dB; not an AI detector",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

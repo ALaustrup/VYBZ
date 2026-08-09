@@ -79,6 +79,12 @@ export {
   type DeviceTranslationResult,
 } from "./deviceTranslationPreview";
 export {
+  applyCodecTranslationPreview,
+  CODEC_TRANSLATION_VERSION,
+  type CodecPreviewMode,
+  type CodecTranslationResult,
+} from "./codecTranslationPreview";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,

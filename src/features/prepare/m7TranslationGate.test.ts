@@ -2,7 +2,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  CODEC_TRANSLATION_VERSION,
   STREAMING_NORM_PREVIEW_VERSION,
+  applyCodecTranslationPreview,
   applyStreamingNormPreview,
 } from "@vybz/processing/waveform";
 
@@ -32,7 +34,8 @@ describe("M7 translation gate", () => {
     expect(page).toContain("translate-mode-streaming");
     expect(page).toContain("translate-mode-phone");
     expect(page).toContain("translate-mode-car");
-    expect(page.toLowerCase()).toContain("not exact platform");
+    expect(page).toContain("translate-mode-lossy");
+    expect(page.toLowerCase()).toMatch(/not exact[\s\S]*platform/);
     const dsp = readFileSync(
       path.join(ROOT, "packages/processing/waveform/src/streamingNormPreview.ts"),
       "utf8"
@@ -43,6 +46,12 @@ describe("M7 translation gate", () => {
       "utf8"
     );
     expect(device.toLowerCase()).toContain("not a measured");
+    const codec = readFileSync(
+      path.join(ROOT, "packages/processing/waveform/src/codecTranslationPreview.ts"),
+      "utf8"
+    );
+    expect(codec.toLowerCase()).toContain("not a measured");
+    expect(CODEC_TRANSLATION_VERSION).toMatch(/^m7\./);
     expect(app).toContain("/tools/translate");
   });
 
@@ -59,5 +68,20 @@ describe("M7 translation gate", () => {
     expect(original).toEqual(clone);
     expect(first.channels[0]).toEqual(second.channels[0]);
     expect(first.disclosure.toLowerCase()).toContain("not an exact emulation");
+  });
+
+  it("codec preview is reproducible and non-destructive", () => {
+    const sr = 48000;
+    const n = Math.floor(1 * sr);
+    const original = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      original[i] = Math.sin((2 * Math.PI * 1000 * i) / sr) * 0.2;
+    }
+    const clone = original.slice();
+    const first = applyCodecTranslationPreview([original], sr);
+    const second = applyCodecTranslationPreview([original], sr);
+    expect(original).toEqual(clone);
+    expect(first.channels[0]).toEqual(second.channels[0]);
+    expect(first.disclosure.toLowerCase()).toContain("not a measured");
   });
 });

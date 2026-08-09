@@ -1,6 +1,6 @@
-/** Sample pack V1 manifest — OR-020 assembly. */
+/** Sample pack V1+ manifest — OR-020 assembly. */
 
-export const PACK_MAKER_VERSION = "or020.pack-assemble.1";
+export const PACK_MAKER_VERSION = "or020.pack-assemble.2";
 
 export type PackSampleKind = "oneshot" | "loop" | "other";
 
@@ -24,6 +24,8 @@ export type PackManifest = {
   version: typeof PACK_MAKER_VERSION;
   title: string;
   createdAt: string;
+  /** SHA-256 of sorted sample sha256 lines — content fingerprint (Law 1). */
+  contentSha256: string;
   samples: PackManifestEntry[];
 };
 
@@ -40,14 +42,23 @@ export function packFolderForKind(kind: PackSampleKind): string {
   return "samples";
 }
 
-export function buildPackManifest(opts: {
+export async function contentShaFromSampleHashes(hashes: string[]): Promise<string> {
+  const joined = [...hashes].sort().join("\n");
+  const data = new TextEncoder().encode(joined);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export async function buildPackManifest(opts: {
   title: string;
   samples: PackManifestEntry[];
-}): PackManifest {
+}): Promise<PackManifest> {
+  const contentSha256 = await contentShaFromSampleHashes(opts.samples.map((s) => s.sha256));
   return {
     version: PACK_MAKER_VERSION,
     title: opts.title.trim() || "untitled-pack",
     createdAt: new Date().toISOString(),
+    contentSha256,
     samples: opts.samples,
   };
 }

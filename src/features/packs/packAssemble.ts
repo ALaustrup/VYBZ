@@ -1,5 +1,5 @@
 /**
- * OR-020 V1 — assemble samples into a measured ZIP (no catalog ingest).
+ * OR-020 — assemble samples into a measured ZIP (no catalog ingest).
  */
 
 import { dbFromLinear } from "@vybz/processing/waveform";
@@ -11,13 +11,14 @@ import {
   inferSampleKind,
   packFolderForKind,
   type PackManifestEntry,
+  type PackSampleKind,
   type PackSampleMetrics,
 } from "@/features/packs/packManifest";
 
 export type AssembledSample = {
   id: string;
   sourceName: string;
-  kind: ReturnType<typeof inferSampleKind>;
+  kind: PackSampleKind;
   wavBytes: Uint8Array;
   metrics: PackSampleMetrics;
   sha256: string;
@@ -85,7 +86,11 @@ export async function assembleSampleFromFile(file: File): Promise<AssembledSampl
 export async function buildPackZip(opts: {
   title: string;
   samples: AssembledSample[];
-}): Promise<{ zip: Uint8Array; manifest: ReturnType<typeof buildPackManifest> }> {
+}): Promise<{
+  zip: Uint8Array;
+  manifest: Awaited<ReturnType<typeof buildPackManifest>>;
+  zipSha256: string;
+}> {
   const entries: PackManifestEntry[] = [];
   const zipEntries: ZipEntry[] = [];
   const used = new Set<string>();
@@ -110,11 +115,12 @@ export async function buildPackZip(opts: {
     zipEntries.push({ path: fileName, bytes: s.wavBytes });
   }
 
-  const manifest = buildPackManifest({ title: opts.title, samples: entries });
+  const manifest = await buildPackManifest({ title: opts.title, samples: entries });
   const manifestJson = new TextEncoder().encode(JSON.stringify(manifest, null, 2));
   zipEntries.push({ path: "manifest.json", bytes: manifestJson });
   const zip = buildZip(zipEntries);
-  return { zip, manifest };
+  const zipSha256 = await sha256Hex(zip);
+  return { zip, manifest, zipSha256 };
 }
 
 export { PACK_MAKER_VERSION };

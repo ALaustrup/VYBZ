@@ -106,7 +106,13 @@ export function VisualizerStudioPage() {
   const [freqs, setFreqs] = useState<Uint8Array | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportPct, setExportPct] = useState<number | null>(null);
-  const [lastExport, setLastExport] = useState<{ blob: Blob; filename: string } | null>(null);
+  const [lastExport, setLastExport] = useState<{
+    blob: Blob;
+    filename: string;
+    measuredW: number;
+    measuredH: number;
+    bytes: number;
+  } | null>(null);
   const [handingOff, setHandingOff] = useState(false);
 
   const [genPrompt, setGenPrompt] = useState("");
@@ -390,8 +396,10 @@ export function VisualizerStudioPage() {
         onProgress: setExportPct,
         videoBitsPerSecond: bits,
       });
-      if (canvasRef.current.width !== size.w || canvasRef.current.height !== size.h) {
-        showToast(`Canvas measured ${canvasRef.current.width}×${canvasRef.current.height} (not target ${size.w}×${size.h})`);
+      const measuredW = canvasRef.current.width;
+      const measuredH = canvasRef.current.height;
+      if (measuredW !== size.w || measuredH !== size.h) {
+        showToast(`Canvas measured ${measuredW}×${measuredH} (not target ${size.w}×${size.h})`);
       }
 
       a?.pause();
@@ -400,12 +408,19 @@ export function VisualizerStudioPage() {
 
       const nameBase = (mediaFile?.name || "vybz-visual").replace(/\.[^.]+$/, "");
       const filename = `${nameBase}-vdock.${extForMime(blob.type || pickRecorderMime())}`;
-      setLastExport({ blob, filename });
+      setLastExport({ blob, filename, measuredW, measuredH, bytes: blob.size });
       downloadBlob(blob, filename);
       celebrate("Visualizer exported");
-      showToast("Muted loop ready — download saved · use on next drop below");
+      showToast(
+        `Muted loop ready · measured ${measuredW}×${measuredH} · ${(blob.size / 1_000_000).toFixed(2)} MB`
+      );
     } catch (err) {
-      showToast((err as Error).message || "Export failed");
+      const experimental = STUDIO_RESOLUTIONS[settings.resolution]?.experimental;
+      showToast(
+        experimental
+          ? `High-res encode failed on this device — try 4K or lower. ${(err as Error).message || ""}`.trim()
+          : (err as Error).message || "Export failed"
+      );
       setPlaying(wasPlaying);
     } finally {
       setExporting(false);
@@ -860,6 +875,13 @@ export function VisualizerStudioPage() {
                   <div className="h-full rounded-full bg-suite-cyan transition-all" style={{ width: `${exportPct}%` }} />
                 </div>
               </div>
+            )}
+            {lastExport && (
+              <p className="mt-2 text-[11px] text-white/45" data-testid="studio-export-measured">
+                Last export measured {lastExport.measuredW}×{lastExport.measuredH} ·{" "}
+                {(lastExport.bytes / 1_000_000).toFixed(2)} MB — not claimed as 8K delivered unless
+                those pixels match 7680×4320.
+              </p>
             )}
           </div>
           <button

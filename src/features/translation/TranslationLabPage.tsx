@@ -1,13 +1,15 @@
 /**
- * M7 Translation Lab — streaming loudness + phone/car device previews (disclosed).
+ * M7 Translation Lab — streaming loudness + phone/car + lossy codec previews (disclosed).
  */
 
 import { useEffect, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import {
+  CODEC_TRANSLATION_VERSION,
   DEVICE_TRANSLATION_VERSION,
   STREAMING_NORM_PREVIEW_VERSION,
   STREAMING_NORM_TARGET_LUFS,
+  applyCodecTranslationPreview,
   applyDeviceTranslationPreview,
   applyStreamingNormPreview,
 } from "@vybz/processing/waveform";
@@ -16,7 +18,7 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type Mode = "original" | "streaming" | "phone" | "car";
+type Mode = "original" | "streaming" | "phone" | "car" | "lossy";
 
 function planarFromBuffer(buf: AudioBuffer): Float32Array[] {
   const out: Float32Array[] = [];
@@ -45,6 +47,7 @@ export function TranslationLabPage() {
   const [streamingUrl, setStreamingUrl] = useState<string | null>(null);
   const [phoneUrl, setPhoneUrl] = useState<string | null>(null);
   const [carUrl, setCarUrl] = useState<string | null>(null);
+  const [lossyUrl, setLossyUrl] = useState<string | null>(null);
   const [lufsBefore, setLufsBefore] = useState<number | null>(null);
   const [lufsAfter, setLufsAfter] = useState<number | null>(null);
   const [gainDb, setGainDb] = useState<number | null>(null);
@@ -58,8 +61,9 @@ export function TranslationLabPage() {
       if (streamingUrl) URL.revokeObjectURL(streamingUrl);
       if (phoneUrl) URL.revokeObjectURL(phoneUrl);
       if (carUrl) URL.revokeObjectURL(carUrl);
+      if (lossyUrl) URL.revokeObjectURL(lossyUrl);
     };
-  }, [originalUrl, streamingUrl, phoneUrl, carUrl]);
+  }, [originalUrl, streamingUrl, phoneUrl, carUrl, lossyUrl]);
 
   async function onFile(file: File | undefined) {
     if (!file || !isAudioFile(file)) {
@@ -73,11 +77,13 @@ export function TranslationLabPage() {
       const stream = applyStreamingNormPreview(planar, buf.sampleRate);
       const phone = applyDeviceTranslationPreview(planar, buf.sampleRate, "phone");
       const car = applyDeviceTranslationPreview(planar, buf.sampleRate, "car");
+      const lossy = applyCodecTranslationPreview(planar, buf.sampleRate, "lossy");
 
       if (originalUrl) URL.revokeObjectURL(originalUrl);
       if (streamingUrl) URL.revokeObjectURL(streamingUrl);
       if (phoneUrl) URL.revokeObjectURL(phoneUrl);
       if (carUrl) URL.revokeObjectURL(carUrl);
+      if (lossyUrl) URL.revokeObjectURL(lossyUrl);
 
       setOriginalUrl(URL.createObjectURL(file));
       setStreamingUrl(
@@ -85,6 +91,7 @@ export function TranslationLabPage() {
       );
       setPhoneUrl(URL.createObjectURL(encodeWav(bufferFromPlanar(phone.channels, buf.sampleRate))));
       setCarUrl(URL.createObjectURL(encodeWav(bufferFromPlanar(car.channels, buf.sampleRate))));
+      setLossyUrl(URL.createObjectURL(encodeWav(bufferFromPlanar(lossy.channels, buf.sampleRate))));
       setFileName(file.name);
       setLufsBefore(stream.integratedLufsBefore);
       setLufsAfter(stream.integratedLufsAfter);
@@ -115,6 +122,10 @@ export function TranslationLabPage() {
       setDisclosure(
         `Car-style preview (bass lift + mid scoop). Approximate simulation — not a measured cabin response. (${DEVICE_TRANSLATION_VERSION})`
       );
+    } else if (next === "lossy") {
+      setDisclosure(
+        `Lossy-style preview (≈15 kHz bandwidth + mild quantization). Approximate simulation — not a measured MP3/AAC/Opus encode of any platform. (${CODEC_TRANSLATION_VERSION})`
+      );
     } else {
       setDisclosure(null);
     }
@@ -127,13 +138,16 @@ export function TranslationLabPage() {
         ? streamingUrl
         : mode === "phone"
           ? phoneUrl
-          : carUrl;
+          : mode === "car"
+            ? carUrl
+            : lossyUrl;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="translation-lab">
       <p className="mb-4 text-[13px] text-white/45">
-        Hear approximate streaming loudness ({STREAMING_NORM_TARGET_LUFS} LUFS) and phone/car
-        listening EQ. Simulations are labelled — not exact platform or device processing.
+        Hear approximate streaming loudness ({STREAMING_NORM_TARGET_LUFS} LUFS), phone/car
+        listening EQ, and a lossy-style codec simulation. Simulations are labelled — not exact
+        platform or device processing.
       </p>
 
       <label className="btn btn-primary mb-5 cursor-pointer px-4 py-2.5 text-sm">
@@ -189,6 +203,15 @@ export function TranslationLabPage() {
               className={`btn px-3 py-2 text-sm ${mode === "car" ? "btn-primary" : "btn-ghost"}`}
             >
               Car
+            </button>
+            <button
+              type="button"
+              data-testid="translate-mode-lossy"
+              aria-pressed={mode === "lossy"}
+              onClick={() => selectMode("lossy")}
+              className={`btn px-3 py-2 text-sm ${mode === "lossy" ? "btn-primary" : "btn-ghost"}`}
+            >
+              Lossy codec
             </button>
             <span className="text-[11px] text-white/35">{fileName}</span>
           </div>
