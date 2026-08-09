@@ -4,10 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   CHANNEL_BALANCE_VERSION,
   CORRECTION_VERSION,
+  MAINS_HUM_CORRECT_VERSION,
   PEAK_SAFETY_CEILING_LINEAR,
   PEAK_SAFETY_VERSION,
   SILENCE_TRIM_VERSION,
   applyChannelBalance,
+  applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
   removeDcOffset,
@@ -28,6 +30,7 @@ describe("M6 correction gate", () => {
     expect(PEAK_SAFETY_VERSION).toMatch(/^m6\./);
     expect(CHANNEL_BALANCE_VERSION).toMatch(/^m6\./);
     expect(SILENCE_TRIM_VERSION).toMatch(/^m6\./);
+    expect(MAINS_HUM_CORRECT_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -89,7 +92,7 @@ describe("M6 correction gate", () => {
     expect(first.durationAfterSec).toBeLessThan(first.durationBeforeSec);
   });
 
-  it("surfaces Correct tool ops including peak, balance, and silence", () => {
+  it("surfaces Correct tool ops including peak, balance, silence, and hum", () => {
     const page = readFileSync(
       path.join(ROOT, "src/features/correction/DcOffsetCorrectPage.tsx"),
       "utf8"
@@ -99,7 +102,24 @@ describe("M6 correction gate", () => {
     expect(page).toContain("correct-op-peak");
     expect(page).toContain("correct-op-balance");
     expect(page).toContain("correct-op-silence");
+    expect(page).toContain("correct-op-hum");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
+  });
+
+  it("mains-hum reduce is reproducible and lowers prominence", () => {
+    const sr = 48000;
+    const n = Math.floor(1.2 * sr);
+    const original = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const t = i / sr;
+      original[i] = Math.sin(2 * Math.PI * 440 * t) * 0.3 + Math.sin(2 * Math.PI * 60 * t) * 0.2;
+    }
+    const clone = original.slice();
+    const first = applyMainsHumReduce([original], sr, { frequencyHz: 60 });
+    const second = applyMainsHumReduce([original], sr, { frequencyHz: 60 });
+    expect(original).toEqual(clone);
+    expect(first.channels[0]).toEqual(second.channels[0]);
+    expect(first.binPowerRatio!).toBeLessThan(0.25);
   });
 });

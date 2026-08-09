@@ -33,6 +33,11 @@ export {
   type MainsHumResult,
 } from "./mainsHum";
 export {
+  applyMainsHumReduce,
+  MAINS_HUM_CORRECT_VERSION,
+  type MainsHumCorrectResult,
+} from "./mainsHumCorrect";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,

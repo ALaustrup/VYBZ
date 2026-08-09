@@ -1,5 +1,6 @@
 import {
   applyChannelBalance,
+  applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
   removeDcOffset,
@@ -58,6 +59,7 @@ export async function applyAutoFixToBlob(blob: Blob, op: AutoFixOp): Promise<Blo
   if (op === "dc") next = removeDcOffset(planar).channels;
   else if (op === "peak") next = applyPeakSafety(planar).channels;
   else if (op === "balance") next = applyChannelBalance(planar).channels;
+  else if (op === "hum") next = applyMainsHumReduce(planar, rate).channels;
   else next = applySilenceTrim(planar, rate).channels;
 
   const outBuf = bufferFromPlanar(next, rate);
