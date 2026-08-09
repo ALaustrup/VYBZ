@@ -5,7 +5,7 @@
 
 **Date:** 2026-08-09
 **Branch:** `feat/perception-engine-foundation`
-**HEAD:** (local tip — see `git rev-parse HEAD` after commit)
+**HEAD:** `ab1ee9b6`
 **Working tree:** Perception Engine foundation implemented; awaiting owner merge authorisation
 **Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + Perception Engine foundation (branch)
 
