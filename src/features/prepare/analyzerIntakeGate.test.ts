@@ -29,6 +29,7 @@ describe("Analyzer intake desk gate", () => {
       isAnalyzerAudioReady([{ code: "ARTWORK_MISSING", severity: "blocking", status: "open" }]),
     ).toBe(true);
     expect(shipAutoFixForCode("AUDIO_DC_OFFSET")?.tier).toBe("ship");
+    expect(shipAutoFixForCode("AUDIO_MAINS_HUM")?.op).toBe("hum");
     expect(shipAutoFixForCode("AUDIO_LOSSY_MASTER")).toBeNull();
   });
 });

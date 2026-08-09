@@ -1,6 +1,6 @@
 /**
  * M6 Correct — reversible ops with bypass + before/after metrics.
- * Ops: DC, peak-safety, L/R balance, silence trim. No credit deduction. Local-only.
+ * Ops: DC, peak-safety, L/R balance, silence trim, mains-hum. No credit deduction. Local-only.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -8,10 +8,12 @@ import { Download, Loader2, Upload } from "lucide-react";
 import {
   CHANNEL_BALANCE_VERSION,
   CORRECTION_VERSION,
+  MAINS_HUM_CORRECT_VERSION,
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
   SILENCE_TRIM_VERSION,
   applyChannelBalance,
+  applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
   removeDcOffset,
@@ -22,13 +24,14 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type CorrectOp = "dc" | "peak" | "balance" | "silence";
+type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum";
 
 const OP_SUBTITLE: Record<CorrectOp, string> = {
   dc: "DC offset",
   peak: "Peak safety",
   balance: "Channel balance",
   silence: "Silence trim",
+  hum: "Mains hum",
 };
 
 type PreviewState = {
@@ -136,7 +139,7 @@ export function DcOffsetCorrectPage() {
           downloadSuffix: "balanced",
         },
       };
-    } else {
+    } else if (chosen === "silence") {
       const r = applySilenceTrim(channels, rate);
       result = {
         channels: r.channels,
@@ -147,6 +150,23 @@ export function DcOffsetCorrectPage() {
           detailValue: `${r.durationBeforeSec.toFixed(2)}s → ${r.durationAfterSec.toFixed(2)}s (−${(r.trimmedLeadSec + r.trimmedTrailSec).toFixed(2)}s)`,
           version: SILENCE_TRIM_VERSION,
           downloadSuffix: "silence-trim",
+        },
+      };
+    } else {
+      const r = applyMainsHumReduce(channels, rate);
+      const before =
+        r.prominenceDbBefore == null ? "Not measured" : `${r.prominenceDbBefore.toFixed(1)} dB`;
+      const after =
+        r.prominenceDbAfter == null ? "Not measured" : `${r.prominenceDbAfter.toFixed(1)} dB`;
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: `${r.frequencyHz} Hz prominence (before → after)`,
+          detailValue: `${before} → ${after}`,
+          version: MAINS_HUM_CORRECT_VERSION,
+          downloadSuffix: "hum-reduce",
         },
       };
     }
@@ -201,8 +221,9 @@ export function DcOffsetCorrectPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: DC remove, peak-safety (−1 dBFS sample peak), L/R RMS match, or edge silence
-        trim (keeps ~50 ms pad). Bypass keeps the original. No credits charged.
+        M6 corrections: DC remove, peak-safety (−1 dBFS sample peak), L/R RMS match, edge silence
+        trim (~50 ms pad), or mains-hum notch (50/60 Hz + light harmonics). Bypass keeps the
+        original. No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -241,6 +262,15 @@ export function DcOffsetCorrectPage() {
           className={`btn px-3 py-2 text-sm ${op === "silence" ? "btn-primary" : "btn-ghost"}`}
         >
           Silence trim
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-hum"
+          aria-pressed={op === "hum"}
+          onClick={() => onSelectOp("hum")}
+          className={`btn px-3 py-2 text-sm ${op === "hum" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Mains hum
         </button>
       </div>
 

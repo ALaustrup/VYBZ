@@ -3,7 +3,7 @@
  * Only `tier: "ship"` may show a Fix button.
  */
 
-export type AutoFixOp = "dc" | "peak" | "balance" | "silence" | "level";
+export type AutoFixOp = "dc" | "peak" | "balance" | "silence" | "level" | "hum";
 export type AutoFixTier = "ship" | "roadmap" | "manual";
 
 export type AutoFixMapping = {
@@ -25,6 +25,12 @@ const SHIP: Record<string, AutoFixMapping> = {
   AUDIO_CHANNEL_IMBALANCE: { op: "balance", label: "Balance L/R", tier: "ship" },
   AUDIO_SILENCE_LEAD_IN: { op: "silence", label: "Trim edge silence", tier: "ship" },
   AUDIO_SILENCE_LEAD_OUT: { op: "silence", label: "Trim edge silence", tier: "ship" },
+  AUDIO_MAINS_HUM: {
+    op: "hum",
+    label: "Reduce mains hum (50/60 Hz)",
+    tier: "ship",
+    disclosure: "Narrow notch assist at measured mains + light harmonics — re-check after.",
+  },
   AUDIO_LOUDNESS_QUIET: {
     op: "level",
     label: "Level toward streaming loudness (−14)",
@@ -40,7 +46,6 @@ const SHIP: Record<string, AutoFixMapping> = {
 };
 
 const ROADMAP = new Set([
-  "AUDIO_MAINS_HUM",
   "AUDIO_STEREO_NARROW",
   "AUDIO_STEREO_SIDE_HEAVY",
   "AUDIO_STEREO_OUT_OF_PHASE",
