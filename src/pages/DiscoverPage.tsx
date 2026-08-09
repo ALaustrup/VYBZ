@@ -13,7 +13,12 @@ import { paletteFor, cx } from "@/lib/utils";
 import type { DiscoveryDrop } from "@/lib/api";
 
 type ViewMode = "grid" | "list";
-type AudioFilter = "all" | "audio" | "recent";
+/** OR-031 — release-centered discovery filters (craft only). */
+type AudioFilter = "all" | "audio" | "recent" | "releases" | "emerging";
+
+function isReleaseCentered(d: DiscoveryDrop): boolean {
+  return Boolean(d.releaseType || (d.album && d.album.trim()) || d.assetKind === "track");
+}
 
 const VIEW_KEY = "vybz.discover.view";
 
@@ -130,6 +135,11 @@ function DiscoverCard({
           >
             {drop.creditedArtist || drop.authorUsername || "Artist"}
           </button>
+          {(drop.releaseType || drop.album) && (
+            <p className="mt-0.5 truncate text-[10px] uppercase tracking-wide text-white/40">
+              {[drop.releaseType, drop.album].filter(Boolean).join(" · ")}
+            </p>
+          )}
         </div>
         <span
           className={cx(
@@ -211,7 +221,7 @@ export function DiscoverPage() {
 
   useRegisterAppBar({
     title: "Discover",
-    subtitle: "Public feed",
+    subtitle: "Release-centered",
   }, []);
 
   useEffect(() => {
@@ -239,9 +249,11 @@ export function DiscoverPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return drops.filter((d) => {
+    let list = drops.filter((d) => {
       if (audioFilter === "audio" && !d.audioUrl) return false;
       if (audioFilter === "recent" && (d.createdAt ?? 0) < weekAgo) return false;
+      if (audioFilter === "releases" && !isReleaseCentered(d)) return false;
+      if (audioFilter === "emerging" && (!d.audioUrl || !isReleaseCentered(d))) return false;
       if (!q) return true;
       return (
         d.title?.toLowerCase().includes(q) ||
@@ -250,6 +262,15 @@ export function DiscoverPage() {
         d.album?.toLowerCase().includes(q)
       );
     });
+    if (audioFilter === "emerging") {
+      // Lesser-known first: low measured plays, then newer.
+      list = [...list].sort((a, b) => {
+        const playDelta = (a.plays ?? 0) - (b.plays ?? 0);
+        if (playDelta !== 0) return playDelta;
+        return (b.createdAt ?? 0) - (a.createdAt ?? 0);
+      });
+    }
+    return list;
   }, [drops, query, audioFilter]);
 
   function commit(d: DiscoveryDrop) {
@@ -276,10 +297,12 @@ export function DiscoverPage() {
             aria-label="Search discover feed"
           />
         </label>
-        <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label="Filters">
+        <div className="flex flex-wrap items-center gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1" role="group" aria-label="Filters" data-testid="discover-filters">
           {([
             ["all", "All"],
             ["audio", "Has audio"],
+            ["releases", "Releases"],
+            ["emerging", "Emerging"],
             ["recent", "7 days"],
           ] as const).map(([id, label]) => (
             <button
@@ -287,6 +310,7 @@ export function DiscoverPage() {
               type="button"
               onClick={() => setAudioFilter(id)}
               aria-pressed={audioFilter === id}
+              data-testid={`discover-filter-${id}`}
               className={cx(
                 "rounded-lg px-2.5 py-1.5 text-[11px] font-semibold transition",
                 audioFilter === id ? "bg-white/12 text-white" : "text-white/45 hover:text-white/75",
@@ -318,8 +342,8 @@ export function DiscoverPage() {
         </div>
       </div>
 
-      <p className="text-[12px] text-white/40">
-        Live public catalog of uploaded songs and samples
+      <p className="text-[12px] text-white/40" data-testid="discover-or031-blurb">
+        Release-centered public catalog — find tracks and emerging artists by craft.
         {!loading ? ` · ${filtered.length} shown` : ""}
       </p>
 

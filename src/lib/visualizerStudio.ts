@@ -328,19 +328,24 @@ export function downloadBlob(blob: Blob, filename: string) {
 
 const DRAFT_KEY = "vybz.visualizerStudio.draft";
 
-export function saveStudioDraftMeta(meta: {
-  style: ReactiveStyle;
-  intensity: number;
-  bassPunch: number;
-  colorWash: number;
-  barAmount: number;
-  accent: string;
-  fit: StudioFit;
-  dim: number;
-  loopSec: number;
-}) {
+export function saveStudioDraftMeta(meta: Partial<StudioReactiveSettings>) {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(meta));
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({
+        style: meta.style,
+        intensity: meta.intensity,
+        bassPunch: meta.bassPunch,
+        colorWash: meta.colorWash,
+        barAmount: meta.barAmount,
+        accent: meta.accent,
+        fit: meta.fit,
+        dim: meta.dim,
+        loopSec: meta.loopSec,
+        resolution: meta.resolution,
+        layers: meta.layers,
+      })
+    );
   } catch { /* ignore */ }
 }
 

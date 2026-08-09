@@ -190,15 +190,15 @@ approval and an entry in the Masterplan.
 | OR-012 | iOS TestFlight | Deferred |
 | OR-013 | Reference-track comparison in the Analysis Engine | Idea — natural M5 extension |
 | OR-014 | Artifact, noise, hum and click/pop detection | Partial — hum + click/pop shipped; broadband noise still open |
-| OR-015 | Codec vulnerability estimation | Idea — M7 extension |
+| OR-015 | Codec vulnerability estimation | Partial — M7 lossy-style listen preview shipped; real encode metrics still open |
 | OR-016 | Podcast and spoken-word specific readiness rules | Idea — M8 extension |
 | OR-017 | Separate Chats section (Messages stays DMs-only; Rooms unlinked) | Parked — Artist OS Surface Overhaul 2026-08-07 |
 | OR-018 | Instrument Creator — paid one-time unlock for a full VST3 instrument design studio (native DSP / JUCE-class work; not a web placeholder) | Idea — horizon add-on; no suite rail tile until a signed plug-in exists |
 | OR-019 | Stem Maker — V1 assembly from exported stems; V2 paid/desktop source separation | **V1 authorised 2026-08-08** — assembly only; V2 still parked (see §8.1) |
-| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | **Authorised 2026-08-09** — V1 assemble wedge (see §8.1) |
+| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | **Authorised 2026-08-09** — V1+ kind override + content SHA (see §8.1) |
 | OR-029 | AI-finish analysis — heuristic findings for over-processed / AI-assisted masters; advise when unfixable | **Authorised 2026-08-09** |
 | OR-030 | Visualizer studio high-res (up to experimental 8K) + layer customize | **Authorised 2026-08-09** — Law 1: measure canvas/export size |
-| OR-031 | Pro networking + discovery for lesser-known artists (release-centered) | Idea — vision ok; **build parked** until Law 3 audio core advances |
+| OR-031 | Pro networking + discovery for lesser-known artists (release-centered) | **Authorised 2026-08-09** — no dating/swipe; music/release serving only |
 | OR-021 | Batch Processor — deepen desktop/web batch (correct, convert, report) | Idea — parked; not authorised (see §8.1) |
 | OR-022 | Project Archiver — checksummed release-project archive (not DSP delivery) | Idea — parked; not authorised (see §8.1) |
 | OR-023 | Alpha invite keys — hard gate + Admin mint for FB/Reddit giveaways | **Authorised 2026-08-08** — hard gate (see §8.2) |

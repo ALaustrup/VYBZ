@@ -26,30 +26,30 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M7 — Translation Lab** remains the active Masterplan milestone. Owner authorised
-**2026-08-09** option **C**: AI-finish brand positioning + M7 deepen + AI-finish analysis
-wedge + **OR-020** Pack Maker + Visualizer high-res / layers track.
+**M8 — Release Assembly & Readiness** is the authorised Masterplan milestone (owner
+**2026-08-09**). **M7 deepen** continues as carry-forward until M7 exit is closed.
 
-Instrument Creator (VST3) stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
-OR-021–OR-022 and OR-024–OR-025 remain parked. Social/networking/discovery **enhancement**
-is vision-approved but **not authorised to build** until audio-core milestones land
-(Law 3) — park under IDEAS until named.
+Owner also authorised **OR-031** (release-centered discovery / pro networking) the same
+day — Law 3 still bans dating and generic social growth; OR-031 must stay music/release
+serving. Instrument Creator (VST3) stays parked. OR-021–OR-022 and OR-024–OR-025 remain
+parked.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
-### Authorised tracks (2026-08-09 C)
+### Authorised tracks (2026-08-09 deepen + M8 / OR-031)
 
-1. **M7 deepen** — device/codec translation previews (phone/car shipped; codec later).
-2. **OR-029 AI-finish analysis** — heuristic findings from measured metrics; advise when
-   DSP cannot fix; no fabricated AI detectors.
-3. **OR-020 Pack Maker V1** — sample assemble → measured ZIP → storefront handoff.
-4. **OR-030 Visualizer studio** — resolution presets (incl. experimental 8K), layer
-   toggles, audio-reactive customize. Never claim “8K delivered” unless encode WxH is
-   measured. Continuous build authorised on these tracks without further prompts until
-   the owner parks them.
+1. **M7 deepen** — device + **codec** translation previews (disclosed simulations).
+2. **OR-029 AI-finish analysis** — more Law-1 heuristic findings; no fabricated AI detectors.
+3. **OR-020 Pack Maker** — assemble polish (kind override, content checksum).
+4. **OR-030 Visualizer studio** — draft persist, measured export readout, 8K soft-fail.
+5. **M8** — checksummed release assemble package; findings cite rules; credits without collab edit.
+6. **OR-031** — release-centered discovery for lesser-known artists (no dating/swipe).
+
+Continuous build authorised on these tracks without further prompts until the owner parks
+them. Do not begin **M9** until the owner authorises it.
 
 ### Carry-forward authorisations (still in force)
 
@@ -58,20 +58,20 @@ Law 1 still governs every detector and claim.
 - **Analyzer intake desk** — 2026-08-09.
 - **OR-026–OR-028** — shipped; Correct deepen closed unless re-authorised.
 
-Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
-track remains withdrawn. The Masterplan §9 sequence is the only plan.
+Live/messaging receive no new feature work beyond OR-031’s discovery/networking scope.
+Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
 
 The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
 sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan.
 
-### Law 3 during M5
+### Law 3 + OR-031 exception
 
-Breadth is retained — VYBZ remains an operating system. Social, live, messaging, rooms,
-connect, opportunities and discovery surfaces receive **no new feature work** until audio
-core milestones land. They stay reachable and maintained; they do not grow. Bug fixes and
-shared-shell changes are permitted.
+Breadth is retained — VYBZ remains an operating system. **OR-031** (release-centered
+discovery / pro networking) is owner-authorised. Live, messaging, and rooms still receive
+**no new feature work** beyond bugfixes and shared-shell changes. Dating / romantic /
+meetup / swipe matching remain permanently out of scope.
 
 ### Exit gates must be executable
 
@@ -83,8 +83,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
-disclosed). M5 analysis suite remains landed; M6 Correct close-out + M7 kickoff are the
-active ship track. Do not begin M8 until the owner authorises it.
+disclosed). M5–M6 closed; M7 deepen + M8 assembly are the active ship track. Do not begin
+M9 until the owner authorises it.
 
 ## Safety rules
 

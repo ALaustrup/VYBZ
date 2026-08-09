@@ -13,7 +13,9 @@ import {
   buildDistributionReport,
   type DistributionReport,
 } from "@/features/distribution/buildReport";
-import type { FindingDraft } from "@vybz/domain/releases";
+import { assembleReleasePackage } from "@/features/releases/assembleReleasePackage";
+import { listCredits } from "@/features/credits/service";
+import type { FindingDraft, ReleaseBundle } from "@vybz/domain/releases";
 
 function verdictTone(v: DistributionReport["verdict"]): "success" | "warning" | "danger" | "neutral" {
   if (v === "pass") return "success";
@@ -31,6 +33,8 @@ export function DistributionReportPage() {
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<DistributionReport | null>(null);
   const [exportSha, setExportSha] = useState<string | null>(null);
+  const [assembleSha, setAssembleSha] = useState<string | null>(null);
+  const [bundle, setBundle] = useState<ReleaseBundle | null>(null);
   const [busy, setBusy] = useState(false);
   const [title, setTitle] = useState("Release");
   const [loudnessLabel, setLoudnessLabel] = useState<string>("Not measured");
@@ -46,6 +50,7 @@ export function DistributionReportPage() {
         setReport(null);
         return;
       }
+      setBundle(bundle);
       setTitle(bundle.project.title);
       const audio = bundle.assets.find((a) => a.kind === "audio");
       const art = bundle.assets.find((a) => a.kind === "artwork");
@@ -176,6 +181,35 @@ export function DistributionReportPage() {
     }
   }
 
+  async function onAssembleRelease() {
+    if (!bundle || !id) return;
+    setBusy(true);
+    try {
+      const credits = await listCredits(ownerId, id).catch(() => []);
+      const pkg = await assembleReleasePackage({ bundle, credits });
+      setAssembleSha(pkg.sha256);
+      const file = {
+        name: pkg.fileName,
+        mimeType: "application/zip",
+        blob: new Blob([new Uint8Array(pkg.bytes)], { type: "application/zip" }),
+      };
+      if (shell === "android" && platform.sharing?.shareExport) {
+        try {
+          await platform.sharing.shareExport(file);
+        } catch {
+          await platform.files.saveExport(file);
+        }
+      } else {
+        await platform.files.saveExport(file);
+      }
+      showToast(`Release package ready · SHA ${pkg.sha256.slice(0, 12)}…`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Assemble failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (loading) return <StateView variant="loading" title="Building distribution report" />;
   if (error && !report) return <StateView variant="error" title="Distribution error" body={error} />;
   if (!id || !report) return <StateView variant="empty" title="Missing release" />;
@@ -209,9 +243,23 @@ export function DistributionReportPage() {
         <Button variant="forge" loading={busy} onClick={() => void onExport()} data-testid="distribution-export">
           {shell === "desktop" ? "Export DDP stub ZIP" : shell === "android" ? "Share export" : "Download ZIP"}
         </Button>
+        <Button
+          variant="ghost"
+          loading={busy}
+          onClick={() => void onAssembleRelease()}
+          data-testid="m8-assemble"
+          disabled={!bundle}
+        >
+          Assemble release package
+        </Button>
         {exportSha ? (
           <p className="self-center text-xs text-fog" data-testid="distribution-export-sha">
-            SHA-256 {exportSha}
+            Report SHA-256 {exportSha}
+          </p>
+        ) : null}
+        {assembleSha ? (
+          <p className="self-center text-xs text-fog" data-testid="m8-assemble-sha">
+            Release SHA-256 {assembleSha}
           </p>
         ) : null}
       </div>

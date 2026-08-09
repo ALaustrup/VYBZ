@@ -291,6 +291,52 @@ describe("evaluateReadiness", () => {
     expect(f?.detail.toLowerCase()).toContain("heuristic");
   });
 
+  it("flags lossy+overprocessed and harsh/bright finish heuristics", () => {
+    const lossy = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.mp3",
+        mimeType: "audio/mpeg",
+        sizeBytes: 1000,
+        sampleRate: 44100,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -1,
+        integratedLufs: -8,
+        crestFactorDb: 4,
+        loudnessRangeLu: 2.5,
+        plrDb: 5,
+      },
+    });
+    expect(lossy.some((f) => f.code === "AUDIO_FINISH_LOSSY_OVERPROCESSED")).toBe(true);
+    expect(lossy.find((x) => x.code === "AUDIO_FINISH_LOSSY_OVERPROCESSED")?.detail.toLowerCase()).toContain(
+      "cannot restore"
+    );
+
+    const bright = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -1,
+        integratedLufs: -10,
+        crestFactorDb: 5,
+        spectralBalance: { lowShare: 0.2, midShare: 0.3, highShare: 0.5 },
+      },
+    });
+    expect(bright.some((f) => f.code === "AUDIO_FINISH_HARSH_BRIGHT")).toBe(true);
+  });
+
   it("flags intersample overshoot and mains hum when measured", () => {
     const findings = evaluateReadiness({
       title: "Song",

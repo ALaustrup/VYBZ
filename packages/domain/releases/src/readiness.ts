@@ -659,22 +659,54 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
 
   // AI-finish heuristic family — composite of already-measured metrics only (Law 1).
   // Labels generative / over-processed finishes without inventing new meters.
-  if (
+  const overprocessed =
     audio.loudnessMeasured &&
     audio.crestFactorDb != null &&
     audio.crestFactorDb < 6 &&
     audio.loudnessRangeLu != null &&
     audio.loudnessRangeLu < 4 &&
     audio.plrDb != null &&
-    audio.plrDb < 8
-  ) {
+    audio.plrDb < 8;
+
+  if (overprocessed) {
     out.push(
       finding(
         "AUDIO_FINISH_OVERPROCESSED",
         "warning",
         "audio",
         "Finish looks over-processed (heuristic)",
-        `VYBZ finish heuristic from measured crest ${audio.crestFactorDb.toFixed(1)} dB, LRA ${audio.loudnessRangeLu.toFixed(1)} LU, PLR ${audio.plrDb.toFixed(1)} dB${provenance}. Common on heavy AI/master chains — ease limiting or rebuild dynamics if the track feels flat. Not an AI detector.`
+        `VYBZ finish heuristic from measured crest ${audio.crestFactorDb!.toFixed(1)} dB, LRA ${audio.loudnessRangeLu!.toFixed(1)} LU, PLR ${audio.plrDb!.toFixed(1)} dB${provenance}. Common on heavy AI/master chains — ease limiting or rebuild dynamics if the track feels flat. Not an AI detector.`
+      )
+    );
+  }
+
+  const lossyMaster = name.endsWith(".mp3") || audio.mimeType.includes("mpeg");
+  if (overprocessed && lossyMaster) {
+    out.push(
+      finding(
+        "AUDIO_FINISH_LOSSY_OVERPROCESSED",
+        "warning",
+        "audio",
+        "Lossy master looks over-processed (heuristic)",
+        `Measured crush (crest/LRA/PLR) on an already-lossy container${provenance}. Correct cannot restore discarded codec data — re-export a WAV/FLAC from the mastering chain, then ease limiting. Not an AI detector.`
+      )
+    );
+  }
+
+  if (
+    audio.loudnessMeasured &&
+    audio.crestFactorDb != null &&
+    audio.crestFactorDb < 7 &&
+    audio.spectralBalance?.highShare != null &&
+    audio.spectralBalance.highShare >= 0.45
+  ) {
+    out.push(
+      finding(
+        "AUDIO_FINISH_HARSH_BRIGHT",
+        "warning",
+        "audio",
+        "Finish looks harsh/bright (heuristic)",
+        `High-band share measured at ${(audio.spectralBalance.highShare * 100).toFixed(0)}% with crest ${audio.crestFactorDb.toFixed(1)} dB${provenance}. Common after brighten + crush chains — check top-end and limiting by ear. Not an AI detector.`
       )
     );
   }
