@@ -24,6 +24,7 @@ Files under `docs/ai-review/runs/` record **what was seen**. They are **not** im
 
 - Read `docs/ai-review/` and Stage 1 portal docs.
 - Run `npm run ai-review` (fixture) or `npm run ai-review:prod` when env credentials are set (read-only).
+- Remote agents: `GET /api/ai-review/manifest` with `Authorization: Bearer` (`AI_REVIEW_AGENT_TOKEN`) — live product surfaces only.
 - From runs with `status: accepted_for_planning`, draft a **plan** that cites the artifact id and observation IDs.
 - The plan is new work product; the artifact did not prescribe the design.
 
