@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `main`
-**HEAD:** `66b1f44c` (merge PR #86 silence trim)
-**Working tree:** clean after STATUS checkpoint
-**Current milestone:** **M6** (DC · peak · balance · silence trim).
+**Branch:** `docs/park-producer-toolkit-or019-022`
+**HEAD:** pending commit — based on `main` @ `9c4a05ef`
+**Working tree:** dirty until commit
+**Current milestone:** **M6** + M5 depth; producer toolkit parked.
 
 ---
 
@@ -16,31 +16,30 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `66b1f44c` | Vercel SUCCESS |
-| Bundle | `index-UDkUk2Ao.js` | contains `correct-op-silence`, `m6.silence-trim` |
+| Feature tip | `66b1f44c` (PR #86 silence trim) | prior verify |
+| This branch | **NO** | docs-only; not a product deploy |
 
 ## Last completed operations
 
-| PR | Unit | State |
-|---|---|---|
-| [#84](https://github.com/ALaustrup/VYBZ/pull/84) | M6 channel balance | **DEPLOYED AND VERIFIED** |
-| [#86](https://github.com/ALaustrup/VYBZ/pull/86) | M6 silence edge trim | **DEPLOYED AND VERIFIED** |
+1. PR #86 silence trim — **DEPLOYED AND VERIFIED**.
+2. **This unit** — Park OR-019–OR-022 producer toolkit in `IDEAS_BACKLOG.md` §8.1 (assembly-first stems; pack builder; batch; archiver; library isolation). No product code.
 
-## Gate
+## Gate on this branch
 
 ```
-npm run lint / test / build — PASS (397 tests on feature tip)
+docs-only — no lint/test/build required for backlog parking
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED**.
+Delivery state: **IMPLEMENTED** (local docs) — not merged.
 
 ## Direction
 
 | Item | State |
 |---|---|
 | Authorised milestone | **M6** + M5 depth as needed |
+| Producer toolkit OR-019–022 | **Parked** — not authorised |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next authorised action | Owner-directed: chain correction ops, or M5 broadband noise / OR-013 |
+| Next authorised action | Owner-directed: continue M6/M5; do not build OR-019–022 until authorised |
 
 ## Blockers
 

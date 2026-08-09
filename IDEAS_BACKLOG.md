@@ -6,7 +6,7 @@
 > **A backlog entry is not authorisation to implement it.** Work begins only when
 > [`AGENTS.md`](./AGENTS.md) names the milestone as authorised.
 
-Last reviewed 2026-08-05.
+Last reviewed 2026-08-08.
 
 ---
 
@@ -194,3 +194,56 @@ approval and an entry in the Masterplan.
 | OR-016 | Podcast and spoken-word specific readiness rules | Idea — M8 extension |
 | OR-017 | Separate Chats section (Messages stays DMs-only; Rooms unlinked) | Parked — Artist OS Surface Overhaul 2026-08-07 |
 | OR-018 | Instrument Creator — paid one-time unlock for a full VST3 instrument design studio (native DSP / JUCE-class work; not a web placeholder) | Idea — horizon add-on; no suite rail tile until a signed plug-in exists |
+| OR-019 | Stem Maker — V1 assembly from exported stems; V2 paid/desktop source separation | Idea — parked; not authorised (see §8.1) |
+| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | Idea — parked; not authorised (see §8.1) |
+| OR-021 | Batch Processor — deepen desktop/web batch (correct, convert, report) | Idea — parked; not authorised (see §8.1) |
+| OR-022 | Project Archiver — checksummed release-project archive (not DSP delivery) | Idea — parked; not authorised (see §8.1) |
+
+### 8.1 Producer toolkit (parked 2026-08-08)
+
+Owner direction: park all four. **No suite rail tiles, routes, deps, or migrations** until
+`AGENTS.md` authorises a milestone. Masterplan §9 remains the only plan.
+
+**Library / catalog isolation (locked):** stems, loops, and pack working-set assets are
+**not** auto-ingested into the listening catalog / Library feed. No automatic `createDrop`
+or catalog publish from Stem Maker / Pack Creator. The user must **manually promote** a
+file into the catalog (or attach to a release). Release Analyzer / Library drag-in keep
+current behavior for release audio only.
+
+**Reuse (do not rebuild):** storefront sell path (`src/features/storefront/`); desktop
+batch (`src/features/processing/desktopBatchQueue.ts`); Media Converter + Correct; M8/M12
+checksummed packaging patterns.
+
+#### OR-019 — Stem Maker
+
+- **V1 (assembly):** import multi-file stem folders / named WAVs; naming conventions;
+  per-stem loudness/peak check (reuse analysis); optional DC / peak-safety from Correct;
+  package as labeled stem-set ZIP with manifest (Law 1 — measured only).
+- **V2 (separation):** cloud or desktop GPU source separation (Demucs-class); V¢ or Pro
+  entitlement; honest “AI estimate / not a DAW stem” labeling; never claim DSP delivery;
+  never a fake browser-only split.
+- **Library rule:** outputs stay in Stem workspace until user promotes.
+- **Horizon:** after M6 correction depth; assembly near M8 packaging; separation
+  desktop/cost-gated (see §0 Pro / V¢).
+
+#### OR-020 — Loops / Sample Pack Creator
+
+- Flow: ingest media → slice/normalize/tag → preview → pack layout (folders, BPM/key if
+  measured, licenses) → export ZIP → optional handoff to existing storefront uploader.
+- Not a second storefront; builder produces assets; selling stays storefront.
+- Same isolation: pack working set ≠ catalog until manual add.
+- **Horizon:** after Stem assembly patterns settle.
+
+#### OR-021 — Batch Processor
+
+- Expand beyond current portable analyze queue: multi-file Correct ops, silence trim,
+  convert-to-WAV, stem-set normalize, report CSV/JSON.
+- Prefer Platform Bridge + desktop for large files.
+- **Horizon:** deepen existing desktop batch; no second queue framework without a consumer.
+
+#### OR-022 — Project Archiver
+
+- Reproducible archive of a Release Project: audio, artwork, metadata draft, analysis
+  probes, correction renders, checksums, processing versions.
+- Distributor-adjacent packaging honesty — **not** DSP delivery (Masterplan M12).
+- **Horizon:** M8/M12 packaging lane; share manifest ideas with stem-set and pack ZIP.
