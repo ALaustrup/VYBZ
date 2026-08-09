@@ -20,6 +20,7 @@ Open [http://127.0.0.1:4173/__e2e__/ai-review](http://127.0.0.1:4173/__e2e__/ai-
 - Mock non-admin member (`@aireviewer`)  
 - Banner: read-only / no secrets  
 - `window.__VYBZ_AI_REVIEW__` MACHINE manifest  
+- **JSON endpoint (agents):** `GET http://127.0.0.1:4173/e2e/ai-review` → full MACHINE manifest (`Content-Type: application/json`), including `surfaces[]` with fixture paths. Served by Vite preview middleware only — **not** on production.
 
 Gated by `VITE_E2E_FIXTURES=on` (`npm run build:e2e` only). Production builds must pass `npm run check:no-fixtures`.
 
