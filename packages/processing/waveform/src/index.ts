@@ -61,6 +61,18 @@ export {
   type LoudnessGainResult,
 } from "./loudnessGainCorrect";
 export {
+  matchLoudnessForCompare,
+  describeMatchGains,
+  LOUDNESS_MATCH_COMPARE_VERSION,
+  type LoudnessMatchedPair,
+} from "./loudnessMatchCompare";
+export {
+  applyStreamingNormPreview,
+  STREAMING_NORM_PREVIEW_VERSION,
+  STREAMING_NORM_TARGET_LUFS,
+  type StreamingNormPreviewResult,
+} from "./streamingNormPreview";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,

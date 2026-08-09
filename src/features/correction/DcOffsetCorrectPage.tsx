@@ -1,5 +1,5 @@
 /**
- * M6 Correct — reversible ops with bypass + before/after metrics.
+ * M6 Correct — reversible ops with bypass, before/after, loudness-matched A/B.
  * Ops: DC, peak, balance, silence, hum, width, EQ, click, loudness. Local-only.
  */
 
@@ -10,6 +10,7 @@ import {
   CLICK_ATTENUATE_VERSION,
   CORRECTION_VERSION,
   LOUDNESS_GAIN_VERSION,
+  LOUDNESS_MATCH_COMPARE_VERSION,
   MAINS_HUM_CORRECT_VERSION,
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
@@ -24,6 +25,8 @@ import {
   applySilenceTrim,
   applySpectralEqAssist,
   applyStereoWidth,
+  describeMatchGains,
+  matchLoudnessForCompare,
   removeDcOffset,
   type LevelSnapshot,
 } from "@vybz/processing/waveform";
@@ -86,8 +89,13 @@ export function DcOffsetCorrectPage() {
   const [planar, setPlanar] = useState<Float32Array[] | null>(null);
   const [sampleRate, setSampleRate] = useState(48000);
   const [preview, setPreview] = useState<PreviewState | null>(null);
+  const [correctedPlanar, setCorrectedPlanar] = useState<Float32Array[] | null>(null);
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [correctedUrl, setCorrectedUrl] = useState<string | null>(null);
+  const [listenAUrl, setListenAUrl] = useState<string | null>(null);
+  const [listenBUrl, setListenBUrl] = useState<string | null>(null);
+  const [matchLoudness, setMatchLoudness] = useState(true);
+  const [matchLabel, setMatchLabel] = useState<string | null>(null);
   const [bypass, setBypass] = useState(false);
 
   useRegisterAppBar({ title: "Correct", subtitle: OP_SUBTITLE[op] }, [op]);
@@ -99,12 +107,56 @@ export function DcOffsetCorrectPage() {
     };
   }, [originalUrl, correctedUrl]);
 
-  const activeUrl = bypass ? originalUrl : correctedUrl;
+  useEffect(() => {
+    return () => {
+      if (listenAUrl) URL.revokeObjectURL(listenAUrl);
+      if (listenBUrl) URL.revokeObjectURL(listenBUrl);
+    };
+  }, [listenAUrl, listenBUrl]);
+
+  const activeUrl = matchLoudness
+    ? bypass
+      ? listenAUrl
+      : listenBUrl
+    : bypass
+      ? originalUrl
+      : correctedUrl;
 
   const metrics = useMemo(() => {
     if (!preview) return null;
     return bypass ? preview.before : preview.after;
   }, [bypass, preview]);
+
+  function buildMatchedListenUrls(
+    source: Float32Array[],
+    corrected: Float32Array[],
+    rate: number,
+  ) {
+    const pair = matchLoudnessForCompare(source, corrected, rate);
+    setMatchLabel(describeMatchGains(pair));
+    const aUrl = URL.createObjectURL(encodeWav(bufferFromPlanar(pair.a, rate)));
+    const bUrl = URL.createObjectURL(encodeWav(bufferFromPlanar(pair.b, rate)));
+    setListenAUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return aUrl;
+    });
+    setListenBUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return bUrl;
+    });
+  }
+
+  function clearMatchedListenUrls() {
+    setMatchLabel(null);
+    setListenAUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setListenBUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }
 
   function runOp(channels: Float32Array[], rate: number, chosen: CorrectOp) {
     let result: { channels: Float32Array[]; preview: PreviewState };
@@ -247,12 +299,18 @@ export function DcOffsetCorrectPage() {
 
     const outBuf = bufferFromPlanar(result.channels, rate);
     const wav = encodeWav(outBuf);
+    setCorrectedPlanar(result.channels);
     setCorrectedUrl((prev) => {
       if (prev) URL.revokeObjectURL(prev);
       return URL.createObjectURL(wav);
     });
     setPreview(result.preview);
     setBypass(false);
+    if (matchLoudness) {
+      buildMatchedListenUrls(channels, result.channels, rate);
+    } else {
+      clearMatchedListenUrls();
+    }
   }
 
   async function onFile(file: File | undefined) {
@@ -292,11 +350,24 @@ export function DcOffsetCorrectPage() {
     }
   }
 
+  function onToggleMatch() {
+    const next = !matchLoudness;
+    setMatchLoudness(next);
+    if (!planar || !correctedPlanar) return;
+    setBusy(true);
+    try {
+      if (next) buildMatchedListenUrls(planar, correctedPlanar, sampleRate);
+      else clearMatchedListenUrls();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: DC, peak, balance, silence, hum, width, EQ, click soften, or BS.1770
-        loudness gain. Bypass keeps the original. No credits charged.
+        M6 corrections with bypass and loudness-matched A/B listening. Download stays dry
+        (unmatched). No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -400,15 +471,42 @@ export function DcOffsetCorrectPage() {
 
       {preview && (
         <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="A/B preview">
+            <button
+              type="button"
+              data-testid="correct-ab-a"
+              aria-pressed={bypass}
+              onClick={() => setBypass(true)}
+              className={`btn px-3 py-2 text-sm ${bypass ? "btn-primary" : "btn-ghost"}`}
+            >
+              A · Original
+            </button>
+            <button
+              type="button"
+              data-testid="correct-ab-b"
+              aria-pressed={!bypass}
+              onClick={() => setBypass(false)}
+              className={`btn px-3 py-2 text-sm ${!bypass ? "btn-primary" : "btn-ghost"}`}
+            >
+              B · Corrected
+            </button>
+            <button
+              type="button"
+              data-testid="correct-match-loudness"
+              aria-pressed={matchLoudness}
+              onClick={onToggleMatch}
+              className={`btn px-3 py-2 text-sm ${matchLoudness ? "btn-primary" : "btn-ghost"}`}
+            >
+              {matchLoudness ? "Match loudness on" : "Match loudness off"}
+            </button>
             <button
               type="button"
               data-testid="correct-bypass"
               aria-pressed={bypass}
               onClick={() => setBypass((v) => !v)}
-              className={`btn px-3 py-2 text-sm ${bypass ? "btn-primary" : "btn-ghost"}`}
+              className="btn btn-ghost px-3 py-2 text-sm"
             >
-              {bypass ? "Bypass on · original" : "Bypass off · corrected"}
+              Toggle A/B
             </button>
             {correctedUrl && (
               <a
@@ -422,11 +520,17 @@ export function DcOffsetCorrectPage() {
             )}
             <span className="text-[11px] text-white/35">
               {fileName} · {preview.version}
+              {matchLoudness ? ` · ${LOUDNESS_MATCH_COMPARE_VERSION}` : ""}
             </span>
           </div>
 
           {activeUrl && (
             <audio key={activeUrl} controls src={activeUrl} className="w-full" data-testid="correct-player" />
+          )}
+          {matchLoudness && matchLabel && (
+            <p className="text-[12px] text-white/45" data-testid="correct-match-label">
+              Listening gains matched ({matchLabel}). Download is unmatched.
+            </p>
           )}
 
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3" data-testid="correct-metrics">
@@ -452,7 +556,10 @@ export function DcOffsetCorrectPage() {
             </div>
             <div>
               <dt className="text-[10px] uppercase text-white/35">Listening</dt>
-              <dd>{bypass ? "Original (bypass)" : "Corrected"}</dd>
+              <dd>
+                {bypass ? "A · Original" : "B · Corrected"}
+                {matchLoudness ? " · loudness-matched" : ""}
+              </dd>
             </div>
           </dl>
         </div>

@@ -3,39 +3,27 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-09
-**Branch:** `main`
-**HEAD:** `e1326a5caabe6ecf77810333cfa046fcf645f1c1`
-**Current milestone:** **M6** — OR-026 Tier B sequence **DEPLOYED**
+**Branch:** `feat/m6-closeout-m7-kickoff`
+**HEAD:** tip after commit (pre-push)
+**Current milestone:** **M7 Translation Lab** kickoff + **M6 close-out** (OR-027 / OR-028)
 
-## Production
+## Production (pre this unit)
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | Vercel alias on READY deploy |
-| Production SHA (feature settle) | `cca5759b` (includes merge `ba175612` / PR #111) | `get_deployment` `dpl_BHonf3y3nWhEHTaAx5LwHcRh33fw` READY |
-| Docs tip (this commit) | `e1326a5c` | git; Vercel may still be settling |
-| Feature merge | `ba175612` | [PR #111](https://github.com/ALaustrup/VYBZ/pull/111) MERGED |
+| Alias | https://vybz.cloud | prior |
+| Production SHA | `cca5759b` / tip may include later STATUS docs | prior READY deploy |
 
-## Last completed operation
+## This unit
 
-**OR-026** full sequence on production: hum (#108) → width (#109) → EQ (#110) → click + BS.1770 loudness (#111). Correct ops + Analyzer Fix for click / quiet / hot. Local gate: lint / test 454 / build / check:no-fixtures PASS on feature commit `18070b0b`.
+1. **OR-027 M6 close-out** — loudness-matched A/B on `/tools/correct` (`m6.loudness-match.1`); download dry; A/B + match toggle.
+2. **Owner M6 gate sign-off** — owner authorised 2026-08-09 (this session): M6 exit accepted with loudness-matched compare + existing reversible Correct ops; OR-026 enough deepen.
+3. **OR-028 M7 kickoff** — `/tools/translate` streaming −14 LUFS preview (`m7.streaming-norm.1`) with non-emulation disclosure; suite rail tile.
 
-## Deployment state
+## Gate
 
-**DEPLOYED** — production READY `dpl_BHonf3y3nWhEHTaAx5LwHcRh33fw` @ `cca5759b`.
+Pending local lint / test / build / check:no-fixtures on this branch.
 
-## Production verification
+## Next
 
-HTTP alias READY observed via Vercel API. Interactive Correct/Analyzer Fix smoke: **Not measured** in this session (auth-gated).
-
-## Working tree
-
-Clean on `main` after STATUS update for deploy evidence (this commit).
-
-## Blockers
-
-None for OR-026. Parked (do not build): OR-020–022, OR-024–025, Instrument Creator.
-
-## Next authorised action
-
-OR-026 continuous track finished. Name the next slice in AGENTS / Masterplan before further product work.
+Merge → deploy verify → record M6 **CLOSED** / M7 **ACTIVE** with production SHA.
