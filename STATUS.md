@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-09
 **Branch:** `feat/perception-engine-foundation`
-**HEAD:** `ab1ee9b6`
-**Working tree:** Perception Engine foundation implemented; awaiting owner merge authorisation
+**HEAD:** branch tip on `feat/perception-engine-foundation` (engine feature commit `ab1ee9b6`)
+**Working tree:** clean; awaiting owner merge authorisation
 **Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + Perception Engine foundation (branch)
 
 ---
