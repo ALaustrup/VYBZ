@@ -4,10 +4,10 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `feat/or019-stem-maker-v1`
-**HEAD:** pending commit — based on `main` @ `34d587f8`
-**Working tree:** dirty until commit
-**Current milestone:** **M6** + **OR-019 Stem Maker V1** (authorised).
+**Branch:** `main`
+**HEAD:** `4bd5658d` (merge PR #90 Stem Maker V1)
+**Working tree:** clean after STATUS checkpoint
+**Current milestone:** **M6** + **OR-019 Stem Maker V1**.
 
 ---
 
@@ -16,27 +16,36 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Prior tip | silence trim / docs park | PRs #86–#89 |
-| This branch | **NO** | not merged |
+| Production SHA | `4bd5658d` | Vercel SUCCESS |
+| Bundle | `index-bf1pyjxb.js` | contains `stem-maker`, `vybz.stem-set.v1`, `/tools/stems`, `or019.stem-assemble` |
 
 ## Last completed operations
 
-1. OR-019–022 parked (PR #88); owner authorised **OR-019 V1 assembly**.
-2. **This unit** — Stem Maker V1: `/tools/stems`, rail tile, assemble → measure → ZIP+manifest; optional DC/peak; no catalog ingest; no AI split.
+| PR | Unit | State |
+|---|---|---|
+| [#88](https://github.com/ALaustrup/VYBZ/pull/88) | Park OR-019–022 | **MERGED** |
+| [#90](https://github.com/ALaustrup/VYBZ/pull/90) | OR-019 Stem Maker V1 assembly | **DEPLOYED AND VERIFIED** |
 
-## Gate on this branch
+## Gate
 
 ```
-npm run lint              — PASS
-npm run test              — PASS 401/401 (80 files)
-npm run build             — PASS (prior in session)
+npm run lint / test / build — PASS (401 tests on feature tip)
 ```
 
-Delivery state: **IMPLEMENTED** (local) — not merged.
+Delivery state: **DEPLOYED AND VERIFIED**.
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised | **M6** + **OR-019 V1**; OR-020–022 and OR-019 V2 still parked |
-| Next authorised action | Merge + verify `stem-maker` on prod |
+| Authorised | **M6** + **OR-019 V1**; OR-020–022 and OR-019 V2 parked |
+| Premium-suite phase track | **WITHDRAWN** |
+| Next authorised action | Owner-directed: deepen stems, or authorise OR-020 / M5–M6 continue |
+
+## Blockers
+
+None.
+
+## Known contradictions
+
+Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety is sample-peak only — not true-peak/ISP.
