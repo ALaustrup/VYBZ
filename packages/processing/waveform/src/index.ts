@@ -44,6 +44,12 @@ export {
   type StereoWidthMode,
 } from "./stereoWidthCorrect";
 export {
+  applySpectralEqAssist,
+  SPECTRAL_EQ_VERSION,
+  type SpectralEqResult,
+  type SpectralEqMode,
+} from "./spectralEqCorrect";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,
