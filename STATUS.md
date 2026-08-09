@@ -4,9 +4,9 @@
 > Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `feat/ai-review-pipeline`
-**HEAD:** (merge in progress → tip after merge commit)
-**Working tree:** resolving STATUS vs `main` @ `ed906d47`
+**Branch:** `main`
+**HEAD:** `13a21139` (merge PR #98 AI review pipeline)
+**Working tree:** clean after STATUS checkpoint
 **Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + AI review infra
 
 ---
@@ -16,22 +16,24 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `6bb285d1` | Vercel SUCCESS (`vybz-89sf5eivx`); STATUS tip `ed906d47` docs #97 |
-| Bundle | `index-B9lRvaW5.js` | contains `Check your mix`, `analyzer-dropzone`, `Level toward streaming` |
+| Production SHA | `13a21139` | Vercel SUCCESS (`vybz-86ea873i2` / `dpl_EtzABVoF8qfSirXDHthhwP6n6e5A`) |
+| Bundle | production build of `13a21139` | AI review portal **absent** (fixture-only; `check:no-fixtures`) |
 
 ## Last completed operations
 
 | PR | Unit | State |
 |---|---|---|
+| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **DEPLOYED AND VERIFIED** (infra on main; portal via `npm run ai-review` only) |
 | [#96](https://github.com/ALaustrup/VYBZ/pull/96) | Analyzer intake desk | **DEPLOYED AND VERIFIED** |
-| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **IN REVIEW** — merge when Vercel green |
 
-## Gate (feature tip)
+## Gate
 
 ```
-npm run lint / test / build / check:no-fixtures — PASS (420 tests)
-npm run build:e2e — PASS (portal only in fixture bundle)
+npm run lint / test / build / check:no-fixtures — PASS on feature tip (420 tests)
+Vercel production — SUCCESS for 13a21139
 ```
+
+Delivery state: **DEPLOYED AND VERIFIED**.
 
 ## AI review pipeline
 
@@ -48,14 +50,14 @@ npm run ai-review
 
 | Item | State |
 |---|---|
-| Authorised | Merge #98 when checks green |
+| Authorised | Use pipeline for reviews; park product ideas in IDEAS_BACKLOG |
 | Parked | OR-020–022, OR-024–026 |
 | Stash | `wip app-bar wordmark before ai-review-pipeline` |
-| Next authorised action | After merge: smoke `npm run ai-review`; restore wordmark stash when ready |
+| Next authorised action | Owner smoke `npm run ai-review`; restore wordmark stash when ready |
 
 ## Blockers
 
-None. GitHub Actions shows systemic `BuildFailed` / startup_failure on recent mains; Vercel is the live green gate for this PR.
+None. GitHub Actions shows systemic `BuildFailed` / startup_failure on recent pushes; Vercel remains the live green gate.
 
 ## Known contradictions
 
