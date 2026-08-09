@@ -4,9 +4,9 @@
 > Update this at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-08
-**Branch:** `docs/park-producer-toolkit-or019-022`
-**HEAD:** pending commit — based on `main` @ `9c4a05ef`
-**Working tree:** dirty until commit
+**Branch:** `main`
+**HEAD:** `b0191007` (merge PR #88 park OR-019–022)
+**Working tree:** clean
 **Current milestone:** **M6** + M5 depth; producer toolkit parked.
 
 ---
@@ -16,28 +16,30 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Feature tip | `66b1f44c` (PR #86 silence trim) | prior verify |
-| This branch | **NO** | docs-only; not a product deploy |
+| Product feature tip | `66b1f44c` (PR #86 silence trim) | prior verify |
+| Docs tip | `b0191007` | PR #88 merged |
 
 ## Last completed operations
 
-1. PR #86 silence trim — **DEPLOYED AND VERIFIED**.
-2. **This unit** — Park OR-019–OR-022 producer toolkit in `IDEAS_BACKLOG.md` §8.1 (assembly-first stems; pack builder; batch; archiver; library isolation). No product code.
+| PR | Unit | State |
+|---|---|---|
+| [#86](https://github.com/ALaustrup/VYBZ/pull/86) | M6 silence edge trim | **DEPLOYED AND VERIFIED** |
+| [#88](https://github.com/ALaustrup/VYBZ/pull/88) | Park OR-019–OR-022 producer toolkit | **MERGED** (docs) |
 
-## Gate on this branch
+## Gate
 
 ```
-docs-only — no lint/test/build required for backlog parking
+docs-only for #88 — product gate unchanged from PR #86 tip
 ```
 
-Delivery state: **IMPLEMENTED** (local docs) — not merged.
+Delivery state: parking **MERGED**; product tip remains **DEPLOYED AND VERIFIED** at silence trim.
 
 ## Direction
 
 | Item | State |
 |---|---|
 | Authorised milestone | **M6** + M5 depth as needed |
-| Producer toolkit OR-019–022 | **Parked** — not authorised |
+| Producer toolkit OR-019–022 | **Parked** in IDEAS_BACKLOG §8.1 — not authorised |
 | Premium-suite phase track | **WITHDRAWN** |
 | Next authorised action | Owner-directed: continue M6/M5; do not build OR-019–022 until authorised |
 
