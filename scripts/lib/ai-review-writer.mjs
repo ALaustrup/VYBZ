@@ -84,6 +84,9 @@ export function writeRunArtifacts({
   edges,
   catalog,
   status = "draft",
+  candidates = [],
+  risks = [],
+  notes = "",
 }) {
   const runsDir = path.join(root, "docs/ai-review/runs");
   const assetsNote = `assets/${runId}/ (gitignored)`;
@@ -143,7 +146,7 @@ surfaces_touched: ${JSON.stringify(surfaces)}
 
 > Observations only. Not implementation instructions. Not authorised work.
 > Emitted by Perception Engine module \`website-review\`. Screenshots: ${assetsNote}
-
+${notes ? `>\n> ${notes}\n` : ""}
 ## Context
 
 - projectId: \`${context.projectId}\`
@@ -161,11 +164,19 @@ ${edgeBlocks}
 
 ## Candidates (optional ideas — not tasks)
 
-- (none)
+${
+  candidates.length
+    ? candidates.map((c) => `- ${c}`).join("\n")
+    : "- (none)"
+}
 
 ## Risks
 
-- Credentials must never appear in this file.
+${
+  risks.length
+    ? risks.map((r) => `- ${r}`).join("\n")
+    : "- Credentials must never appear in this file."
+}
 `;
 
   writeFileSync(mdPath, md, "utf8");
@@ -179,25 +190,31 @@ ${edgeBlocks}
   return { mdPath, jsonPath, catalogPath };
 }
 
-export function upsertIndex({ root, runId, date, appSha, status }) {
+export function upsertIndex({ root, runId, date, appSha, status, notes = "" }) {
   const indexPath = path.join(root, "docs/ai-review/INDEX.md");
-  let body = existsSync(indexPath)
-    ? readFileSync(indexPath, "utf8")
-    : "# AI review runs\n\nChronological index. Each run is an **observation log**, not a work order.\n\n| Date | Id | App SHA | Status |\n|---|---|---|---|\n";
+  const header =
+    "# AI review runs\n\nChronological index. Each run is an **observation log**, not a work order.\n\n| Date | Id | Status | App SHA | Notes |\n|---|---|---|---|---|\n";
+  let body = existsSync(indexPath) ? readFileSync(indexPath, "utf8") : header;
 
-  const row = `| ${date} | [\`${runId}\`](./runs/${runId}.md) | \`${appSha}\` | ${status} |`;
+  const noteCell = String(notes || "").replace(/\|/g, "/").slice(0, 80) || "—";
+  const row = `| ${date} | [\`${runId}\`](./runs/${runId}.md) | ${status} | \`${appSha}\` | ${noteCell} |`;
+
+  body = body.replace(/\| — \| — \| — \| — \| — \|\r?\n/, "");
+  const templateLine = "\nTemplate: [runs/_TEMPLATE.md](./runs/_TEMPLATE.md)\n";
+  body = body.replace(/\n*Template: \[runs\/_TEMPLATE\.md\][^\n]*\n?/, "\n");
+
   if (body.includes(`\`${runId}\``)) {
-    body = body.replace(new RegExp(`\\| [^|]+ \\| \\\`${runId}\\\`[^\\n]+`), row);
+    body = body.replace(
+      new RegExp(`\\| [^|\\n]+ \\| \\[\`${runId}\`\\]\\([^)]+\\) \\|[^\\n]+`),
+      row,
+    );
   } else {
-    if (!body.trimEnd().endsWith("|")) {
-      /* keep */
-    }
     if (!body.includes("| Date | Id |")) {
-      body +=
-        "\n| Date | Id | App SHA | Status |\n|---|---|---|---|\n";
+      body = header;
     }
     body = body.trimEnd() + "\n" + row + "\n";
   }
+  body = body.trimEnd() + templateLine;
   writeFileSync(indexPath, body.endsWith("\n") ? body : body + "\n", "utf8");
   return indexPath;
 }
