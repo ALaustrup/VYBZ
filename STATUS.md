@@ -5,9 +5,9 @@
 
 **Date:** 2026-08-08
 **Branch:** `main`
-**HEAD:** `4bd5658d` (merge PR #90 Stem Maker V1)
+**HEAD:** `4fa11d71` (merge PR #92 OR-023 Alpha invite keys)
 **Working tree:** clean after STATUS checkpoint
-**Current milestone:** **M6** + **OR-019 Stem Maker V1**.
+**Current milestone:** **M6** + **OR-019 Stem Maker V1** + **OR-023 Alpha invite keys**.
 
 ---
 
@@ -16,20 +16,21 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `4bd5658d` | Vercel SUCCESS |
-| Bundle | `index-bf1pyjxb.js` | contains `stem-maker`, `vybz.stem-set.v1`, `/tools/stems`, `or019.stem-assemble` |
+| Production SHA | `4fa11d71` | Vercel SUCCESS (`vybz-93y9ihoiz`) |
+| Bundle | `index-nCGjMPvr.js` | contains `redeem_invite_key`, `mint_invite_keys`, `VYBZ-A1-`, `Invite-only alpha` |
+| DB | migration `alpha_invite_keys` | applied to `xixmneooyufbeftdfpcm`; RPCs `mint_invite_keys` / `redeem_invite_key` / `has_alpha_access` present |
 
 ## Last completed operations
 
 | PR | Unit | State |
 |---|---|---|
-| [#88](https://github.com/ALaustrup/VYBZ/pull/88) | Park OR-019–022 | **MERGED** |
 | [#90](https://github.com/ALaustrup/VYBZ/pull/90) | OR-019 Stem Maker V1 assembly | **DEPLOYED AND VERIFIED** |
+| [#92](https://github.com/ALaustrup/VYBZ/pull/92) | OR-023 Alpha invite keys hard gate | **DEPLOYED AND VERIFIED** |
 
 ## Gate
 
 ```
-npm run lint / test / build — PASS (401 tests on feature tip)
+npm run lint / test / build — PASS (404 tests on feature tip)
 ```
 
 Delivery state: **DEPLOYED AND VERIFIED**.
@@ -38,9 +39,9 @@ Delivery state: **DEPLOYED AND VERIFIED**.
 
 | Item | State |
 |---|---|
-| Authorised | **M6** + **OR-019 V1**; OR-020–022 and OR-019 V2 parked |
+| Authorised | **M6** + **OR-019 V1** + **OR-023**; OR-020–022 and OR-019 V2 parked |
 | Premium-suite phase track | **WITHDRAWN** |
-| Next authorised action | Owner-directed: deepen stems, or authorise OR-020 / M5–M6 continue |
+| Next authorised action | Owner: mint giveaway batches in Admin → Invites; deepen M6 / OR-020 when authorised |
 
 ## Blockers
 
