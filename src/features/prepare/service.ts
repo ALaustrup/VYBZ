@@ -184,6 +184,7 @@ export async function createReleaseWithScan(opts: {
   title: string;
   artistName?: string | null;
   audio?: { fileName: string; mimeType: string; sizeBytes: number; probe: AudioProbe } | null;
+  /** Optional — Analyzer intake is audio-only; artwork is not required to scan. */
   artwork?: { fileName: string; mimeType: string; sizeBytes: number; probe: ArtworkProbe } | null;
   idempotencyKey?: string;
 }): Promise<ReleaseBundle> {
@@ -249,6 +250,74 @@ export async function createReleaseWithScan(opts: {
   const savedFindings = await repository.replaceFindings(opts.ownerId, project.id, findings);
   const status = deriveReleaseStatus(savedFindings);
   const updated = await repository.updateProject(opts.ownerId, project.id, { status });
+
+  return { project: updated, assets: savedAssets, findings: savedFindings };
+}
+
+/** Re-probe audio and replace findings/assets on an existing project (post auto-fix). */
+export async function rescanReleaseWithAudio(opts: {
+  ownerId: string;
+  releaseId: string;
+  title: string;
+  artistName?: string | null;
+  audio: { fileName: string; mimeType: string; sizeBytes: number; probe: AudioProbe };
+}): Promise<ReleaseBundle> {
+  const repository = getPrepareRepository();
+  const existing = await repository.getBundle(opts.ownerId, opts.releaseId);
+  if (!existing) {
+    return createReleaseWithScan({
+      ownerId: opts.ownerId,
+      title: opts.title,
+      artistName: opts.artistName,
+      audio: opts.audio,
+      idempotencyKey: crypto.randomUUID(),
+    });
+  }
+
+  const assets: Omit<ReleaseAsset, "createdAt">[] = [
+    {
+      id: newId(),
+      releaseId: opts.releaseId,
+      ownerId: opts.ownerId,
+      kind: "audio",
+      fileName: opts.audio.fileName,
+      mimeType: opts.audio.mimeType,
+      sizeBytes: opts.audio.sizeBytes,
+      checksum: null,
+      probe: opts.audio.probe as unknown as Record<string, unknown>,
+    },
+  ];
+  const savedAssets = await repository.replaceAssets(opts.ownerId, opts.releaseId, assets);
+
+  const drafts = evaluateReadiness({
+    title: opts.title || existing.project.title,
+    artistName: opts.artistName ?? existing.project.artistName,
+    hasAudio: true,
+    hasArtwork: false,
+    audio: opts.audio.probe,
+    artwork: null,
+  });
+
+  const findings: Omit<ReleaseFinding, "createdAt" | "updatedAt">[] = drafts.map((d) => ({
+    id: newId(),
+    releaseId: opts.releaseId,
+    ownerId: opts.ownerId,
+    assetId: null,
+    code: d.code,
+    severity: d.severity,
+    category: d.category,
+    title: d.title,
+    detail: d.detail,
+    status: "open",
+  }));
+
+  const savedFindings = await repository.replaceFindings(opts.ownerId, opts.releaseId, findings);
+  const status = deriveReleaseStatus(savedFindings);
+  const updated = await repository.updateProject(opts.ownerId, opts.releaseId, {
+    status,
+    title: opts.title || existing.project.title,
+    artistName: opts.artistName ?? existing.project.artistName,
+  });
 
   return { project: updated, assets: savedAssets, findings: savedFindings };
 }

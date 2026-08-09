@@ -51,9 +51,11 @@ describe("pending audio store", () => {
   });
 
   it("evicts the oldest entry so a long session cannot grow without bound", () => {
-    for (const id of ["r1", "r2", "r3", "r4"]) stashPendingAudio(entry(id));
+    // Cap is 20 (Analyzer batch size) — the 21st evicts the oldest.
+    for (let i = 1; i <= 21; i++) stashPendingAudio(entry(`r${i}`));
     expect(peekPendingAudio("r1")).toBeNull();
-    expect(peekPendingAudio("r4")?.fileName).toBe("r4.wav");
+    expect(peekPendingAudio("r21")?.fileName).toBe("r21.wav");
+    expect(peekPendingAudio("r2")?.fileName).toBe("r2.wav");
   });
 
   it("holds no persistent copy — a fresh module state has nothing", () => {

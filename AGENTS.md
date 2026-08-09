@@ -43,6 +43,10 @@ invite keys, redeem RPC, Admin mint/CSV, App shell blocked until
 `profiles.alpha_access_at` or admin. Existing profiles grandfathered. Waitlist stays
 notify-only.
 
+Owner authorised **2026-08-09** **Analyzer intake desk** — `/releases` audio-only drop
+(up to 20, CPU-aware workers), live triage, Tier A auto-fix + A/B preview, Add to
+Library; no cover in Analyzer. OR-024–OR-026 parked in `IDEAS_BACKLOG.md` §8.3.
+
 Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
 track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
