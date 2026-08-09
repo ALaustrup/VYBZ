@@ -4,16 +4,16 @@
 
 **Date:** 2026-08-09
 **Branch:** `main`
-**HEAD:** *(this tip after docs push)*
-**Current milestone:** **M9 — VDock Completion** (kickoff wedge MERGED)
+**HEAD:** `bb3df0a2c122c042726f91423f5104868b58cfa2`
+**Current milestone:** **M9 — VDock Completion** kickoff **DEPLOYED**
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | Vercel aliases |
-| Feature merge SHA | `9794f56cafdea673b9b8b69e089d04ea1e1837d9` | [PR #115](https://github.com/ALaustrup/VYBZ/pull/115) MERGED |
-| Production deploy | Pending this tip / merge | Prior READY was `90c510ee` (`dpl_A1LA9eHb…`); merge webhook lag observed |
+| Alias | https://vybz.cloud | Vercel READY aliases |
+| Production SHA | `bb3df0a2` (includes M9 feature merge `9794f56c`) | `dpl_cZVSza75Nu8U6QfAu3dLLpSgqrsG` READY |
+| Feature PR | [PR #115](https://github.com/ALaustrup/VYBZ/pull/115) | MERGED |
 
 ## Last completed operations
 
@@ -26,11 +26,11 @@
 
 ## Deployment state
 
-**MERGED** — awaiting production READY for `9794f56c` or this STATUS tip.
+**DEPLOYED** — production READY @ `bb3df0a2` (M9 code from `9794f56c`).
 
 ## Production verification
 
-Interactive smoke: **Not measured** (auth-gated).
+Vercel READY. Interactive smoke: **Not measured** (auth-gated).
 
 ## Blockers / parked
 
@@ -38,4 +38,4 @@ OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature grow
 
 ## Next authorised action
 
-Continue M9 deepen (MediaSession caps, route disclosed sims through AudioBus) + M7/M8/OR polish without further prompts. Do not begin M10 until named.
+Continue M9 deepen (MediaSession, route disclosed sims through AudioBus) + M7/M8/OR polish without further prompts. Do not begin M10 until named.
