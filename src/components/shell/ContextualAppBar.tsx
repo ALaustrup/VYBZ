@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Disc3, Plus, Search, Upload } from "lucide-react";
 import { BrandMark } from "@/components/Brand";
+import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
 import { chromeForPath } from "@/lib/appBarChrome";
 import { useAppBarBridge } from "@/lib/appBarBridge";
 import { usePlayer } from "@/lib/audioBus";
@@ -12,7 +13,7 @@ import { cx } from "@/lib/utils";
 import { openCommandPalette } from "@/shell/commandPaletteStore";
 
 /**
- * Soft frosted top bar — page title · centered brand · search/upload.
+ * Soft frosted top bar — VYBZ wordmark · centered brand mark · search/upload.
  * Track titles belong on VDock / Now Playing rail, never here.
  */
 export function ContextualAppBar({
@@ -32,12 +33,8 @@ export function ContextualAppBar({
   const [uploadOpen, setUploadOpen] = useState(false);
   const uploadRef = useRef<HTMLDivElement>(null);
 
-  const pageTitle =
-    bridge.title ??
-    (chrome.title && chrome.title !== "Home" ? chrome.title : "Music");
-
   useEffect(() => {
-    document.title = player.track ? `${player.track.title} · VYBZ` : "VYBZ — Release intelligence";
+    document.title = player.track ? `${player.track.title} · VYBZ` : "VYBZ";
   }, [pathname, player.track?.title]);
 
   useEffect(() => {
@@ -79,18 +76,7 @@ export function ContextualAppBar({
               <ArrowLeft className="h-4 w-4" />
             </button>
           ) : null)}
-          <div className="min-w-0 pl-0.5">
-            <p className="truncate nexus-headline text-[15px] sm:text-[16px]">{pageTitle}</p>
-            {(bridge.subtitle || chrome.subtitle) ? (
-              <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/40">
-                {bridge.subtitle ?? chrome.subtitle}
-              </p>
-            ) : (
-              <p className="truncate nexus-eyebrow !text-[10px] !tracking-[0.14em] text-white/40">
-                Release intelligence
-              </p>
-            )}
-          </div>
+          <AppBarWordmark className="min-w-0 pl-0.5" />
         </div>
 
         <button

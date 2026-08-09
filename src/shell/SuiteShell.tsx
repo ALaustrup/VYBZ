@@ -4,7 +4,6 @@ import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
-import { MobileNav } from "@/shell/MobileNav";
 import { PrimaryRail } from "@/shell/PrimaryRail";
 import { SuiteAppRail, SuiteAppRailMobile } from "@/shell/SuiteAppRail";
 import { shellModeClass } from "@/shell/shellMode";
@@ -42,8 +41,8 @@ export function SuiteShell({
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
         )}
+        {/* Narrow viewports: horizontal suite apps. Desktop: SuiteAppRail (right). */}
         <SuiteAppRailMobile />
-        <MobileNav />
         {showCommandBar ? <CommandBar /> : null}
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <main className="suite-stage suite-stage-frame">
