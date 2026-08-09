@@ -26,30 +26,32 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M5 — Advanced Analysis Suite** remains active alongside the Suite Apps IA slice.
-Owner authorised **2026-08-08** Wave 1 deepen + M5 click/pop, and pre-authorised
-**M6** kickoff after A+B deploy verify. M6 kickoff is DC-offset correction at
-`/tools/correct` (bypass + before/after) — not a full mastering suite.
+**M7 — Translation Lab** is the active Masterplan milestone (kickoff authorised
+**2026-08-09**). M6 Correct close-out (loudness-matched A/B + owner gate sign-off) is
+authorised on the same date; OR-026 Tier B is enough Correct deepen — no further Tier B
+ops without a new authorisation.
 
 Instrument Creator (VST3) stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
 
-Owner authorised **2026-08-08** **OR-019 Stem Maker V1 (assembly only)** — import
-exported stems, measured per-stem metrics, optional Correct ops, ZIP + manifest; no
-auto-catalog ingest; no AI source separation (V2 stays parked). **OR-020–OR-022** remain
-parked in `IDEAS_BACKLOG.md` §8.1 until separately authorised.
+### Carry-forward authorisations (still in force)
 
-Owner authorised **2026-08-08** **OR-023 Alpha invite keys (hard gate)** — hashed
-invite keys, redeem RPC, Admin mint/CSV, App shell blocked until
-`profiles.alpha_access_at` or admin. Existing profiles grandfathered. Waitlist stays
-notify-only.
+- **OR-019 Stem Maker V1** (assembly only) — 2026-08-08; V2 / OR-020–022 parked.
+- **OR-023 Alpha invite keys** — 2026-08-08.
+- **Analyzer intake desk** — 2026-08-09; OR-024–OR-025 parked.
+- **OR-026** — shipped 2026-08-09 (#108–#111); closed for deepen unless re-authorised.
 
-Owner authorised **2026-08-09** **Analyzer intake desk** — `/releases` audio-only drop
-(up to 20, CPU-aware workers), live triage, Tier A auto-fix + A/B preview, Add to
-Library; no cover in Analyzer. OR-024–OR-025 parked in `IDEAS_BACKLOG.md` §8.3.
+### M6 close-out (authorised 2026-08-09)
 
-Owner authorised **2026-08-09** **OR-026 Correct deepen** — Tier B sequence
-(hum → width → EQ → click → BS.1770 gain-to-target) shipping on that track; continuous
-build authorised without further prompts for this track.
+Loudness-matched A/B listening on `/tools/correct` (download stays dry). Owner gate
+sign-off recorded in `STATUS.md` when the close-out unit merges and deploys. Full AI
+mastering suite is still out of scope for M6.
+
+### M7 kickoff (authorised 2026-08-09)
+
+Translation Lab at `/tools/translate` — streaming-oriented −14 LUFS preview with
+explicit “not platform emulation” disclosure. Codec / device contexts deepen later on
+this track. Continuous build authorised for M7 kickoff without further prompts until the
+owner parks or closes the milestone.
 
 Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
 track remains withdrawn. The Masterplan §9 sequence is the only plan.
@@ -70,13 +72,14 @@ shared-shell changes are permitted.
 
 A gate written only in prose cannot fail a build. Where a gate can be expressed as a test,
 it must be, and the test must cite the gate. References: `src/app/routeTruth.test.ts` (M3),
-`src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5).
+`src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5),
+`src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7).
 
 ### Carry-forward
 
-M1–M3 closed as previously recorded. M4 Measurement Integrity is **DEPLOYED AND VERIFIED**
-with native desktop BS.1770 still disclosed as approx-pending. Do not begin M6 until the
-owner authorises it.
+M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
+disclosed). M5 analysis suite remains landed; M6 Correct close-out + M7 kickoff are the
+active ship track. Do not begin M8 until the owner authorises it.
 
 ## Safety rules
 

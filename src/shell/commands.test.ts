@@ -153,7 +153,7 @@ describe("rankCommands", () => {
     // A query matching a single unavailable command still returns it, rather
     // than hiding the destination the user asked for.
     const onLibrary = buildCommands(ctx({ currentPath: "/library" }));
-    const ranked = rankCommands(onLibrary, "lib");
+    const ranked = rankCommands(onLibrary, "librar");
     expect(ranked.map((c) => c.to)).toEqual(["/library"]);
   });
 

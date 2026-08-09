@@ -6,6 +6,7 @@ import {
   CLICK_ATTENUATE_VERSION,
   CORRECTION_VERSION,
   LOUDNESS_GAIN_VERSION,
+  LOUDNESS_MATCH_COMPARE_VERSION,
   MAINS_HUM_CORRECT_VERSION,
   PEAK_SAFETY_CEILING_LINEAR,
   PEAK_SAFETY_VERSION,
@@ -17,6 +18,7 @@ import {
   applyPeakSafety,
   applySilenceTrim,
   applyStereoWidth,
+  matchLoudnessForCompare,
   SPECTRAL_EQ_VERSION,
   STEREO_WIDTH_VERSION,
   removeDcOffset,
@@ -42,6 +44,7 @@ describe("M6 correction gate", () => {
     expect(SPECTRAL_EQ_VERSION).toMatch(/^m6\./);
     expect(CLICK_ATTENUATE_VERSION).toMatch(/^m6\./);
     expect(LOUDNESS_GAIN_VERSION).toMatch(/^m6\./);
+    expect(LOUDNESS_MATCH_COMPARE_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -118,8 +121,27 @@ describe("M6 correction gate", () => {
     expect(page).toContain("correct-op-eq");
     expect(page).toContain("correct-op-click");
     expect(page).toContain("correct-op-loudness");
+    expect(page).toContain("correct-ab-a");
+    expect(page).toContain("correct-ab-b");
+    expect(page).toContain("correct-match-loudness");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
+  });
+
+  it("loudness-matched A/B is reproducible and lowers the louder side", () => {
+    const sr = 48000;
+    const n = Math.floor(3 * sr);
+    const quiet = new Float32Array(n);
+    const loud = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const s = Math.sin((2 * Math.PI * 1000 * i) / sr);
+      quiet[i] = s * 0.02;
+      loud[i] = s * 0.25;
+    }
+    const first = matchLoudnessForCompare([quiet], [loud], sr);
+    const second = matchLoudnessForCompare([quiet], [loud], sr);
+    expect(first.b).toEqual(second.b);
+    expect(first.bGainDb).toBeLessThan(0);
   });
 
   it("click attenuate is reproducible and non-destructive", () => {

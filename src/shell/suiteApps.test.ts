@@ -12,6 +12,7 @@ describe("suiteApps", () => {
         "midi-maker",
         "media-converter",
         "correct",
+        "translate",
         "stem-maker",
         "library",
         "codex",
@@ -29,6 +30,7 @@ describe("suiteApps", () => {
     expect(activeSuiteAppId("/tools/midi")).toBe("midi-maker");
     expect(activeSuiteAppId("/tools/convert")).toBe("media-converter");
     expect(activeSuiteAppId("/tools/correct")).toBe("correct");
+    expect(activeSuiteAppId("/tools/translate")).toBe("translate");
     expect(activeSuiteAppId("/tools/stems")).toBe("stem-maker");
   });
 });
