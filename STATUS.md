@@ -4,10 +4,10 @@
 > Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `feat/perception-engine-foundation`
-**HEAD:** branch tip on `feat/perception-engine-foundation` (engine feature commit `ab1ee9b6`)
-**Working tree:** clean; awaiting owner merge authorisation
-**Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + Perception Engine foundation (branch)
+**Branch:** `docs/status-pr100-perception`
+**HEAD:** (tip after this checkpoint commit)
+**Working tree:** STATUS checkpoint for PR #100
+**Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + Perception Engine foundation
 
 ---
 
@@ -15,52 +15,47 @@
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | live |
-| Production SHA | `13a21139` | Prior STATUS / Vercel SUCCESS for AI review pipeline merge |
-| Bundle | production build of `13a21139` | AI review portal **absent** (fixture-only; `check:no-fixtures`) |
+| Alias | https://vybz.cloud | live alias on READY deploy |
+| Production SHA | `e2fef3f4` | Vercel READY `dpl_8TezF4fTgUPua9ivGpjoRs4LQDKS` / `vybz-6ujpla69s` |
+| Bundle | production build of merge PR #100 | Perception Engine is domain code (no fixture portal); `check:no-fixtures` PASS on feature tip |
 
 ## Last completed operations
 
-| PR / branch | Unit | State |
+| PR | Unit | State |
 |---|---|---|
-| `feat/perception-engine-foundation` | Perception Engine + website-review module + `ai-review:prod` | **IMPLEMENTED LOCALLY** — validations PASS; **not merged** |
-| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **DEPLOYED AND VERIFIED** on production |
+| [#100](https://github.com/ALaustrup/VYBZ/pull/100) | Perception Engine foundation + website-review + `ai-review:prod` | **DEPLOYED AND VERIFIED** |
+| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **DEPLOYED AND VERIFIED** |
 | [#96](https://github.com/ALaustrup/VYBZ/pull/96) | Analyzer intake desk | **DEPLOYED AND VERIFIED** |
 
-## Gate (this branch)
+## Gate
 
 ```
-npm run lint  — PASS (tsc --noEmit)
-npm run test  — PASS (430 tests; +10 perceptionEngineGate)
-npm run build — PASS
-npm run check:no-fixtures — PASS (12 markers absent from dist/)
+npm run lint / test / build / check:no-fixtures — PASS on feature tip (430 tests)
+Vercel production — READY for e2fef3f4 (dpl_8TezF4fTgUPua9ivGpjoRs4LQDKS)
 ```
 
-Delivery state for this unit: **IMPLEMENTED LOCALLY** (awaiting owner go-ahead to push/PR/merge).
+Delivery state: **DEPLOYED AND VERIFIED**.
 
-## Perception Engine (branch)
+## Perception Engine
 
-- Contracts: `src/perception/` — Observation, Origin, PerceptionContext, Perception Graph, Registry, catalog, pluggable `NoopModelProvider`
-- Entity layer: type + docs only (`entityId` reserved) — not populated
-- Modules: `website-review` (first); `audio-stub` / `image-stub` (zero collectors)
-- Docs: `docs/perception/` + updated `docs/ai-review/`
-- Cursor rules: `.cursor/rules/perception-engine.mdc`, updated `ai-review-pipeline.mdc`
-- Live walker: `npm run ai-review:prod` (env `AI_REVIEW_EMAIL` / `AI_REVIEW_PASSWORD`) — **not smoke-run** in this checkpoint (credentials not exercised)
-
-Linear roadmap: Phase 0 shipped → 1B identity accepted → Phase 2 engine (this) → Phase 3 prod walker script (this) → later audio/image/cross-media parked.
+- Contracts: `src/perception/` — Observation, Origin, PerceptionContext, Perception Graph, Registry, catalog, `NoopModelProvider`
+- Entity layer: type + docs only (`entityId` reserved)
+- Modules: `website-review` first; audio/image stubs (zero collectors)
+- Docs: `docs/perception/` + `docs/ai-review/`; Cursor rules updated
+- Live walker: `npm run ai-review:prod` (env credentials) — optional owner smoke remaining
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised | Implement Perception Engine foundation on branch; stop before merge |
+| Authorised | Use Perception Engine / AI review pipeline; park product ideas in IDEAS_BACKLOG |
 | Parked | OR-020–022, OR-024–026; audio/image perception algorithms; real LLM providers; billing tiers |
-| Stash | `wip app-bar wordmark before ai-review-pipeline` — **untouched** |
-| Next authorised action | Owner: review branch → authorise push/PR/merge; optional smoke `ai-review:prod` with env |
+| Stash | `wip app-bar wordmark before ai-review-pipeline` — untouched |
+| Next authorised action | Optional smoke `npm run ai-review:prod`; restore wordmark stash when ready |
 
 ## Blockers
 
-None for local validation. Merge blocked pending owner go-ahead.
+None. GitHub Actions remains systemic flaky; Vercel is the live green gate.
 
 ## Known contradictions
 
