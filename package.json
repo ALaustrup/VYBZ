@@ -21,6 +21,7 @@
     "build": "tsc --noEmit && vite build",
     "build:web": "npm run build",
     "build:e2e": "node scripts/build-e2e.mjs",
+    "ai-review": "node scripts/ai-review.mjs",
     "check:no-fixtures": "node scripts/check-no-e2e-fixtures.mjs",
     "build:desktop:windows": "node scripts/build-desktop-windows.mjs",
     "build:desktop:macos": "node scripts/build-desktop-macos.mjs",

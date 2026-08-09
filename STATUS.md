@@ -1,13 +1,13 @@
 ﻿# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
-> Update this at the end of any unit of work. If it is stale, it is wrong.
+> Update it at the end of any unit of work. If it is stale, it is wrong.
 
-**Date:** 2026-08-08
-**Branch:** `main`
-**HEAD:** `246234b9` (merge PR #94 master password lock)
-**Working tree:** clean after STATUS checkpoint
-**Current milestone:** **M6** + **OR-019** + **OR-023** + master password lock.
+**Date:** 2026-08-09
+**Branch:** `feat/ai-review-pipeline`
+**HEAD:** (uncommitted) tip based on `main` @ `6bb285d1`
+**Working tree:** dirty — AI review pipeline Stages 1–3
+**Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + AI review infra
 
 ---
 
@@ -16,33 +16,47 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `246234b9` | Vercel SUCCESS (`vybz-bgrst89ra`) |
-| Bundle | `index-YfO5dPBd.js` | contains `Set master password`, `lock_account_password`, `andrewiguess@gmail.com` |
-| Auth users | 1 | only `andrewiguess@gmail.com` (admin); others wiped under owner override 2026-08-08 |
-| Password lock | `password_locked_at` null until master locks | migration `master_password_lock` applied |
+| Production SHA | `6bb285d1` | Vercel SUCCESS (pre-pipeline; main unchanged) |
+| Bundle | (unchanged on prod) | pipeline not deployed |
 
 ## Last completed operations
 
-| PR | Unit | State |
-|---|---|---|
-| [#92](https://github.com/ALaustrup/VYBZ/pull/92) | OR-023 Alpha invite keys | **DEPLOYED AND VERIFIED** |
-| [#94](https://github.com/ALaustrup/VYBZ/pull/94) | Master password lock screen | **DEPLOYED AND VERIFIED** |
+| Unit | State |
+|---|---|
+| AI review pipeline (Stages 1–3) | **CODED · LOCAL VALIDATED** — not merged |
+| PR #96 Analyzer intake desk | **DEPLOYED AND VERIFIED** on main |
 
-## Gate
+## Gate (this branch)
 
 ```
-npm run lint / test / build — PASS (406 tests on feature tip)
+npm run lint — PASS
+npm run test — PASS (420)
+npm run build && npm run check:no-fixtures — PASS (ai-review markers absent from prod dist)
+npm run build:e2e — PASS (portal present in fixture bundle)
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED**.
+Delivery state: **CODED** (engineering infra; never a production feature).
+
+## AI review pipeline (how to run)
+
+```
+npm run ai-review
+→ http://127.0.0.1:4173/__e2e__/ai-review
+```
+
+- Stage 1: fixture portal (read-only)
+- Stage 2: observation artifacts → `docs/ai-review/`
+- Stage 3: Cursor rule `.cursor/rules/ai-review-pipeline.mdc` — plans from observations; implement only with explicit owner approval
+- **artifact ≠ build order**
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised | **M6** + **OR-019 V1** + **OR-023**; OR-020–022 and OR-019 V2 parked |
-| Premium-suite phase track | **WITHDRAWN** |
-| Next authorised action | Owner: sign in → lock master password on screen; then mint invite batches |
+| Authorised | Merge AI review pipeline when owner approves PR |
+| Parked | OR-020–022, OR-024–026 |
+| Stash | `wip app-bar wordmark before ai-review-pipeline` on prior branch |
+| Next authorised action | Owner smoke `npm run ai-review`; approve PR / restore wordmark stash separately |
 
 ## Blockers
 
@@ -50,4 +64,4 @@ None.
 
 ## Known contradictions
 
-Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety is sample-peak only — not true-peak/ISP.
+Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety is sample-peak only — not true-peak/ISP. Leveling auto-fix uses RMS proxy toward −14, not full BS.1770 gain-to-target.

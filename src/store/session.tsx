@@ -34,6 +34,70 @@ interface SessionState {
 
 const Ctx = createContext<SessionState | null>(null);
 
+/**
+ * Fixture / AI-review only — supplies a fixed non-admin alpha member session.
+ * Production `SessionProvider` is unchanged. Do not import from product routes.
+ */
+export function FixtureSessionProvider({
+  children,
+  profile,
+  userId = "00000000-0000-4000-a000-0000000000ai",
+  email = "ai-reviewer@vybz.demo",
+}: {
+  children: ReactNode;
+  profile: Profile;
+  userId?: string;
+  email?: string;
+}) {
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [celebration, setCelebration] = useState<CelebrationState | null>(null);
+  const tokenRef = useRef(0);
+  const showToast = useCallback((text: string) => {
+    tokenRef.current += 1;
+    setToast({ text, token: tokenRef.current });
+  }, []);
+  const celebrate = useCallback((label: string) => {
+    tokenRef.current += 1;
+    setCelebration({ label, token: tokenRef.current });
+  }, []);
+  const clearCelebration = useCallback(() => setCelebration(null), []);
+  const noopAsync = useCallback(async () => undefined, []);
+  const value = useMemo<SessionState>(
+    () => ({
+      ready: true,
+      userId,
+      email,
+      profile,
+      onboarded: !!profile.username,
+      backendEnabled: false,
+      signUp: async () => ({ error: "AI review: read-only" }),
+      signIn: async () => ({ error: "AI review: read-only" }),
+      signOut: noopAsync,
+      refreshProfile: noopAsync,
+      toast,
+      showToast,
+      celebration,
+      celebrate,
+      clearCelebration,
+      unread: 0,
+      refreshUnread: noopAsync,
+      markNotificationsRead: noopAsync,
+    }),
+    [
+      userId,
+      email,
+      profile,
+      toast,
+      showToast,
+      celebration,
+      celebrate,
+      clearCelebration,
+      noopAsync,
+    ],
+  );
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);

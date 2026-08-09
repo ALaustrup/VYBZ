@@ -1,4 +1,11 @@
 import type { ReactElement } from "react";
+import { Navigate } from "react-router-dom";
+import { AiReviewPortal } from "@/app/aiReview/AiReviewPortal";
+import {
+  AI_REVIEW_BASE,
+  AI_REVIEW_SESSION_KEY,
+  productPathToAiReview,
+} from "@/app/aiReview/machineManifest";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { BRAND_BG } from "@/lib/surfaceTheme";
 import { FLAGS } from "@/lib/flags";
@@ -22,6 +29,16 @@ import { TrackDetailE2EFixturePage } from "@/pages/TrackDetailE2EFixturePage";
  * away. `scripts/check-no-e2e-fixtures.mjs` asserts that in CI.
  */
 export function resolveE2eFixture(pathname: string): ReactElement | null {
+  if (pathname === AI_REVIEW_BASE || pathname.startsWith(`${AI_REVIEW_BASE}/`)) {
+    return <AiReviewPortal />;
+  }
+
+  // While an AI review session is active, suite rail links stay inside the portal.
+  if (isAiReviewSessionActive()) {
+    const mapped = productPathToAiReview(pathname);
+    if (mapped) return <Navigate to={mapped} replace />;
+  }
+
   switch (pathname) {
     case "/__e2e__/mastering":
       return <MasteringE2EFixturePage />;
@@ -45,6 +62,14 @@ export function resolveE2eFixture(pathname: string): ReactElement | null {
       return FLAGS.storefront ? <StorefrontOrdersE2EFixtureShell /> : null;
     default:
       return null;
+  }
+}
+
+function isAiReviewSessionActive(): boolean {
+  try {
+    return sessionStorage.getItem(AI_REVIEW_SESSION_KEY) === "1";
+  } catch {
+    return false;
   }
 }
 
