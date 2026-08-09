@@ -5,8 +5,8 @@
 
 **Date:** 2026-08-09
 **Branch:** `feat/ai-review-pipeline`
-**HEAD:** (uncommitted) tip based on `main` @ `6bb285d1`
-**Working tree:** dirty — AI review pipeline Stages 1–3
+**HEAD:** (merge in progress → tip after merge commit)
+**Working tree:** resolving STATUS vs `main` @ `ed906d47`
 **Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + AI review infra
 
 ---
@@ -16,51 +16,46 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `6bb285d1` | Vercel SUCCESS (pre-pipeline; main unchanged) |
-| Bundle | (unchanged on prod) | pipeline not deployed |
+| Production SHA | `6bb285d1` | Vercel SUCCESS (`vybz-89sf5eivx`); STATUS tip `ed906d47` docs #97 |
+| Bundle | `index-B9lRvaW5.js` | contains `Check your mix`, `analyzer-dropzone`, `Level toward streaming` |
 
 ## Last completed operations
 
-| Unit | State |
-|---|---|
-| AI review pipeline (Stages 1–3) | **CODED · LOCAL VALIDATED** — not merged |
-| PR #96 Analyzer intake desk | **DEPLOYED AND VERIFIED** on main |
+| PR | Unit | State |
+|---|---|---|
+| [#96](https://github.com/ALaustrup/VYBZ/pull/96) | Analyzer intake desk | **DEPLOYED AND VERIFIED** |
+| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **IN REVIEW** — merge when Vercel green |
 
-## Gate (this branch)
+## Gate (feature tip)
 
 ```
-npm run lint — PASS
-npm run test — PASS (420)
-npm run build && npm run check:no-fixtures — PASS (ai-review markers absent from prod dist)
-npm run build:e2e — PASS (portal present in fixture bundle)
+npm run lint / test / build / check:no-fixtures — PASS (420 tests)
+npm run build:e2e — PASS (portal only in fixture bundle)
 ```
 
-Delivery state: **CODED** (engineering infra; never a production feature).
-
-## AI review pipeline (how to run)
+## AI review pipeline
 
 ```
 npm run ai-review
 → http://127.0.0.1:4173/__e2e__/ai-review
 ```
 
-- Stage 1: fixture portal (read-only)
-- Stage 2: observation artifacts → `docs/ai-review/`
-- Stage 3: Cursor rule `.cursor/rules/ai-review-pipeline.mdc` — plans from observations; implement only with explicit owner approval
-- **artifact ≠ build order**
+- Stage 1: fixture portal (read-only, never production)
+- Stage 2: observation artifacts → `docs/ai-review/` (**artifact ≠ build order**)
+- Stage 3: `.cursor/rules/ai-review-pipeline.mdc` — plans from observations; implement only with explicit owner approval
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised | Merge AI review pipeline when owner approves PR |
+| Authorised | Merge #98 when checks green |
 | Parked | OR-020–022, OR-024–026 |
-| Stash | `wip app-bar wordmark before ai-review-pipeline` on prior branch |
-| Next authorised action | Owner smoke `npm run ai-review`; approve PR / restore wordmark stash separately |
+| Stash | `wip app-bar wordmark before ai-review-pipeline` |
+| Next authorised action | After merge: smoke `npm run ai-review`; restore wordmark stash when ready |
 
 ## Blockers
 
-None.
+None. GitHub Actions shows systemic `BuildFailed` / startup_failure on recent mains; Vercel is the live green gate for this PR.
 
 ## Known contradictions
 
