@@ -1,14 +1,21 @@
 // ---------------------------------------------------------------------------
-// AudioBus — the single, global audio engine for VYBZ (§6.5 architecture).
+// AudioBus — the single, global audio engine for VYBZ (M9 / Law 5).
 //
-// HARD RULE: the play element always owns speaker output.
+// HARD RULE: the play element always owns speaker output — dry HTMLAudioElement.
 // We do NOT call createMediaElementSource or captureStream on it — both have
 // muted Bunny/CDN playback in Chromium (especially after ambient blob wiring).
-// Visualizers fall back to time-based motion when no analyser is available.
+// We never attach BiquadFilter / DynamicsCompressor / OfflineAudioContext to the
+// play path. Visualizers fall back to time-based motion (disclosed reactivity).
 // ---------------------------------------------------------------------------
 
 import { useSyncExternalStore } from "react";
 import type { PlaybackCustomization } from "@/lib/playbackCustomization";
+import {
+  resolveTrackSignal,
+  type PlaybackSignal,
+} from "@/lib/vdock/playbackSignal";
+
+export type { PlaybackSignal } from "@/lib/vdock/playbackSignal";
 
 export interface PlayerTrack {
   id: string;
@@ -26,6 +33,8 @@ export interface PlayerTrack {
   accent?: string;
   fx?: string;
   playback?: PlaybackCustomization;
+  /** M9 playback signal — ambient/simulation must disclose. */
+  signal?: PlaybackSignal;
 }
 
 export interface PlayerSnapshot {
@@ -39,6 +48,8 @@ export interface PlayerSnapshot {
   queueIndex: number;
   queueLength: number;
   lastError: number | null;
+  /** Resolved from track.signal (or heuristics). Null when idle. */
+  signal: PlaybackSignal | null;
 }
 
 const EMPTY: PlayerSnapshot = {
@@ -52,6 +63,7 @@ const EMPTY: PlayerSnapshot = {
   queueIndex: -1,
   queueLength: 0,
   lastError: null,
+  signal: null,
 };
 
 const VOL_KEY = "vybz.player.volume";
@@ -266,6 +278,7 @@ export function loadQueue(
     queueLength: queue.length,
     playing: false,
     lastError: null,
+    signal: resolveTrackSignal(track),
   });
   el.src = track.url;
   el.volume = snapshot.muted ? 0 : snapshot.volume;
@@ -304,6 +317,7 @@ export function playTrack(track: PlayerTrack, list?: PlayerTrack[]) {
     queueLength: queue.length,
     playing: false,
     lastError: null,
+    signal: resolveTrackSignal(track),
   });
   el.src = track.url;
   el.volume = snapshot.muted ? 0 : snapshot.volume;
@@ -314,7 +328,7 @@ export function patchCurrentTrack(patch: Partial<PlayerTrack>) {
   if (!snapshot.track) return;
   const track = { ...snapshot.track, ...patch };
   queue = queue.map((t) => (t.id === track.id ? { ...t, ...patch } : t));
-  set({ track });
+  set({ track, signal: resolveTrackSignal(track) });
 }
 
 export async function toggle() {
@@ -414,7 +428,8 @@ function getShellSnapshot(): PlayerShellSnapshot {
     shellCache.loading === s.loading &&
     shellCache.queueIndex === s.queueIndex &&
     shellCache.queueLength === s.queueLength &&
-    shellCache.lastError === s.lastError
+    shellCache.lastError === s.lastError &&
+    shellCache.signal === s.signal
   ) {
     return shellCache;
   }
@@ -428,6 +443,7 @@ function getShellSnapshot(): PlayerShellSnapshot {
     queueIndex: s.queueIndex,
     queueLength: s.queueLength,
     lastError: s.lastError,
+    signal: s.signal,
   };
   return shellCache;
 }

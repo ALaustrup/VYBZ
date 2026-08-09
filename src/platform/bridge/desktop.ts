@@ -112,6 +112,13 @@ export function createDesktopBridge(): PlatformBridge {
       },
     },
 
+    playback: {
+      async getCapabilities() {
+        const { dryPlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
+        return dryPlaybackCapabilities();
+      },
+    },
+
     notifications: {
       async requestPermission() {
         return web.notifications.requestPermission();

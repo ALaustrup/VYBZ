@@ -4,6 +4,7 @@
 
 import type { PlayerTrack } from "@/lib/audioBus";
 import { enqueueTracks, loadQueue } from "@/lib/audioBus";
+import { localSignal } from "@/lib/vdock/playbackSignal";
 import * as api from "@/lib/api";
 
 const LOCAL_KEY = "vybz.player.localQueueMeta";
@@ -19,6 +20,7 @@ export function fileToPlayerTrack(file: File, index = 0): PlayerTrack {
     accent: "#00C2FF",
     quality: file.type || "audio",
     seed: (base.length * 17 + index) % 997,
+    signal: localSignal(),
   };
 }
 

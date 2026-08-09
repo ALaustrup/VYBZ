@@ -82,6 +82,13 @@ export function createMockBridge(options: MockBridgeOptions = {}): PlatformBridg
       },
     },
 
+    playback: {
+      async getCapabilities() {
+        const { dryPlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
+        return dryPlaybackCapabilities();
+      },
+    },
+
     notifications: {
       async requestPermission() {
         return true;

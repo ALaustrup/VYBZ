@@ -26,30 +26,29 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M8 — Release Assembly & Readiness** is the authorised Masterplan milestone (owner
-**2026-08-09**). **M7 deepen** continues as carry-forward until M7 exit is closed.
+**M9 — VDock Completion** is the authorised Masterplan milestone (owner **2026-08-09**
+“next phase”). **M8** assembly deepen and **M7** translation deepen continue as
+carry-forward until their exits are closed.
 
-Owner also authorised **OR-031** (release-centered discovery / pro networking) the same
-day — Law 3 still bans dating and generic social growth; OR-031 must stay music/release
-serving. Instrument Creator (VST3) stays parked. OR-021–OR-022 and OR-024–OR-025 remain
-parked.
+OR-031 (release-centered discovery) remains authorised; Law 3 still bans dating and
+generic social growth. Instrument Creator (VST3) stays parked. OR-021–OR-022 and
+OR-024–OR-025 remain parked.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
-### Authorised tracks (2026-08-09 deepen + M8 / OR-031)
+### Authorised tracks (M9 + carry-forward)
 
-1. **M7 deepen** — device + **codec** translation previews (disclosed simulations).
-2. **OR-029 AI-finish analysis** — more Law-1 heuristic findings; no fabricated AI detectors.
-3. **OR-020 Pack Maker** — assemble polish (kind override, content checksum).
-4. **OR-030 Visualizer studio** — draft persist, measured export readout, 8K soft-fail.
-5. **M8** — checksummed release assemble package; findings cite rules; credits without collab edit.
-6. **OR-031** — release-centered discovery for lesser-known artists (no dating/swipe).
+1. **M9 VDock** — dry playback contract, signal disclosure, stable bridge playback caps;
+   never hidden DSP on the play path (Law 5).
+2. **M8** — release assemble deepen (checksummed packages, rule-cited findings).
+3. **M7 deepen** — device + codec translation previews (disclosed simulations).
+4. **OR-029 / OR-020 / OR-030 / OR-031** — continue polish as previously authorised.
 
 Continuous build authorised on these tracks without further prompts until the owner parks
-them. Do not begin **M9** until the owner authorises it.
+them. Do not begin **M10** until the owner authorises it.
 
 ### Carry-forward authorisations (still in force)
 
@@ -78,13 +77,14 @@ meetup / swipe matching remain permanently out of scope.
 A gate written only in prose cannot fail a build. Where a gate can be expressed as a test,
 it must be, and the test must cite the gate. References: `src/app/routeTruth.test.ts` (M3),
 `src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5),
-`src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7).
+`src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7),
+`src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
-disclosed). M5–M6 closed; M7 deepen + M8 assembly are the active ship track. Do not begin
-M9 until the owner authorises it.
+disclosed). M5–M6 closed; M7–M8 deepen continue; **M9 VDock** is the active Masterplan
+milestone. Do not begin M10 until the owner authorises it.
 
 ## Safety rules
 

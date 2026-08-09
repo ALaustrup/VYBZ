@@ -5,6 +5,7 @@
 
 import * as api from "@/lib/api";
 import { getSnapshot, loadQueue, type PlayerTrack } from "@/lib/audioBus";
+import { ambientSignal, catalogSignal } from "@/lib/vdock/playbackSignal";
 
 const AMBIENT_ID = "vybz-ambient-pad";
 let padUrl: string | null = null;
@@ -65,6 +66,7 @@ export async function ensureAmbientPadTrack(): Promise<PlayerTrack> {
     durationSec: 16,
     accent: "#00C2FF",
     seed: 7,
+    signal: ambientSignal(),
   };
 }
 
@@ -93,6 +95,7 @@ function dropToTrack(d: {
     accent: "#00C2FF",
     seed: d.seed,
     playback: d.playbackCustomization ?? undefined,
+    signal: catalogSignal(),
   };
 }
 
