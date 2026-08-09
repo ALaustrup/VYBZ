@@ -34,6 +34,9 @@ public/vdock/visuals/**/loop.webm
 .agents/
 skills-lock.json
 
+# AI review live-walk screenshots (paths referenced from run markdown)
+docs/ai-review/runs/assets/
+
 # Phase 11 perf artifacts
 .lighthouseci/
 dist/stats.html

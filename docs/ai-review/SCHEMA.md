@@ -2,18 +2,35 @@
 
 **Artifacts are observations, not implementation instructions.**
 
+Website review is a **Perception Engine** module (`website-review`). Full engine contracts: [`docs/perception/SCHEMA.md`](../perception/SCHEMA.md).
+
 A run file answers “what did we see?” It must **not** answer “go change X this way.”
 
 ## Required fields
 
 | Field | Meaning |
 |---|---|
-| `id` | Stable slug, e.g. `2026-08-09-alpha-shell` |
+| `id` | Stable slug, e.g. `2026-08-09-prod-live` |
 | `date` | ISO date of the review |
 | `app_sha` | Git SHA (or branch tip) of the build inspected |
-| `surfaces_touched` | IDs from Stage 1 MACHINE manifest |
-| `observations` | Factual UI/flow notes only |
+| `surfaces_touched` | Surface ids from the website-review module |
+| `observations` | Factual UI/flow notes with stable observation IDs |
 | `status` | `draft` \| `accepted_for_planning` \| `parked` |
+| `module` | `website-review` when emitted by the prod walker |
+
+## Observation identity (required per finding)
+
+| Field | Meaning |
+|---|---|
+| `id` | Human-readable `{surface}.{slug}` (e.g. `library.live-snapshot`) — not `finding-42` |
+| `origin` | `{ detector, version, sourceType }` |
+| `lifecycle` | `new` \| `seen` \| `regressed` \| `resolved` \| `stale` |
+| `evidence` | Screenshot path / truncated body / URL refs |
+| context | `projectId`, `artifactId`, `version`, `sessionId` on the run |
+
+Optional Perception Graph edges may appear under **Perception Graph** in the run file / sidecar JSON.
+
+Catalog history: [`observations/catalog.json`](./observations/catalog.json).
 
 ## Optional fields
 
