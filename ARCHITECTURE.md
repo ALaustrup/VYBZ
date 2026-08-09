@@ -53,9 +53,14 @@ route.** The evaluation order is:
    `FLAGS.storefront`; `PublicDocShell` for `/codex*` and `/legal*`; `Onboarding` for
    `/enter*`; **everything else falls through to `LandingPage`.**
 4. **Signed in, profile not yet loaded** → spinner.
-5. **Signed in, no username** → `UsernameSetup`.
-6. **Signed in, intake incomplete** → `RoleIntentOnboarding` blocks the shell.
+5. **Signed in, no alpha access** (OR-023) → `InviteRedeemPage`, unless admin /
+   `alpha_access_at` set. Public Codex/legal still allowed. Profiles present at the
+   invite-keys migration were grandfathered.
+6. **Signed in, no username** → `UsernameSetup`.
 7. **Otherwise** → `SuiteShell` and the authenticated route tree.
+
+(Role-intent onboarding is no longer a hard shell gate in `App.tsx`; intake helpers may
+still exist in the API.)
 
 Two architectural consequences follow, both currently defects:
 

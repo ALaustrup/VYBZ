@@ -90,10 +90,93 @@ function toProfile(r: any): Profile {
     modPoints: Number(r.mod_points ?? 0),
     equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
     banned: r.banned ?? false,
+    alphaAccessAt: r.alpha_access_at ?? null,
     profile: details,
     featuredDropId: r.featured_drop_id ?? null,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
   };
+}
+
+export type RedeemInviteResult =
+  | { ok: true; already: boolean; batchId?: string }
+  | { ok: false; reason: string };
+
+/** Redeem an alpha invite key (OR-023). Server sets profiles.alpha_access_at. */
+export async function redeemInviteKey(code: string): Promise<RedeemInviteResult> {
+  const { data, error } = await db().rpc("redeem_invite_key", { p_code: code });
+  if (error) return { ok: false, reason: error.message };
+  return (data ?? { ok: false, reason: "no_response" }) as RedeemInviteResult;
+}
+
+export type MintInviteCode = {
+  id: string;
+  code: string;
+  batchId: string;
+  expiresAt: string;
+  maxRedemptions: number;
+};
+
+export type MintInviteResult =
+  | { ok: true; count: number; batchId: string; expiresAt: string; codes: MintInviteCode[] }
+  | { ok: false; reason: string };
+
+/** Admin-only: mint invite keys. Plaintext codes returned once. */
+export async function mintInviteKeys(input: {
+  count?: number;
+  batch?: string;
+  note?: string;
+  expiresDays?: number;
+  maxRedemptions?: number;
+}): Promise<MintInviteResult> {
+  const { data, error } = await db().rpc("mint_invite_keys", {
+    p_count: input.count ?? 1,
+    p_batch: input.batch ?? "A1",
+    p_note: input.note ?? null,
+    p_expires_days: input.expiresDays ?? 30,
+    p_max_redemptions: input.maxRedemptions ?? 1,
+  });
+  if (error) return { ok: false, reason: error.message };
+  return (data ?? { ok: false, reason: "no_response" }) as MintInviteResult;
+}
+
+export type InviteKeyRow = {
+  id: string;
+  codePrefix: string;
+  batchId: string;
+  note: string | null;
+  maxRedemptions: number;
+  redeemedCount: number;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+  createdBy: string | null;
+};
+
+export async function adminListInviteKeys(limit = 100): Promise<InviteKeyRow[]> {
+  const { data, error } = await db().rpc("admin_list_invite_keys", { p_limit: limit });
+  if (error) return [];
+  return (data ?? []) as InviteKeyRow[];
+}
+
+export async function adminRevokeInviteKeys(input: {
+  batch?: string;
+  keyId?: string;
+}): Promise<{ ok: boolean; revoked?: number; reason?: string }> {
+  const { data, error } = await db().rpc("admin_revoke_invite_keys", {
+    p_batch: input.batch ?? null,
+    p_key_id: input.keyId ?? null,
+  });
+  if (error) return { ok: false, reason: error.message };
+  return (data ?? { ok: false, reason: "no_response" }) as { ok: boolean; revoked?: number; reason?: string };
+}
+
+export async function adminGrantAlphaAccess(userId: string, note?: string): Promise<{ ok: boolean; reason?: string }> {
+  const { data, error } = await db().rpc("admin_grant_alpha_access", {
+    p_user: userId,
+    p_note: note ?? null,
+  });
+  if (error) return { ok: false, reason: error.message };
+  return (data ?? { ok: false, reason: "no_response" }) as { ok: boolean; reason?: string };
 }
 
 export type ProPurchaseResult =

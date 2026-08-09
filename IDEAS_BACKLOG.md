@@ -198,6 +198,7 @@ approval and an entry in the Masterplan.
 | OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | Idea — parked; not authorised (see §8.1) |
 | OR-021 | Batch Processor — deepen desktop/web batch (correct, convert, report) | Idea — parked; not authorised (see §8.1) |
 | OR-022 | Project Archiver — checksummed release-project archive (not DSP delivery) | Idea — parked; not authorised (see §8.1) |
+| OR-023 | Alpha invite keys — hard gate + Admin mint for FB/Reddit giveaways | **Authorised 2026-08-08** — hard gate (see §8.2) |
 
 ### 8.1 Producer toolkit (2026-08-08)
 
@@ -248,3 +249,15 @@ checksummed packaging patterns.
   probes, correction renders, checksums, processing versions.
 - Distributor-adjacent packaging honesty — **not** DSP delivery (Masterplan M12).
 - **Horizon:** M8/M12 packaging lane; share manifest ideas with stem-set and pack ZIP.
+
+### 8.2 Alpha invite keys (OR-023) — authorised 2026-08-08
+
+Hard gate for producer alpha giveaways (Facebook / Reddit / Discord).
+
+- **Model:** waitlist remains notify-only; access requires redeem of a minted key (or admin).
+- **Storage:** `invite_keys.code_hash` only; plaintext returned once at mint.
+- **Format:** `VYBZ-A1-{BATCH}-{TOKEN}`; default single-use; expiry 14–60 days.
+- **Gate:** `App.tsx` after profile load — `hasAlphaAccess` → else `InviteRedeemPage`.
+- **Owner tooling:** Admin → Invites tab (mint, copy, CSV, revoke batch).
+- **Grandfather:** profiles existing at migration keep `alpha_access_at`.
+- **Not in scope:** selling keys, Stripe/Pro bundling, soft banner-only gate.
