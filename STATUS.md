@@ -4,10 +4,10 @@
 > Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `feat/or026-mains-hum-correct`
+**Branch:** `feat/or026-stereo-width-correct`
 **HEAD:** (tip after commit)
 **Working tree:** clean after commit
-**Current milestone:** **M6 / OR-026** - hum shipped locally; width next
+**Current milestone:** **M6 / OR-026** - hum + width; EQ assist next
 
 ---
 
@@ -16,44 +16,34 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `e47d7cbb` | Merge PR #107 Alpha welcome (pre this unit) |
+| Production SHA | `1cf0d237` | Merge PR #108 hum (pre this unit) |
 
 ## Last completed operations
 
 | Unit | State |
 |---|---|
-| PR #107 Alpha welcome + feedback FAB | **MERGED** `e47d7cbb` |
-| OR-026 hum reduce | **CODED · LOCAL VALIDATED** - this branch |
+| PR #107 Alpha welcome | **MERGED** |
+| PR #108 OR-026 hum | **MERGED** `1cf0d237` |
+| OR-026 stereo width | **CODED · LOCAL VALIDATED** - this branch |
 
-## This unit (OR-026 hum)
+## This unit (OR-026 width)
 
 | Change | Detail |
 |---|---|
-| DSP | `applyMainsHumReduce` - peaking cuts at f/2f/3f; version `m6.mains-hum.1` |
-| Correct | New Mains hum op + bypass/before-after |
-| Analyzer | `AUDIO_MAINS_HUM` Tier A ship auto-fix |
-| Docs | AGENTS + IDEAS mark OR-026 authorised |
+| DSP | `applyStereoWidth` m6.stereo-width.1 - mid/side widen/narrow + mono guard |
+| Correct | Stereo width auto op |
+| Analyzer | NARROW / SIDE_HEAVY / OUT_OF_PHASE / MONO_COMPAT_LOSS ship Fix |
 
 ## Gate (local)
 
 ```
-npm run lint - PASS
-npm run test - 442 passed
-npm run build - PASS
-npm run check:no-fixtures - OK
+npm run lint / test (446) / build / check:no-fixtures - PASS
 ```
 
 ## Direction
 
-| Item | State |
-|---|---|
-| Authorised continuous | OR-026 remainder: width -> EQ assist -> click -> BS.1770 gain-to-target |
-| Parked | OR-020-022, OR-024-025 |
-
-## Blockers
-
-None.
+Next authorised: EQ assist -> click attenuate -> BS.1770 gain-to-target.
 
 ## Known contradictions
 
-Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety sample-peak only. Leveling RMS proxy toward -14.
+Native desktop BS.1770 approx-pending. Peak safety sample-peak only.

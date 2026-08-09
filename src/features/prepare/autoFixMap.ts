@@ -3,7 +3,15 @@
  * Only `tier: "ship"` may show a Fix button.
  */
 
-export type AutoFixOp = "dc" | "peak" | "balance" | "silence" | "level" | "hum";
+export type AutoFixOp =
+  | "dc"
+  | "peak"
+  | "balance"
+  | "silence"
+  | "level"
+  | "hum"
+  | "widthWiden"
+  | "widthNarrow";
 export type AutoFixTier = "ship" | "roadmap" | "manual";
 
 export type AutoFixMapping = {
@@ -31,6 +39,30 @@ const SHIP: Record<string, AutoFixMapping> = {
     tier: "ship",
     disclosure: "Narrow notch assist at measured mains + light harmonics — re-check after.",
   },
+  AUDIO_STEREO_NARROW: {
+    op: "widthWiden",
+    label: "Widen stereo (gentle)",
+    tier: "ship",
+    disclosure: "Mid/side widen assist with mono-compat guard — re-check after.",
+  },
+  AUDIO_STEREO_SIDE_HEAVY: {
+    op: "widthNarrow",
+    label: "Reduce stereo width",
+    tier: "ship",
+    disclosure: "Mid/side narrow assist — re-check after.",
+  },
+  AUDIO_STEREO_OUT_OF_PHASE: {
+    op: "widthNarrow",
+    label: "Reduce stereo width",
+    tier: "ship",
+    disclosure: "Mid/side narrow assist for phase risk — re-check after. Not a polarity flip.",
+  },
+  AUDIO_MONO_COMPAT_LOSS: {
+    op: "widthNarrow",
+    label: "Improve mono compatibility",
+    tier: "ship",
+    disclosure: "Mid/side narrow assist — re-check after.",
+  },
   AUDIO_LOUDNESS_QUIET: {
     op: "level",
     label: "Level toward streaming loudness (−14)",
@@ -46,10 +78,6 @@ const SHIP: Record<string, AutoFixMapping> = {
 };
 
 const ROADMAP = new Set([
-  "AUDIO_STEREO_NARROW",
-  "AUDIO_STEREO_SIDE_HEAVY",
-  "AUDIO_STEREO_OUT_OF_PHASE",
-  "AUDIO_MONO_COMPAT_LOSS",
   "AUDIO_SPECTRAL_BASS_HEAVY",
   "AUDIO_SPECTRAL_BRIGHT",
   "AUDIO_SPECTRAL_THIN",
