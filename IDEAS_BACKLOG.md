@@ -199,6 +199,9 @@ approval and an entry in the Masterplan.
 | OR-021 | Batch Processor — deepen desktop/web batch (correct, convert, report) | Idea — parked; not authorised (see §8.1) |
 | OR-022 | Project Archiver — checksummed release-project archive (not DSP delivery) | Idea — parked; not authorised (see §8.1) |
 | OR-023 | Alpha invite keys — hard gate + Admin mint for FB/Reddit giveaways | **Authorised 2026-08-08** — hard gate (see §8.2) |
+| OR-024 | Real-time DAW readiness meter plug-in (VST3/AU) — live loudness/peak/stereo vs Analyzer targets | Idea — horizon; native desktop; not Instrument Creator (OR-018) |
+| OR-025 | Library track menu — Add artwork + optional Art Check handoff | Idea — parked; follow-on after Analyzer intake desk |
+| OR-026 | Correct deepen Tier B auto-fix ops (hum, width, EQ assist, click attenuate, BS.1770 gain-to-target) | Idea — parked; after Analyzer Tier A auto-fix ships |
 
 ### 8.1 Producer toolkit (2026-08-08)
 
@@ -261,3 +264,13 @@ Hard gate for producer alpha giveaways (Facebook / Reddit / Discord).
 - **Owner tooling:** Admin → Invites tab (mint, copy, CSV, revoke batch).
 - **Grandfather:** profiles existing at migration keep `alpha_access_at`.
 - **Not in scope:** selling keys, Stripe/Pro bundling, soft banner-only gate.
+
+### 8.3 Analyzer follow-ons (parked 2026-08-09)
+
+After the audio-only Analyzer intake desk (Tier A auto-fix + Library add):
+
+- **OR-025** — Library submenu **Add artwork** (not Analyzer); optional Art Check QC.
+- **OR-026** — Correct Tier B ops wired into Analyzer Fix (hum, width, EQ assist, etc.).
+- **OR-024** — Native VST3/AU **readiness meter** for real-time mix assist; share measurement
+  defs with `@vybz/processing`. Not OR-018 Instrument Creator. Desktop/native milestone.
+

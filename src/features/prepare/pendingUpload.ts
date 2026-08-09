@@ -28,8 +28,8 @@ export type PendingAudio = {
 
 const pending = new Map<string, PendingAudio>();
 
-/** Cap the number of retained blobs so a long session cannot grow without bound. */
-const MAX_RETAINED = 3;
+/** Cap retained blobs — Analyzer intake allows up to 20 concurrent session tracks. */
+const MAX_RETAINED = 20;
 
 export function stashPendingAudio(entry: PendingAudio): void {
   pending.set(entry.releaseId, entry);

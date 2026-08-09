@@ -46,7 +46,7 @@ export function PrepareLocalApp() {
             <Route path="/release/:id/credits" element={<ReleaseCreditsPage />} />
             <Route path="/release/:id/distribution" element={<DistributionReportPage />} />
             <Route path="/release/:id/master" element={<ReleaseMasterPane />} />
-            <Route path="/start" element={<Navigate to="/releases/new" replace />} />
+            <Route path="/start" element={<Navigate to="/releases" replace />} />
             <Route path="*" element={<Navigate to="/releases" replace />} />
           </Routes>
         </main>
