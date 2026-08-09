@@ -17,6 +17,7 @@ const dist = path.join(root, "dist");
 const MARKERS = [
   "__e2e__",
   "__e2e__/ai-review",
+  "/e2e/ai-review",
   "ai-review-portal",
   "mastering-e2e-fixture",
   "cost-sentinel-e2e-fixture",

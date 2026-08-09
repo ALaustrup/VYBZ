@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
 import { fileURLToPath, URL } from "node:url";
+import { aiReviewManifestPlugin } from "./scripts/vite-ai-review-manifest-plugin";
 
 // VYBZ is a client-side SPA. Kept intentionally minimal so the build stays fast
 // and predictable for mobile-first deployment; vendors are split into cacheable
@@ -35,6 +36,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    aiReviewManifestPlugin(),
     react(),
     ...(process.env.ANALYZE === "1"
       ? [

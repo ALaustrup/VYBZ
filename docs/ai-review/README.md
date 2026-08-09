@@ -20,6 +20,7 @@ Open [http://127.0.0.1:4173/__e2e__/ai-review](http://127.0.0.1:4173/__e2e__/ai-
 - Mock non-admin member (`@aireviewer`)  
 - Banner: read-only / no secrets  
 - `window.__VYBZ_AI_REVIEW__` MACHINE manifest  
+- **JSON endpoint (agents):** `GET http://127.0.0.1:4173/e2e/ai-review` → full MACHINE manifest (`Content-Type: application/json`), including `surfaces[]` with fixture paths. Served by Vite preview middleware only — **not** on production.
 
 Gated by `VITE_E2E_FIXTURES=on` (`npm run build:e2e` only). Production builds must pass `npm run check:no-fixtures`.
 
@@ -44,6 +45,23 @@ npm run ai-review:prod
 - Does **not** auto-commit  
 
 Fail closed if credentials are missing or login fails.
+
+### Stage 1c — Public HTTPS manifest (remote agents / Grok)
+
+Grok and other cloud agents cannot reach `127.0.0.1`. Use production:
+
+```http
+GET https://vybz.cloud/api/ai-review/manifest
+Authorization: Bearer <AI_REVIEW_AGENT_TOKEN>
+```
+
+- Returns MACHINE-style JSON with **live product** `surfaces[]` (`/library`, `/releases`, …)  
+- **Never** includes `/__e2e__/*` fixture paths  
+- Token is a Vercel server env (`AI_REVIEW_AGENT_TOKEN`) — **not** `VITE_*`, never commit  
+- Fail closed (`401`) if token missing/wrong  
+- Read-only surface map only — does not bypass alpha login for HTML pages  
+
+Local equivalent remains `GET http://127.0.0.1:4173/e2e/ai-review` (fixture paths, Vite preview).
 
 ### Stage 2 — Versioned observation artifacts
 
