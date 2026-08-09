@@ -75,7 +75,9 @@ import { MediaConverterPage } from "@/features/tools/MediaConverterPage";
 import { DcOffsetCorrectPage } from "@/features/correction/DcOffsetCorrectPage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
 import { InviteRedeemPage } from "@/features/alpha/InviteRedeemPage";
+import { PasswordLockPage } from "@/features/alpha/PasswordLockPage";
 import { hasAlphaAccess } from "@/lib/alphaAccess";
+import { needsPasswordLock } from "@/lib/passwordLock";
 import { resolveE2eFixture } from "@/app/e2eFixtures";
 
 // Vite inlines import.meta.env at build time, so this folds to `false` for production
@@ -83,7 +85,7 @@ import { resolveE2eFixture } from "@/app/e2eFixtures";
 const E2E_FIXTURES_ENABLED = import.meta.env.VITE_E2E_FIXTURES === "on";
 
 export function App() {
-  const { ready, userId, profile, backendEnabled } = useSession();
+  const { ready, userId, email, profile, backendEnabled } = useSession();
   const [feedKey, setFeedKey] = useState(0);
   const [composeOpen, setComposeOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
@@ -163,6 +165,11 @@ export function App() {
   // Signed in — wait for profile before deciding username vs hub (avoids false UsernameSetup).
   if (!profile) {
     return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
+  }
+  // One-time master password lock (after alpha wipe) — before suite shell.
+  if (needsPasswordLock(email, profile)) {
+    if (isPublicDoc) return <PublicDocShell />;
+    return <PasswordLockPage />;
   }
   // OR-023 hard gate: invite key (or admin) before username / suite shell.
   if (!hasAlphaAccess(profile)) {
