@@ -3,27 +3,40 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-09
-**Branch:** `feat/m6-closeout-m7-kickoff`
-**HEAD:** tip after commit (pre-push)
-**Current milestone:** **M7 Translation Lab** kickoff + **M6 close-out** (OR-027 / OR-028)
+**Branch:** `main`
+**HEAD:** `fd33aa68a736b934b3da31cf2c0fc6935fb93e1c`
+**Current milestone:** **M7 — Translation Lab** (kickoff **DEPLOYED**). **M6 CLOSED** (owner sign-off).
 
-## Production (pre this unit)
+## Production
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | prior |
-| Production SHA | `cca5759b` / tip may include later STATUS docs | prior READY deploy |
+| Alias | https://vybz.cloud | Vercel alias on READY deploy |
+| Production SHA | `fd33aa68` | `get_deployment` `dpl_HoW8BRXFXsiCgYPvDiFMf2dCZ8pt` READY |
+| Feature PR | [PR #112](https://github.com/ALaustrup/VYBZ/pull/112) | MERGED 2026-08-09T20:32:56Z |
 
-## This unit
+## Last completed operations
 
-1. **OR-027 M6 close-out** — loudness-matched A/B on `/tools/correct` (`m6.loudness-match.1`); download dry; A/B + match toggle.
-2. **Owner M6 gate sign-off** — owner authorised 2026-08-09 (this session): M6 exit accepted with loudness-matched compare + existing reversible Correct ops; OR-026 enough deepen.
-3. **OR-028 M7 kickoff** — `/tools/translate` streaming −14 LUFS preview (`m7.streaming-norm.1`) with non-emulation disclosure; suite rail tile.
+1. **OR-027 / M6 close-out** — loudness-matched A/B on Correct (`m6.loudness-match.1`); download dry. Owner gate sign-off **2026-08-09** (this session authorisation). OR-026 enough Correct deepen.
+2. **OR-028 / M7 kickoff** — `/tools/translate` streaming −14 LUFS preview (`m7.streaming-norm.1`) with non-emulation disclosure; suite **Translate** tile.
+3. Gate: lint / test **461** / build / check:no-fixtures PASS on `59156c55`.
 
-## Gate
+## Deployment state
 
-Pending local lint / test / build / check:no-fixtures on this branch.
+**DEPLOYED** — production READY @ `fd33aa68`.
 
-## Next
+## Production verification
 
-Merge → deploy verify → record M6 **CLOSED** / M7 **ACTIVE** with production SHA.
+Vercel READY + aliases include vybz.cloud. Interactive Correct match / Translate smoke: **Not measured** (auth-gated).
+
+## Working tree
+
+Clean on `main` after this STATUS checkpoint (docs tip may move one commit ahead).
+
+## Blockers
+
+None. Parked: OR-020–022, OR-024–025, Instrument Creator. M8 not authorised.
+
+## Next authorised action
+
+Continue **M7** deepen on the authorised track (codec / device previews later) without further prompts until owner parks/closes M7. Do not begin M8 until named in AGENTS.
