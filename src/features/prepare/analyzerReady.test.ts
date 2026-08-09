@@ -39,7 +39,8 @@ describe("analyzerReady", () => {
 describe("autoFixMap", () => {
   it("ships Fix only for Tier A codes", () => {
     expect(shipAutoFixForCode("AUDIO_DC_OFFSET")?.op).toBe("dc");
-    expect(shipAutoFixForCode("AUDIO_LOUDNESS_QUIET")?.op).toBe("level");
+    expect(shipAutoFixForCode("AUDIO_LOUDNESS_QUIET")?.op).toBe("loudness");
+    expect(shipAutoFixForCode("AUDIO_CLICK_POP")?.op).toBe("click");
     expect(shipAutoFixForCode("AUDIO_LOSSY_MASTER")).toBeNull();
     expect(shipAutoFixForCode("AUDIO_MAINS_HUM")?.op).toBe("hum");
     expect(shippedAutoFixCodes().length).toBeGreaterThan(5);

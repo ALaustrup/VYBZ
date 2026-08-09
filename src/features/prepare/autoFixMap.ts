@@ -14,7 +14,9 @@ export type AutoFixOp =
   | "widthNarrow"
   | "eqCutBass"
   | "eqCutBright"
-  | "eqBoostLow";
+  | "eqBoostLow"
+  | "click"
+  | "loudness";
 export type AutoFixTier = "ship" | "roadmap" | "manual";
 
 export type AutoFixMapping = {
@@ -85,20 +87,26 @@ const SHIP: Record<string, AutoFixMapping> = {
     disclosure: "Soft low-shelf assist — re-check after. Not a mix rewrite.",
   },
   AUDIO_LOUDNESS_QUIET: {
-    op: "level",
-    label: "Level toward streaming loudness (−14)",
+    op: "loudness",
+    label: "Level toward −14 LUFS (BS.1770)",
     tier: "ship",
-    disclosure: "On-device level assist — re-check after. Not a distributor certification.",
+    disclosure: "BS.1770 gain-to-target + peak ceiling — re-check after. Not a distributor certification.",
   },
   AUDIO_LOUDNESS_HOT: {
-    op: "level",
-    label: "Level toward streaming loudness (−14)",
+    op: "loudness",
+    label: "Level toward −14 LUFS (BS.1770)",
     tier: "ship",
-    disclosure: "On-device level assist — re-check after. Not a distributor certification.",
+    disclosure: "BS.1770 gain-to-target + peak ceiling — re-check after. Not a distributor certification.",
+  },
+  AUDIO_CLICK_POP: {
+    op: "click",
+    label: "Soften clicks / pops",
+    tier: "ship",
+    disclosure: "Short interpolation assist — high false-positive risk; re-check by ear.",
   },
 };
 
-const ROADMAP = new Set(["AUDIO_CLICK_POP"]);
+const ROADMAP = new Set<string>();
 
 const MANUAL = new Set([
   "AUDIO_LOSSY_MASTER",

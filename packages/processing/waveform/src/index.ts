@@ -50,6 +50,17 @@ export {
   type SpectralEqMode,
 } from "./spectralEqCorrect";
 export {
+  applyClickAttenuate,
+  CLICK_ATTENUATE_VERSION,
+  type ClickAttenuateResult,
+} from "./clickAttenuateCorrect";
+export {
+  applyLoudnessGain,
+  LOUDNESS_GAIN_VERSION,
+  LOUDNESS_GAIN_TARGET_LUFS,
+  type LoudnessGainResult,
+} from "./loudnessGainCorrect";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,

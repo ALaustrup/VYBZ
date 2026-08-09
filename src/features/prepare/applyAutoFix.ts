@@ -1,5 +1,7 @@
 import {
   applyChannelBalance,
+  applyClickAttenuate,
+  applyLoudnessGain,
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
@@ -67,6 +69,8 @@ export async function applyAutoFixToBlob(blob: Blob, op: AutoFixOp): Promise<Blo
   else if (op === "eqCutBass") next = applySpectralEqAssist(planar, rate, { mode: "cutBass" }).channels;
   else if (op === "eqCutBright") next = applySpectralEqAssist(planar, rate, { mode: "cutBright" }).channels;
   else if (op === "eqBoostLow") next = applySpectralEqAssist(planar, rate, { mode: "boostLow" }).channels;
+  else if (op === "click") next = applyClickAttenuate(planar, rate).channels;
+  else if (op === "loudness") next = applyLoudnessGain(planar, rate).channels;
   else next = applySilenceTrim(planar, rate).channels;
 
   const outBuf = bufferFromPlanar(next, rate);
