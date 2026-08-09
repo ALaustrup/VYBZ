@@ -32,11 +32,14 @@ Owner authorised **2026-08-08** Wave 1 deepen + M5 click/pop, and pre-authorised
 `/tools/correct` (bypass + before/after) — not a full mastering suite.
 
 Instrument Creator (VST3) stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
-Producer toolkit ideas **OR-019–OR-022** (Stem Maker, Sample Pack Creator, Batch
-Processor, Project Archiver) are parked in `IDEAS_BACKLOG.md` §8.1 — **not authorised**
-to build; no rail tiles until a milestone names them. Social/live/messaging still receive
-no new feature work (Law 3). Premium-suite phase track remains withdrawn. The Masterplan
-§9 sequence is the only plan.
+
+Owner authorised **2026-08-08** **OR-019 Stem Maker V1 (assembly only)** — import
+exported stems, measured per-stem metrics, optional Correct ops, ZIP + manifest; no
+auto-catalog ingest; no AI source separation (V2 stays parked). **OR-020–OR-022** remain
+parked in `IDEAS_BACKLOG.md` §8.1 until separately authorised.
+
+Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
+track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
 

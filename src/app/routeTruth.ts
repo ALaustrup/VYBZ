@@ -89,6 +89,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/tools/midi", title: "Midi Maker", keywords: ["midi", "piano", "notes"] },
   { path: "/tools/convert", title: "Media Converter", keywords: ["wav", "convert", "transcode", "format"] },
   { path: "/tools/correct", title: "Correct", keywords: ["dc", "offset", "correction", "bypass", "master"] },
+  { path: "/tools/stems", title: "Stem Maker", keywords: ["stems", "multitrack", "assemble", "stem set"] },
   { path: "/projects", title: "Projects", keywords: ["studio", "rooms", "work"] },
   { path: "/discover", title: "Discover", keywords: ["browse", "explore", "find music"] },
   { path: "/feed", title: "Feed", keywords: ["activity", "posts"] },
