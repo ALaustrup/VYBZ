@@ -3,22 +3,39 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-09
-**Branch:** `feat/ai-finish-positioning-m7-viz-packs`
-**HEAD:** tip after commit (pre-push)
-**Current milestone:** **M7** + owner **C** tracks (AI-finish position, OR-020, OR-029, OR-030)
+**Branch:** `main`
+**HEAD:** `97e0ecf6f15823495353471dda30f4a90b06ba13`
+**Current milestone:** **M7** + owner **C** tracks **DEPLOYED**
 
-## This unit
+## Production
 
-1. Masterplan §1–2 AI-finish positioning.
-2. M7 deepen — phone/car device translation previews.
-3. OR-029 — `AUDIO_FINISH_OVERPROCESSED` heuristic from measured crest/LRA/PLR.
-4. OR-020 V1 — Pack Maker assemble ZIP + storefront handoff.
-5. OR-030 — Visualizer resolution presets (720p→experimental 8K) + layer toggles; Law 1 measured size copy.
+| Item | Value | Evidence |
+|---|---|---|
+| Alias | https://vybz.cloud | Vercel READY aliases |
+| Production SHA | `97e0ecf6` | `dpl_DTWtCUvVv7WeKKcCQEd7E7mofJyt` READY |
+| Feature PR | [PR #113](https://github.com/ALaustrup/VYBZ/pull/113) | MERGED |
 
-## Gate
+## Last completed operations
 
-lint / test (464) / build / check:no-fixtures PASS (local)
+1. Masterplan AI-finish positioning (§1–2).
+2. M7 phone/car device previews.
+3. OR-029 `AUDIO_FINISH_OVERPROCESSED` heuristic.
+4. OR-020 Pack Maker V1 + storefront handoff.
+5. OR-030 Visualizer res presets (experimental 8K) + layers; Law 1 measured size.
+6. Gate: lint / test **464** / build / check:no-fixtures PASS on `d2337851`.
 
-## Direction
+## Deployment state
 
-Merge → deploy. Social/networking (OR-031) stays parked. M8 not authorised.
+**DEPLOYED** — production READY @ `97e0ecf6`.
+
+## Production verification
+
+Vercel READY. Interactive smoke: **Not measured** (auth-gated).
+
+## Blockers / parked
+
+OR-021–022, OR-024–025, OR-031 social/networking build, Instrument Creator, M8.
+
+## Next authorised action
+
+Continue C tracks (M7 deepen, AI-finish detectors, Pack Maker deepen, Visualizer polish) without further prompts until owner parks. Do not begin M8 or OR-031 build until named.
