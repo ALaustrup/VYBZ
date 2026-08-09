@@ -291,6 +291,15 @@ export function MusicDockPlayer() {
           <span className="vdock-meta-artist block truncate text-[10px] sm:text-[11px]">
             {p.track?.artist ?? "Pick a track from Library or Discover"}
           </span>
+          {p.signal?.disclosure ? (
+            <span
+              className="mt-0.5 block truncate text-[9px] leading-snug text-amber-200/75 sm:text-[10px]"
+              data-vdock-disclosure
+              title={p.signal.disclosure}
+            >
+              {p.signal.disclosure}
+            </span>
+          ) : null}
           <span className="vdock-meta-rail mt-1 block max-w-[11rem] overflow-hidden sm:max-w-[16rem]" aria-hidden>
             <span
               ref={metaFillRef}

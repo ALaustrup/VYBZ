@@ -1,4 +1,5 @@
 import type { PlayerTrack } from "@/lib/audioBus";
+import { catalogSignal } from "@/lib/vdock/playbackSignal";
 import { qualityLabel } from "@/lib/waveform";
 import { paletteFor } from "@/lib/utils";
 import type { Drop } from "@/types";
@@ -38,5 +39,6 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
     accent,
     fx: playback?.reactiveStyle ?? d.fx ?? "glow",
     playback,
+    signal: catalogSignal(),
   };
 }

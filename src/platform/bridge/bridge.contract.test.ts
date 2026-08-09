@@ -16,6 +16,14 @@ describe("PlatformBridge mock contract", () => {
     expect(caps.nativeBatchAudio).toBe(false);
   });
 
+  it("reports dry playback capabilities (M9)", async () => {
+    const bridge = createMockBridge();
+    const caps = await bridge.playback.getCapabilities();
+    expect(caps.dryHtmlAudio).toBe(true);
+    expect(caps.nativeDsp).toBe(false);
+    expect(caps.mediaSession).toBe(false);
+  });
+
   it("persists and clears session", async () => {
     const bridge = createMockBridge();
     await bridge.auth.persistSession({ payload: '{"access":"x"}', updatedAt: "2026-07-28T00:00:00.000Z" });

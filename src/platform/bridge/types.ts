@@ -7,6 +7,7 @@ import type {
   NetworkState,
   PersistedSession,
   PlatformKind,
+  PlaybackCapabilities,
   ProcessingCapabilities,
   SelectedFile,
   SelectedFolder,
@@ -40,6 +41,11 @@ export interface PlatformBridge {
     analyzeAudio(input: AudioInput): Promise<JobReference>;
     analyzeArtwork(input: ArtworkInput): Promise<JobReference>;
     cancelJob(jobId: string): Promise<void>;
+  };
+
+  /** M9 — playback capabilities (dry HTML audio; no native DSP on play path). */
+  playback: {
+    getCapabilities(): Promise<PlaybackCapabilities>;
   };
 
   notifications: {

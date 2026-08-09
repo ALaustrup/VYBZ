@@ -68,6 +68,12 @@ export function createIosBridge(): PlatformBridge {
       },
     },
 
+    playback: {
+      async getCapabilities() {
+        return web.playback.getCapabilities();
+      },
+    },
+
     notifications: {
       async requestPermission() {
         return web.notifications.requestPermission();

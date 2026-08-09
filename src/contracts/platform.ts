@@ -45,6 +45,16 @@ export interface ProcessingCapabilities {
   offlineDrafts: boolean;
 }
 
+/** M9 — playback capability surface (Law 5). No hidden DSP on the play element. */
+export interface PlaybackCapabilities {
+  /** Shared WebView HTMLAudioElement path — dry output. */
+  dryHtmlAudio: boolean;
+  /** OS media-session / lock-screen controls (not yet wired). */
+  mediaSession: boolean;
+  /** Native DSP graph on the play path (must stay false until disclosed). */
+  nativeDsp: boolean;
+}
+
 export interface AudioInput {
   file: SelectedFile;
   projectId?: string;

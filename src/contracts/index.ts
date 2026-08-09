@@ -6,6 +6,7 @@ export type {
   ExportedFile,
   PersistedSession,
   ProcessingCapabilities,
+  PlaybackCapabilities,
   AudioInput,
   ArtworkInput,
   JobReference,

@@ -212,6 +212,13 @@ export function createWebBridge(): PlatformBridge {
       },
     },
 
+    playback: {
+      async getCapabilities() {
+        const { dryPlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
+        return dryPlaybackCapabilities();
+      },
+    },
+
     notifications: {
       async requestPermission() {
         if (typeof Notification === "undefined") return false;
