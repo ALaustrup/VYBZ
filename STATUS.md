@@ -4,10 +4,10 @@
 > Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `main`
-**HEAD:** `13a21139` (merge PR #98 AI review pipeline)
-**Working tree:** clean after STATUS checkpoint
-**Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + AI review infra
+**Branch:** `feat/perception-engine-foundation`
+**HEAD:** (local tip — see `git rev-parse HEAD` after commit)
+**Working tree:** Perception Engine foundation implemented; awaiting owner merge authorisation
+**Current milestone:** **M6** + Analyzer intake desk + OR-019/023 + Perception Engine foundation (branch)
 
 ---
 
@@ -16,48 +16,51 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `13a21139` | Vercel SUCCESS (`vybz-86ea873i2` / `dpl_EtzABVoF8qfSirXDHthhwP6n6e5A`) |
+| Production SHA | `13a21139` | Prior STATUS / Vercel SUCCESS for AI review pipeline merge |
 | Bundle | production build of `13a21139` | AI review portal **absent** (fixture-only; `check:no-fixtures`) |
 
 ## Last completed operations
 
-| PR | Unit | State |
+| PR / branch | Unit | State |
 |---|---|---|
-| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **DEPLOYED AND VERIFIED** (infra on main; portal via `npm run ai-review` only) |
+| `feat/perception-engine-foundation` | Perception Engine + website-review module + `ai-review:prod` | **IMPLEMENTED LOCALLY** — validations PASS; **not merged** |
+| [#98](https://github.com/ALaustrup/VYBZ/pull/98) | AI review pipeline (Stages 1–3) | **DEPLOYED AND VERIFIED** on production |
 | [#96](https://github.com/ALaustrup/VYBZ/pull/96) | Analyzer intake desk | **DEPLOYED AND VERIFIED** |
 
-## Gate
+## Gate (this branch)
 
 ```
-npm run lint / test / build / check:no-fixtures — PASS on feature tip (420 tests)
-Vercel production — SUCCESS for 13a21139
+npm run lint  — PASS (tsc --noEmit)
+npm run test  — PASS (430 tests; +10 perceptionEngineGate)
+npm run build — PASS
+npm run check:no-fixtures — PASS (12 markers absent from dist/)
 ```
 
-Delivery state: **DEPLOYED AND VERIFIED**.
+Delivery state for this unit: **IMPLEMENTED LOCALLY** (awaiting owner go-ahead to push/PR/merge).
 
-## AI review pipeline
+## Perception Engine (branch)
 
-```
-npm run ai-review
-→ http://127.0.0.1:4173/__e2e__/ai-review
-```
+- Contracts: `src/perception/` — Observation, Origin, PerceptionContext, Perception Graph, Registry, catalog, pluggable `NoopModelProvider`
+- Entity layer: type + docs only (`entityId` reserved) — not populated
+- Modules: `website-review` (first); `audio-stub` / `image-stub` (zero collectors)
+- Docs: `docs/perception/` + updated `docs/ai-review/`
+- Cursor rules: `.cursor/rules/perception-engine.mdc`, updated `ai-review-pipeline.mdc`
+- Live walker: `npm run ai-review:prod` (env `AI_REVIEW_EMAIL` / `AI_REVIEW_PASSWORD`) — **not smoke-run** in this checkpoint (credentials not exercised)
 
-- Stage 1: fixture portal (read-only, never production)
-- Stage 2: observation artifacts → `docs/ai-review/` (**artifact ≠ build order**)
-- Stage 3: `.cursor/rules/ai-review-pipeline.mdc` — plans from observations; implement only with explicit owner approval
+Linear roadmap: Phase 0 shipped → 1B identity accepted → Phase 2 engine (this) → Phase 3 prod walker script (this) → later audio/image/cross-media parked.
 
 ## Direction
 
 | Item | State |
 |---|---|
-| Authorised | Use pipeline for reviews; park product ideas in IDEAS_BACKLOG |
-| Parked | OR-020–022, OR-024–026 |
-| Stash | `wip app-bar wordmark before ai-review-pipeline` |
-| Next authorised action | Owner smoke `npm run ai-review`; restore wordmark stash when ready |
+| Authorised | Implement Perception Engine foundation on branch; stop before merge |
+| Parked | OR-020–022, OR-024–026; audio/image perception algorithms; real LLM providers; billing tiers |
+| Stash | `wip app-bar wordmark before ai-review-pipeline` — **untouched** |
+| Next authorised action | Owner: review branch → authorise push/PR/merge; optional smoke `ai-review:prod` with env |
 
 ## Blockers
 
-None. GitHub Actions shows systemic `BuildFailed` / startup_failure on recent pushes; Vercel remains the live green gate.
+None for local validation. Merge blocked pending owner go-ahead.
 
 ## Known contradictions
 
