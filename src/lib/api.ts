@@ -91,6 +91,7 @@ function toProfile(r: any): Profile {
     equippedCosmetics: (r.equipped_cosmetics ?? {}) as Record<string, string>,
     banned: r.banned ?? false,
     alphaAccessAt: r.alpha_access_at ?? null,
+    passwordLockedAt: r.password_locked_at ?? null,
     profile: details,
     featuredDropId: r.featured_drop_id ?? null,
     createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
@@ -100,6 +101,22 @@ function toProfile(r: any): Profile {
 export type RedeemInviteResult =
   | { ok: true; already: boolean; batchId?: string }
   | { ok: false; reason: string };
+
+export type LockPasswordResult =
+  | { ok: true; already: boolean; lockedAt?: string }
+  | { ok: false; reason: string };
+
+/**
+ * Set Auth password for the signed-in user, then mark profiles.password_locked_at.
+ * Password is sent only to Supabase Auth — never stored in app tables.
+ */
+export async function lockAccountPassword(password: string): Promise<LockPasswordResult> {
+  const { error: authErr } = await db().auth.updateUser({ password });
+  if (authErr) return { ok: false, reason: authErr.message };
+  const { data, error } = await db().rpc("lock_account_password");
+  if (error) return { ok: false, reason: error.message };
+  return (data ?? { ok: false, reason: "no_response" }) as LockPasswordResult;
+}
 
 /** Redeem an alpha invite key (OR-023). Server sets profiles.alpha_access_at. */
 export async function redeemInviteKey(code: string): Promise<RedeemInviteResult> {

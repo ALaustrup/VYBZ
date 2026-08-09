@@ -89,6 +89,8 @@ export interface Profile {
   banned: boolean;
   /** ISO timestamp when alpha invite access was granted (OR-023). Null = gated. */
   alphaAccessAt?: string | null;
+  /** ISO timestamp when the one-time password lock completed. Null = must lock (master). */
+  passwordLockedAt?: string | null;
   profile: ProfileDetails;
   /** The drop the creator has chosen to headline their profile (Library). */
   featuredDropId?: string | null;
