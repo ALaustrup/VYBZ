@@ -1,13 +1,15 @@
 /**
  * M6 Correct — reversible ops with bypass + before/after metrics.
- * Ops: DC, peak-safety, L/R balance, silence trim, mains-hum. No credit deduction. Local-only.
+ * Ops: DC, peak, balance, silence, hum, width, EQ, click, loudness. Local-only.
  */
 
 import { useEffect, useMemo, useState } from "react";
 import { Download, Loader2, Upload } from "lucide-react";
 import {
   CHANNEL_BALANCE_VERSION,
+  CLICK_ATTENUATE_VERSION,
   CORRECTION_VERSION,
+  LOUDNESS_GAIN_VERSION,
   MAINS_HUM_CORRECT_VERSION,
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
@@ -15,6 +17,8 @@ import {
   SPECTRAL_EQ_VERSION,
   STEREO_WIDTH_VERSION,
   applyChannelBalance,
+  applyClickAttenuate,
+  applyLoudnessGain,
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
@@ -28,7 +32,7 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width" | "eq";
+type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width" | "eq" | "click" | "loudness";
 
 const OP_SUBTITLE: Record<CorrectOp, string> = {
   dc: "DC offset",
@@ -38,6 +42,8 @@ const OP_SUBTITLE: Record<CorrectOp, string> = {
   hum: "Mains hum",
   width: "Stereo width",
   eq: "EQ assist",
+  click: "Click attenuate",
+  loudness: "Loudness gain",
 };
 
 type PreviewState = {
@@ -190,7 +196,7 @@ export function DcOffsetCorrectPage() {
           downloadSuffix: "width",
         },
       };
-    } else {
+    } else if (chosen === "eq") {
       const r = applySpectralEqAssist(channels, rate, { mode: "auto" });
       const lowB = r.balanceBefore ? `${(r.balanceBefore.lowShare * 100).toFixed(0)}%` : "—";
       const lowA = r.balanceAfter ? `${(r.balanceAfter.lowShare * 100).toFixed(0)}%` : "—";
@@ -203,6 +209,38 @@ export function DcOffsetCorrectPage() {
           detailValue: `${lowB} → ${lowA}`,
           version: SPECTRAL_EQ_VERSION,
           downloadSuffix: "eq-assist",
+        },
+      };
+    } else if (chosen === "click") {
+      const r = applyClickAttenuate(channels, rate);
+      const before = r.countBefore == null ? "—" : String(r.countBefore);
+      const after = r.countAfter == null ? "—" : String(r.countAfter);
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: `Clicks softened ${r.eventsFixed} · count (before → after)`,
+          detailValue: `${before} → ${after}`,
+          version: CLICK_ATTENUATE_VERSION,
+          downloadSuffix: "click-soft",
+        },
+      };
+    } else {
+      const r = applyLoudnessGain(channels, rate);
+      const before =
+        r.integratedLufsBefore == null ? "—" : `${r.integratedLufsBefore.toFixed(1)} LUFS`;
+      const after =
+        r.integratedLufsAfter == null ? "—" : `${r.integratedLufsAfter.toFixed(1)} LUFS`;
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: `Integrated → ${r.targetLufs} LUFS (before → after)`,
+          detailValue: `${before} → ${after} (${r.gainDb >= 0 ? "+" : ""}${r.gainDb.toFixed(1)} dB)`,
+          version: LOUDNESS_GAIN_VERSION,
+          downloadSuffix: "loudness",
         },
       };
     }
@@ -257,8 +295,8 @@ export function DcOffsetCorrectPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: DC, peak-safety, balance, silence, hum, stereo width, or gentle EQ
-        shelves. Bypass keeps the original. No credits charged.
+        M6 corrections: DC, peak, balance, silence, hum, width, EQ, click soften, or BS.1770
+        loudness gain. Bypass keeps the original. No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -324,6 +362,24 @@ export function DcOffsetCorrectPage() {
           className={`btn px-3 py-2 text-sm ${op === "eq" ? "btn-primary" : "btn-ghost"}`}
         >
           EQ assist
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-click"
+          aria-pressed={op === "click"}
+          onClick={() => onSelectOp("click")}
+          className={`btn px-3 py-2 text-sm ${op === "click" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Click soften
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-loudness"
+          aria-pressed={op === "loudness"}
+          onClick={() => onSelectOp("loudness")}
+          className={`btn px-3 py-2 text-sm ${op === "loudness" ? "btn-primary" : "btn-ghost"}`}
+        >
+          Loudness (−14)
         </button>
       </div>
 

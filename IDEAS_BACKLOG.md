@@ -201,7 +201,7 @@ approval and an entry in the Masterplan.
 | OR-023 | Alpha invite keys — hard gate + Admin mint for FB/Reddit giveaways | **Authorised 2026-08-08** — hard gate (see §8.2) |
 | OR-024 | Real-time DAW readiness meter plug-in (VST3/AU) — live loudness/peak/stereo vs Analyzer targets | Idea — horizon; native desktop; not Instrument Creator (OR-018) |
 | OR-025 | Library track menu — Add artwork + optional Art Check handoff | Idea — parked; follow-on after Analyzer intake desk |
-| OR-026 | Correct deepen Tier B auto-fix ops (hum, width, EQ assist, click attenuate, BS.1770 gain-to-target) | **Authorised 2026-08-09** — hum shipping first; remainder sequential (see §8.3) |
+| OR-026 | Correct deepen Tier B auto-fix ops (hum, width, EQ assist, click attenuate, BS.1770 gain-to-target) | **Shipped sequence 2026-08-09** — PRs #108–#111 (see §8.3); deepen/polish only if re-authorised |
 
 ### 8.1 Producer toolkit (2026-08-08)
 
@@ -270,8 +270,8 @@ Hard gate for producer alpha giveaways (Facebook / Reddit / Discord).
 After the audio-only Analyzer intake desk (Tier A auto-fix + Library add):
 
 - **OR-025** — Library submenu **Add artwork** (not Analyzer); optional Art Check QC. **Parked.**
-- **OR-026** — Correct Tier B ops wired into Analyzer Fix. **Authorised 2026-08-09** —
-  sequence: hum → width → EQ assist → click attenuate → BS.1770 gain-to-target.
+- **OR-026** — Correct Tier B ops wired into Analyzer Fix. **Authorised 2026-08-09**;
+  sequence hum → width → EQ → click → BS.1770 gain-to-target **shipped** (#108–#111).
 - **OR-024** — Native VST3/AU **readiness meter** for real-time mix assist; share measurement
   defs with `@vybz/processing`. Not OR-018 Instrument Creator. Desktop/native milestone. **Parked.**
 

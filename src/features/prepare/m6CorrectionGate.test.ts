@@ -3,12 +3,16 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CHANNEL_BALANCE_VERSION,
+  CLICK_ATTENUATE_VERSION,
   CORRECTION_VERSION,
+  LOUDNESS_GAIN_VERSION,
   MAINS_HUM_CORRECT_VERSION,
   PEAK_SAFETY_CEILING_LINEAR,
   PEAK_SAFETY_VERSION,
   SILENCE_TRIM_VERSION,
   applyChannelBalance,
+  applyClickAttenuate,
+  applyLoudnessGain,
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
@@ -36,6 +40,8 @@ describe("M6 correction gate", () => {
     expect(MAINS_HUM_CORRECT_VERSION).toMatch(/^m6\./);
     expect(STEREO_WIDTH_VERSION).toMatch(/^m6\./);
     expect(SPECTRAL_EQ_VERSION).toMatch(/^m6\./);
+    expect(CLICK_ATTENUATE_VERSION).toMatch(/^m6\./);
+    expect(LOUDNESS_GAIN_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -110,8 +116,39 @@ describe("M6 correction gate", () => {
     expect(page).toContain("correct-op-hum");
     expect(page).toContain("correct-op-width");
     expect(page).toContain("correct-op-eq");
+    expect(page).toContain("correct-op-click");
+    expect(page).toContain("correct-op-loudness");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
+  });
+
+  it("click attenuate is reproducible and non-destructive", () => {
+    const sr = 48000;
+    const n = Math.floor(0.5 * sr);
+    const original = new Float32Array(n);
+    for (let i = 0; i < n; i++) original[i] = Math.sin(i / 19) * 0.05;
+    original[Math.floor(n / 2)] = 0.9;
+    const clone = original.slice();
+    const first = applyClickAttenuate([original], sr);
+    const second = applyClickAttenuate([original], sr);
+    expect(original).toEqual(clone);
+    expect(first.channels[0]).toEqual(second.channels[0]);
+    expect(first.eventsFixed).toBeGreaterThanOrEqual(1);
+  });
+
+  it("loudness gain moves quiet tone toward target and is reproducible", () => {
+    const sr = 48000;
+    const n = Math.floor(3 * sr);
+    const original = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      original[i] = Math.sin((2 * Math.PI * 1000 * i) / sr) * 0.02;
+    }
+    const clone = original.slice();
+    const first = applyLoudnessGain([original], sr, { targetLufs: -14 });
+    const second = applyLoudnessGain([original], sr, { targetLufs: -14 });
+    expect(original).toEqual(clone);
+    expect(first.channels[0]).toEqual(second.channels[0]);
+    expect(first.integratedLufsAfter!).toBeGreaterThan(first.integratedLufsBefore!);
   });
 
   it("stereo width widen is reproducible and changes correlation", () => {
