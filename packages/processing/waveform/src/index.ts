@@ -73,6 +73,12 @@ export {
   type StreamingNormPreviewResult,
 } from "./streamingNormPreview";
 export {
+  applyDeviceTranslationPreview,
+  DEVICE_TRANSLATION_VERSION,
+  type DevicePreviewMode,
+  type DeviceTranslationResult,
+} from "./deviceTranslationPreview";
+export {
   measureClickPop,
   CLICK_POP_COUNT_WARN,
   CLICK_POP_PROMINENCE_WARN_DB,

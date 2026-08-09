@@ -1,6 +1,6 @@
 /**
- * Suite app rail registry — Wave 1 tools + M6 Correct + M7 Translation + OR-019 Stem Maker V1.
- * Unfinished modules (full Master suite, Instrument Creator, OR-020–022) stay out.
+ * Suite app rail registry — Wave 1 tools + Correct + Translate + Pack Maker + Stem Maker.
+ * Unfinished modules (full Master suite, Instrument Creator, OR-021–022) stay out.
  */
 
 import type { LucideIcon } from "lucide-react";
@@ -11,6 +11,7 @@ import {
   ImagePlus,
   Layers,
   Library,
+  Package,
   Piano,
   Radio,
   RefreshCw,
@@ -31,6 +32,7 @@ export type SuiteAppId =
   | "media-converter"
   | "correct"
   | "translate"
+  | "pack-maker"
   | "stem-maker"
   | "library"
   | "codex"
@@ -113,6 +115,14 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/translate",
     icon: Radio,
     match: (p) => p.startsWith("/tools/translate"),
+    overflow: true,
+  },
+  {
+    id: "pack-maker",
+    label: "Packs",
+    path: "/tools/pack-maker",
+    icon: Package,
+    match: (p) => p.startsWith("/tools/pack-maker"),
     overflow: true,
   },
   {

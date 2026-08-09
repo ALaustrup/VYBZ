@@ -657,6 +657,28 @@ export function evaluateAudio(audio: AudioProbe): FindingDraft[] {
     );
   }
 
+  // AI-finish heuristic family — composite of already-measured metrics only (Law 1).
+  // Labels generative / over-processed finishes without inventing new meters.
+  if (
+    audio.loudnessMeasured &&
+    audio.crestFactorDb != null &&
+    audio.crestFactorDb < 6 &&
+    audio.loudnessRangeLu != null &&
+    audio.loudnessRangeLu < 4 &&
+    audio.plrDb != null &&
+    audio.plrDb < 8
+  ) {
+    out.push(
+      finding(
+        "AUDIO_FINISH_OVERPROCESSED",
+        "warning",
+        "audio",
+        "Finish looks over-processed (heuristic)",
+        `VYBZ finish heuristic from measured crest ${audio.crestFactorDb.toFixed(1)} dB, LRA ${audio.loudnessRangeLu.toFixed(1)} LU, PLR ${audio.plrDb.toFixed(1)} dB${provenance}. Common on heavy AI/master chains — ease limiting or rebuild dynamics if the track feels flat. Not an AI detector.`
+      )
+    );
+  }
+
   return out;
 }
 

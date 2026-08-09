@@ -90,6 +90,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/tools/convert", title: "Media Converter", keywords: ["wav", "convert", "transcode", "format"] },
   { path: "/tools/correct", title: "Correct", keywords: ["dc", "offset", "correction", "bypass", "master"] },
   { path: "/tools/translate", title: "Translation Lab", keywords: ["translation", "streaming", "normalisation", "codec", "preview"] },
+  { path: "/tools/pack-maker", title: "Pack Maker", keywords: ["samples", "pack", "loops", "oneshots", "zip"] },
   { path: "/tools/stems", title: "Stem Maker", keywords: ["stems", "multitrack", "assemble", "stem set"] },
   { path: "/projects", title: "Projects", keywords: ["studio", "rooms", "work"] },
   { path: "/discover", title: "Discover", keywords: ["browse", "explore", "find music"] },

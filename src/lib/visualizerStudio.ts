@@ -17,6 +17,16 @@ export interface StudioBands {
   level: number;
 }
 
+/** Canvas export target. 8K is opt-in experimental — may fail on device (Law 1: measure WxH). */
+export type StudioResolutionId = "720p" | "1080p" | "1440p" | "2160p" | "4320p";
+
+export type StudioLayers = {
+  wash: boolean;
+  rings: boolean;
+  bars: boolean;
+  vignette: boolean;
+};
+
 export interface StudioReactiveSettings {
   style: ReactiveStyle;
   /** Overall reactivity 0..1 */
@@ -34,7 +44,22 @@ export interface StudioReactiveSettings {
   dim: number;
   /** Loop length for export (seconds) */
   loopSec: number;
+  /** Canvas resolution preset */
+  resolution: StudioResolutionId;
+  /** Independent overlay layers */
+  layers: StudioLayers;
 }
+
+export const STUDIO_RESOLUTIONS: Record<
+  StudioResolutionId,
+  { w: number; h: number; label: string; bitrate: number; experimental?: boolean }
+> = {
+  "720p": { w: 1280, h: 720, label: "720p (VDock)", bitrate: 2_500_000 },
+  "1080p": { w: 1920, h: 1080, label: "1080p", bitrate: 6_000_000 },
+  "1440p": { w: 2560, h: 1440, label: "1440p", bitrate: 12_000_000 },
+  "2160p": { w: 3840, h: 2160, label: "4K", bitrate: 25_000_000 },
+  "4320p": { w: 7680, h: 4320, label: "8K (experimental)", bitrate: 50_000_000, experimental: true },
+};
 
 export const DEFAULT_STUDIO_SETTINGS: StudioReactiveSettings = {
   style: "pulse",
@@ -46,7 +71,14 @@ export const DEFAULT_STUDIO_SETTINGS: StudioReactiveSettings = {
   fit: "cover",
   dim: 0.22,
   loopSec: 10,
+  resolution: "1080p",
+  layers: { wash: true, rings: true, bars: true, vignette: true },
 };
+
+export function studioSize(settings: StudioReactiveSettings): { w: number; h: number } {
+  const r = STUDIO_RESOLUTIONS[settings.resolution] ?? STUDIO_RESOLUTIONS["720p"];
+  return { w: r.w, h: r.h };
+}
 
 export const REACTIVE_STYLES: {
   id: ReactiveStyle;
@@ -153,8 +185,13 @@ export function renderStudioFrame(
     ctx.fillRect(0, 0, w, h);
   }
 
+  const layers = settings.layers ?? DEFAULT_STUDIO_SETTINGS.layers;
   const wash = settings.colorWash * i * (0.25 + bands.mid * 0.75);
-  if (wash > 0.01 && (settings.style === "glow" || settings.style === "pulse" || settings.style === "chroma")) {
+  if (
+    layers.wash &&
+    wash > 0.01 &&
+    (settings.style === "glow" || settings.style === "pulse" || settings.style === "chroma")
+  ) {
     const grad = ctx.createRadialGradient(w * 0.5, h * 0.55, 0, w * 0.5, h * 0.5, w * 0.7);
     grad.addColorStop(0, `rgba(${r},${g},${b},${wash * 0.55})`);
     grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -162,7 +199,10 @@ export function renderStudioFrame(
     ctx.fillRect(0, 0, w, h);
   }
 
-  if (settings.style === "rings" || (settings.style === "pulse" && settings.barAmount > 0.15)) {
+  if (
+    layers.rings &&
+    (settings.style === "rings" || (settings.style === "pulse" && settings.barAmount > 0.15))
+  ) {
     const rings = 4;
     for (let n = 0; n < rings; n++) {
       const t = (n + 1) / rings;
@@ -176,8 +216,8 @@ export function renderStudioFrame(
   }
 
   const showBars =
-    settings.style === "bars" ||
-    (settings.barAmount > 0.05 && settings.style !== "rings");
+    layers.bars &&
+    (settings.style === "bars" || (settings.barAmount > 0.05 && settings.style !== "rings"));
   if (showBars && freqs && freqs.length) {
     const bars = 48;
     const gap = 2;
@@ -197,12 +237,13 @@ export function renderStudioFrame(
     }
   }
 
-  // Soft vignette so VDock controls stay readable
-  const vig = ctx.createRadialGradient(w / 2, h / 2, h * 0.25, w / 2, h / 2, h * 0.75);
-  vig.addColorStop(0, "rgba(0,0,0,0)");
-  vig.addColorStop(1, "rgba(0,0,0,0.35)");
-  ctx.fillStyle = vig;
-  ctx.fillRect(0, 0, w, h);
+  if (layers.vignette) {
+    const vig = ctx.createRadialGradient(w / 2, h / 2, h * 0.25, w / 2, h / 2, h * 0.75);
+    vig.addColorStop(0, "rgba(0,0,0,0)");
+    vig.addColorStop(1, "rgba(0,0,0,0.35)");
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, w, h);
+  }
 }
 
 /** Prefer vp9/webm, fall back to mp4/h264, then bare webm. */
@@ -232,12 +273,17 @@ export async function recordStudioLoop(opts: {
   canvas: HTMLCanvasElement;
   durationSec: number;
   onProgress?: (pct: number) => void;
+  /** Target encode bitrate; defaults from canvas size class. */
+  videoBitsPerSecond?: number;
 }): Promise<Blob> {
   const { canvas, durationSec, onProgress } = opts;
   const mime = pickRecorderMime();
   const stream = canvas.captureStream(30);
   const chunks: BlobPart[] = [];
-  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 2_500_000 });
+  const bits =
+    opts.videoBitsPerSecond ??
+    (canvas.width >= 3840 ? 25_000_000 : canvas.width >= 1920 ? 6_000_000 : 2_500_000);
+  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: bits });
 
   return new Promise((resolve, reject) => {
     const started = performance.now();

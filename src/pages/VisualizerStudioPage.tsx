@@ -27,14 +27,17 @@ import { saveStudioBackdropHandoff } from "@/lib/studioBackdropHandoff";
 import {
   DEFAULT_STUDIO_SETTINGS,
   REACTIVE_STYLES,
+  STUDIO_RESOLUTIONS,
   downloadBlob,
   extForMime,
   loadStudioDraftMeta,
   pickRecorderMime,
   recordStudioLoop,
   saveStudioDraftMeta,
+  studioSize,
   type StudioBands,
   type StudioReactiveSettings,
+  type StudioResolutionId,
 } from "@/lib/visualizerStudio";
 import { cx } from "@/lib/utils";
 
@@ -80,7 +83,12 @@ export function VisualizerStudioPage() {
 
   const [settings, setSettings] = useState<StudioReactiveSettings>(() => {
     const draft = loadStudioDraftMeta();
-    return { ...DEFAULT_STUDIO_SETTINGS, ...draft };
+    return {
+      ...DEFAULT_STUDIO_SETTINGS,
+      ...draft,
+      layers: { ...DEFAULT_STUDIO_SETTINGS.layers, ...(draft?.layers ?? {}) },
+      resolution: draft?.resolution ?? DEFAULT_STUDIO_SETTINGS.resolution,
+    };
   });
 
   const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -374,11 +382,17 @@ export function VisualizerStudioPage() {
       }
       setPlaying(true);
 
+      const size = studioSize(settings);
+      const bits = STUDIO_RESOLUTIONS[settings.resolution]?.bitrate;
       const blob = await recordStudioLoop({
         canvas: canvasRef.current,
         durationSec: loopSec,
         onProgress: setExportPct,
+        videoBitsPerSecond: bits,
       });
+      if (canvasRef.current.width !== size.w || canvasRef.current.height !== size.h) {
+        showToast(`Canvas measured ${canvasRef.current.width}×${canvasRef.current.height} (not target ${size.w}×${size.h})`);
+      }
 
       a?.pause();
       mediaVideoRef.current?.pause();
@@ -675,6 +689,74 @@ export function VisualizerStudioPage() {
           ))}
         </div>
 
+        <div className="mb-4">
+          <p className="mb-1.5 text-[11px] text-white/45">Resolution (canvas size is measured)</p>
+          <div className="flex flex-wrap gap-1.5" data-testid="studio-resolution">
+            {(Object.keys(STUDIO_RESOLUTIONS) as StudioResolutionId[]).map((id) => {
+              const r = STUDIO_RESOLUTIONS[id];
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  data-testid={`studio-res-${id}`}
+                  onClick={() => {
+                    if (r.experimental) {
+                      showToast("8K is experimental — may fail on this device. Export size is measured.");
+                    }
+                    patch({ resolution: id });
+                  }}
+                  className={cx(
+                    "rounded-full px-2.5 py-1 text-[11px] font-medium",
+                    settings.resolution === id
+                      ? "bg-suite-cyan/25 text-snow ring-1 ring-suite-cyan/40"
+                      : "text-white/50 hover:text-white/80",
+                  )}
+                >
+                  {r.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-1 font-mono text-[10px] text-white/35" data-testid="studio-res-measured">
+            Target {studioSize(settings).w}×{studioSize(settings).h}
+            {STUDIO_RESOLUTIONS[settings.resolution]?.experimental
+              ? " · 8K experimental — not claimed until encode succeeds"
+              : ""}
+          </p>
+        </div>
+
+        <div className="mb-4">
+          <p className="mb-1.5 text-[11px] text-white/45">Layers</p>
+          <div className="flex flex-wrap gap-1.5" data-testid="studio-layers">
+            {(
+              [
+                ["wash", "Wash"],
+                ["rings", "Rings"],
+                ["bars", "Bars"],
+                ["vignette", "Vignette"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                data-testid={`studio-layer-${key}`}
+                aria-pressed={settings.layers[key]}
+                onClick={() =>
+                  patch({ layers: { ...settings.layers, [key]: !settings.layers[key] } })
+                }
+                className={cx(
+                  "rounded-full px-2.5 py-1 text-[11px] font-medium",
+                  settings.layers[key]
+                    ? "bg-suite-cyan/25 text-snow ring-1 ring-suite-cyan/40"
+                    : "text-white/50 hover:text-white/80",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <Slider
             label="Intensity"
@@ -764,7 +846,9 @@ export function VisualizerStudioPage() {
               <Sparkles className="h-4 w-4 text-suite-cyan/80" /> Export muted VDock loop
             </p>
             <p className="mt-1 text-[12px] leading-relaxed text-white/55">
-              Records the reactive preview at 1280×720. Music stays out of the file so it won’t clash with playback in VDock. Then upload under <strong className="font-semibold text-white/80">Custom</strong> when releasing a drop.
+              Records the reactive preview at the selected canvas size (shown above — measured at
+              capture). Music stays out of the file so it won’t clash with VDock. Prefer 720p/1080p
+              for VDock; 4K/8K are for high-res masters and may fail on this device.
             </p>
             {exportPct != null && (
               <div className="mt-3">

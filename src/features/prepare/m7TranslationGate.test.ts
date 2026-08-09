@@ -30,12 +30,19 @@ describe("M7 translation gate", () => {
     expect(page).toContain("translate-disclosure");
     expect(page).toContain("translate-mode-original");
     expect(page).toContain("translate-mode-streaming");
+    expect(page).toContain("translate-mode-phone");
+    expect(page).toContain("translate-mode-car");
     expect(page.toLowerCase()).toContain("not exact platform");
     const dsp = readFileSync(
       path.join(ROOT, "packages/processing/waveform/src/streamingNormPreview.ts"),
       "utf8"
     );
     expect(dsp.toLowerCase()).toContain("not an exact emulation");
+    const device = readFileSync(
+      path.join(ROOT, "packages/processing/waveform/src/deviceTranslationPreview.ts"),
+      "utf8"
+    );
+    expect(device.toLowerCase()).toContain("not a measured");
     expect(app).toContain("/tools/translate");
   });
 

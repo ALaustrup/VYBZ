@@ -12,10 +12,18 @@
 
 VYBZ is an **Audio Intelligence and Release Operating System**.
 
-It exists so that anyone who has finished a piece of audio can understand exactly how it
-measures, correct what is wrong with it, master it properly, hear how it will translate
-to the places people actually listen, prepare a complete and valid release, publish it
-into VYBZ, and leave with a verified package that any distributor will accept.
+It exists so that anyone who has finished a piece of audio — whether they wrote it by hand,
+produced it with AI assistance, or both — can understand exactly how it measures, correct
+what is wrong with it, master it properly, hear how it will translate to the places people
+actually listen, prepare a complete and valid release, publish it into VYBZ, and leave with
+a verified package that any distributor will accept.
+
+**Positioning (2026-08-09).** VYBZ helps AI-assisted creators finish release-ready work. It
+does not fight AI music. It measures what is off (phase, dynamics, artifacts, structure,
+vocal tells when those detectors exist), offers reversible automated fixes where honest DSP
+can help, and otherwise gives the best actionable advice from measured facts. Sample-pack
+workflows and a native storefront sit alongside track finishing. Social and discovery exist
+to serve music and craft (Law 3) — never dating (permanently out of scope).
 
 **Core promise**
 
@@ -30,12 +38,13 @@ possible pre-distribution platform with its own native release and listening eco
 
 ## 2. Target users
 
-Independent artists, producers, mixing and mastering engineers, sound designers,
-podcasters, field recordists, and other audio creators who finish work themselves and
-need it to be technically correct before it goes out.
+Independent artists and producers finishing AI-assisted or traditional work alone; mixing
+and mastering engineers; sound designers; podcasters; field recordists; and other audio
+creators who need technical honesty before a release goes out.
 
-The unifying trait is not genre or scale. It is that **nobody is checking their work for
-them.** VYBZ is the thing that checks.
+The unifying trait is not genre, scale, or tool chain. It is that **nobody is checking their
+work for them.** VYBZ is the thing that checks — especially when generative tools leave
+phase, dynamics, artifact, or structure problems the creator cannot hear yet.
 
 ---
 

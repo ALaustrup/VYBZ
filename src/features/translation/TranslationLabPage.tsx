@@ -1,12 +1,14 @@
 /**
- * M7 Translation Lab kickoff — streaming loudness preview (disclosed, not platform-exact).
+ * M7 Translation Lab — streaming loudness + phone/car device previews (disclosed).
  */
 
 import { useEffect, useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import {
+  DEVICE_TRANSLATION_VERSION,
   STREAMING_NORM_PREVIEW_VERSION,
   STREAMING_NORM_TARGET_LUFS,
+  applyDeviceTranslationPreview,
   applyStreamingNormPreview,
 } from "@vybz/processing/waveform";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
@@ -14,7 +16,7 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type Mode = "original" | "streaming";
+type Mode = "original" | "streaming" | "phone" | "car";
 
 function planarFromBuffer(buf: AudioBuffer): Float32Array[] {
   const out: Float32Array[] = [];
@@ -40,20 +42,24 @@ export function TranslationLabPage() {
   const [fileName, setFileName] = useState("");
   const [mode, setMode] = useState<Mode>("original");
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [streamingUrl, setStreamingUrl] = useState<string | null>(null);
+  const [phoneUrl, setPhoneUrl] = useState<string | null>(null);
+  const [carUrl, setCarUrl] = useState<string | null>(null);
   const [lufsBefore, setLufsBefore] = useState<number | null>(null);
   const [lufsAfter, setLufsAfter] = useState<number | null>(null);
   const [gainDb, setGainDb] = useState<number | null>(null);
   const [disclosure, setDisclosure] = useState<string | null>(null);
 
-  useRegisterAppBar({ title: "Translation Lab", subtitle: "Streaming preview" }, []);
+  useRegisterAppBar({ title: "Translation Lab", subtitle: "How it travels" }, []);
 
   useEffect(() => {
     return () => {
       if (originalUrl) URL.revokeObjectURL(originalUrl);
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (streamingUrl) URL.revokeObjectURL(streamingUrl);
+      if (phoneUrl) URL.revokeObjectURL(phoneUrl);
+      if (carUrl) URL.revokeObjectURL(carUrl);
     };
-  }, [originalUrl, previewUrl]);
+  }, [originalUrl, streamingUrl, phoneUrl, carUrl]);
 
   async function onFile(file: File | undefined) {
     if (!file || !isAudioFile(file)) {
@@ -64,18 +70,28 @@ export function TranslationLabPage() {
     try {
       const buf = await decodeToBuffer(file);
       const planar = planarFromBuffer(buf);
-      const r = applyStreamingNormPreview(planar, buf.sampleRate);
+      const stream = applyStreamingNormPreview(planar, buf.sampleRate);
+      const phone = applyDeviceTranslationPreview(planar, buf.sampleRate, "phone");
+      const car = applyDeviceTranslationPreview(planar, buf.sampleRate, "car");
+
       if (originalUrl) URL.revokeObjectURL(originalUrl);
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (streamingUrl) URL.revokeObjectURL(streamingUrl);
+      if (phoneUrl) URL.revokeObjectURL(phoneUrl);
+      if (carUrl) URL.revokeObjectURL(carUrl);
+
       setOriginalUrl(URL.createObjectURL(file));
-      setPreviewUrl(URL.createObjectURL(encodeWav(bufferFromPlanar(r.channels, buf.sampleRate))));
+      setStreamingUrl(
+        URL.createObjectURL(encodeWav(bufferFromPlanar(stream.channels, buf.sampleRate)))
+      );
+      setPhoneUrl(URL.createObjectURL(encodeWav(bufferFromPlanar(phone.channels, buf.sampleRate))));
+      setCarUrl(URL.createObjectURL(encodeWav(bufferFromPlanar(car.channels, buf.sampleRate))));
       setFileName(file.name);
-      setLufsBefore(r.integratedLufsBefore);
-      setLufsAfter(r.integratedLufsAfter);
-      setGainDb(r.gainDb);
-      setDisclosure(r.disclosure);
+      setLufsBefore(stream.integratedLufsBefore);
+      setLufsAfter(stream.integratedLufsAfter);
+      setGainDb(stream.gainDb);
+      setDisclosure(stream.disclosure);
       setMode("streaming");
-      showToast("Streaming normalisation preview ready");
+      showToast("Translation previews ready");
     } catch {
       showToast("Couldn't decode that file");
       setLufsBefore(null);
@@ -85,13 +101,39 @@ export function TranslationLabPage() {
     }
   }
 
-  const activeUrl = mode === "original" ? originalUrl : previewUrl;
+  function selectMode(next: Mode) {
+    setMode(next);
+    if (next === "streaming") {
+      setDisclosure(
+        `Approximate streaming loudness preview (BS.1770 gain-to-target). Not an exact emulation of any platform. (${STREAMING_NORM_PREVIEW_VERSION})`
+      );
+    } else if (next === "phone") {
+      setDisclosure(
+        `Phone-style preview (high-pass + reduced bass). Approximate simulation — not a measured phone speaker. (${DEVICE_TRANSLATION_VERSION})`
+      );
+    } else if (next === "car") {
+      setDisclosure(
+        `Car-style preview (bass lift + mid scoop). Approximate simulation — not a measured cabin response. (${DEVICE_TRANSLATION_VERSION})`
+      );
+    } else {
+      setDisclosure(null);
+    }
+  }
+
+  const activeUrl =
+    mode === "original"
+      ? originalUrl
+      : mode === "streaming"
+        ? streamingUrl
+        : mode === "phone"
+          ? phoneUrl
+          : carUrl;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="translation-lab">
       <p className="mb-4 text-[13px] text-white/45">
-        M7 kickoff: hear an approximate streaming loudness sit at {STREAMING_NORM_TARGET_LUFS}{" "}
-        LUFS. Simulations are labelled — not exact platform processing.
+        Hear approximate streaming loudness ({STREAMING_NORM_TARGET_LUFS} LUFS) and phone/car
+        listening EQ. Simulations are labelled — not exact platform or device processing.
       </p>
 
       <label className="btn btn-primary mb-5 cursor-pointer px-4 py-2.5 text-sm">
@@ -109,14 +151,14 @@ export function TranslationLabPage() {
         />
       </label>
 
-      {previewUrl && (
+      {streamingUrl && (
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Translation preview">
             <button
               type="button"
               data-testid="translate-mode-original"
               aria-pressed={mode === "original"}
-              onClick={() => setMode("original")}
+              onClick={() => selectMode("original")}
               className={`btn px-3 py-2 text-sm ${mode === "original" ? "btn-primary" : "btn-ghost"}`}
             >
               Original
@@ -125,14 +167,30 @@ export function TranslationLabPage() {
               type="button"
               data-testid="translate-mode-streaming"
               aria-pressed={mode === "streaming"}
-              onClick={() => setMode("streaming")}
+              onClick={() => selectMode("streaming")}
               className={`btn px-3 py-2 text-sm ${mode === "streaming" ? "btn-primary" : "btn-ghost"}`}
             >
               Streaming −14
             </button>
-            <span className="text-[11px] text-white/35">
-              {fileName} · {STREAMING_NORM_PREVIEW_VERSION}
-            </span>
+            <button
+              type="button"
+              data-testid="translate-mode-phone"
+              aria-pressed={mode === "phone"}
+              onClick={() => selectMode("phone")}
+              className={`btn px-3 py-2 text-sm ${mode === "phone" ? "btn-primary" : "btn-ghost"}`}
+            >
+              Phone
+            </button>
+            <button
+              type="button"
+              data-testid="translate-mode-car"
+              aria-pressed={mode === "car"}
+              onClick={() => selectMode("car")}
+              className={`btn px-3 py-2 text-sm ${mode === "car" ? "btn-primary" : "btn-ghost"}`}
+            >
+              Car
+            </button>
+            <span className="text-[11px] text-white/35">{fileName}</span>
           </div>
 
           {activeUrl && (
@@ -147,13 +205,13 @@ export function TranslationLabPage() {
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase text-white/35">Integrated after</dt>
+              <dt className="text-[10px] uppercase text-white/35">Streaming after</dt>
               <dd className="tabular-nums">
                 {lufsAfter == null ? "Not measured" : `${lufsAfter.toFixed(1)} LUFS`}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] uppercase text-white/35">Preview gain</dt>
+              <dt className="text-[10px] uppercase text-white/35">Streaming gain</dt>
               <dd className="tabular-nums">
                 {gainDb == null ? "Not measured" : `${gainDb >= 0 ? "+" : ""}${gainDb.toFixed(1)} dB`}
               </dd>
