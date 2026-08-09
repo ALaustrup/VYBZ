@@ -12,11 +12,13 @@ import {
   PEAK_SAFETY_CEILING_DBFS,
   PEAK_SAFETY_VERSION,
   SILENCE_TRIM_VERSION,
+  SPECTRAL_EQ_VERSION,
   STEREO_WIDTH_VERSION,
   applyChannelBalance,
   applyMainsHumReduce,
   applyPeakSafety,
   applySilenceTrim,
+  applySpectralEqAssist,
   applyStereoWidth,
   removeDcOffset,
   type LevelSnapshot,
@@ -26,7 +28,7 @@ import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 
-type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width";
+type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width" | "eq";
 
 const OP_SUBTITLE: Record<CorrectOp, string> = {
   dc: "DC offset",
@@ -35,6 +37,7 @@ const OP_SUBTITLE: Record<CorrectOp, string> = {
   silence: "Silence trim",
   hum: "Mains hum",
   width: "Stereo width",
+  eq: "EQ assist",
 };
 
 type PreviewState = {
@@ -172,7 +175,7 @@ export function DcOffsetCorrectPage() {
           downloadSuffix: "hum-reduce",
         },
       };
-    } else {
+    } else if (chosen === "width") {
       const r = applyStereoWidth(channels, { mode: "auto" });
       const corrB = r.correlationBefore == null ? "—" : r.correlationBefore.toFixed(2);
       const corrA = r.correlationAfter == null ? "—" : r.correlationAfter.toFixed(2);
@@ -185,6 +188,21 @@ export function DcOffsetCorrectPage() {
           detailValue: `${corrB} → ${corrA} (×${r.sideGain.toFixed(2)} side)`,
           version: STEREO_WIDTH_VERSION,
           downloadSuffix: "width",
+        },
+      };
+    } else {
+      const r = applySpectralEqAssist(channels, rate, { mode: "auto" });
+      const lowB = r.balanceBefore ? `${(r.balanceBefore.lowShare * 100).toFixed(0)}%` : "—";
+      const lowA = r.balanceAfter ? `${(r.balanceAfter.lowShare * 100).toFixed(0)}%` : "—";
+      result = {
+        channels: r.channels,
+        preview: {
+          before: r.before,
+          after: r.after,
+          detailLabel: `EQ ${r.modeApplied} · low share (before → after)`,
+          detailValue: `${lowB} → ${lowA}`,
+          version: SPECTRAL_EQ_VERSION,
+          downloadSuffix: "eq-assist",
         },
       };
     }
@@ -239,8 +257,8 @@ export function DcOffsetCorrectPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
       <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections: DC, peak-safety, L/R balance, silence trim, mains-hum, or stereo width
-        (auto mid/side). Bypass keeps the original. No credits charged.
+        M6 corrections: DC, peak-safety, balance, silence, hum, stereo width, or gentle EQ
+        shelves. Bypass keeps the original. No credits charged.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
@@ -297,6 +315,15 @@ export function DcOffsetCorrectPage() {
           className={`btn px-3 py-2 text-sm ${op === "width" ? "btn-primary" : "btn-ghost"}`}
         >
           Stereo width
+        </button>
+        <button
+          type="button"
+          data-testid="correct-op-eq"
+          aria-pressed={op === "eq"}
+          onClick={() => onSelectOp("eq")}
+          className={`btn px-3 py-2 text-sm ${op === "eq" ? "btn-primary" : "btn-ghost"}`}
+        >
+          EQ assist
         </button>
       </div>
 

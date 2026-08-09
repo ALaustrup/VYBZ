@@ -11,7 +11,10 @@ export type AutoFixOp =
   | "level"
   | "hum"
   | "widthWiden"
-  | "widthNarrow";
+  | "widthNarrow"
+  | "eqCutBass"
+  | "eqCutBright"
+  | "eqBoostLow";
 export type AutoFixTier = "ship" | "roadmap" | "manual";
 
 export type AutoFixMapping = {
@@ -63,6 +66,24 @@ const SHIP: Record<string, AutoFixMapping> = {
     tier: "ship",
     disclosure: "Mid/side narrow assist — re-check after.",
   },
+  AUDIO_SPECTRAL_BASS_HEAVY: {
+    op: "eqCutBass",
+    label: "Ease low end (gentle shelf)",
+    tier: "ship",
+    disclosure: "Soft low-shelf assist — re-check after. Not a mix rewrite.",
+  },
+  AUDIO_SPECTRAL_BRIGHT: {
+    op: "eqCutBright",
+    label: "Ease brightness (gentle shelf)",
+    tier: "ship",
+    disclosure: "Soft high-shelf assist — re-check after. Not a mix rewrite.",
+  },
+  AUDIO_SPECTRAL_THIN: {
+    op: "eqBoostLow",
+    label: "Add low support (gentle shelf)",
+    tier: "ship",
+    disclosure: "Soft low-shelf assist — re-check after. Not a mix rewrite.",
+  },
   AUDIO_LOUDNESS_QUIET: {
     op: "level",
     label: "Level toward streaming loudness (−14)",
@@ -77,12 +98,7 @@ const SHIP: Record<string, AutoFixMapping> = {
   },
 };
 
-const ROADMAP = new Set([
-  "AUDIO_SPECTRAL_BASS_HEAVY",
-  "AUDIO_SPECTRAL_BRIGHT",
-  "AUDIO_SPECTRAL_THIN",
-  "AUDIO_CLICK_POP",
-]);
+const ROADMAP = new Set(["AUDIO_CLICK_POP"]);
 
 const MANUAL = new Set([
   "AUDIO_LOSSY_MASTER",

@@ -13,6 +13,7 @@ import {
   applyPeakSafety,
   applySilenceTrim,
   applyStereoWidth,
+  SPECTRAL_EQ_VERSION,
   STEREO_WIDTH_VERSION,
   removeDcOffset,
 } from "@vybz/processing/waveform";
@@ -34,6 +35,7 @@ describe("M6 correction gate", () => {
     expect(SILENCE_TRIM_VERSION).toMatch(/^m6\./);
     expect(MAINS_HUM_CORRECT_VERSION).toMatch(/^m6\./);
     expect(STEREO_WIDTH_VERSION).toMatch(/^m6\./);
+    expect(SPECTRAL_EQ_VERSION).toMatch(/^m6\./);
   });
 
   it("DC remove is reproducible and bypassable (original buffer unchanged)", () => {
@@ -107,6 +109,7 @@ describe("M6 correction gate", () => {
     expect(page).toContain("correct-op-silence");
     expect(page).toContain("correct-op-hum");
     expect(page).toContain("correct-op-width");
+    expect(page).toContain("correct-op-eq");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
   });

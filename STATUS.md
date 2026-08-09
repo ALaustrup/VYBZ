@@ -1,49 +1,26 @@
 # STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
-> Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `feat/or026-stereo-width-correct`
-**HEAD:** (tip after commit)
-**Working tree:** clean after commit
-**Current milestone:** **M6 / OR-026** - hum + width; EQ assist next
-
----
+**Branch:** `feat/or026-spectral-eq-assist`
+**HEAD:** tip after commit
+**Current milestone:** **M6 / OR-026** - hum + width + EQ; click + BS.1770 remain
 
 ## Production
 
-| Item | Value | Evidence |
-|---|---|---|
-| Alias | https://vybz.cloud | live |
-| Production SHA | `1cf0d237` | Merge PR #108 hum (pre this unit) |
-
-## Last completed operations
-
-| Unit | State |
+| Item | Value |
 |---|---|
-| PR #107 Alpha welcome | **MERGED** |
-| PR #108 OR-026 hum | **MERGED** `1cf0d237` |
-| OR-026 stereo width | **CODED · LOCAL VALIDATED** - this branch |
+| Production SHA | `d697e697` (PR #109 width) pre this unit |
 
-## This unit (OR-026 width)
+## This unit
 
-| Change | Detail |
-|---|---|
-| DSP | `applyStereoWidth` m6.stereo-width.1 - mid/side widen/narrow + mono guard |
-| Correct | Stereo width auto op |
-| Analyzer | NARROW / SIDE_HEAVY / OUT_OF_PHASE / MONO_COMPAT_LOSS ship Fix |
+Spectral EQ assist shelves (cutBass / cutBright / boostLow) + Analyzer Fix for SPECTRAL_* findings.
 
-## Gate (local)
+## Gate
 
-```
-npm run lint / test (446) / build / check:no-fixtures - PASS
-```
+lint / test (448) / build / check:no-fixtures PASS
 
 ## Direction
 
-Next authorised: EQ assist -> click attenuate -> BS.1770 gain-to-target.
-
-## Known contradictions
-
-Native desktop BS.1770 approx-pending. Peak safety sample-peak only.
+Next: click attenuate, then BS.1770 gain-to-target.
