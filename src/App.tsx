@@ -14,6 +14,8 @@ import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { VDock } from "@/components/vdock/VDock";
 import { SuiteShell } from "@/shell/SuiteShell";
+import { AlphaWelcomeTour } from "@/features/alpha/AlphaWelcomeTour";
+import { AlphaFeedbackFab } from "@/features/alpha/AlphaFeedbackFab";
 import { suitePlaceholderRoutes } from "@/app/suitePlaceholderRoutes";
 import { ensureEliteFxDefault } from "@/lib/display";
 import { BRAND_BG, surfaceForPath } from "@/lib/surfaceTheme";
@@ -275,6 +277,8 @@ export function App() {
         <CamCallOverlay />
         <VideoMessageHost />
         <ReactiveFrame />
+        {userId ? <AlphaWelcomeTour userId={userId} /> : null}
+        <AlphaFeedbackFab />
         <Toast /><Confetti />
       </CamCallProvider>
     </MessagePopoutProvider>

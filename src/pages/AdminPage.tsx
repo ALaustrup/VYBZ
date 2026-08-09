@@ -566,6 +566,20 @@ function BugsTab() {
                 <Badge tone={b.status === "resolved" ? "bg-feel/20 text-feel" : b.status === "open" ? "bg-amber-400/20 text-amber-300" : "bg-white/10 text-white/60"}>{b.status}</Badge>
               </div>
               {b.body && <p className="mt-1 text-[13px] text-white/70">{b.body}</p>}
+              {typeof b.context?.screenshotDataUrl === "string" ? (
+                <a
+                  href={b.context.screenshotDataUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-block overflow-hidden rounded-xl ring-1 ring-white/12"
+                >
+                  <img
+                    src={b.context.screenshotDataUrl}
+                    alt={typeof b.context.screenshotName === "string" ? b.context.screenshotName : "Screenshot"}
+                    className="max-h-40 max-w-full object-contain"
+                  />
+                </a>
+              ) : null}
               <p className="mt-1 text-[11px] text-white/40">
                 {b.reportedBy ?? "—"} · {new Date(b.createdAt).toLocaleString()}
                 {b.context?.page ? ` · ${String(b.context.page)}` : ""}

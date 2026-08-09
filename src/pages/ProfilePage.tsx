@@ -5,8 +5,8 @@ import {
   Loader2, Sparkles, ScrollText, ShieldCheck, Shield, Bug, AudioLines,
   ChevronRight, MoreHorizontal, X,
 } from "lucide-react";
-import { ReportBugModal } from "@/components/ReportBugModal";
 import { PasskeysCard } from "@/components/PasskeysCard";
+import { requestOpenFeedback } from "@/features/alpha/AlphaWelcomeTour";
 import { ArtistHome } from "@/components/home/ArtistHome";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfileInbox } from "@/components/profile/ProfileInbox";
@@ -54,7 +54,6 @@ export function ProfilePage() {
   const [drops, setDrops] = useState<Drop[]>([]);
   const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
-  const [bugOpen, setBugOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   function setYouSub(next: YouSub) {
@@ -234,15 +233,21 @@ export function ProfilePage() {
                   {profile.isAdmin && (
                     <LinkRow icon={ShieldCheck} title="Admin" body="Members & matchmaking" onClick={() => { setSettingsOpen(false); navigate("/admin"); }} />
                   )}
-                  <LinkRow icon={Bug} title="Report a bug" body="Goes to the team" onClick={() => { setSettingsOpen(false); setBugOpen(true); }} />
+                  <LinkRow
+                    icon={Bug}
+                    title="Report a bug"
+                    body="Goes to the team"
+                    onClick={() => {
+                      setSettingsOpen(false);
+                      requestOpenFeedback();
+                    }}
+                  />
                 </div>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <ReportBugModal open={bugOpen} onClose={() => setBugOpen(false)} />
     </div>
   );
 }

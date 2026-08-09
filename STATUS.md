@@ -4,10 +4,10 @@
 > Update it at the end of any unit of work. If it is stale, it is wrong.
 
 **Date:** 2026-08-09
-**Branch:** `feat/landing-invite-key-gate`
+**Branch:** `feat/alpha-welcome-feedback`
 **HEAD:** (tip after commit)
 **Working tree:** clean after commit
-**Current milestone:** **M6** - landing alpha gate then Correct deepen
+**Current milestone:** **M6** - Alpha welcome/feedback then Correct deepen
 
 ---
 
@@ -16,30 +16,31 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | live |
-| Production SHA | `5adba9ee` | Merge PR #105 (app-bar wordmark) at branch start |
+| Production SHA | `8709fc42` | prior merge PR #106 landing invite gate |
 | Agent API | `GET /api/ai-review/manifest` | Bearer `AI_REVIEW_AGENT_TOKEN` |
 
 ## Last completed operations
 
 | Unit | State |
 |---|---|
-| PR #105 app-bar wordmark + MobileNav freeze | **MERGED** (`5adba9ee`) - Vercel deploy not re-verified in this unit |
-| Landing invite-key gate (strip manifesto) | **CODED · LOCAL VALIDATED** - this branch |
+| PR #106 landing invite-key gate | **DEPLOYED** (owner confirmed live) |
+| Alpha welcome tour + glowing feedback FAB | **CODED · LOCAL VALIDATED** - this branch |
 
-## This unit (landing gate)
+## This unit
 
 | Change | Detail |
 |---|---|
-| Landing | Logo + hue/hover mark; key field; pulsing neon Enter + Sign in ghost |
-| Flow | Key stashed in sessionStorage -> `/enter` -> auto-redeem on InviteRedeemPage |
-| Removed | Headline, steps, free-scan CTAs from signed-out landing |
-| Kept | Privacy / Terms footer; Codex link on redeem |
+| Welcome | 3-step modal once per user (`vybz.alphaWelcome.v1:{userId}`) |
+| Guide | Analyzer / Correct / Library / Stems / Tools highlights |
+| FAB | Glowing bug button above dock; opens feedback form anytime |
+| Form | Title, body, optional compressed screenshot in `bug_reports.context` |
+| Admin | Bugs tab shows screenshot thumb when present |
 
 ## Gate (local)
 
 ```
 npm run lint - PASS
-npm run test - 436 passed
+npm run test - alphaWelcomeGate + prior suite (438 expected after full run)
 npm run build - PASS
 npm run check:no-fixtures - OK
 ```
@@ -48,14 +49,13 @@ npm run check:no-fixtures - OK
 
 | Item | State |
 |---|---|
-| Next | Push/PR/merge landing gate; then M6 Correct deepen (OR-026 hum still needs authorisation) |
-| Parked | OR-020-022, OR-024-026; auth AI-review walk; Instrument Creator |
-| Stash | `stash@{0}` still present - not dropped |
+| Next | Owner authorise push/PR/merge; then M6 Correct deepen / OR-026 |
+| Parked | OR-020-022, OR-024-026 |
 
 ## Blockers
 
-None for local validation.
+Push / PR / merge awaiting owner authorisation.
 
 ## Known contradictions
 
-Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety sample-peak only. Leveling RMS proxy toward -14, not full BS.1770 gain-to-target.
+Native desktop BS.1770 remains approx-pending (M4 carry-forward). Peak safety sample-peak only. Screenshot stored in report context (compressed), not a dedicated Storage bucket.

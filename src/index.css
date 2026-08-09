@@ -432,6 +432,55 @@
     .landing-neon-cta-ghost--pulse { animation: none !important; }
   }
 
+  /* Alpha feedback FAB — always reachable above the dock */
+  .alpha-feedback-fab {
+    @apply fixed z-[70] flex h-12 w-12 items-center justify-center rounded-full text-ink-950;
+    right: max(0.85rem, env(safe-area-inset-right));
+    bottom: calc(var(--dock-h, 4.5rem) + 0.85rem + env(safe-area-inset-bottom));
+    background: linear-gradient(145deg, rgb(0 220 255), rgb(120 255 200) 55%, rgb(255 210 90));
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.2),
+      0 0 22px rgb(0 220 255 / 0.45),
+      0 8px 24px rgb(0 0 0 / 0.45);
+    transition: transform 160ms ease, filter 160ms ease, box-shadow 200ms ease;
+  }
+  .alpha-feedback-fab:hover {
+    filter: brightness(1.08);
+    transform: scale(1.05);
+  }
+  .alpha-feedback-fab:active {
+    transform: scale(0.96);
+  }
+  .alpha-feedback-fab--glow {
+    animation: alpha-fab-glow 2.8s ease-in-out infinite;
+  }
+  .alpha-feedback-fab--pulse {
+    animation: alpha-fab-pulse 0.9s ease-in-out 4;
+  }
+  @keyframes alpha-fab-glow {
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.18),
+        0 0 16px rgb(0 220 255 / 0.35),
+        0 8px 22px rgb(0 0 0 / 0.4);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.3),
+        0 0 32px rgb(0 220 255 / 0.75),
+        0 0 48px rgb(120 255 200 / 0.35),
+        0 8px 22px rgb(0 0 0 / 0.4);
+    }
+  }
+  @keyframes alpha-fab-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.14); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .alpha-feedback-fab--glow,
+    .alpha-feedback-fab--pulse { animation: none !important; }
+  }
+
   /* Frosted glass chip — reference UX language */
   /* Neutral to match `.forge-chip`; the blue-tinted gradient read as a second product. */
   .glass-chip {
