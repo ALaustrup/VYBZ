@@ -162,6 +162,11 @@ const GUIDES: Record<string, FindingGuide> = {
     fix: "Audition the flagged region; re-export with longer crossfades or repair the edit in your DAW.",
     target: "No impulsive jumps ≥ 20 dB above local RMS (VYBZ heuristic)",
   },
+  AUDIO_FINISH_OVERPROCESSED: {
+    why: "When crest, loudness range, and PLR are all very low together, the finish often sounds flat — common after heavy AI/master chains.",
+    fix: "Ease limiting, restore micro-dynamics, or rebuild the loudness stage. Use Correct peak/loudness assists only as a starting point, then re-check by ear.",
+    target: "Finish heuristic — not an AI detector; cites measured crest + LRA + PLR only",
+  },
   ARTWORK_TOO_SMALL: {
     why: "Below-minimum artwork is rejected outright by most stores.",
     fix: "Export cover at least 1400×1400 — 3000×3000 recommended for sharp display everywhere.",

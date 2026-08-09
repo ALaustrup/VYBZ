@@ -76,6 +76,7 @@ import { MidiMakerPage } from "@/features/tools/MidiMakerPage";
 import { MediaConverterPage } from "@/features/tools/MediaConverterPage";
 import { DcOffsetCorrectPage } from "@/features/correction/DcOffsetCorrectPage";
 import { TranslationLabPage } from "@/features/translation/TranslationLabPage";
+import { PackMakerPage } from "@/features/packs/PackMakerPage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
 import { InviteRedeemPage } from "@/features/alpha/InviteRedeemPage";
 import { PasswordLockPage } from "@/features/alpha/PasswordLockPage";
@@ -214,6 +215,7 @@ export function App() {
         <Route path="/tools/convert" element={<MediaConverterPage />} />
         <Route path="/tools/correct" element={<DcOffsetCorrectPage />} />
         <Route path="/tools/translate" element={<TranslationLabPage />} />
+        <Route path="/tools/pack-maker" element={<PackMakerPage />} />
         <Route path="/tools/stems" element={<StemMakerPage />} />
         <Route path="/track/:id" element={<TrackDetailPage />} />
         <Route path="/visuals/tutorial" element={<VisualizerTutorialPage />} />

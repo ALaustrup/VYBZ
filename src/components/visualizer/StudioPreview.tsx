@@ -1,15 +1,14 @@
 import { useEffect, useRef } from "react";
 import {
-  STUDIO_H,
-  STUDIO_W,
   renderStudioFrame,
+  studioSize,
   type StudioBands,
   type StudioReactiveSettings,
 } from "@/lib/visualizerStudio";
 
 /**
  * Live canvas preview for the Visualizer Studio.
- * Draws media + reactive overlays driven by analyser bands.
+ * Canvas size follows settings.resolution (measured WxH on the element).
  */
 export function StudioPreview({
   mediaEl,
@@ -45,12 +44,14 @@ export function StudioPreview({
   mediaRef.current = mediaEl;
   kindRef.current = mediaKind;
 
+  const { w, h } = studioSize(settings);
+
   useEffect(() => {
     const canvas = localRef.current;
     if (!canvas) return;
     canvasRef.current = canvas;
-    canvas.width = STUDIO_W;
-    canvas.height = STUDIO_H;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -90,15 +91,18 @@ export function StudioPreview({
       running = false;
       cancelAnimationFrame(raf);
     };
-  }, [canvasRef]);
+  }, [canvasRef, w, h]);
 
   return (
     <canvas
       ref={localRef}
       className={className}
-      width={STUDIO_W}
-      height={STUDIO_H}
-      aria-label="Visualizer preview"
+      width={w}
+      height={h}
+      data-testid="studio-canvas"
+      data-studio-w={w}
+      data-studio-h={h}
+      aria-label={`Visualizer preview ${w}×${h}`}
     />
   );
 }

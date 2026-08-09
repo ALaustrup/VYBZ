@@ -266,6 +266,31 @@ describe("evaluateReadiness", () => {
     expect(findings.some((f) => f.code === "AUDIO_STEREO_SIDE_HEAVY")).toBe(true);
   });
 
+  it("emits AI-finish overprocessed heuristic from measured crest+LRA+PLR", () => {
+    const findings = evaluateReadiness({
+      title: "Song",
+      artistName: "Artist",
+      hasAudio: true,
+      hasArtwork: false,
+      audio: {
+        fileName: "Artist - Song.wav",
+        mimeType: "audio/wav",
+        sizeBytes: 1000,
+        sampleRate: 48000,
+        durationSeconds: 60,
+        loudnessMeasured: true,
+        peakDbfs: -1,
+        integratedLufs: -8,
+        crestFactorDb: 4,
+        loudnessRangeLu: 2.5,
+        plrDb: 5,
+      },
+    });
+    expect(findings.some((f) => f.code === "AUDIO_FINISH_OVERPROCESSED")).toBe(true);
+    const f = findings.find((x) => x.code === "AUDIO_FINISH_OVERPROCESSED");
+    expect(f?.detail.toLowerCase()).toContain("heuristic");
+  });
+
   it("flags intersample overshoot and mains hum when measured", () => {
     const findings = evaluateReadiness({
       title: "Song",

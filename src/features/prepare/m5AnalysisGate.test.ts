@@ -33,6 +33,7 @@ const M5_CODES = [
   "AUDIO_IS_PEAK_RISK",
   "AUDIO_MAINS_HUM",
   "AUDIO_CLICK_POP",
+  "AUDIO_FINISH_OVERPROCESSED",
 ] as const;
 
 /** Minimal mono 16-bit PCM WAV. */

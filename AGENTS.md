@@ -26,32 +26,37 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M7 — Translation Lab** is the active Masterplan milestone (kickoff authorised
-**2026-08-09**). M6 Correct close-out (loudness-matched A/B + owner gate sign-off) is
-authorised on the same date; OR-026 Tier B is enough Correct deepen — no further Tier B
-ops without a new authorisation.
+**M7 — Translation Lab** remains the active Masterplan milestone. Owner authorised
+**2026-08-09** option **C**: AI-finish brand positioning + M7 deepen + AI-finish analysis
+wedge + **OR-020** Pack Maker + Visualizer high-res / layers track.
 
 Instrument Creator (VST3) stays parked in `IDEAS_BACKLOG.md` (horizon / paid add-on).
+OR-021–OR-022 and OR-024–OR-025 remain parked. Social/networking/discovery **enhancement**
+is vision-approved but **not authorised to build** until audio-core milestones land
+(Law 3) — park under IDEAS until named.
+
+### Positioning (Masterplan §1)
+
+VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
+Law 1 still governs every detector and claim.
+
+### Authorised tracks (2026-08-09 C)
+
+1. **M7 deepen** — device/codec translation previews (phone/car shipped; codec later).
+2. **OR-029 AI-finish analysis** — heuristic findings from measured metrics; advise when
+   DSP cannot fix; no fabricated AI detectors.
+3. **OR-020 Pack Maker V1** — sample assemble → measured ZIP → storefront handoff.
+4. **OR-030 Visualizer studio** — resolution presets (incl. experimental 8K), layer
+   toggles, audio-reactive customize. Never claim “8K delivered” unless encode WxH is
+   measured. Continuous build authorised on these tracks without further prompts until
+   the owner parks them.
 
 ### Carry-forward authorisations (still in force)
 
-- **OR-019 Stem Maker V1** (assembly only) — 2026-08-08; V2 / OR-020–022 parked.
+- **OR-019 Stem Maker V1** — 2026-08-08; V2 parked.
 - **OR-023 Alpha invite keys** — 2026-08-08.
-- **Analyzer intake desk** — 2026-08-09; OR-024–OR-025 parked.
-- **OR-026** — shipped 2026-08-09 (#108–#111); closed for deepen unless re-authorised.
-
-### M6 close-out (authorised 2026-08-09)
-
-Loudness-matched A/B listening on `/tools/correct` (download stays dry). Owner gate
-sign-off recorded in `STATUS.md` when the close-out unit merges and deploys. Full AI
-mastering suite is still out of scope for M6.
-
-### M7 kickoff (authorised 2026-08-09)
-
-Translation Lab at `/tools/translate` — streaming-oriented −14 LUFS preview with
-explicit “not platform emulation” disclosure. Codec / device contexts deepen later on
-this track. Continuous build authorised for M7 kickoff without further prompts until the
-owner parks or closes the milestone.
+- **Analyzer intake desk** — 2026-08-09.
+- **OR-026–OR-028** — shipped; Correct deepen closed unless re-authorised.
 
 Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
 track remains withdrawn. The Masterplan §9 sequence is the only plan.

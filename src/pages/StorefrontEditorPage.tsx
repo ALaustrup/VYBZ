@@ -76,6 +76,21 @@ export function StorefrontEditorPage() {
     return () => { cancelled = true; };
   }, [id, isNew, hydrate, showToast]);
 
+  useEffect(() => {
+    if (!isNew) return;
+    void import("@/features/packs/packHandoff").then(({ takePackHandoff }) => {
+      const handoff = takePackHandoff();
+      if (!handoff) return;
+      if (handoff.title) setTitle(handoff.title);
+      showToast(`Pack Maker ZIP ready: ${handoff.fileName} — upload it below`);
+      // Leave objectUrl for the user to download if needed; revoke on unload.
+      const a = document.createElement("a");
+      a.href = handoff.objectUrl;
+      a.download = handoff.fileName;
+      // Do not auto-click — force explicit upload via PackUploader (storage path required).
+    });
+  }, [isNew, showToast]);
+
   if (!FLAGS.storefront) return <Navigate to="/" replace />;
 
   function parsePriceCents(): number | null {

@@ -195,7 +195,10 @@ approval and an entry in the Masterplan.
 | OR-017 | Separate Chats section (Messages stays DMs-only; Rooms unlinked) | Parked — Artist OS Surface Overhaul 2026-08-07 |
 | OR-018 | Instrument Creator — paid one-time unlock for a full VST3 instrument design studio (native DSP / JUCE-class work; not a web placeholder) | Idea — horizon add-on; no suite rail tile until a signed plug-in exists |
 | OR-019 | Stem Maker — V1 assembly from exported stems; V2 paid/desktop source separation | **V1 authorised 2026-08-08** — assembly only; V2 still parked (see §8.1) |
-| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | Idea — parked; not authorised (see §8.1) |
+| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | **Authorised 2026-08-09** — V1 assemble wedge (see §8.1) |
+| OR-029 | AI-finish analysis — heuristic findings for over-processed / AI-assisted masters; advise when unfixable | **Authorised 2026-08-09** |
+| OR-030 | Visualizer studio high-res (up to experimental 8K) + layer customize | **Authorised 2026-08-09** — Law 1: measure canvas/export size |
+| OR-031 | Pro networking + discovery for lesser-known artists (release-centered) | Idea — vision ok; **build parked** until Law 3 audio core advances |
 | OR-021 | Batch Processor — deepen desktop/web batch (correct, convert, report) | Idea — parked; not authorised (see §8.1) |
 | OR-022 | Project Archiver — checksummed release-project archive (not DSP delivery) | Idea — parked; not authorised (see §8.1) |
 | OR-023 | Alpha invite keys — hard gate + Admin mint for FB/Reddit giveaways | **Authorised 2026-08-08** — hard gate (see §8.2) |
@@ -208,8 +211,8 @@ approval and an entry in the Masterplan.
 ### 8.1 Producer toolkit (2026-08-08)
 
 Owner parked OR-019–OR-022, then authorised **OR-019 V1 assembly** the same day.
-**OR-020–OR-022** and **OR-019 V2 separation** stay parked — no build until
-`AGENTS.md` names them. Masterplan §9 remains the only plan.
+**OR-020 V1** authorised **2026-08-09** (assemble ZIP + storefront handoff). **OR-021–OR-022**
+and **OR-019 V2** stay parked. Masterplan §9 remains the only plan.
 
 **Library / catalog isolation (locked):** stems, loops, and pack working-set assets are
 **not** auto-ingested into the listening catalog / Library feed. No automatic `createDrop`
@@ -235,11 +238,11 @@ checksummed packaging patterns.
 
 #### OR-020 — Loops / Sample Pack Creator
 
-- Flow: ingest media → slice/normalize/tag → preview → pack layout (folders, BPM/key if
-  measured, licenses) → export ZIP → optional handoff to existing storefront uploader.
-- Not a second storefront; builder produces assets; selling stays storefront.
-- Same isolation: pack working set ≠ catalog until manual add.
-- **Horizon:** after Stem assembly patterns settle.
+- **V1 (authorised):** ingest WAVs → measure peak/RMS/duration → folder by kind heuristic
+  (`oneshots/` / `loops/` / `samples/`) → `manifest.json` ZIP → download or handoff toast
+  to `/tools/packs/new`. No Library auto-ingest. No BPM/key/slice yet.
+- Not a second storefront; selling stays storefront.
+- **Later:** slice/normalize/tag, licenses, richer scan.
 
 #### OR-021 — Batch Processor
 
