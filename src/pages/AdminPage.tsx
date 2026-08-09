@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Bug, Layers, Loader2, Radio, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles, Wifi, Coins, Scale } from "lucide-react";
+import { Bug, Layers, Loader2, Radio, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles, Wifi, Coins, Scale, KeyRound } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
@@ -29,7 +29,7 @@ const WEIGHTS: WeightDef[] = [
 
 const WEIGHT_LABELS: Record<string, string> = Object.fromEntries(WEIGHTS.map((w) => [w.key, w.label]));
 
-type Tab = "members" | "staff" | "applications" | "disciplines" | "matchmaking" | "flair" | "bugs" | "infra";
+type Tab = "members" | "staff" | "invites" | "applications" | "disciplines" | "matchmaking" | "flair" | "bugs" | "infra";
 
 export function AdminPage() {
   const { profile } = useSession();
@@ -42,6 +42,7 @@ export function AdminPage() {
       <div className="no-scrollbar flex gap-1.5 overflow-x-auto px-4 pt-2">
         <TabBtn on={tab === "members"} onClick={() => setTab("members")} icon={<Users className="h-3.5 w-3.5" />} label="Members" />
         <TabBtn on={tab === "staff"} onClick={() => setTab("staff")} icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Staff" />
+        <TabBtn on={tab === "invites"} onClick={() => setTab("invites")} icon={<KeyRound className="h-3.5 w-3.5" />} label="Invites" />
         <TabBtn on={tab === "applications"} onClick={() => setTab("applications")} icon={<UserPlus className="h-3.5 w-3.5" />} label="Applications" />
         <TabBtn on={tab === "disciplines"} onClick={() => setTab("disciplines")} icon={<Layers className="h-3.5 w-3.5" />} label="Disciplines" />
         <TabBtn on={tab === "matchmaking"} onClick={() => setTab("matchmaking")} icon={<SlidersHorizontal className="h-3.5 w-3.5" />} label="Matchmaking" />
@@ -52,6 +53,7 @@ export function AdminPage() {
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-10 pt-4">
         {tab === "members" && <MembersTab />}
         {tab === "staff" && <StaffTab />}
+        {tab === "invites" && <InvitesTab />}
         {tab === "applications" && <ApplicationsTab />}
         {tab === "disciplines" && <DisciplinesTab />}
         {tab === "matchmaking" && <MatchmakingTab />}
@@ -181,6 +183,156 @@ function StaffTab() {
               <div key={a.id} className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px]">
                 <span className="min-w-0 flex-1 truncate text-white/65"><span className="text-white/85">@{a.actor ?? "—"}</span> {a.action.replace(/_/g, " ")} {a.targetKind ? `· ${a.targetKind}` : ""}</span>
                 <span className="shrink-0 text-white/35">{new Date(a.at).toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Alpha invite keys (OR-023) ───────────────────────────────────────────────
+function InvitesTab() {
+  const { showToast } = useSession();
+  const [count, setCount] = useState(10);
+  const [batch, setBatch] = useState("FB01");
+  const [note, setNote] = useState("facebook giveaway");
+  const [expiresDays, setExpiresDays] = useState(30);
+  const [busy, setBusy] = useState(false);
+  const [minted, setMinted] = useState<api.MintInviteCode[] | null>(null);
+  const [rows, setRows] = useState<api.InviteKeyRow[] | null>(null);
+
+  const load = useCallback(() => { void api.adminListInviteKeys(150).then(setRows); }, []);
+  useEffect(() => { load(); }, [load]);
+
+  async function mint() {
+    setBusy(true);
+    setMinted(null);
+    const res = await api.mintInviteKeys({
+      count,
+      batch,
+      note,
+      expiresDays,
+      maxRedemptions: 1,
+    });
+    setBusy(false);
+    if (!res.ok) {
+      showToast(res.reason);
+      return;
+    }
+    setMinted(res.codes);
+    showToast(`Minted ${res.count} keys · batch ${res.batchId}`);
+    load();
+  }
+
+  function downloadCsv() {
+    if (!minted?.length) return;
+    const lines = ["code,batchId,expiresAt,maxRedemptions,id"];
+    for (const c of minted) {
+      lines.push([c.code, c.batchId, c.expiresAt, String(c.maxRedemptions), c.id].join(","));
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vybz-invites-${batch || "A1"}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function copyAll() {
+    if (!minted?.length) return;
+    await navigator.clipboard.writeText(minted.map((c) => c.code).join("\n"));
+    showToast("Codes copied");
+  }
+
+  async function revokeBatch() {
+    const b = batch.trim();
+    if (!b) { showToast("Set batch id to revoke"); return; }
+    if (!window.confirm(`Revoke unused keys in batch ${b.toUpperCase()}?`)) return;
+    const res = await api.adminRevokeInviteKeys({ batch: b });
+    if (!res.ok) showToast(res.reason ?? "revoke failed");
+    else showToast(`Revoked ${res.revoked ?? 0}`);
+    load();
+  }
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="font-display text-lg font-semibold text-white">Alpha invite keys</p>
+        <p className="mt-1 text-[13px] text-white/45">
+          Hard gate for producer alpha. Plaintext codes are shown once at mint — download or copy immediately.
+          Existing profiles were grandfathered; new accounts must redeem.
+        </p>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="text-[12px] text-white/50">
+          Count
+          <input type="number" min={1} max={100} value={count}
+            onChange={(e) => setCount(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white" />
+        </label>
+        <label className="text-[12px] text-white/50">
+          Batch id
+          <input value={batch} onChange={(e) => setBatch(e.target.value.toUpperCase())}
+            placeholder="FB01"
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 font-mono text-sm text-white" />
+        </label>
+        <label className="text-[12px] text-white/50 sm:col-span-2">
+          Note
+          <input value={note} onChange={(e) => setNote(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white" />
+        </label>
+        <label className="text-[12px] text-white/50">
+          Expires (days)
+          <select value={expiresDays} onChange={(e) => setExpiresDays(Number(e.target.value))}
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white">
+            <option value={14}>14</option>
+            <option value={30}>30</option>
+            <option value={60}>60</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button type="button" onClick={() => void mint()} disabled={busy}
+          className="rounded-full bg-veil-500/30 px-4 py-2 text-[13px] font-semibold text-white ring-1 ring-veil-400/40 active:scale-95 disabled:opacity-50">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Mint keys"}
+        </button>
+        <button type="button" onClick={() => void revokeBatch()}
+          className="rounded-full bg-white/[0.06] px-4 py-2 text-[13px] font-semibold text-white/70 active:scale-95">
+          Revoke batch
+        </button>
+      </div>
+
+      {minted && minted.length > 0 && (
+        <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/[0.06] p-3">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <p className="text-[13px] font-semibold text-cyan-100">Just minted — save these now</p>
+            <button type="button" onClick={() => void copyAll()} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] text-white/80">Copy all</button>
+            <button type="button" onClick={downloadCsv} className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] text-white/80">Download CSV</button>
+          </div>
+          <pre className="max-h-48 overflow-auto whitespace-pre-wrap break-all font-mono text-[12px] text-white/85">
+            {minted.map((c) => c.code).join("\n")}
+          </pre>
+        </div>
+      )}
+
+      <div>
+        <p className="mb-2 text-[11px] uppercase tracking-wider text-white/40">Recent keys (prefix only)</p>
+        {rows === null ? <Spinner /> : rows.length === 0 ? (
+          <p className="py-6 text-center text-sm text-white/45">No keys minted yet.</p>
+        ) : (
+          <div className="space-y-1.5">
+            {rows.map((r) => (
+              <div key={r.id} className="flex flex-wrap items-center gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-[12px]">
+                <span className="font-mono text-white/85">{r.codePrefix}…</span>
+                <Badge tone="bg-white/10 text-white/70">{r.batchId}</Badge>
+                <span className="text-white/45">{r.redeemedCount}/{r.maxRedemptions} used</span>
+                {r.revokedAt ? <Badge tone="bg-rose-400/20 text-rose-200">revoked</Badge> : null}
+                {r.expiresAt ? <span className="text-white/35">exp {new Date(r.expiresAt).toLocaleDateString()}</span> : null}
               </div>
             ))}
           </div>

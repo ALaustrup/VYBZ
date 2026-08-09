@@ -87,6 +87,8 @@ export interface Profile {
   modPoints: number;
   equippedCosmetics: Record<string, string>;
   banned: boolean;
+  /** ISO timestamp when alpha invite access was granted (OR-023). Null = gated. */
+  alphaAccessAt?: string | null;
   profile: ProfileDetails;
   /** The drop the creator has chosen to headline their profile (Library). */
   featuredDropId?: string | null;

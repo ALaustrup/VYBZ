@@ -38,6 +38,11 @@ exported stems, measured per-stem metrics, optional Correct ops, ZIP + manifest;
 auto-catalog ingest; no AI source separation (V2 stays parked). **OR-020–OR-022** remain
 parked in `IDEAS_BACKLOG.md` §8.1 until separately authorised.
 
+Owner authorised **2026-08-08** **OR-023 Alpha invite keys (hard gate)** — hashed
+invite keys, redeem RPC, Admin mint/CSV, App shell blocked until
+`profiles.alpha_access_at` or admin. Existing profiles grandfathered. Waitlist stays
+notify-only.
+
 Social/live/messaging still receive no new feature work (Law 3). Premium-suite phase
 track remains withdrawn. The Masterplan §9 sequence is the only plan.
 

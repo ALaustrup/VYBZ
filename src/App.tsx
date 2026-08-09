@@ -74,6 +74,8 @@ import { MidiMakerPage } from "@/features/tools/MidiMakerPage";
 import { MediaConverterPage } from "@/features/tools/MediaConverterPage";
 import { DcOffsetCorrectPage } from "@/features/correction/DcOffsetCorrectPage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
+import { InviteRedeemPage } from "@/features/alpha/InviteRedeemPage";
+import { hasAlphaAccess } from "@/lib/alphaAccess";
 import { resolveE2eFixture } from "@/app/e2eFixtures";
 
 // Vite inlines import.meta.env at build time, so this folds to `false` for production
@@ -158,9 +160,14 @@ export function App() {
     }
     return <LandingPage />;
   }
-  // Signed in â€” wait for profile before deciding username vs hub (avoids false UsernameSetup).
+  // Signed in — wait for profile before deciding username vs hub (avoids false UsernameSetup).
   if (!profile) {
     return <><DynamicBackground variant={BRAND_BG} mode="static" /><div className="flex min-h-[100dvh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div></>;
+  }
+  // OR-023 hard gate: invite key (or admin) before username / suite shell.
+  if (!hasAlphaAccess(profile)) {
+    if (isPublicDoc) return <PublicDocShell />;
+    return <InviteRedeemPage />;
   }
   if (!profile.username) {
     if (isPublicDoc) return <PublicDocShell />;

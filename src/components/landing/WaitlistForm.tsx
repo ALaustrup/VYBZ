@@ -30,10 +30,10 @@ export function WaitlistForm({ id }: { id?: string }) {
           {done === "already" ? "You're already on the list." : "You're on the list."}
         </p>
         <p className="mt-2 text-sm text-white/55">
-          We'll email you from VYBZ when alpha opens. Or enter now if you have access.
+          We'll email you when invite keys open. If you already have a key, sign in and redeem it.
         </p>
         <Link to="/enter" className="mt-4 inline-block text-sm text-cyan-300/90 underline-offset-4 hover:underline">
-          Enter VYBZ
+          Enter with invite key
         </Link>
       </div>
     );
