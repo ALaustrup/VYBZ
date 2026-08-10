@@ -26,10 +26,10 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R0** in
-progress: full suite **visual redesign** foundation (tokens, per-app accents,
-`SuiteStage`). Store Preview / publish commerce is a **later M10 wave** — do not begin
-it until Wave R shell redesign is owner-validated. **M9** remains closed
+**M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R** visual
+redesign in progress on `feat/m10-suite-visual-redesign` (R0–R3 landed locally; stop for
+owner review before R4). Store Preview / publish commerce is a **later M10 wave** — do
+not begin it until Wave R shell redesign is owner-validated. **M9** remains closed
 (**DEPLOYED BUT UNVERIFIED**). **M7** / **M8** / OR deepen stay **parked**. Law 5: VDock
 contracts frozen (skin only). Law 1: no invented metrics. Law 3: no dating. Instrument
 Creator parked. OR-021–OR-022 and OR-024–OR-025 remain parked.
@@ -45,9 +45,11 @@ Law 1 still governs every detector and claim.
 ### Authorised track
 
 1. **M10 Wave R (visual redesign)** — cohesive premium music-ops UI; per-app accent
-   identity; Home command center and Store commerce in later waves. Branch
-   `feat/m10-suite-visual-redesign`. Gate: `m10SuiteRedesignGate.test.ts` (Wave R0–R2+).
-   R1 = SuiteShell ops chrome. R2 = Home library-first command center (measured status).
+   identity. Branch `feat/m10-suite-visual-redesign`. Gate:
+   `m10SuiteRedesignGate.test.ts` (Wave R0–R3+). R0 foundation · R1 SuiteShell ops chrome
+   · R2 Home library-first command center · R3 Analyzer desk + ToolWorkbench rollup
+   (Metadata / Art Check / Midi / Converter). R4 Library + public shells next after
+   owner review. Store commerce deferred.
 
 ### Closed / parked tracks (post-smoke)
 
@@ -101,8 +103,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 authorised** — Wave R0 (design-system foundation) in progress on
-`feat/m10-suite-visual-redesign`. Store commerce deferred.
+UNVERIFIED). **M10 authorised** — Wave R redesign on `feat/m10-suite-visual-redesign`
+(R0–R3). Store commerce deferred until Wave R owner-validated.
 
 ## Safety rules
 

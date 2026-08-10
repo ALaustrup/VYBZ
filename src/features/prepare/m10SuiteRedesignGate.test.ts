@@ -1,5 +1,5 @@
 /**
- * M10 Wave R redesign gate — foundation (R0) + shell chrome (R1) + Home ops (R2).
+ * M10 Wave R redesign gate — R0 foundation + R1 shell + R2 Home + R3 tools/Analyzer.
  * Cites Masterplan §10 M10 (partial): cohesive shell identity before Store commerce.
  * Full M10 publish/discover/support gate remains open until later waves.
  * Law 5: VDock disclosure / dry-playback contracts must remain intact.
@@ -100,5 +100,38 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(home).toContain("toPlayerTrack");
     // No invented engagement / fake readiness copy
     expect(home).not.toMatch(/engagement score|viral|estimated listeners/i);
+  });
+
+  it("Wave R3 rolls ToolWorkbench across remaining tools + denser Analyzer desk", () => {
+    const workbench = read("src/components/ToolWorkbench.tsx");
+    expect(workbench).toContain("wide?: boolean");
+    expect(workbench).toContain("ForgeDropzone");
+
+    const metadata = read("src/features/tools/MetadataEditorPage.tsx");
+    const art = read("src/features/tools/ArtCheckPage.tsx");
+    const midi = read("src/features/tools/MidiMakerPage.tsx");
+    const convert = read("src/features/tools/MediaConverterPage.tsx");
+    const correct = read("src/features/correction/DcOffsetCorrectPage.tsx");
+    const translate = read("src/features/translation/TranslationLabPage.tsx");
+    const packs = read("src/features/packs/PackMakerPage.tsx");
+    const stems = read("src/features/stems/StemMakerPage.tsx");
+    const analyzer = read("src/features/prepare/ReleasesPage.tsx");
+
+    for (const src of [metadata, art, midi, convert, correct, translate, packs, stems]) {
+      expect(src).toContain("ToolWorkbench");
+    }
+    expect(midi).toContain("wide");
+    expect(art).toContain("ForgeDropzone");
+    expect(convert).toContain("ForgeDropzone");
+    expect(metadata).toContain("ForgeDropzone");
+
+    expect(analyzer).toContain("analyzer-desk");
+    expect(analyzer).toContain("NexusPageHeader");
+    expect(analyzer).toContain("analyzer-desk-title");
+    expect(analyzer).toContain("analyzer-dropzone");
+    // Law 5 — Analyzer still routes previews through VDock compare contract
+    expect(analyzer).toContain("VDOCK_COMPARE_PREVIEW_VERSION");
+    // Law 1 — no fake DSP submission / engagement claims in Analyzer shell
+    expect(analyzer).not.toMatch(/guaranteed DSP|viral score|estimated streams/i);
   });
 });

@@ -14,7 +14,8 @@ describe("Analyzer intake desk gate", () => {
   it("cites the desk on ReleasesPage and redirects legacy new-scan", () => {
     const page = readFileSync(path.join(ROOT, "src/features/prepare/ReleasesPage.tsx"), "utf8");
     const neu = readFileSync(path.join(ROOT, "src/features/prepare/NewReleasePage.tsx"), "utf8");
-    expect(page).toMatch(/Check your mix/);
+    expect(page).toMatch(/Intake desk/);
+    expect(page).toMatch(/analyzer-desk/);
     expect(page).toMatch(/analyzer-dropzone/);
     expect(page).toMatch(/MAX_ANALYZER_BATCH/);
     expect(page).not.toMatch(/Finish what you scanned/);

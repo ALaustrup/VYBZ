@@ -4,6 +4,7 @@ import { Loader2, Music2, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
+import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { useSession } from "@/store/session";
 import { usePlatform } from "@/platform/bridge/PlatformProvider";
 import {
@@ -521,21 +522,23 @@ export function ReleasesPage() {
   const batchDone = rows.length > 0 && !scanning;
 
   return (
-    <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-releases">
-      <div className="pointer-events-none absolute inset-x-0 -top-4 h-[18rem] overflow-hidden rounded-[1.5rem]">
+    <div
+      className="analyzer-desk relative mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 pb-12 md:pb-16"
+      data-testid="prepare-releases"
+      data-analyzer-desk=""
+    >
+      <div className="pointer-events-none absolute inset-x-0 -top-4 h-[22rem] overflow-hidden rounded-[1.5rem]">
         <ForgeAtmosphere intensity="subtle" wave />
       </div>
 
-      <header className="relative z-[1]">
-        <p className="nexus-eyebrow">Analyzer</p>
-        <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Check your mix</h1>
-        <p className="nexus-subline mt-2 text-sm">
-          Drop up to {MAX_ANALYZER_BATCH} tracks — we measure on this device and tell you if they clear
-          this audio check. Cover art is separate (Art Check). Before/After previews play through VDock
-          with disclosed signals; auto-fix A/B uses loudness-matched listen ({VDOCK_COMPARE_PREVIEW_VERSION})
-          when buffers are ready.
-        </p>
-      </header>
+      <div className="relative z-[1]">
+        <NexusPageHeader
+          eyebrow="Analyzer"
+          title="Intake desk"
+          titleTestId="analyzer-desk-title"
+          subtitle={`Drop up to ${MAX_ANALYZER_BATCH} tracks — we measure on this device and tell you if they clear this audio check. Cover art is separate (Art Check). Before/After previews play through VDock with disclosed signals; auto-fix A/B uses loudness-matched listen (${VDOCK_COMPARE_PREVIEW_VERSION}) when buffers are ready.`}
+        />
+      </div>
 
       <div
         role="button"
@@ -553,7 +556,7 @@ export function ReleasesPage() {
         className="forge-glass forge-plasma relative z-[1] flex cursor-pointer flex-col items-center justify-center gap-3 px-6 py-14 text-center transition hover:border-white/25"
       >
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
-        <Upload className="relative z-[1] h-8 w-8 text-suite-cyan" />
+        <Upload className="relative z-[1] h-8 w-8 text-[rgb(var(--app-accent-rgb))]" />
         <div className="relative z-[1]">
           <p className="font-display text-lg font-semibold text-white">Drop tracks to scan</p>
           <p className="mt-1 text-sm text-white/50">

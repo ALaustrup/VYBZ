@@ -4,9 +4,9 @@
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** `13aa5265`
-**Current milestone:** **M10** authorised — Wave **R2** Home ops ready for review.
-Store commerce deferred. Do not begin R3 until owner proceeds.
+**HEAD:** *(pin after commit)*
+**Current milestone:** **M10** authorised — Wave **R3** Analyzer + ToolWorkbench rollup ready for review.
+Store commerce deferred. Do not begin R4 until owner proceeds.
 
 ## Production
 
@@ -22,7 +22,8 @@ Store commerce deferred. Do not begin R3 until owner proceeds.
 22. **M10 authorised** — owner **2026-08-10**; Wave R redesign.
 23. **M10 Wave R0** — foundation @ `33fc63df`.
 24. **M10 Wave R1** — shell chrome @ `ba62bf1d` / tip `aa5eaf4a`.
-25. **M10 Wave R2** — Home library-first ops command center (measured status + track actions).
+25. **M10 Wave R2** — Home ops @ `13aa5265` / tip `249500e1`.
+26. **M10 Wave R3** — Analyzer intake desk densification + ToolWorkbench on Metadata / Art Check / Midi Maker / Media Converter (Correct / Translate / Packs / Stems already on workbench).
 
 ## Deployment state
 
@@ -34,11 +35,11 @@ Prior polish smoke unchanged. Redesign production verification — **Not measure
 
 ## Latest verification
 
-M10 Wave R2 local:
+M10 Wave R3 local:
 
 - `npm run lint` — PASS
-- `m10SuiteRedesignGate` (8) + `m9VdockGate` (7) + `dashboardModel` (17) — PASS
-- Full `npm run test` / `build` — **Not measured** this unit (R2 stop for review)
+- `m10SuiteRedesignGate` (9) + `analyzerIntakeGate` (2) + `m9VdockGate` (7) — PASS
+- Full `npm run test` / `build` — **Not measured** this unit (R3 stop for review)
 
 ## Permanently out of scope (not parked)
 
@@ -50,4 +51,4 @@ M7/M8 deepen, OR deepen, Instrument Creator, M10 Store commerce (until Wave R va
 
 ## Next authorised action
 
-Owner review of M10 Wave R2 Home ops desk, then authorise R3 or request changes.
+Owner review of M10 Wave R3 Analyzer + tool workbench rollup, then authorise R4 (Library + public shells) or request changes.

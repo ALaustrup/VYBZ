@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Download, ImagePlus, Loader2, Sparkles } from "lucide-react";
+import { Download, Loader2, Sparkles } from "lucide-react";
+import { ForgeDropzone, ForgeMetric, ToolWorkbench } from "@/components/ToolWorkbench";
 import {
   ART_FILE_FAIL_BYTES,
   ART_FILE_WARN_BYTES,
@@ -66,36 +67,20 @@ export function ArtCheckPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="art-check">
-      <p className="mb-4 text-[13px] text-white/45">
-        Measure cover art against store-style square / {ART_STORE_MIN_PX}px rules and common upload
-        size guidance ({ART_FILE_WARN_BYTES / (1024 * 1024)}–{ART_FILE_FAIL_BYTES / (1024 * 1024)}{" "}
-        MiB soft caps — not a DSP submission claim). Fix resizes and pads; brighten only when
-        measured luma is low.
-      </p>
-
-      <label
-        className="mb-5 flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-10 text-center transition hover:border-veil-300/40"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          void onPick(e.dataTransfer.files?.[0]);
-        }}
-      >
-        <ImagePlus className="h-8 w-8 text-veil-300/80" />
-        <span className="text-sm text-white/80">Drop artwork or browse</span>
-        <span className="text-[11px] text-white/35">PNG, JPG, WebP</span>
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            e.target.value = "";
-            void onPick(f);
-          }}
-        />
-      </label>
+    <ToolWorkbench
+      eyebrow="Art Check"
+      title="Cover art desk"
+      subtitle={`Measure square / ${ART_STORE_MIN_PX}px store-style rules and ${ART_FILE_WARN_BYTES / (1024 * 1024)}–${ART_FILE_FAIL_BYTES / (1024 * 1024)} MiB soft caps — not a DSP submission claim. Fix resizes and pads; brighten only when measured luma is low.`}
+      testId="art-check"
+    >
+      <ForgeDropzone
+        label="Drop artwork"
+        hint="or click to choose · PNG, JPG, WebP"
+        accept="image/*"
+        busy={busy && !result}
+        inputTestId="art-check-input"
+        onFiles={(list) => void onPick(list?.[0])}
+      />
 
       {busy && !result && (
         <p className="flex items-center gap-2 text-sm text-white/50">
@@ -104,8 +89,9 @@ export function ArtCheckPage() {
       )}
 
       {result && (
-        <div className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="forge-glass forge-plasma relative space-y-4 !rounded-2xl p-4">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <div className="relative z-[1] grid gap-4 sm:grid-cols-2">
             {previewUrl && (
               <img src={previewUrl} alt="Original artwork" className="aspect-square w-full rounded-xl object-contain bg-black/40" />
             )}
@@ -113,43 +99,30 @@ export function ArtCheckPage() {
               <img src={fixedUrl} alt="Fixed artwork" className="aspect-square w-full rounded-xl object-contain bg-black/40" />
             )}
           </div>
-          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Size</dt>
-              <dd className="tabular-nums text-white/85">
-                {result.width} × {result.height}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Square</dt>
-              <dd>{result.square ? "Yes" : "No"}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Store min</dt>
-              <dd>{result.meetsStoreMin ? "Pass" : `Need ${ART_STORE_MIN_PX}²`}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Mean luma</dt>
-              <dd className="tabular-nums">{(result.meanLuma * 100).toFixed(0)}%</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">File</dt>
-              <dd>{prettyBytes(result.fileBytes)}</dd>
-            </div>
+          <dl className="relative z-[1] grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <ForgeMetric label="Size" value={`${result.width} × ${result.height}`} />
+            <ForgeMetric label="Square" value={result.square ? "Yes" : "No"} />
+            <ForgeMetric
+              label="Store min"
+              value={result.meetsStoreMin ? "Pass" : `Need ${ART_STORE_MIN_PX}²`}
+            />
+            <ForgeMetric label="Mean luma" value={`${(result.meanLuma * 100).toFixed(0)}%`} />
+            <ForgeMetric label="File" value={prettyBytes(result.fileBytes)} />
             <div data-testid="art-file-size-verdict">
-              <dt className="text-[10px] uppercase text-white/35">File size gate</dt>
-              <dd>
-                {result.fileSizeVerdict === "pass" && "Pass"}
-                {result.fileSizeVerdict === "warn" && "Warn (≥ 8 MiB)"}
-                {result.fileSizeVerdict === "fail" && "Fail-style (≥ 10 MiB)"}
-              </dd>
+              <ForgeMetric
+                label="File size gate"
+                value={
+                  result.fileSizeVerdict === "pass"
+                    ? "Pass"
+                    : result.fileSizeVerdict === "warn"
+                      ? "Warn (≥ 8 MiB)"
+                      : "Fail-style (≥ 10 MiB)"
+                }
+              />
             </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Brighten?</dt>
-              <dd>{result.needsBrighten ? "Suggested" : "Not needed"}</dd>
-            </div>
+            <ForgeMetric label="Brighten?" value={result.needsBrighten ? "Suggested" : "Not needed"} />
           </dl>
-          <div className="flex flex-wrap gap-2">
+          <div className="relative z-[1] flex flex-wrap gap-2">
             <button type="button" disabled={busy} onClick={() => void runFix()} className="btn btn-primary px-4 py-2.5 text-sm">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               Fix to {ART_STORE_MIN_PX}²
@@ -162,6 +135,6 @@ export function ArtCheckPage() {
           </div>
         </div>
       )}
-    </div>
+    </ToolWorkbench>
   );
 }
