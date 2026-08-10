@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `polish/tool-workbench-wave1` (unmerged; base `main` @ `fcac9016`)
-**HEAD:** `8bbc1a37`
+**HEAD:** `cc70b94b` (product `8bbc1a37`)
 **Current milestone:** **None open** (Masterplan). **Suite visual polish authorised**
 (owner **2026-08-10**) — Waves 0–4 committed on this branch. Do not begin **M10**.
 
