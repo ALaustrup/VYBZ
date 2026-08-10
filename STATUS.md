@@ -4,9 +4,9 @@
 
 **Date:** 2026-08-10
 **Branch:** `polish/tool-workbench-wave1` (unmerged; base `main` @ `fcac9016`)
-**HEAD:** working tree (uncommitted polish); tip parent `fcac9016`
+**HEAD:** `8bbc1a37`
 **Current milestone:** **None open** (Masterplan). **Suite visual polish authorised**
-(owner **2026-08-10**) — Wave 0–4 in progress on this branch. Do not begin **M10**.
+(owner **2026-08-10**) — Waves 0–4 committed on this branch. Do not begin **M10**.
 
 ## Production
 
@@ -24,10 +24,10 @@
     Translate / Correct / Packs / Stems / Discover / Library / Store / VDock disclosure
     (`m7.device-preview.1` + MediaSession).
 20. **Park M7 / M8 / OR deepen** — PR #139 @ `fcac9016`.
-21. **Suite visual polish authorised + implemented (local)** — Waves 0–4 on
+21. **Suite visual polish Waves 0–4** — commit `8bbc1a37` on
     `polish/tool-workbench-wave1`: ForgeAtmosphere, ToolWorkbench, rail chrome
     (Correct+Translate primary), ArtistHome + Analyzer next-step. Correctness gate PASS
-    locally; push/PR pending owner ask.
+    locally; PR open next.
 
 ## Deployment state
 
@@ -49,15 +49,15 @@ not yet on production.
 
 ## Latest verification
 
-Suite polish on `polish/tool-workbench-wave1` (working tree, base `fcac9016`):
+Suite polish @ `8bbc1a37` (base `fcac9016`):
 
 - `npm run lint` — PASS
 - `npm run test` — PASS (**505**)
 - `npm run build` — PASS
 - `npm run check:no-fixtures` — PASS (13 markers absent from `dist/`)
 
-Not yet pushed / not on production. Manual reduce-motion + VDock disclosure smoke on
-this branch — **Not measured**.
+Not on production until merge. Manual reduce-motion + VDock disclosure smoke on this
+branch — **Not measured**.
 
 ## Permanently out of scope (not parked)
 
@@ -70,5 +70,5 @@ Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
 
 ## Next authorised action
 
-Ask owner to commit / push / open PR for `polish/tool-workbench-wave1`. Do not begin M10
-until named.
+Open / merge PR for `polish/tool-workbench-wave1`. Manual smoke (VDock disclosure +
+reduce-motion calm) after preview deploy. Do not begin M10 until named.
