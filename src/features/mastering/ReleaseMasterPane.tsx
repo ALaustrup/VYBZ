@@ -16,8 +16,16 @@ import {
   getAiCreditBalance,
 } from "@/platform/costs/aiCredits";
 import { playTrack, toggle, usePlayerShell } from "@/lib/audioBus";
-import { stopAudioPreview } from "@/lib/audioPreview";
-import { localSignal, simulationSignal } from "@/lib/vdock/playbackSignal";
+import { stopAudioPreview, useAudioPreviewUrlCleanup } from "@/lib/audioPreview";
+import { decodeToBuffer } from "@/lib/audioEdit";
+import {
+  buildMatchedCompareObjectUrls,
+  compareSideASignal,
+  compareSideBSignal,
+  planarFromAudioBuffer,
+  VDOCK_COMPARE_PREVIEW_VERSION,
+} from "@/lib/vdock/comparePreview";
+import { LOUDNESS_MATCH_COMPARE_VERSION } from "@vybz/processing/waveform";
 
 const MASTER_PREVIEW_PREFIX = "master-preview:";
 
@@ -48,16 +56,28 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
   const [ab, setAb] = useState<"A" | "B">("B");
   const [file, setFile] = useState<File | null>(null);
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const [matchLoudness, setMatchLoudness] = useState(true);
+  const [listenAUrl, setListenAUrl] = useState<string | null>(null);
+  const [listenBUrl, setListenBUrl] = useState<string | null>(null);
+  const [matchLabel, setMatchLabel] = useState<string | null>(null);
+  const [matchBusy, setMatchBusy] = useState(false);
   const latestStatus = jobs[0]?.status;
   const player = usePlayerShell();
 
-  const activeUrl =
+  const unmatchedUrl =
     ab === "A" ? latest?.originalUrl ?? null : latest?.masteredUrl ?? null;
+  const matchedUrl = ab === "A" ? listenAUrl : listenBUrl;
+  const matchReady = Boolean(listenAUrl && listenBUrl);
+  const useMatched = matchLoudness && matchReady;
+  const activeUrl = useMatched ? matchedUrl : unmatchedUrl;
   const activeTrackId =
     latest?.status === "completed" && activeUrl
-      ? `${MASTER_PREVIEW_PREFIX}${latest.jobId}:${ab}`
+      ? `${MASTER_PREVIEW_PREFIX}${latest.jobId}:${ab}:${useMatched ? "matched" : "unmatched"}`
       : null;
   const activeInVdock = Boolean(activeTrackId && player.track?.id === activeTrackId);
+
+  useAudioPreviewUrlCleanup(listenAUrl, MASTER_PREVIEW_PREFIX);
+  useAudioPreviewUrlCleanup(listenBUrl, MASTER_PREVIEW_PREFIX);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,8 +90,68 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
   }, [latestStatus]);
 
   useEffect(() => {
-    return () => stopAudioPreview(MASTER_PREVIEW_PREFIX);
+    return () => {
+      stopAudioPreview(MASTER_PREVIEW_PREFIX);
+    };
   }, []);
+
+  useEffect(() => {
+    if (latest?.status !== "completed" || !file || !latest.masteredBlob) {
+      setMatchLabel(null);
+      setListenAUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setListenBUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      return;
+    }
+    let cancelled = false;
+    setMatchBusy(true);
+    void (async () => {
+      try {
+        const aBuf = await decodeToBuffer(file);
+        const bFile = new File([latest.masteredBlob!], "mastered.wav", {
+          type: "audio/wav",
+        });
+        const bBuf = await decodeToBuffer(bFile);
+        if (cancelled) return;
+        const urls = buildMatchedCompareObjectUrls(
+          planarFromAudioBuffer(aBuf),
+          planarFromAudioBuffer(bBuf),
+          aBuf.sampleRate,
+        );
+        setListenAUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return urls.aUrl;
+        });
+        setListenBUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return urls.bUrl;
+        });
+        setMatchLabel(urls.matchLabel);
+      } catch {
+        if (!cancelled) {
+          setMatchLabel(null);
+          setListenAUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+          });
+          setListenBUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+          });
+        }
+      } finally {
+        if (!cancelled) setMatchBusy(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [latest?.jobId, latest?.status, latest?.masteredBlob, file]);
 
   useEffect(() => {
     if (!e2eMode) return;
@@ -121,15 +201,23 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
     }
     const baseName = (file?.name ?? "Local audio").replace(/\.[^.]+$/, "") || "Local audio";
     const proc = latest.metrics?.procVersion ?? "version not reported";
-    const masteredLabel = `MasterReady mastered preview (${proc}); disclosed simulation — download is the measured master`;
+    const masteredLabel = `MasterReady mastered preview (${proc})`;
     const track = {
       id: activeTrackId,
       url: activeUrl,
-      title: `${baseName} · ${ab === "A" ? "Original" : "Mastered"}`,
+      title: `${baseName} · ${ab === "A" ? "Original" : "Mastered"}${useMatched ? " · loudness-matched" : ""}`,
       artist: "MasterReady",
-      signal: ab === "A" ? localSignal() : simulationSignal(masteredLabel),
+      signal:
+        ab === "A"
+          ? compareSideASignal(useMatched)
+          : compareSideBSignal(masteredLabel, useMatched),
     };
     playTrack(track, [track]);
+  }
+
+  function toggleMatchLoudness() {
+    stopOwnedPlayback();
+    setMatchLoudness((v) => !v);
   }
 
   const onAnalyze = async () => {
@@ -273,7 +361,7 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
               Completed
             </Badge>
             <span className="text-xs text-white/45">{latest.metrics?.procVersion}</span>
-            <div className="ml-auto flex gap-1" role="group" aria-label="A/B preview">
+            <div className="ml-auto flex flex-wrap gap-1" role="group" aria-label="A/B preview">
               <button
                 type="button"
                 data-testid="master-ab-a"
@@ -291,6 +379,16 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
                 onClick={() => selectAb("B")}
               >
                 B · Mastered
+              </button>
+              <button
+                type="button"
+                data-testid="master-match-loudness"
+                aria-pressed={matchLoudness}
+                disabled={matchBusy && !matchReady}
+                className={`forge-cta-ghost !min-h-8 !rounded-full !px-3 !text-xs ${matchLoudness ? "!border-[rgb(var(--accent-rgb)/0.45)] !bg-[rgb(var(--accent-rgb)/0.12)]" : "!border-transparent !bg-transparent text-fog"}`}
+                onClick={toggleMatchLoudness}
+              >
+                {matchLoudness ? "Match loudness on" : "Match loudness off"}
               </button>
             </div>
           </div>
@@ -312,8 +410,11 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           )}
 
           <p className="text-[11px] leading-relaxed text-fog" data-testid="master-ab-disclosure">
-            A is the dry original. B is a disclosed MasterReady preview routed through VDock —
-            not hidden DSP on the play path. Download remains the measured master WAV.
+            A/B plays through VDock with disclosed signals ({VDOCK_COMPARE_PREVIEW_VERSION}).
+            {useMatched
+              ? ` Loudness-matched listen (${LOUDNESS_MATCH_COMPARE_VERSION}${matchLabel ? ` · ${matchLabel}` : ""}) — download remains the measured master WAV.`
+              : " Unmatched listen levels — download remains the measured master WAV."}
+            {matchLoudness && !matchReady && matchBusy ? " Building matched listen buffers…" : ""}
           </p>
 
           <div

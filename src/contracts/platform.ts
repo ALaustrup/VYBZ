@@ -74,6 +74,8 @@ export interface PlaybackMediaState {
   playing: boolean;
   currentTime: number;
   duration: number;
+  /** M9 — active PlaybackSignal disclosure for OS / expanded surfaces. */
+  disclosure?: string | null;
 }
 
 /** Platform-neutral transport consumed by OS media-control adapters. */

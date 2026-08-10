@@ -47,13 +47,14 @@ describe("M9 VDock gate", () => {
     expect(player).toContain("data-vdock-disclosure");
     expect(player).toContain("signal?.disclosure");
     expect(vdock).toContain("MusicDockPlayer");
+    // Compact MusicDockPlayer + expanded NowPlayingExpanded both disclose.
+    expect(player.match(/data-vdock-disclosure/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
   });
 
   it("routes Translation, Correct, MasterReady, and Analyzer A/B through disclosed AudioBus tracks", () => {
     for (const relativePath of [
       "src/features/translation/TranslationLabPage.tsx",
       "src/features/correction/DcOffsetCorrectPage.tsx",
-      "src/features/mastering/ReleaseMasterPane.tsx",
       "src/features/prepare/ReleasesPage.tsx",
     ]) {
       const page = readFileSync(path.join(ROOT, relativePath), "utf8");
@@ -62,6 +63,23 @@ describe("M9 VDock gate", () => {
       expect(page).toContain("VDock");
       expect(page).not.toContain("<audio");
     }
+    const master = readFileSync(
+      path.join(ROOT, "src/features/mastering/ReleaseMasterPane.tsx"),
+      "utf8",
+    );
+    expect(master).toContain("playTrack");
+    expect(master).toContain("compareSideBSignal");
+    expect(master).toContain("buildMatchedCompareObjectUrls");
+    expect(master).toContain("VDock");
+    expect(master).not.toContain("<audio");
+    const compare = readFileSync(path.join(ROOT, "src/lib/vdock/comparePreview.ts"), "utf8");
+    expect(compare).toContain("VDOCK_COMPARE_PREVIEW_VERSION");
+    expect(compare).toContain("matchLoudnessForCompare");
+    const mediaSession = readFileSync(
+      path.join(ROOT, "src/platform/bridge/mediaSession.ts"),
+      "utf8",
+    );
+    expect(mediaSession).toContain("state.disclosure");
   });
 
   it("tags ambient pad with a non-null disclosure", () => {
