@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-09
 **Branch:** `feat/m9-simulation-audiobus`
-**HEAD:** `64f93cd5bd91af2cc1b309337463989d888faba9`
+**HEAD:** `ce80adfd728799f229ab7877542b02c47434b1cd`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -37,7 +37,8 @@
 **DEPLOYED** — production READY @ `64f93cd5` via
 `dpl_J2T9xE3E5ywicu36T5EbLGwPWzsq`.
 
-Current simulation-routing deepen is local-only on `feat/m9-simulation-audiobus`.
+Current simulation-routing deepen is committed on `feat/m9-simulation-audiobus`; it is
+not deployed.
 
 ## Production verification
 
@@ -48,8 +49,7 @@ or packaged WebView).
 
 ## Working tree
 
-Modified, not committed: Translation/Correct AudioBus routing, disclosed playback signals,
-blob URL lifecycle helper, M6/M7/M9 gates, and this checkpoint. Starting HEAD is `64f93cd5`.
+Clean after feature commit `ce80adfd`; branch is not yet merged or deployed.
 
 ## Latest verification
 
@@ -65,5 +65,5 @@ OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature grow
 
 ## Next authorised action
 
-Review and deliver the Translation/Correct AudioBus routing slice, then continue
-M7/M8/OR polish without further prompts. Do not begin M10 until named.
+Merge and deploy the Translation/Correct AudioBus routing slice, verify production, then
+continue M7/M8/OR polish without further prompts. Do not begin M10 until named.
