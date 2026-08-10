@@ -156,6 +156,7 @@ stages C/E/F.
 | — | Notarised macOS DMG | `MAC_CERT_*` |
 | — | Android Play listing | Play Console |
 | — | iOS AVAudioSession focus (M9 residual) | Cap iOS deepen + Apple signing; Android AudioManager shipped |
+| — | Suite visual / placement polish — professional music-platform look (tool pages, rail, empty states, density) | Owner-scheduled; not M10; does not reopen M7–M9 contracts |
 | OR-010 | Formal migration-history workflow (`db push` vs raw SQL, CI checksum guard) | Owner process decision |
 
 ## 6. External distribution prerequisites
@@ -195,11 +196,11 @@ approval and an entry in the Masterplan.
 | OR-016 | Podcast and spoken-word specific readiness rules | Idea — M8 extension |
 | OR-017 | Separate Chats section (Messages stays DMs-only; Rooms unlinked) | Parked — Artist OS Surface Overhaul 2026-08-07 |
 | OR-018 | Instrument Creator — paid one-time unlock for a full VST3 instrument design studio (native DSP / JUCE-class work; not a web placeholder) | Idea — horizon add-on; no suite rail tile until a signed plug-in exists |
-| OR-019 | Stem Maker — V1 assembly from exported stems; V2 paid/desktop source separation | **V1 authorised 2026-08-08** — assembly only; V2 still parked (see §8.1) |
-| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | **Authorised 2026-08-09** — V1+ kind override + content SHA (see §8.1) |
-| OR-029 | AI-finish analysis — heuristic findings for over-processed / AI-assisted masters; advise when unfixable | **Authorised 2026-08-09** |
-| OR-030 | Visualizer studio high-res (up to experimental 8K) + layer customize | **Authorised 2026-08-09** — Law 1: measure canvas/export size |
-| OR-031 | Pro networking + discovery for lesser-known artists (release-centered) | **Authorised 2026-08-09** — no dating/swipe; music/release serving only |
+| OR-019 | Stem Maker — V1 assembly from exported stems; V2 paid/desktop source separation | **V1 shipped** — deepen parked 2026-08-10; V2 still parked (see §8.1) |
+| OR-020 | Loops / Sample Pack Creator — streamlined pack build → ZIP → optional storefront handoff | **Shipped** — deepen parked 2026-08-10 (see §8.1) |
+| OR-029 | AI-finish analysis — heuristic findings for over-processed / AI-assisted masters; advise when unfixable | **Shipped** — deepen parked 2026-08-10 |
+| OR-030 | Visualizer studio high-res (up to experimental 8K) + layer customize | **Parked** 2026-08-10 — re-auth for further viz work |
+| OR-031 | Pro networking + discovery for lesser-known artists (release-centered) | **V1 shipped** — deepen parked 2026-08-10; no dating/swipe |
 | OR-021 | Batch Processor — deepen desktop/web batch (correct, convert, report) | Idea — parked; not authorised (see §8.1) |
 | OR-022 | Project Archiver — checksummed release-project archive (not DSP delivery) | Idea — parked; not authorised (see §8.1) |
 | OR-023 | Alpha invite keys — hard gate + Admin mint for FB/Reddit giveaways | **Authorised 2026-08-08** — hard gate (see §8.2) |

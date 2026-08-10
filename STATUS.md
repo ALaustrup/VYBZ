@@ -1,79 +1,65 @@
-ï»¿# STATUS
+# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `main`
-**HEAD:** `493c1e17`
-**Current milestone:** **M9 â€” VDock Completion** **CLOSED** as Masterplan Â§12
-**DEPLOYED BUT UNVERIFIED**. No new Masterplan milestone named â€” carry-forward
-**M7 / M8 / OR** polish. Do not begin **M10** until owner-authorised.
+**Branch:** `docs/park-m7-m8-or-after-smoke` (unmerged; base `main` @ `eee19542`)
+**HEAD:** `5ba4cb76`
+**Current milestone:** **None open.** M9 closed (**DEPLOYED BUT UNVERIFIED**). M7 / M8 /
+OR deepen **parked** (owner **2026-08-10** after production smoke). Do not begin **M10**
+until named. Suite visual polish — owner-scheduled later.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `493c1e17` | Vercel Production deploy id `5837426157` READY (dashboard `GzLDbcmLapvv78AatNFtHGxTHxQo`); close-out merge `643d7089` / `5837352044` |
+| Production SHA | `eee19542` | tip after PR #138; close-out `643d7089` / deploy `5837352044` |
 | Close-out PR | [PR #136](https://github.com/ALaustrup/VYBZ/pull/136) | MERGED 2026-08-10 |
-| Tip sync PR | [PR #137](https://github.com/ALaustrup/VYBZ/pull/137) | MERGED 2026-08-10 |
 
 ## Last completed operations
 
-15. VDock compare helper + MasterReady matched A/B (PR #132).
-16. M9 Analyzer loudness-matched Before/After (PR #134) @ `c795a83d`.
-17. STATUS tip sync PR #135 @ `d1fdaded`.
-18. **M9 close-out** â€” PR #136 @ `643d7089`: executable `m9VdockGate` exit gate;
-    AGENTS/STATUS/IDEAS mark M9 **DEPLOYED BUT UNVERIFIED**; stable interfaces frozen
-    (`m9.dry-playback.1`, `m9.compare-preview.1`). Tip sync PR #137 @ `493c1e17`.
-
-## M9 close-out evidence (code)
-
-| Surface | Evidence |
-|---|---|
-| Dry AudioBus + `PlaybackSignal` | `m9.dry-playback.1`; `audioBus.ts` no live DSP graph |
-| Dock disclosure | `data-vdock-disclosure` compact + expanded |
-| Bridge playback APIs | `getCapabilities`, `bindMediaSession`, `bindPlaybackLifecycle`, `bindAudioFocus` |
-| Compare preview | `m9.compare-preview.1` MasterReady + Analyzer |
-| Android AudioManager | `VybzAudioFocusPlugin` registered |
-| Executable gate | `src/features/prepare/m9VdockGate.test.ts` |
+18. **M9 close-out** — PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
+19. **Production smoke (2026-08-10)** — signed-out Analyzer + MasterReady; signed-in
+    Translate / Correct / Packs / Stems / Discover / Library / Store / VDock disclosure
+    (`m7.device-preview.1` + MediaSession). Build stamp `eee1954`.
+20. **Park M7 / M8 / OR deepen** — owner after smoke; visual polish deferred to when named.
 
 ## Deployment state
 
-**DEPLOYED BUT UNVERIFIED** (Masterplan Â§12) â€” production READY @ `493c1e17`
-(close-out content @ `643d7089`). Interactive / device interrupt smoke remain
-**Not measured**.
+**DEPLOYED BUT UNVERIFIED** (M9) — production READY @ tip `eee19542`. Android
+call-interrupt / lock-screen MediaSession controls remain **Not measured**.
 
 ## Production verification
 
 | Check | Result |
 |---|---|
-| Vercel READY (close-out) | PASS @ `643d7089` / deploy `5837352044` |
-| Vercel READY (STATUS tip) | PASS @ `493c1e17` / deploy `5837426157` |
-| Interactive VDock smoke | **Not measured** |
-| MediaSession OS controls smoke | **Not measured** |
+| Landing build stamp | PASS `eee1954` (= tip `eee19542`) |
+| Free Analyzer scan + MasterReady A/B ? VDock | PASS (signed-out) |
+| Translate / Correct / Packs / Stems / Discover | PASS (signed-in) |
+| VDock disclosure on simulation | PASS (`data-vdock-disclosure` + MediaSession album) |
+| Catalog MediaSession title | PASS |
 | Android call-interrupt audio focus | **Not measured** |
-| iOS AVAudioSession focus | Parked â€” **Not measured** |
+| OS lock-screen MediaSession controls | **Not measured** |
 
 ## Latest verification
 
-Close-out PR #136 (pre-merge on `docs/m9-closeout`):
+Park docs branch — no product code change. Prior close-out:
 
-- `npm run lint` â€” PASS.
-- `npm run test` â€” PASS, **504 tests**.
-- `npm run build` â€” PASS.
-- `npm run check:no-fixtures` â€” PASS.
+- `npm run lint` / `test` (**504**) / `build` / `check:no-fixtures` — PASS on M9 close-out.
 
 ## Permanently out of scope (not parked)
 
-Dating / swipe â€” Law 3.
+Dating / swipe — Law 3.
 
 ## Blockers / parked
 
-OR-021â€“022, OR-024â€“025, Instrument Creator, **M10** (until named). iOS AVAudioSession
-focus residual.
+M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021–022, OR-024–025,
+Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
+Suite visual polish — deferred until owner schedules.
 
 ## Next authorised action
 
-Continue **M7 / M8 / OR** carry-forward. Do not begin **M10** until named.
-Owner may later evidence device smokes to promote M9 toward production-verified.
+Idle on Masterplan tracks. When ready: (1) suite **visual / placement polish**, or
+(2) name **M10**, or (3) re-auth a specific OR / bugfix (e.g. rail overflow, CDN play
+flake). Do not begin M10 until named.
