@@ -48,6 +48,8 @@ export interface PlatformBridge {
   playback: {
     getCapabilities(): Promise<PlaybackCapabilities>;
     bindMediaSession(controller: PlaybackController): () => void;
+    /** Pause/resume dry playback on shell deactivation (not native audio focus). */
+    bindPlaybackLifecycle(controller: PlaybackController): () => void;
   };
 
   notifications: {

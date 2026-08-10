@@ -14,6 +14,7 @@ import { recordCost } from "@/platform/costs/recordCost";
 import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 import { bindBrowserMediaSession } from "@/platform/bridge/mediaSession";
+import { bindPlaybackLifecycle } from "@/platform/bridge/playbackLifecycle";
 
 const SESSION_KEY = "vybz.platform.session.v1";
 const costSentinel = createCostSentinel();
@@ -220,6 +221,9 @@ export function createWebBridge(): PlatformBridge {
       },
       bindMediaSession(controller) {
         return bindBrowserMediaSession(controller);
+      },
+      bindPlaybackLifecycle(controller) {
+        return bindPlaybackLifecycle(controller);
       },
     },
 

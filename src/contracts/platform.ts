@@ -51,6 +51,14 @@ export interface PlaybackCapabilities {
   dryHtmlAudio: boolean;
   /** Runtime support for wired OS media-session / lock-screen controls. */
   mediaSession: boolean;
+  /** App/page deactivation pause+resume binding (not native AudioManager focus). */
+  playbackLifecycle: boolean;
+  /**
+   * Native audio-focus ducking / call interrupt (AudioManager / AVAudioSession).
+   * Stays false until a disclosed native adapter ships — do not claim phone-call
+   * focus handling without measuring it on device.
+   */
+  audioFocus: boolean;
   /** Native DSP graph on the play path (must stay false until disclosed). */
   nativeDsp: boolean;
 }

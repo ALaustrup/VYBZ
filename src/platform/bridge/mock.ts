@@ -90,6 +90,9 @@ export function createMockBridge(options: MockBridgeOptions = {}): PlatformBridg
       bindMediaSession() {
         return () => undefined;
       },
+      bindPlaybackLifecycle() {
+        return () => undefined;
+      },
     },
 
     notifications: {
