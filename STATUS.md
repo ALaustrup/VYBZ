@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-09
 **Branch:** `feat/m9-media-session`
-**HEAD:** `989bd556e532042e63aef6c0b801d0d306c15675`
+**HEAD:** `3e07d4b8f8feca996a8f6a237e37aacf44560864`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -32,7 +32,7 @@
 
 **DEPLOYED** — production READY @ `bb3df0a2` (M9 code from `9794f56c`).
 
-Current MediaSession deepen is local-only on `feat/m9-media-session`; it is not deployed.
+Current MediaSession deepen is committed on `feat/m9-media-session`; it is not deployed.
 
 ## Production verification
 
@@ -43,9 +43,7 @@ or packaged WebView after deployment).
 
 ## Working tree
 
-Modified, not committed: Platform Bridge MediaSession adapter/contracts/tests, stable
-AudioBus controller, runtime capability reporting, provider lifecycle binding, catalog
-album mapping, and this checkpoint. Starting HEAD remains `989bd556`.
+Clean after feature commit `3e07d4b8`; branch is not yet merged or deployed.
 
 ## Latest verification
 
@@ -62,6 +60,6 @@ OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature grow
 
 ## Next authorised action
 
-Review and deliver the M9 MediaSession slice, then route disclosed Translation/Correct
-simulations through AudioBus. Continue M7/M8/OR polish without further prompts. Do not
-begin M10 until named.
+Merge and deploy the M9 MediaSession slice, verify production, then route disclosed
+Translation/Correct simulations through AudioBus. Continue M7/M8/OR polish without
+further prompts. Do not begin M10 until named.
