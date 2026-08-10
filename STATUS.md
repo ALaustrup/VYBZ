@@ -1,12 +1,12 @@
-ï»¿# STATUS
+# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** *(pin after R5 commit)*
-**Current milestone:** **M10** â€” Wave **R** visual redesign **IMPLEMENTED BUT NOT DELIVERED**
-(R0â€“R5 local validate). Store commerce deferred until merge + production smoke.
+**HEAD:** `3a8b1111`
+**Current milestone:** **M10** — Wave **R** visual redesign **IMPLEMENTED BUT NOT DELIVERED**
+(R0–R5 local validate). Store commerce deferred until merge + production smoke.
 
 ## Production
 
@@ -18,14 +18,14 @@
 
 ## Last completed operations
 
-21. **Suite visual polish** â€” PR #140 @ `46934283`.
-22. **M10 authorised** â€” owner **2026-08-10**; Wave R redesign.
-23. **M10 Wave R0** â€” foundation @ `33fc63df`.
-24. **M10 Wave R1** â€” shell chrome @ `ba62bf1d` / tip `aa5eaf4a`.
-25. **M10 Wave R2** â€” Home ops @ `13aa5265` / tip `249500e1`.
-26. **M10 Wave R3** â€” Analyzer + ToolWorkbench @ `9d81de76` / tip `a4e30ece`.
-27. **M10 Wave R4** â€” Library + public shells @ `5eb886ab` / tip `47717e38`.
-28. **M10 Wave R5** â€” redesign gate rollup + full correctness validate (lint / test / build / no-fixtures).
+21. **Suite visual polish** — PR #140 @ `46934283`.
+22. **M10 authorised** — owner **2026-08-10**; Wave R redesign.
+23. **M10 Wave R0** — foundation @ `33fc63df`.
+24. **M10 Wave R1** — shell chrome @ `ba62bf1d` / tip `aa5eaf4a`.
+25. **M10 Wave R2** — Home ops @ `13aa5265` / tip `249500e1`.
+26. **M10 Wave R3** — Analyzer + ToolWorkbench @ `9d81de76` / tip `a4e30ece`.
+27. **M10 Wave R4** — Library + public shells @ `5eb886ab` / tip `47717e38`.
+28. **M10 Wave R5** — redesign gate rollup + full correctness validate @ `3a8b1111`.
 
 ## Deployment state
 
@@ -33,22 +33,22 @@ Production still on polish/docs tip. M10 Wave R **not deployed** (branch unpushe
 
 ## Production verification
 
-Redesign production verification â€” **Not measured** (not on prod). Prior polish smoke unchanged.
+Redesign production verification — **Not measured** (not on prod). Prior polish smoke unchanged.
 
 ## Latest verification
 
 M10 Wave R5 local correctness gate:
 
-- `npm run lint` â€” PASS
-- `npm run test` â€” PASS (**515** tests, 111 files)
-- `npm run build` â€” PASS
-- `npm run check:no-fixtures` â€” PASS (13 markers absent from `dist/`)
+- `npm run lint` — PASS
+- `npm run test` — PASS (**515** tests, 111 files)
+- `npm run build` — PASS
+- `npm run check:no-fixtures` — PASS (13 markers absent from `dist/`)
 
-Delivery state (Masterplan Â§12): **IMPLEMENTED BUT NOT DELIVERED**.
+Delivery state (Masterplan §12): **IMPLEMENTED BUT NOT DELIVERED**.
 
 ## Permanently out of scope (not parked)
 
-Dating / swipe â€” Law 3.
+Dating / swipe — Law 3.
 
 ## Blockers / parked
 
@@ -58,4 +58,4 @@ merged and owner-validated on production.
 ## Next authorised action
 
 Owner: push branch + open PR (ask required), merge, production smoke of Wave R surfaces,
-then authorise M10 Store commerce wave â€” or request redesign tweaks first.
+then authorise M10 Store commerce wave — or request redesign tweaks first.
