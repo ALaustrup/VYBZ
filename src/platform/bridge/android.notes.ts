@@ -11,7 +11,10 @@
  * - Signing: ANDROID_KEYSTORE_* GH secrets — never commit keystores
  * - M9 playback: dry HTMLAudioElement via AudioBus; `bindPlaybackLifecycle` pauses on
  *   Capacitor appStateChange / bfcache pagehide and resumes only if it paused.
- *   `PlaybackCapabilities.audioFocus` remains false until a native AudioManager
- *   adapter is authorised and measured on device (do not claim call-interrupt focus).
+ * - M9 audio focus (authorised 2026-08-10): native `VybzAudioFocus` plugin
+ *   (`AudioManager` / `AudioFocusRequest`) + `bindAudioFocus` → dry pause/resume.
+ *   Transient loss pauses (no duck DSP). `PlaybackCapabilities.audioFocus` is true
+ *   only when the native plugin reports available. Hardware call-interrupt smoke:
+ *   Not measured until verified on device.
  */
 export const ANDROID_BRIDGE_PHASE = "13-beta" as const;

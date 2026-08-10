@@ -70,13 +70,22 @@ export function createAndroidBridge(): PlatformBridge {
 
     playback: {
       async getCapabilities() {
-        return web.playback.getCapabilities();
+        const base = await web.playback.getCapabilities();
+        const { createNativeAudioFocusAdapter } = await import(
+          "@/platform/android/audioFocus"
+        );
+        const adapter = createNativeAudioFocusAdapter();
+        const audioFocus = adapter.isNativeAndroid() && (await adapter.isAvailable());
+        return { ...base, audioFocus };
       },
       bindMediaSession(controller) {
         return web.playback.bindMediaSession(controller);
       },
       bindPlaybackLifecycle(controller) {
         return web.playback.bindPlaybackLifecycle(controller);
+      },
+      bindAudioFocus(controller) {
+        return web.playback.bindAudioFocus(controller);
       },
     },
 

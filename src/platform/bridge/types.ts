@@ -50,6 +50,8 @@ export interface PlatformBridge {
     bindMediaSession(controller: PlaybackController): () => void;
     /** Pause/resume dry playback on shell deactivation (not native audio focus). */
     bindPlaybackLifecycle(controller: PlaybackController): () => void;
+    /** Android AudioManager focus → dry AudioBus pause/resume (no DSP). */
+    bindAudioFocus(controller: PlaybackController): () => void;
   };
 
   notifications: {

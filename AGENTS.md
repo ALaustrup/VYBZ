@@ -42,7 +42,8 @@ Law 1 still governs every detector and claim.
 ### Authorised tracks (M9 + carry-forward)
 
 1. **M9 VDock** — dry playback contract, signal disclosure, stable bridge playback caps;
-   never hidden DSP on the play path (Law 5).
+   never hidden DSP on the play path (Law 5). Android AudioManager focus via
+   `VybzAudioFocus` is authorised (disclosed pause on loss; device smoke still required).
 2. **M8** — release assemble deepen (checksummed packages, rule-cited findings).
 3. **M7 deepen** — device + codec translation previews (disclosed simulations).
 4. **OR-029 / OR-020 / OR-030 / OR-031** — continue polish as previously authorised.

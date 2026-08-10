@@ -15,6 +15,7 @@ import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 import { bindBrowserMediaSession } from "@/platform/bridge/mediaSession";
 import { bindPlaybackLifecycle } from "@/platform/bridge/playbackLifecycle";
+import { bindAudioFocus } from "@/platform/bridge/audioFocusBind";
 
 const SESSION_KEY = "vybz.platform.session.v1";
 const costSentinel = createCostSentinel();
@@ -224,6 +225,9 @@ export function createWebBridge(): PlatformBridge {
       },
       bindPlaybackLifecycle(controller) {
         return bindPlaybackLifecycle(controller);
+      },
+      bindAudioFocus(controller) {
+        return bindAudioFocus(controller);
       },
     },
 

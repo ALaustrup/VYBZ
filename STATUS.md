@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `main`
-**HEAD:** `8e4f7554`
+**Branch:** `feat/m9-native-audio-focus`
+**HEAD:** *(feature tip)*
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,30 +12,24 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `8e4f7554` | `dpl_ArJvcvNZFYupzTUWNtHS1A89wo5Y` READY |
-| Feature PR | [PR #128](https://github.com/ALaustrup/VYBZ/pull/128) | MERGED |
+| Production SHA | `8e4f7554` (pre this PR) | prior READY |
+| Prior feature | [PR #128](https://github.com/ALaustrup/VYBZ/pull/128) | MERGED |
 
 ## Last completed operations
 
-12. Analyzer Before/After → AudioBus (PR #126).
-13. **M9 playback lifecycle** — `bindPlaybackLifecycle` on Platform Bridge; Capacitor
-    `appStateChange` + bfcache pagehide pause/resume dry AudioBus only when this binder
-    paused; caps add `playbackLifecycle` / `audioFocus: false`. Merged PR #128.
+13. Playback lifecycle (PR #128).
+14. **M9 Android AudioManager focus authorised** — native `VybzAudioFocus` plugin +
+    `bindAudioFocus` pauses dry AudioBus on loss/transient (no duck DSP); caps report
+    `audioFocus` only when plugin available. Device call-interrupt smoke: **Not measured**.
 
 ## Deployment state
 
-**DEPLOYED** — production READY @ `8e4f7554` via
-`dpl_ArJvcvNZFYupzTUWNtHS1A89wo5Y`.
-
-## Production verification
-
-Vercel READY. Interactive smoke: **Not measured**.
-Android audio-focus / call-interrupt: **Not measured** (`audioFocus` remains false).
+**IN PROGRESS** — feature branch.
 
 ## Latest verification
 
 - `npm run lint` — PASS.
-- `npm run test` — PASS, **496 tests**.
+- `npm run test` — PASS, **499 tests**.
 - `npm run build` — PASS.
 - `npm run check:no-fixtures` — PASS.
 
@@ -45,8 +39,9 @@ Dating / swipe — Law 3.
 
 ## Blockers / parked
 
-OR-021–022, OR-024–025, Instrument Creator, M10. Native `audioFocus` until authorised.
+OR-021–022, OR-024–025, Instrument Creator, M10. iOS AVAudioSession focus not in this wedge.
 
 ## Next authorised action
 
 Remaining M9 polish or M8/OR carry-forward. Do not begin M10 until named.
+Verify audio-focus interrupt on a physical Android device when available.

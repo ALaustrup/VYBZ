@@ -55,8 +55,9 @@ export interface PlaybackCapabilities {
   playbackLifecycle: boolean;
   /**
    * Native audio-focus ducking / call interrupt (AudioManager / AVAudioSession).
-   * Stays false until a disclosed native adapter ships — do not claim phone-call
-   * focus handling without measuring it on device.
+   * Android: true when the VybzAudioFocus Capacitor plugin is available.
+   * Transient loss pauses dry playback (no duck DSP). Device interrupt smoke must
+   * still be measured on hardware before claiming verified.
    */
   audioFocus: boolean;
   /** Native DSP graph on the play path (must stay false until disclosed). */

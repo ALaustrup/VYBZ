@@ -93,6 +93,9 @@ export function createMockBridge(options: MockBridgeOptions = {}): PlatformBridg
       bindPlaybackLifecycle() {
         return () => undefined;
       },
+      bindAudioFocus() {
+        return () => undefined;
+      },
     },
 
     notifications: {

@@ -89,6 +89,7 @@ describe("M9 VDock gate", () => {
     expect(types).toContain("PlaybackCapabilities");
     expect(types).toContain("bindMediaSession");
     expect(types).toContain("bindPlaybackLifecycle");
+    expect(types).toContain("bindAudioFocus");
     const mediaSession = readFileSync(
       path.join(ROOT, "src/platform/bridge/mediaSession.ts"),
       "utf8",
@@ -103,5 +104,23 @@ describe("M9 VDock gate", () => {
     expect(lifecycle).toContain("appStateChange");
     expect(lifecycle).not.toMatch(/createBiquadFilter\s*\(/);
     expect(lifecycle).not.toMatch(/createMediaElementSource\s*\(/);
+    const focusBind = readFileSync(
+      path.join(ROOT, "src/platform/bridge/audioFocusBind.ts"),
+      "utf8",
+    );
+    expect(focusBind).toContain("bindAudioFocus");
+    expect(focusBind).toContain("lossTransient");
+    expect(focusBind).not.toMatch(/createBiquadFilter\s*\(/);
+    const nativePlugin = readFileSync(
+      path.join(ROOT, "android/app/src/main/java/cloud/vybz/app/VybzAudioFocusPlugin.java"),
+      "utf8",
+    );
+    expect(nativePlugin).toContain("AudioManager");
+    expect(nativePlugin).toContain("VybzAudioFocus");
+    const mainActivity = readFileSync(
+      path.join(ROOT, "android/app/src/main/java/cloud/vybz/app/MainActivity.java"),
+      "utf8",
+    );
+    expect(mainActivity).toContain("VybzAudioFocusPlugin");
   });
 });
