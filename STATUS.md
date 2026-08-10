@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** *(pin after commit)*
+**HEAD:** `9d81de76`
 **Current milestone:** **M10** authorised — Wave **R3** Analyzer + ToolWorkbench rollup ready for review.
 Store commerce deferred. Do not begin R4 until owner proceeds.
 
@@ -23,7 +23,7 @@ Store commerce deferred. Do not begin R4 until owner proceeds.
 23. **M10 Wave R0** — foundation @ `33fc63df`.
 24. **M10 Wave R1** — shell chrome @ `ba62bf1d` / tip `aa5eaf4a`.
 25. **M10 Wave R2** — Home ops @ `13aa5265` / tip `249500e1`.
-26. **M10 Wave R3** — Analyzer intake desk densification + ToolWorkbench on Metadata / Art Check / Midi Maker / Media Converter (Correct / Translate / Packs / Stems already on workbench).
+26. **M10 Wave R3** — Analyzer intake desk densification + ToolWorkbench on Metadata / Art Check / Midi Maker / Media Converter @ `9d81de76` (Correct / Translate / Packs / Stems already on workbench).
 
 ## Deployment state
 
