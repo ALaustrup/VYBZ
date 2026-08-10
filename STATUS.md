@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `feat/m9-native-audio-focus`
-**HEAD:** *(feature tip)*
+**Branch:** `main`
+**HEAD:** `9a45cfd1`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,19 +12,26 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `8e4f7554` (pre this PR) | prior READY |
-| Prior feature | [PR #128](https://github.com/ALaustrup/VYBZ/pull/128) | MERGED |
+| Production SHA | `9a45cfd1` | `dpl_DyQJsaAq22oQQhTmE6FsQyXqfN9w` READY |
+| Feature PR | [PR #130](https://github.com/ALaustrup/VYBZ/pull/130) | MERGED |
 
 ## Last completed operations
 
 13. Playback lifecycle (PR #128).
-14. **M9 Android AudioManager focus authorised** — native `VybzAudioFocus` plugin +
-    `bindAudioFocus` pauses dry AudioBus on loss/transient (no duck DSP); caps report
-    `audioFocus` only when plugin available. Device call-interrupt smoke: **Not measured**.
+14. **M9 Android AudioManager focus** — native `VybzAudioFocus` + `bindAudioFocus`;
+    pause on loss/transient (no duck DSP). Merged PR #130. Web deploy carries the bridge
+    TS; native plugin ships with the Android Capacitor app build.
 
 ## Deployment state
 
-**IN PROGRESS** — feature branch.
+**DEPLOYED** — production READY @ `9a45cfd1` via
+`dpl_DyQJsaAq22oQQhTmE6FsQyXqfN9w` (web). Android AAB with `VybzAudioFocusPlugin`:
+not rebuilt in this unit (code on main).
+
+## Production verification
+
+Vercel READY. Interactive smoke: **Not measured**.
+Android call/notification audio-focus interrupt: **Not measured** (requires device + native build).
 
 ## Latest verification
 
@@ -44,4 +51,4 @@ OR-021–022, OR-024–025, Instrument Creator, M10. iOS AVAudioSession focus no
 ## Next authorised action
 
 Remaining M9 polish or M8/OR carry-forward. Do not begin M10 until named.
-Verify audio-focus interrupt on a physical Android device when available.
+Verify audio-focus interrupt on a physical Android build when available.
