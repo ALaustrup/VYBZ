@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `main`
-**HEAD:** `96a2f203`
+**HEAD:** `c795a83d`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,19 +12,20 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `96a2f203` | `dpl_8sr8omgBG2Nyh7VZk2aeCZrKVgd1` READY |
-| Feature PR | [PR #132](https://github.com/ALaustrup/VYBZ/pull/132) | MERGED |
+| Production SHA | `c795a83d` | `dpl_AAj3uEr4TEm4prhyM7Wuw1MZ6t5t` READY |
+| Feature PR | [PR #134](https://github.com/ALaustrup/VYBZ/pull/134) | MERGED |
 
 ## Last completed operations
 
-14. Android AudioManager focus (PR #130).
-15. **M9 VDock comparison helper** — `m9.compare-preview.1` + MasterReady loudness-matched
-    A/B listen; expanded dock + MediaSession album carry `signal.disclosure`. Merged PR #132.
+15. VDock compare helper + MasterReady matched A/B (PR #132).
+16. **M9 Analyzer loudness-matched Before/After** — auto-fix rows build
+    `comparePreview` listen buffers; Before/After use disclosed compare signals.
+    Merged PR #134.
 
 ## Deployment state
 
-**DEPLOYED** — production READY @ `96a2f203` via
-`dpl_8sr8omgBG2Nyh7VZk2aeCZrKVgd1`.
+**DEPLOYED** — production READY @ `c795a83d` via
+`dpl_AAj3uEr4TEm4prhyM7Wuw1MZ6t5t`.
 
 ## Production verification
 
@@ -48,4 +49,4 @@ OR-021–022, OR-024–025, Instrument Creator, M10. iOS AVAudioSession focus.
 
 ## Next authorised action
 
-Analyzer matched A/B (optional), M8/OR polish, or M9 close-out. Do not begin M10 until named.
+M8/OR polish or M9 close-out. Do not begin M10 until named.
