@@ -46,8 +46,8 @@ Law 1 still governs every detector and claim.
 
 1. **M10 Wave R (visual redesign)** — cohesive premium music-ops UI; per-app accent
    identity; Home command center and Store commerce in later waves. Branch
-   `feat/m10-suite-visual-redesign`. Gate: `m10SuiteRedesignGate.test.ts` (Wave R0–R1+).
-   R1 = SuiteShell ops chrome (rails / app bar / VDock skin only).
+   `feat/m10-suite-visual-redesign`. Gate: `m10SuiteRedesignGate.test.ts` (Wave R0–R2+).
+   R1 = SuiteShell ops chrome. R2 = Home library-first command center (measured status).
 
 ### Closed / parked tracks (post-smoke)
 

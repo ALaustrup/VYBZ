@@ -1,8 +1,9 @@
 /**
- * M10 Wave R redesign gate — foundation (R0) + shell chrome (R1).
+ * M10 Wave R redesign gate — foundation (R0) + shell chrome (R1) + Home ops (R2).
  * Cites Masterplan §10 M10 (partial): cohesive shell identity before Store commerce.
  * Full M10 publish/discover/support gate remains open until later waves.
  * Law 5: VDock disclosure / dry-playback contracts must remain intact.
+ * Law 1: Home figures must come from dashboardModel measured sources only.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -85,5 +86,19 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     // Law 5 — disclosure / dry contract hooks stay on the dock
     expect(vdock).toContain("data-vdock");
     expect(vdock).toContain("MusicDockPlayer");
+  });
+
+  it("Wave R2 Home ops desk uses measured dashboardModel sources", () => {
+    const home = read("src/components/home/ArtistHome.tsx");
+    expect(home).toContain("data-testid=\"ops-home\"");
+    expect(home).toContain("buildStats");
+    expect(home).toContain("buildActionItems");
+    expect(home).toContain("listReleases");
+    expect(home).toContain("ops-home-stats");
+    expect(home).toContain("ops-home-actions");
+    expect(home).toContain("playTrack");
+    expect(home).toContain("toPlayerTrack");
+    // No invented engagement / fake readiness copy
+    expect(home).not.toMatch(/engagement score|viral|estimated listeners/i);
   });
 });
