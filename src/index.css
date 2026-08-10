@@ -3,6 +3,7 @@
 @import "./design/forge-atmosphere.css";
 @import "./design/suite-app-accents.css";
 @import "./design/suite-shell-chrome.css";
+@import "./design/suite-public-shell.css";
 
 @tailwind base;
 @tailwind components;

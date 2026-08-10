@@ -13,6 +13,8 @@ type ToolWorkbenchProps = {
   wave?: boolean;
   /** Wider stage for piano roll / dense editors (Midi Maker). */
   wide?: boolean;
+  /** Extra root classes (e.g. Library fill / max-width override). */
+  className?: string;
   children: ReactNode;
 };
 
@@ -25,6 +27,7 @@ export function ToolWorkbench({
   atmosphere = "subtle",
   wave = true,
   wide = false,
+  className,
   children,
 }: ToolWorkbenchProps) {
   return (
@@ -32,13 +35,14 @@ export function ToolWorkbench({
       className={cx(
         "relative mx-auto w-full px-4 py-4 pb-28",
         wide ? "max-w-4xl" : "max-w-3xl",
+        className,
       )}
       data-testid={testId}
     >
       <div className="pointer-events-none absolute inset-x-0 -top-4 bottom-0 -z-0 overflow-hidden rounded-[1.5rem]">
         <ForgeAtmosphere intensity={atmosphere} wave={wave} />
       </div>
-      <div className="relative z-[1] flex flex-col gap-6">
+      <div className="relative z-[1] flex min-h-0 flex-1 flex-col gap-6">
         <NexusPageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
         {children}
       </div>

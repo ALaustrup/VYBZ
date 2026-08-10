@@ -35,7 +35,11 @@ export function LandingPage() {
   }
 
   return (
-    <div className="public-scroll-frame nexus-void relative flex min-h-[100dvh] flex-col text-white">
+    <div
+      className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col text-white"
+      data-public-shell="landing"
+      data-testid="public-landing"
+    >
       <GeometricBackdrop intensity="hero" />
 
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-12">
@@ -43,16 +47,17 @@ export function LandingPage() {
 
         <motion.form
           onSubmit={onEnter}
-          className="mt-10 flex w-full max-w-sm flex-col items-stretch gap-3"
+          className="landing-invite-panel forge-glass relative mt-10 flex w-full max-w-sm flex-col items-stretch gap-3 !rounded-2xl p-5"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}
           data-testid="landing-invite-gate"
         >
-          <label className="sr-only" htmlFor="landing-invite-code">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <label className="relative z-[1] sr-only" htmlFor="landing-invite-code">
             Invite key
           </label>
-          <div className="landing-key-field">
+          <div className="landing-key-field relative z-[1]">
             <KeyRound className="landing-key-field-icon" aria-hidden />
             <input
               id="landing-invite-code"
@@ -73,7 +78,7 @@ export function LandingPage() {
           <button
             type="submit"
             disabled={busy}
-            className={cx("landing-neon-cta", !reduce && "landing-neon-cta--pulse")}
+            className={cx("relative z-[1] landing-neon-cta", !reduce && "landing-neon-cta--pulse")}
             data-testid="landing-invite-enter"
           >
             {busy ? (
@@ -84,14 +89,14 @@ export function LandingPage() {
           </button>
 
           {err ? (
-            <p className="text-center text-xs text-rose-300" role="alert">
+            <p className="relative z-[1] text-center text-xs text-rose-300" role="alert">
               {err}
             </p>
           ) : null}
 
           <Link
             to="/enter"
-            className={cx("landing-neon-cta-ghost", !reduce && "landing-neon-cta-ghost--pulse")}
+            className={cx("relative z-[1] landing-neon-cta-ghost", !reduce && "landing-neon-cta-ghost--pulse")}
             data-testid="landing-signin"
           >
             Already in? Sign in

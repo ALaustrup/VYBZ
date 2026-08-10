@@ -24,7 +24,8 @@ import { BG_VARIANTS } from "@/lib/backgrounds";
 import { Toast } from "@/components/Toast";
 import { Confetti } from "@/components/Confetti";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { BrandLockup } from "@/components/Brand";
+import { BrandMark } from "@/components/Brand";
+import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { cx } from "@/lib/utils";
 import { FeedPage } from "@/pages/FeedPage";
 import { ConnectPage } from "@/pages/ConnectPage";
@@ -292,52 +293,70 @@ export function App() {
 function PublicPackShell() {
   const location = useLocation();
   return (
-    <>
-      <DynamicBackground variant={BRAND_BG} mode="static" />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
-      <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
-        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <NavLink to="/"><BrandLockup height="h-7" /></NavLink>
-          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Sample pack · VYBZ Market</span>
-          <NavLink to="/enter" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
-        </header>
-        <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-auto" data-testid="public-pack-main">
-          <ErrorBoundary key={location.pathname}>
-            <Routes location={location}>
-              <Route path="/pack/:slug" element={<StorefrontPackPage publicShell />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </ErrorBoundary>
-        </main>
-      </div>
-    </>
+    <div
+      className="public-scroll-frame public-ops-shell nexus-void relative flex h-[100dvh] w-full flex-col overflow-hidden text-white"
+      data-public-shell="pack"
+      data-testid="public-pack-shell"
+    >
+      <GeometricBackdrop intensity="subtle" />
+      <header className="public-ops-header forge-glass relative z-40 mx-3 mt-3 flex shrink-0 items-center gap-3 px-4 py-3 sm:mx-4">
+        <span className="forge-glass-edge" aria-hidden />
+        <NavLink to="/" className="relative z-[1] flex items-center gap-2.5">
+          <BrandMark className="h-8 w-8" reactive={false} />
+          <span className="font-display text-sm font-semibold text-white">VYBZ</span>
+        </NavLink>
+        <span className="public-ops-badge relative z-[1] ml-auto hidden rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline">
+          Sample pack · public
+        </span>
+        <NavLink to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
+          Enter VYBZ
+        </NavLink>
+      </header>
+      <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-auto px-3 pb-4 sm:px-4" data-testid="public-pack-main">
+        <ErrorBoundary key={location.pathname}>
+          <Routes location={location}>
+            <Route path="/pack/:slug" element={<StorefrontPackPage publicShell />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </ErrorBoundary>
+      </main>
+    </div>
   );
 }
 
 function PublicDocShell() {
   const location = useLocation();
   return (
-    <>
-      <DynamicBackground variant={BRAND_BG} mode="static" />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-paper-50/35" />
-      <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
-        <header className="glass z-40 flex shrink-0 items-center gap-3 border-b border-paper-900/10 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <NavLink to="/codex"><BrandLockup height="h-7" /></NavLink>
-          <span className="ml-auto hidden text-xs text-paper-900/45 sm:block">Codex Â· Astra Matrix, Inc.</span>
-          <NavLink to="/enter" className="btn btn-primary px-3 py-1.5 text-xs">Enter VYBZ</NavLink>
-        </header>
-        <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden">
-          <ErrorBoundary key={location.pathname}>
-            <Routes location={location}>
-              <Route path="/codex" element={<CodexPage />} />
-              <Route path="/codex/:slug" element={<CodexDocPage />} />
-              <Route path="/legal/:slug" element={<CodexDocPage />} />
-              <Route path="*" element={<Navigate to="/codex" replace />} />
-            </Routes>
-          </ErrorBoundary>
-        </main>
-      </div>
-    </>
+    <div
+      className="public-scroll-frame public-ops-shell nexus-void relative flex h-[100dvh] w-full flex-col overflow-hidden text-white"
+      data-public-shell="docs"
+      data-testid="public-doc-shell"
+    >
+      <GeometricBackdrop intensity="subtle" />
+      <header className="public-ops-header forge-glass relative z-40 mx-3 mt-3 flex shrink-0 items-center gap-3 px-4 py-3 sm:mx-4">
+        <span className="forge-glass-edge" aria-hidden />
+        <NavLink to="/codex" className="relative z-[1] flex items-center gap-2.5">
+          <BrandMark className="h-8 w-8" reactive={false} />
+          <span className="font-display text-sm font-semibold text-white">VYBZ</span>
+        </NavLink>
+        <span className="public-ops-badge relative z-[1] ml-auto hidden rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline">
+          Codex · Astra Matrix, Inc.
+        </span>
+        <NavLink to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
+          Enter VYBZ
+        </NavLink>
+      </header>
+      <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden px-1 sm:px-2">
+        <ErrorBoundary key={location.pathname}>
+          <Routes location={location}>
+            <Route path="/codex" element={<CodexPage />} />
+            <Route path="/codex/:slug" element={<CodexDocPage />} />
+            <Route path="/legal/:slug" element={<CodexDocPage />} />
+            <Route path="*" element={<Navigate to="/codex" replace />} />
+          </Routes>
+        </ErrorBoundary>
+      </main>
+    </div>
   );
 }
 

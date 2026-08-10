@@ -1,9 +1,9 @@
 /**
- * M10 Wave R redesign gate — R0 foundation + R1 shell + R2 Home + R3 tools/Analyzer.
+ * M10 Wave R redesign gate — R0–R4 (foundation, shell, Home, tools/Analyzer, Library + public).
  * Cites Masterplan §10 M10 (partial): cohesive shell identity before Store commerce.
  * Full M10 publish/discover/support gate remains open until later waves.
  * Law 5: VDock disclosure / dry-playback contracts must remain intact.
- * Law 1: Home figures must come from dashboardModel measured sources only.
+ * Law 1: Home / Library figures must come from measured sources only.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -133,5 +133,34 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(analyzer).toContain("VDOCK_COMPARE_PREVIEW_VERSION");
     // Law 1 — no fake DSP submission / engagement claims in Analyzer shell
     expect(analyzer).not.toMatch(/guaranteed DSP|viral score|estimated streams/i);
+  });
+
+  it("Wave R4 Library media desk + public shell continuity", () => {
+    const indexCss = read("src/index.css");
+    const publicCss = read("src/design/suite-public-shell.css");
+    expect(indexCss).toContain("suite-public-shell.css");
+    expect(publicCss).toContain(".public-ops-shell");
+    expect(publicCss).toContain(".public-ops-header");
+
+    const library = read("src/pages/LibraryPage.tsx");
+    expect(library).toContain("ToolWorkbench");
+    expect(library).toContain("library-desk");
+    expect(library).toContain("listReleases");
+    expect(library).toContain("dropsBy");
+    expect(library).not.toMatch(/engagement score|viral|estimated listeners/i);
+
+    const landing = read("src/pages/LandingPage.tsx");
+    const prepare = read("src/features/prepare/PrepareLocalApp.tsx");
+    const auth = read("src/components/AuthShell.tsx");
+    const app = read("src/App.tsx");
+    expect(landing).toContain('data-public-shell="landing"');
+    expect(landing).toContain("landing-invite-gate");
+    expect(prepare).toContain('data-public-shell="prepare"');
+    expect(prepare).toContain("prepare-local-shell");
+    expect(auth).toContain('data-public-shell="auth"');
+    expect(app).toContain('data-public-shell="docs"');
+    expect(app).toContain("public-doc-shell");
+    // Public shells stay dark ops void — no paper wash
+    expect(app).not.toMatch(/PublicDocShell[\s\S]{0,400}bg-paper-50/);
   });
 });

@@ -13,11 +13,11 @@ import {
 } from "lucide-react";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { EmptyState } from "@/components/EmptyState";
+import { ForgeChip, ToolWorkbench } from "@/components/ToolWorkbench";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
 import { FLAGS } from "@/lib/flags";
-import { cx } from "@/lib/utils";
 import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
@@ -25,7 +25,8 @@ import type { ReleaseProject } from "@vybz/domain/releases";
 type Tab = "tracks" | "projects" | "stages";
 
 /**
- * Media Library — tracks, project posts, stage backdrops, plus Finalize strip.
+ * Media Library — tracks, project posts, stage backdrops, plus Analyzer scan strip.
+ * Counts come from measured drops / posts / listReleases only (Law 1).
  */
 export function LibraryPage() {
   const { userId, profile, refreshProfile, showToast } = useSession();
@@ -33,7 +34,7 @@ export function LibraryPage() {
   const [tab, setTab] = useState<Tab>("tracks");
   const [drops, setDrops] = useState<Drop[]>([]);
   const [posts, setPosts] = useState<FeedPost[]>([]);
-  const [finalize, setFinalize] = useState<ReleaseProject[]>([]);
+  const [scans, setScans] = useState<ReleaseProject[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -47,7 +48,7 @@ export function LibraryPage() {
     ]);
     setDrops(d);
     setPosts(p);
-    setFinalize(releases.slice(0, 6));
+    setScans(releases.slice(0, 6));
     setLoading(false);
   }, [userId]);
 
@@ -55,7 +56,7 @@ export function LibraryPage() {
 
   useRegisterAppBar({
     title: "Library",
-    subtitle: "Media management",
+    subtitle: "Media desk",
   }, []);
 
   const staged = useMemo(
@@ -64,36 +65,44 @@ export function LibraryPage() {
   );
 
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col px-4 pb-4 pt-2">
-      <p className="mb-3 text-[13px] leading-relaxed text-white/45">
-        Drop audio anywhere in VYBZ to add private tracks to your library. Organize uploads, project posts, and stage visuals in one place.
-        {FLAGS.storefront && (
-          <>
-            {" "}
-            Selling sample packs?{" "}
-            <button type="button" className="text-veil-300 underline-offset-2 hover:underline" onClick={() => navigate("/tools/packs")}>
-              Open Storefront
-            </button>
-          </>
-        )}
-      </p>
+    <ToolWorkbench
+      wide
+      eyebrow="Library"
+      title="Media desk"
+      subtitle="Drop audio anywhere in VYBZ to add private tracks. Organize uploads, project posts, and stage visuals — counts are measured from your library."
+      testId="library-desk"
+      className="library-desk flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
+    >
+      {FLAGS.storefront && (
+        <p className="-mt-2 text-[12px] text-white/40">
+          Selling sample packs?{" "}
+          <button
+            type="button"
+            className="text-[rgb(var(--app-accent-rgb))] underline-offset-2 hover:underline"
+            onClick={() => navigate("/tools/packs")}
+          >
+            Open Storefront
+          </button>
+        </p>
+      )}
 
-      {finalize.length > 0 && (
-        <section className="mb-4" aria-label="Finalize projects">
-          <div className="mb-2 flex items-center justify-between gap-2">
+      {scans.length > 0 && (
+        <section className="forge-glass relative !rounded-2xl p-3" aria-label="Analyzer scans" data-testid="library-scan-strip">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <div className="relative z-[1] mb-2 flex items-center justify-between gap-2">
             <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
-              <ListChecks className="h-3.5 w-3.5" /> Finalize
+              <ListChecks className="h-3.5 w-3.5 text-[rgb(var(--app-accent-rgb))]" /> Analyzer scans
             </p>
             <button
               type="button"
               onClick={() => navigate("/releases")}
               className="text-[11px] font-semibold text-white/50 hover:text-white/80"
             >
-              Open all
+              Open desk
             </button>
           </div>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
-            {finalize.map((r) => (
+          <div className="relative z-[1] no-scrollbar flex gap-2 overflow-x-auto pb-0.5">
+            {scans.map((r) => (
               <button
                 key={r.id}
                 type="button"
@@ -108,14 +117,22 @@ export function LibraryPage() {
         </section>
       )}
 
-      <div className="no-scrollbar mb-4 flex gap-1.5 overflow-x-auto">
-        <TabBtn on={tab === "tracks"} onClick={() => setTab("tracks")} label={`Tracks (${drops.length})`} />
-        <TabBtn on={tab === "projects"} onClick={() => setTab("projects")} label={`Projects (${posts.length})`} />
-        <TabBtn on={tab === "stages"} onClick={() => setTab("stages")} label={`Stages (${staged.length})`} />
+      <div className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid="library-tabs" role="tablist" aria-label="Library sections">
+        <ForgeChip active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
+          Tracks ({drops.length})
+        </ForgeChip>
+        <ForgeChip active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
+          Projects ({posts.length})
+        </ForgeChip>
+        <ForgeChip active={tab === "stages"} onClick={() => setTab("stages")} testId="library-tab-stages">
+          Stages ({staged.length})
+        </ForgeChip>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="h-5 w-5 animate-spin text-veil-300" /></div>
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-5 w-5 animate-spin text-[rgb(var(--app-accent-rgb))]" />
+        </div>
       ) : tab === "tracks" ? (
         <UploadsLibrary
           initialDrops={drops}
@@ -136,22 +153,7 @@ export function LibraryPage() {
           <StagesLibrary drops={staged} onOpenDrop={() => setTab("tracks")} />
         </div>
       )}
-    </div>
-  );
-}
-
-function TabBtn({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cx(
-        "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[13px] font-semibold transition active:scale-95",
-        on ? "border-[rgb(var(--accent-rgb)/0.45)] bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "border border-white/10 bg-white/[0.04] text-white/55 hover:text-white/85",
-      )}
-    >
-      {label}
-    </button>
+    </ToolWorkbench>
   );
 }
 
