@@ -86,6 +86,20 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     match: (p) => p.startsWith("/tools/art-check"),
   },
   {
+    id: "correct",
+    label: "Correct",
+    path: "/tools/correct",
+    icon: SlidersHorizontal,
+    match: (p) => p.startsWith("/tools/correct"),
+  },
+  {
+    id: "translate",
+    label: "Translate",
+    path: "/tools/translate",
+    icon: Radio,
+    match: (p) => p.startsWith("/tools/translate"),
+  },
+  {
     id: "midi-maker",
     label: "Midi Maker",
     path: "/tools/midi",
@@ -99,22 +113,6 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/convert",
     icon: RefreshCw,
     match: (p) => p.startsWith("/tools/convert"),
-    overflow: true,
-  },
-  {
-    id: "correct",
-    label: "Correct",
-    path: "/tools/correct",
-    icon: SlidersHorizontal,
-    match: (p) => p.startsWith("/tools/correct"),
-    overflow: true,
-  },
-  {
-    id: "translate",
-    label: "Translate",
-    path: "/tools/translate",
-    icon: Radio,
-    match: (p) => p.startsWith("/tools/translate"),
     overflow: true,
   },
   {

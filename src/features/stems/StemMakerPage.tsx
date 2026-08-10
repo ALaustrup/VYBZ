@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { Download, Loader2, Trash2, Upload } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
@@ -17,6 +17,11 @@ import {
   buildStemSetZip,
   type AssembledStem,
 } from "@/features/stems/stemAssemble";
+import {
+  ForgeDropzone,
+  ForgeEmptyWorkingSet,
+  ToolWorkbench,
+} from "@/components/ToolWorkbench";
 
 function fmtDb(n: number): string {
   return `${n.toFixed(1)} dBFS`;
@@ -82,24 +87,26 @@ export function StemMakerPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="stem-maker">
-      <p className="mb-4 text-[13px] text-white/45">
-        Assemble producer-exported stems into a labeled WAV set with measured peak/RMS and a
-        checksummed manifest. Optional DC / peak-safety from Correct. Not AI separation. Stems are
-        not auto-added to Library or catalog. Proc {STEM_MAKER_VERSION}.
-      </p>
-
-      <div className="mb-4 grid gap-3 sm:grid-cols-2">
-        <label className="block">
-          <span className="text-[10px] uppercase text-white/35">Set title</span>
+    <ToolWorkbench
+      eyebrow="Stems"
+      title="Stem Maker"
+      subtitle={`Assemble producer-exported stems into a labeled WAV set with measured peak/RMS and a checksummed manifest. Optional DC / peak-safety from Correct. Not AI separation. Proc ${STEM_MAKER_VERSION}.`}
+      testId="stem-maker"
+    >
+      <div className="forge-glass forge-plasma relative grid gap-3 !rounded-2xl p-4 sm:grid-cols-2">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <label className="relative z-[1] block">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+            Set title
+          </span>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value.slice(0, 80))}
-            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[rgb(var(--accent-rgb)/0.4)]"
             data-testid="stem-set-title"
           />
         </label>
-        <div className="flex flex-wrap items-end gap-3 pb-1 text-[12px] text-white/55">
+        <div className="relative z-[1] flex flex-wrap items-end gap-4 pb-1 text-[12px] text-white/55">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -121,40 +128,37 @@ export function StemMakerPage() {
         </div>
       </div>
 
-      <div className="mb-5 flex flex-wrap gap-2">
-        <label className="btn btn-primary cursor-pointer px-4 py-2.5 text-sm">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Add stems
-          <input
-            type="file"
-            multiple
-            accept={AUDIO_ACCEPT}
-            className="hidden"
-            data-testid="stem-file-input"
-            onChange={(e) => {
-              const files = e.target.files;
-              e.target.value = "";
-              void onFiles(files);
-            }}
-          />
-        </label>
-        <button
-          type="button"
-          disabled={!stems.length || busy}
-          onClick={() => void exportZip()}
-          className="btn btn-ghost px-4 py-2.5 text-sm disabled:opacity-40"
-          data-testid="stem-export-zip"
-        >
-          <Download className="h-4 w-4" /> Export stem set ZIP
-        </button>
-      </div>
+      <ForgeDropzone
+        label="Drop stems"
+        hint="or click to choose · multiple files · local working set"
+        accept={AUDIO_ACCEPT}
+        multiple
+        busy={busy}
+        inputTestId="stem-file-input"
+        onFiles={(list) => void onFiles(list)}
+      />
 
-      {stems.length > 0 && (
+      <button
+        type="button"
+        disabled={!stems.length || busy}
+        onClick={() => void exportZip()}
+        className="btn btn-ghost w-fit px-4 py-2.5 text-sm disabled:opacity-40"
+        data-testid="stem-export-zip"
+      >
+        <Download className="h-4 w-4" /> Export stem set ZIP
+      </button>
+
+      {stems.length === 0 ? (
+        <ForgeEmptyWorkingSet
+          title="No stems yet"
+          detail="Import DAW-exported stems. Promote to Library is not available in V1 (by design)."
+        />
+      ) : (
         <ul className="space-y-2" data-testid="stem-list">
           {stems.map((s) => (
             <li
               key={s.id}
-              className="grid grid-cols-[1fr_auto] gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-3 py-2 text-[12px]"
+              className="forge-card grid grid-cols-[1fr_auto] gap-2 !rounded-xl px-3 py-2.5 text-[12px]"
             >
               <div>
                 <label className="flex items-center gap-2 text-white/40">
@@ -165,7 +169,10 @@ export function StemMakerPage() {
                       setStems((list) =>
                         list.map((x) =>
                           x.id === s.id
-                            ? { ...x, role: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase() }
+                            ? {
+                                ...x,
+                                role: e.target.value.replace(/[^a-z0-9-]/gi, "-").toLowerCase(),
+                              }
                             : x
                         )
                       )
@@ -195,10 +202,10 @@ export function StemMakerPage() {
         </ul>
       )}
 
-      <p className="mt-6 text-[11px] text-white/30">
+      <p className="text-[11px] text-white/30">
         {stems.length} stem(s) in working set · local only · promote to Library is not available in
         V1 (by design)
       </p>
-    </div>
+    </ToolWorkbench>
   );
 }

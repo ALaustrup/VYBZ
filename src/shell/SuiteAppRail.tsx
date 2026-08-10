@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { MoreHorizontal } from "lucide-react";
 import {
   activeSuiteAppId,
   overflowSuiteApps,
@@ -76,40 +78,105 @@ export function SuiteAppRail() {
   );
 }
 
-/** Mobile / narrow: compact horizontal strip (primary apps only). */
+/** Mobile / narrow: primary apps + overflow "More tools" menu. */
 export function SuiteAppRailMobile() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const activeId = activeSuiteAppId(pathname);
-  const apps = [...primarySuiteApps(), ...overflowSuiteApps().slice(0, 2)];
+  const primary = primarySuiteApps();
+  const overflow = overflowSuiteApps();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const overflowActive = overflow.some((a) => a.id === activeId);
 
   return (
     <nav
-      className="suite-app-rail-mobile no-scrollbar flex shrink-0 gap-0.5 overflow-x-auto border-b border-white/[0.06] px-2 py-1 lg:hidden"
+      className="suite-app-rail-mobile relative flex shrink-0 gap-0.5 border-b border-white/[0.06] px-2 py-1 lg:hidden"
       aria-label="Suite apps"
       data-testid="suite-app-rail-mobile"
     >
-      {apps.map((app) => {
-        const Icon = app.icon;
-        const active = app.id === activeId;
-        return (
+      <div className="no-scrollbar flex min-w-0 flex-1 gap-0.5 overflow-x-auto">
+        {primary.map((app) => {
+          const Icon = app.icon;
+          const active = app.id === activeId;
+          return (
+            <button
+              key={app.id}
+              type="button"
+              onClick={() => navigate(app.path)}
+              title={app.label}
+              aria-current={active ? "page" : undefined}
+              className={cx(
+                "suite-app-tile relative flex shrink-0 flex-col items-center gap-0.5 px-2.5 py-1.5",
+                active && "suite-app-tile--active"
+              )}
+            >
+              <span className="suite-app-tile-glow" aria-hidden />
+              <Icon className="suite-app-tile-icon relative z-[1] h-4 w-4" />
+              <span className="relative z-[1] text-[9px] font-medium">{app.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      {overflow.length > 0 && (
+        <div className="relative shrink-0">
           <button
-            key={app.id}
             type="button"
-            onClick={() => navigate(app.path)}
-            title={app.label}
-            aria-current={active ? "page" : undefined}
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
+            title="More tools"
+            onClick={() => setMoreOpen((v) => !v)}
             className={cx(
-              "suite-app-tile relative flex shrink-0 flex-col items-center gap-0.5 px-2.5 py-1.5",
-              active && "suite-app-tile--active"
+              "suite-app-tile relative flex flex-col items-center gap-0.5 px-2.5 py-1.5",
+              (moreOpen || overflowActive) && "suite-app-tile--active"
             )}
+            data-testid="suite-app-rail-more"
           >
             <span className="suite-app-tile-glow" aria-hidden />
-            <Icon className="suite-app-tile-icon relative z-[1] h-4 w-4" />
-            <span className="relative z-[1] text-[9px] font-medium">{app.label}</span>
+            <MoreHorizontal className="suite-app-tile-icon relative z-[1] h-4 w-4" />
+            <span className="relative z-[1] text-[9px] font-medium">More</span>
           </button>
-        );
-      })}
+          {moreOpen && (
+            <>
+              <button
+                type="button"
+                className="fixed inset-0 z-40 cursor-default"
+                aria-label="Close more tools"
+                onClick={() => setMoreOpen(false)}
+              />
+              <ul
+                role="menu"
+                className="forge-glass forge-plasma absolute right-0 top-full z-50 mt-1 min-w-[10rem] !rounded-xl py-1 shadow-xl"
+                data-testid="suite-app-rail-more-menu"
+              >
+                <span className="forge-glass-edge pointer-events-none" aria-hidden />
+                {overflow.map((app) => {
+                  const Icon = app.icon;
+                  const active = app.id === activeId;
+                  return (
+                    <li key={app.id} role="none">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setMoreOpen(false);
+                          navigate(app.path);
+                        }}
+                        className={cx(
+                          "relative z-[1] flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] text-white/75 hover:bg-white/[0.06] hover:text-white",
+                          active && "text-white"
+                        )}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {app.label}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 }

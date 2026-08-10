@@ -1,42 +1,48 @@
-# STATUS
+ï»¿# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `docs/park-m7-m8-or-after-smoke` (unmerged; base `main` @ `eee19542`)
-**HEAD:** `5ba4cb76`
-**Current milestone:** **None open.** M9 closed (**DEPLOYED BUT UNVERIFIED**). M7 / M8 /
-OR deepen **parked** (owner **2026-08-10** after production smoke). Do not begin **M10**
-until named. Suite visual polish — owner-scheduled later.
+**Branch:** `polish/tool-workbench-wave1` (unmerged; base `main` @ `fcac9016`)
+**HEAD:** `e59def8b` (product `8bbc1a37`)
+**Current milestone:** **None open** (Masterplan). **Suite visual polish authorised**
+(owner **2026-08-10**) â€” Waves 0â€“4 in [PR #140](https://github.com/ALaustrup/VYBZ/pull/140).
+Do not begin **M10**.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `eee19542` | tip after PR #138; close-out `643d7089` / deploy `5837352044` |
+| Production SHA | `fcac9016` | tip after PR #139 (park docs) |
 | Close-out PR | [PR #136](https://github.com/ALaustrup/VYBZ/pull/136) | MERGED 2026-08-10 |
+| Park PR | [PR #139](https://github.com/ALaustrup/VYBZ/pull/139) | MERGED 2026-08-10 |
 
 ## Last completed operations
 
-18. **M9 close-out** — PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
-19. **Production smoke (2026-08-10)** — signed-out Analyzer + MasterReady; signed-in
+18. **M9 close-out** â€” PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
+19. **Production smoke (2026-08-10)** â€” signed-out Analyzer + MasterReady; signed-in
     Translate / Correct / Packs / Stems / Discover / Library / Store / VDock disclosure
-    (`m7.device-preview.1` + MediaSession). Build stamp `eee1954`.
-20. **Park M7 / M8 / OR deepen** — owner after smoke; visual polish deferred to when named.
+    (`m7.device-preview.1` + MediaSession).
+20. **Park M7 / M8 / OR deepen** â€” PR #139 @ `fcac9016`.
+21. **Suite visual polish Waves 0â€“4** â€” product `8bbc1a37`, tip `e59def8b` â€”
+    [PR #140](https://github.com/ALaustrup/VYBZ/pull/140): ForgeAtmosphere, ToolWorkbench,
+    rail chrome (Correct+Translate primary), ArtistHome + Analyzer next-step.
+    Correctness gate PASS locally; merge + preview smoke pending.
 
 ## Deployment state
 
-**DEPLOYED BUT UNVERIFIED** (M9) — production READY @ tip `eee19542`. Android
-call-interrupt / lock-screen MediaSession controls remain **Not measured**.
+**DEPLOYED BUT UNVERIFIED** (M9) â€” production READY @ tip `fcac9016`. Android
+call-interrupt / lock-screen MediaSession controls remain **Not measured**. Suite polish
+not yet on production.
 
 ## Production verification
 
 | Check | Result |
 |---|---|
-| Landing build stamp | PASS `eee1954` (= tip `eee19542`) |
-| Free Analyzer scan + MasterReady A/B ? VDock | PASS (signed-out) |
-| Translate / Correct / Packs / Stems / Discover | PASS (signed-in) |
+| Landing build stamp | Prior smoke PASS on `eee1954` era; tip now `fcac9016` (docs park) â€” stamp re-check **Not measured** this unit |
+| Free Analyzer scan + MasterReady A/B â†’ VDock | PASS (signed-out, prior smoke) |
+| Translate / Correct / Packs / Stems / Discover | PASS (signed-in, prior smoke) |
 | VDock disclosure on simulation | PASS (`data-vdock-disclosure` + MediaSession album) |
 | Catalog MediaSession title | PASS |
 | Android call-interrupt audio focus | **Not measured** |
@@ -44,22 +50,26 @@ call-interrupt / lock-screen MediaSession controls remain **Not measured**.
 
 ## Latest verification
 
-Park docs branch — no product code change. Prior close-out:
+Suite polish @ `8bbc1a37` (base `fcac9016`):
 
-- `npm run lint` / `test` (**504**) / `build` / `check:no-fixtures` — PASS on M9 close-out.
+- `npm run lint` â€” PASS
+- `npm run test` â€” PASS (**505**)
+- `npm run build` â€” PASS
+- `npm run check:no-fixtures` â€” PASS (13 markers absent from `dist/`)
+
+Not on production until merge. Manual reduce-motion + VDock disclosure smoke on this
+branch â€” **Not measured**.
 
 ## Permanently out of scope (not parked)
 
-Dating / swipe — Law 3.
+Dating / swipe â€” Law 3.
 
 ## Blockers / parked
 
-M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021–022, OR-024–025,
+M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021â€“022, OR-024â€“025,
 Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
-Suite visual polish — deferred until owner schedules.
 
 ## Next authorised action
 
-Idle on Masterplan tracks. When ready: (1) suite **visual / placement polish**, or
-(2) name **M10**, or (3) re-auth a specific OR / bugfix (e.g. rail overflow, CDN play
-flake). Do not begin M10 until named.
+Review / merge [PR #140](https://github.com/ALaustrup/VYBZ/pull/140). Manual smoke
+(VDock disclosure + reduce-motion calm) on preview. Do not begin M10 until named.
