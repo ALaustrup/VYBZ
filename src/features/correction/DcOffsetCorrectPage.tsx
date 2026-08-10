@@ -4,6 +4,7 @@
  */
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Download, Loader2, Pause, Play, Upload } from "lucide-react";
 import {
   CHANNEL_BALANCE_VERSION,
@@ -62,6 +63,10 @@ const OP_SUBTITLE: Record<CorrectOp, string> = {
   loudness: "Loudness gain",
 };
 
+function isCorrectOp(value: string | null): value is CorrectOp {
+  return value !== null && Object.prototype.hasOwnProperty.call(OP_SUBTITLE, value);
+}
+
 type PreviewState = {
   before: LevelSnapshot;
   after: LevelSnapshot;
@@ -97,7 +102,11 @@ function fmtDb(n: number | undefined): string {
 export function DcOffsetCorrectPage() {
   const { showToast } = useSession();
   const player = usePlayerShell();
-  const [op, setOp] = useState<CorrectOp>("dc");
+  const [searchParams] = useSearchParams();
+  const [op, setOp] = useState<CorrectOp>(() => {
+    const requested = searchParams.get("op");
+    return isCorrectOp(requested) ? requested : "dc";
+  });
   const [busy, setBusy] = useState(false);
   const [fileName, setFileName] = useState("");
   const [planar, setPlanar] = useState<Float32Array[] | null>(null);

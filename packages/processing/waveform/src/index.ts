@@ -73,6 +73,13 @@ export {
   type StreamingNormPreviewResult,
 } from "./streamingNormPreview";
 export {
+  evaluateTranslationFindings,
+  TRANSLATION_ACTION_GAIN_DB,
+  TRANSLATION_FINDINGS_VERSION,
+  type TranslationFinding,
+  type TranslationFindingCode,
+} from "./translationFindings";
+export {
   applyDeviceTranslationPreview,
   DEVICE_TRANSLATION_VERSION,
   type DevicePreviewMode,

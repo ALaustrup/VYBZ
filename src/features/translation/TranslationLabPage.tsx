@@ -3,7 +3,8 @@
  */
 
 import { useState } from "react";
-import { Loader2, Pause, Play, Upload } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Loader2, Pause, Play, Upload } from "lucide-react";
 import {
   CODEC_TRANSLATION_VERSION,
   DEVICE_TRANSLATION_VERSION,
@@ -12,6 +13,8 @@ import {
   applyCodecTranslationPreview,
   applyDeviceTranslationPreview,
   applyStreamingNormPreview,
+  evaluateTranslationFindings,
+  type TranslationFinding,
 } from "@vybz/processing/waveform";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
@@ -30,6 +33,7 @@ import {
   localSignal,
   simulationSignal,
 } from "@/lib/vdock/playbackSignal";
+import { shipAutoFixForCode } from "@/features/prepare/autoFixMap";
 
 type Mode = "original" | "streaming" | "phone" | "car" | "lossy";
 
@@ -65,6 +69,7 @@ export function TranslationLabPage() {
   const [lufsBefore, setLufsBefore] = useState<number | null>(null);
   const [lufsAfter, setLufsAfter] = useState<number | null>(null);
   const [gainDb, setGainDb] = useState<number | null>(null);
+  const [findings, setFindings] = useState<TranslationFinding[]>([]);
   const [disclosure, setDisclosure] = useState<string | null>(null);
 
   useRegisterAppBar({ title: "Translation Lab", subtitle: "How it travels" }, []);
@@ -107,6 +112,7 @@ export function TranslationLabPage() {
       setLufsBefore(stream.integratedLufsBefore);
       setLufsAfter(stream.integratedLufsAfter);
       setGainDb(stream.gainDb);
+      setFindings(evaluateTranslationFindings(stream));
       setDisclosure(stream.disclosure);
       setMode("streaming");
       showToast("Translation previews ready");
@@ -114,6 +120,8 @@ export function TranslationLabPage() {
       showToast("Couldn't decode that file");
       setLufsBefore(null);
       setLufsAfter(null);
+      setGainDb(null);
+      setFindings([]);
     } finally {
       setBusy(false);
     }
@@ -290,6 +298,45 @@ export function TranslationLabPage() {
               </dd>
             </div>
           </dl>
+
+          {findings.length > 0 && (
+            <section
+              className="space-y-2 rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-4"
+              data-testid="translate-findings"
+              aria-label="Translation findings"
+            >
+              <div>
+                <h2 className="text-sm font-semibold text-white">Actionable findings</h2>
+                <p className="text-[11px] text-white/40">
+                  Measured against this preview target. Correct assists are starting points, not platform certification.
+                </p>
+              </div>
+              {findings.map((finding) => {
+                const fix = shipAutoFixForCode(finding.code);
+                return (
+                  <article key={finding.code} className="rounded-xl border border-white/10 bg-black/15 p-3">
+                    <h3 className="text-sm font-medium text-white">{finding.title}</h3>
+                    <p className="mt-1 text-xs leading-relaxed text-white/55">{finding.detail}</p>
+                    {fix && (
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <Link
+                          to={`/tools/correct?op=${fix.op}`}
+                          className="btn btn-ghost px-3 py-2 text-xs"
+                          data-testid={`translate-correct-${fix.op}`}
+                        >
+                          {fix.label}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                        {fix.disclosure && (
+                          <span className="text-[10px] text-white/35">{fix.disclosure}</span>
+                        )}
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </section>
+          )}
 
           {disclosure && (
             <p className="text-[12px] text-amber-200/80" data-testid="translate-disclosure">
