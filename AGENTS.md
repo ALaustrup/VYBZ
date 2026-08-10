@@ -33,25 +33,22 @@ call-interrupt smoke still **Not measured**). **M7** and **M8** deepen are **par
 the same day — further OR work needs re-authorisation. Do not begin **M10** until the
 owner authorises it.
 
-**Authorised now (not a Masterplan milestone):** suite **visual / placement polish** —
-restrained cyber/synthwave atmosphere, ToolWorkbench density, rail chrome, light Home /
-Analyzer enhance. Owner-directed **2026-08-10** on branch `polish/tool-workbench-wave1`.
-Does not reopen M7–M9 contracts. Instrument Creator (VST3) stays parked. OR-021–OR-022
-and OR-024–OR-025 remain parked. Law 3 still bans dating and generic social growth.
+**Suite visual polish shipped (not a Masterplan milestone):** restrained cyber/synthwave
+atmosphere, ToolWorkbench density, rail chrome, light Home / Analyzer enhance —
+[PR #140](https://github.com/ALaustrup/VYBZ/pull/140) merged **2026-08-10** (`46934283`).
+Further polish needs owner re-authorisation. Does not reopen M7–M9 contracts. Instrument
+Creator (VST3) stays parked. OR-021–OR-022 and OR-024–OR-025 remain parked. Law 3 still
+bans dating and generic social growth.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
-### Authorised track (post-smoke)
-
-1. **Suite visual polish (in progress)** — ForgeAtmosphere (plasma / pipelines /
-   sound-wave ribbons), ToolWorkbench shell, Translate / Correct / Packs / Stems density,
-   suite rail Correct+Translate primary, light ArtistHome + Analyzer next-step. No VDock
-   contract changes (Law 5). No invented metrics (Law 1). No M10.
-
 ### Closed / parked tracks (post-smoke)
+
+0. **Suite visual polish (shipped)** — PR #140 @ `46934283`; continuous deepen parked
+   unless re-authorised.
 
 1. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
    playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
