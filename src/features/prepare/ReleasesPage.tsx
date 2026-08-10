@@ -31,7 +31,11 @@ import { applyAutoFixToBlob } from "@/features/prepare/applyAutoFix";
 import { publishPendingToLibrary } from "@/features/prepare/publishPendingToLibrary";
 import { parseArtistTitleFromFilename, type AudioProbe, type ReleaseFinding } from "@vybz/domain/releases";
 import { cx } from "@/lib/utils";
+import { getSnapshot, playTrack, stop } from "@/lib/audioBus";
+import { stopAudioPreview } from "@/lib/audioPreview";
+import { localSignal, simulationSignal } from "@/lib/vdock/playbackSignal";
 
+const ANALYZER_PREVIEW_PREFIX = "analyzer-preview:";
 type RowPhase = "queued" | "scanning" | "done" | "error";
 
 type DeskRow = {
@@ -87,7 +91,6 @@ export function ReleasesPage() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"fixed" | "original">("fixed");
   const [latchedBefore, setLatchedBefore] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const objectUrls = useRef<Map<string, string>>(new Map());
   const finePointer = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
   const workers = analyzerWorkerCount();
@@ -105,6 +108,7 @@ export function ReleasesPage() {
     })();
     return () => {
       cancelled = true;
+      stopAudioPreview(ANALYZER_PREVIEW_PREFIX);
       objectUrls.current.forEach((u) => URL.revokeObjectURL(u));
       objectUrls.current.clear();
     };
@@ -112,7 +116,11 @@ export function ReleasesPage() {
 
   const urlFor = useCallback((key: string, blob: Blob) => {
     const prev = objectUrls.current.get(key);
-    if (prev) URL.revokeObjectURL(prev);
+    if (prev) {
+      const active = getSnapshot().track;
+      if (active?.url === prev) stop();
+      URL.revokeObjectURL(prev);
+    }
     const u = URL.createObjectURL(blob);
     objectUrls.current.set(key, u);
     return u;
@@ -354,23 +362,43 @@ export function ReleasesPage() {
   }
 
   function playRow(row: DeskRow, mode: "fixed" | "original") {
-    const blob = mode === "original" ? row.originalBlob : row.currentBlob;
-    const key = `${row.localId}:${mode}`;
-    const url = urlFor(key, blob);
-    const el = audioRef.current;
-    if (!el) return;
-    if (previewId === row.localId && previewMode === mode && !el.paused) {
-      el.pause();
+    const trackId = `${ANALYZER_PREVIEW_PREFIX}${row.localId}:${mode}`;
+    const snap = getSnapshot();
+    if (
+      previewId === row.localId &&
+      previewMode === mode &&
+      snap.track?.id === trackId &&
+      snap.playing
+    ) {
+      stopAudioPreview(ANALYZER_PREVIEW_PREFIX);
+      setPreviewId(null);
       return;
     }
-    el.src = url;
-    void el.play().catch(() => undefined);
+
+    const blob = mode === "original" ? row.originalBlob : row.currentBlob;
+    const key = `${row.localId}:${mode}`;
+    stopAudioPreview(ANALYZER_PREVIEW_PREFIX);
+    const url = urlFor(key, blob);
+    const processed = mode === "fixed" && Boolean(row.lastFixLabel);
+    const signal = processed
+      ? simulationSignal(
+          `Analyzer auto-fix preview (${row.lastFixLabel}); disclosed simulation — not hidden DSP on the play path`,
+        )
+      : localSignal();
+    const track = {
+      id: trackId,
+      url,
+      title: `${row.title || row.fileName} · ${mode === "original" ? "Before" : "After"}`,
+      artist: "Analyzer",
+      signal,
+    };
+    playTrack(track, [track]);
     setPreviewId(row.localId);
     setPreviewMode(mode);
   }
 
   function stopPreview() {
-    audioRef.current?.pause();
+    stopAudioPreview(ANALYZER_PREVIEW_PREFIX);
     setPreviewId(null);
   }
 
@@ -388,14 +416,13 @@ export function ReleasesPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-releases">
-      <audio ref={audioRef} className="hidden" preload="none" />
-
       <header>
         <p className="nexus-eyebrow">Analyzer</p>
         <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Check your mix</h1>
         <p className="nexus-subline mt-2 text-sm">
           Drop up to {MAX_ANALYZER_BATCH} tracks — we measure on this device and tell you if they clear
-          this audio check. Cover art is separate (Art Check).
+          this audio check. Cover art is separate (Art Check). Before/After previews play through VDock
+          with disclosed signals when a fix is applied.
         </p>
       </header>
 
