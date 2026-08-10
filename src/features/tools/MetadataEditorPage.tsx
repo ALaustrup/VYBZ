@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Download, FileAudio, Loader2, Save, Upload } from "lucide-react";
+import { ForgeDropzone, ToolWorkbench } from "@/components/ToolWorkbench";
 import { readId3Tags, titleFromFilename, type Id3Tags } from "@/lib/id3Tags";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -120,26 +121,22 @@ export function MetadataEditorPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="metadata-editor">
-      <p className="mb-4 text-[13px] text-white/45">
-        Edit release metadata. Import from a master file when tags exist — never invent ISRC/UPC.
-      </p>
+    <ToolWorkbench
+      eyebrow="Metadata"
+      title="Release fields"
+      subtitle="Import tags from a master when they exist — never invent ISRC/UPC."
+      testId="metadata-editor"
+    >
+      <ForgeDropzone
+        label="Import tags from audio"
+        hint="or click to choose · empty fields stay empty"
+        accept={AUDIO_ACCEPT}
+        busy={busy}
+        inputTestId="metadata-audio-import"
+        onFiles={(list) => void onFile(list?.[0])}
+      />
 
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <label className="btn btn-primary cursor-pointer px-4 py-2.5 text-sm">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileAudio className="h-4 w-4" />}
-          Import from audio
-          <input
-            type="file"
-            accept={AUDIO_ACCEPT}
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              e.target.value = "";
-              void onFile(f);
-            }}
-          />
-        </label>
+      <div className="flex flex-wrap items-center gap-2">
         <button type="button" onClick={saveDraft} className="btn btn-ghost px-4 py-2.5 text-sm">
           <Save className="h-4 w-4" /> Save draft
         </button>
@@ -165,13 +162,18 @@ export function MetadataEditorPage() {
           />
         </label>
         {draft.sourceFileName && (
-          <span className="text-[11px] text-white/35">Source · {draft.sourceFileName}</span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] text-white/35">
+            <FileAudio className="h-3.5 w-3.5" />
+            Source · {draft.sourceFileName}
+          </span>
         )}
+        {busy ? <Loader2 className="h-4 w-4 animate-spin text-white/40" /> : null}
       </div>
 
-      <section className="mb-6 space-y-3">
-        <p className="nexus-eyebrow">Core</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section className="forge-glass relative space-y-3 !rounded-2xl p-4">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <p className="relative z-[1] nexus-eyebrow">Core</p>
+        <div className="relative z-[1] grid gap-3 sm:grid-cols-2">
           <Field label="Title" value={draft.title} onChange={(v) => patch("title", v)} />
           <Field label="Artist" value={draft.artist} onChange={(v) => patch("artist", v)} />
           <Field label="Album" value={draft.album} onChange={(v) => patch("album", v)} />
@@ -182,18 +184,20 @@ export function MetadataEditorPage() {
         </div>
       </section>
 
-      <section className="mb-6 space-y-3">
-        <p className="nexus-eyebrow">Identifiers</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section className="forge-glass relative space-y-3 !rounded-2xl p-4">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <p className="relative z-[1] nexus-eyebrow">Identifiers</p>
+        <div className="relative z-[1] grid gap-3 sm:grid-cols-2">
           <Field label="ISRC" value={draft.isrc} onChange={(v) => patch("isrc", v.toUpperCase())} placeholder="Only if you have one" />
           <Field label="UPC / EAN" value={draft.upc} onChange={(v) => patch("upc", v)} />
           <Field label="Catalog #" value={draft.catalogNumber} onChange={(v) => patch("catalogNumber", v)} />
         </div>
       </section>
 
-      <section className="mb-6 space-y-3">
-        <p className="nexus-eyebrow">Credits</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section className="forge-glass relative space-y-3 !rounded-2xl p-4">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <p className="relative z-[1] nexus-eyebrow">Credits</p>
+        <div className="relative z-[1] grid gap-3 sm:grid-cols-2">
           <Field label="Songwriter" value={draft.songwriter} onChange={(v) => patch("songwriter", v)} />
           <Field label="Producer" value={draft.producer} onChange={(v) => patch("producer", v)} />
           <Field label="Mixer" value={draft.mixer} onChange={(v) => patch("mixer", v)} />
@@ -201,18 +205,19 @@ export function MetadataEditorPage() {
         </div>
       </section>
 
-      <section className="space-y-3">
-        <p className="nexus-eyebrow">Rights</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section className="forge-glass relative space-y-3 !rounded-2xl p-4">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <p className="relative z-[1] nexus-eyebrow">Rights</p>
+        <div className="relative z-[1] grid gap-3 sm:grid-cols-2">
           <Field label="Copyright" value={draft.copyright} onChange={(v) => patch("copyright", v)} placeholder="© 2026 …" />
           <Field label="Publisher" value={draft.publisher} onChange={(v) => patch("publisher", v)} />
         </div>
       </section>
 
-      <p className={cx("mt-6 text-[11px] text-white/30")}>
+      <p className={cx("text-[11px] text-white/30")}>
         Drafts stay on this device. JSON export/import is for handoff — cloud write-back lands when
         release schema is wired. Never invent ISRC/UPC.
       </p>
-    </div>
+    </ToolWorkbench>
   );
 }

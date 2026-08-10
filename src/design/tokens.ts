@@ -43,17 +43,18 @@ export const SUITE_PRODUCTS = [
 export type SuiteProductId = (typeof SUITE_PRODUCTS)[number];
 
 /** "r g b" channels, for `rgb(var(--accent-rgb) / a)` and color-mix. */
+/** Cool spectrum — keep in sync with `--accent-*` in index.css (M10 R0). */
 export const PRODUCT_ACCENT_RGB: Record<SuiteProductId, string> = {
   home: "0 194 255",
   studio: "255 140 40",
   prepare: "125 211 252",
-  credits: "99 102 241",
+  credits: "56 189 248",
   master: "245 158 11",
-  coverlab: "217 70 239",
+  coverlab: "94 234 212",
   sentinel: "239 68 68",
-  relay: "59 130 246",
+  relay: "14 165 233",
   live: "220 38 38",
-  market: "168 85 247",
+  market: "34 211 238",
   artist: "0 194 255",
   vdock: "0 194 255",
 };

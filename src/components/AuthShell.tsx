@@ -23,7 +23,11 @@ export function AuthShell({
   const reduce = useReduceFx();
 
   return (
-    <div className="public-scroll-frame relative z-10 flex flex-col items-center px-5 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+    <div
+      className="public-scroll-frame public-ops-shell nexus-void relative z-10 flex flex-col items-center px-5 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))]"
+      data-public-shell="auth"
+      data-testid="public-auth-shell"
+    >
       <GeometricBackdrop intensity="subtle" />
       <motion.div
         className="forge-glass my-auto w-full max-w-[22rem] p-7 sm:max-w-sm"

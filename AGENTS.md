@@ -26,30 +26,34 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**No open Masterplan milestone.** **M9 — VDock Completion** closed **2026-08-10** as
-Masterplan §12 **DEPLOYED BUT UNVERIFIED** (executable `m9VdockGate` passes; Android
-call-interrupt smoke still **Not measured**). **M7** and **M8** deepen are **parked**
-(owner **2026-08-10** after production smoke). Authorised OR feature deepen is **parked**
-the same day — further OR work needs re-authorisation. Do not begin **M10** until the
-owner authorises it.
+**M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R** visual
+redesign locally validated on `feat/m10-suite-visual-redesign` (R0–R5; **IMPLEMENTED BUT
+NOT DELIVERED** — unmerged). Store Preview / publish commerce is a **later M10 wave** —
+do not begin it until Wave R is merged and owner-validated on production. **M9** remains
+closed (**DEPLOYED BUT UNVERIFIED**). **M7** / **M8** / OR deepen stay **parked**. Law 5:
+VDock contracts frozen (skin only). Law 1: no invented metrics. Law 3: no dating.
+Instrument Creator parked. OR-021–OR-022 and OR-024–OR-025 remain parked.
 
-**Suite visual polish shipped (not a Masterplan milestone):** restrained cyber/synthwave
-atmosphere, ToolWorkbench density, rail chrome, light Home / Analyzer enhance —
-[PR #140](https://github.com/ALaustrup/VYBZ/pull/140) merged **2026-08-10** (`46934283`).
-Further polish needs owner re-authorisation. Does not reopen M7–M9 contracts. Instrument
-Creator (VST3) stays parked. OR-021–OR-022 and OR-024–OR-025 remain parked. Law 3 still
-bans dating and generic social growth.
+**Suite visual polish (pre-M10)** shipped via [PR #140](https://github.com/ALaustrup/VYBZ/pull/140)
+@ `46934283` — absorbed into M10 redesign as baseline, not a parallel track.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
+### Authorised track
+
+1. **M10 Wave R (visual redesign)** — cohesive premium music-ops UI; per-app accent
+   identity. Branch `feat/m10-suite-visual-redesign`. Gate:
+   `m10SuiteRedesignGate.test.ts` (Wave R0–R5). R0–R4 surfaces landed; R5 correctness gate
+   (lint / test / build / no-fixtures) measured locally. Delivery state: **IMPLEMENTED
+   BUT NOT DELIVERED**. Next: owner push/PR/merge + production smoke, then Store commerce
+   wave. Store commerce deferred until Wave R is owner-validated on prod.
+
 ### Closed / parked tracks (post-smoke)
 
-0. **Suite visual polish (shipped)** — PR #140 @ `46934283`; continuous deepen parked
-   unless re-authorised.
-
+0. **Suite visual polish (shipped)** — PR #140 @ `46934283`; baseline for M10 redesign.
 1. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
    playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
    behind stable interfaces (Law 5). Extend via versioned contracts only.
@@ -59,7 +63,8 @@ Law 1 still governs every detector and claim.
 4. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
    or smoke-verified; no continuous polish track. Re-auth required for new OR scope.
 
-Bugfixes and shared-shell changes remain allowed. Do not begin **M10** until named.
+Bugfixes and shared-shell changes remain allowed. Do not begin M10 Store commerce until
+Wave R is owner-validated.
 
 ### Shipped authorisations (no continuous deepen)
 
@@ -91,14 +96,16 @@ A gate written only in prose cannot fail a build. Where a gate can be expressed 
 it must be, and the test must cite the gate. References: `src/app/routeTruth.test.ts` (M3),
 `src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5),
 `src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7),
-`src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9).
+`src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
+`src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). No Masterplan track open. **Suite visual polish shipped** (PR #140 @
-`46934283`). Do not begin M10 until the owner authorises it.
+UNVERIFIED). **M10 authorised** — Wave R redesign **IMPLEMENTED BUT NOT DELIVERED** on
+`feat/m10-suite-visual-redesign` (R0–R5 local validate). Store commerce deferred until
+Wave R owner-validated on production.
 
 ## Safety rules
 

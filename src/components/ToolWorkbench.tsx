@@ -11,6 +11,10 @@ type ToolWorkbenchProps = {
   testId: string;
   atmosphere?: ForgeAtmosphereIntensity;
   wave?: boolean;
+  /** Wider stage for piano roll / dense editors (Midi Maker). */
+  wide?: boolean;
+  /** Extra root classes (e.g. Library fill / max-width override). */
+  className?: string;
   children: ReactNode;
 };
 
@@ -22,17 +26,23 @@ export function ToolWorkbench({
   testId,
   atmosphere = "subtle",
   wave = true,
+  wide = false,
+  className,
   children,
 }: ToolWorkbenchProps) {
   return (
     <div
-      className="relative mx-auto w-full max-w-3xl px-4 py-4 pb-28"
+      className={cx(
+        "relative mx-auto w-full px-4 py-4 pb-28",
+        wide ? "max-w-4xl" : "max-w-3xl",
+        className,
+      )}
       data-testid={testId}
     >
       <div className="pointer-events-none absolute inset-x-0 -top-4 bottom-0 -z-0 overflow-hidden rounded-[1.5rem]">
         <ForgeAtmosphere intensity={atmosphere} wave={wave} />
       </div>
-      <div className="relative z-[1] flex flex-col gap-6">
+      <div className="relative z-[1] flex min-h-0 flex-1 flex-col gap-6">
         <NexusPageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
         {children}
       </div>
@@ -72,9 +82,9 @@ export function ForgeDropzone({
     >
       <span className="forge-glass-edge pointer-events-none" aria-hidden />
       {busy ? (
-        <Loader2 className="relative z-[1] h-8 w-8 animate-spin text-suite-cyan" />
+        <Loader2 className="relative z-[1] h-8 w-8 animate-spin text-[rgb(var(--app-accent-rgb))]" />
       ) : (
-        <Upload className="relative z-[1] h-8 w-8 text-suite-cyan" />
+        <Upload className="relative z-[1] h-8 w-8 text-[rgb(var(--app-accent-rgb))]" />
       )}
       <div className="relative z-[1]">
         <p className="font-display text-lg font-semibold text-white">{label}</p>

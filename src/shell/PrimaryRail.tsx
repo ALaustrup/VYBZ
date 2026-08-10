@@ -102,13 +102,16 @@ export function PrimaryRail() {
   const groups = navGroups();
 
   return (
-    <aside className="suite-rail forge-glass !rounded-none !border-y-0 !border-l-0" aria-label="Suite navigation">
+    <aside
+      className="suite-rail suite-rail--ops forge-glass !rounded-none !border-y-0 !border-l-0"
+      aria-label="Suite navigation"
+      data-testid="suite-primary-rail"
+    >
       <div className="relative z-[2] flex min-h-0 flex-1 flex-col">
-        <div className="border-b border-white/[0.06] px-2 pb-3 pt-4">
-          <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-            VYBZ
-          </p>
-          <div className="mt-2">
+        <div className="suite-rail-ops-head">
+          <p className="suite-rail-ops-eyebrow">VYBZ</p>
+          <p className="suite-rail-ops-title">Music ops</p>
+          <div className="mt-2 px-0.5">
             <RailLink item={HOME_ITEM} end />
           </div>
         </div>

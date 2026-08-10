@@ -1,6 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Loader2, Music2, ScanLine } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  Info,
+  Loader2,
+  Music2,
+  Pause,
+  Play,
+  ScanLine,
+  SlidersHorizontal,
+  Sparkles,
+  Waves,
+} from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { AlbumLightbox } from "@/components/home/AlbumLightbox";
 import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
@@ -9,10 +22,29 @@ import { ProBadge } from "@/components/ProBadge";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
 import { Flair, CosmeticAvatarShell, useResolvedCosmetics } from "@/lib/cosmetics";
 import { groupDrops, type DropGroup } from "@/lib/libraryQuery";
+import {
+  buildActionItems,
+  buildStats,
+  type ActionItem,
+  type ActionSeverity,
+  type DashboardStats,
+} from "@/lib/dashboardModel";
+import { isPlayableMediaUrl, playTrack, toggle, usePlayer } from "@/lib/audioBus";
+import { toPlayerTrack } from "@/lib/toPlayerTrack";
+import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
+import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import { useSession } from "@/store/session";
 import { paletteFor, cx } from "@/lib/utils";
+import type { ReleaseProject } from "@vybz/domain/releases";
+import type { StorefrontOrder } from "@/features/storefront/types";
 import type { Drop } from "@/types";
+
+const SEVERITY_STYLE: Record<ActionSeverity, { icon: typeof AlertTriangle; tone: string }> = {
+  blocking: { icon: AlertTriangle, tone: "text-suite-danger" },
+  attention: { icon: Info, tone: "text-suite-warning" },
+  suggestion: { icon: Sparkles, tone: "text-[rgb(var(--app-accent-rgb))]" },
+};
 
 function albumCover(group: DropGroup): string | null {
   for (const d of group.drops) {
@@ -71,39 +103,230 @@ function AlbumTile({
   );
 }
 
+function OpsStatStrip({
+  stats,
+  onNavigate,
+}: {
+  stats: DashboardStats;
+  onNavigate: (to: string) => void;
+}) {
+  const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
+    { label: "Tracks", value: stats.tracks, to: "/library" },
+    { label: "Releases", value: stats.releases, to: "/releases" },
+    { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
+    {
+      label: "Blocked",
+      value: stats.releasesBlocked,
+      to: "/releases",
+      tone: stats.releasesBlocked > 0 ? "text-suite-danger" : undefined,
+    },
+    { label: "Draft", value: stats.releasesDraft, to: "/releases" },
+  ];
+  return (
+    <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5" data-testid="ops-home-stats">
+      {cells.map((c) => (
+        <li key={c.label}>
+          <button
+            type="button"
+            onClick={() => onNavigate(c.to)}
+            className="forge-glass forge-plasma relative w-full !rounded-xl !p-3 text-left transition hover:border-white/20"
+          >
+            <span className="forge-glass-edge pointer-events-none" aria-hidden />
+            <span
+              className={cx(
+                "relative z-[1] block font-display text-xl font-semibold tabular-nums",
+                c.tone ?? "text-white",
+              )}
+            >
+              {c.value}
+            </span>
+            <span className="relative z-[1] block text-[10px] font-semibold uppercase tracking-[0.12em] text-white/35">
+              {c.label}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function OpsActionCentre({
+  items,
+  onNavigate,
+}: {
+  items: ActionItem[];
+  onNavigate: (to: string) => void;
+}) {
+  return (
+    <section data-testid="ops-home-actions">
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
+        Needs attention
+      </p>
+      {items.length === 0 ? (
+        <div className="forge-glass relative flex items-center gap-3 !rounded-xl !py-4 px-4">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <CheckCircle2 className="relative z-[1] h-5 w-5 shrink-0 text-suite-success" />
+          <p className="relative z-[1] text-sm text-white/55">
+            Nothing outstanding. No blocking release findings from your measured projects.
+          </p>
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {items.slice(0, 5).map((item) => {
+            const style = SEVERITY_STYLE[item.severity];
+            const Icon = style.icon;
+            return (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => onNavigate(item.href)}
+                  data-testid={`ops-action-${item.id}`}
+                  className="forge-glass relative flex w-full items-start gap-3 !rounded-xl p-3.5 text-left transition hover:border-white/20"
+                >
+                  <span className="forge-glass-edge pointer-events-none" aria-hidden />
+                  <Icon className={cx("relative z-[1] mt-0.5 h-4 w-4 shrink-0", style.tone)} />
+                  <span className="relative z-[1] min-w-0 flex-1">
+                    <span className="block text-sm font-medium text-white/90">{item.title}</span>
+                    <span className="mt-0.5 block text-[12px] leading-relaxed text-white/45">
+                      {item.detail}
+                    </span>
+                  </span>
+                  <span className="relative z-[1] mt-0.5 flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[rgb(var(--app-accent-rgb))]">
+                    {item.actionLabel}
+                    <ArrowRight className="h-3 w-3" />
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function RecentTrackRow({
+  drop,
+  queue,
+}: {
+  drop: Drop;
+  queue: Drop[];
+}) {
+  const player = usePlayer();
+  const navigate = useNavigate();
+  const isCurrent = player.track?.id === drop.id;
+  const isPlaying = isCurrent && player.playing;
+  const playable = isPlayableMediaUrl(drop.audioUrl);
+  const credit =
+    drop.creditedArtist?.trim() || drop.authorUsername?.trim() || "Creator";
+
+  return (
+    <li className="forge-glass relative flex items-center gap-2 !rounded-xl px-3 py-2.5">
+      <span className="forge-glass-edge pointer-events-none" aria-hidden />
+      <button
+        type="button"
+        disabled={!playable}
+        onClick={() => {
+          if (isCurrent) toggle();
+          else playTrack(toPlayerTrack(drop), queue.map(toPlayerTrack));
+        }}
+        className="relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/12 bg-black/30 text-white transition hover:border-[rgb(var(--app-accent-rgb)/0.45)] disabled:opacity-35"
+        aria-label={isPlaying ? `Pause ${drop.title || "track"}` : `Play ${drop.title || "track"} in VDock`}
+        data-testid={`ops-track-play-${drop.id}`}
+      >
+        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 translate-x-px" />}
+      </button>
+      <div className="relative z-[1] min-w-0 flex-1">
+        <p className="truncate text-sm font-medium text-white/90">{drop.title?.trim() || "Untitled"}</p>
+        <p className="truncate text-[11px] text-white/40">
+          {credit}
+          {!drop.assetId ? " · no file" : ""}
+        </p>
+      </div>
+      <div className="relative z-[1] flex shrink-0 gap-1">
+        <button
+          type="button"
+          title="Analyze"
+          aria-label={`Analyze ${drop.title || "track"}`}
+          onClick={() => navigate("/releases")}
+          className="forge-chip !min-h-8 !min-w-8 !h-8 !w-8"
+        >
+          <Waves className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          title="Correct"
+          aria-label={`Correct ${drop.title || "track"}`}
+          onClick={() => navigate("/tools/correct")}
+          className="forge-chip !min-h-8 !min-w-8 !h-8 !w-8"
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+        </button>
+        <Link
+          to={`/track/${drop.id}`}
+          title="Open track"
+          className="forge-chip !min-h-8 !min-w-8 !h-8 !w-8"
+          aria-label={`Open ${drop.title || "track"}`}
+        >
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </li>
+  );
+}
+
 /**
- * Signed-in Home — artist profile + album/media library.
- * Replaces CommandDashboard “Where things stand” as the default hub.
+ * M10 Wave R2 — signed-in Home as music-ops command center.
+ * Library-first stage + measured release status + action centre + track quick actions.
+ * Figures come only from dashboardModel / listReleases / drops (Law 1).
  */
 export function ArtistHome() {
+  const navigate = useNavigate();
   const { profile, userId } = useSession();
   const [drops, setDrops] = useState<Drop[]>([]);
+  const [releases, setReleases] = useState<ReleaseProject[]>([]);
+  const [orders, setOrders] = useState<StorefrontOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [openAlbum, setOpenAlbum] = useState<DropGroup | null>(null);
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   const facets = profile?.profile ?? {};
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!userId) return;
-    let cancelled = false;
     setLoading(true);
-    api.dropsBy(userId, 120).then((d) => {
-      if (!cancelled) {
-        setDrops(d);
-        setLoading(false);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
+    const ownerId = getPrepareOwnerId(userId);
+    const [myDrops, myReleases, myOrders] = await Promise.all([
+      api.dropsBy(userId, 120).catch(() => [] as Drop[]),
+      listReleases(ownerId).catch(() => [] as ReleaseProject[]),
+      FLAGS.storefront
+        ? api.listMyStorefrontOrders().catch(() => [] as StorefrontOrder[])
+        : Promise.resolve([] as StorefrontOrder[]),
+    ]);
+    setDrops(myDrops);
+    setReleases(myReleases);
+    setOrders(myOrders);
+    setLoading(false);
   }, [userId]);
 
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   const albums = useMemo(() => groupDrops(drops, "album"), [drops]);
+  const stats = useMemo(() => buildStats(drops, releases), [drops, releases]);
+  const actions = useMemo(
+    () => buildActionItems({ drops, releases, orders }),
+    [drops, releases, orders],
+  );
+  const recentTracks = useMemo(
+    () => [...drops].sort((a, b) => b.createdAt - a.createdAt).slice(0, 6),
+    [drops],
+  );
 
   if (!profile) return null;
 
   return (
-    <div className="relative space-y-6 pb-4 pt-1">
+    <div className="relative space-y-6 pb-4 pt-1" data-testid="ops-home">
       <div className="pointer-events-none absolute inset-x-0 -top-2 h-[22rem] overflow-hidden rounded-[1.5rem]">
         <ForgeAtmosphere intensity="subtle" wave />
       </div>
@@ -115,7 +338,10 @@ export function ArtistHome() {
             <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
           </CosmeticAvatarShell>
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--app-accent-rgb)/0.65)]">
+              Music ops
+            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
               <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                 {profile.displayName?.trim() || profile.username || "Artist"}
               </h1>
@@ -131,69 +357,98 @@ export function ArtistHome() {
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">{profile.bio}</p>
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-white/40">
-              <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">
-                {drops.length} track{drops.length === 1 ? "" : "s"}
-              </span>
-              <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">
-                {albums.length} release{albums.length === 1 ? "" : "s"}
-              </span>
               <Link
                 to="/releases"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(var(--accent-rgb)/0.35)] bg-[rgb(var(--accent-rgb)/0.1)] px-2.5 py-1 text-white/80 transition hover:border-[rgb(var(--accent-rgb)/0.55)] hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(var(--app-accent-rgb)/0.35)] bg-[rgb(var(--app-accent-rgb)/0.1)] px-2.5 py-1 text-white/80 transition hover:border-[rgb(var(--app-accent-rgb)/0.55)] hover:text-white"
               >
                 <ScanLine className="h-3 w-3" /> Prepare a release
+              </Link>
+              <Link
+                to="/library"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-white/70 transition hover:border-white/25 hover:text-white"
+              >
+                Open library
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <section className="relative z-[1]">
-        <div className="mb-3 flex items-end justify-between gap-3 px-0.5">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">Catalog</p>
-            <h2 className="font-display text-lg font-semibold text-white">Your releases</h2>
-          </div>
-          <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
-            Open library
-          </Link>
+      {loading ? (
+        <div className="flex justify-center py-10" data-testid="ops-home-loading">
+          <Loader2 className="h-6 w-6 animate-spin text-white/40" />
         </div>
+      ) : (
+        <>
+          <OpsStatStrip stats={stats} onNavigate={navigate} />
+          <OpsActionCentre items={actions} onNavigate={navigate} />
 
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-white/40" />
-          </div>
-        ) : albums.length === 0 ? (
-          <div className="forge-glass forge-plasma relative flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
-            <span className="forge-glass-edge pointer-events-none" aria-hidden />
-            <Music2 className="relative z-[1] h-8 w-8 text-suite-cyan/70" strokeWidth={1.5} />
-            <p className="relative z-[1] font-display text-base text-white/90">No releases yet</p>
-            <p className="relative z-[1] max-w-sm text-sm text-white/45">
-              Upload tracks or run a readiness scan — albums group automatically from metadata.
-            </p>
-            <Link
-              to="/releases"
-              className="relative z-[1] mt-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.1]"
-            >
-              Scan a track
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {albums.map((g) => (
-              <AlbumTile key={g.key} group={g} onOpen={() => setOpenAlbum(g)} />
-            ))}
-          </div>
-        )}
-      </section>
+          {recentTracks.length > 0 ? (
+            <section data-testid="ops-home-recent">
+              <div className="mb-2 flex items-end justify-between gap-3 px-0.5">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
+                    Recent tracks
+                  </p>
+                  <h2 className="font-display text-lg font-semibold text-white">Quick actions</h2>
+                </div>
+                <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
+                  All tracks
+                </Link>
+              </div>
+              <ul className="space-y-1.5">
+                {recentTracks.map((d) => (
+                  <RecentTrackRow key={d.id} drop={d} queue={recentTracks} />
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          <section className="relative z-[1]" data-testid="ops-home-catalog">
+            <div className="mb-3 flex items-end justify-between gap-3 px-0.5">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                  Library
+                </p>
+                <h2 className="font-display text-lg font-semibold text-white">Your releases</h2>
+              </div>
+              <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
+                Open library
+              </Link>
+            </div>
+
+            {albums.length === 0 ? (
+              <div className="forge-glass forge-plasma relative flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
+                <span className="forge-glass-edge pointer-events-none" aria-hidden />
+                <Music2 className="relative z-[1] h-8 w-8 text-[rgb(var(--app-accent-rgb)/0.75)]" strokeWidth={1.5} />
+                <p className="relative z-[1] font-display text-base text-white/90">No releases yet</p>
+                <p className="relative z-[1] max-w-sm text-sm text-white/45">
+                  Upload tracks or run a readiness scan — albums group automatically from metadata.
+                </p>
+                <Link
+                  to="/releases"
+                  className="relative z-[1] mt-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.1]"
+                >
+                  Scan a track
+                </Link>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {albums.map((g) => (
+                  <AlbumTile key={g.key} group={g} onOpen={() => setOpenAlbum(g)} />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
 
       {openAlbum ? (
         <AlbumLightbox
           group={openAlbum}
           onClose={() => setOpenAlbum(null)}
           onChanged={() => {
-            if (!userId) return;
-            void api.dropsBy(userId, 120).then(setDrops);
+            void load();
           }}
         />
       ) : null}

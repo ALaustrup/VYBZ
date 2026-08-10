@@ -3,58 +3,48 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `main`
-**HEAD:** `94882b32` (polish product `46934283`)
-**Current milestone:** **None open** (Masterplan). **Suite visual polish** shipped
-([PR #140](https://github.com/ALaustrup/VYBZ/pull/140) @ `46934283`). Do not begin **M10**.
+**Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
+**HEAD:** `3a8b1111`
+**Current milestone:** **M10** — Wave **R** visual redesign **IMPLEMENTED BUT NOT DELIVERED**
+(R0–R5 local validate). Store commerce deferred until merge + production smoke.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `46934283` | JS bundle contains full merge SHA; deploy `5839421900` SUCCESS |
-| Polish PR | [PR #140](https://github.com/ALaustrup/VYBZ/pull/140) | MERGED 2026-08-10 |
-| Close-out PR | [PR #136](https://github.com/ALaustrup/VYBZ/pull/136) | MERGED 2026-08-10 |
-| Park PR | [PR #139](https://github.com/ALaustrup/VYBZ/pull/139) | MERGED 2026-08-10 |
+| Production SHA | `46934283` (polish) / tip docs `9e5ee0a0` | Redesign not on prod |
+| Polish PR | [PR #140](https://github.com/ALaustrup/VYBZ/pull/140) | MERGED |
 
 ## Last completed operations
 
-18. **M9 close-out** — PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
-19. **Production smoke (pre-polish)** — Analyzer / MasterReady / tools / VDock.
-20. **Park M7 / M8 / OR deepen** — PR #139 @ `fcac9016`.
-21. **Suite visual polish Waves 0–4** — PR #140 merge `46934283` (ForgeAtmosphere,
-    ToolWorkbench, rail chrome, ArtistHome, Analyzer next-step).
-22. **Post-merge preview / production smoke (2026-08-10)** — see verification below.
+21. **Suite visual polish** — PR #140 @ `46934283`.
+22. **M10 authorised** — owner **2026-08-10**; Wave R redesign.
+23. **M10 Wave R0** — foundation @ `33fc63df`.
+24. **M10 Wave R1** — shell chrome @ `ba62bf1d` / tip `aa5eaf4a`.
+25. **M10 Wave R2** — Home ops @ `13aa5265` / tip `249500e1`.
+26. **M10 Wave R3** — Analyzer + ToolWorkbench @ `9d81de76` / tip `a4e30ece`.
+27. **M10 Wave R4** — Library + public shells @ `5eb886ab` / tip `47717e38`.
+28. **M10 Wave R5** — redesign gate rollup + full correctness validate @ `3a8b1111`.
 
 ## Deployment state
 
-**DEPLOYED** for suite visual polish @ `46934283`. M9 device/OS MediaSession interrupt
-checks remain **Not measured** (unchanged).
+Production still on polish/docs tip. M10 Wave R **not deployed** (branch unpushed unless owner pushes).
 
 ## Production verification
 
-| Check | Result |
-|---|---|
-| Prod build SHA in bundle | PASS `46934283` |
-| Preview MasterReady A/B → play | PASS (`m9.compare-preview.1` + MediaSession album disclosure) |
-| Signed-out Prepare dock chrome | Absent by design (`PrepareLocalApp`) — DOM `data-vdock-disclosure` N/A |
-| Prod Correct → Play in VDock | PASS `data-vdock-disclosure` + MediaSession album (`m6.dc-remove.1` / `m6.loudness-match.1`) |
-| Rail Correct + Translate primary + More | PASS (prod signed-in) |
-| Analyzer forge-atmosphere + next-steps | PASS (preview) |
-| `prefers-reduced-motion: reduce` | PASS — `matchMedia` true; energy pulse paths **0**; pipe `animationName: none` |
-| Android call-interrupt audio focus | **Not measured** |
-| OS lock-screen MediaSession controls | **Not measured** |
+Redesign production verification — **Not measured** (not on prod). Prior polish smoke unchanged.
 
 ## Latest verification
 
-Correctness gate on polish branch (pre-merge): lint / test (**505**) / build /
-`check:no-fixtures` — PASS.
+M10 Wave R5 local correctness gate:
 
-Post-merge smoke URLs:
+- `npm run lint` — PASS
+- `npm run test` — PASS (**515** tests, 111 files)
+- `npm run build` — PASS
+- `npm run check:no-fixtures` — PASS (13 markers absent from `dist/`)
 
-- Preview: `https://vybz-modjo397i-astramatrix.vercel.app` (branch tip pre-merge)
-- Production: `https://vybz.cloud` @ `46934283`
+Delivery state (Masterplan §12): **IMPLEMENTED BUT NOT DELIVERED**.
 
 ## Permanently out of scope (not parked)
 
@@ -62,10 +52,10 @@ Dating / swipe — Law 3.
 
 ## Blockers / parked
 
-M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021–022, OR-024–025,
-Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
+M7/M8 deepen, OR deepen, Instrument Creator. M10 Store commerce parked until Wave R is
+merged and owner-validated on production.
 
 ## Next authorised action
 
-Idle on Masterplan tracks. Owner may schedule further visual polish, re-auth an OR, or
-name **M10**. Do not begin M10 until named.
+Owner: push branch + open PR (ask required), merge, production smoke of Wave R surfaces,
+then authorise M10 Store commerce wave — or request redesign tweaks first.

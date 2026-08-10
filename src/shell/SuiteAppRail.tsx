@@ -57,13 +57,11 @@ export function SuiteAppRail() {
 
   return (
     <aside
-      className="suite-app-rail suite-inspector glass-vibrant hidden w-[4.75rem] shrink-0 flex-col border-l border-[var(--hairline)] lg:flex"
+      className="suite-app-rail suite-app-rail--ops suite-inspector glass-vibrant hidden w-[4.75rem] shrink-0 flex-col border-l border-[var(--hairline)] lg:flex"
       aria-label="Suite apps"
       data-testid="suite-app-rail"
     >
-      <p className="px-2 pb-1 pt-3 text-center text-[9px] font-semibold uppercase tracking-[0.16em] text-white/30">
-        Apps
-      </p>
+      <p className="suite-app-rail-ops-label">Apps</p>
       <nav className="no-scrollbar flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-1.5 pb-4">
         {apps.map((app: SuiteAppDef) => (
           <AppTile
@@ -90,7 +88,7 @@ export function SuiteAppRailMobile() {
 
   return (
     <nav
-      className="suite-app-rail-mobile relative flex shrink-0 gap-0.5 border-b border-white/[0.06] px-2 py-1 lg:hidden"
+      className="suite-app-rail-mobile suite-app-rail-mobile--ops relative flex shrink-0 gap-0.5 border-b border-white/[0.06] px-2 py-1 lg:hidden"
       aria-label="Suite apps"
       data-testid="suite-app-rail-mobile"
     >

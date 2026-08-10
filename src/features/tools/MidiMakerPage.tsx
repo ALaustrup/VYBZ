@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Download, Loader2, Plus, Square, Trash2, Upload, Play } from "lucide-react";
 import { Midi } from "@tonejs/midi";
+import { ToolWorkbench } from "@/components/ToolWorkbench";
 import { audioToMidi } from "@/lib/audioToMidi";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -170,12 +171,14 @@ export function MidiMakerPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 pb-28" data-testid="midi-maker">
-      <p className="mb-4 text-[13px] text-white/45">
-        Draw notes on the piano roll, or extract from audio. Export downloads a standard .mid file.
-      </p>
-
-      <div className="mb-4 flex flex-wrap gap-2">
+    <ToolWorkbench
+      wide
+      eyebrow="Midi Maker"
+      title="Piano roll desk"
+      subtitle="Draw notes on the piano roll, or extract from audio. Export downloads a standard .mid file."
+      testId="midi-maker"
+    >
+      <div className="flex flex-wrap gap-2">
         <button type="button" onClick={addNote} className="btn btn-primary px-3 py-2 text-sm">
           <Plus className="h-4 w-4" /> Add note
         </button>
@@ -243,8 +246,9 @@ export function MidiMakerPage() {
         </button>
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-3">
-        <label className="block">
+      <div className="forge-glass relative grid grid-cols-2 gap-3 !rounded-2xl p-4">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <label className="relative z-[1] block">
           <span className="text-[10px] uppercase text-white/35">Title</span>
           <input
             value={title}
@@ -252,7 +256,7 @@ export function MidiMakerPage() {
             className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none"
           />
         </label>
-        <label className="block">
+        <label className="relative z-[1] block">
           <span className="text-[10px] uppercase text-white/35">Tempo (BPM)</span>
           <input
             type="number"
@@ -265,22 +269,26 @@ export function MidiMakerPage() {
         </label>
       </div>
 
-      <div className="mb-4">
-        <PianoRoll
-          notes={notes}
-          seconds={rollSeconds}
-          onPlace={placeOnRoll}
-          onRemove={(id) => setNotes((list) => list.filter((x) => x.id !== id))}
-        />
+      <div className="forge-glass forge-plasma relative !rounded-2xl p-2">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <div className="relative z-[1]">
+          <PianoRoll
+            notes={notes}
+            seconds={rollSeconds}
+            onPlace={placeOnRoll}
+            onRemove={(id) => setNotes((list) => list.filter((x) => x.id !== id))}
+          />
+        </div>
       </div>
 
       {showList && (
-        <ul className="mb-4 space-y-1.5">
+        <ul className="space-y-1.5">
           {sorted.map((n) => (
             <li
               key={n.id}
-              className="grid grid-cols-[3.5rem_1fr_1fr_1fr_1fr_auto] items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] px-2 py-1.5 text-[12px]"
+              className="forge-glass relative grid grid-cols-[3.5rem_1fr_1fr_1fr_1fr_auto] items-center gap-2 !rounded-xl px-2 py-1.5 text-[12px]"
             >
+              <span className="forge-glass-edge pointer-events-none" aria-hidden />
               <span className="font-mono text-white/70">{noteLabel(n.midi)}</span>
               <label className="flex items-center gap-1 text-white/40">
                 ♪
@@ -359,6 +367,6 @@ export function MidiMakerPage() {
         </ul>
       )}
       <p className="text-[11px] text-white/30">{notes.length} notes · single track</p>
-    </div>
+    </ToolWorkbench>
   );
 }

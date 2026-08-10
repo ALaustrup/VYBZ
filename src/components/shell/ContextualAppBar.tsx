@@ -63,7 +63,7 @@ export function ContextualAppBar({
   }
 
   return (
-    <header className="app-bar app-bar--nexus shrink-0">
+    <header className="app-bar app-bar--nexus app-bar--ops shrink-0" data-testid="suite-app-bar">
       <div className="app-bar-inner relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <div className="flex min-w-0 items-center gap-1.5 justify-self-start">
           {bridge.leading ?? (showBack ? (
