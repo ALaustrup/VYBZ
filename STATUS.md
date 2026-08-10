@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-09
-**Branch:** `feat/m9-simulation-audiobus`
-**HEAD:** `ce80adfd728799f229ab7877542b02c47434b1cd`
+**Branch:** `docs/m9-simulation-deployed`
+**HEAD:** `e60640a8e149e2f02c6849304bc7ecb8ba0e8736`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,8 +12,8 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `64f93cd5` (includes MediaSession feature `3e07d4b8`) | `dpl_J2T9xE3E5ywicu36T5EbLGwPWzsq` READY |
-| Feature PR | [PR #116](https://github.com/ALaustrup/VYBZ/pull/116) | MERGED |
+| Production SHA | `e60640a8` | `dpl_98qoPQaGd2aHhgHATHoyXE27sFYP` READY |
+| Feature PR | [PR #118](https://github.com/ALaustrup/VYBZ/pull/118) | MERGED |
 
 ## Last completed operations
 
@@ -34,11 +34,8 @@
 
 ## Deployment state
 
-**DEPLOYED** — production READY @ `64f93cd5` via
-`dpl_J2T9xE3E5ywicu36T5EbLGwPWzsq`.
-
-Current simulation-routing deepen is committed on `feat/m9-simulation-audiobus`; it is
-not deployed.
+**DEPLOYED** — production READY @ `e60640a8` via
+`dpl_98qoPQaGd2aHhgHATHoyXE27sFYP`.
 
 ## Production verification
 
@@ -49,7 +46,7 @@ or packaged WebView).
 
 ## Working tree
 
-Clean after feature commit `ce80adfd`; branch is not yet merged or deployed.
+Clean main after PR #118 merge `e60640a8`; this checkpoint branch changes `STATUS.md` only.
 
 ## Latest verification
 
@@ -65,5 +62,4 @@ OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature grow
 
 ## Next authorised action
 
-Merge and deploy the Translation/Correct AudioBus routing slice, verify production, then
-continue M7/M8/OR polish without further prompts. Do not begin M10 until named.
+Continue M7/M8/OR polish without further prompts. Do not begin M10 until named.
