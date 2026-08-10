@@ -114,8 +114,10 @@ export function createDesktopBridge(): PlatformBridge {
 
     playback: {
       async getCapabilities() {
-        const { dryPlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
-        return dryPlaybackCapabilities();
+        return web.playback.getCapabilities();
+      },
+      bindMediaSession(controller) {
+        return web.playback.bindMediaSession(controller);
       },
     },
 

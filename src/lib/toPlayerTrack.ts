@@ -31,6 +31,7 @@ export function toPlayerTrack(d: Drop): PlayerTrack {
     earnEligible: true,
     title: d.title?.trim() || KIND_FALLBACK[d.assetKind ?? "track"] || "Untitled",
     artist: d.creditedArtist?.trim() || d.authorUsername || "Creator",
+    album: d.album?.trim() || undefined,
     waveform: d.waveform,
     durationSec: d.durationSec,
     quality: qualityLabel(d.audioFormat ?? undefined, d.sampleRate ?? undefined, d.lossless),

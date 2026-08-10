@@ -8,6 +8,7 @@ import type {
   PersistedSession,
   PlatformKind,
   PlaybackCapabilities,
+  PlaybackController,
   ProcessingCapabilities,
   SelectedFile,
   SelectedFolder,
@@ -46,6 +47,7 @@ export interface PlatformBridge {
   /** M9 — playback capabilities (dry HTML audio; no native DSP on play path). */
   playback: {
     getCapabilities(): Promise<PlaybackCapabilities>;
+    bindMediaSession(controller: PlaybackController): () => void;
   };
 
   notifications: {

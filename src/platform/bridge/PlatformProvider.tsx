@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
 import { createRuntimeBridge } from "@/platform/bridge/createBridge";
 import type { PlatformBridge } from "@/platform/bridge/types";
 import type { ShellMode } from "@/contracts";
+import { audioBusController } from "@/lib/audioBus";
 import { restoreDesktopWindowPrefs } from "@/platform/desktop/restoreWindowPrefs";
 import { bindCapacitorDeepLinks } from "@/platform/deeplinks/capacitor";
 import { createBrowserNetworkProvider } from "@/platform/network";
@@ -19,7 +20,12 @@ export function PlatformProvider({
   bridge?: PlatformBridge;
   children: ReactNode;
 }) {
-  const value = bridge ?? createRuntimeBridge();
+  const value = useMemo(() => bridge ?? createRuntimeBridge(), [bridge]);
+
+  useEffect(
+    () => value.playback.bindMediaSession(audioBusController),
+    [value],
+  );
 
   useEffect(() => {
     if (value.kind === "desktop") {

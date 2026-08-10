@@ -7,6 +7,8 @@ export type {
   PersistedSession,
   ProcessingCapabilities,
   PlaybackCapabilities,
+  PlaybackMediaState,
+  PlaybackController,
   AudioInput,
   ArtworkInput,
   JobReference,

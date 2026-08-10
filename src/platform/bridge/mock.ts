@@ -87,6 +87,9 @@ export function createMockBridge(options: MockBridgeOptions = {}): PlatformBridg
         const { dryPlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
         return dryPlaybackCapabilities();
       },
+      bindMediaSession() {
+        return () => undefined;
+      },
     },
 
     notifications: {

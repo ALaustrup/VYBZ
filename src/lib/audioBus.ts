@@ -9,6 +9,7 @@
 // ---------------------------------------------------------------------------
 
 import { useSyncExternalStore } from "react";
+import type { PlaybackController } from "@/contracts";
 import type { PlaybackCustomization } from "@/lib/playbackCustomization";
 import {
   resolveTrackSignal,
@@ -25,6 +26,7 @@ export interface PlayerTrack {
   url: string;
   title: string;
   artist: string;
+  album?: string;
   waveform?: number[];
   durationSec?: number;
   quality?: string;
@@ -331,12 +333,18 @@ export function patchCurrentTrack(patch: Partial<PlayerTrack>) {
   set({ track, signal: resolveTrackSignal(track) });
 }
 
+export async function play() {
+  const el = ensureEngine();
+  if (!el || !snapshot.track || !el.paused) return;
+  if (!isPlayableMediaUrl(snapshot.track.url) && !(el.currentSrc || el.src)) return;
+  await startPlayback(el);
+}
+
 export async function toggle() {
   const el = ensureEngine();
   if (!el || !snapshot.track) return;
   if (el.paused) {
-    if (!isPlayableMediaUrl(snapshot.track.url) && !(el.currentSrc || el.src)) return;
-    await startPlayback(el);
+    await play();
   } else {
     el.pause();
   }
@@ -462,3 +470,14 @@ export function getPlaybackProgress(): { currentTime: number; duration: number; 
     fraction: dur > 0 ? Math.max(0, Math.min(1, t / dur)) : 0,
   };
 }
+
+/** Stable dry-transport interface consumed by Platform Bridge integrations. */
+export const audioBusController: PlaybackController = {
+  getState: getSnapshot,
+  subscribe,
+  play,
+  pause,
+  next,
+  previous: prev,
+  seek,
+};

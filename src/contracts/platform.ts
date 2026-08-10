@@ -49,10 +49,33 @@ export interface ProcessingCapabilities {
 export interface PlaybackCapabilities {
   /** Shared WebView HTMLAudioElement path — dry output. */
   dryHtmlAudio: boolean;
-  /** OS media-session / lock-screen controls (not yet wired). */
+  /** Runtime support for wired OS media-session / lock-screen controls. */
   mediaSession: boolean;
   /** Native DSP graph on the play path (must stay false until disclosed). */
   nativeDsp: boolean;
+}
+
+export interface PlaybackMediaState {
+  track: {
+    title: string;
+    artist: string;
+    album?: string;
+    durationSec?: number;
+  } | null;
+  playing: boolean;
+  currentTime: number;
+  duration: number;
+}
+
+/** Platform-neutral transport consumed by OS media-control adapters. */
+export interface PlaybackController {
+  getState(): PlaybackMediaState;
+  subscribe(listener: () => void): () => void;
+  play(): void | Promise<void>;
+  pause(): void;
+  next(): void;
+  previous(): void;
+  seek(seconds: number): void;
 }
 
 export interface AudioInput {
