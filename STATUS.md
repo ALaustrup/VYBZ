@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-09
 **Branch:** `feat/m7-actionable-translation-findings`
-**HEAD:** `9f3052abd6cdfbd2600a2f2850d51a89cb9a8be2`
+**HEAD:** `86e0fd85037b3f263eef6e90b649939be8ce62cd`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -40,8 +40,8 @@
 **DEPLOYED** — production READY @ `9f3052ab` via
 `dpl_5qKVyRzrHcpGwkgLGUCfbHzMshDX`.
 
-Current M7 actionable-findings deepen is local-only on
-`feat/m7-actionable-translation-findings`.
+Current M7 actionable-findings deepen is committed on
+`feat/m7-actionable-translation-findings`; it is not deployed.
 
 ## Production verification
 
@@ -52,9 +52,7 @@ or packaged WebView).
 
 ## Working tree
 
-Modified, not committed: M7 translation finding evaluator/tests, Translation Lab action
-surface, Correct operation deep-link handling, M7 gate, and this checkpoint. Starting HEAD
-is `9f3052ab`.
+Clean after feature commit `86e0fd85`; branch is not yet merged or deployed.
 
 ## Latest verification
 
@@ -70,5 +68,5 @@ OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature grow
 
 ## Next authorised action
 
-Review and deliver the M7 actionable translation findings slice, then continue M8/OR polish
-without further prompts. Do not begin M10 until named.
+Merge and deploy the M7 actionable translation findings slice, verify production, then
+continue M8/OR polish without further prompts. Do not begin M10 until named.
