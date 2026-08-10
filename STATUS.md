@@ -2,9 +2,9 @@
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
-**Date:** 2026-08-09
-**Branch:** `docs/m7-actionable-findings-deployed`
-**HEAD:** `5d7467be7e7e7862b231a27638b4fe37d119930a`
+**Date:** 2026-08-10
+**Branch:** `main`
+**HEAD:** `48b22593d3fde75fbbc97137db36b40c4ffd1f27`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,8 +12,8 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `5d7467be` | `dpl_7KmNVgN1MnAhweP3gQWozQaqbq4R` READY |
-| Feature PR | [PR #120](https://github.com/ALaustrup/VYBZ/pull/120) | MERGED |
+| Production SHA | `48b22593` | `dpl_GsmpgxVYVhArYXKY7rm1stHnpmWr` READY |
+| Latest feature merge on tip | [PR #121](https://github.com/ALaustrup/VYBZ/pull/121) STATUS after [PR #120](https://github.com/ALaustrup/VYBZ/pull/120) | MERGED |
 
 ## Last completed operations
 
@@ -34,11 +34,13 @@
 9. M7 actionable translation findings use only measured streaming-preview LUFS and gain,
    apply a versioned 1 dB VYBZ action threshold, reuse shipped Correct mappings, and deep-link
    to a preselected Correct operation. The M7 gate now enforces the findings-to-correction path.
+10. Owner confirmed dating/swipe is **not** a parked roadmap item — it is a permanent ban
+    (Law 3). STATUS wording updated so “parked” only means deferred authorised work.
 
 ## Deployment state
 
-**DEPLOYED** — production READY @ `5d7467be` via
-`dpl_7KmNVgN1MnAhweP3gQWozQaqbq4R`.
+**DEPLOYED** — production READY @ `48b22593` via
+`dpl_GsmpgxVYVhArYXKY7rm1stHnpmWr`.
 
 ## Production verification
 
@@ -49,20 +51,23 @@ or packaged WebView).
 
 ## Working tree
 
-Clean main after PR #120 merge `5d7467be`; this checkpoint branch changes `STATUS.md` only.
+Clean `main` at `48b22593` before this STATUS sync.
 
 ## Latest verification
 
-- `npm run lint` — PASS.
-- `npm run test` — PASS, **494 tests**.
-- `npm run build` — PASS (existing chunk-size/dynamic-import warnings remain).
-- `npm run check:no-fixtures` — PASS, 13 markers absent from `dist/`.
-- `git diff --check` — PASS.
+Prior gate evidence on M7 actionable findings (PR #120): lint / test **494** / build /
+`check:no-fixtures` PASS. This commit is STATUS-only.
+
+## Permanently out of scope (not parked)
+
+Dating, romantic, love, meetup, and swipe-matching functionality — Law 3. Never a backlog
+candidate. Do not list under parked.
 
 ## Blockers / parked
 
-OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature growth still parked beyond OR-031.
+OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature growth still parked
+beyond OR-031.
 
 ## Next authorised action
 
-Continue M8/OR polish without further prompts. Do not begin M10 until named.
+Continue M9 deepen + M8/OR polish without further prompts. Do not begin M10 until named.
