@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-09
-**Branch:** `feat/m7-actionable-translation-findings`
-**HEAD:** `86e0fd85037b3f263eef6e90b649939be8ce62cd`
+**Branch:** `docs/m7-actionable-findings-deployed`
+**HEAD:** `5d7467be7e7e7862b231a27638b4fe37d119930a`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,8 +12,8 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `9f3052ab` | `dpl_5qKVyRzrHcpGwkgLGUCfbHzMshDX` READY |
-| Feature PR | [PR #118](https://github.com/ALaustrup/VYBZ/pull/118) | MERGED |
+| Production SHA | `5d7467be` | `dpl_7KmNVgN1MnAhweP3gQWozQaqbq4R` READY |
+| Feature PR | [PR #120](https://github.com/ALaustrup/VYBZ/pull/120) | MERGED |
 
 ## Last completed operations
 
@@ -37,11 +37,8 @@
 
 ## Deployment state
 
-**DEPLOYED** — production READY @ `9f3052ab` via
-`dpl_5qKVyRzrHcpGwkgLGUCfbHzMshDX`.
-
-Current M7 actionable-findings deepen is committed on
-`feat/m7-actionable-translation-findings`; it is not deployed.
+**DEPLOYED** — production READY @ `5d7467be` via
+`dpl_7KmNVgN1MnAhweP3gQWozQaqbq4R`.
 
 ## Production verification
 
@@ -52,7 +49,7 @@ or packaged WebView).
 
 ## Working tree
 
-Clean after feature commit `86e0fd85`; branch is not yet merged or deployed.
+Clean main after PR #120 merge `5d7467be`; this checkpoint branch changes `STATUS.md` only.
 
 ## Latest verification
 
@@ -68,5 +65,4 @@ OR-021–022, OR-024–025, Instrument Creator, M10. Live/messaging feature grow
 
 ## Next authorised action
 
-Merge and deploy the M7 actionable translation findings slice, verify production, then
-continue M8/OR polish without further prompts. Do not begin M10 until named.
+Continue M8/OR polish without further prompts. Do not begin M10 until named.
