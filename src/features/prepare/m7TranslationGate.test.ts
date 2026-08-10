@@ -4,9 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   CODEC_TRANSLATION_VERSION,
   STREAMING_NORM_PREVIEW_VERSION,
+  TRANSLATION_FINDINGS_VERSION,
   applyCodecTranslationPreview,
   applyStreamingNormPreview,
+  evaluateTranslationFindings,
 } from "@vybz/processing/waveform";
+import { shipAutoFixForCode } from "@/features/prepare/autoFixMap";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -87,5 +90,31 @@ describe("M7 translation gate", () => {
     expect(original).toEqual(clone);
     expect(first.channels[0]).toEqual(second.channels[0]);
     expect(first.disclosure.toLowerCase()).toContain("not a measured");
+  });
+
+  it("turns measured translation findings into actionable Correct links", () => {
+    const findings = evaluateTranslationFindings({
+      integratedLufsBefore: -9,
+      targetLufs: -14,
+      gainDb: -5,
+    });
+    const finding = findings[0];
+
+    expect(TRANSLATION_FINDINGS_VERSION).toMatch(/^m7\./);
+    expect(finding?.code).toBe("AUDIO_LOUDNESS_HOT");
+    expect(finding && shipAutoFixForCode(finding.code)?.op).toBe("loudness");
+
+    const page = readFileSync(
+      path.join(ROOT, "src/features/translation/TranslationLabPage.tsx"),
+      "utf8",
+    );
+    const correct = readFileSync(
+      path.join(ROOT, "src/features/correction/DcOffsetCorrectPage.tsx"),
+      "utf8",
+    );
+    expect(page).toContain("evaluateTranslationFindings");
+    expect(page).toContain("translate-findings");
+    expect(page).toContain("/tools/correct?op=");
+    expect(correct).toContain('searchParams.get("op")');
   });
 });
