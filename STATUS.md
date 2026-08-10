@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `main`
-**HEAD:** `643d7089`
+**HEAD:** `493c1e17`
 **Current milestone:** **M9 — VDock Completion** **CLOSED** as Masterplan §12
 **DEPLOYED BUT UNVERIFIED**. No new Masterplan milestone named — carry-forward
 **M7 / M8 / OR** polish. Do not begin **M10** until owner-authorised.
@@ -14,8 +14,9 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `643d7089` | Vercel Production deploy id `5837352044` READY (dashboard `3cTteyMgHPWAJTnEdsxgtxLrLNcJ`) |
+| Production SHA | `493c1e17` | Vercel Production deploy id `5837426157` READY (dashboard `GzLDbcmLapvv78AatNFtHGxTHxQo`); close-out merge `643d7089` / `5837352044` |
 | Close-out PR | [PR #136](https://github.com/ALaustrup/VYBZ/pull/136) | MERGED 2026-08-10 |
+| Tip sync PR | [PR #137](https://github.com/ALaustrup/VYBZ/pull/137) | MERGED 2026-08-10 |
 
 ## Last completed operations
 
@@ -24,7 +25,7 @@
 17. STATUS tip sync PR #135 @ `d1fdaded`.
 18. **M9 close-out** — PR #136 @ `643d7089`: executable `m9VdockGate` exit gate;
     AGENTS/STATUS/IDEAS mark M9 **DEPLOYED BUT UNVERIFIED**; stable interfaces frozen
-    (`m9.dry-playback.1`, `m9.compare-preview.1`).
+    (`m9.dry-playback.1`, `m9.compare-preview.1`). Tip sync PR #137 @ `493c1e17`.
 
 ## M9 close-out evidence (code)
 
@@ -39,14 +40,16 @@
 
 ## Deployment state
 
-**DEPLOYED BUT UNVERIFIED** (Masterplan §12) — production READY @ `643d7089`.
-Interactive / device interrupt smoke remain **Not measured**.
+**DEPLOYED BUT UNVERIFIED** (Masterplan §12) — production READY @ `493c1e17`
+(close-out content @ `643d7089`). Interactive / device interrupt smoke remain
+**Not measured**.
 
 ## Production verification
 
 | Check | Result |
 |---|---|
 | Vercel READY (close-out) | PASS @ `643d7089` / deploy `5837352044` |
+| Vercel READY (STATUS tip) | PASS @ `493c1e17` / deploy `5837426157` |
 | Interactive VDock smoke | **Not measured** |
 | MediaSession OS controls smoke | **Not measured** |
 | Android call-interrupt audio focus | **Not measured** |
