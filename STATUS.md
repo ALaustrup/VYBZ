@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `docs/m9-closeout` (unmerged; base `main` @ `d1fdaded`)
-**HEAD:** `403357b7`
+**Branch:** `main`
+**HEAD:** `643d7089`
 **Current milestone:** **M9 — VDock Completion** **CLOSED** as Masterplan §12
 **DEPLOYED BUT UNVERIFIED**. No new Masterplan milestone named — carry-forward
 **M7 / M8 / OR** polish. Do not begin **M10** until owner-authorised.
@@ -14,16 +14,16 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `d1fdaded` | tip sync PR #135; feature tip `c795a83d` via `dpl_AAj3uEr4TEm4prhyM7Wuw1MZ6t5t` |
-| Last feature PR | [PR #134](https://github.com/ALaustrup/VYBZ/pull/134) | MERGED Analyzer matched compare |
+| Production SHA | `643d7089` | Vercel Production deploy id `5837352044` READY (dashboard `3cTteyMgHPWAJTnEdsxgtxLrLNcJ`) |
+| Close-out PR | [PR #136](https://github.com/ALaustrup/VYBZ/pull/136) | MERGED 2026-08-10 |
 
 ## Last completed operations
 
 15. VDock compare helper + MasterReady matched A/B (PR #132).
 16. M9 Analyzer loudness-matched Before/After (PR #134) @ `c795a83d`.
 17. STATUS tip sync PR #135 @ `d1fdaded`.
-18. **M9 close-out** — executable `m9VdockGate` hardened as exit gate; AGENTS marks M9
-    closed DEPLOYED BUT UNVERIFIED; stable interface versions frozen
+18. **M9 close-out** — PR #136 @ `643d7089`: executable `m9VdockGate` exit gate;
+    AGENTS/STATUS/IDEAS mark M9 **DEPLOYED BUT UNVERIFIED**; stable interfaces frozen
     (`m9.dry-playback.1`, `m9.compare-preview.1`).
 
 ## M9 close-out evidence (code)
@@ -39,15 +39,14 @@
 
 ## Deployment state
 
-**DEPLOYED BUT UNVERIFIED** (Masterplan §12) — production READY for prior M9 wedges;
-close-out docs/gate pending merge to `main`. Interactive / device interrupt smoke remain
-**Not measured**.
+**DEPLOYED BUT UNVERIFIED** (Masterplan §12) — production READY @ `643d7089`.
+Interactive / device interrupt smoke remain **Not measured**.
 
 ## Production verification
 
 | Check | Result |
 |---|---|
-| Vercel READY (feature tip) | PASS @ `c795a83d` / `dpl_AAj3uEr4TEm4prhyM7Wuw1MZ6t5t` |
+| Vercel READY (close-out) | PASS @ `643d7089` / deploy `5837352044` |
 | Interactive VDock smoke | **Not measured** |
 | MediaSession OS controls smoke | **Not measured** |
 | Android call-interrupt audio focus | **Not measured** |
@@ -55,10 +54,10 @@ close-out docs/gate pending merge to `main`. Interactive / device interrupt smok
 
 ## Latest verification
 
-Close-out branch `docs/m9-closeout` (pre-merge):
+Close-out PR #136 (pre-merge on `docs/m9-closeout`):
 
 - `npm run lint` — PASS.
-- `npm run test` — PASS, **504 tests** (includes hardened `m9VdockGate` close-out case).
+- `npm run test` — PASS, **504 tests**.
 - `npm run build` — PASS.
 - `npm run check:no-fixtures` — PASS.
 
@@ -73,5 +72,5 @@ focus residual.
 
 ## Next authorised action
 
-After merge: continue **M7 / M8 / OR** carry-forward. Do not begin **M10** until named.
+Continue **M7 / M8 / OR** carry-forward. Do not begin **M10** until named.
 Owner may later evidence device smokes to promote M9 toward production-verified.
