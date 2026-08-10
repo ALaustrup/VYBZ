@@ -5,6 +5,7 @@ import { PlatformError } from "@/platform/bridge/errors";
 import { createMemoryMutationQueue } from "@/platform/sync";
 import { createMemoryCache } from "@/platform/cache";
 import { parseDeepLink, deepLinkToAppPath } from "@/platform/deeplinks";
+import type { PlaybackController } from "@/contracts";
 
 describe("PlatformBridge mock contract", () => {
   it("reports web capabilities from registry", async () => {
@@ -22,6 +23,8 @@ describe("PlatformBridge mock contract", () => {
     expect(caps.dryHtmlAudio).toBe(true);
     expect(caps.nativeDsp).toBe(false);
     expect(caps.mediaSession).toBe(false);
+    const controller = {} as PlaybackController;
+    expect(bridge.playback.bindMediaSession(controller)).toBeTypeOf("function");
   });
 
   it("persists and clears session", async () => {

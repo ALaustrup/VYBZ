@@ -38,6 +38,7 @@ describe("M9 VDock gate", () => {
     expect(bus).not.toMatch(/\.createMediaElementSource\s*\(/);
     expect(bus).toContain("signal");
     expect(bus).toContain("resolveTrackSignal");
+    expect(bus).not.toContain("navigator.mediaSession");
   });
 
   it("surfaces disclosure in the dock when signal.disclosure is set", () => {
@@ -69,5 +70,12 @@ describe("M9 VDock gate", () => {
     const types = readFileSync(path.join(ROOT, "src/platform/bridge/types.ts"), "utf8");
     expect(types).toContain("playback:");
     expect(types).toContain("PlaybackCapabilities");
+    expect(types).toContain("bindMediaSession");
+    const mediaSession = readFileSync(
+      path.join(ROOT, "src/platform/bridge/mediaSession.ts"),
+      "utf8",
+    );
+    expect(mediaSession).toContain("bindBrowserMediaSession");
+    expect(mediaSession).toContain("setActionHandler");
   });
 });

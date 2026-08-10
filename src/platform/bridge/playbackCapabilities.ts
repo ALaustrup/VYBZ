@@ -1,10 +1,27 @@
 import type { PlaybackCapabilities } from "@/contracts";
 
-/** Shared M9 playback caps — all shells use dry HTML audio until MediaSession ships. */
-export function dryPlaybackCapabilities(): PlaybackCapabilities {
+interface NavigatorWithOptionalMediaSession {
+  mediaSession?: unknown;
+}
+
+export function supportsMediaSession(
+  target: NavigatorWithOptionalMediaSession | undefined =
+    typeof navigator === "undefined" ? undefined : navigator,
+): boolean {
+  return target?.mediaSession != null;
+}
+
+/** Shared M9 playback caps — dry HTML audio with runtime OS-control disclosure. */
+export function dryPlaybackCapabilities(
+  options: { mediaSession?: boolean } = {},
+): PlaybackCapabilities {
   return {
     dryHtmlAudio: true,
-    mediaSession: false,
+    mediaSession: options.mediaSession ?? false,
     nativeDsp: false,
   };
+}
+
+export function runtimePlaybackCapabilities(): PlaybackCapabilities {
+  return dryPlaybackCapabilities({ mediaSession: supportsMediaSession() });
 }

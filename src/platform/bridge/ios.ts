@@ -72,6 +72,9 @@ export function createIosBridge(): PlatformBridge {
       async getCapabilities() {
         return web.playback.getCapabilities();
       },
+      bindMediaSession(controller) {
+        return web.playback.bindMediaSession(controller);
+      },
     },
 
     notifications: {

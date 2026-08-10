@@ -13,6 +13,7 @@ import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
 import { recordCost } from "@/platform/costs/recordCost";
 import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
+import { bindBrowserMediaSession } from "@/platform/bridge/mediaSession";
 
 const SESSION_KEY = "vybz.platform.session.v1";
 const costSentinel = createCostSentinel();
@@ -214,8 +215,11 @@ export function createWebBridge(): PlatformBridge {
 
     playback: {
       async getCapabilities() {
-        const { dryPlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
-        return dryPlaybackCapabilities();
+        const { runtimePlaybackCapabilities } = await import("@/platform/bridge/playbackCapabilities");
+        return runtimePlaybackCapabilities();
+      },
+      bindMediaSession(controller) {
+        return bindBrowserMediaSession(controller);
       },
     },
 
