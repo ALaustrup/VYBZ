@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Download, Loader2, Pause, Play, Upload } from "lucide-react";
+import { Download, Pause, Play } from "lucide-react";
 import {
   CHANNEL_BALANCE_VERSION,
   CLICK_ATTENUATE_VERSION,
@@ -48,6 +48,12 @@ import {
   localSignal,
   simulationSignal,
 } from "@/lib/vdock/playbackSignal";
+import {
+  ForgeChip,
+  ForgeDropzone,
+  ForgeMetric,
+  ToolWorkbench,
+} from "@/components/ToolWorkbench";
 
 type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width" | "eq" | "click" | "loudness";
 
@@ -422,150 +428,86 @@ export function DcOffsetCorrectPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="dc-offset-correct">
-      <p className="mb-4 text-[13px] text-white/45">
-        M6 corrections with bypass and loudness-matched A/B listening. Download stays dry
-        (unmatched). No credits charged.
-      </p>
-
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Correction operation">
-        <button
-          type="button"
-          data-testid="correct-op-dc"
-          aria-pressed={op === "dc"}
-          onClick={() => onSelectOp("dc")}
-          className={`btn px-3 py-2 text-sm ${op === "dc" ? "btn-primary" : "btn-ghost"}`}
-        >
-          DC offset
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-peak"
-          aria-pressed={op === "peak"}
-          onClick={() => onSelectOp("peak")}
-          className={`btn px-3 py-2 text-sm ${op === "peak" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Peak safety
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-balance"
-          aria-pressed={op === "balance"}
-          onClick={() => onSelectOp("balance")}
-          className={`btn px-3 py-2 text-sm ${op === "balance" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Channel balance
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-silence"
-          aria-pressed={op === "silence"}
-          onClick={() => onSelectOp("silence")}
-          className={`btn px-3 py-2 text-sm ${op === "silence" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Silence trim
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-hum"
-          aria-pressed={op === "hum"}
-          onClick={() => onSelectOp("hum")}
-          className={`btn px-3 py-2 text-sm ${op === "hum" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Mains hum
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-width"
-          aria-pressed={op === "width"}
-          onClick={() => onSelectOp("width")}
-          className={`btn px-3 py-2 text-sm ${op === "width" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Stereo width
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-eq"
-          aria-pressed={op === "eq"}
-          onClick={() => onSelectOp("eq")}
-          className={`btn px-3 py-2 text-sm ${op === "eq" ? "btn-primary" : "btn-ghost"}`}
-        >
-          EQ assist
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-click"
-          aria-pressed={op === "click"}
-          onClick={() => onSelectOp("click")}
-          className={`btn px-3 py-2 text-sm ${op === "click" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Click soften
-        </button>
-        <button
-          type="button"
-          data-testid="correct-op-loudness"
-          aria-pressed={op === "loudness"}
-          onClick={() => onSelectOp("loudness")}
-          className={`btn px-3 py-2 text-sm ${op === "loudness" ? "btn-primary" : "btn-ghost"}`}
-        >
-          Loudness (−14)
-        </button>
+    <ToolWorkbench
+      eyebrow="Correct"
+      title="Correct"
+      subtitle="M6 corrections with bypass and loudness-matched A/B listening. Download stays dry (unmatched). No credits charged."
+      testId="dc-offset-correct"
+    >
+      <div className="forge-glass forge-plasma relative space-y-3 !rounded-2xl p-3 sm:p-4" role="group" aria-label="Correction operation">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+          Cleanup
+        </p>
+        <div className="relative z-[1] flex flex-wrap gap-2">
+          <ForgeChip testId="correct-op-dc" active={op === "dc"} onClick={() => onSelectOp("dc")}>
+            DC offset
+          </ForgeChip>
+          <ForgeChip testId="correct-op-peak" active={op === "peak"} onClick={() => onSelectOp("peak")}>
+            Peak safety
+          </ForgeChip>
+          <ForgeChip testId="correct-op-silence" active={op === "silence"} onClick={() => onSelectOp("silence")}>
+            Silence trim
+          </ForgeChip>
+          <ForgeChip testId="correct-op-hum" active={op === "hum"} onClick={() => onSelectOp("hum")}>
+            Mains hum
+          </ForgeChip>
+          <ForgeChip testId="correct-op-click" active={op === "click"} onClick={() => onSelectOp("click")}>
+            Click soften
+          </ForgeChip>
+        </div>
+        <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+          Stereo / tone
+        </p>
+        <div className="relative z-[1] flex flex-wrap gap-2">
+          <ForgeChip testId="correct-op-balance" active={op === "balance"} onClick={() => onSelectOp("balance")}>
+            Channel balance
+          </ForgeChip>
+          <ForgeChip testId="correct-op-width" active={op === "width"} onClick={() => onSelectOp("width")}>
+            Stereo width
+          </ForgeChip>
+          <ForgeChip testId="correct-op-eq" active={op === "eq"} onClick={() => onSelectOp("eq")}>
+            EQ assist
+          </ForgeChip>
+        </div>
+        <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+          Loudness
+        </p>
+        <div className="relative z-[1] flex flex-wrap gap-2">
+          <ForgeChip testId="correct-op-loudness" active={op === "loudness"} onClick={() => onSelectOp("loudness")}>
+            Loudness (−14)
+          </ForgeChip>
+        </div>
       </div>
 
-      <label className="btn btn-primary mb-5 cursor-pointer px-4 py-2.5 text-sm">
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-        Load audio
-        <input
-          type="file"
-          accept={AUDIO_ACCEPT}
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            e.target.value = "";
-            void onFile(f);
-          }}
-        />
-      </label>
+      <ForgeDropzone
+        label="Drop audio to correct"
+        hint="or click to choose · local only · no credits"
+        accept={AUDIO_ACCEPT}
+        busy={busy}
+        onFiles={(list) => void onFile(list?.[0])}
+      />
 
       {preview && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="A/B preview">
-            <button
-              type="button"
-              data-testid="correct-ab-a"
-              aria-pressed={bypass}
-              onClick={() => selectBypass(true)}
-              className={`btn px-3 py-2 text-sm ${bypass ? "btn-primary" : "btn-ghost"}`}
-            >
+        <div className="forge-glass forge-plasma relative space-y-4 !rounded-2xl p-4 sm:p-5">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <div className="relative z-[1] flex flex-wrap items-center gap-2" role="group" aria-label="A/B preview">
+            <ForgeChip testId="correct-ab-a" active={bypass} onClick={() => selectBypass(true)}>
               A · Original
-            </button>
-            <button
-              type="button"
-              data-testid="correct-ab-b"
-              aria-pressed={!bypass}
-              onClick={() => selectBypass(false)}
-              className={`btn px-3 py-2 text-sm ${!bypass ? "btn-primary" : "btn-ghost"}`}
-            >
+            </ForgeChip>
+            <ForgeChip testId="correct-ab-b" active={!bypass} onClick={() => selectBypass(false)}>
               B · Corrected
-            </button>
-            <button
-              type="button"
-              data-testid="correct-match-loudness"
-              aria-pressed={matchLoudness}
+            </ForgeChip>
+            <ForgeChip
+              testId="correct-match-loudness"
+              active={matchLoudness}
               onClick={onToggleMatch}
-              className={`btn px-3 py-2 text-sm ${matchLoudness ? "btn-primary" : "btn-ghost"}`}
             >
               {matchLoudness ? "Match loudness on" : "Match loudness off"}
-            </button>
-            <button
-              type="button"
-              data-testid="correct-bypass"
-              aria-pressed={bypass}
-              onClick={() => selectBypass(!bypass)}
-              className="btn btn-ghost px-3 py-2 text-sm"
-            >
+            </ForgeChip>
+            <ForgeChip testId="correct-bypass" pressed={bypass} onClick={() => selectBypass(!bypass)}>
               Toggle A/B
-            </button>
+            </ForgeChip>
             {correctedUrl && (
               <a
                 href={correctedUrl}
@@ -586,7 +528,7 @@ export function DcOffsetCorrectPage() {
             <button
               type="button"
               onClick={playSelectedInVdock}
-              className="btn btn-primary px-4 py-2.5 text-sm"
+              className="btn btn-primary relative z-[1] px-4 py-2.5 text-sm"
               data-testid="correct-play-vdock"
             >
               {activeInVdock && player.playing ? (
@@ -598,42 +540,27 @@ export function DcOffsetCorrectPage() {
             </button>
           )}
           {matchLoudness && matchLabel && (
-            <p className="text-[12px] text-white/45" data-testid="correct-match-label">
+            <p className="relative z-[1] text-[12px] text-white/45" data-testid="correct-match-label">
               Listening gains matched ({matchLabel}). Download is unmatched.
             </p>
           )}
 
-          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3" data-testid="correct-metrics">
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">{preview.detailLabel}</dt>
-              <dd className="tabular-nums">{preview.detailValue}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Peak (active)</dt>
-              <dd className="tabular-nums">{fmtDb(metrics?.peakDbfs)}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">RMS (active)</dt>
-              <dd className="tabular-nums">{fmtDb(metrics?.rmsDbfs)}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Peak before</dt>
-              <dd className="tabular-nums">{fmtDb(preview.before.peakDbfs)}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Peak after</dt>
-              <dd className="tabular-nums">{fmtDb(preview.after.peakDbfs)}</dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Listening</dt>
-              <dd>
-                {bypass ? "A · Original" : "B · Corrected"}
-                {matchLoudness ? " · loudness-matched" : ""}
-              </dd>
-            </div>
+          <dl
+            className="relative z-[1] grid grid-cols-2 gap-3 sm:grid-cols-3"
+            data-testid="correct-metrics"
+          >
+            <ForgeMetric label={preview.detailLabel} value={preview.detailValue} />
+            <ForgeMetric label="Peak (active)" value={fmtDb(metrics?.peakDbfs)} />
+            <ForgeMetric label="RMS (active)" value={fmtDb(metrics?.rmsDbfs)} />
+            <ForgeMetric label="Peak before" value={fmtDb(preview.before.peakDbfs)} />
+            <ForgeMetric label="Peak after" value={fmtDb(preview.after.peakDbfs)} />
+            <ForgeMetric
+              label="Listening"
+              value={`${bypass ? "A · Original" : "B · Corrected"}${matchLoudness ? " · loudness-matched" : ""}`}
+            />
           </dl>
         </div>
       )}
-    </div>
+    </ToolWorkbench>
   );
 }

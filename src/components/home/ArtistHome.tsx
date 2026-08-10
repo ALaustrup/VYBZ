@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Loader2, Music2, ScanLine } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { AlbumLightbox } from "@/components/home/AlbumLightbox";
+import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { ProBadge } from "@/components/ProBadge";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
@@ -102,8 +103,12 @@ export function ArtistHome() {
   if (!profile) return null;
 
   return (
-    <div className="space-y-6 pb-4 pt-1">
-      <header className="forge-glass relative overflow-hidden !rounded-2xl p-5 sm:p-6">
+    <div className="relative space-y-6 pb-4 pt-1">
+      <div className="pointer-events-none absolute inset-x-0 -top-2 h-[22rem] overflow-hidden rounded-[1.5rem]">
+        <ForgeAtmosphere intensity="subtle" wave />
+      </div>
+
+      <header className="forge-glass forge-plasma relative overflow-hidden !rounded-2xl p-5 sm:p-6">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <div className="relative z-[2] flex flex-wrap items-start gap-4">
           <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
@@ -126,15 +131,15 @@ export function ArtistHome() {
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">{profile.bio}</p>
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-white/40">
-              <span className="rounded-full border border-white/10 px-2.5 py-1">
+              <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">
                 {drops.length} track{drops.length === 1 ? "" : "s"}
               </span>
-              <span className="rounded-full border border-white/10 px-2.5 py-1">
+              <span className="rounded-full border border-white/10 bg-black/20 px-2.5 py-1">
                 {albums.length} release{albums.length === 1 ? "" : "s"}
               </span>
               <Link
-                to="/releases/new"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1 text-white/70 transition hover:border-white/25 hover:text-white"
+                to="/releases"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(var(--accent-rgb)/0.35)] bg-[rgb(var(--accent-rgb)/0.1)] px-2.5 py-1 text-white/80 transition hover:border-[rgb(var(--accent-rgb)/0.55)] hover:text-white"
               >
                 <ScanLine className="h-3 w-3" /> Prepare a release
               </Link>
@@ -143,7 +148,7 @@ export function ArtistHome() {
         </div>
       </header>
 
-      <section>
+      <section className="relative z-[1]">
         <div className="mb-3 flex items-end justify-between gap-3 px-0.5">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">Catalog</p>
@@ -159,15 +164,16 @@ export function ArtistHome() {
             <Loader2 className="h-6 w-6 animate-spin text-white/40" />
           </div>
         ) : albums.length === 0 ? (
-          <div className="forge-glass flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
-            <Music2 className="h-8 w-8 text-white/30" strokeWidth={1.5} />
-            <p className="font-display text-base text-white/80">No releases yet</p>
-            <p className="max-w-sm text-sm text-white/45">
+          <div className="forge-glass forge-plasma relative flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
+            <span className="forge-glass-edge pointer-events-none" aria-hidden />
+            <Music2 className="relative z-[1] h-8 w-8 text-suite-cyan/70" strokeWidth={1.5} />
+            <p className="relative z-[1] font-display text-base text-white/90">No releases yet</p>
+            <p className="relative z-[1] max-w-sm text-sm text-white/45">
               Upload tracks or run a readiness scan — albums group automatically from metadata.
             </p>
             <Link
-              to="/releases/new"
-              className="mt-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.1]"
+              to="/releases"
+              className="relative z-[1] mt-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.1]"
             >
               Scan a track
             </Link>

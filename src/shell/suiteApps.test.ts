@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { activeSuiteAppId, visibleSuiteApps } from "@/shell/suiteApps";
+import {
+  activeSuiteAppId,
+  overflowSuiteApps,
+  primarySuiteApps,
+  visibleSuiteApps,
+} from "@/shell/suiteApps";
 
 describe("suiteApps", () => {
   it("exposes Wave 1 tools including Analyzer and Metadata", () => {
@@ -19,6 +24,15 @@ describe("suiteApps", () => {
         "codex",
       ])
     );
+  });
+
+  it("promotes Correct and Translate onto the primary rail", () => {
+    const primary = primarySuiteApps().map((a) => a.id);
+    const overflow = overflowSuiteApps().map((a) => a.id);
+    expect(primary).toEqual(expect.arrayContaining(["correct", "translate"]));
+    expect(overflow).not.toContain("correct");
+    expect(overflow).not.toContain("translate");
+    expect(overflow).toEqual(expect.arrayContaining(["pack-maker", "stem-maker"]));
   });
 
   it("selects Analyzer for release routes", () => {

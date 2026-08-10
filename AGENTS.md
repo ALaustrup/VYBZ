@@ -33,16 +33,23 @@ call-interrupt smoke still **Not measured**). **M7** and **M8** deepen are **par
 the same day — further OR work needs re-authorisation. Do not begin **M10** until the
 owner authorises it.
 
-**Authorised when scheduled (not a Masterplan milestone):** suite **visual / placement
-polish** — make tool pages read as a professional music platform. Owner-directed; start
-when they name it. Does not reopen M7–M9 contracts. Instrument Creator (VST3) stays
-parked. OR-021–OR-022 and OR-024–OR-025 remain parked. Law 3 still bans dating and
-generic social growth.
+**Authorised now (not a Masterplan milestone):** suite **visual / placement polish** —
+restrained cyber/synthwave atmosphere, ToolWorkbench density, rail chrome, light Home /
+Analyzer enhance. Owner-directed **2026-08-10** on branch `polish/tool-workbench-wave1`.
+Does not reopen M7–M9 contracts. Instrument Creator (VST3) stays parked. OR-021–OR-022
+and OR-024–OR-025 remain parked. Law 3 still bans dating and generic social growth.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
+
+### Authorised track (post-smoke)
+
+1. **Suite visual polish (in progress)** — ForgeAtmosphere (plasma / pipelines /
+   sound-wave ribbons), ToolWorkbench shell, Translate / Correct / Packs / Stems density,
+   suite rail Correct+Translate primary, light ArtistHome + Analyzer next-step. No VDock
+   contract changes (Law 5). No invented metrics (Law 1). No M10.
 
 ### Closed / parked tracks (post-smoke)
 
@@ -93,8 +100,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). No Masterplan track open. Do not begin M10 until the owner authorises it.
-Suite visual polish is owner-scheduled only.
+UNVERIFIED). No Masterplan track open. **Suite visual polish authorised** (not a
+Masterplan milestone). Do not begin M10 until the owner authorises it.
 
 ## Safety rules
 

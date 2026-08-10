@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Loader2, Store, Trash2, Upload } from "lucide-react";
+import { Download, Store, Trash2 } from "lucide-react";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
@@ -16,6 +16,11 @@ import {
 } from "@/features/packs/packAssemble";
 import type { PackSampleKind } from "@/features/packs/packManifest";
 import { savePackHandoff } from "@/features/packs/packHandoff";
+import {
+  ForgeDropzone,
+  ForgeEmptyWorkingSet,
+  ToolWorkbench,
+} from "@/components/ToolWorkbench";
 
 function fmtDb(n: number): string {
   return `${n.toFixed(1)} dBFS`;
@@ -101,44 +106,41 @@ export function PackMakerPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="pack-maker">
-      <p className="mb-4 text-[13px] text-white/45">
-        Assemble samples into a foldered ZIP with measured peak/RMS and a checksummed manifest.
-        Optional handoff to the existing storefront uploader. Not auto-added to Library. Proc{" "}
-        {PACK_MAKER_VERSION}.
-      </p>
-
-      <label className="block mb-4">
-        <span className="text-[10px] uppercase text-white/35">Pack title</span>
+    <ToolWorkbench
+      eyebrow="Packs"
+      title="Pack Maker"
+      subtitle={`Assemble samples into a foldered ZIP with measured peak/RMS and a checksummed manifest. Optional storefront handoff. Not auto-added to Library. Proc ${PACK_MAKER_VERSION}.`}
+      testId="pack-maker"
+    >
+      <label className="forge-glass forge-plasma relative block !rounded-2xl p-4">
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <span className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+          Pack title
+        </span>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value.slice(0, 80))}
-          className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none"
+          className="relative z-[1] mt-2 w-full rounded-xl border border-white/10 bg-black/25 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[rgb(var(--accent-rgb)/0.4)]"
           data-testid="pack-title"
         />
       </label>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <label className="btn btn-primary cursor-pointer px-4 py-2.5 text-sm">
-          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-          Add samples
-          <input
-            type="file"
-            accept={AUDIO_ACCEPT}
-            multiple
-            className="hidden"
-            onChange={(e) => {
-              void onFiles(e.target.files);
-              e.target.value = "";
-            }}
-          />
-        </label>
+      <ForgeDropzone
+        label="Drop samples"
+        hint="or click to choose · multiple WAV / AIFF / FLAC / MP3"
+        accept={AUDIO_ACCEPT}
+        multiple
+        busy={busy}
+        onFiles={(list) => void onFiles(list)}
+      />
+
+      <div className="flex flex-wrap gap-2">
         <button
           type="button"
           data-testid="pack-download"
           disabled={!samples.length || busy}
           onClick={() => void onDownload()}
-          className="btn btn-ghost px-3 py-2 text-sm"
+          className="btn btn-ghost px-3 py-2 text-sm disabled:opacity-40"
         >
           <Download className="h-4 w-4" /> Download ZIP
         </button>
@@ -147,25 +149,30 @@ export function PackMakerPage() {
           data-testid="pack-storefront"
           disabled={!samples.length || busy}
           onClick={() => void onStorefront()}
-          className="btn btn-ghost px-3 py-2 text-sm"
+          className="btn btn-ghost px-3 py-2 text-sm disabled:opacity-40"
         >
           <Store className="h-4 w-4" /> To storefront
         </button>
       </div>
 
       {(lastZipSha || lastContentSha) && (
-        <p className="mb-3 text-[11px] text-white/40" data-testid="pack-checksums">
+        <p className="text-[11px] text-white/40" data-testid="pack-checksums">
           {lastContentSha ? `Content SHA ${lastContentSha.slice(0, 16)}…` : ""}
           {lastZipSha ? ` · ZIP SHA ${lastZipSha.slice(0, 16)}…` : ""}
         </p>
       )}
 
-      {samples.length > 0 && (
+      {samples.length === 0 ? (
+        <ForgeEmptyWorkingSet
+          title="No samples yet"
+          detail="Drop oneshots and loops into the stage. Working set stays local — never auto-ingested into Library."
+        />
+      ) : (
         <ul className="space-y-2" data-testid="pack-sample-list">
           {samples.map((s) => (
             <li
               key={s.id}
-              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm"
+              className="forge-card flex items-center gap-3 !rounded-xl px-3 py-2.5 text-sm"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-white/90">{s.sourceName}</p>
@@ -200,6 +207,6 @@ export function PackMakerPage() {
           ))}
         </ul>
       )}
-    </div>
+    </ToolWorkbench>
   );
 }

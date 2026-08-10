@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Loader2, Music2, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
 import { useSession } from "@/store/session";
 import { usePlatform } from "@/platform/bridge/PlatformProvider";
 import {
@@ -520,8 +521,12 @@ export function ReleasesPage() {
   const batchDone = rows.length > 0 && !scanning;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-releases">
-      <header>
+    <div className="relative mx-auto flex w-full max-w-3xl flex-col gap-6 pb-12 md:pb-16" data-testid="prepare-releases">
+      <div className="pointer-events-none absolute inset-x-0 -top-4 h-[18rem] overflow-hidden rounded-[1.5rem]">
+        <ForgeAtmosphere intensity="subtle" wave />
+      </div>
+
+      <header className="relative z-[1]">
         <p className="nexus-eyebrow">Analyzer</p>
         <h1 className="nexus-headline mt-2 text-2xl md:text-3xl">Check your mix</h1>
         <p className="nexus-subline mt-2 text-sm">
@@ -545,7 +550,7 @@ export function ReleasesPage() {
         }}
         onDragOver={(e) => e.preventDefault()}
         onDrop={onDrop}
-        className="forge-glass relative flex cursor-pointer flex-col items-center justify-center gap-3 px-6 py-14 text-center transition hover:border-white/25"
+        className="forge-glass forge-plasma relative z-[1] flex cursor-pointer flex-col items-center justify-center gap-3 px-6 py-14 text-center transition hover:border-white/25"
       >
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <Upload className="relative z-[1] h-8 w-8 text-suite-cyan" />
@@ -713,7 +718,7 @@ export function ReleasesPage() {
       ) : null}
 
       {batchDone && (
-        <footer className="forge-glass relative space-y-3 p-4" data-testid="analyzer-footer">
+        <footer className="forge-glass forge-plasma relative z-[1] space-y-3 p-4" data-testid="analyzer-footer">
           <span className="forge-glass-edge pointer-events-none" aria-hidden />
           <div className="relative z-[1] space-y-2">
             {needsRows.length === 0 ? (
@@ -739,6 +744,43 @@ export function ReleasesPage() {
                   Click a track that needs work to see how to prepare it.
                 </p>
               </>
+            )}
+
+            {(readyRows[0]?.releaseId || needsRows[0]?.releaseId) && (
+              <div
+                className="flex flex-wrap gap-2 border-t border-white/[0.06] pt-3"
+                data-testid="analyzer-next-steps"
+              >
+                <p className="w-full text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+                  Next on the release
+                </p>
+                {(() => {
+                  const id = (readyRows[0] ?? needsRows[0])?.releaseId;
+                  if (!id) return null;
+                  return (
+                    <>
+                      <Link
+                        to={`/release/${id}/credits`}
+                        className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-[12px] text-white/75 transition hover:border-white/25 hover:text-white"
+                      >
+                        Credits
+                      </Link>
+                      <Link
+                        to={`/release/${id}/master`}
+                        className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-[12px] text-white/75 transition hover:border-white/25 hover:text-white"
+                      >
+                        Master
+                      </Link>
+                      <Link
+                        to={`/release/${id}/distribution`}
+                        className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-[12px] text-white/75 transition hover:border-white/25 hover:text-white"
+                      >
+                        Package
+                      </Link>
+                    </>
+                  );
+                })()}
+              </div>
             )}
 
             <div className="flex flex-wrap gap-2 pt-1">

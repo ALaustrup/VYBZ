@@ -4,7 +4,7 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Loader2, Pause, Play, Upload } from "lucide-react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 import {
   CODEC_TRANSLATION_VERSION,
   DEVICE_TRANSLATION_VERSION,
@@ -34,6 +34,12 @@ import {
   simulationSignal,
 } from "@/lib/vdock/playbackSignal";
 import { shipAutoFixForCode } from "@/features/prepare/autoFixMap";
+import {
+  ForgeChip,
+  ForgeDropzone,
+  ForgeMetric,
+  ToolWorkbench,
+} from "@/components/ToolWorkbench";
 
 type Mode = "original" | "streaming" | "phone" | "car" | "lossy";
 
@@ -189,84 +195,67 @@ export function TranslationLabPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="translation-lab">
-      <p className="mb-4 text-[13px] text-white/45">
-        Hear approximate streaming loudness ({STREAMING_NORM_TARGET_LUFS} LUFS), phone/car
-        listening EQ, and a lossy-style codec simulation. Simulations are labelled — not exact
-        platform or device processing.
-      </p>
-
-      <label className="btn btn-primary mb-5 cursor-pointer px-4 py-2.5 text-sm">
-        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-        Load master
-        <input
-          type="file"
-          accept={AUDIO_ACCEPT}
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            e.target.value = "";
-            void onFile(f);
-          }}
-        />
-      </label>
+    <ToolWorkbench
+      eyebrow="Translation"
+      title="Translation Lab"
+      subtitle={`Hear approximate streaming loudness (${STREAMING_NORM_TARGET_LUFS} LUFS), phone/car listening EQ, and a lossy-style codec simulation. Simulations are labelled — not exact platform or device processing.`}
+      testId="translation-lab"
+    >
+      <ForgeDropzone
+        label="Drop a master"
+        hint="or click to choose · WAV / AIFF / FLAC / MP3"
+        accept={AUDIO_ACCEPT}
+        busy={busy}
+        onFiles={(list) => void onFile(list?.[0])}
+      />
 
       {streamingUrl && (
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Translation preview">
-            <button
-              type="button"
-              data-testid="translate-mode-original"
-              aria-pressed={mode === "original"}
+        <div className="forge-glass forge-plasma relative space-y-4 !rounded-2xl p-4 sm:p-5">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <div className="relative z-[1] flex flex-wrap gap-2" role="group" aria-label="Translation preview">
+            <ForgeChip
+              testId="translate-mode-original"
+              active={mode === "original"}
               onClick={() => selectMode("original")}
-              className={`btn px-3 py-2 text-sm ${mode === "original" ? "btn-primary" : "btn-ghost"}`}
             >
               Original
-            </button>
-            <button
-              type="button"
-              data-testid="translate-mode-streaming"
-              aria-pressed={mode === "streaming"}
+            </ForgeChip>
+            <ForgeChip
+              testId="translate-mode-streaming"
+              active={mode === "streaming"}
               onClick={() => selectMode("streaming")}
-              className={`btn px-3 py-2 text-sm ${mode === "streaming" ? "btn-primary" : "btn-ghost"}`}
             >
               Streaming −14
-            </button>
-            <button
-              type="button"
-              data-testid="translate-mode-phone"
-              aria-pressed={mode === "phone"}
+            </ForgeChip>
+            <ForgeChip
+              testId="translate-mode-phone"
+              active={mode === "phone"}
               onClick={() => selectMode("phone")}
-              className={`btn px-3 py-2 text-sm ${mode === "phone" ? "btn-primary" : "btn-ghost"}`}
             >
               Phone
-            </button>
-            <button
-              type="button"
-              data-testid="translate-mode-car"
-              aria-pressed={mode === "car"}
+            </ForgeChip>
+            <ForgeChip
+              testId="translate-mode-car"
+              active={mode === "car"}
               onClick={() => selectMode("car")}
-              className={`btn px-3 py-2 text-sm ${mode === "car" ? "btn-primary" : "btn-ghost"}`}
             >
               Car
-            </button>
-            <button
-              type="button"
-              data-testid="translate-mode-lossy"
-              aria-pressed={mode === "lossy"}
+            </ForgeChip>
+            <ForgeChip
+              testId="translate-mode-lossy"
+              active={mode === "lossy"}
               onClick={() => selectMode("lossy")}
-              className={`btn px-3 py-2 text-sm ${mode === "lossy" ? "btn-primary" : "btn-ghost"}`}
             >
               Lossy codec
-            </button>
-            <span className="text-[11px] text-white/35">{fileName}</span>
+            </ForgeChip>
+            <span className="self-center text-[11px] text-white/35">{fileName}</span>
           </div>
 
           {activeUrl && (
             <button
               type="button"
               onClick={playSelectedInVdock}
-              className="btn btn-primary px-4 py-2.5 text-sm"
+              className="btn btn-primary relative z-[1] px-4 py-2.5 text-sm"
               data-testid="translate-play-vdock"
             >
               {activeInVdock && player.playing ? (
@@ -278,43 +267,48 @@ export function TranslationLabPage() {
             </button>
           )}
 
-          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3" data-testid="translate-metrics">
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Integrated before</dt>
-              <dd className="tabular-nums">
-                {lufsBefore == null ? "Not measured" : `${lufsBefore.toFixed(1)} LUFS`}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Streaming after</dt>
-              <dd className="tabular-nums">
-                {lufsAfter == null ? "Not measured" : `${lufsAfter.toFixed(1)} LUFS`}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase text-white/35">Streaming gain</dt>
-              <dd className="tabular-nums">
-                {gainDb == null ? "Not measured" : `${gainDb >= 0 ? "+" : ""}${gainDb.toFixed(1)} dB`}
-              </dd>
-            </div>
+          <dl
+            className="relative z-[1] grid grid-cols-2 gap-3 sm:grid-cols-3"
+            data-testid="translate-metrics"
+          >
+            <ForgeMetric
+              label="Integrated before"
+              value={lufsBefore == null ? "Not measured" : `${lufsBefore.toFixed(1)} LUFS`}
+            />
+            <ForgeMetric
+              label="Streaming after"
+              value={lufsAfter == null ? "Not measured" : `${lufsAfter.toFixed(1)} LUFS`}
+            />
+            <ForgeMetric
+              label="Streaming gain"
+              value={
+                gainDb == null
+                  ? "Not measured"
+                  : `${gainDb >= 0 ? "+" : ""}${gainDb.toFixed(1)} dB`
+              }
+            />
           </dl>
 
           {findings.length > 0 && (
             <section
-              className="space-y-2 rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-4"
+              className="relative z-[1] space-y-2 rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] p-4"
               data-testid="translate-findings"
               aria-label="Translation findings"
             >
               <div>
                 <h2 className="text-sm font-semibold text-white">Actionable findings</h2>
                 <p className="text-[11px] text-white/40">
-                  Measured against this preview target. Correct assists are starting points, not platform certification.
+                  Measured against this preview target. Correct assists are starting points, not
+                  platform certification.
                 </p>
               </div>
               {findings.map((finding) => {
                 const fix = shipAutoFixForCode(finding.code);
                 return (
-                  <article key={finding.code} className="rounded-xl border border-white/10 bg-black/15 p-3">
+                  <article
+                    key={finding.code}
+                    className="rounded-xl border border-white/10 bg-black/15 p-3"
+                  >
                     <h3 className="text-sm font-medium text-white">{finding.title}</h3>
                     <p className="mt-1 text-xs leading-relaxed text-white/55">{finding.detail}</p>
                     {fix && (
@@ -339,12 +333,12 @@ export function TranslationLabPage() {
           )}
 
           {disclosure && (
-            <p className="text-[12px] text-amber-200/80" data-testid="translate-disclosure">
+            <p className="relative z-[1] text-[12px] text-amber-200/80" data-testid="translate-disclosure">
               {disclosure}
             </p>
           )}
         </div>
       )}
-    </div>
+    </ToolWorkbench>
   );
 }
