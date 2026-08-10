@@ -33,9 +33,25 @@ import { parseArtistTitleFromFilename, type AudioProbe, type ReleaseFinding } fr
 import { cx } from "@/lib/utils";
 import { getSnapshot, playTrack, stop } from "@/lib/audioBus";
 import { stopAudioPreview } from "@/lib/audioPreview";
-import { localSignal, simulationSignal } from "@/lib/vdock/playbackSignal";
+import { decodeToBuffer } from "@/lib/audioEdit";
+import { localSignal } from "@/lib/vdock/playbackSignal";
+import {
+  buildMatchedCompareObjectUrls,
+  compareSideASignal,
+  compareSideBSignal,
+  planarFromAudioBuffer,
+  revokeCompareObjectUrls,
+  VDOCK_COMPARE_PREVIEW_VERSION,
+} from "@/lib/vdock/comparePreview";
 
 const ANALYZER_PREVIEW_PREFIX = "analyzer-preview:";
+
+type MatchedListen = {
+  aUrl: string;
+  bUrl: string;
+  matchLabel: string;
+  token: string;
+};
 type RowPhase = "queued" | "scanning" | "done" | "error";
 
 type DeskRow = {
@@ -91,9 +107,16 @@ export function ReleasesPage() {
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"fixed" | "original">("fixed");
   const [latchedBefore, setLatchedBefore] = useState(false);
+  const [matchedByRow, setMatchedByRow] = useState<Record<string, MatchedListen>>({});
   const objectUrls = useRef<Map<string, string>>(new Map());
+  const matchBuildKeys = useRef<Set<string>>(new Set());
   const finePointer = typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches;
   const workers = analyzerWorkerCount();
+
+  const matchFingerprint = rows
+    .filter((r) => r.lastFixLabel && r.phase === "done")
+    .map((r) => `${r.localId}:${r.lastFixLabel}:${r.originalBlob.size}:${r.currentBlob.size}`)
+    .join("|");
 
   useEffect(() => {
     let cancelled = false;
@@ -113,6 +136,82 @@ export function ReleasesPage() {
       objectUrls.current.clear();
     };
   }, [ownerId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const targets = rows.filter((r) => r.lastFixLabel && r.phase === "done");
+    const liveIds = new Set(targets.map((r) => r.localId));
+
+    setMatchedByRow((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const id of Object.keys(next)) {
+        if (!liveIds.has(id)) {
+          revokeCompareObjectUrls(next[id]!);
+          delete next[id];
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+
+    for (const row of targets) {
+      const token = `${row.lastFixLabel}:${row.originalBlob.size}:${row.currentBlob.size}`;
+      const buildKey = `${row.localId}:${token}`;
+      if (matchBuildKeys.current.has(buildKey)) continue;
+      matchBuildKeys.current.add(buildKey);
+      void (async () => {
+        try {
+          const aFile = new File([row.originalBlob], row.fileName, {
+            type: row.mimeType || "audio/wav",
+          });
+          const bFile = new File([row.currentBlob], row.fileName, {
+            type: row.mimeType || "audio/wav",
+          });
+          const aBuf = await decodeToBuffer(aFile);
+          const bBuf = await decodeToBuffer(bFile);
+          if (cancelled) return;
+          const urls = buildMatchedCompareObjectUrls(
+            planarFromAudioBuffer(aBuf),
+            planarFromAudioBuffer(bBuf),
+            aBuf.sampleRate,
+          );
+          setMatchedByRow((prev) => {
+            if (prev[row.localId]?.token === token) {
+              revokeCompareObjectUrls(urls);
+              return prev;
+            }
+            const prior = prev[row.localId];
+            if (prior) revokeCompareObjectUrls(prior);
+            return {
+              ...prev,
+              [row.localId]: {
+                aUrl: urls.aUrl,
+                bUrl: urls.bUrl,
+                matchLabel: urls.matchLabel,
+                token,
+              },
+            };
+          });
+        } catch {
+          /* leave unmatched listen — disclosure still tags simulation */
+        } finally {
+          matchBuildKeys.current.delete(buildKey);
+        }
+      })();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [matchFingerprint, rows]);
+
+  useEffect(() => {
+    return () => {
+      Object.values(matchedByRow).forEach((m) => revokeCompareObjectUrls(m));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount revoke only
+  }, []);
 
   const urlFor = useCallback((key: string, blob: Blob) => {
     const prev = objectUrls.current.get(key);
@@ -362,7 +461,9 @@ export function ReleasesPage() {
   }
 
   function playRow(row: DeskRow, mode: "fixed" | "original") {
-    const trackId = `${ANALYZER_PREVIEW_PREFIX}${row.localId}:${mode}`;
+    const match = matchedByRow[row.localId];
+    const useMatched = Boolean(row.lastFixLabel && match);
+    const trackId = `${ANALYZER_PREVIEW_PREFIX}${row.localId}:${mode}:${useMatched ? "matched" : "unmatched"}`;
     const snap = getSnapshot();
     if (
       previewId === row.localId &&
@@ -375,20 +476,24 @@ export function ReleasesPage() {
       return;
     }
 
-    const blob = mode === "original" ? row.originalBlob : row.currentBlob;
-    const key = `${row.localId}:${mode}`;
     stopAudioPreview(ANALYZER_PREVIEW_PREFIX);
-    const url = urlFor(key, blob);
-    const processed = mode === "fixed" && Boolean(row.lastFixLabel);
-    const signal = processed
-      ? simulationSignal(
-          `Analyzer auto-fix preview (${row.lastFixLabel}); disclosed simulation — not hidden DSP on the play path`,
-        )
+    let url: string;
+    if (useMatched && match) {
+      url = mode === "original" ? match.aUrl : match.bUrl;
+    } else {
+      const blob = mode === "original" ? row.originalBlob : row.currentBlob;
+      url = urlFor(`${row.localId}:${mode}`, blob);
+    }
+    const processLabel = `Analyzer auto-fix preview (${row.lastFixLabel ?? "fix"})`;
+    const signal = row.lastFixLabel
+      ? mode === "original"
+        ? compareSideASignal(useMatched)
+        : compareSideBSignal(processLabel, useMatched)
       : localSignal();
     const track = {
       id: trackId,
       url,
-      title: `${row.title || row.fileName} · ${mode === "original" ? "Before" : "After"}`,
+      title: `${row.title || row.fileName} · ${mode === "original" ? "Before" : "After"}${useMatched ? " · loudness-matched" : ""}`,
       artist: "Analyzer",
       signal,
     };
@@ -422,7 +527,8 @@ export function ReleasesPage() {
         <p className="nexus-subline mt-2 text-sm">
           Drop up to {MAX_ANALYZER_BATCH} tracks — we measure on this device and tell you if they clear
           this audio check. Cover art is separate (Art Check). Before/After previews play through VDock
-          with disclosed signals when a fix is applied.
+          with disclosed signals; auto-fix A/B uses loudness-matched listen ({VDOCK_COMPARE_PREVIEW_VERSION})
+          when buffers are ready.
         </p>
       </header>
 
@@ -516,7 +622,14 @@ export function ReleasesPage() {
                       <span>{formatLu(row.probe.integratedLufs ?? row.probe.integratedLufsApprox)}</span>
                       <span>{formatPeak(row.probe)}</span>
                       <span>{formatDur(row.probe.durationSeconds)}</span>
-                      {row.lastFixLabel ? <span className="text-cyan-300/80">Fixed · {row.lastFixLabel}</span> : null}
+                      {row.lastFixLabel ? (
+                        <span className="text-cyan-300/80">
+                          Fixed · {row.lastFixLabel}
+                          {matchedByRow[row.localId]
+                            ? ` · matched ${matchedByRow[row.localId]!.matchLabel}`
+                            : ""}
+                        </span>
+                      ) : null}
                       {row.libraryDropId ? (
                         <Link to={`/track/${row.libraryDropId}`} className="text-cyan-300/90 underline-offset-2 hover:underline">
                           In Library

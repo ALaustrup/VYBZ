@@ -55,7 +55,6 @@ describe("M9 VDock gate", () => {
     for (const relativePath of [
       "src/features/translation/TranslationLabPage.tsx",
       "src/features/correction/DcOffsetCorrectPage.tsx",
-      "src/features/prepare/ReleasesPage.tsx",
     ]) {
       const page = readFileSync(path.join(ROOT, relativePath), "utf8");
       expect(page).toContain("playTrack");
@@ -72,6 +71,15 @@ describe("M9 VDock gate", () => {
     expect(master).toContain("buildMatchedCompareObjectUrls");
     expect(master).toContain("VDock");
     expect(master).not.toContain("<audio");
+    const analyzer = readFileSync(
+      path.join(ROOT, "src/features/prepare/ReleasesPage.tsx"),
+      "utf8",
+    );
+    expect(analyzer).toContain("playTrack");
+    expect(analyzer).toContain("compareSideBSignal");
+    expect(analyzer).toContain("buildMatchedCompareObjectUrls");
+    expect(analyzer).toContain("VDock");
+    expect(analyzer).not.toContain("<audio");
     const compare = readFileSync(path.join(ROOT, "src/lib/vdock/comparePreview.ts"), "utf8");
     expect(compare).toContain("VDOCK_COMPARE_PREVIEW_VERSION");
     expect(compare).toContain("matchLoudnessForCompare");
