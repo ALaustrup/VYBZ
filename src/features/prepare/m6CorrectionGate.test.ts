@@ -124,6 +124,10 @@ describe("M6 correction gate", () => {
     expect(page).toContain("correct-ab-a");
     expect(page).toContain("correct-ab-b");
     expect(page).toContain("correct-match-loudness");
+    expect(page).toContain("correct-play-vdock");
+    expect(page).toContain("playTrack");
+    expect(page).toContain("simulationSignal");
+    expect(page).not.toContain("<audio");
     expect(page).toContain("bypass");
     expect(app).toContain("/tools/correct");
   });
