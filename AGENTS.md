@@ -26,42 +26,47 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M9 — VDock Completion** is **closed** (owner close-out **2026-08-10**) as Masterplan §12
-**DEPLOYED BUT UNVERIFIED** — executable `m9VdockGate` passes; interactive / Android
-device interrupt smoke remain **Not measured**. Do not begin **M10** until the owner
-authorises it.
+**No open Masterplan milestone.** **M9 — VDock Completion** closed **2026-08-10** as
+Masterplan §12 **DEPLOYED BUT UNVERIFIED** (executable `m9VdockGate` passes; Android
+call-interrupt smoke still **Not measured**). **M7** and **M8** deepen are **parked**
+(owner **2026-08-10** after production smoke). Authorised OR feature deepen is **parked**
+the same day — further OR work needs re-authorisation. Do not begin **M10** until the
+owner authorises it.
 
-**Authorised carry-forward** (no new Masterplan milestone named): **M8** assembly deepen,
-**M7** translation deepen, and **OR-029 / OR-020 / OR-030 / OR-031** polish continue until
-parked. Instrument Creator (VST3) stays parked. OR-021–OR-022 and OR-024–OR-025 remain
-parked. OR-031 discovery remains authorised; Law 3 still bans dating and generic social
-growth.
+**Authorised when scheduled (not a Masterplan milestone):** suite **visual / placement
+polish** — make tool pages read as a professional music platform. Owner-directed; start
+when they name it. Does not reopen M7–M9 contracts. Instrument Creator (VST3) stays
+parked. OR-021–OR-022 and OR-024–OR-025 remain parked. Law 3 still bans dating and
+generic social growth.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
-### Authorised tracks (carry-forward after M9 close)
+### Closed / parked tracks (post-smoke)
 
 1. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
    playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
    behind stable interfaces (Law 5). Extend via versioned contracts only.
-2. **M8** — release assemble deepen (checksummed packages, rule-cited findings).
-3. **M7 deepen** — device + codec translation previews (disclosed simulations).
-4. **OR-029 / OR-020 / OR-030 / OR-031** — continue polish as previously authorised.
+2. **M8 (parked)** — assemble + rule-cited findings shipped; deepen parked.
+3. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
+   parked.
+4. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
+   or smoke-verified; no continuous polish track. Re-auth required for new OR scope.
 
-Continuous build authorised on these carry-forward tracks without further prompts until
-the owner parks them. Do not begin **M10** until the owner authorises it.
+Bugfixes and shared-shell changes remain allowed. Do not begin **M10** until named.
 
-### Carry-forward authorisations (still in force)
+### Shipped authorisations (no continuous deepen)
 
 - **OR-019 Stem Maker V1** — 2026-08-08; V2 parked.
 - **OR-023 Alpha invite keys** — 2026-08-08.
 - **Analyzer intake desk** — 2026-08-09.
 - **OR-026–OR-028** — shipped; Correct deepen closed unless re-authorised.
+- **OR-020 / OR-029 / OR-030 / OR-031** — parked after owner smoke **2026-08-10** unless
+  re-authorised.
 
-Live/messaging receive no new feature work beyond OR-031’s discovery/networking scope.
+Live/messaging receive **no new feature work** (bugfixes / shared-shell only).
 Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
@@ -69,12 +74,12 @@ Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the 
 The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
 sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan.
 
-### Law 3 + OR-031 exception
+### Law 3 + discovery
 
-Breadth is retained — VYBZ remains an operating system. **OR-031** (release-centered
-discovery / pro networking) is owner-authorised. Live, messaging, and rooms still receive
-**no new feature work** beyond bugfixes and shared-shell changes. Dating / romantic /
-meetup / swipe matching remain permanently out of scope.
+Breadth is retained — VYBZ remains an operating system. **OR-031** discovery V1 shipped
+and is **parked** for further networking deepen unless re-authorised. Live, messaging,
+and rooms receive **no new feature work** beyond bugfixes and shared-shell changes.
+Dating / romantic / meetup / swipe matching remain permanently out of scope.
 
 ### Exit gates must be executable
 
@@ -87,8 +92,9 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
-disclosed). M5–M6 closed; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED). M7–M8 deepen
-continue as authorised carry-forward. Do not begin M10 until the owner authorises it.
+disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
+UNVERIFIED). No Masterplan track open. Do not begin M10 until the owner authorises it.
+Suite visual polish is owner-scheduled only.
 
 ## Safety rules
 
