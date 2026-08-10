@@ -122,6 +122,9 @@ export function createDesktopBridge(): PlatformBridge {
       bindPlaybackLifecycle(controller) {
         return web.playback.bindPlaybackLifecycle(controller);
       },
+      bindAudioFocus(controller) {
+        return web.playback.bindAudioFocus(controller);
+      },
     },
 
     notifications: {

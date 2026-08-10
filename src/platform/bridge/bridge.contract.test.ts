@@ -28,6 +28,7 @@ describe("PlatformBridge mock contract", () => {
     const controller = {} as PlaybackController;
     expect(bridge.playback.bindMediaSession(controller)).toBeTypeOf("function");
     expect(bridge.playback.bindPlaybackLifecycle(controller)).toBeTypeOf("function");
+    expect(bridge.playback.bindAudioFocus(controller)).toBeTypeOf("function");
   });
 
   it("persists and clears session", async () => {

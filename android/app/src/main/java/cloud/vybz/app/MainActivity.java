@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(VybzSecureStorePlugin.class);
         registerPlugin(VybzAppUpdatePlugin.class);
+        registerPlugin(VybzAudioFocusPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

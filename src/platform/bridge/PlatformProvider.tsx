@@ -32,6 +32,11 @@ export function PlatformProvider({
     [value],
   );
 
+  useEffect(
+    () => value.playback.bindAudioFocus(audioBusController),
+    [value],
+  );
+
   useEffect(() => {
     if (value.kind === "desktop") {
       void restoreDesktopWindowPrefs();
