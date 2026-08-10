@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** pending commit (R1 ready for review)
+**HEAD:** `ba62bf1d` (R0 `33fc63df`)
 **Current milestone:** **M10** authorised — Wave **R1** chrome ready for review.
 Store commerce deferred. Do not begin R2 until owner proceeds.
 
@@ -21,7 +21,7 @@ Store commerce deferred. Do not begin R2 until owner proceeds.
 21. **Suite visual polish** — PR #140 @ `46934283` + post-merge smoke.
 22. **M10 authorised** — owner **2026-08-10**; Wave R = full visual redesign.
 23. **M10 Wave R0** — design-system foundation @ `33fc63df`.
-24. **M10 Wave R1** — SuiteShell ops chrome (rails / app bar / VDock skin) in progress.
+24. **M10 Wave R1** — SuiteShell ops chrome @ `ba62bf1d` (rails / app bar / VDock skin).
 
 ## Deployment state
 
