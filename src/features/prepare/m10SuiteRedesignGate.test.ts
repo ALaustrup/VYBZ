@@ -1,9 +1,11 @@
 /**
- * M10 Wave R redesign gate — R0–R4 (foundation, shell, Home, tools/Analyzer, Library + public).
- * Cites Masterplan §10 M10 (partial): cohesive shell identity before Store commerce.
+ * M10 Wave R redesign gate — R0–R5 (visual cohesion before Store commerce).
+ * Cites Masterplan §10 M10 (partial) + AGENTS correctness gate.
  * Full M10 publish/discover/support gate remains open until later waves.
  * Law 5: VDock disclosure / dry-playback contracts must remain intact.
  * Law 1: Home / Library figures must come from measured sources only.
+ * Delivery: Wave R may reach IMPLEMENTED BUT NOT DELIVERED after local validate;
+ * never claim DEPLOYED until merged + production smoke.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -162,5 +164,20 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(app).toContain("public-doc-shell");
     // Public shells stay dark ops void — no paper wash
     expect(app).not.toMatch(/PublicDocShell[\s\S]{0,400}bg-paper-50/);
+  });
+
+  it("Wave R5 rollup — redesign surface markers present; Store commerce still deferred", () => {
+    const agents = read("AGENTS.md");
+    const gate = read("src/features/prepare/m10SuiteRedesignGate.test.ts");
+    // Executable gate cites itself across waves
+    expect(gate).toContain("Wave R1 loads suite-shell-chrome");
+    expect(gate).toContain("Wave R2 Home ops desk");
+    expect(gate).toContain("Wave R3 rolls ToolWorkbench");
+    expect(gate).toContain("Wave R4 Library media desk");
+    // Authority still parks Store commerce until Wave R owner-validated / delivered
+    expect(agents).toMatch(/Store commerce deferred|Store Preview \/ publish commerce/i);
+    expect(agents).toContain("m10SuiteRedesignGate.test.ts");
+    // Law 5 remains frozen in authority
+    expect(agents).toMatch(/Law 5.*VDock|VDock contracts frozen/i);
   });
 });
