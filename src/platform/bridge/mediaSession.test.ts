@@ -62,6 +62,8 @@ describe("M9 Platform Bridge MediaSession wiring", () => {
     expect(dryPlaybackCapabilities({ mediaSession: true })).toEqual({
       dryHtmlAudio: true,
       mediaSession: true,
+      playbackLifecycle: false,
+      audioFocus: false,
       nativeDsp: false,
     });
   });

@@ -75,6 +75,9 @@ export function createAndroidBridge(): PlatformBridge {
       bindMediaSession(controller) {
         return web.playback.bindMediaSession(controller);
       },
+      bindPlaybackLifecycle(controller) {
+        return web.playback.bindPlaybackLifecycle(controller);
+      },
     },
 
     notifications: {

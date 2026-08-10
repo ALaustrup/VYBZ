@@ -79,6 +79,8 @@ describe("M9 VDock gate", () => {
     const caps = dryPlaybackCapabilities();
     expect(caps.dryHtmlAudio).toBe(true);
     expect(caps.nativeDsp).toBe(false);
+    expect(caps.audioFocus).toBe(false);
+    expect(caps.playbackLifecycle).toBe(false);
     const bridge = createMockBridge();
     const live = await bridge.playback.getCapabilities();
     expect(live).toEqual(caps);
@@ -86,11 +88,20 @@ describe("M9 VDock gate", () => {
     expect(types).toContain("playback:");
     expect(types).toContain("PlaybackCapabilities");
     expect(types).toContain("bindMediaSession");
+    expect(types).toContain("bindPlaybackLifecycle");
     const mediaSession = readFileSync(
       path.join(ROOT, "src/platform/bridge/mediaSession.ts"),
       "utf8",
     );
     expect(mediaSession).toContain("bindBrowserMediaSession");
     expect(mediaSession).toContain("setActionHandler");
+    const lifecycle = readFileSync(
+      path.join(ROOT, "src/platform/bridge/playbackLifecycle.ts"),
+      "utf8",
+    );
+    expect(lifecycle).toContain("bindPlaybackLifecycle");
+    expect(lifecycle).toContain("appStateChange");
+    expect(lifecycle).not.toMatch(/createBiquadFilter\s*\(/);
+    expect(lifecycle).not.toMatch(/createMediaElementSource\s*\(/);
   });
 });

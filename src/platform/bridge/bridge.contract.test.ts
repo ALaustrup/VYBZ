@@ -23,8 +23,11 @@ describe("PlatformBridge mock contract", () => {
     expect(caps.dryHtmlAudio).toBe(true);
     expect(caps.nativeDsp).toBe(false);
     expect(caps.mediaSession).toBe(false);
+    expect(caps.playbackLifecycle).toBe(false);
+    expect(caps.audioFocus).toBe(false);
     const controller = {} as PlaybackController;
     expect(bridge.playback.bindMediaSession(controller)).toBeTypeOf("function");
+    expect(bridge.playback.bindPlaybackLifecycle(controller)).toBeTypeOf("function");
   });
 
   it("persists and clears session", async () => {
