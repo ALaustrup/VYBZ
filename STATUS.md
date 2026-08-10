@@ -4,9 +4,10 @@
 
 **Date:** 2026-08-10
 **Branch:** `polish/tool-workbench-wave1` (unmerged; base `main` @ `fcac9016`)
-**HEAD:** `cc70b94b` (product `8bbc1a37`)
+**HEAD:** `e59def8b` (product `8bbc1a37`)
 **Current milestone:** **None open** (Masterplan). **Suite visual polish authorised**
-(owner **2026-08-10**) — Waves 0–4 committed on this branch. Do not begin **M10**.
+(owner **2026-08-10**) — Waves 0–4 in [PR #140](https://github.com/ALaustrup/VYBZ/pull/140).
+Do not begin **M10**.
 
 ## Production
 
@@ -24,10 +25,10 @@
     Translate / Correct / Packs / Stems / Discover / Library / Store / VDock disclosure
     (`m7.device-preview.1` + MediaSession).
 20. **Park M7 / M8 / OR deepen** — PR #139 @ `fcac9016`.
-21. **Suite visual polish Waves 0–4** — commit `8bbc1a37` on
-    `polish/tool-workbench-wave1`: ForgeAtmosphere, ToolWorkbench, rail chrome
-    (Correct+Translate primary), ArtistHome + Analyzer next-step. Correctness gate PASS
-    locally; PR open next.
+21. **Suite visual polish Waves 0–4** — product `8bbc1a37`, tip `e59def8b` —
+    [PR #140](https://github.com/ALaustrup/VYBZ/pull/140): ForgeAtmosphere, ToolWorkbench,
+    rail chrome (Correct+Translate primary), ArtistHome + Analyzer next-step.
+    Correctness gate PASS locally; merge + preview smoke pending.
 
 ## Deployment state
 
@@ -70,5 +71,5 @@ Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
 
 ## Next authorised action
 
-Open / merge PR for `polish/tool-workbench-wave1`. Manual smoke (VDock disclosure +
-reduce-motion calm) after preview deploy. Do not begin M10 until named.
+Review / merge [PR #140](https://github.com/ALaustrup/VYBZ/pull/140). Manual smoke
+(VDock disclosure + reduce-motion calm) on preview. Do not begin M10 until named.
