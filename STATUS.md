@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `main`
-**HEAD:** `48b22593d3fde75fbbc97137db36b40c4ffd1f27`
+**HEAD:** `51aff4d5`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,8 +12,8 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `48b22593` | `dpl_GsmpgxVYVhArYXKY7rm1stHnpmWr` READY |
-| Latest feature merge on tip | [PR #121](https://github.com/ALaustrup/VYBZ/pull/121) STATUS after [PR #120](https://github.com/ALaustrup/VYBZ/pull/120) | MERGED |
+| Production SHA | `51aff4d5` | `dpl_nM3URK8VdQCKqSm6cd1wPRbpj6ZZ` READY |
+| Docs PR | [PR #122](https://github.com/ALaustrup/VYBZ/pull/122) | MERGED |
 
 ## Last completed operations
 
@@ -39,8 +39,8 @@
 
 ## Deployment state
 
-**DEPLOYED** — production READY @ `48b22593` via
-`dpl_GsmpgxVYVhArYXKY7rm1stHnpmWr`.
+**DEPLOYED** — production READY @ `51aff4d5` via
+`dpl_nM3URK8VdQCKqSm6cd1wPRbpj6ZZ`.
 
 ## Production verification
 
@@ -51,12 +51,12 @@ or packaged WebView).
 
 ## Working tree
 
-Clean `main` at `48b22593` before this STATUS sync.
+Clean `main` after PR #122 merge `51aff4d5`; this checkpoint is STATUS tip sync only.
 
 ## Latest verification
 
 Prior gate evidence on M7 actionable findings (PR #120): lint / test **494** / build /
-`check:no-fixtures` PASS. This commit is STATUS-only.
+`check:no-fixtures` PASS. PR #122 / this tip are STATUS-only.
 
 ## Permanently out of scope (not parked)
 
