@@ -6,6 +6,7 @@ import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
 import { PrimaryRail } from "@/shell/PrimaryRail";
 import { SuiteAppRail, SuiteAppRailMobile } from "@/shell/SuiteAppRail";
+import { SuiteStage, useActiveSuiteAppId } from "@/shell/SuiteStage";
 import { shellModeClass } from "@/shell/shellMode";
 
 export function SuiteShell({
@@ -30,11 +31,14 @@ export function SuiteShell({
   showInspector?: boolean;
 }) {
   const shellMode = useShellMode();
+  const suiteAppId = useActiveSuiteAppId();
   return (
     <div
       className={`suite-shell suite-density-premium ${shellModeClass(shellMode)}`}
       data-surface-mode={surfaceMode}
       data-shell-mode={shellMode}
+      data-suite-app={suiteAppId ?? "home"}
+      data-testid="suite-shell"
     >
       <PrimaryRail />
       <div className="suite-shell-main">
@@ -45,11 +49,7 @@ export function SuiteShell({
         <SuiteAppRailMobile />
         {showCommandBar ? <CommandBar /> : null}
         <div className="flex min-h-0 flex-1 overflow-hidden">
-          <main className="suite-stage suite-stage-frame">
-            <ErrorBoundary>
-              <div className="suite-stage-inner">{stage}</div>
-            </ErrorBoundary>
-          </main>
+          <SuiteStage>{stage}</SuiteStage>
           <SuiteAppRail />
         </div>
       </div>

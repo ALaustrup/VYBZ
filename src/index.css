@@ -1,6 +1,7 @@
 @import "./design/tokens.css";
 @import "./design/nexus.css";
 @import "./design/forge-atmosphere.css";
+@import "./design/suite-app-accents.css";
 
 @tailwind base;
 @tailwind components;
@@ -27,18 +28,20 @@
     --color-danger: #ef4444;
     --color-info: #7dd3fc;
 
+    /* Product accents — cool spectrum (M10 R0). No purple SaaS takeover. */
     --accent-home: 0 194 255;
     --accent-studio: 255 140 40;
     --accent-prepare: 125 211 252;
-    --accent-credits: 99 102 241;
+    --accent-credits: 56 189 248;
     --accent-master: 245 158 11;
-    --accent-coverlab: 217 70 239;
+    --accent-coverlab: 94 234 212;
     --accent-sentinel: 239 68 68;
-    --accent-relay: 59 130 246;
+    --accent-relay: 14 165 233;
     --accent-live: 220 38 38;
-    --accent-market: 168 85 247;
+    --accent-market: 34 211 238;
     --accent-artist: 0 194 255;
     --vdock-accent: 0 194 255;
+    /* --app-accent-rgb lives in suite-app-accents.css (single-sourced). */
 
     /* Spacing scale (rem) */
     --space-1: 0.25rem;

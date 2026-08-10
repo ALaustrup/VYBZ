@@ -3,58 +3,40 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `main`
-**HEAD:** `94882b32` (polish product `46934283`)
-**Current milestone:** **None open** (Masterplan). **Suite visual polish** shipped
-([PR #140](https://github.com/ALaustrup/VYBZ/pull/140) @ `46934283`). Do not begin **M10**.
+**Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
+**HEAD:** working tree (R0 ready for owner review)
+**Current milestone:** **M10** authorised — Wave **R0** foundation ready for review.
+Store commerce deferred. Do not begin R1 until owner proceeds.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `46934283` | JS bundle contains full merge SHA; deploy `5839421900` SUCCESS |
-| Polish PR | [PR #140](https://github.com/ALaustrup/VYBZ/pull/140) | MERGED 2026-08-10 |
-| Close-out PR | [PR #136](https://github.com/ALaustrup/VYBZ/pull/136) | MERGED 2026-08-10 |
-| Park PR | [PR #139](https://github.com/ALaustrup/VYBZ/pull/139) | MERGED 2026-08-10 |
+| Production SHA | `46934283` (polish) / tip docs `9e5ee0a0` | Prior smoke; redesign not on prod |
+| Polish PR | [PR #140](https://github.com/ALaustrup/VYBZ/pull/140) | MERGED |
 
 ## Last completed operations
 
-18. **M9 close-out** — PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
-19. **Production smoke (pre-polish)** — Analyzer / MasterReady / tools / VDock.
-20. **Park M7 / M8 / OR deepen** — PR #139 @ `fcac9016`.
-21. **Suite visual polish Waves 0–4** — PR #140 merge `46934283` (ForgeAtmosphere,
-    ToolWorkbench, rail chrome, ArtistHome, Analyzer next-step).
-22. **Post-merge preview / production smoke (2026-08-10)** — see verification below.
+21. **Suite visual polish** — PR #140 @ `46934283` + post-merge smoke.
+22. **M10 authorised** — owner **2026-08-10**; Wave R = full visual redesign; R0 executing.
 
 ## Deployment state
 
-**DEPLOYED** for suite visual polish @ `46934283`. M9 device/OS MediaSession interrupt
-checks remain **Not measured** (unchanged).
+Production still on polish/docs tip. M10 R0 not deployed.
 
 ## Production verification
 
-| Check | Result |
-|---|---|
-| Prod build SHA in bundle | PASS `46934283` |
-| Preview MasterReady A/B → play | PASS (`m9.compare-preview.1` + MediaSession album disclosure) |
-| Signed-out Prepare dock chrome | Absent by design (`PrepareLocalApp`) — DOM `data-vdock-disclosure` N/A |
-| Prod Correct → Play in VDock | PASS `data-vdock-disclosure` + MediaSession album (`m6.dc-remove.1` / `m6.loudness-match.1`) |
-| Rail Correct + Translate primary + More | PASS (prod signed-in) |
-| Analyzer forge-atmosphere + next-steps | PASS (preview) |
-| `prefers-reduced-motion: reduce` | PASS — `matchMedia` true; energy pulse paths **0**; pipe `animationName: none` |
-| Android call-interrupt audio focus | **Not measured** |
-| OS lock-screen MediaSession controls | **Not measured** |
+Unchanged from polish smoke (Correct VDock disclosure, reduce-motion). Redesign R0
+production verification — **Not measured** (not deployed).
 
 ## Latest verification
 
-Correctness gate on polish branch (pre-merge): lint / test (**505**) / build /
-`check:no-fixtures` — PASS.
+M10 Wave R0 (local, uncommitted until owner reviews):
 
-Post-merge smoke URLs:
-
-- Preview: `https://vybz-modjo397i-astramatrix.vercel.app` (branch tip pre-merge)
-- Production: `https://vybz.cloud` @ `46934283`
+- `npm run lint` — PASS
+- `m10SuiteRedesignGate` + `tokens` + `suiteApps` — PASS (33)
+- Full `npm run test` / `build` — **Not measured** this unit (R0 stop for review)
 
 ## Permanently out of scope (not parked)
 
@@ -62,10 +44,9 @@ Dating / swipe — Law 3.
 
 ## Blockers / parked
 
-M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021–022, OR-024–025,
-Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
+M7/M8 deepen, OR deepen, Instrument Creator, M10 Store commerce (until Wave R validated).
 
 ## Next authorised action
 
-Idle on Masterplan tracks. Owner may schedule further visual polish, re-auth an OR, or
-name **M10**. Do not begin M10 until named.
+Owner review of M10 Wave R0 foundation, then authorise Wave R1 (shell chrome) or request
+changes. Do not start R1 until owner says proceed.
