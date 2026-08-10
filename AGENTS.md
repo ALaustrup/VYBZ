@@ -26,30 +26,33 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M9 — VDock Completion** is the authorised Masterplan milestone (owner **2026-08-09**
-“next phase”). **M8** assembly deepen and **M7** translation deepen continue as
-carry-forward until their exits are closed.
+**M9 — VDock Completion** is **closed** (owner close-out **2026-08-10**) as Masterplan §12
+**DEPLOYED BUT UNVERIFIED** — executable `m9VdockGate` passes; interactive / Android
+device interrupt smoke remain **Not measured**. Do not begin **M10** until the owner
+authorises it.
 
-OR-031 (release-centered discovery) remains authorised; Law 3 still bans dating and
-generic social growth. Instrument Creator (VST3) stays parked. OR-021–OR-022 and
-OR-024–OR-025 remain parked.
+**Authorised carry-forward** (no new Masterplan milestone named): **M8** assembly deepen,
+**M7** translation deepen, and **OR-029 / OR-020 / OR-030 / OR-031** polish continue until
+parked. Instrument Creator (VST3) stays parked. OR-021–OR-022 and OR-024–OR-025 remain
+parked. OR-031 discovery remains authorised; Law 3 still bans dating and generic social
+growth.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
-### Authorised tracks (M9 + carry-forward)
+### Authorised tracks (carry-forward after M9 close)
 
-1. **M9 VDock** — dry playback contract, signal disclosure, stable bridge playback caps;
-   never hidden DSP on the play path (Law 5). Android AudioManager focus via
-   `VybzAudioFocus` is authorised (disclosed pause on loss; device smoke still required).
+1. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
+   playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
+   behind stable interfaces (Law 5). Extend via versioned contracts only.
 2. **M8** — release assemble deepen (checksummed packages, rule-cited findings).
 3. **M7 deepen** — device + codec translation previews (disclosed simulations).
 4. **OR-029 / OR-020 / OR-030 / OR-031** — continue polish as previously authorised.
 
-Continuous build authorised on these tracks without further prompts until the owner parks
-them. Do not begin **M10** until the owner authorises it.
+Continuous build authorised on these carry-forward tracks without further prompts until
+the owner parks them. Do not begin **M10** until the owner authorises it.
 
 ### Carry-forward authorisations (still in force)
 
@@ -84,8 +87,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
-disclosed). M5–M6 closed; M7–M8 deepen continue; **M9 VDock** is the active Masterplan
-milestone. Do not begin M10 until the owner authorises it.
+disclosed). M5–M6 closed; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED). M7–M8 deepen
+continue as authorised carry-forward. Do not begin M10 until the owner authorises it.
 
 ## Safety rules
 

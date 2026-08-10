@@ -7,16 +7,21 @@ import {
   catalogSignal,
   resolveTrackSignal,
 } from "@/lib/vdock/playbackSignal";
+import { VDOCK_COMPARE_PREVIEW_VERSION } from "@/lib/vdock/comparePreview";
 import { dryPlaybackCapabilities } from "@/platform/bridge/playbackCapabilities";
 import { createMockBridge } from "@/platform/bridge/mock";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
 /**
- * M9 exit-gate starter — Masterplan §10 VDock Completion / Law 5.
+ * M9 exit gate — Masterplan §10 VDock Completion / Law 5.
  * Gate: VDock reliable across web, desktop and Android; correctly represents
  * active processing and simulation; never applies hidden processing; core
  * frozen behind stable interfaces.
+ *
+ * Close-out delivery vocabulary (Masterplan §12): DEPLOYED BUT UNVERIFIED —
+ * production ships the contracts; interactive / device interrupt smoke remain
+ * Not measured until evidenced.
  */
 describe("M9 VDock gate", () => {
   it("cites the M9 gate and ships a versioned dry-playback contract", () => {
@@ -148,5 +153,30 @@ describe("M9 VDock gate", () => {
       "utf8",
     );
     expect(mainActivity).toContain("VybzAudioFocusPlugin");
+  });
+
+  it("freezes the M9 stable interface surface at close-out versions", () => {
+    // Contract versions — extend only with a new version string + consumer, never silent rewrite.
+    expect(DRY_PLAYBACK_VERSION).toBe("m9.dry-playback.1");
+    expect(VDOCK_COMPARE_PREVIEW_VERSION).toBe("m9.compare-preview.1");
+
+    const provider = readFileSync(
+      path.join(ROOT, "src/platform/bridge/PlatformProvider.tsx"),
+      "utf8",
+    );
+    expect(provider).toContain("bindMediaSession");
+    expect(provider).toContain("bindPlaybackLifecycle");
+    expect(provider).toContain("bindAudioFocus");
+    expect(provider).toContain("audioBusController");
+
+    const types = readFileSync(path.join(ROOT, "src/platform/bridge/types.ts"), "utf8");
+    expect(types).toContain("getCapabilities");
+    expect(types).toContain("bindMediaSession");
+    expect(types).toContain("bindPlaybackLifecycle");
+    expect(types).toContain("bindAudioFocus");
+
+    const agents = readFileSync(path.join(ROOT, "AGENTS.md"), "utf8");
+    expect(agents).toMatch(/M9.*closed|M9 VDock.*closed/i);
+    expect(agents).toMatch(/DEPLOYED BUT UNVERIFIED|Do not begin \*\*M10\*\*/i);
   });
 });

@@ -90,7 +90,7 @@ These block milestone scoping. Nothing proceeds on any of them.
 | **DR-05** | Watermarking. Absent from the lifecycle in Masterplan §7. Retain, freeze or archive? | M2 | ~440 lines, 3 edge functions |
 | **DR-06** | Onboarding gate. `App.tsx` forces `RoleIntentOnboarding` before the shell. Delete it, or keep a professional-role intake? | M2 | critical path |
 | **DR-07** | M4 strategy. Build a BS.1770 meter, or integrate a validated implementation? Cost and licensing implications. | M4 | milestone-defining |
-| **DR-08** | Native shell drift. Restructure desktop and Android in lockstep with M3, or let them lag until M9? | M3, M9 | sequencing |
+| **DR-08** | Native shell drift. Restructure desktop and Android in lockstep with M3, or let them lag? (M9 VDock closed 2026-08-10.) | M3 | sequencing |
 
 ## 2. Approved — scheduled
 
@@ -155,6 +155,7 @@ stages C/E/F.
 | — | AASA `TEAMID` | Apple Developer |
 | — | Notarised macOS DMG | `MAC_CERT_*` |
 | — | Android Play listing | Play Console |
+| — | iOS AVAudioSession focus (M9 residual) | Cap iOS deepen + Apple signing; Android AudioManager shipped |
 | OR-010 | Formal migration-history workflow (`db push` vs raw SQL, CI checksum guard) | Owner process decision |
 
 ## 6. External distribution prerequisites
