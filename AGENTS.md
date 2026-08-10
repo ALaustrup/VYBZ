@@ -97,8 +97,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). No Masterplan track open. **Suite visual polish authorised** (not a
-Masterplan milestone). Do not begin M10 until the owner authorises it.
+UNVERIFIED). No Masterplan track open. **Suite visual polish shipped** (PR #140 @
+`46934283`). Do not begin M10 until the owner authorises it.
 
 ## Safety rules
 

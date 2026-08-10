@@ -4,9 +4,9 @@
 
 **Date:** 2026-08-10
 **Branch:** `main`
-**HEAD:** `9110d6e7` (polish product `46934283`)
-**Current milestone:** **None open** (Masterplan). **Suite visual polish** merged
-([PR #140](https://github.com/ALaustrup/VYBZ/pull/140)). Do not begin **M10**.
+**HEAD:** `94882b32` (polish product `46934283`)
+**Current milestone:** **None open** (Masterplan). **Suite visual polish** shipped
+([PR #140](https://github.com/ALaustrup/VYBZ/pull/140) @ `46934283`). Do not begin **M10**.
 
 ## Production
 
