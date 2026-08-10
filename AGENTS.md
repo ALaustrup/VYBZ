@@ -29,10 +29,10 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 **M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R0** in
 progress: full suite **visual redesign** foundation (tokens, per-app accents,
 `SuiteStage`). Store Preview / publish commerce is a **later M10 wave** — do not begin
-it until Wave R shell redesign is owner-validated. **M9** remains closed (**DEPLOYED BUT
-UNVERIFIED**). **M7** / **M8** / OR deepen stay **parked**. Law 5: VDock contracts frozen
-(skin only). Law 1: no invented metrics. Law 3: no dating. Instrument Creator parked.
-OR-021–OR-022 and OR-024–OR-025 remain parked.
+it until Wave R shell redesign is owner-validated. **M9** remains closed
+(**DEPLOYED BUT UNVERIFIED**). **M7** / **M8** / OR deepen stay **parked**. Law 5: VDock
+contracts frozen (skin only). Law 1: no invented metrics. Law 3: no dating. Instrument
+Creator parked. OR-021–OR-022 and OR-024–OR-025 remain parked.
 
 **Suite visual polish (pre-M10)** shipped via [PR #140](https://github.com/ALaustrup/VYBZ/pull/140)
 @ `46934283` — absorbed into M10 redesign as baseline, not a parallel track.
@@ -46,7 +46,8 @@ Law 1 still governs every detector and claim.
 
 1. **M10 Wave R (visual redesign)** — cohesive premium music-ops UI; per-app accent
    identity; Home command center and Store commerce in later waves. Branch
-   `feat/m10-suite-visual-redesign`. Gate: `m10SuiteRedesignGate.test.ts` (Wave R0+).
+   `feat/m10-suite-visual-redesign`. Gate: `m10SuiteRedesignGate.test.ts` (Wave R0–R1+).
+   R1 = SuiteShell ops chrome (rails / app bar / VDock skin only).
 
 ### Closed / parked tracks (post-smoke)
 

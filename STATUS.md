@@ -4,9 +4,9 @@
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** working tree (R0 ready for owner review)
-**Current milestone:** **M10** authorised — Wave **R0** foundation ready for review.
-Store commerce deferred. Do not begin R1 until owner proceeds.
+**HEAD:** pending commit (R1 ready for review)
+**Current milestone:** **M10** authorised — Wave **R1** chrome ready for review.
+Store commerce deferred. Do not begin R2 until owner proceeds.
 
 ## Production
 
@@ -19,7 +19,9 @@ Store commerce deferred. Do not begin R1 until owner proceeds.
 ## Last completed operations
 
 21. **Suite visual polish** — PR #140 @ `46934283` + post-merge smoke.
-22. **M10 authorised** — owner **2026-08-10**; Wave R = full visual redesign; R0 executing.
+22. **M10 authorised** — owner **2026-08-10**; Wave R = full visual redesign.
+23. **M10 Wave R0** — design-system foundation @ `33fc63df`.
+24. **M10 Wave R1** — SuiteShell ops chrome (rails / app bar / VDock skin) in progress.
 
 ## Deployment state
 
@@ -32,11 +34,11 @@ production verification — **Not measured** (not deployed).
 
 ## Latest verification
 
-M10 Wave R0 (local, uncommitted until owner reviews):
+M10 Wave R1 local:
 
 - `npm run lint` — PASS
-- `m10SuiteRedesignGate` + `tokens` + `suiteApps` — PASS (33)
-- Full `npm run test` / `build` — **Not measured** this unit (R0 stop for review)
+- `m10SuiteRedesignGate` (7) + `m9VdockGate` (7) — PASS
+- Full `npm run test` / `build` — **Not measured** this unit (R1 stop for review)
 
 ## Permanently out of scope (not parked)
 
@@ -48,5 +50,5 @@ M7/M8 deepen, OR deepen, Instrument Creator, M10 Store commerce (until Wave R va
 
 ## Next authorised action
 
-Owner review of M10 Wave R0 foundation, then authorise Wave R1 (shell chrome) or request
-changes. Do not start R1 until owner says proceed.
+Owner review of M10 Wave R1 chrome, then authorise Wave R2 (Home command center) or
+request changes.

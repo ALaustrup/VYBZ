@@ -1,7 +1,8 @@
 /**
- * M10 Wave R0 gate — suite visual redesign foundation.
+ * M10 Wave R redesign gate — foundation (R0) + shell chrome (R1).
  * Cites Masterplan §10 M10 (partial): cohesive shell identity before Store commerce.
  * Full M10 publish/discover/support gate remains open until later waves.
+ * Law 5: VDock disclosure / dry-playback contracts must remain intact.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -63,5 +64,26 @@ describe("M10 suite redesign gate (Wave R0)", () => {
   it("suiteAppAccentRgb falls back to home", () => {
     expect(suiteAppAccentRgb(null)).toBe(SUITE_APP_ACCENT_RGB.home);
     expect(suiteAppAccentRgb("correct")).toBe(SUITE_APP_ACCENT_RGB.correct);
+  });
+
+  it("Wave R1 loads suite-shell-chrome and ops chrome markers", () => {
+    const indexCss = read("src/index.css");
+    const chromeCss = read("src/design/suite-shell-chrome.css");
+    const primary = read("src/shell/PrimaryRail.tsx");
+    const appRail = read("src/shell/SuiteAppRail.tsx");
+    const appBar = read("src/components/shell/ContextualAppBar.tsx");
+    const vdock = read("src/components/vdock/VDock.tsx");
+    expect(indexCss).toContain("suite-shell-chrome.css");
+    expect(chromeCss).toContain(".suite-rail--ops");
+    expect(chromeCss).toContain(".app-bar--ops");
+    expect(chromeCss).toContain(".vdock-ops");
+    expect(primary).toContain("suite-rail--ops");
+    expect(primary).toContain("Music ops");
+    expect(appRail).toContain("suite-app-rail--ops");
+    expect(appBar).toContain("app-bar--ops");
+    expect(vdock).toContain("vdock-ops");
+    // Law 5 — disclosure / dry contract hooks stay on the dock
+    expect(vdock).toContain("data-vdock");
+    expect(vdock).toContain("MusicDockPlayer");
   });
 });

@@ -2,6 +2,7 @@
 @import "./design/nexus.css";
 @import "./design/forge-atmosphere.css";
 @import "./design/suite-app-accents.css";
+@import "./design/suite-shell-chrome.css";
 
 @tailwind base;
 @tailwind components;

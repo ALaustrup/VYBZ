@@ -18,7 +18,7 @@ export function VDock(_props: { onCompose: () => void }) {
 
   return (
     <div
-      className="vdock-shell vdock-forge pointer-events-auto relative flex w-full flex-col overflow-hidden"
+      className="vdock-shell vdock-forge vdock-ops pointer-events-auto relative flex w-full flex-col overflow-hidden"
       data-vdock
       data-dark-stage
       role="complementary"
