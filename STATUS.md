@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `feat/m9-analyzer-ab-audiobus`
-**HEAD:** *(feature tip)*
+**Branch:** `main`
+**HEAD:** `6ec89898`
 **Current milestone:** **M9 — VDock Completion** deepen in progress
 
 ## Production
@@ -12,19 +12,24 @@
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | `0db4dc75` (pre this PR) | `dpl_CHFxWcRb8EDXNyjVXNVPN34ChUJn` READY |
-| Prior feature | [PR #124](https://github.com/ALaustrup/VYBZ/pull/124) | MERGED |
+| Production SHA | `6ec89898` | `dpl_FZR9m3VEstnxLoH72Ki1uYv6NVHk` READY |
+| Feature PR | [PR #126](https://github.com/ALaustrup/VYBZ/pull/126) | MERGED |
 
 ## Last completed operations
 
 1–11. Prior M9 work including MasterReady A/B → AudioBus (PR #124).
 12. **M9 Analyzer Before/After → AudioBus** — `ReleasesPage` removes hidden `<audio>`;
     original → `localSignal`, auto-fixed → `simulationSignal`; hover/click A/B keeps UX;
-    `m9VdockGate` includes Analyzer.
+    `m9VdockGate` includes Analyzer. Merged PR #126.
 
 ## Deployment state
 
-**IN PROGRESS** — feature branch.
+**DEPLOYED** — production READY @ `6ec89898` via
+`dpl_FZR9m3VEstnxLoH72Ki1uYv6NVHk`.
+
+## Production verification
+
+Vercel READY. Interactive smoke: **Not measured** (auth-gated).
 
 ## Latest verification
 
