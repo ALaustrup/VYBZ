@@ -13,7 +13,7 @@ function fakeSession() {
   const handlers = new Map<MediaSessionAction, MediaSessionActionHandler | null>();
   const positions: MediaPositionState[] = [];
   const session = {
-    metadata: null,
+    metadata: null as MediaMetadata | null,
     playbackState: "none" as MediaSessionPlaybackState,
     setActionHandler: (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => {
       handlers.set(action, handler);
@@ -113,6 +113,36 @@ describe("M9 Platform Bridge MediaSession wiring", () => {
     expect(session.playbackState).toBe("playing");
     expect(positions).toEqual([{ duration: 120, playbackRate: 1, position: 120 }]);
     cleanup();
+  });
+
+  it("puts PlaybackSignal disclosure into MediaSession album metadata", () => {
+    class FakeMediaMetadata {
+      title: string;
+      artist: string;
+      album: string;
+      constructor(init: { title: string; artist: string; album?: string }) {
+        this.title = init.title;
+        this.artist = init.artist;
+        this.album = init.album ?? "";
+      }
+    }
+    vi.stubGlobal("MediaMetadata", FakeMediaMetadata);
+
+    const { session } = fakeSession();
+    const { controller, emit } = fakeController();
+    const cleanup = bindBrowserMediaSession(controller, session);
+
+    emit({
+      track: { title: "Sim", artist: "Correct", album: "Album" },
+      playing: true,
+      currentTime: 1,
+      duration: 10,
+      disclosure: "disclosed simulation preview",
+    });
+
+    expect(session.metadata?.album).toBe("disclosed simulation preview");
+    cleanup();
+    vi.unstubAllGlobals();
   });
 
   it("cannot interrupt dry playback when a partial WebView rejects state", () => {

@@ -473,7 +473,23 @@ export function getPlaybackProgress(): { currentTime: number; duration: number; 
 
 /** Stable dry-transport interface consumed by Platform Bridge integrations. */
 export const audioBusController: PlaybackController = {
-  getState: getSnapshot,
+  getState: () => {
+    const s = getSnapshot();
+    return {
+      track: s.track
+        ? {
+            title: s.track.title,
+            artist: s.track.artist,
+            album: s.track.album,
+            durationSec: s.track.durationSec,
+          }
+        : null,
+      playing: s.playing,
+      currentTime: s.currentTime,
+      duration: s.duration,
+      disclosure: s.signal?.disclosure ?? null,
+    };
+  },
   subscribe,
   play,
   pause,

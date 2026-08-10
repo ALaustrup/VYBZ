@@ -46,16 +46,21 @@ function syncMediaSession(
       return;
     }
 
+    const album =
+      state.disclosure && state.disclosure.length > 0
+        ? state.disclosure
+        : (state.track.album ?? "");
+
     if (
       typeof MediaMetadata !== "undefined" &&
       (session.metadata?.title !== state.track.title ||
         session.metadata?.artist !== state.track.artist ||
-        session.metadata?.album !== (state.track.album ?? ""))
+        session.metadata?.album !== album)
     ) {
       session.metadata = new MediaMetadata({
         title: state.track.title,
         artist: state.track.artist,
-        album: state.track.album,
+        album,
       });
     }
 

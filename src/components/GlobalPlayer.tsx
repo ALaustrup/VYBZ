@@ -575,6 +575,16 @@ function NowPlayingExpanded({
                   </span>
                 )}
               </button>
+              {p.signal?.disclosure ? (
+                <p
+                  className="mt-2 line-clamp-2 text-[11px] leading-relaxed text-amber-100/80"
+                  data-vdock-disclosure
+                  data-vdock-disclosure-expanded
+                  title={p.signal.disclosure}
+                >
+                  {p.signal.disclosure}
+                </p>
+              ) : null}
             </div>
 
             {peaks && (
