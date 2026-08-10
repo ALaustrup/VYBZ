@@ -1,13 +1,13 @@
-ï»¿# STATUS
+# STATUS
 
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
 **Branch:** `docs/park-m7-m8-or-after-smoke` (unmerged; base `main` @ `eee19542`)
-**HEAD:** (pending commit)
+**HEAD:** `5ba4cb76`
 **Current milestone:** **None open.** M9 closed (**DEPLOYED BUT UNVERIFIED**). M7 / M8 /
 OR deepen **parked** (owner **2026-08-10** after production smoke). Do not begin **M10**
-until named. Suite visual polish â€” owner-scheduled later.
+until named. Suite visual polish — owner-scheduled later.
 
 ## Production
 
@@ -19,15 +19,15 @@ until named. Suite visual polish â€” owner-scheduled later.
 
 ## Last completed operations
 
-18. **M9 close-out** â€” PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
-19. **Production smoke (2026-08-10)** â€” signed-out Analyzer + MasterReady; signed-in
+18. **M9 close-out** — PR #136 @ `643d7089` (DEPLOYED BUT UNVERIFIED).
+19. **Production smoke (2026-08-10)** — signed-out Analyzer + MasterReady; signed-in
     Translate / Correct / Packs / Stems / Discover / Library / Store / VDock disclosure
     (`m7.device-preview.1` + MediaSession). Build stamp `eee1954`.
-20. **Park M7 / M8 / OR deepen** â€” owner after smoke; visual polish deferred to when named.
+20. **Park M7 / M8 / OR deepen** — owner after smoke; visual polish deferred to when named.
 
 ## Deployment state
 
-**DEPLOYED BUT UNVERIFIED** (M9) â€” production READY @ tip `eee19542`. Android
+**DEPLOYED BUT UNVERIFIED** (M9) — production READY @ tip `eee19542`. Android
 call-interrupt / lock-screen MediaSession controls remain **Not measured**.
 
 ## Production verification
@@ -35,7 +35,7 @@ call-interrupt / lock-screen MediaSession controls remain **Not measured**.
 | Check | Result |
 |---|---|
 | Landing build stamp | PASS `eee1954` (= tip `eee19542`) |
-| Free Analyzer scan + MasterReady A/B â†’ VDock | PASS (signed-out) |
+| Free Analyzer scan + MasterReady A/B ? VDock | PASS (signed-out) |
 | Translate / Correct / Packs / Stems / Discover | PASS (signed-in) |
 | VDock disclosure on simulation | PASS (`data-vdock-disclosure` + MediaSession album) |
 | Catalog MediaSession title | PASS |
@@ -44,19 +44,19 @@ call-interrupt / lock-screen MediaSession controls remain **Not measured**.
 
 ## Latest verification
 
-Park docs branch â€” no product code change. Prior close-out:
+Park docs branch — no product code change. Prior close-out:
 
-- `npm run lint` / `test` (**504**) / `build` / `check:no-fixtures` â€” PASS on M9 close-out.
+- `npm run lint` / `test` (**504**) / `build` / `check:no-fixtures` — PASS on M9 close-out.
 
 ## Permanently out of scope (not parked)
 
-Dating / swipe â€” Law 3.
+Dating / swipe — Law 3.
 
 ## Blockers / parked
 
-M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021â€“022, OR-024â€“025,
+M7 deepen, M8 deepen, OR feature deepen (re-auth required), OR-021–022, OR-024–025,
 Instrument Creator, **M10** (until named). iOS AVAudioSession focus residual.
-Suite visual polish â€” deferred until owner schedules.
+Suite visual polish — deferred until owner schedules.
 
 ## Next authorised action
 
