@@ -45,14 +45,10 @@ bans dating and generic social growth.
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
 Law 1 still governs every detector and claim.
 
-### Authorised track (post-smoke)
-
-1. **Suite visual polish (in progress)** — ForgeAtmosphere (plasma / pipelines /
-   sound-wave ribbons), ToolWorkbench shell, Translate / Correct / Packs / Stems density,
-   suite rail Correct+Translate primary, light ArtistHome + Analyzer next-step. No VDock
-   contract changes (Law 5). No invented metrics (Law 1). No M10.
-
 ### Closed / parked tracks (post-smoke)
+
+0. **Suite visual polish (shipped)** — PR #140 @ `46934283`; continuous deepen parked
+   unless re-authorised.
 
 1. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
    playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
