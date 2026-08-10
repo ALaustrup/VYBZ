@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** pending commit (R2 ready for review)
+**HEAD:** `13aa5265`
 **Current milestone:** **M10** authorised — Wave **R2** Home ops ready for review.
 Store commerce deferred. Do not begin R3 until owner proceeds.
 
@@ -34,7 +34,11 @@ Prior polish smoke unchanged. Redesign production verification — **Not measure
 
 ## Latest verification
 
-R2 local validation pending this unit.
+M10 Wave R2 local:
+
+- `npm run lint` — PASS
+- `m10SuiteRedesignGate` (8) + `m9VdockGate` (7) + `dashboardModel` (17) — PASS
+- Full `npm run test` / `build` — **Not measured** this unit (R2 stop for review)
 
 ## Permanently out of scope (not parked)
 
