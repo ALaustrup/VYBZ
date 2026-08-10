@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Pause, Play } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
 import { StateView } from "@/components/states/StateView";
@@ -14,6 +15,11 @@ import {
   AI_LOW_BALANCE_SECONDS,
   getAiCreditBalance,
 } from "@/platform/costs/aiCredits";
+import { playTrack, toggle, usePlayerShell } from "@/lib/audioBus";
+import { stopAudioPreview } from "@/lib/audioPreview";
+import { localSignal, simulationSignal } from "@/lib/vdock/playbackSignal";
+
+const MASTER_PREVIEW_PREFIX = "master-preview:";
 
 function useAiJobs(projectId?: string): AiMasterJob[] {
   const [jobs, setJobs] = useState(() => listAiJobs(projectId));
@@ -43,6 +49,15 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
   const [file, setFile] = useState<File | null>(null);
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
   const latestStatus = jobs[0]?.status;
+  const player = usePlayerShell();
+
+  const activeUrl =
+    ab === "A" ? latest?.originalUrl ?? null : latest?.masteredUrl ?? null;
+  const activeTrackId =
+    latest?.status === "completed" && activeUrl
+      ? `${MASTER_PREVIEW_PREFIX}${latest.jobId}:${ab}`
+      : null;
+  const activeInVdock = Boolean(activeTrackId && player.track?.id === activeTrackId);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,6 +68,10 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
       cancelled = true;
     };
   }, [latestStatus]);
+
+  useEffect(() => {
+    return () => stopAudioPreview(MASTER_PREVIEW_PREFIX);
+  }, []);
 
   useEffect(() => {
     if (!e2eMode) return;
@@ -85,8 +104,37 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
     setFile(new File([buffer], "e2e-clip.wav", { type: "audio/wav" }));
   }, [e2eMode]);
 
+  function stopOwnedPlayback() {
+    stopAudioPreview(MASTER_PREVIEW_PREFIX);
+  }
+
+  function selectAb(next: "A" | "B") {
+    stopOwnedPlayback();
+    setAb(next);
+  }
+
+  function playSelectedInVdock() {
+    if (!latest || latest.status !== "completed" || !activeUrl || !activeTrackId) return;
+    if (activeInVdock) {
+      void toggle();
+      return;
+    }
+    const baseName = (file?.name ?? "Local audio").replace(/\.[^.]+$/, "") || "Local audio";
+    const proc = latest.metrics?.procVersion ?? "version not reported";
+    const masteredLabel = `MasterReady mastered preview (${proc}); disclosed simulation — download is the measured master`;
+    const track = {
+      id: activeTrackId,
+      url: activeUrl,
+      title: `${baseName} · ${ab === "A" ? "Original" : "Mastered"}`,
+      artist: "MasterReady",
+      signal: ab === "A" ? localSignal() : simulationSignal(masteredLabel),
+    };
+    playTrack(track, [track]);
+  }
+
   const onAnalyze = async () => {
     if (!file || !projectId) return;
+    stopOwnedPlayback();
     setBusy(true);
     setError(null);
     setAb("B");
@@ -229,29 +277,44 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
               <button
                 type="button"
                 data-testid="master-ab-a"
+                aria-pressed={ab === "A"}
                 className={`forge-cta-ghost !min-h-8 !rounded-full !px-3 !text-xs ${ab === "A" ? "!border-[rgb(var(--accent-rgb)/0.45)] !bg-[rgb(var(--accent-rgb)/0.12)]" : "!border-transparent !bg-transparent text-fog"}`}
-                onClick={() => setAb("A")}
+                onClick={() => selectAb("A")}
               >
                 A · Original
               </button>
               <button
                 type="button"
                 data-testid="master-ab-b"
+                aria-pressed={ab === "B"}
                 className={`forge-cta-ghost !min-h-8 !rounded-full !px-3 !text-xs ${ab === "B" ? "!border-[rgb(var(--accent-rgb)/0.45)] !bg-[rgb(var(--accent-rgb)/0.12)]" : "!border-transparent !bg-transparent text-fog"}`}
-                onClick={() => setAb("B")}
+                onClick={() => selectAb("B")}
               >
                 B · Mastered
               </button>
             </div>
           </div>
 
-          <audio
-            key={ab}
-            controls
-            className="w-full"
-            data-testid="master-ab-player"
-            src={ab === "A" ? latest.originalUrl : latest.masteredUrl}
-          />
+          {activeUrl && (
+            <button
+              type="button"
+              onClick={playSelectedInVdock}
+              className="forge-cta !min-h-9 !px-4 !text-xs"
+              data-testid="master-play-vdock"
+            >
+              {activeInVdock && player.playing ? (
+                <Pause className="mr-1.5 inline h-3.5 w-3.5" aria-hidden />
+              ) : (
+                <Play className="mr-1.5 inline h-3.5 w-3.5" aria-hidden />
+              )}
+              {activeInVdock && player.playing ? "Pause VDock" : "Play selected in VDock"}
+            </button>
+          )}
+
+          <p className="text-[11px] leading-relaxed text-fog" data-testid="master-ab-disclosure">
+            A is the dry original. B is a disclosed MasterReady preview routed through VDock —
+            not hidden DSP on the play path. Download remains the measured master WAV.
+          </p>
 
           <div
             className="flex h-16 items-end gap-px overflow-hidden rounded-xl bg-white/5 px-1"

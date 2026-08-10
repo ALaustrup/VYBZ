@@ -49,10 +49,11 @@ describe("M9 VDock gate", () => {
     expect(vdock).toContain("MusicDockPlayer");
   });
 
-  it("routes Translation and Correct simulations through disclosed AudioBus tracks", () => {
+  it("routes Translation, Correct, and MasterReady A/B through disclosed AudioBus tracks", () => {
     for (const relativePath of [
       "src/features/translation/TranslationLabPage.tsx",
       "src/features/correction/DcOffsetCorrectPage.tsx",
+      "src/features/mastering/ReleaseMasterPane.tsx",
     ]) {
       const page = readFileSync(path.join(ROOT, relativePath), "utf8");
       expect(page).toContain("playTrack");

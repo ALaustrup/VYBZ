@@ -31,13 +31,15 @@ test.describe("AI Mastering", () => {
     fs.unlinkSync(tmp);
   });
 
-  test("A/B toggle switches preview after Completed", async ({ page }) => {
+  test("A/B toggle routes selected side through VDock after Completed", async ({ page }) => {
     await page.goto("/__e2e__/mastering");
     await page.getByTestId("analyze-master-btn").click();
     await expect(page.getByTestId("master-status-completed")).toBeVisible({ timeout: 15_000 });
     await page.getByTestId("master-ab-a").click();
-    await expect(page.getByTestId("master-ab-player")).toBeVisible();
+    await expect(page.getByTestId("master-play-vdock")).toBeVisible();
+    await expect(page.getByTestId("master-ab-disclosure")).toBeVisible();
     await page.getByTestId("master-ab-b").click();
+    await expect(page.getByTestId("master-play-vdock")).toBeVisible();
     await expect(page.getByTestId("master-wave-ab")).toBeVisible();
   });
 });
