@@ -3,8 +3,8 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-10
-**Branch:** `docs/m9-closeout` (unmerged close-out; tip base `main` @ `d1fdaded`)
-**HEAD:** (this branch — pending commit)
+**Branch:** `docs/m9-closeout` (unmerged; base `main` @ `d1fdaded`)
+**HEAD:** `403357b7`
 **Current milestone:** **M9 — VDock Completion** **CLOSED** as Masterplan §12
 **DEPLOYED BUT UNVERIFIED**. No new Masterplan milestone named — carry-forward
 **M7 / M8 / OR** polish. Do not begin **M10** until owner-authorised.
