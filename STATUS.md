@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `feat/m10-suite-visual-redesign` (unmerged; base `main` @ `9e5ee0a0`)
-**HEAD:** *(pin after R4 commit)*
+**HEAD:** `5eb886ab`
 **Current milestone:** **M10** authorised — Wave **R4** Library + public shells ready for review.
 Store commerce deferred. Do not begin R5 until owner proceeds.
 
@@ -24,7 +24,7 @@ Store commerce deferred. Do not begin R5 until owner proceeds.
 24. **M10 Wave R1** — shell chrome @ `ba62bf1d` / tip `aa5eaf4a`.
 25. **M10 Wave R2** — Home ops @ `13aa5265` / tip `249500e1`.
 26. **M10 Wave R3** — Analyzer + ToolWorkbench rollup @ `9d81de76` / tip `a4e30ece`.
-27. **M10 Wave R4** — Library media desk + public ops shells (Landing / Prepare / Auth / PublicDoc / PublicPack chrome).
+27. **M10 Wave R4** — Library media desk + public ops shells (Landing / Prepare / Auth / PublicDoc / PublicPack chrome) @ `5eb886ab`.
 
 ## Deployment state
 
