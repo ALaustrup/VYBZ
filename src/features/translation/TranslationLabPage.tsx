@@ -2,8 +2,8 @@
  * M7 Translation Lab — streaming loudness + phone/car + lossy codec previews (disclosed).
  */
 
-import { useEffect, useState } from "react";
-import { Loader2, Upload } from "lucide-react";
+import { useState } from "react";
+import { Loader2, Pause, Play, Upload } from "lucide-react";
 import {
   CODEC_TRANSLATION_VERSION,
   DEVICE_TRANSLATION_VERSION,
@@ -17,6 +17,19 @@ import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import {
+  playTrack,
+  toggle,
+  usePlayerShell,
+} from "@/lib/audioBus";
+import {
+  stopAudioPreview,
+  useAudioPreviewUrlCleanup,
+} from "@/lib/audioPreview";
+import {
+  localSignal,
+  simulationSignal,
+} from "@/lib/vdock/playbackSignal";
 
 type Mode = "original" | "streaming" | "phone" | "car" | "lossy";
 
@@ -40,6 +53,7 @@ function bufferFromPlanar(channels: Float32Array[], sampleRate: number): AudioBu
 
 export function TranslationLabPage() {
   const { showToast } = useSession();
+  const player = usePlayerShell();
   const [busy, setBusy] = useState(false);
   const [fileName, setFileName] = useState("");
   const [mode, setMode] = useState<Mode>("original");
@@ -55,15 +69,11 @@ export function TranslationLabPage() {
 
   useRegisterAppBar({ title: "Translation Lab", subtitle: "How it travels" }, []);
 
-  useEffect(() => {
-    return () => {
-      if (originalUrl) URL.revokeObjectURL(originalUrl);
-      if (streamingUrl) URL.revokeObjectURL(streamingUrl);
-      if (phoneUrl) URL.revokeObjectURL(phoneUrl);
-      if (carUrl) URL.revokeObjectURL(carUrl);
-      if (lossyUrl) URL.revokeObjectURL(lossyUrl);
-    };
-  }, [originalUrl, streamingUrl, phoneUrl, carUrl, lossyUrl]);
+  useAudioPreviewUrlCleanup(originalUrl, "translation-preview:");
+  useAudioPreviewUrlCleanup(streamingUrl, "translation-preview:");
+  useAudioPreviewUrlCleanup(phoneUrl, "translation-preview:");
+  useAudioPreviewUrlCleanup(carUrl, "translation-preview:");
+  useAudioPreviewUrlCleanup(lossyUrl, "translation-preview:");
 
   async function onFile(file: File | undefined) {
     if (!file || !isAudioFile(file)) {
@@ -72,6 +82,7 @@ export function TranslationLabPage() {
     }
     setBusy(true);
     try {
+      stopOwnedPlayback();
       const buf = await decodeToBuffer(file);
       const planar = planarFromBuffer(buf);
       const stream = applyStreamingNormPreview(planar, buf.sampleRate);
@@ -109,6 +120,7 @@ export function TranslationLabPage() {
   }
 
   function selectMode(next: Mode) {
+    stopOwnedPlayback();
     setMode(next);
     if (next === "streaming") {
       setDisclosure(
@@ -141,6 +153,32 @@ export function TranslationLabPage() {
           : mode === "car"
             ? carUrl
             : lossyUrl;
+  const activeTrackId = activeUrl ? `translation-preview:${mode}:${activeUrl}` : null;
+  const activeInVdock = player.track?.id === activeTrackId;
+
+  function stopOwnedPlayback() {
+    stopAudioPreview("translation-preview:");
+  }
+
+  function playSelectedInVdock() {
+    if (!activeUrl || !activeTrackId) return;
+    if (activeInVdock) {
+      void toggle();
+      return;
+    }
+    const baseName = fileName.replace(/\.[^.]+$/, "") || "Local master";
+    const track = {
+      id: activeTrackId,
+      url: activeUrl,
+      title: `${baseName} · ${mode === "original" ? "Original" : "Translation preview"}`,
+      artist: "Translation Lab",
+      signal:
+        mode === "original"
+          ? localSignal()
+          : simulationSignal(disclosure ?? "Approximate translation preview"),
+    };
+    playTrack(track, [track]);
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-4 pb-28" data-testid="translation-lab">
@@ -217,7 +255,19 @@ export function TranslationLabPage() {
           </div>
 
           {activeUrl && (
-            <audio key={activeUrl} controls src={activeUrl} className="w-full" data-testid="translate-player" />
+            <button
+              type="button"
+              onClick={playSelectedInVdock}
+              className="btn btn-primary px-4 py-2.5 text-sm"
+              data-testid="translate-play-vdock"
+            >
+              {activeInVdock && player.playing ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {activeInVdock && player.playing ? "Pause VDock" : "Play selected in VDock"}
+            </button>
           )}
 
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3" data-testid="translate-metrics">

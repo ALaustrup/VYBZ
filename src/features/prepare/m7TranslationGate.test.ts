@@ -35,6 +35,10 @@ describe("M7 translation gate", () => {
     expect(page).toContain("translate-mode-phone");
     expect(page).toContain("translate-mode-car");
     expect(page).toContain("translate-mode-lossy");
+    expect(page).toContain("translate-play-vdock");
+    expect(page).toContain("playTrack");
+    expect(page).toContain("simulationSignal");
+    expect(page).not.toContain("<audio");
     expect(page.toLowerCase()).toMatch(/not exact[\s\S]*platform/);
     const dsp = readFileSync(
       path.join(ROOT, "packages/processing/waveform/src/streamingNormPreview.ts"),

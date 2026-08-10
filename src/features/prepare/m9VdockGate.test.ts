@@ -49,6 +49,19 @@ describe("M9 VDock gate", () => {
     expect(vdock).toContain("MusicDockPlayer");
   });
 
+  it("routes Translation and Correct simulations through disclosed AudioBus tracks", () => {
+    for (const relativePath of [
+      "src/features/translation/TranslationLabPage.tsx",
+      "src/features/correction/DcOffsetCorrectPage.tsx",
+    ]) {
+      const page = readFileSync(path.join(ROOT, relativePath), "utf8");
+      expect(page).toContain("playTrack");
+      expect(page).toContain("simulationSignal");
+      expect(page).toContain("VDock");
+      expect(page).not.toContain("<audio");
+    }
+  });
+
   it("tags ambient pad with a non-null disclosure", () => {
     const ambient = ambientSignal();
     expect(ambient.kind).toBe("ambient");

@@ -3,8 +3,8 @@
  * Ops: DC, peak, balance, silence, hum, width, EQ, click, loudness. Local-only.
  */
 
-import { useEffect, useMemo, useState } from "react";
-import { Download, Loader2, Upload } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Download, Loader2, Pause, Play, Upload } from "lucide-react";
 import {
   CHANNEL_BALANCE_VERSION,
   CLICK_ATTENUATE_VERSION,
@@ -34,6 +34,19 @@ import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { decodeToBuffer, encodeWav } from "@/lib/audioEdit";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import {
+  playTrack,
+  toggle,
+  usePlayerShell,
+} from "@/lib/audioBus";
+import {
+  stopAudioPreview,
+  useAudioPreviewUrlCleanup,
+} from "@/lib/audioPreview";
+import {
+  localSignal,
+  simulationSignal,
+} from "@/lib/vdock/playbackSignal";
 
 type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width" | "eq" | "click" | "loudness";
 
@@ -83,6 +96,7 @@ function fmtDb(n: number | undefined): string {
 
 export function DcOffsetCorrectPage() {
   const { showToast } = useSession();
+  const player = usePlayerShell();
   const [op, setOp] = useState<CorrectOp>("dc");
   const [busy, setBusy] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -100,19 +114,10 @@ export function DcOffsetCorrectPage() {
 
   useRegisterAppBar({ title: "Correct", subtitle: OP_SUBTITLE[op] }, [op]);
 
-  useEffect(() => {
-    return () => {
-      if (originalUrl) URL.revokeObjectURL(originalUrl);
-      if (correctedUrl) URL.revokeObjectURL(correctedUrl);
-    };
-  }, [originalUrl, correctedUrl]);
-
-  useEffect(() => {
-    return () => {
-      if (listenAUrl) URL.revokeObjectURL(listenAUrl);
-      if (listenBUrl) URL.revokeObjectURL(listenBUrl);
-    };
-  }, [listenAUrl, listenBUrl]);
+  useAudioPreviewUrlCleanup(originalUrl, "correct-preview:");
+  useAudioPreviewUrlCleanup(correctedUrl, "correct-preview:");
+  useAudioPreviewUrlCleanup(listenAUrl, "correct-preview:");
+  useAudioPreviewUrlCleanup(listenBUrl, "correct-preview:");
 
   const activeUrl = matchLoudness
     ? bypass
@@ -121,6 +126,10 @@ export function DcOffsetCorrectPage() {
     : bypass
       ? originalUrl
       : correctedUrl;
+  const activeTrackId = activeUrl
+    ? `correct-preview:${bypass ? "a" : "b"}:${matchLoudness ? "matched" : "unmatched"}:${activeUrl}`
+    : null;
+  const activeInVdock = player.track?.id === activeTrackId;
 
   const metrics = useMemo(() => {
     if (!preview) return null;
@@ -159,6 +168,7 @@ export function DcOffsetCorrectPage() {
   }
 
   function runOp(channels: Float32Array[], rate: number, chosen: CorrectOp) {
+    stopOwnedPlayback();
     let result: { channels: Float32Array[]; preview: PreviewState };
     if (chosen === "dc") {
       const r = removeDcOffset(channels);
@@ -351,6 +361,7 @@ export function DcOffsetCorrectPage() {
   }
 
   function onToggleMatch() {
+    stopOwnedPlayback();
     const next = !matchLoudness;
     setMatchLoudness(next);
     if (!planar || !correctedPlanar) return;
@@ -361,6 +372,44 @@ export function DcOffsetCorrectPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function stopOwnedPlayback() {
+    stopAudioPreview("correct-preview:");
+  }
+
+  function selectBypass(next: boolean) {
+    stopOwnedPlayback();
+    setBypass(next);
+  }
+
+  function playSelectedInVdock() {
+    if (!activeUrl || !activeTrackId) return;
+    if (activeInVdock) {
+      void toggle();
+      return;
+    }
+    const baseName = fileName.replace(/\.[^.]+$/, "") || "Local audio";
+    const correctedLabel = `${OP_SUBTITLE[op]} correction preview (${preview?.version ?? "version not reported"})`;
+    const matchedLabel = `Loudness-matched ${bypass ? "original reference" : correctedLabel} (${LOUDNESS_MATCH_COMPARE_VERSION}); download remains unmatched`;
+    const titleSuffix = bypass
+      ? matchLoudness
+        ? "Loudness-matched original reference"
+        : "Original"
+      : matchLoudness
+        ? `${OP_SUBTITLE[op]} · loudness-matched`
+        : OP_SUBTITLE[op];
+    const track = {
+      id: activeTrackId,
+      url: activeUrl,
+      title: `${baseName} · ${titleSuffix}`,
+      artist: "Correct",
+      signal:
+        bypass && !matchLoudness
+          ? localSignal()
+          : simulationSignal(matchLoudness ? matchedLabel : correctedLabel),
+    };
+    playTrack(track, [track]);
   }
 
   return (
@@ -476,7 +525,7 @@ export function DcOffsetCorrectPage() {
               type="button"
               data-testid="correct-ab-a"
               aria-pressed={bypass}
-              onClick={() => setBypass(true)}
+              onClick={() => selectBypass(true)}
               className={`btn px-3 py-2 text-sm ${bypass ? "btn-primary" : "btn-ghost"}`}
             >
               A · Original
@@ -485,7 +534,7 @@ export function DcOffsetCorrectPage() {
               type="button"
               data-testid="correct-ab-b"
               aria-pressed={!bypass}
-              onClick={() => setBypass(false)}
+              onClick={() => selectBypass(false)}
               className={`btn px-3 py-2 text-sm ${!bypass ? "btn-primary" : "btn-ghost"}`}
             >
               B · Corrected
@@ -503,7 +552,7 @@ export function DcOffsetCorrectPage() {
               type="button"
               data-testid="correct-bypass"
               aria-pressed={bypass}
-              onClick={() => setBypass((v) => !v)}
+              onClick={() => selectBypass(!bypass)}
               className="btn btn-ghost px-3 py-2 text-sm"
             >
               Toggle A/B
@@ -525,7 +574,19 @@ export function DcOffsetCorrectPage() {
           </div>
 
           {activeUrl && (
-            <audio key={activeUrl} controls src={activeUrl} className="w-full" data-testid="correct-player" />
+            <button
+              type="button"
+              onClick={playSelectedInVdock}
+              className="btn btn-primary px-4 py-2.5 text-sm"
+              data-testid="correct-play-vdock"
+            >
+              {activeInVdock && player.playing ? (
+                <Pause className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {activeInVdock && player.playing ? "Pause VDock" : "Play selected in VDock"}
+            </button>
           )}
           {matchLoudness && matchLabel && (
             <p className="text-[12px] text-white/45" data-testid="correct-match-label">
