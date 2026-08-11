@@ -1,12 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DockPlaybackProgress, MusicDockPlayer } from "@/components/GlobalPlayer";
 import { DockVisualizer } from "@/components/vdock/DockVisualizer";
+import { DockVisualOptions } from "@/components/vdock/DockVisualOptions";
 
 /**
  * Music Dock — edge-to-edge bottom bar (full width + safe-area).
  * Fixed chrome height so track changes never resize the layout.
  */
 export function VDock(_props: { onCompose: () => void }) {
+  const [visualsOpen, setVisualsOpen] = useState(false);
+
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty(
@@ -25,8 +28,20 @@ export function VDock(_props: { onCompose: () => void }) {
       aria-label="Music player"
     >
       <DockVisualizer className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-100" />
+      {/* Clicking the dock's visual surface opens the options panel. It sits under
+          the transport controls (z-10), so it only catches empty dock background. */}
+      <button
+        type="button"
+        onClick={() => setVisualsOpen((v) => !v)}
+        aria-label="Dock visuals"
+        aria-haspopup="dialog"
+        aria-expanded={visualsOpen}
+        data-testid="dock-visual-surface"
+        className="absolute inset-0 z-[2] cursor-pointer bg-transparent"
+      />
       <div className="vdock-shell-veil vdock-forge-veil pointer-events-none absolute inset-0 z-[1]" aria-hidden />
       <DockPlaybackProgress />
+      <DockVisualOptions open={visualsOpen} onClose={() => setVisualsOpen(false)} />
       <div className="relative z-10 flex min-h-[var(--vdock-h,5.25rem)] flex-1 items-center px-3 pb-[env(safe-area-inset-bottom,0px)] sm:px-5">
         <MusicDockPlayer />
       </div>
