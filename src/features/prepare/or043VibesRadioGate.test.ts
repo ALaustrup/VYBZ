@@ -71,6 +71,16 @@ describe("OR-043 Vibes Radio sync", () => {
     expect(menu).toContain("optInToVibesRadio");
   });
 
+  it("interstitial is only a bumper before queued tracks — never empty-queue filler", () => {
+    const edge = read("supabase/functions/vibes-radio/index.ts");
+    expect(edge).toContain("enqueueUserTrackWithInterstitial");
+    expect(edge).toContain("Do not loop \"Hear something new\"");
+    expect(edge).toContain("never pad with interstitial-only rows");
+    // Old filler: enqueue INTERSTITIAL when pool is empty / as sole advance fallback.
+    expect(edge).not.toMatch(/if \(!next\) \{\s*const bed = await enqueue\(\{ \.\.\.INTERSTITIAL/);
+    expect(edge).toContain("hasFollowingTrack");
+  });
+
   it("authorises OR-043 in AGENTS", () => {
     const agents = read("AGENTS.md");
     expect(agents).toContain("OR-043");

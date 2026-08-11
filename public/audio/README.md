@@ -3,7 +3,7 @@
 | File | Title | Measured duration | Role |
 |---|---|---|---|
 | `1.wav` | You're what's next | 9.125 s | Signed-in greeting only |
-| `2.wav` | Hear something new | 7.875 s | Interstitial (guests + members) |
+| `2.wav` | Hear something new | 7.875 s | Bumper only immediately before a queued catalog track (never loops alone) |
 
 Served from this folder / CDN. **Never** embed in the `vibes-radio` edge function.
 
