@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/m10-store-market-browse` (unmerged; base `main` @ `af7ab8ca`)
-**HEAD:** *(pin after commit)*
+**HEAD:** e642e32f
 **Current milestone:** **M10 Store commerce** - wedge 1 Market browse ready for review.
 
 ## Production
