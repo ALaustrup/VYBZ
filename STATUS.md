@@ -24,13 +24,28 @@
 
 ## Deployment state
 
-Suite UX still live on production. Featured mini-player **IMPLEMENTED BUT NOT DELIVERED** (PR #166 unmerged).
+Suite UX still live on production. Web mini-player **IMPLEMENTED BUT NOT DELIVERED** (PR #166 unmerged). Backend **DEPLOYED AND VERIFIED**.
 
-**Edge deploy attempted and blocked (2026-08-11):** `npx supabase` has no `win32-x64` binary; no `supabase` on PATH; no `SUPABASE_ACCESS_TOKEN` in env and no `~/.supabase/access-token`; `gh secret list` for `ALaustrup/VYBZ` is empty and no workflow deploys functions; the `user-supabase` MCP server is bound to project `ixiveenrwhxyscmgbxpv`, **not** VYBZ `xixmneooyufbeftdfpcm`, so it must not be used to deploy. Measured: Helix object is not publicly readable (`GET /storage/v1/object/public/audio-assets/<path>` → HTTP 400), so guest playback cannot bypass the edge function.
+**`audio-play` edge deployed 2026-08-11** to `xixmneooyufbeftdfpcm` (project `vybz`, ACTIVE_HEALTHY): **version 6 → 7**, `verify_jwt: false` preserved, `ezbr_sha256` `a784f9dcd5c275911a0711f558d26032b5f3702bcaea76c2fa19d98a6b2296f3`. Deployed via the Supabase MCP plugin server after re-pointing `~/.cursor/mcp.json` to the VYBZ `project_ref`; local CLI was unusable (`npx supabase` has no `win32-x64` binary, nothing on PATH, no access token, no repo secrets, no deploy workflow).
+
+Measured: the Helix object is not publicly readable (`GET /storage/v1/object/public/audio-assets/<path>` → HTTP 400), so the edge function is genuinely required for guest playback.
 
 ## Production verification
 
-Prior Suite UX unsigned verify stands. Featured Helix on sign-in **Not measured** (not on prod).
+Prior Suite UX unsigned verify stands. Featured Helix on **vybz.cloud** is **Not measured** (PR #166 unmerged), but the production audio backend and the local UI against it were measured on 2026-08-11:
+
+| Check | Result | Evidence |
+|---|---|---|
+| Guest mint, allowlisted path, no `Authorization` | 200 + ticket | `backend=supabase-stream`, ticket URL returned |
+| Guest mint, non-allowlisted path | **403** | `featured path not allowed` |
+| Mint without `guestFeatured` and without auth | **401** | unchanged auth requirement |
+| Ticket stream | 302 → signed URL → 200 | `Content-Type: audio/mpeg`, `Content-Length: 12389004` |
+| Seek / range request | **206 Partial Content** | `Content-Range: bytes 1000000-1000999/12389004` |
+| Payload is real audio | ID3v2 header | first bytes `49 44 33 03` |
+| Pre-login layout (local, 1024×691) | controls clear | `/` and `/enter` screenshots; player docked bottom-left |
+| Brand mark reactivity (local) | pulsing | 7 distinct inline `filter` values in 8 samples over ~720 ms; `brightness(1.033)→(1.386)`, `scale(1.012)→(1.14)` |
+
+**Still Not measured:** the same flows on `vybz.cloud` (needs PR #166 merged), and every signed-in surface (needs a test account).
 
 ## Validation (local `feat/prelogin-featured-helix`)
 
@@ -50,10 +65,12 @@ Dating / swipe — Law 3. No DSP-delivery claims.
 
 OR-044 Drive sync parked. VYBZ Pro / DR-01 Live / DR-03 Opportunities **withdrawn** from active leftover.
 
-**Blocker for Helix audio:** no usable Supabase deploy credential on this machine (see Deployment state). Needs either a `SUPABASE_ACCESS_TOKEN` (`sbp_…`) available to the CLI or the owner running `supabase functions deploy audio-play --no-verify-jwt` against `xixmneooyufbeftdfpcm`.
-
 **Standing blocker for RC:** no signed-in production verification has ever been recorded. No invite key / test account is available to the agent, so every member-only flow is `Not measured` on production.
+
+**Known defect (not introduced here, unfixed):** `audio-play`'s Bunny branch returns `200` with `Accept-Ranges: bytes` but never forwards the incoming `Range` header and never returns `206`, so seeking may fail for legacy `drops/…` zone paths. Helix is unaffected (its `{uid}/drops/…` path takes the signed-URL redirect, measured `206` above).
+
+**Local CLI gap:** edge deploys currently depend on the Supabase MCP server; there is no `supabase` binary, access token, repo secret or CI workflow for functions.
 
 ## Next authorised action
 
-Owner: (1) provide a Supabase access token or run the `audio-play` deploy; (2) review/merge PR #166; (3) then smoke `/` and `/enter` — mini-player bottom-anchored and clear of controls, Helix plays, logo mark + wordmark pulse.
+Owner: (1) review/merge PR #166, then re-run the verification table above against `vybz.cloud`; (2) provide a throwaway test account so the signed-in §15 path can be measured.

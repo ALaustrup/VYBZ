@@ -62,7 +62,7 @@ export function LandingPage() {
 
   return (
     <div
-      className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col pb-[max(6.5rem,env(safe-area-inset-bottom))] text-white"
+      className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col pb-[max(4.5rem,env(safe-area-inset-bottom))] text-white"
       data-public-shell="landing"
       data-testid="public-landing"
       data-landing-drop-zone=""
@@ -119,7 +119,10 @@ export function LandingPage() {
         </div>
       ) : null}
 
-      <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-12">
+      {/* my-auto centres the gate when there is room and collapses instead of
+          overflowing into the featured player's reserved strip on short viewports. */}
+      <main className="relative z-10 flex flex-1 flex-col items-center px-5 py-12">
+        <div className="my-auto flex w-full flex-col items-center">
         <LandingLogo />
 
         <motion.form
@@ -184,6 +187,7 @@ export function LandingPage() {
             </p>
           ) : null}
         </motion.form>
+        </div>
       </main>
 
       <footer className="relative z-10 px-5 pb-2 pt-2 text-center text-[11px] text-white/30">

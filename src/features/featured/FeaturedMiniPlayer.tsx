@@ -134,53 +134,51 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
   return (
     <div
       className={cx(
-        "pointer-events-auto fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-[2] w-[min(22rem,calc(100vw-1.5rem))] -translate-x-1/2",
+        // Corner-docked, not centred: pre-login controls sit in a centred column,
+        // so a centred bar would always cover them on short viewports. z-30 keeps
+        // it above those panels (z-10) rather than hidden behind them.
+        "pointer-events-auto fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 z-30 w-[min(15rem,calc(100vw-1.5rem))] sm:left-4",
         className,
       )}
       data-testid="featured-mini-player"
       data-track={trackMeta.id}
       data-status={status}
     >
-      <div className="flex items-center gap-2.5 rounded-2xl border border-white/12 bg-ink-950/80 px-3 py-2 shadow-[0_12px_40px_-18px_rgba(0,0,0,0.85)] backdrop-blur-md">
+      <div className="flex items-center gap-2.5 rounded-full border border-white/12 bg-ink-950/80 py-1.5 pl-1.5 pr-3.5 shadow-[0_12px_40px_-18px_rgba(0,0,0,0.85)] backdrop-blur-md">
         <button
           type="button"
           onClick={onToggle}
           disabled={status === "loading"}
           aria-label={playing ? `Pause ${trackMeta.title}` : `Play ${trackMeta.title}`}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/14 bg-white/8 text-white transition hover:bg-white/14 disabled:opacity-50"
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/14 bg-white/8 text-white transition hover:bg-white/14 disabled:opacity-50"
         >
           {status === "loading" ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
           ) : playing ? (
-            <Pause className="h-4 w-4" aria-hidden />
+            <Pause className="h-3.5 w-3.5" aria-hidden />
           ) : (
-            <Play className="h-4 w-4 translate-x-[1px]" aria-hidden />
+            <Play className="h-3.5 w-3.5 translate-x-[1px]" aria-hidden />
           )}
         </button>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-white/40">
-            Featured
-            {autoplayBlocked ? " · tap play" : ""}
+          <p className="truncate text-[12px] font-semibold leading-tight text-white/90">
+            {status === "error" ? "Featured unavailable" : trackMeta.title}
           </p>
-          <p className="truncate font-display text-sm font-semibold text-white/92">{trackMeta.title}</p>
-          <p className="truncate text-[12px] text-white/50">{trackMeta.artist}</p>
-          <div className="mt-1.5 h-[3px] overflow-hidden rounded-full bg-white/10" aria-hidden>
+          <p className="truncate text-[10px] leading-tight text-white/45">
+            {status === "error"
+              ? "Playback failed"
+              : autoplayBlocked
+                ? "Tap to play"
+                : `${trackMeta.artist} · ${formatTime(current)}`}
+          </p>
+          <div className="mt-1 h-[2px] overflow-hidden rounded-full bg-white/10" aria-hidden>
             <div
               className="h-full rounded-full bg-[rgb(var(--accent-rgb))] transition-[width] duration-150"
               style={{ width: `${progress * 100}%` }}
             />
           </div>
-          <p className="mt-0.5 text-[10px] tabular-nums text-white/35">
-            {formatTime(current)} / {formatTime(duration)}
-          </p>
         </div>
-
-        {status === "error" ? (
-          <p className="shrink-0 text-[11px] text-rose-300/90" role="status">
-            Unavailable
-          </p>
-        ) : null}
       </div>
     </div>
   );

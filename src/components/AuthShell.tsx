@@ -26,7 +26,7 @@ export function AuthShell({
 
   return (
     <div
-      className="public-scroll-frame public-ops-shell nexus-void relative z-10 flex flex-col items-center px-5 py-10 pb-[max(7.5rem,env(safe-area-inset-bottom))]"
+      className="public-scroll-frame public-ops-shell nexus-void relative z-10 flex flex-col items-center px-5 py-10 pb-[max(5.5rem,env(safe-area-inset-bottom))]"
       data-public-shell="auth"
       data-testid="public-auth-shell"
     >
