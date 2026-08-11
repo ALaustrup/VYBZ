@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-10
 **Branch:** `docs/m10-wave-r-verified-store-auth` (tip-sync; base `main` @ `47773b69`)
-**HEAD:** `f90ad4c7`
+**HEAD:** *(pin after commit)*
 **Current milestone:** **M10** — Wave R **DEPLOYED AND VERIFIED**; **Store commerce wave authorised**.
 
 ## Production
@@ -41,6 +41,7 @@ Delivery state (Masterplan §12): Wave R **DEPLOYED AND VERIFIED**.
 ## Latest verification
 
 Pre-merge Wave R5 local: lint / test (515) / build / no-fixtures — PASS (cited on PR #144).
+`m10SuiteRedesignGate` updated for post-verify Store commerce authority — PASS locally before tip-sync merge.
 
 ## Permanently out of scope (not parked)
 
@@ -54,4 +55,3 @@ M7/M8 deepen, OR deepen, Instrument Creator. M9 cross-platform deepen remains DE
 
 Begin **M10 Store commerce** (publish preview / discover / play / support) on a new
 `feat/m10-store-*` branch with an executable gate — stop for owner review between wedges.
-
