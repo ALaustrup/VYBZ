@@ -215,7 +215,7 @@ export function ReleaseDetailPage() {
           ) : (
             <ul className="flex flex-col gap-2" data-testid="prepare-findings-list">
               {findings.map((f) => (
-                <FindingReportCard key={f.id} finding={f} />
+                <FindingReportCard key={f.id} finding={f} releaseId={project.id} />
               ))}
             </ul>
           )}

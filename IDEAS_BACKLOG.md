@@ -295,8 +295,8 @@ Architecture brief (authorised source of truth):
 |---|---|---|
 | OR-032 | **Library-first working set** — one ingest; tools open the active track from Library / Analyzer pending audio; no re-drop per app | **Shipped** — PR #151 |
 | OR-033 | **Rail label Translation Lab** — product is travel listening (streaming / device / codec), not language translation | **Shipped** with OR-032 |
-| OR-034 | **Correct desk redesign** — denser music-ops Correct workbench; clearer op map vs Analyzer Fix; library-sourced input | **Authorised — active wedge** |
-| OR-035 | **Guided release workflow / What next** — after Analyzer findings, suggested next steps driven by measured codes only | Authorised sequence (next) |
+| OR-034 | **Correct desk redesign** — denser music-ops Correct workbench; clearer op map vs Analyzer Fix; library-sourced input | **Shipped** — PR #154 |
+| OR-035 | **Guided release workflow / What next** — after Analyzer findings, suggested next steps driven by measured codes only | **Authorised — active wedge** |
 
 #### Recommended model for OR-032
 

@@ -31,6 +31,8 @@ import {
 } from "@/features/prepare/analyzerReady";
 import { shipAutoFixForCode, type AutoFixOp } from "@/features/prepare/autoFixMap";
 import { applyAutoFixToBlob } from "@/features/prepare/applyAutoFix";
+import { nextDeskStepsFromFindings } from "@/features/prepare/nextDeskFromFindings";
+import { WhatNextDesks } from "@/features/prepare/WhatNextDesks";
 import { publishPendingToLibrary } from "@/features/prepare/publishPendingToLibrary";
 import { parseArtistTitleFromFilename, type AudioProbe, type ReleaseFinding } from "@vybz/domain/releases";
 import { cx } from "@/lib/utils";
@@ -765,14 +767,24 @@ export function ReleasesPage() {
                 className="flex flex-wrap gap-2 border-t border-white/[0.06] pt-3"
                 data-testid="analyzer-next-steps"
               >
-                <p className="w-full text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
-                  Next on the release
-                </p>
                 {(() => {
-                  const id = (readyRows[0] ?? needsRows[0])?.releaseId;
+                  const focus = needsRows[0] ?? readyRows[0];
+                  const id = focus?.releaseId;
                   if (!id) return null;
+                  const measured = nextDeskStepsFromFindings(
+                    needsRows.flatMap((r) => r.findings ?? []),
+                    { releaseId: id, limit: 5 },
+                  );
                   return (
                     <>
+                      <WhatNextDesks
+                        steps={measured}
+                        title="What next (from findings)"
+                        className="w-full"
+                      />
+                      <p className="w-full text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+                        Next on the release
+                      </p>
                       <Link
                         to={`/release/${id}/credits`}
                         className="rounded-full border border-white/12 bg-black/25 px-3 py-1.5 text-[12px] text-white/75 transition hover:border-white/25 hover:text-white"
