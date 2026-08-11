@@ -29,7 +29,7 @@ export function PrepareLocalApp() {
         <header className="public-ops-header forge-glass relative z-10 mx-3 mt-3 flex shrink-0 flex-wrap items-center gap-2 px-4 py-3 sm:mx-4">
           <span className="forge-glass-edge" aria-hidden />
           <Link to="/" className="relative z-[1] flex items-center gap-2.5">
-            <BrandMark className="h-8 w-8" reactive={false} />
+            <BrandMark className="h-8 w-8" reactive />
             <span className="font-display text-sm font-semibold text-white">VYBZ</span>
           </Link>
           <span className="public-ops-badge relative z-[1] rounded-full px-2.5 py-1 text-[11px] font-semibold">

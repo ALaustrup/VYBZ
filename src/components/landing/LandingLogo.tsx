@@ -1,10 +1,11 @@
 import { motion, useMotionTemplate, useMotionValue, useSpring } from "framer-motion";
 import { useRef } from "react";
 import { BrandMark } from "@/components/Brand";
+import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
 
 /**
  * Hero brand lockup — matte specular ring, slow orbit, pointer tilt + hover bloom.
- * Landing gate: mark + lettermark only (no marketing copy).
+ * Landing gate: mark + lettermark only (no marketing copy). Audio-reactive via AudioBus.
  */
 export function LandingLogo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -61,18 +62,17 @@ export function LandingLogo() {
           transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
         />
         <div className="landing-logo-mark relative grid place-items-center rounded-full border border-white/14 bg-[#05080f]/92 p-7 shadow-[0_0_64px_-10px_rgb(var(--accent-rgb)/0.7)] sm:p-8">
-          <BrandMark className="h-20 w-20 sm:h-[5.5rem] sm:w-[5.5rem]" reactive={false} />
+          <BrandMark className="h-20 w-20 sm:h-[5.5rem] sm:w-[5.5rem]" reactive />
         </div>
       </motion.div>
-      <motion.img
-        src="/brand/wordmark-letters.svg"
-        alt="VYBZ"
-        className="landing-logo-wordmark h-9 w-auto sm:h-10"
+      <motion.div
+        className="landing-logo-wordmark"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        draggable={false}
-      />
+      >
+        <AppBarWordmark reactive className="[&_.app-bar-wordmark-img]:!h-9 sm:[&_.app-bar-wordmark-img]:!h-10" />
+      </motion.div>
     </div>
   );
 }

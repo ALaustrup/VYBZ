@@ -5,9 +5,7 @@ import { KeyRound, Loader2, Upload } from "lucide-react";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { BuildStamp } from "@/components/BuildStamp";
-import { VibesRadioHost } from "@/features/radio/VibesRadioHost";
-import { VibesRadioNowPlaying } from "@/features/radio/VibesRadioNowPlaying";
-import { VibesRadioVisualizer } from "@/features/radio/VibesRadioVisualizer";
+import { FeaturedMiniPlayer } from "@/features/featured/FeaturedMiniPlayer";
 import { normalizeInviteCode } from "@/lib/alphaAccess";
 import { stashPendingInviteKey } from "@/lib/pendingInviteKey";
 import { collectLibraryAudioFiles, dragHasFiles } from "@/lib/libraryDropIngest";
@@ -18,7 +16,7 @@ import { cx } from "@/lib/utils";
 /**
  * Signed-out alpha gate — brand + invite key (Masterplan §13 progressive disclosure).
  * OR-040: page-wide drag stashes audio in memory until sign-in — no pre-login workspace banner.
- * Vibes Radio plays immediately for guests (track 2 interstitials only — never track 1).
+ * Featured mini-player (Helix) sits fixed at the bottom — not over invite controls.
  */
 export function LandingPage() {
   const navigate = useNavigate();
@@ -64,7 +62,7 @@ export function LandingPage() {
 
   return (
     <div
-      className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col text-white"
+      className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col pb-[max(6.5rem,env(safe-area-inset-bottom))] text-white"
       data-public-shell="landing"
       data-testid="public-landing"
       data-landing-drop-zone=""
@@ -106,8 +104,6 @@ export function LandingPage() {
       />
 
       <GeometricBackdrop intensity="hero" />
-      <VibesRadioVisualizer />
-      <VibesRadioHost audience="guest" />
 
       {dragging ? (
         <div
@@ -188,11 +184,9 @@ export function LandingPage() {
             </p>
           ) : null}
         </motion.form>
-
-        <VibesRadioNowPlaying className="mt-6 w-full max-w-sm opacity-90" />
       </main>
 
-      <footer className="relative z-10 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-center text-[11px] text-white/30">
+      <footer className="relative z-10 px-5 pb-2 pt-2 text-center text-[11px] text-white/30">
         <Link to="/legal/privacy" className="hover:text-white/55">
           Privacy
         </Link>
@@ -202,6 +196,7 @@ export function LandingPage() {
         </Link>
         <BuildStamp className="mt-1.5 opacity-70" />
       </footer>
+      <FeaturedMiniPlayer />
     </div>
   );
 }

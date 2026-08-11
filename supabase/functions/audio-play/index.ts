@@ -139,17 +139,34 @@ Deno.serve(async (req: Request) => {
     return Response.redirect(data.signedUrl, 302);
   }
 
-  // ── Mint tickets (auth required) ──────────────────────────────────────────
+  // ── Mint tickets ──────────────────────────────────────────────────────────
+  // Auth required in general. Curated pre-login featured paths may mint without
+  // a session via { guestFeatured: true } + strict path allowlist.
   if (req.method !== "POST") return json({ error: "method" }, 405);
-
-  const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
-  if (!jwt) return json({ error: "unauthorized" }, 401);
-  const { data: userData, error: userErr } = await admin.auth.getUser(jwt);
-  const uid = userData?.user?.id;
-  if (userErr || !uid) return json({ error: "unauthorized" }, 401);
 
   const body = await req.json().catch(() => ({}));
   const paths: string[] = Array.isArray(body.paths) ? body.paths : (body.path ? [body.path] : []);
+  const guestFeatured = body?.guestFeatured === true;
+
+  // Keep in sync with src/features/featured/featuredTracks.ts GUEST_FEATURED_ASSET_PATHS.
+  const GUEST_FEATURED_PATHS = new Set([
+    "9e45224c-f5f0-4af1-960c-8f9b178a4933/drops/1786459395365-7dd06077.mp3",
+  ]);
+
+  let uid = "guest-featured";
+  if (guestFeatured) {
+    if (!paths.length || paths.some((p) => typeof p !== "string" || !GUEST_FEATURED_PATHS.has(p))) {
+      return json({ error: "featured path not allowed" }, 403);
+    }
+  } else {
+    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+    if (!jwt) return json({ error: "unauthorized" }, 401);
+    const { data: userData, error: userErr } = await admin.auth.getUser(jwt);
+    const authed = userData?.user?.id;
+    if (userErr || !authed) return json({ error: "unauthorized" }, 401);
+    uid = authed;
+  }
+
   const base = `${SUPABASE_URL}/functions/v1/audio-play`;
   const urls: Record<string, string> = {};
 

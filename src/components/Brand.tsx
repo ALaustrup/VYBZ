@@ -83,7 +83,7 @@ function useReactiveGlow(
 export function BrandMark({
   className,
   title = "VYBZ",
-  reactive = false,
+  reactive = true,
 }: {
   className?: string;
   title?: string;

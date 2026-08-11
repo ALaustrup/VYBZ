@@ -3,14 +3,13 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { BrandMark } from "@/components/Brand";
-import { VibesRadioHost } from "@/features/radio/VibesRadioHost";
-import { VibesRadioNowPlaying } from "@/features/radio/VibesRadioNowPlaying";
-import { VibesRadioVisualizer } from "@/features/radio/VibesRadioVisualizer";
+import { FeaturedMiniPlayer } from "@/features/featured/FeaturedMiniPlayer";
 import { staggerContainer, staggerItem, withReduce } from "@/lib/motion";
 import { useReduceFx } from "@/lib/display";
 
 /**
- * Premium auth frame — matte glass card on geometric void + Vibes Radio below login.
+ * Premium auth frame — matte glass card on geometric void.
+ * Featured platform mini-player sits fixed at the bottom (not over login controls).
  */
 export function AuthShell({
   title,
@@ -27,13 +26,11 @@ export function AuthShell({
 
   return (
     <div
-      className="public-scroll-frame public-ops-shell nexus-void relative z-10 flex flex-col items-center px-5 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))]"
+      className="public-scroll-frame public-ops-shell nexus-void relative z-10 flex flex-col items-center px-5 py-10 pb-[max(7.5rem,env(safe-area-inset-bottom))]"
       data-public-shell="auth"
       data-testid="public-auth-shell"
     >
       <GeometricBackdrop intensity="subtle" />
-      <VibesRadioVisualizer />
-      <VibesRadioHost audience="guest" />
       <motion.div
         className="forge-glass relative z-[1] my-auto w-full max-w-[22rem] p-7 sm:max-w-sm"
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
@@ -54,7 +51,7 @@ export function AuthShell({
                 style={{ background: "rgb(var(--accent-rgb) / 0.25)" }}
                 aria-hidden
               />
-              <BrandMark className="relative h-14 w-14" reactive={false} />
+              <BrandMark className="relative h-14 w-14" reactive />
             </div>
             <div>
               <p className="nexus-eyebrow mb-1.5">VYBZ</p>
@@ -65,8 +62,6 @@ export function AuthShell({
           <motion.div variants={staggerItem}>{children}</motion.div>
         </motion.div>
       </motion.div>
-      {/* Ambient radio below the auth card — login fields stay the primary surface. */}
-      <VibesRadioNowPlaying className="relative z-[1] mt-4 w-full max-w-[22rem] opacity-85 sm:max-w-sm" />
       {footer ?? (
         <p className="relative z-[1] mt-6 text-center text-[11px] text-white/38">
           <Link to="/" className="hover:text-white/65">Home</Link>
@@ -76,6 +71,7 @@ export function AuthShell({
           <Link to="/legal/terms" className="hover:text-white/65">Terms</Link>
         </p>
       )}
+      <FeaturedMiniPlayer />
     </div>
   );
 }
