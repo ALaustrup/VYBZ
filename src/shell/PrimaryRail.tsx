@@ -6,9 +6,33 @@ import { PRODUCT_ACCENT_RGB } from "@/design/tokens";
 import { HOME_ITEM, accountItems, navGroups, type NavGroup, type NavItem } from "@/shell/navModel";
 import { durationFast, durationNormal } from "@/lib/motion";
 import { cx } from "@/lib/utils";
+import { useInboxThreads } from "@/hooks/useInboxThreads";
 import { useSession } from "@/store/session";
 
-function RailLink({ item, end }: { item: NavItem; end?: boolean }) {
+/** Live counters the rail can badge. Zero renders nothing — never a "0" pip. */
+function useNavBadgeCounts(): Record<NonNullable<NavItem["badge"]>, number> {
+  const { unread } = useSession();
+  const { threads } = useInboxThreads(50);
+  return {
+    notifications: unread,
+    messages: threads.reduce((n, t) => n + (t.unread ? 1 : 0), 0),
+  };
+}
+
+function RailBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      className="ml-auto min-w-[1.15rem] shrink-0 rounded-full bg-[rgb(var(--app-accent-rgb))] px-1.5 py-px text-center text-[10px] font-bold tabular-nums text-black"
+      data-testid="rail-badge"
+      aria-label={`${count} unread`}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
+function RailLink({ item, end, badgeCount = 0 }: { item: NavItem; end?: boolean; badgeCount?: number }) {
   const accent = PRODUCT_ACCENT_RGB[item.productId];
   const reduce = useReducedMotion();
   const Icon = item.icon;
@@ -39,13 +63,22 @@ function RailLink({ item, end }: { item: NavItem; end?: boolean }) {
           />
           <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
           <span className="truncate">{item.label}</span>
+          <RailBadge count={badgeCount} />
         </>
       )}
     </NavLink>
   );
 }
 
-function RailGroup({ group, defaultOpen }: { group: NavGroup; defaultOpen?: boolean }) {
+function RailGroup({
+  group,
+  defaultOpen,
+  badges,
+}: {
+  group: NavGroup;
+  defaultOpen?: boolean;
+  badges?: Record<string, number>;
+}) {
   const [open, setOpen] = useState(!!defaultOpen);
   const reduce = useReducedMotion();
 
@@ -83,7 +116,11 @@ function RailGroup({ group, defaultOpen }: { group: NavGroup; defaultOpen?: bool
           >
             <div className="flex flex-col gap-0.5 pb-2 pt-0.5">
               {group.items.map((item) => (
-                <RailLink key={item.path} item={item} />
+                <RailLink
+                  key={item.path}
+                  item={item}
+                  badgeCount={item.badge ? (badges?.[item.badge] ?? 0) : 0}
+                />
               ))}
             </div>
           </motion.div>
@@ -100,6 +137,7 @@ export function PrimaryRail() {
   const { profile } = useSession();
   const account = accountItems(profile?.platformRole ?? "member", !!profile?.isAdmin);
   const groups = navGroups();
+  const badges = useNavBadgeCounts();
 
   return (
     <aside
@@ -111,13 +149,14 @@ export function PrimaryRail() {
         <div className="suite-rail-ops-head">
           <p className="suite-rail-ops-eyebrow">VYBZ</p>
           <p className="suite-rail-ops-title">Music ops</p>
+          {/* "Music ops" is the ops chrome marker asserted by m10SuiteRedesignGate. */}
           <div className="mt-2 px-0.5">
             <RailLink item={HOME_ITEM} end />
           </div>
         </div>
         <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-2">
           {groups.map((g, i) => (
-            <RailGroup key={g.id} group={g} defaultOpen={i < 2} />
+            <RailGroup key={g.id} group={g} defaultOpen={i < 2} badges={badges} />
           ))}
           {account.length > 0 ? (
             <RailGroup

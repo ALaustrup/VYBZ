@@ -120,9 +120,10 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     }
   });
 
-  it("never links Studio, Live, Market, AI minutes, Cost Sentinel, or Rooms after Artist OS archive", () => {
+  it("never links Studio, Live, Market, AI minutes or Cost Sentinel", () => {
     // Artist OS — freeze-not-delete: routes stay linkable by URL, navModel must not advertise them.
     // Suite UX: Store (/store) is the authorised V¢ + cosmetics surface (not Settings money).
+    // Social-first (2026-08-11): Rooms left this list — chat is a core surface now.
     const linked = [
       ...navItems().map((i) => i.path),
       ...accountItems("admin", true).map((i) => i.path.split("#")[0]),
@@ -132,13 +133,25 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/market");
     expect(linked).not.toContain("/settings/credits");
     expect(linked).not.toContain("/settings/costs");
-    expect(linked).not.toContain("/rooms");
     expect(linked).toContain("/store");
   });
 
-  it("labels Releases as Finalize in the rail", () => {
-    const releases = navItems().find((i) => i.path === "/releases");
-    expect(releases?.label).toBe("Finalize");
+  it("carries the social surfaces in the rail, and no production tool", () => {
+    // Social-first: the rail is the platform menu. Tools reach users through the
+    // Tools launcher instead, so a tool route appearing here is a regression.
+    const linked = navItems().map((i) => i.path);
+    for (const social of ["/feed", "/discover", "/rooms", "/messages", "/notifications"]) {
+      expect(linked, `rail must offer ${social}`).toContain(social);
+    }
+    for (const tool of ["/releases", "/tools/correct", "/tools/translate", "/tools/packs"]) {
+      expect(linked, `${tool} belongs in the Tools launcher`).not.toContain(tool);
+    }
+  });
+
+  it("badges only counters the rail can actually measure", () => {
+    const badged = navItems().filter((i) => i.badge);
+    expect(badged.map((i) => i.path).sort()).toEqual(["/messages", "/notifications"]);
+    for (const i of badged) expect(["messages", "notifications"]).toContain(i.badge);
   });
 
   it("offers Packages via Store (V¢ packs), not Settings money surfaces", () => {
