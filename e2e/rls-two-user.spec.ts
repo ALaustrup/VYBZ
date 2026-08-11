@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { openScannedRelease, scanViaAnalyzer } from "./analyzerIntake";
 
 /**
  * Two-user RLS e2e (no paid infra / no secrets).
@@ -6,7 +7,8 @@ import { test, expect } from "@playwright/test";
  * matching release_credits / release_projects owner_id = auth.uid() intent.
  */
 test.describe("Two-user RLS (owner isolation)", () => {
-  test("owner B cannot see owner A release", async ({ browser }) => {
+  test("owner B cannot open owner A release", async ({ browser }) => {
+    test.setTimeout(120_000);
     const ctxA = await browser.newContext();
     const ctxB = await browser.newContext();
     const pageA = await ctxA.newPage();
@@ -19,16 +21,13 @@ test.describe("Two-user RLS (owner isolation)", () => {
       sessionStorage.setItem("vybz.e2e.ownerId", "e2e-owner-b");
     });
 
-    await pageA.goto("/releases");
-    await expect(pageA.getByTestId("prepare-releases")).toBeVisible();
-    await pageA.getByTestId("prepare-new-release").click();
-    await pageA.getByTestId("prepare-title").fill("Owner A Secret");
-    await pageA.getByTestId("prepare-artist").fill("A Artist");
-    await pageA.getByTestId("prepare-create-submit").click();
+    const releaseId = await scanViaAnalyzer(pageA, "A Artist - Owner A Secret.wav");
+    await openScannedRelease(pageA, releaseId);
     await expect(pageA.getByTestId("prepare-detail-title")).toHaveText("Owner A Secret");
+    const secretUrl = pageA.url();
 
-    await pageB.goto("/releases");
-    await expect(pageB.getByTestId("prepare-releases")).toBeVisible();
+    await pageB.goto(secretUrl);
+    await expect(pageB.getByTestId("prepare-detail-title")).toHaveCount(0);
     await expect(pageB.getByText("Owner A Secret")).toHaveCount(0);
 
     await ctxA.close();

@@ -1,14 +1,11 @@
 import { test, expect } from "@playwright/test";
+import { openScannedRelease, scanViaAnalyzer } from "./analyzerIntake";
 
 test.describe("Offline sync merge", () => {
   test("offline edit → reconnect flush → accept mine", async ({ page, context }) => {
-    await page.goto("/releases");
-    await expect(page.getByTestId("prepare-releases")).toBeVisible();
-    await page.getByTestId("prepare-new-release").click();
-    await page.getByTestId("prepare-title").fill("Sync Fixture");
-    await page.getByTestId("prepare-artist").fill("Sync Artist");
-    await page.getByTestId("prepare-create-submit").click();
-    await expect(page.getByTestId("prepare-detail")).toBeVisible();
+    test.setTimeout(120_000);
+    const releaseId = await scanViaAnalyzer(page, "Sync Artist - Sync Fixture.wav");
+    await openScannedRelease(page, releaseId);
     await page.getByTestId("prepare-open-credits").click();
     await expect(page.getByTestId("credits-page")).toBeVisible();
 

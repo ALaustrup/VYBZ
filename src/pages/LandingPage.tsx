@@ -17,7 +17,7 @@ import { cx } from "@/lib/utils";
 
 /**
  * Signed-out alpha gate — brand + invite key (Masterplan §13 progressive disclosure).
- * OR-040: drag-drop stashes audio in memory until sign-in — never uploads unsigned-in.
+ * OR-040: page-wide drag stashes audio in memory until sign-in — no pre-login workspace banner.
  * Vibes Radio plays immediately for guests (track 2 interstitials only — never track 1).
  */
 export function LandingPage() {
@@ -57,8 +57,8 @@ export function LandingPage() {
     const n = peekLandingDropFiles().length;
     setDropHint(
       n === 1
-        ? "1 track ready — enter with your invite key to open the song workspace (session only until sign-in)."
-        : `${n} tracks ready — enter to add to Library and focus the first in song workspace (session only until sign-in).`,
+        ? "1 track ready — enter to open it after sign-in (session only · no upload until you sign in)."
+        : `${n} tracks ready — enter to open them after sign-in (session only · no upload until you sign in).`,
     );
   }, []);
 
@@ -67,6 +67,8 @@ export function LandingPage() {
       className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col text-white"
       data-public-shell="landing"
       data-testid="public-landing"
+      data-landing-drop-zone=""
+      data-no-library-drop
       onDragEnter={(e) => {
         if (!dragHasFiles(e.dataTransfer)) return;
         e.preventDefault();
@@ -87,6 +89,22 @@ export function LandingPage() {
         acceptFiles(e.dataTransfer.files);
       }}
     >
+      {/* OR-040: keep testid for gate; no visible workspace banner pre-login. */}
+      <div data-testid="landing-drop-zone" className="sr-only" aria-hidden />
+      <input
+        type="file"
+        accept="audio/*,.wav,.aiff,.flac,.mp3,.ogg,.m4a,.opus"
+        multiple
+        className="sr-only"
+        tabIndex={-1}
+        data-testid="landing-drop-input"
+        aria-hidden
+        onChange={(e) => {
+          acceptFiles(e.target.files);
+          e.target.value = "";
+        }}
+      />
+
       <GeometricBackdrop intensity="hero" />
       <VibesRadioVisualizer />
       <VibesRadioHost audience="guest" />
@@ -99,7 +117,7 @@ export function LandingPage() {
         >
           <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-white/30 bg-ink-900/90 px-8 py-6">
             <Upload className="h-7 w-7 text-white/70" />
-            <p className="font-display text-base text-white">Drop to stash for song workspace</p>
+            <p className="font-display text-base text-white">Drop to stash for after you enter</p>
             <p className="text-[12px] text-white/45">No upload until you sign in</p>
           </div>
         </div>
@@ -107,42 +125,6 @@ export function LandingPage() {
 
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-12">
         <LandingLogo />
-
-        <VibesRadioNowPlaying className="mt-6 w-full max-w-sm" />
-
-        <div
-          className="forge-glass relative mt-6 w-full max-w-sm !rounded-2xl p-4 text-center"
-          data-testid="landing-drop-zone"
-          data-no-library-drop
-        >
-          <span className="forge-glass-edge pointer-events-none" aria-hidden />
-          <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
-            Song workspace
-          </p>
-          <p className="relative z-[1] mt-1 text-[13px] text-white/55">
-            Drop a track here, then enter — we stash it in this session only (no cloud upload while signed out).
-          </p>
-          <label className="relative z-[1] mt-3 inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-[12px] text-white/70 hover:border-white/30">
-            <Upload className="h-3.5 w-3.5" />
-            Choose audio
-            <input
-              type="file"
-              accept="audio/*,.wav,.aiff,.flac,.mp3,.ogg,.m4a,.opus"
-              multiple
-              className="sr-only"
-              data-testid="landing-drop-input"
-              onChange={(e) => {
-                acceptFiles(e.target.files);
-                e.target.value = "";
-              }}
-            />
-          </label>
-          {dropHint ? (
-            <p className="relative z-[1] mt-2 text-[12px] text-[rgb(var(--app-accent-rgb))]" data-testid="landing-drop-hint">
-              {dropHint}
-            </p>
-          ) : null}
-        </div>
 
         <motion.form
           onSubmit={onEnter}
@@ -180,11 +162,7 @@ export function LandingPage() {
             className={cx("relative z-[1] landing-neon-cta", !reduce && "landing-neon-cta--pulse")}
             data-testid="landing-invite-enter"
           >
-            {busy ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Enter"
-            )}
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : "Enter"}
           </button>
 
           {err ? (
@@ -200,7 +178,18 @@ export function LandingPage() {
           >
             Already in? Sign in
           </Link>
+
+          {dropHint ? (
+            <p
+              className="relative z-[1] text-center text-[12px] text-[rgb(var(--app-accent-rgb))]"
+              data-testid="landing-drop-hint"
+            >
+              {dropHint}
+            </p>
+          ) : null}
         </motion.form>
+
+        <VibesRadioNowPlaying className="mt-6 w-full max-w-sm opacity-90" />
       </main>
 
       <footer className="relative z-10 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 text-center text-[11px] text-white/30">

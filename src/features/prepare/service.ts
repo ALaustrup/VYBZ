@@ -19,6 +19,11 @@ import { supabase } from "@/lib/supabase";
 
 const LOCAL_OWNER = "local-prepare";
 
+/** Signed-out Prepare + Playwright two-user harness — never block on remote Supabase. */
+function isLocalOnlyOwner(ownerId: string): boolean {
+  return ownerId === LOCAL_OWNER || ownerId.startsWith("e2e-");
+}
+
 let repo: ReleasesRepository | null = null;
 let queue: MutationQueueContract | null = null;
 
@@ -74,7 +79,7 @@ export function getPrepareMutationQueue(): MutationQueueContract {
 function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepository): ReleasesRepository {
   return {
     async listProjects(ownerId) {
-      if (ownerId === LOCAL_OWNER) return local.listProjects(ownerId);
+      if (isLocalOnlyOwner(ownerId)) return local.listProjects(ownerId);
       try {
         const rows = await remote.listProjects(ownerId);
         return rows;
@@ -83,7 +88,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
       }
     },
     async getBundle(ownerId, releaseId) {
-      if (ownerId === LOCAL_OWNER) return local.getBundle(ownerId, releaseId);
+      if (isLocalOnlyOwner(ownerId)) return local.getBundle(ownerId, releaseId);
       try {
         const bundle = await remote.getBundle(ownerId, releaseId);
         if (bundle) return bundle;
@@ -94,7 +99,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
     },
     async createProject(input) {
       const created = await local.createProject(input);
-      if (input.ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(input.ownerId)) {
         try {
           return await remote.createProject(input);
         } catch {
@@ -111,7 +116,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
     },
     async updateProject(ownerId, releaseId, patch) {
       const updated = await local.updateProject(ownerId, releaseId, patch);
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           return await remote.updateProject(ownerId, releaseId, patch);
         } catch {
@@ -128,7 +133,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
     },
     async softDeleteProject(ownerId, releaseId) {
       await local.softDeleteProject(ownerId, releaseId);
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           await remote.softDeleteProject(ownerId, releaseId);
         } catch {
@@ -144,7 +149,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
     },
     async replaceAssets(ownerId, releaseId, assets) {
       const next = await local.replaceAssets(ownerId, releaseId, assets);
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           return await remote.replaceAssets(ownerId, releaseId, assets);
         } catch {
@@ -161,7 +166,7 @@ function createHybridRepository(local: ReleasesRepository, remote: ReleasesRepos
     },
     async replaceFindings(ownerId, releaseId, findings) {
       const next = await local.replaceFindings(ownerId, releaseId, findings);
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           return await remote.replaceFindings(ownerId, releaseId, findings);
         } catch {

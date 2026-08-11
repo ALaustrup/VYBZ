@@ -10,7 +10,7 @@ import { staggerContainer, staggerItem, withReduce } from "@/lib/motion";
 import { useReduceFx } from "@/lib/display";
 
 /**
- * Premium auth frame — matte glass card on geometric void + Vibes Radio.
+ * Premium auth frame — matte glass card on geometric void + Vibes Radio below login.
  */
 export function AuthShell({
   title,
@@ -62,12 +62,11 @@ export function AuthShell({
               {subtitle ? <p className="mt-1.5 text-sm text-white/50">{subtitle}</p> : null}
             </div>
           </motion.div>
-          <motion.div variants={staggerItem}>
-            <VibesRadioNowPlaying className="mb-4" />
-            {children}
-          </motion.div>
+          <motion.div variants={staggerItem}>{children}</motion.div>
         </motion.div>
       </motion.div>
+      {/* Ambient radio below the auth card — login fields stay the primary surface. */}
+      <VibesRadioNowPlaying className="relative z-[1] mt-4 w-full max-w-[22rem] opacity-85 sm:max-w-sm" />
       {footer ?? (
         <p className="relative z-[1] mt-6 text-center text-[11px] text-white/38">
           <Link to="/" className="hover:text-white/65">Home</Link>

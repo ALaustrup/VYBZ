@@ -1,10 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Suite smoke", () => {
-  test("unsigned readiness scan entry is reachable", async ({ page }) => {
+  test("Analyzer intake desk is reachable via legacy /releases/new", async ({ page }) => {
     await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
     await page.goto("/releases/new");
-    await expect(page.getByTestId("prepare-new")).toBeVisible();
+    await expect(page).toHaveURL(/\/releases$/);
+    await expect(page.getByTestId("prepare-releases")).toBeVisible();
+    await expect(page.getByTestId("analyzer-dropzone")).toBeVisible();
   });
 });
 
@@ -16,15 +18,15 @@ test.describe("a11y smoke", () => {
     await expect(main.first()).toBeVisible();
   });
 
-  test("Prepare releases expose main landmark and focusable CTA", async ({ page }) => {
+  test("Prepare releases expose main landmark and focusable dropzone", async ({ page }) => {
     await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
     await page.goto("/releases");
     await expect(page.getByTestId("prepare-releases")).toBeVisible();
     const main = page.locator("main");
     await expect(main.first()).toBeVisible();
-    const cta = page.getByTestId("prepare-new-release");
-    await cta.focus();
-    await expect(cta).toBeFocused();
+    const dropzone = page.getByTestId("analyzer-dropzone");
+    await dropzone.focus();
+    await expect(dropzone).toBeFocused();
   });
 
   test("Cost Sentinel path is reachable or falls back safely", async ({ page }) => {

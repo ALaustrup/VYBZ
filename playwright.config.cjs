@@ -25,6 +25,7 @@ module.exports = defineConfig({
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? PREVIEW_ORIGIN,
     trace: "on-first-retry",
+    serviceWorkers: "block",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER

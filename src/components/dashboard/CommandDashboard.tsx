@@ -112,7 +112,7 @@ export function CommandDashboard({
       </header>
 
       {isNewAccount ? (
-        <NewAccountStart onScan={() => navigate("/releases/new")} />
+        <NewAccountStart onScan={() => navigate("/releases")} />
       ) : (
         <>
           <StatStrip stats={stats} onNavigate={navigate} />

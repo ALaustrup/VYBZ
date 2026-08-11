@@ -157,7 +157,7 @@ export function buildActionItems({
       title: "None of your tracks have been prepared for release",
       detail: "A readiness scan checks loudness, peaks, artwork and metadata before you publish.",
       actionLabel: "Scan a track",
-      href: "/releases/new",
+      href: "/releases",
     });
   }
 

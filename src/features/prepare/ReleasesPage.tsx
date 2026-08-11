@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/Button";
 import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
 import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { useSession } from "@/store/session";
-import { usePlatform } from "@/platform/bridge/PlatformProvider";
 import {
   createReleaseWithScan,
   flushPrepareQueue,
@@ -102,8 +101,8 @@ function formatDur(sec?: number): string {
 export function ReleasesPage() {
   const { userId, showToast } = useSession();
   const ownerId = getPrepareOwnerId(userId);
-  const bridge = usePlatform();
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<DeskRow[]>([]);
   const [bootError, setBootError] = useState<string | null>(null);
   const [booting, setBooting] = useState(true);
@@ -400,21 +399,15 @@ export function ReleasesPage() {
     [rows.length, scanOne, showToast, workers],
   );
 
-  async function onPick() {
-    try {
-      const picked = await bridge.files.selectAudio();
-      const asFiles = picked.flatMap((p) => {
-        if (!p.blob) return [];
-        return [new File([p.blob], p.name, { type: p.mimeType || "audio/wav" })];
-      });
-      if (asFiles.length === 0) {
-        showToast("No audio files selected");
-        return;
-      }
-      await enqueueFiles(asFiles);
-    } catch {
-      /* cancelled */
-    }
+  function onPick() {
+    fileInputRef.current?.click();
+  }
+
+  function onFileInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    e.target.value = "";
+    if (files.length === 0) return;
+    void enqueueFiles(files);
   }
 
   function onDrop(e: React.DragEvent) {
@@ -558,16 +551,27 @@ export function ReleasesPage() {
         />
       </div>
 
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*,.wav,.flac,.aiff,.aif,.mp3,.m4a,.ogg"
+        multiple
+        className="sr-only"
+        data-testid="analyzer-file-input"
+        aria-label="Choose audio files to scan"
+        onChange={onFileInputChange}
+      />
+
       <div
         role="button"
         tabIndex={0}
         data-testid="analyzer-dropzone"
         data-no-library-drop
-        onClick={() => void onPick()}
+        onClick={() => onPick()}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            void onPick();
+            onPick();
           }
         }}
         onDragOver={onDragOver}
@@ -600,7 +604,10 @@ export function ReleasesPage() {
                     "forge-card flex flex-col gap-2 transition",
                     previewId === row.localId && "ring-1 ring-cyan-400/40",
                   )}
-                  data-testid={`analyzer-row-${row.localId}`}
+                  data-testid="analyzer-triage-row"
+                  data-phase={row.phase}
+                  data-row-id={row.localId}
+                  data-release-id={row.releaseId ?? ""}
                   onMouseEnter={() => {
                     if (!finePointer || row.phase !== "done") return;
                     playRow(row, latchedBefore ? "original" : "fixed");

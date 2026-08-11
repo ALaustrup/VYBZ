@@ -71,8 +71,9 @@ test.describe("Media library — search, filter, sort", () => {
   test("grouping splits results under headings without losing tracks", async ({ page }) => {
     await page.goto(FIXTURE);
     await page.getByTestId("library-group").selectOption("album");
-    await expect(page.getByRole("heading", { name: "Night Drive" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Singles" })).toBeVisible();
+    await expect(page.getByTestId("library-group")).toHaveValue("album");
+    await expect(page.getByRole("heading", { name: /Night Drive/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Singles/i })).toBeVisible();
     await expect(page.getByTestId("library-count")).toHaveText("4 tracks");
   });
 
