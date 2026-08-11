@@ -59,7 +59,7 @@ describe("M9 VDock gate", () => {
   it("routes Translation, Correct, MasterReady, and Analyzer A/B through disclosed AudioBus tracks", () => {
     for (const relativePath of [
       "src/features/translation/TranslationLabPage.tsx",
-      "src/features/correction/DcOffsetCorrectPage.tsx",
+      "src/features/correction/CorrectPage.tsx",
     ]) {
       const page = readFileSync(path.join(ROOT, relativePath), "utf8");
       expect(page).toContain("playTrack");

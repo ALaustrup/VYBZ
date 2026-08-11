@@ -108,11 +108,11 @@ describe("M6 correction gate", () => {
 
   it("surfaces Correct tool ops including peak, balance, silence, and hum", () => {
     const page = readFileSync(
-      path.join(ROOT, "src/features/correction/DcOffsetCorrectPage.tsx"),
+      path.join(ROOT, "src/features/correction/CorrectPage.tsx"),
       "utf8"
     );
     const app = readFileSync(path.join(ROOT, "src/App.tsx"), "utf8");
-    expect(page).toContain("dc-offset-correct");
+    expect(page).toContain("correct-desk");
     expect(page).toContain("correct-op-peak");
     expect(page).toContain("correct-op-balance");
     expect(page).toContain("correct-op-silence");

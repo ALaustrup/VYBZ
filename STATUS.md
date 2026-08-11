@@ -3,39 +3,35 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `feat/or-032-song-workspace-wedge1`
-**HEAD:** (merge commit with `origin/main` — resolve in progress)
-**Current milestone:** **Creative OS / OR-032** — merging onto tip; next **OR-034 Correct desk**.
+**Branch:** `feat/or-034-correct-desk`
+**HEAD:** (pending commit)
+**Current milestone:** **Creative OS / OR-034** — Correct desk IA / URL sync / AutoFix map.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | Includes OR-043 merge `72b0833e` tip on main | Vercel auto-deploy after #152/#153; prod UI SHA **Not measured** this turn |
+| Production SHA | Tip includes OR-032 merge `441f7f27` on `main` | PR #151 merged 2026-08-11T12:39:34Z — prod UI SHA **Not measured** this turn |
 | Supabase | `xixmneooyufbeftdfpcm` | OR-043 migration + `vibes-radio` edge deployed |
 
 ## Last completed operations
 
-29. **M10 Wave R** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**.
-30. **M10 Store commerce authorised** — PR #145 / #146.
-31. **M10 Store wedge 1** — Market browse — PR #147.
-32. **Creative OS authorised** — owner confirmed IA 2026-08-11.
-33. **Creative OS brief** — PR #149; tip-sync PR #150.
-34. **OR-043 Vibes Radio** — PR #152 @ `866eddcb`; bumper-only fix PR #153 @ `72b0833e`; migration + edge on `xixmneooyufbeftdfpcm`.
-35. **OR-032 wedge 1** — working set + desk preload + drop ownership + suite chrome + Translation Lab rail — [PR #151](https://github.com/ALaustrup/VYBZ/pull/151) (merging main).
+34. **OR-043 Vibes Radio** — PR #152 / #153 @ `72b0833e`; bumper-only interstitial; edge redeployed.
+35. **OR-032 working set** — PR #151 @ `441f7f27` (merged after main conflict resolve).
+36. **OR-034 Correct desk (local)** — `CorrectPage` rename, `?op=` URL sync, AutoFix→CorrectOp map, desk copy + workspace source line; gate `or034CorrectDeskGate`.
 
 ## Deployment state
 
-OR-043 backend **DEPLOYED**; client on `main` @ `72b0833e`. OR-032 **IMPLEMENTED BUT NOT DELIVERED** until #151 merges.
+OR-032 **MERGED TO MAIN** @ `441f7f27`. OR-034 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-034-correct-desk`.
 
 ## Production verification
 
-OR-043 / OR-032 on https://vybz.cloud — **Not measured** this turn.
+OR-032 / OR-034 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Pending post-merge conflict resolve + gate re-run.
+Pending gate/lint/build on this unit.
 
 ## Permanently out of scope (not parked)
 
@@ -43,8 +39,8 @@ Dating / swipe — Law 3. No DSP-delivery claims.
 
 ## Blockers / parked
 
-Follow-ons OR-034–OR-042 authorised as sequence. M7/M8 deepen parked.
+Follow-ons OR-035–OR-042 authorised as sequence. M7/M8 deepen parked.
 
 ## Next authorised action
 
-Merge [PR #151](https://github.com/ALaustrup/VYBZ/pull/151), then implement **OR-034 Correct desk**.
+Open OR-034 PR; owner smoke (workspace opens Correct without re-drop; chip writes `?op=`; AutoFix deep link maps). Then OR-035 What-next.

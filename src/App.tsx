@@ -76,7 +76,7 @@ import { MetadataEditorPage } from "@/features/tools/MetadataEditorPage";
 import { ArtCheckPage } from "@/features/tools/ArtCheckPage";
 import { MidiMakerPage } from "@/features/tools/MidiMakerPage";
 import { MediaConverterPage } from "@/features/tools/MediaConverterPage";
-import { DcOffsetCorrectPage } from "@/features/correction/DcOffsetCorrectPage";
+import { CorrectPage } from "@/features/correction/CorrectPage";
 import { TranslationLabPage } from "@/features/translation/TranslationLabPage";
 import { PackMakerPage } from "@/features/packs/PackMakerPage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
@@ -217,7 +217,7 @@ export function App() {
         <Route path="/tools/art-check" element={<ArtCheckPage />} />
         <Route path="/tools/midi" element={<MidiMakerPage />} />
         <Route path="/tools/convert" element={<MediaConverterPage />} />
-        <Route path="/tools/correct" element={<DcOffsetCorrectPage />} />
+        <Route path="/tools/correct" element={<CorrectPage />} />
         <Route path="/tools/translate" element={<TranslationLabPage />} />
         <Route path="/tools/pack-maker" element={<PackMakerPage />} />
         <Route path="/tools/stems" element={<StemMakerPage />} />
