@@ -27,12 +27,13 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 ## Current authorised milestone
 
 **M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R** visual
-redesign locally validated on `feat/m10-suite-visual-redesign` (R0–R5; **IMPLEMENTED BUT
-NOT DELIVERED** — unmerged). Store Preview / publish commerce is a **later M10 wave** —
-do not begin it until Wave R is merged and owner-validated on production. **M9** remains
-closed (**DEPLOYED BUT UNVERIFIED**). **M7** / **M8** / OR deepen stay **parked**. Law 5:
-VDock contracts frozen (skin only). Law 1: no invented metrics. Law 3: no dating.
-Instrument Creator parked. OR-021–OR-022 and OR-024–OR-025 remain parked.
+redesign **DEPLOYED AND VERIFIED** via [PR #144](https://github.com/ALaustrup/VYBZ/pull/144)
+@ `47773b69` (owner smoke **2026-08-10**). **Store commerce wave now authorised** —
+Store Preview / publish / discover / support per Masterplan §10 M10 (Law 1: no invented
+metrics; no DSP-delivery claims). **M9** remains closed (**DEPLOYED BUT UNVERIFIED** for
+cross-platform deepen). **M7** / **M8** / OR deepen stay **parked**. Law 5: VDock contracts
+frozen (skin only). Law 3: no dating. Instrument Creator parked. OR-021–OR-022 and
+OR-024–OR-025 remain parked.
 
 **Suite visual polish (pre-M10)** shipped via [PR #140](https://github.com/ALaustrup/VYBZ/pull/140)
 @ `46934283` — absorbed into M10 redesign as baseline, not a parallel track.
@@ -44,27 +45,26 @@ Law 1 still governs every detector and claim.
 
 ### Authorised track
 
-1. **M10 Wave R (visual redesign)** — cohesive premium music-ops UI; per-app accent
-   identity. Branch `feat/m10-suite-visual-redesign`. Gate:
-   `m10SuiteRedesignGate.test.ts` (Wave R0–R5). R0–R4 surfaces landed; R5 correctness gate
-   (lint / test / build / no-fixtures) measured locally. Delivery state: **IMPLEMENTED
-   BUT NOT DELIVERED**. Next: owner push/PR/merge + production smoke, then Store commerce
-   wave. Store commerce deferred until Wave R is owner-validated on prod.
+1. **M10 Store commerce** — native publish preview, discover, play, and support flows
+   (Masterplan §10 M10 exit). Prefer small reviewable PRs on `feat/m10-store-*` branches.
+   Executable Store gates must be added as commerce wedges land. Law 1 / no DSP-delivery
+   claims. Wave R redesign is baseline chrome only.
 
 ### Closed / parked tracks (post-smoke)
 
 0. **Suite visual polish (shipped)** — PR #140 @ `46934283`; baseline for M10 redesign.
-1. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
+1. **M10 Wave R (closed)** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**. Gate:
+   `m10SuiteRedesignGate.test.ts` (R0–R5). No continuous redesign polish track.
+2. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
    playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
    behind stable interfaces (Law 5). Extend via versioned contracts only.
-2. **M8 (parked)** — assemble + rule-cited findings shipped; deepen parked.
-3. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
+3. **M8 (parked)** — assemble + rule-cited findings shipped; deepen parked.
+4. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
    parked.
-4. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
+5. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
    or smoke-verified; no continuous polish track. Re-auth required for new OR scope.
 
-Bugfixes and shared-shell changes remain allowed. Do not begin M10 Store commerce until
-Wave R is owner-validated.
+Bugfixes and shared-shell changes remain allowed.
 
 ### Shipped authorisations (no continuous deepen)
 
@@ -103,9 +103,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 authorised** — Wave R redesign **IMPLEMENTED BUT NOT DELIVERED** on
-`feat/m10-suite-visual-redesign` (R0–R5 local validate). Store commerce deferred until
-Wave R owner-validated on production.
+UNVERIFIED). **M10 authorised** — Wave R **DEPLOYED AND VERIFIED** @ `47773b69`;
+**Store commerce wave authorised** as the active M10 track.
 
 ## Safety rules
 
