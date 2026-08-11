@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-042-analyzer-reliability`
-**HEAD:** (see tip after push)
+**HEAD:** `d5043ea6`
 **Current milestone:** **Creative OS / OR-042** — Analyzer reliability (name + drop ownership).
 
 ## Production
