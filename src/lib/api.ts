@@ -1710,6 +1710,55 @@ async function usernamesFor(ids: string[]): Promise<Map<string, string>> {
   return m;
 }
 
+/**
+ * The name a creator is known by in social surfaces — chat, rooms, presence.
+ *
+ * VYBZ shows the artist / producer name rather than a handle. Precedence:
+ *   1. `artist_profiles.display_name` for a linked artist entity
+ *   2. `profiles.display_name` — the creator name every profile can carry
+ *   3. `username` — handle of last resort
+ *
+ * An artist entity is optional and gated behind tagged drops, so tier 2 is what
+ * most users resolve to today; tier 1 takes over automatically once they claim one.
+ */
+export async function creatorNamesFor(ids: string[]): Promise<Map<string, string>> {
+  const uniq = Array.from(new Set(ids.filter(Boolean)));
+  const m = new Map<string, string>();
+  if (!uniq.length) return m;
+
+  const [profiles, members] = await Promise.all([
+    db().from("public_profiles").select("id,username,display_name").in("id", uniq),
+    // Artist link is optional; never let a restricted read break chat rendering.
+    db()
+      .from("artist_members")
+      .select("user_id, artist_profiles(display_name, created_at)")
+      .in("user_id", uniq)
+      .then(
+        (r) => r as { data: unknown[] | null },
+        () => ({ data: null }) as { data: unknown[] | null },
+      ),
+  ]);
+
+  (profiles.data ?? []).forEach((r: any) => {
+    const name = (r.display_name as string | null)?.trim() || (r.username as string | null)?.trim();
+    if (name) m.set(r.id, name);
+  });
+
+  // Deterministic when a user belongs to several artists: earliest claimed wins.
+  const byUser = new Map<string, { name: string; createdAt: number }>();
+  (members.data ?? []).forEach((r: any) => {
+    const artist = Array.isArray(r.artist_profiles) ? r.artist_profiles[0] : r.artist_profiles;
+    const name = (artist?.display_name as string | null)?.trim();
+    if (!name) return;
+    const createdAt = artist?.created_at ? Date.parse(artist.created_at) : Number.MAX_SAFE_INTEGER;
+    const existing = byUser.get(r.user_id);
+    if (!existing || createdAt < existing.createdAt) byUser.set(r.user_id, { name, createdAt });
+  });
+  byUser.forEach((v, userId) => m.set(userId, v.name));
+
+  return m;
+}
+
 // ── Assets + upload ──────────────────────────────────────────────────────────
 /** Secure-zone (token-authed Bunny) paths look like `drops/…` or `projects/…`. */
 const isSecurePath = (p: string) => /^(drops|projects|repo-blobs)\//.test(p);
@@ -3360,7 +3409,7 @@ export async function listRoomMessages(roomId: string, limit = 100): Promise<imp
     .select("id,room_id,sender_id,body,created_at,reactions").eq("room_id", roomId)
     .order("created_at", { ascending: true }).limit(limit);
   if (!data) return [];
-  const names = await usernamesFor(data.map((m: any) => m.sender_id));
+  const names = await creatorNamesFor(data.map((m: any) => m.sender_id));
   return data.map((m: any) => ({
     id: m.id, roomId: m.room_id, senderId: m.sender_id, senderName: names.get(m.sender_id) ?? null,
     body: m.body, createdAt: new Date(m.created_at).getTime(), mine: m.sender_id === uid,

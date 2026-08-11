@@ -199,8 +199,13 @@ export function RoomPage() {
       setRoom(r); setMsgs(m); setLoading(false);
     });
     const ch = api.subscribeInserts("room_messages", `room_id=eq.${id}`, () => void load());
+    // Presence announces the artist / producer name, matching the message list.
     const presence = userId
-      ? api.joinRoomPresence(id, { id: userId, username: profile?.username ?? null }, (u) => setOnline(u))
+      ? api.joinRoomPresence(
+          id,
+          { id: userId, username: profile?.displayName?.trim() || profile?.username || null },
+          (u) => setOnline(u),
+        )
       : null;
     presenceChRef.current = presence;
     return () => {
