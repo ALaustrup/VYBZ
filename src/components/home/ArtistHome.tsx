@@ -279,10 +279,88 @@ function RecentTrackRow({
   );
 }
 
+/** Sum of a measured field across the catalogue — never an estimate (Law 1). */
+function sumOf(drops: Drop[], pick: (d: Drop) => number | undefined): number {
+  return drops.reduce((n, d) => n + (pick(d) ?? 0), 0);
+}
+
+/** Social counters for the profile dashboard. Every figure is measured from drops. */
+function SocialStats({ drops }: { drops: Drop[] }) {
+  const items = [
+    { label: "Tracks", value: drops.length },
+    { label: "Plays", value: sumOf(drops, (d) => d.plays) },
+    { label: "Vybs", value: sumOf(drops, (d) => d.feels) },
+  ];
+  return (
+    <div className="flex flex-wrap gap-2" data-testid="social-stats">
+      {items.map((s) => (
+        <div
+          key={s.label}
+          className="forge-card flex min-w-[6.5rem] flex-1 flex-col !p-3"
+        >
+          <span className="font-display text-xl font-semibold tabular-nums text-white">
+            {s.value.toLocaleString()}
+          </span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
+            {s.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /**
- * M10 Wave R2 — signed-in Home as music-ops command center.
- * Library-first stage + measured release status + action centre + track quick actions.
- * Figures come only from dashboardModel / listReleases / drops (Law 1).
+ * The profile song. A creator's page opens with the track they want you to hear —
+ * the one moment of the old profile-page web worth keeping.
+ */
+function ProfileSong({ drop }: { drop: Drop }) {
+  const player = usePlayer();
+  const isThis = player.track?.id === drop.id;
+  const playing = isThis && player.playing;
+  const playable = isPlayableMediaUrl(drop.audioUrl);
+
+  return (
+    <section
+      className="forge-glass forge-plasma relative overflow-hidden !rounded-2xl p-4 sm:p-5"
+      data-testid="profile-song"
+    >
+      <span className="forge-glass-edge pointer-events-none" aria-hidden />
+      <div className="relative z-[1] flex items-center gap-4">
+        <button
+          type="button"
+          disabled={!playable}
+          onClick={() => (isThis ? void toggle() : playTrack(toPlayerTrack(drop)))}
+          aria-label={playing ? `Pause ${drop.title ?? "track"}` : `Play ${drop.title ?? "track"}`}
+          className="grid h-14 w-14 shrink-0 place-items-center rounded-full border border-[rgb(var(--app-accent-rgb)/0.45)] bg-[rgb(var(--app-accent-rgb)/0.14)] text-white transition hover:bg-[rgb(var(--app-accent-rgb)/0.22)] disabled:opacity-40"
+        >
+          {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 translate-x-[2px]" />}
+        </button>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[rgb(var(--app-accent-rgb)/0.7)]">
+            Profile song
+          </p>
+          <p className="truncate font-display text-lg font-semibold text-white">
+            {drop.title?.trim() || "Untitled"}
+          </p>
+          <p className="truncate text-[12px] text-white/45">
+            {drop.creditedArtist || drop.authorUsername || "You"}
+            {drop.plays ? ` · ${drop.plays.toLocaleString()} plays` : ""}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Signed-in Home — the creator's own page.
+ *
+ * VYBZ is a social platform for music, audio and sound, so this reads as a profile
+ * first: who you are, the track you want heard, your catalogue. The production
+ * tooling is still here and still measured, but it sits below the fold in Studio
+ * rather than framing the page. Every figure comes from dashboardModel /
+ * listReleases / drops (Law 1).
  */
 export function ArtistHome() {
   const navigate = useNavigate();
@@ -344,6 +422,10 @@ export function ArtistHome() {
     () => [...drops].sort((a, b) => b.createdAt - a.createdAt).slice(0, 6),
     [drops],
   );
+  const profileSong = useMemo(
+    () => drops.find((d) => d.id === profile?.featuredDropId) ?? null,
+    [drops, profile?.featuredDropId],
+  );
 
   if (!profile) return null;
 
@@ -361,7 +443,7 @@ export function ArtistHome() {
           </CosmeticAvatarShell>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--app-accent-rgb)/0.65)]">
-              Music ops
+              Your page
             </p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
@@ -380,16 +462,22 @@ export function ArtistHome() {
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-white/40">
               <Link
-                to="/releases"
+                to="/library"
                 className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(var(--app-accent-rgb)/0.35)] bg-[rgb(var(--app-accent-rgb)/0.1)] px-2.5 py-1 text-white/80 transition hover:border-[rgb(var(--app-accent-rgb)/0.55)] hover:text-white"
               >
-                <ScanLine className="h-3 w-3" /> Prepare a release
+                <Music2 className="h-3 w-3" /> Your library
               </Link>
               <Link
-                to="/library"
+                to="/profile/edit"
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-white/70 transition hover:border-white/25 hover:text-white"
               >
-                Open library
+                <Sparkles className="h-3 w-3" /> Customise page
+              </Link>
+              <Link
+                to="/discover"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-white/70 transition hover:border-white/25 hover:text-white"
+              >
+                Discover
               </Link>
             </div>
           </div>
@@ -402,14 +490,8 @@ export function ArtistHome() {
         </div>
       ) : (
         <>
-          <OpsStatStrip stats={stats} onNavigate={navigate} />
-          {whatNext.length > 0 ? (
-            <section className="forge-glass relative !rounded-2xl p-4 sm:p-5" data-testid="ops-home-what-next">
-              <span className="forge-glass-edge pointer-events-none" aria-hidden />
-              <WhatNextDesks steps={whatNext} title="What next" className="relative z-[1]" />
-            </section>
-          ) : null}
-          <OpsActionCentre items={actions} onNavigate={navigate} />
+          <SocialStats drops={drops} />
+          {profileSong ? <ProfileSong drop={profileSong} /> : null}
 
           {recentTracks.length > 0 ? (
             <section data-testid="ops-home-recent">
@@ -438,7 +520,7 @@ export function ArtistHome() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
                   Library
                 </p>
-                <h2 className="font-display text-lg font-semibold text-white">Your releases</h2>
+                <h2 className="font-display text-lg font-semibold text-white">Your music</h2>
               </div>
               <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
                 Open library
@@ -467,6 +549,32 @@ export function ArtistHome() {
                 ))}
               </div>
             )}
+          </section>
+
+          {/* Studio — the production tooling is optional, so it sits below the
+              creator's page rather than framing it. Nothing was removed. */}
+          <section className="relative z-[1] space-y-3 pt-2" data-testid="ops-home-studio">
+            <div className="flex items-end justify-between gap-3 px-0.5">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                  Optional
+                </p>
+                <h2 className="font-display text-base font-semibold text-white/70">Studio</h2>
+              </div>
+              <Link to="/releases" className="text-[12px] text-white/40 transition hover:text-white/75">
+                <span className="inline-flex items-center gap-1.5">
+                  <ScanLine className="h-3 w-3" /> Prepare a release
+                </span>
+              </Link>
+            </div>
+            <OpsStatStrip stats={stats} onNavigate={navigate} />
+            {whatNext.length > 0 ? (
+              <section className="forge-glass relative !rounded-2xl p-4 sm:p-5" data-testid="ops-home-what-next">
+                <span className="forge-glass-edge pointer-events-none" aria-hidden />
+                <WhatNextDesks steps={whatNext} title="What next" className="relative z-[1]" />
+              </section>
+            ) : null}
+            <OpsActionCentre items={actions} onNavigate={navigate} />
           </section>
         </>
       )}
