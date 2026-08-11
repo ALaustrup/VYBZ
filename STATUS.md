@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-040-landing-drop-workspace`
-**HEAD:** (pending commit)
+**HEAD:** 435bde29
 **Current milestone:** **Creative OS / OR-040** — Landing drop → song workspace.
 
 ## Production
@@ -31,7 +31,7 @@ OR-039 / OR-040 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Local: pending lint/test/build this turn.
+Local: lint PASS; full suite 586 PASS; build PASS; gate or040LandingDropGate PASS.
 
 ## Permanently out of scope (not parked)
 
