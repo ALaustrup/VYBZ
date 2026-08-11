@@ -24,6 +24,9 @@ import type { ReleaseProject } from "@vybz/domain/releases";
 
 type Tab = "tracks" | "projects" | "stages";
 
+/** Tracks stream in a page at a time so the first screen is fast and nothing is capped. */
+const PAGE_SIZE = 100;
+
 /**
  * Media Library — tracks, project posts, stage backdrops, plus Analyzer scan strip.
  * Counts come from measured drops / posts / listReleases only (Law 1).
@@ -36,20 +39,39 @@ export function LibraryPage() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [scans, setScans] = useState<ReleaseProject[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [trackTotal, setTrackTotal] = useState(0);
 
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     const ownerId = getPrepareOwnerId(userId);
-    const [d, p, releases] = await Promise.all([
-      api.dropsBy(userId, 80),
-      api.myProjectPosts(80),
+    const [firstPage, total, p, releases] = await Promise.all([
+      api.dropsBy(userId, PAGE_SIZE),
+      api.countDropsBy(userId),
+      api.myProjectPosts(200),
       listReleases(ownerId).catch(() => [] as ReleaseProject[]),
     ]);
-    setDrops(d);
+    setDrops(firstPage);
+    setTrackTotal(total);
     setPosts(p);
     setScans(releases.slice(0, 6));
     setLoading(false);
+
+    // The first page renders immediately; the rest streams in so a large library
+    // is never silently truncated to one page.
+    if (total > firstPage.length) {
+      setLoadingMore(true);
+      for (let offset = firstPage.length; offset < total; offset += PAGE_SIZE) {
+        const page = await api.dropsBy(userId, PAGE_SIZE, offset);
+        if (!page.length) break;
+        setDrops((prev) => {
+          const seen = new Set(prev.map((d) => d.id));
+          return [...prev, ...page.filter((d) => !seen.has(d.id))];
+        });
+      }
+      setLoadingMore(false);
+    }
   }, [userId]);
 
   useEffect(() => { void load(); }, [load]);
@@ -119,7 +141,8 @@ export function LibraryPage() {
 
       <div className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid="library-tabs" role="tablist" aria-label="Library sections">
         <ForgeChip active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
-          Tracks ({drops.length})
+          {/* While paging, show progress rather than a total that is still growing. */}
+          Tracks ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
         </ForgeChip>
         <ForgeChip active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
           Projects ({posts.length})

@@ -36,6 +36,7 @@ export function UserProfilePage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
   const [busy, setBusy] = useState<"follow" | "msg" | null>(null);
+  const [requested, setRequested] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
@@ -91,9 +92,15 @@ export function UserProfilePage() {
   async function follow() {
     if (busy) return;
     setBusy("follow");
-    await api.connect(id);
+    const ok = await api.connect(id);
     setBusy(null);
-    showToast(`Following ${addr || profile.username || "artist"}`);
+    if (!ok) {
+      showToast("Couldn't send the request");
+      return;
+    }
+    setRequested(true);
+    // A connection is mutual and must be accepted — saying "Following" would be a lie.
+    showToast(`Request sent to ${addr || profile.username || "artist"}`);
   }
 
   async function message() {
@@ -181,12 +188,13 @@ export function UserProfilePage() {
         <div className="mb-4 flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={!!busy}
+            disabled={!!busy || requested}
             onClick={() => void follow()}
+            data-testid="profile-connect"
             className="btn btn-primary flex h-10 flex-1 items-center justify-center gap-1.5 py-0 text-xs disabled:opacity-40"
           >
             {busy === "follow" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
-            Follow
+            {requested ? "Request sent" : "Connect"}
           </button>
           <button
             type="button"

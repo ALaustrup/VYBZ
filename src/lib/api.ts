@@ -1710,6 +1710,55 @@ async function usernamesFor(ids: string[]): Promise<Map<string, string>> {
   return m;
 }
 
+/**
+ * The name a creator is known by in social surfaces — chat, rooms, presence.
+ *
+ * VYBZ shows the artist / producer name rather than a handle. Precedence:
+ *   1. `artist_profiles.display_name` for a linked artist entity
+ *   2. `profiles.display_name` — the creator name every profile can carry
+ *   3. `username` — handle of last resort
+ *
+ * An artist entity is optional and gated behind tagged drops, so tier 2 is what
+ * most users resolve to today; tier 1 takes over automatically once they claim one.
+ */
+export async function creatorNamesFor(ids: string[]): Promise<Map<string, string>> {
+  const uniq = Array.from(new Set(ids.filter(Boolean)));
+  const m = new Map<string, string>();
+  if (!uniq.length) return m;
+
+  const [profiles, members] = await Promise.all([
+    db().from("public_profiles").select("id,username,display_name").in("id", uniq),
+    // Artist link is optional; never let a restricted read break chat rendering.
+    db()
+      .from("artist_members")
+      .select("user_id, artist_profiles(display_name, created_at)")
+      .in("user_id", uniq)
+      .then(
+        (r) => r as { data: unknown[] | null },
+        () => ({ data: null }) as { data: unknown[] | null },
+      ),
+  ]);
+
+  (profiles.data ?? []).forEach((r: any) => {
+    const name = (r.display_name as string | null)?.trim() || (r.username as string | null)?.trim();
+    if (name) m.set(r.id, name);
+  });
+
+  // Deterministic when a user belongs to several artists: earliest claimed wins.
+  const byUser = new Map<string, { name: string; createdAt: number }>();
+  (members.data ?? []).forEach((r: any) => {
+    const artist = Array.isArray(r.artist_profiles) ? r.artist_profiles[0] : r.artist_profiles;
+    const name = (artist?.display_name as string | null)?.trim();
+    if (!name) return;
+    const createdAt = artist?.created_at ? Date.parse(artist.created_at) : Number.MAX_SAFE_INTEGER;
+    const existing = byUser.get(r.user_id);
+    if (!existing || createdAt < existing.createdAt) byUser.set(r.user_id, { name, createdAt });
+  });
+  byUser.forEach((v, userId) => m.set(userId, v.name));
+
+  return m;
+}
+
 // ── Assets + upload ──────────────────────────────────────────────────────────
 /** Secure-zone (token-authed Bunny) paths look like `drops/…` or `projects/…`. */
 const isSecurePath = (p: string) => /^(drops|projects|repo-blobs)\//.test(p);
@@ -2077,11 +2126,20 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
 }
-export async function dropsBy(authorId: string, limit = 40) {
+/** Exact number of drops an author owns — lets the library state a true total. */
+export async function countDropsBy(authorId: string): Promise<number> {
+  const { count, error } = await db().from("drops")
+    .select("id", { count: "exact", head: true })
+    .eq("author_id", authorId);
+  return error ? 0 : (count ?? 0);
+}
+
+export async function dropsBy(authorId: string, limit = 40, offset = 0) {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
     .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
-    .eq("author_id", authorId).order("created_at", { ascending: false }).limit(limit);
+    .eq("author_id", authorId).order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
   // Owner sees all; others rely on RLS / client filter for private
   const rows = (data ?? []).filter((r: any) => {
     if (myId && r.author_id === myId) return true;
@@ -2416,10 +2474,17 @@ export async function assetProvenance(assetId: string): Promise<AssetProvenance 
 }
 
 // ── Connections + DMs ────────────────────────────────────────────────────────
-export async function connect(peerId: string) {
+/**
+ * Send a connection request. This is a *request* the peer must accept — it is not
+ * a unidirectional follow, so callers must not report it as one.
+ */
+export async function connect(peerId: string): Promise<boolean> {
   const uid = await currentUserId();
-  if (!uid || uid === peerId) return;
-  await db().from("connections").upsert({ requester_id: uid, addressee_id: peerId, status: "pending" });
+  if (!uid || uid === peerId) return false;
+  const { error } = await db()
+    .from("connections")
+    .upsert({ requester_id: uid, addressee_id: peerId, status: "pending" });
+  return !error;
 }
 
 /** Accept or decline an incoming connection request (addressee only). */
@@ -2514,7 +2579,8 @@ export async function sendMessage(
     kind: opts?.kind ?? "text",
     media_url: opts?.mediaUrl ?? null,
   });
-  await db().from("dm_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
+  // last_at is maintained by the dm_messages_touch_thread trigger. dm_threads is
+  // RLS SELECT-only, so a client update here silently matched zero rows.
   const event = opts?.kind === "video" ? "video_message" : "dm_send";
   void awardSocialVc(event, "dm", threadId).catch(() => undefined);
 }
@@ -3360,7 +3426,7 @@ export async function listRoomMessages(roomId: string, limit = 100): Promise<imp
     .select("id,room_id,sender_id,body,created_at,reactions").eq("room_id", roomId)
     .order("created_at", { ascending: true }).limit(limit);
   if (!data) return [];
-  const names = await usernamesFor(data.map((m: any) => m.sender_id));
+  const names = await creatorNamesFor(data.map((m: any) => m.sender_id));
   return data.map((m: any) => ({
     id: m.id, roomId: m.room_id, senderId: m.sender_id, senderName: names.get(m.sender_id) ?? null,
     body: m.body, createdAt: new Date(m.created_at).getTime(), mine: m.sender_id === uid,
