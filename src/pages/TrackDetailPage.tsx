@@ -22,6 +22,13 @@ import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
 import type { Drop } from "@/types";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
+import { setWorkingTrackDawFolder } from "@/features/workspace/workingSet";
+import {
+  dawHintLabel,
+  directoryPickerAvailable,
+  pickDawProjectFolder,
+} from "@/features/workspace/dawFolderLink";
 
 type Tab = "overview" | "comments" | "provenance";
 
@@ -295,6 +302,30 @@ export function TrackDetailPage() {
 
 function Overview({ drop }: { drop: Drop }) {
   const rows = trackFileSummary(drop);
+  const track = useWorkingTrack();
+  const { showToast } = useSession();
+  const focusedHere = track?.dropId === drop.id;
+
+  async function linkDawHere() {
+    if (!focusedHere) {
+      showToast("Focus this track in the song workspace banner first (drop it or open from Analyzer)");
+      return;
+    }
+    if (!directoryPickerAvailable()) {
+      showToast("Folder link needs Chrome/Edge directory access — Not available here");
+      return;
+    }
+    try {
+      const link = await pickDawProjectFolder();
+      if (!link) return;
+      setWorkingTrackDawFolder({ ...link, dropId: drop.id });
+      showToast(`Linked “${link.folderName}” locally this session — not synced to cloud`);
+    } catch (e) {
+      if ((e as Error).name === "AbortError") return;
+      showToast((e as Error).message || "Could not read that folder");
+    }
+  }
+
   return (
     <div className="space-y-3" data-testid="track-overview">
       <section className="forge-card">
@@ -313,6 +344,29 @@ function Overview({ drop }: { drop: Drop }) {
           Values stored with the upload. Fields VYBZ has not measured are omitted rather than
           estimated.
         </p>
+      </section>
+
+      <section className="forge-card" data-testid="track-daw-folder">
+        <p className="nexus-eyebrow mb-2">DAW project folder</p>
+        <p className="text-[12px] text-white/45">
+          Optional local link for this session only. VYBZ does not sync Ableton Live or merge{" "}
+          <code className="text-white/55">.als</code> XML. Durable cloud project-folder storage is
+          Not available on this track record yet.
+        </p>
+        {focusedHere && track?.dawFolder ? (
+          <p className="mt-2 text-[12px] text-white/70" data-testid="track-daw-folder-linked">
+            Linked: {track.dawFolder.folderName} · {dawHintLabel(track.dawFolder.dawHint)} ·{" "}
+            {track.dawFolder.fileCount} files — local session
+          </p>
+        ) : null}
+        <button
+          type="button"
+          data-testid="track-daw-folder-link"
+          className="btn btn-ghost mt-3 px-3 py-1.5 text-[12px]"
+          onClick={() => void linkDawHere()}
+        >
+          {focusedHere ? "Link DAW folder (optional)" : "Focus track in workspace to link folder"}
+        </button>
       </section>
 
       <section className="forge-card">
