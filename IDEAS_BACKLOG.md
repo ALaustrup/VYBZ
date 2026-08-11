@@ -6,7 +6,7 @@
 > **A backlog entry is not authorisation to implement it.** Work begins only when
 > [`AGENTS.md`](./AGENTS.md) names the milestone as authorised.
 
-Last reviewed 2026-08-08.
+Last reviewed 2026-08-11.
 
 ---
 
@@ -284,3 +284,33 @@ After the audio-only Analyzer intake desk (Tier A auto-fix + Library add):
 - **OR-024** — Native VST3/AU **readiness meter** for real-time mix assist; share measurement
   defs with `@vybz/processing`. Not OR-018 Instrument Creator. Desktop/native milestone. **Parked.**
 
+### 8.4 Owner brainstorm — media working set + suite app clarity (2026-08-11)
+
+Owner explored suite apps in depth after M10 Wave R + Store Market wedge 1. **Not authorised
+to build** until AGENTS names a milestone. Parked as decision-required / OR entries.
+
+| ID | Idea | Status |
+|---|---|---|
+| OR-032 | **Library-first working set** — one ingest; tools open the active track from Library / Analyzer pending audio; no re-drop per app | Decision required |
+| OR-033 | **Rename / reposition Translate** — rail label is not language translation; product is “how the master travels” (streaming / device / codec previews) | Decision required |
+| OR-034 | **Correct desk redesign** — denser music-ops Correct workbench; clearer op map vs Analyzer Fix; optional library-sourced input | Decision required |
+| OR-035 | **Guided release workflow** — after Analyzer findings, suggested next steps (Correct op, Translation listen, Metadata, Art Check, Market) driven by measured codes only | Decision required |
+
+#### Recommended model for OR-032 (brainstorm only)
+
+1. **Canonical media** lives in Library (`drops`) + optional Analyzer session blob (`pendingUpload`).
+2. **Active working set** — one (or few) selected track(s) in suite context: `workingTrackId` + object URL / storage path; apps read context instead of requiring a new drop.
+3. **App intake order:** prefer working set → Library picker → dropzone fallback.
+4. **Automation (OR-035):** Analyzer finding codes already map to Correct `?op=` and Translation links; extend to a measured “next desk” strip without inventing readiness scores.
+5. **Cost honesty:** browser Object URLs are free/session; durable cloud masters touch VYBZ Pro hosting (§0) — never claim unlimited free hosting.
+
+#### Translate naming options (OR-033) — pick one later
+
+- **Travel** / **Listen as** / **Preview travel** / **Translation Lab** (keep full name on rail)
+- Avoid: anything implying language, lyric, or DSP delivery
+
+#### Correct redesign notes (OR-034)
+
+- Filename `DcOffsetCorrectPage` understates nine ops; UI should read as a correction desk.
+- Keep Law 5 VDock A/B; keep credit-free local ops; deepen is parked unless re-authorised.
+- Primary win after OR-032: open Correct with the active Library / Analyzer track preloaded.
