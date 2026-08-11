@@ -3,9 +3,65 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `feat/prelogin-featured-helix`
-**HEAD:** `99954035` (pushed; PR [#166](https://github.com/ALaustrup/VYBZ/pull/166) open against `main`)
-**Current milestone:** **Suite UX** follow-on — pre-login featured Helix mini-player (awaiting review + edge deploy).
+**Branch:** `main`
+**HEAD:** see tip after the 2026-08-11 merge train
+**Current milestone:** **Social-first platform** — authorised by the owner 2026-08-11,
+superseding Suite UX. VYBZ is a social network for music, sound and audio creators; the
+production tools are additive and live behind the Tools launcher. Complete redesign of any
+tool is authorised; **nothing may be removed**, only redesigned or frozen in the tree.
+
+## Social-first sequence (authorised direction, not yet built)
+
+| # | Slice | State |
+|---|---|---|
+| 0 | **Private-by-default playback** — prerequisite for per-track privacy | **Blocked on owner authorisation** |
+| 1 | Tools behind one launcher; rail frozen in tree | **This branch** |
+| 2 | Signed-in home = creator profile (already `/` → `ProfilePage`) restructured around identity | Not started |
+| 3 | Customisable profile showcasing the library, Public/Private per track | Blocked by slice 0 |
+| 4 | Library publishes to the creator's feed, honouring per-track visibility | Blocked by slice 0 |
+| 5 | Feed as a first-class surface (currently `/feed`, absent from primary nav) | Not started |
+| 6 | Follow model — today the profile action creates a mutual pending `connections` row, not a follow | Not started |
+| 7 | Chat rooms — global + user-created rooms and groups, artist names shown | Audit in progress |
+| 8 | Messaging surfaced properly (DMs work end to end; inbox ordering fixed in PR #170) | Not started |
+
+Slice 0 must land before 3 or 4. Shipping a Private toggle over the current policies would
+tell creators their unreleased work is protected when it is not.
+
+### Model already present (do not rebuild)
+
+`can_view_drop(author_id, audience, drop_id)` already implements public / followers /
+private-with-invite, and `drops` SELECT uses it. Per-track visibility is an enforcement and
+UI problem, not a new data model.
+
+## Merge train — 2026-08-11
+
+Owner authorised merging every open PR. Merged to `main`:
+
+| PR | What |
+|---|---|
+| #166 | Pre-login featured Helix player; `audio-play` v7 deployed and verified |
+| #167 | Library pages the whole catalogue instead of capping at 80 |
+| #168 | Connect no longer claims a pending request is a follow |
+| #169 | Tools behind the launcher; social-first milestone recorded |
+| #170 | DM `last_at` trigger — **migration merged but NOT applied** |
+| #171 | Chat shows the artist / producer name |
+| #172 | Home is the creator's page; ops tooling moved to Studio |
+
+## Known issue — private drops are not private
+
+Measured 2026-08-11 against `xixmneooyufbeftdfpcm`:
+
+- `drops` SELECT is correctly gated by `can_view_drop(author_id, audience, id)`.
+- `assets` SELECT is `(kind = ANY (...'track'...)) OR owner_id = auth.uid()` — the asset row,
+ including its storage `url`, is readable by **anyone**, with no reference to drop audience.
+- Storage `audio-assets read` is `(bucket_id = 'audio-assets')` for `authenticated` — **no**
+ owner-folder restriction, so any signed-in user can sign any object.
+
+Net: if a creator marks a drop `private` or `followers`, the drop row hides but the audio
+stays reachable. **Currently unexploited** — a service-role query returned zero non-public
+drops — but it must be closed before private or unreleased work is promoted. Fix needs a
+migration (owner authorisation required); the stale comment at `src/lib/api.ts` claiming
+`folder = auth.uid()` RLS should be corrected at the same time.
 
 ## Production
 

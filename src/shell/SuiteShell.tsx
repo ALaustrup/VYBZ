@@ -6,7 +6,6 @@ import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
 import { PrimaryRail } from "@/shell/PrimaryRail";
-import { SuiteAppRail, SuiteAppRailMobile } from "@/shell/SuiteAppRail";
 import { SuiteStage, useActiveSuiteAppId } from "@/shell/SuiteStage";
 import { shellModeClass } from "@/shell/shellMode";
 
@@ -46,13 +45,12 @@ export function SuiteShell({
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
         )}
-        {/* Narrow viewports: horizontal suite apps. Desktop: SuiteAppRail (right). */}
-        <SuiteAppRailMobile />
+        {/* Tools moved behind the app-bar launcher so the shell leads with the
+            social surfaces. SuiteAppRail stays in the tree, imported by nothing. */}
         {showCommandBar ? <CommandBar /> : null}
         <SongWorkspaceBanner />
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <SuiteStage>{stage}</SuiteStage>
-          <SuiteAppRail />
         </div>
       </div>
       <div className="app-dock" role="complementary" aria-label="V-Dock">
