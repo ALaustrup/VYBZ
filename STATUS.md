@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-042-analyzer-reliability`
-**HEAD:** (pending commit)
+**HEAD:** 949283e4
 **Current milestone:** **Creative OS / OR-042** — Analyzer reliability (name + drop ownership).
 
 ## Production
@@ -31,7 +31,7 @@ OR-041 / OR-042 on https://vybz.cloud — **Not measured** this turn. Analyzer s
 
 ## Latest verification
 
-Local: pending lint/test/build this turn.
+Local: lint PASS; full suite 594 PASS; build PASS; gate or042AnalyzerReliabilityGate PASS.
 
 ## Permanently out of scope (not parked)
 
