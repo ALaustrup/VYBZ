@@ -1335,6 +1335,21 @@ export async function getPublishedStorefrontPack(slug: string): Promise<Storefro
   return mapStorefrontPackPublic(data as Record<string, unknown>);
 }
 
+/**
+ * Published pack catalog for Market browse.
+ * Reads `storefront_packs_public` only — never zip_path; empty list is a measured zero.
+ */
+export async function listPublishedStorefrontPacks(limit = 48): Promise<StorefrontPackPublic[]> {
+  const capped = Math.max(1, Math.min(100, Math.floor(limit)));
+  const { data, error } = await db()
+    .from("storefront_packs_public")
+    .select("id, user_id, title, slug, description, features, genre, price_cents, currency, preview_path, cover_path, created_at, updated_at")
+    .order("updated_at", { ascending: false })
+    .limit(capped);
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => mapStorefrontPackPublic(r as Record<string, unknown>));
+}
+
 export async function createStorefrontPack(input: {
   title: string;
   slug?: string;

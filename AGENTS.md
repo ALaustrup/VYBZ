@@ -47,8 +47,9 @@ Law 1 still governs every detector and claim.
 
 1. **M10 Store commerce** — native publish preview, discover, play, and support flows
    (Masterplan §10 M10 exit). Prefer small reviewable PRs on `feat/m10-store-*` branches.
-   Executable Store gates must be added as commerce wedges land. Law 1 / no DSP-delivery
-   claims. Wave R redesign is baseline chrome only.
+   Executable Store gates must be added as commerce wedges land (`m10StoreCommerceGate`).
+   Law 1 / no DSP-delivery claims. Wave R redesign is baseline chrome only.
+   **Wedge 1 in progress:** Market browse (`/market`) over published packs.
 
 ### Closed / parked tracks (post-smoke)
 
@@ -97,7 +98,8 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5),
 `src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7),
 `src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
-`src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R).
+`src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
+`src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce).
 
 ### Carry-forward
 

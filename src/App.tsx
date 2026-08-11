@@ -69,6 +69,7 @@ import { AndroidLocalApp, isAndroidLocalPath } from "@/platform/android/AndroidL
 import { StorefrontDashboardPage } from "@/pages/StorefrontDashboardPage";
 import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
+import { MarketPage } from "@/pages/MarketPage";
 import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
 import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
 import { MetadataEditorPage } from "@/features/tools/MetadataEditorPage";
@@ -149,7 +150,9 @@ export function App() {
   );
 
   const isPublicDoc = location.pathname.startsWith("/codex") || location.pathname.startsWith("/legal");
-  const isPublicPack = FLAGS.storefront && location.pathname.startsWith("/pack/");
+  const isPublicStorefront =
+    FLAGS.storefront &&
+    (location.pathname.startsWith("/pack/") || location.pathname === "/market");
   if (!userId) {
     if (FLAGS.prepare && isPreparePath(location.pathname)) {
       return <PrepareLocalApp />;
@@ -160,7 +163,7 @@ export function App() {
     if (isAndroidLocalPath(location.pathname)) {
       return <AndroidLocalApp />;
     }
-    if (isPublicPack) return <PublicPackShell />;
+    if (isPublicStorefront) return <PublicPackShell />;
     if (isPublicDoc) return <PublicDocShell />;
     if (location.pathname === "/enter" || location.pathname.startsWith("/enter/")) {
       return <Onboarding />;
@@ -227,7 +230,7 @@ export function App() {
             <Route path="/tools/packs/new" element={<StorefrontEditorPage />} />
             <Route path="/tools/packs/:id/edit" element={<StorefrontEditorPage />} />
             <Route path="/pack/:slug" element={<StorefrontPackPage />} />
-            <Route path="/market" element={<Navigate to="/tools/packs" replace />} />
+            <Route path="/market" element={<MarketPage />} />
           </>
         ) : null}
         <Route path="/settings/costs" element={<CostSentinelDashboardPage />} />
@@ -292,6 +295,7 @@ export function App() {
 
 function PublicPackShell() {
   const location = useLocation();
+  const onMarket = location.pathname === "/market";
   return (
     <div
       className="public-scroll-frame public-ops-shell nexus-void relative flex h-[100dvh] w-full flex-col overflow-hidden text-white"
@@ -301,22 +305,26 @@ function PublicPackShell() {
       <GeometricBackdrop intensity="subtle" />
       <header className="public-ops-header forge-glass relative z-40 mx-3 mt-3 flex shrink-0 items-center gap-3 px-4 py-3 sm:mx-4">
         <span className="forge-glass-edge" aria-hidden />
-        <NavLink to="/" className="relative z-[1] flex items-center gap-2.5">
+        <NavLink to="/market" className="relative z-[1] flex items-center gap-2.5">
           <BrandMark className="h-8 w-8" reactive={false} />
           <span className="font-display text-sm font-semibold text-white">VYBZ</span>
         </NavLink>
         <span className="public-ops-badge relative z-[1] ml-auto hidden rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline">
-          Sample pack · public
+          {onMarket ? "Market · public" : "Sample pack · public"}
         </span>
         <NavLink to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
           Enter VYBZ
         </NavLink>
       </header>
-      <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-auto px-3 pb-4 sm:px-4" data-testid="public-pack-main">
+      <main
+        className="relative z-10 mx-auto w-full max-w-4xl flex-1 overflow-auto px-3 pb-4 sm:px-4"
+        data-testid="public-pack-main"
+      >
         <ErrorBoundary key={location.pathname}>
           <Routes location={location}>
+            <Route path="/market" element={<MarketPage publicShell />} />
             <Route path="/pack/:slug" element={<StorefrontPackPage publicShell />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/market" replace />} />
           </Routes>
         </ErrorBoundary>
       </main>

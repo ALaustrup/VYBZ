@@ -48,5 +48,7 @@ describe("suiteApps", () => {
     expect(activeSuiteAppId("/tools/translate")).toBe("translate");
     expect(activeSuiteAppId("/tools/pack-maker")).toBe("pack-maker");
     expect(activeSuiteAppId("/tools/stems")).toBe("stem-maker");
+    expect(activeSuiteAppId("/market")).toBe("store");
+    expect(activeSuiteAppId("/tools/packs")).toBe("store");
   });
 });
