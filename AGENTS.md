@@ -54,9 +54,9 @@ which platform they are on.
 1. **Creative OS / OR-036** (active) — Midi Maker built-in oscillator preview +
    random phrase generator (OR-032–OR-035 shipped). Rail label **Translation Lab**.
 2. **Follow-on Creative OS wedges** (authorised sequence, separate PRs) — see
-   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-037+ Converter formats,
-   Converter formats, Pack Maker←Library→Store, iTunes-style Market discovery, Landing
-   drop→workspace, DAW project folder link, Analyzer reliability.
+   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-037 Converter formats, Pack Maker←Library→Store,
+   iTunes-style Market discovery, Landing drop→workspace, DAW project folder link,
+   Analyzer reliability.
 3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
    feed (no invented inventory; no DSP-delivery claims).
 
