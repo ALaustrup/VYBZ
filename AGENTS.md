@@ -28,16 +28,18 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 **Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
 Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
-**First wedge: OR-032 working set.** Prefer small reviewable PRs on `feat/or-032-*` /
-`feat/creative-os-*` branches. Executable gate: `or032WorkingSetGate.test.ts`.
+**Active wedge: OR-032 working set** (landing), then **OR-034 Correct desk**. Prefer small
+reviewable PRs on `feat/or-032-*` / `feat/or-034-*` / `feat/creative-os-*`. Gate:
+`or032WorkingSetGate.test.ts` (OR-034 gate lands with that wedge).
+
+**OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + edge on `xixmneooyufbeftdfpcm`;
+interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`. Bugfixes only unless
+re-authorised.
 
 **M10 Store commerce** remains authorised as a **parallel later wedge** only when it does
-not fight the song-workspace model (Market browse shipped via PR #147). Wave **R** visual
-redesign **DEPLOYED AND VERIFIED** via [PR #144](https://github.com/ALaustrup/VYBZ/pull/144)
-@ `47773b69`. **M9** remains closed (**DEPLOYED BUT UNVERIFIED** for cross-platform deepen).
-**M7** / **M8** deepen stay **parked**. Law 5: VDock contracts frozen (skin / reactive
-chrome only). Law 3: no dating. Instrument Creator parked. OR-021–OR-022 and OR-024–OR-025
-remain parked.
+not fight the song-workspace model (Market browse shipped via PR #147). Wave **R**
+**DEPLOYED AND VERIFIED** @ `47773b69`. Law 5: VDock contracts frozen (skin / reactive
+chrome only). Law 3: no dating.
 
 ### Positioning (Masterplan §1)
 
@@ -72,8 +74,9 @@ which platform they are on.
 4. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
    parked.
 5. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
-   or smoke-verified; no continuous polish track. Re-auth required for new OR scope
-   outside the Creative OS sequence above.
+   or smoke-verified; no continuous polish track outside Creative OS sequence / OR-043
+   bugfixes. Re-auth required for new OR scope outside that sequence.
+6. **OR-043 Vibes Radio (shipped)** — PR #152 @ `866eddcb`; bumper fix PR #153 @ `72b0833e`.
 
 Bugfixes and shared-shell changes remain allowed.
 
@@ -85,6 +88,7 @@ Bugfixes and shared-shell changes remain allowed.
 - **OR-026–OR-028** — shipped; Correct deepen closed unless re-authorised.
 - **OR-020 / OR-029 / OR-030 / OR-031** — parked after owner smoke **2026-08-10** unless
   re-authorised.
+- **OR-043 Vibes Radio** — 2026-08-11; interstitial bumper-only; no continuous deepen.
 
 Live/messaging receive **no new feature work** (bugfixes / shared-shell only).
 Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the only plan.
@@ -110,14 +114,17 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
 `src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
 `src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
-`src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032).
+`src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032),
+`src/features/prepare/or034CorrectDeskGate.test.ts` (Creative OS OR-034),
+`src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged.
-**Active:** Creative OS song workspace — **OR-032** first wedge.
+UNVERIFIED). **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged;
+Store commerce parallel. **OR-043 shipped.** **Active:** Creative OS — **OR-032** then
+**OR-034**.
 
 ## Safety rules
 

@@ -49,6 +49,7 @@ function handlers(): TrackActionHandlers {
     play: vi.fn(),
     playNext: vi.fn(),
     addToQueue: vi.fn(),
+    addToVibesRadio: vi.fn(),
     favourite: vi.fn(),
     rate: vi.fn(),
     openArtist: vi.fn(),

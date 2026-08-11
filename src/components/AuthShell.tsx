@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { BrandMark } from "@/components/Brand";
+import { VibesRadioHost } from "@/features/radio/VibesRadioHost";
+import { VibesRadioNowPlaying } from "@/features/radio/VibesRadioNowPlaying";
+import { VibesRadioVisualizer } from "@/features/radio/VibesRadioVisualizer";
 import { staggerContainer, staggerItem, withReduce } from "@/lib/motion";
 import { useReduceFx } from "@/lib/display";
 
 /**
- * Premium auth frame — matte glass card on geometric void.
+ * Premium auth frame — matte glass card on geometric void + Vibes Radio.
  */
 export function AuthShell({
   title,
@@ -29,8 +32,10 @@ export function AuthShell({
       data-testid="public-auth-shell"
     >
       <GeometricBackdrop intensity="subtle" />
+      <VibesRadioVisualizer />
+      <VibesRadioHost audience="guest" />
       <motion.div
-        className="forge-glass my-auto w-full max-w-[22rem] p-7 sm:max-w-sm"
+        className="forge-glass relative z-[1] my-auto w-full max-w-[22rem] p-7 sm:max-w-sm"
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={withReduce(reduce, { type: "spring", stiffness: 320, damping: 32 })}
@@ -57,7 +62,10 @@ export function AuthShell({
               {subtitle ? <p className="mt-1.5 text-sm text-white/50">{subtitle}</p> : null}
             </div>
           </motion.div>
-          <motion.div variants={staggerItem}>{children}</motion.div>
+          <motion.div variants={staggerItem}>
+            <VibesRadioNowPlaying className="mb-4" />
+            {children}
+          </motion.div>
         </motion.div>
       </motion.div>
       {footer ?? (

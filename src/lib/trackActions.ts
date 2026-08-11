@@ -10,6 +10,7 @@ import {
   Pause,
   Pencil,
   Play,
+  Radio,
   Star,
   Trash2,
   UserRound,
@@ -44,6 +45,7 @@ export type TrackActionHandlers = {
   play: () => void;
   playNext: () => void;
   addToQueue: () => void;
+  addToVibesRadio: () => void;
   favourite: () => void;
   rate: () => void;
   openArtist: () => void;
@@ -102,6 +104,13 @@ export function buildTrackActions(
         icon: ListPlus,
         disabledReason: isPlayable ? undefined : NO_AUDIO,
         onSelect: handlers.addToQueue,
+      },
+      {
+        id: "vibes-radio",
+        label: "Add to Vibes Radio",
+        icon: Radio,
+        disabledReason: !isPlayable ? NO_AUDIO : !online ? OFFLINE : undefined,
+        onSelect: handlers.addToVibesRadio,
       },
     ],
   };
