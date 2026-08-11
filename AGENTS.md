@@ -28,9 +28,9 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 **Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
 Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
-**Active wedge: OR-032 working set** (landing), then **OR-034 Correct desk**. Prefer small
-reviewable PRs on `feat/or-032-*` / `feat/or-034-*` / `feat/creative-os-*`. Gate:
-`or032WorkingSetGate.test.ts` (OR-034 gate lands with that wedge).
+**Active wedge: OR-034 Correct desk** (after OR-032 working set on tip). Prefer small
+reviewable PRs on `feat/or-034-*` / `feat/creative-os-*`. Gates:
+`or032WorkingSetGate.test.ts`, `or034CorrectDeskGate.test.ts`.
 
 **OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
 `xixmneooyufbeftdfpcm`; interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`.
@@ -51,14 +51,12 @@ which platform they are on.
 
 ### Authorised track
 
-1. **Creative OS / OR-032** (active) — shared song workspace working set; Analyzer /
-   Correct / Translation Lab / Metadata share the active master; desk drop ownership;
-   suite chrome (centered mark, no suite back-arrow, reactive wordmark). Rail label
-   **Translation Lab** (OR-033).
+1. **Creative OS / OR-034** (active) — Correct desk IA/URL sync on the shared working set
+   (OR-032 shipped). Rail label **Translation Lab** (OR-033 shipped with OR-032).
 2. **Follow-on Creative OS wedges** (authorised sequence, separate PRs) — see
-   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-034 Correct desk, OR-035 What-next home, OR-036+
-   Midi preview/random, Converter formats, Pack Maker←Library→Store, iTunes-style Market
-   discovery, Landing drop→workspace, DAW project folder link, Analyzer reliability.
+   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-035 What-next home, OR-036+ Midi preview/random,
+   Converter formats, Pack Maker←Library→Store, iTunes-style Market discovery, Landing
+   drop→workspace, DAW project folder link, Analyzer reliability.
 3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
    feed (no invented inventory; no DSP-delivery claims).
 
@@ -115,15 +113,16 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
 `src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
 `src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032),
+`src/features/prepare/or034CorrectDeskGate.test.ts` (Creative OS OR-034),
 `src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
-disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged;
-Store commerce parallel. **OR-043 shipped.** **Active:** Creative OS — **OR-032** then
-**OR-034**.
+disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED).
+**M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged; Store commerce
+parallel. **OR-043 shipped.** **OR-032 shipped** (PR #151). **Active:** **OR-034** Correct
+desk.
 
 ## Safety rules
 

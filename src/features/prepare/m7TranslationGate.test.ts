@@ -109,7 +109,7 @@ describe("M7 translation gate", () => {
       "utf8",
     );
     const correct = readFileSync(
-      path.join(ROOT, "src/features/correction/DcOffsetCorrectPage.tsx"),
+      path.join(ROOT, "src/features/correction/CorrectPage.tsx"),
       "utf8",
     );
     expect(page).toContain("evaluateTranslationFindings");

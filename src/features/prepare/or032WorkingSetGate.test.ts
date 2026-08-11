@@ -31,7 +31,7 @@ describe("OR-032 song workspace working set", () => {
   });
 
   it("preloads Correct, Translation Lab, and Metadata from the working set", () => {
-    const correct = read("src/features/correction/DcOffsetCorrectPage.tsx");
+    const correct = read("src/features/correction/CorrectPage.tsx");
     const translate = read("src/features/translation/TranslationLabPage.tsx");
     const metadata = read("src/features/tools/MetadataEditorPage.tsx");
     for (const src of [correct, translate, metadata]) {

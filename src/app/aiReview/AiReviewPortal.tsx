@@ -13,7 +13,7 @@ import {
 import { AI_REVIEW_PROFILE } from "@/app/aiReview/reviewProfile";
 import { seedReviewPlayer } from "@/app/aiReview/seedReviewPlayer";
 import { CommandDashboard } from "@/components/dashboard/CommandDashboard";
-import { DcOffsetCorrectPage } from "@/features/correction/DcOffsetCorrectPage";
+import { CorrectPage } from "@/features/correction/CorrectPage";
 import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
 import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
@@ -87,7 +87,7 @@ export function AiReviewPortal() {
         <Route path={`${AI_REVIEW_BASE}/upload`} element={<AiReviewUploadSurface />} />
         <Route path={`${AI_REVIEW_BASE}/library`} element={<LibraryE2EFixturePage />} />
         <Route path={`${AI_REVIEW_BASE}/analyzer`} element={<ReleasesPage />} />
-        <Route path={`${AI_REVIEW_BASE}/correct`} element={<DcOffsetCorrectPage />} />
+        <Route path={`${AI_REVIEW_BASE}/correct`} element={<CorrectPage />} />
         <Route path={`${AI_REVIEW_BASE}/stems`} element={<StemMakerPage />} />
         <Route path={`${AI_REVIEW_BASE}/codex`} element={<CodexPage />} />
         <Route path={`${AI_REVIEW_BASE}/discover`} element={<DiscoverPage />} />
