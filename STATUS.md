@@ -30,7 +30,11 @@ Store Market browse - **Not measured** (not on prod).
 
 ## Latest verification
 
-*(filled after lint/gate)*
+M10 Store Market browse local:
+
+- `npm run lint` — PASS
+- `m10StoreCommerceGate` (7) + `routeTruth` (15) + `suiteApps` (4) — PASS
+- Full `npm run test` / `build` — **Not measured** this unit (stop for review)
 
 ## Permanently out of scope (not parked)
 
