@@ -51,8 +51,8 @@ const PLACEHOLDER_SET = new Set(PLACEHOLDER_PATHS);
 /**
  * Paths that are only a placeholder while a flag is off.
  *
- * `/market` renders a placeholder when the storefront is disabled and redirects
- * to the working storefront when it is enabled, which is the default.
+ * `/market` renders a placeholder when the storefront is disabled and the real
+ * Market browse page when it is enabled (default on).
  */
 const CONDITIONAL_PLACEHOLDERS: Readonly<Record<string, "storefront">> = {
   "/market": "storefront",
@@ -102,6 +102,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/connect", title: "Connect", keywords: ["people", "follow"] },
   { path: "/opportunities", title: "Opportunities", keywords: ["gigs", "briefs", "sync"] },
   { path: "/store", title: "Store", keywords: ["credits", "cosmetics", "buy", "vc"] },
+  { path: "/market", title: "Market", keywords: ["packs", "browse", "buy", "sample packs", "storefront"], flag: "storefront" },
   { path: "/tools/packs", title: "Storefront", keywords: ["packs", "sell", "sample packs"], flag: "storefront" },
   { path: "/visuals/studio", title: "Visualizer studio", keywords: ["visuals", "loop", "video"] },
   { path: "/visuals/tutorial", title: "Visualizer tutorial", keywords: ["visuals", "guide", "how to"] },
@@ -126,13 +127,10 @@ export function availableDestinations(flags: { storefront: boolean }): Destinati
  * Paths that only redirect, and where they land.
  *
  * A redirect to a working destination is legitimate navigation, so navigation
- * surfaces are allowed to link one. `/market` is conditional: it redirects when
- * the storefront flag is on and renders a placeholder when it is off, which is
- * why the flag has to be supplied to check it.
+ * surfaces are allowed to link one.
  */
 export const REDIRECTS: readonly { from: string; to: string; flag?: "storefront" }[] = [
   { from: "/studio", to: "/projects" },
-  { from: "/market", to: "/tools/packs", flag: "storefront" },
   { from: "/activity", to: "/" },
   { from: "/profile", to: "/" },
 ] as const;

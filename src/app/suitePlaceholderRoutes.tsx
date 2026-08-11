@@ -124,21 +124,19 @@ export function suitePlaceholderRoutes() {
           />
         }
       />
-      <Route
-        path="/market"
-        element={
-          FLAGS.storefront ? (
-            <Navigate to="/tools/packs" replace />
-          ) : (
+      {!FLAGS.storefront ? (
+        <Route
+          path="/market"
+          element={
             <SuitePlaceholderPage
               product="market"
               title="Market"
               description="Digital marketplace for packs and support goods."
-              phaseNote="Enable VITE_FEATURE_STOREFRONT (default on) for Sample Pack Storefront."
+              phaseNote="Enable VITE_FEATURE_STOREFRONT (default on) for Sample Pack Market."
             />
-          )
-        }
-      />
+          }
+        />
+      ) : null}
       <Route
         path="/wallet"
         element={

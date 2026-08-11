@@ -148,9 +148,10 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   {
     id: "store",
     label: "Store",
-    path: "/tools/packs",
+    path: "/market",
     icon: Store,
-    match: (p) => p.startsWith("/tools/packs") || p.startsWith("/pack/"),
+    match: (p) =>
+      p === "/market" || p.startsWith("/tools/packs") || p.startsWith("/pack/"),
     visible: () => FLAGS.storefront,
   },
   {

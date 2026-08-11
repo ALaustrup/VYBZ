@@ -55,7 +55,10 @@ describe("placeholder paths stay in step with the router", () => {
 
 describe("working destinations are real", () => {
   it("never offers a placeholder as a destination", () => {
-    const offending = WORKING_DESTINATIONS.filter((d) => isPlaceholderPath(d.path));
+    // Conditional placeholders (e.g. /market with storefront off) are not destinations
+    // when their flag is on — the default production configuration.
+    const flags = { storefront: true };
+    const offending = WORKING_DESTINATIONS.filter((d) => isPlaceholderPath(d.path, flags));
     expect(offending.map((d) => d.path)).toEqual([]);
   });
 
