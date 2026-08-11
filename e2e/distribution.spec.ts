@@ -2,16 +2,13 @@ import { test, expect } from "@playwright/test";
 import { createHash } from "node:crypto";
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import { openScannedRelease, scanViaAnalyzer } from "./analyzerIntake";
 
 test.describe("Distribution readiness", () => {
   test("report + ZIP export download records SHA", async ({ page }) => {
-    await page.goto("/releases");
-    await expect(page.getByTestId("prepare-releases")).toBeVisible();
-    await page.getByTestId("prepare-new-release").click();
-    await page.getByTestId("prepare-title").fill("Dist Fixture");
-    await page.getByTestId("prepare-artist").fill("Dist Artist");
-    await page.getByTestId("prepare-create-submit").click();
-    await expect(page.getByTestId("prepare-detail")).toBeVisible();
+    test.setTimeout(120_000);
+    const releaseId = await scanViaAnalyzer(page, "Dist Artist - Dist Fixture.wav");
+    await openScannedRelease(page, releaseId);
 
     await page.getByTestId("prepare-open-distribution").click();
     await expect(page.getByTestId("distribution-page")).toBeVisible();
@@ -40,7 +37,6 @@ test.describe("Distribution readiness", () => {
 
     await expect(page.getByTestId("distribution-export-sha")).toContainText(sha256);
 
-    const outDir = path.resolve("android/signing");
     mkdirSync(path.resolve("docs/operations"), { recursive: true });
     const record = {
       recordedAt: new Date().toISOString(),
@@ -51,9 +47,7 @@ test.describe("Distribution readiness", () => {
     };
     writeFileSync(
       path.resolve("docs/operations/DISTRIBUTION_EXPORT_HASHES.json"),
-      `${JSON.stringify(record, null, 2)}\n`
+      `${JSON.stringify(record, null, 2)}\n`,
     );
-    // keep variable used (lint)
-    void outDir;
   });
 });

@@ -22,7 +22,7 @@ test.describe("Command dashboard", () => {
   test("the first-scan control routes into the readiness flow", async ({ page }) => {
     await page.goto(FIXTURE);
     await page.getByTestId("dashboard-first-scan").click();
-    await expect(page).toHaveURL(/\/releases\/new/);
+    await expect(page).toHaveURL(/\/releases$/);
   });
 
   test("exposes a heading so the surface is navigable by structure", async ({ page }) => {

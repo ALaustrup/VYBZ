@@ -112,7 +112,7 @@ export function CommandDashboard({
       </header>
 
       {isNewAccount ? (
-        <NewAccountStart onScan={() => navigate("/releases/new")} />
+        <NewAccountStart onScan={() => navigate("/releases")} />
       ) : (
         <>
           <StatStrip stats={stats} onNavigate={navigate} />
@@ -179,7 +179,7 @@ function StatStrip({
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
     { label: "Tracks", value: stats.tracks, to: "/library" },
-    { label: "Releases", value: stats.releases, to: "/releases" },
+    { label: "Analyzer", value: stats.releases, to: "/releases" },
     { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
     {
       label: "Blocked",

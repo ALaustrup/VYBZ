@@ -28,9 +28,9 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 **Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
 Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
-**Active wedge: OR-041 DAW project folder link** (optional, local session). Prefer small
-reviewable PRs on `feat/or-041-*` / `feat/creative-os-*`. Gates:
-`or040LandingDropGate.test.ts`, `or041DawFolderLinkGate.test.ts`.
+**Active wedge: OR-042 Analyzer reliability** (name Analyzer only; desk owns scan/drop). Prefer small
+reviewable PRs on `feat/or-042-*` / `feat/creative-os-*`. Gates:
+`or041DawFolderLinkGate.test.ts`, `or042AnalyzerReliabilityGate.test.ts`.
 
 **OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
 `xixmneooyufbeftdfpcm`; interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`.
@@ -51,10 +51,9 @@ which platform they are on.
 
 ### Authorised track
 
-1. **Creative OS / OR-041** (active) — optional Ableton/DAW folder link on song workspace
-   (local session; detectDaw; no sync claims). OR-032–OR-040 shipped.
-2. **Follow-on Creative OS wedges** (authorised sequence, separate PRs) — see
-   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-042 Analyzer reliability.
+1. **Creative OS / OR-042** (active) — Analyzer drop ownership + user-facing Analyzer naming.
+   OR-032–OR-041 shipped. Creative OS song-workspace sequence closes after this wedge.
+2. **Follow-on** — park new Creative OS ideas in IDEAS_BACKLOG; OR-044 Drive sync remains parked.
 3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
    feed (no invented inventory; no DSP-delivery claims).
 
@@ -119,6 +118,7 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/or039MarketDiscoveryGate.test.ts` (Creative OS OR-039),
 `src/features/prepare/or040LandingDropGate.test.ts` (Creative OS OR-040),
 `src/features/prepare/or041DawFolderLinkGate.test.ts` (Creative OS OR-041),
+`src/features/prepare/or042AnalyzerReliabilityGate.test.ts` (Creative OS OR-042),
 `src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
@@ -126,7 +126,7 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED).
 **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged; Store commerce
-**OR-034 shipped** (PR #154). **OR-035 shipped** (PR #155). **OR-036 shipped** (PR #156). **OR-037 shipped** (PR #157). **OR-038 shipped** (PR #158). **OR-039 shipped** (PR #159). **OR-040 shipped** (PR #160). **Active:** **OR-041** DAW project folder link.
+**OR-034 shipped** (PR #154). **OR-035 shipped** (PR #155). **OR-036 shipped** (PR #156). **OR-037 shipped** (PR #157). **OR-038 shipped** (PR #158). **OR-039 shipped** (PR #159). **OR-040 shipped** (PR #160). **OR-041 shipped** (PR #161). **Active:** **OR-042** Analyzer reliability.
 
 ## Safety rules
 

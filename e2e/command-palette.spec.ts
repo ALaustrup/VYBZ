@@ -64,7 +64,7 @@ test.describe("Command palette", () => {
   test("a keyword finds a destination whose title does not contain the query", async ({ page }) => {
     await openPalette(page);
     await page.getByRole("combobox").fill("readiness");
-    await expect(page.getByRole("option").first()).toContainText("New release scan");
+    await expect(page.getByRole("option").first()).toContainText("New Analyzer scan");
   });
 
   test("Enter navigates to the selected destination", async ({ page }) => {

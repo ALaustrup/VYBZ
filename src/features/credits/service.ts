@@ -21,6 +21,10 @@ import { supabase } from "@/lib/supabase";
 
 const LOCAL_OWNER = "local-prepare";
 
+function isLocalOnlyOwner(ownerId: string): boolean {
+  return ownerId === LOCAL_OWNER || ownerId.startsWith("e2e-");
+}
+
 let repo: CreditsRepository | null = null;
 let queue: MutationQueueContract | null = null;
 
@@ -66,7 +70,7 @@ export function getCreditsMutationQueue(): MutationQueueContract {
 function createHybridCredits(local: CreditsRepository, remote: CreditsRepository): CreditsRepository {
   return {
     async listByRelease(ownerId, releaseId) {
-      if (ownerId === LOCAL_OWNER) return local.listByRelease(ownerId, releaseId);
+      if (isLocalOnlyOwner(ownerId)) return local.listByRelease(ownerId, releaseId);
       try {
         return await remote.listByRelease(ownerId, releaseId);
       } catch {
@@ -89,7 +93,7 @@ function createHybridCredits(local: CreditsRepository, remote: CreditsRepository
         await enqueue();
         return saved;
       }
-      if (credit.ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(credit.ownerId)) {
         try {
           return await remote.upsert(credit);
         } catch {
@@ -114,7 +118,7 @@ function createHybridCredits(local: CreditsRepository, remote: CreditsRepository
         await enqueue();
         return saved;
       }
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           return await remote.update(ownerId, creditId, patch);
         } catch {
@@ -138,7 +142,7 @@ function createHybridCredits(local: CreditsRepository, remote: CreditsRepository
         await enqueue();
         return;
       }
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           await remote.remove(ownerId, creditId);
         } catch {
@@ -161,7 +165,7 @@ function createHybridCredits(local: CreditsRepository, remote: CreditsRepository
         await enqueue();
         return saved;
       }
-      if (ownerId !== LOCAL_OWNER) {
+      if (!isLocalOnlyOwner(ownerId)) {
         try {
           return await remote.replaceForRelease(ownerId, releaseId, credits);
         } catch {

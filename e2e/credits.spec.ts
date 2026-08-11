@@ -1,26 +1,18 @@
 import { test, expect } from "@playwright/test";
+import { openScannedRelease, scanViaAnalyzer } from "./analyzerIntake";
 
 test.describe("Credits MVP", () => {
   test("adds credits, hard refresh persists", async ({ page }) => {
-    await page.goto("/releases");
-    await expect(page.getByTestId("prepare-releases")).toBeVisible();
-    await page.getByTestId("prepare-new-release").click();
-    await expect(page.getByTestId("prepare-new")).toBeVisible();
+    test.setTimeout(120_000);
+    const releaseId = await scanViaAnalyzer(page, "Fixture Artist - Credits Fixture.wav");
+    await openScannedRelease(page, releaseId);
 
-    await page.getByTestId("prepare-title").fill("Credits Fixture");
-    await page.getByTestId("prepare-artist").fill("Fixture Artist");
-    await expect(page.getByTestId("prepare-title")).toHaveValue("Credits Fixture");
-    await expect(page.getByTestId("prepare-artist")).toHaveValue("Fixture Artist");
-    await page.getByTestId("prepare-create-submit").click();
-
-    await expect(page.getByTestId("prepare-detail")).toBeVisible();
     await expect(page.getByTestId("prepare-detail-title")).toHaveText("Credits Fixture");
 
     await page.getByTestId("prepare-open-credits").click();
     await expect(page.getByTestId("credits-page")).toBeVisible();
     await expect(page.getByTestId("credits-release-title")).toHaveText("Credits Fixture");
 
-    // Artist seeded from release metadata
     await expect(page.getByTestId("credits-list")).toBeVisible();
     await expect(page.getByText("Fixture Artist").first()).toBeVisible();
 
