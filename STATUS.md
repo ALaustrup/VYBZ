@@ -3,9 +3,47 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `main`
-**HEAD:** `b2572975`
-**Current milestone:** **Suite UX** — MERGED + production-verified (unsigned smoke).
+**Branch:** `feat/social-first-shell`
+**HEAD:** see branch tip
+**Current milestone:** **Social-first platform** — authorised by the owner 2026-08-11,
+superseding Suite UX. VYBZ is a social network for music, sound and audio creators; the
+production tools are additive and live behind the Tools launcher. Complete redesign of any
+tool is authorised; **nothing may be removed**, only redesigned or frozen in the tree.
+
+## Social-first sequence (authorised direction, not yet built)
+
+| # | Slice | State |
+|---|---|---|
+| 1 | Tools behind one launcher; rail frozen in tree | **This branch** |
+| 2 | Signed-in home = creator profile (already `/` → `ProfilePage`) restructured around identity | Not started |
+| 3 | Library on the profile; adding audio publishes to the creator's feed | Not started |
+| 4 | Feed as a first-class surface (currently `/feed`, absent from primary nav) | Not started |
+| 5 | Follow model — today the profile action creates a mutual pending `connections` row, not a follow | Not started |
+| 6 | Messaging surfaced properly (DMs already work end to end) | Not started |
+
+## Open pull requests
+
+| PR | Branch | What |
+|---|---|---|
+| #166 | `feat/prelogin-featured-helix` | Pre-login featured Helix player; `audio-play` v7 deployed |
+| #167 | `feat/library-completeness` | Library pages the whole catalogue instead of capping at 80 |
+| #168 | `fix/connect-request-honesty` | Connect no longer claims a pending request is a follow |
+
+## Known issue — private drops are not private
+
+Measured 2026-08-11 against `xixmneooyufbeftdfpcm`:
+
+- `drops` SELECT is correctly gated by `can_view_drop(author_id, audience, id)`.
+- `assets` SELECT is `(kind = ANY (...'track'...)) OR owner_id = auth.uid()` — the asset row,
+ including its storage `url`, is readable by **anyone**, with no reference to drop audience.
+- Storage `audio-assets read` is `(bucket_id = 'audio-assets')` for `authenticated` — **no**
+ owner-folder restriction, so any signed-in user can sign any object.
+
+Net: if a creator marks a drop `private` or `followers`, the drop row hides but the audio
+stays reachable. **Currently unexploited** — a service-role query returned zero non-public
+drops — but it must be closed before private or unreleased work is promoted. Fix needs a
+migration (owner authorisation required); the stale comment at `src/lib/api.ts` claiming
+`folder = auth.uid()` RLS should be corrected at the same time.
 
 ## Production
 

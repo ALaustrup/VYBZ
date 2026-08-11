@@ -26,10 +26,32 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**Suite UX** authorised **2026-08-11** (owner: after OR-042 merge). Active on
-`feat/suite-ux-*`. Scope: Cost Sentinel + AI minutes removal; Settings without money/usage;
-hidden scrollbars + wider stage; professional dashboard motion; livelier profile via cosmetics
-+ artist cover. Gate: `suiteUxCostRemovalGate.test.ts`.
+**Social-first platform** authorised by the owner **2026-08-11**. This supersedes Suite UX
+as the active milestone and changes the product's centre of gravity.
+
+VYBZ is a social networking platform for music, sound and audio creators. The production
+tools are **additive**, not the focus. Scope:
+
+1. **Tools behind a menu.** `SUITE_APPS` remains the single registry; the launcher
+ (`src/shell/ToolsLauncher.tsx`) is the only permanent entry point. The suite app rail is
+ frozen in the tree, imported by nothing.
+2. **Signed-in home is the creator's profile**, showing their library, which they add audio
+ to, and which publishes to their feed.
+3. **All front-end work targets the social platform** — profile, library, feed, follow,
+ messaging, listening to each other's work.
+
+Gates: `socialFirstShellGate.test.ts`, and a new gate per social surface as it lands.
+
+**Owner authorisation for redesign:** complete redesign and archival of any existing tool is
+authorised. **Nothing may be removed** — archival means redesigned or frozen in the tree,
+recoverable from Git, never deleted.
+
+**Consequently the messaging / live / rooms freeze below is LIFTED for social work**, since
+those surfaces are now the product rather than a side quest. Law 3 still stands without
+exception: no dating, romantic, meetup or swipe functionality, ever.
+
+**Superseded:** Suite UX (merged, PR #163 @ `b0d1645d`) — shipped scope stands; no further
+Suite UX deepen. Gate `suiteUxCostRemovalGate.test.ts` remains green as a regression guard.
 
 **Creative OS — Song Workspace** sequence **OR-032–OR-042 CLOSED** (OR-042 merged PR #162 @
 `373746af`). No continuous Creative OS polish; park new ideas in IDEAS_BACKLOG. OR-044 Drive
@@ -88,8 +110,9 @@ Bugfixes and shared-shell changes remain allowed.
   re-authorised.
 - **OR-043 Vibes Radio** — 2026-08-11; interstitial bumper-only; no continuous deepen.
 
-Live/messaging receive **no new feature work** (bugfixes / shared-shell only).
-Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the only plan.
+Live/messaging **are now in scope** under the Social-first milestone above (this reverses the
+previous freeze; the freeze text elsewhere in this file is historical). Premium-suite phase
+track remains withdrawn.
 
 ### There is exactly one plan
 
@@ -98,10 +121,13 @@ sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan.
 
 ### Law 3 + discovery
 
-Breadth is retained — VYBZ remains an operating system. **OR-031** discovery V1 shipped
-and is **parked** for further networking deepen unless re-authorised. Live, messaging,
-and rooms receive **no new feature work** beyond bugfixes and shared-shell changes.
-Dating / romantic / meetup / swipe matching remain permanently out of scope.
+Discovery, live, messaging and rooms are **re-authorised** under the Social-first milestone
+(2026-08-11) — they are the product now, not breadth for its own sake. OR-031 discovery V1
+is the starting point rather than a parked end state.
+
+Dating / romantic / meetup / swipe matching remain **permanently out of scope**. A social
+platform for creators connects people around work, never around romance. This constraint is
+not affected by the pivot.
 
 ### Exit gates must be executable
 
@@ -123,7 +149,11 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/or041DawFolderLinkGate.test.ts` (Creative OS OR-041),
 `src/features/prepare/or042AnalyzerReliabilityGate.test.ts` (Creative OS OR-042),
 `src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio),
-`src/features/prepare/suiteUxCostRemovalGate.test.ts` (Suite UX cost/AI-minutes removal).
+`src/features/prepare/suiteUxCostRemovalGate.test.ts` (Suite UX cost/AI-minutes removal),
+`src/features/prepare/socialFirstShellGate.test.ts` (Social-first shell — tools behind the
+launcher, rail preserved),
+`src/features/prepare/libraryCompletenessGate.test.ts` (library pages the whole catalogue and
+states a measured total).
 
 ### Carry-forward
 
