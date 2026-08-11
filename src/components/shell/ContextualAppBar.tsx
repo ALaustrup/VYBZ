@@ -13,8 +13,9 @@ import { cx } from "@/lib/utils";
 import { openCommandPalette } from "@/shell/commandPaletteStore";
 
 /**
- * Soft frosted top bar — VYBZ wordmark · centered brand mark · search/upload.
+ * Soft frosted top bar — VYBZ wordmark (audio-reactive) · centered brand mark · search/upload.
  * Track titles belong on VDock / Now Playing rail, never here.
+ * Suite rail apps do not show a history back next to the wordmark.
  */
 export function ContextualAppBar({
   onCompose,
@@ -71,22 +72,27 @@ export function ContextualAppBar({
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="forge-chip flex h-9 w-9 shrink-0 items-center justify-center active:scale-90"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white/55 transition hover:bg-white/8 hover:text-white/85 active:scale-90"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
           ) : null)}
-          <AppBarWordmark className="min-w-0 pl-0.5" />
+          <AppBarWordmark className="min-w-0 pl-0.5" reactive />
         </div>
 
         <button
           type="button"
           onClick={() => navigate("/")}
           aria-label="VYBZ home"
-          className="forge-chip relative z-[1] flex h-10 w-10 items-center justify-center overflow-hidden justify-self-center active:scale-95"
+          className="relative z-[1] flex h-12 w-12 items-center justify-center justify-self-center overflow-visible bg-transparent p-0 active:scale-95"
+          data-testid="suite-app-bar-mark"
         >
           <BrandMark
-            className={cx("h-6 w-6", !reduce && "animate-[vybz-hue_12s_linear_infinite]")}
+            reactive
+            className={cx(
+              "h-9 w-9 sm:h-10 sm:w-10",
+              !reduce && !player.playing && "animate-[vybz-hue_12s_linear_infinite]",
+            )}
           />
         </button>
 

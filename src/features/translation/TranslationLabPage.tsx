@@ -2,7 +2,7 @@
  * M7 Translation Lab — streaming loudness + phone/car + lossy codec previews (disclosed).
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Pause, Play } from "lucide-react";
 import {
@@ -40,6 +40,8 @@ import {
   ForgeMetric,
   ToolWorkbench,
 } from "@/components/ToolWorkbench";
+import { setWorkingTrack, workingTrackAsFile } from "@/features/workspace/workingSet";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 
 type Mode = "original" | "streaming" | "phone" | "car" | "lossy";
 
@@ -86,7 +88,7 @@ export function TranslationLabPage() {
   useAudioPreviewUrlCleanup(carUrl, "translation-preview:");
   useAudioPreviewUrlCleanup(lossyUrl, "translation-preview:");
 
-  async function onFile(file: File | undefined) {
+  async function onFile(file: File | undefined, source: "tool-drop" | "workspace" = "tool-drop") {
     if (!file || !isAudioFile(file)) {
       showToast("Choose an audio file");
       return;
@@ -121,6 +123,16 @@ export function TranslationLabPage() {
       setFindings(evaluateTranslationFindings(stream));
       setDisclosure(stream.disclosure);
       setMode("streaming");
+      if (source === "tool-drop") {
+        setWorkingTrack({
+          title: file.name.replace(/\.[^.]+$/, "") || file.name,
+          artistName: null,
+          fileName: file.name,
+          mimeType: file.type || "audio/wav",
+          blob: file,
+          source: "tool-drop",
+        });
+      }
       showToast("Translation previews ready");
     } catch {
       showToast("Couldn't decode that file");
@@ -132,6 +144,17 @@ export function TranslationLabPage() {
       setBusy(false);
     }
   }
+
+  const working = useWorkingTrack();
+  const loadedWorkingId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!working || originalUrl || loadedWorkingId.current === working.id) return;
+    const file = workingTrackAsFile(working);
+    if (!file) return;
+    loadedWorkingId.current = working.id;
+    void onFile(file, "workspace");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once from song workspace
+  }, [working, originalUrl]);
 
   function selectMode(next: Mode) {
     stopOwnedPlayback();

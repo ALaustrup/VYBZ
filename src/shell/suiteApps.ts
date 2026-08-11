@@ -94,7 +94,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "translate",
-    label: "Translate",
+    label: "Translation Lab",
     path: "/tools/translate",
     icon: Radio,
     match: (p) => p.startsWith("/tools/translate"),

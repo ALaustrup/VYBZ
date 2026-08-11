@@ -15,6 +15,7 @@ import {
 } from "@/features/prepare/service";
 import { probeAudioFile } from "@/features/prepare/probeClient";
 import { stashPendingAudio, peekPendingAudio } from "@/features/prepare/pendingUpload";
+import { setWorkingTrack } from "@/features/workspace/workingSet";
 import { ensureMetadataCredits } from "@/features/credits/service";
 import {
   BATCH_LOUDNESS_SPREAD_LU,
@@ -326,6 +327,15 @@ export function ReleasesPage() {
           title: bundle.project.title,
           artistName: bundle.project.artistName,
         });
+        setWorkingTrack({
+          title: bundle.project.title,
+          artistName: bundle.project.artistName,
+          fileName: row.fileName,
+          mimeType: blob.type || row.mimeType,
+          blob,
+          source: "analyzer",
+          releaseId: bundle.project.id,
+        });
 
         setRows((prev) =>
           prev.map((r) =>
@@ -544,6 +554,7 @@ export function ReleasesPage() {
         role="button"
         tabIndex={0}
         data-testid="analyzer-dropzone"
+        data-no-library-drop
         onClick={() => void onPick()}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {

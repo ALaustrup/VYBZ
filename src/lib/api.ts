@@ -1762,9 +1762,15 @@ export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: nu
     };
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) resolve(path);
-      else resolve(null);
+      else {
+        console.warn("[uploadAudio] storage rejected", xhr.status, String(xhr.responseText || "").slice(0, 240));
+        resolve(null);
+      }
     };
-    xhr.onerror = () => resolve(null);
+    xhr.onerror = () => {
+      console.warn("[uploadAudio] network error");
+      resolve(null);
+    };
     xhr.send(file);
   });
 }

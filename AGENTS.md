@@ -26,29 +26,41 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**OR-043 — Vibes Radio synchronized broadcast** authorised **2026-08-11** (owner).
-Server clock (`current_track` + `started_at`), queue, opt-in pool; edge `vibes-radio`
-(logic only, &lt;1 MB — no audio bytes). Beds: `public/audio/1.wav` / `2.wav` via CDN.
-Replaces AmbientRadioHost. Landing/auth guests hear track 2 interstitials only (never
-track 1). Gate: `or043VibesRadioGate.test.ts`.
+**Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
+Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
+**Active wedge: OR-032 working set** (landing), then **OR-034 Correct desk**. Prefer small
+reviewable PRs on `feat/or-032-*` / `feat/or-034-*` / `feat/creative-os-*`. Gate:
+`or032WorkingSetGate.test.ts` (OR-034 gate lands with that wedge).
 
-**Creative OS / OR-032** remains authorised when that PR lands. **M10 Store commerce**
-remains authorised as a parallel later wedge when it does not fight the song-workspace
-model. Wave **R** **DEPLOYED AND VERIFIED** @ `47773b69`. Law 5: VDock contracts frozen
-(skin / reactive chrome only). Law 3: no dating.
+**OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
+`xixmneooyufbeftdfpcm`; interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`.
+Bugfixes only unless re-authorised.
+
+**M10 Store commerce** remains authorised as a **parallel later wedge** only when it does
+not fight the song-workspace model (Market browse shipped via PR #147). Wave **R**
+**DEPLOYED AND VERIFIED** @ `47773b69`. Law 5: VDock contracts frozen (skin / reactive
+chrome only). Law 3: no dating.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
-Law 1 still governs every detector and claim.
+Law 1 still governs every detector and claim. Product feel: one creative OS — Ableton /
+DaVinci calm information density — not a busy admin dashboard. One ecosystem, three
+doorways (desktop studio / web access / mobile capture). Ask what the user is doing, not
+which platform they are on.
 
 ### Authorised track
 
-1. **OR-043 Vibes Radio sync** (active) — global broadcast; landing guest play; opt-in
-   pool; migration `20260811_0093_vibes_radio` + edge `vibes-radio`.
-2. **M10 Store commerce** — native publish / discover / support (Law 1; no DSP-delivery
-   claims). Prefer small `feat/m10-store-*` PRs.
-3. **Creative OS / OR-032+** — song workspace working set sequence when authorised on tip.
+1. **Creative OS / OR-032** (active) — shared song workspace working set; Analyzer /
+   Correct / Translation Lab / Metadata share the active master; desk drop ownership;
+   suite chrome (centered mark, no suite back-arrow, reactive wordmark). Rail label
+   **Translation Lab** (OR-033).
+2. **Follow-on Creative OS wedges** (authorised sequence, separate PRs) — see
+   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-034 Correct desk, OR-035 What-next home, OR-036+
+   Midi preview/random, Converter formats, Pack Maker←Library→Store, iTunes-style Market
+   discovery, Landing drop→workspace, DAW project folder link, Analyzer reliability.
+3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
+   feed (no invented inventory; no DSP-delivery claims).
 
 ### Closed / parked tracks (post-smoke)
 
@@ -62,7 +74,9 @@ Law 1 still governs every detector and claim.
 4. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
    parked.
 5. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
-   or smoke-verified; no continuous polish track outside OR-043 / Creative OS sequence.
+   or smoke-verified; no continuous polish track outside Creative OS sequence / OR-043
+   bugfixes. Re-auth required for new OR scope outside that sequence.
+6. **OR-043 Vibes Radio (shipped)** — PR #152 @ `866eddcb`; bumper fix PR #153 @ `72b0833e`.
 
 Bugfixes and shared-shell changes remain allowed.
 
@@ -74,9 +88,9 @@ Bugfixes and shared-shell changes remain allowed.
 - **OR-026–OR-028** — shipped; Correct deepen closed unless re-authorised.
 - **OR-020 / OR-029 / OR-030 / OR-031** — parked after owner smoke **2026-08-10** unless
   re-authorised.
+- **OR-043 Vibes Radio** — 2026-08-11; interstitial bumper-only; no continuous deepen.
 
-Live/messaging receive **no new feature work** (bugfixes / shared-shell only) except
-**OR-043 Vibes Radio** as authorised above.
+Live/messaging receive **no new feature work** (bugfixes / shared-shell only).
 Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
@@ -100,14 +114,16 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
 `src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
 `src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
+`src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032),
 `src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 authorised** — Wave R **DEPLOYED AND VERIFIED** @ `47773b69`; Store commerce
-authorised. **OR-043 Vibes Radio** authorised as active parallel track.
+UNVERIFIED). **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged;
+Store commerce parallel. **OR-043 shipped.** **Active:** Creative OS — **OR-032** then
+**OR-034**.
 
 ## Safety rules
 

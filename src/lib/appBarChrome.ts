@@ -2,6 +2,9 @@
  * Static route → sticky app bar chrome (3B / chrome unification).
  * Pages override title/actions via useRegisterAppBar. No page-level H1/PageHeader.
  * Dark Smoke era: one-word titles; subtitles only when they add a single cue.
+ *
+ * Creative OS: no history-back next to the wordmark on suite rail apps —
+ * back only on true nested detail (profiles, codex docs, live rooms, etc.).
  */
 
 export interface ChromeDef {
@@ -41,20 +44,20 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/artist/")) return { title: "Artist", showBack: true, backTo: "/" };
   if (pathname.startsWith("/p/")) return { title: "Project", showBack: true, backTo: "/" };
   if (pathname.startsWith("/store")) {
-    return { title: "Store", showBack: true, backTo: "/" };
+    return { title: "Store" };
   }
-  if (pathname.startsWith("/releases")) return { title: "Analyzer", showBack: true, backTo: "/" };
+  if (pathname.startsWith("/releases")) return { title: "Analyzer" };
   if (pathname.startsWith("/tools/metadata")) {
-    return { title: "Metadata", subtitle: "Editor", showBack: true, backTo: "/" };
+    return { title: "Metadata", subtitle: "Editor" };
   }
   if (pathname.startsWith("/tools/art-check")) {
-    return { title: "Art Check", showBack: true, backTo: "/" };
+    return { title: "Art Check" };
   }
   if (pathname.startsWith("/tools/midi")) {
-    return { title: "Midi Maker", showBack: true, backTo: "/" };
+    return { title: "Midi Maker" };
   }
   if (pathname.startsWith("/tools/convert")) {
-    return { title: "Converter", subtitle: "Media", showBack: true, backTo: "/" };
+    return { title: "Converter", subtitle: "Media" };
   }
   if (pathname.startsWith("/admin")) return { title: "Admin", showBack: true, backTo: "/" };
   if (pathname.startsWith("/mod")) return { title: "Mod", showBack: true, backTo: "/" };
@@ -64,8 +67,8 @@ export function chromeForPath(pathname: string): ChromeDef {
   if ((pathname.startsWith("/codex/") && pathname !== "/codex") || pathname.startsWith("/legal/")) {
     return { title: "Codex", showBack: true, backTo: "/codex" };
   }
-  if (pathname.startsWith("/codex") || pathname.startsWith("/legal")) return { title: "Codex", showBack: true, backTo: "/" };
-  if (pathname.startsWith("/library")) return { title: "Library", showBack: true, backTo: "/?tab=you" };
+  if (pathname.startsWith("/codex") || pathname.startsWith("/legal")) return { title: "Codex" };
+  if (pathname.startsWith("/library")) return { title: "Library" };
   if (pathname.startsWith("/visuals/tutorial")) {
     return { title: "Visualizer", showBack: true, backTo: "/" };
   }

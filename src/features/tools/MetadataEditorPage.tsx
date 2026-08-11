@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, FileAudio, Loader2, Save, Upload } from "lucide-react";
 import { ForgeDropzone, ToolWorkbench } from "@/components/ToolWorkbench";
 import { readId3Tags, titleFromFilename, type Id3Tags } from "@/lib/id3Tags";
@@ -12,6 +12,8 @@ import {
   serializeMetadataDraft,
   type MetadataDraft,
 } from "@/features/tools/metadataDraft";
+import { setWorkingTrack, workingTrackAsFile } from "@/features/workspace/workingSet";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 
 const STORAGE_KEY = "vybz.metadataEditor.draft.v1";
 
@@ -65,7 +67,7 @@ export function MetadataEditorPage() {
     setDraft((d) => ({ ...d, [key]: value }));
   }
 
-  async function onFile(file: File | undefined) {
+  async function onFile(file: File | undefined, source: "tool-drop" | "workspace" = "tool-drop") {
     if (!file || !isAudioFile(file)) {
       showToast("Choose an audio file");
       return;
@@ -83,6 +85,16 @@ export function MetadataEditorPage() {
         year: tags.year ? String(tags.year) : d.year,
         sourceFileName: file.name,
       }));
+      if (source === "tool-drop") {
+        setWorkingTrack({
+          title: tags.title || titleFromFilename(file.name) || file.name,
+          artistName: tags.artist || null,
+          fileName: file.name,
+          mimeType: file.type || "audio/wav",
+          blob: file,
+          source: "tool-drop",
+        });
+      }
       showToast("Tags imported — empty fields stay empty");
     } catch {
       showToast("Couldn't read tags from that file");
@@ -90,6 +102,17 @@ export function MetadataEditorPage() {
       setBusy(false);
     }
   }
+
+  const working = useWorkingTrack();
+  const loadedWorkingId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!working || draft.sourceFileName || loadedWorkingId.current === working.id) return;
+    const file = workingTrackAsFile(working);
+    if (!file) return;
+    loadedWorkingId.current = working.id;
+    void onFile(file, "workspace");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once from song workspace
+  }, [working, draft.sourceFileName]);
 
   function saveDraft() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
