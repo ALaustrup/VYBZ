@@ -83,7 +83,7 @@ function useReactiveGlow(
 export function BrandMark({
   className,
   title = "VYBZ",
-  reactive = true,
+  reactive = false,
 }: {
   className?: string;
   title?: string;
@@ -189,7 +189,7 @@ export function Wordmark({
 export function BrandLockup({
   className,
   height = "h-7",
-  reactive = true,
+  reactive = false,
   // Day shell defaults to black mark; pass variant="white" on dark stages.
   variant = "black",
 }: {

@@ -51,7 +51,7 @@ export function AuthShell({
                 style={{ background: "rgb(var(--accent-rgb) / 0.25)" }}
                 aria-hidden
               />
-              <BrandMark className="relative h-14 w-14" reactive />
+              <BrandMark className="relative h-14 w-14" />
             </div>
             <div>
               <p className="nexus-eyebrow mb-1.5">VYBZ</p>
