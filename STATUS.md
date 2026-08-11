@@ -4,31 +4,43 @@
 
 **Date:** 2026-08-11
 **Branch:** `main`
-**HEAD:** `b0d1645d`
-**Current milestone:** **Suite UX** — merged; production verify next.
+**HEAD:** `b2572975`
+**Current milestone:** **Suite UX** — MERGED + production-verified (unsigned smoke).
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
-| Alias | https://vybz.cloud | Vercel |
-| Production SHA | Suite UX merge `b0d1645d` on `main` (Vercel auto-deploy) | `gh pr merge 163` → merge commit |
+| Alias | https://vybz.cloud | Live |
+| Production SHA | `b2572975` (docs) on tip; Suite UX feature `b0d1645d` included | Landing footer **Build b257297**; Vercel status success for `b0d1645d` |
 
 ## Last completed operations
 
-46. **OR-042 Analyzer reliability** — PR #162 merged @ `373746af`. Creative OS OR-032–042 closed.
-47. **Suite UX authorised** — Cost Sentinel + AI minutes removal; Settings without money/usage; viewport; dashboard motion; profile liveliness.
-48. **Suite UX merged** — PR #163 @ `b0d1645d` (`feat/suite-ux-cost-removal` → `main`).
+46. **OR-042 Analyzer reliability** — PR #162 @ `373746af`. Creative OS OR-032–042 closed.
+47. **Suite UX authorised** then implemented.
+48. **Suite UX merged** — PR #163 @ `b0d1645d`.
+49. **Suite UX production verify (unsigned)** — 2026-08-11 on https://vybz.cloud.
 
 ## Deployment state
 
-Suite UX **MERGED TO MAIN** @ `b0d1645d`. Vercel production deploy **PENDING / NOT MEASURED** this turn (auto-deploy expected).
+Suite UX **DEPLOYED AND VERIFIED** (unsigned surfaces) on https://vybz.cloud @ tip `b2572975` (includes `b0d1645d`).
 
 ## Production verification
 
-Suite UX on https://vybz.cloud — **Not measured** this turn (merge evidence only).
+Measured on https://vybz.cloud (unsigned):
 
-## Validation (pre-merge tip `989a92cb` / branch, local)
+| Check | Result | Evidence |
+|---|---|---|
+| Deploy tip | Build `b257297` | Landing footer / CDP `Build b257297` |
+| Vercel Suite UX deploy | success | GH status on `b0d1645d` |
+| `/settings/costs` | redirects to `/`; no Cost Sentinel | CDP `href=https://vybz.cloud/`, `hasCost=false` |
+| `/settings/credits` | redirects to `/store` | Browser URL `https://vybz.cloud/store` |
+| Prod JS | no Cost Sentinel / AI minutes pages; no prepaid mastering strings | `index-BsoGi6kG.js`: `CostSentinelDashboardPage`/`AiCreditsPage`/`getAiCreditBalance`/`debitAICredits`/`master-low-balance` = false; `profile-stage`/`artist-cover` = true |
+| Prod CSS | wider stage + hidden scrollbars | `index-DvnfiB0y.css`: `max-w-6xl` + `scrollbar-width` present |
+
+**Not measured (auth required):** signed-in Settings sheet, Store pack checkout UI, Mastering run, equipped accent wash, live artist cover image.
+
+## Validation (pre-merge tip `989a92cb`, local)
 
 | Command | Result | Evidence |
 |---|---|---|
@@ -48,4 +60,4 @@ OR-044 Drive sync parked. VYBZ Pro / DR-01 Live / DR-03 Opportunities **withdraw
 
 ## Next authorised action
 
-Production-verify Suite UX on https://vybz.cloud (Settings no cost/minutes; mastering without prepaid gate; Store V¢; stage/viewport; profile accent/cover). Then park or authorise the next wedge.
+Owner: optional signed-in smoke (Settings / Store / Master / profile cosmetics). Otherwise authorise the next wedge or park Suite UX deepen.
