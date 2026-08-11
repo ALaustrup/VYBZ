@@ -5,6 +5,9 @@ import { KeyRound, Loader2 } from "lucide-react";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { BuildStamp } from "@/components/BuildStamp";
+import { VibesRadioHost } from "@/features/radio/VibesRadioHost";
+import { VibesRadioNowPlaying } from "@/features/radio/VibesRadioNowPlaying";
+import { VibesRadioVisualizer } from "@/features/radio/VibesRadioVisualizer";
 import { normalizeInviteCode } from "@/lib/alphaAccess";
 import { stashPendingInviteKey } from "@/lib/pendingInviteKey";
 import { useReduceFx } from "@/lib/display";
@@ -12,7 +15,7 @@ import { cx } from "@/lib/utils";
 
 /**
  * Signed-out alpha gate — brand + invite key only (Masterplan §13 progressive disclosure).
- * Marketing copy intentionally absent; redeem runs after sign-in.
+ * Vibes Radio plays immediately for guests (track 2 interstitials only — never track 1).
  */
 export function LandingPage() {
   const navigate = useNavigate();
@@ -41,13 +44,17 @@ export function LandingPage() {
       data-testid="public-landing"
     >
       <GeometricBackdrop intensity="hero" />
+      <VibesRadioVisualizer />
+      <VibesRadioHost audience="guest" />
 
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-12">
         <LandingLogo />
 
+        <VibesRadioNowPlaying className="mt-6 w-full max-w-sm" />
+
         <motion.form
           onSubmit={onEnter}
-          className="landing-invite-panel forge-glass relative mt-10 flex w-full max-w-sm flex-col items-stretch gap-3 !rounded-2xl p-5"
+          className="landing-invite-panel forge-glass relative mt-8 flex w-full max-w-sm flex-col items-stretch gap-3 !rounded-2xl p-5"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}

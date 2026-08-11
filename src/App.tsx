@@ -56,7 +56,7 @@ import { LiveWatchPage } from "@/pages/LiveWatchPage";
 import { SocialPage } from "@/pages/SocialPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { ArtistPage } from "@/pages/ArtistPage";
-import { AmbientRadioHost } from "@/components/AmbientRadioHost";
+import { VibesRadioHost } from "@/features/radio/VibesRadioHost";
 import { ListenEarnHost } from "@/components/ListenEarnHost";
 import { LibraryPage } from "@/pages/LibraryPage";
 import { TrackDetailPage } from "@/pages/TrackDetailPage";
@@ -279,7 +279,7 @@ export function App() {
           enabled={!composeOpen && !bulkOpen}
           onIngested={() => setFeedKey((k) => k + 1)}
         />
-        <AmbientRadioHost />
+        <VibesRadioHost audience="member" yieldToUser />
         <ListenEarnHost />
         <MessagePopoutHost />
         <CamCallOverlay />

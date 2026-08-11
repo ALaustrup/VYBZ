@@ -317,3 +317,9 @@ Architecture brief (audit only): [`docs/architecture/creative-os-song-workspace-
 - Filename `DcOffsetCorrectPage` understates nine ops; UI should read as a correction desk.
 - Keep Law 5 VDock A/B; keep credit-free local ops; deepen is parked unless re-authorised.
 - Primary win after OR-032: open Correct with the active Library / Analyzer track preloaded.
+
+### 8.5 OR-043 — Vibes Radio synchronized broadcast (2026-08-11)
+
+**Authorised.** Global server-clock radio replaces AmbientRadioHost. Beds at
+`public/audio/1.wav` (greeting, signed-in) and `2.wav` (interstitial, guests never hear
+track 1). Edge `vibes-radio` is logic-only; migration `20260811_0093_vibes_radio`.

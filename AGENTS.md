@@ -26,17 +26,16 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R** visual
-redesign **DEPLOYED AND VERIFIED** via [PR #144](https://github.com/ALaustrup/VYBZ/pull/144)
-@ `47773b69` (owner smoke **2026-08-10**). **Store commerce wave now authorised** —
-Store Preview / publish / discover / support per Masterplan §10 M10 (Law 1: no invented
-metrics; no DSP-delivery claims). **M9** remains closed (**DEPLOYED BUT UNVERIFIED** for
-cross-platform deepen). **M7** / **M8** / OR deepen stay **parked**. Law 5: VDock contracts
-frozen (skin only). Law 3: no dating. Instrument Creator parked. OR-021–OR-022 and
-OR-024–OR-025 remain parked.
+**OR-043 — Vibes Radio synchronized broadcast** authorised **2026-08-11** (owner).
+Server clock (`current_track` + `started_at`), queue, opt-in pool; edge `vibes-radio`
+(logic only, &lt;1 MB — no audio bytes). Beds: `public/audio/1.wav` / `2.wav` via CDN.
+Replaces AmbientRadioHost. Landing/auth guests hear track 2 interstitials only (never
+track 1). Gate: `or043VibesRadioGate.test.ts`.
 
-**Suite visual polish (pre-M10)** shipped via [PR #140](https://github.com/ALaustrup/VYBZ/pull/140)
-@ `46934283` — absorbed into M10 redesign as baseline, not a parallel track.
+**Creative OS / OR-032** remains authorised when that PR lands. **M10 Store commerce**
+remains authorised as a parallel later wedge when it does not fight the song-workspace
+model. Wave **R** **DEPLOYED AND VERIFIED** @ `47773b69`. Law 5: VDock contracts frozen
+(skin / reactive chrome only). Law 3: no dating.
 
 ### Positioning (Masterplan §1)
 
@@ -45,11 +44,11 @@ Law 1 still governs every detector and claim.
 
 ### Authorised track
 
-1. **M10 Store commerce** — native publish preview, discover, play, and support flows
-   (Masterplan §10 M10 exit). Prefer small reviewable PRs on `feat/m10-store-*` branches.
-   Executable Store gates must be added as commerce wedges land (`m10StoreCommerceGate`).
-   Law 1 / no DSP-delivery claims. Wave R redesign is baseline chrome only.
-   **Wedge 1 in progress:** Market browse (`/market`) over published packs.
+1. **OR-043 Vibes Radio sync** (active) — global broadcast; landing guest play; opt-in
+   pool; migration `20260811_0093_vibes_radio` + edge `vibes-radio`.
+2. **M10 Store commerce** — native publish / discover / support (Law 1; no DSP-delivery
+   claims). Prefer small `feat/m10-store-*` PRs.
+3. **Creative OS / OR-032+** — song workspace working set sequence when authorised on tip.
 
 ### Closed / parked tracks (post-smoke)
 
@@ -63,7 +62,7 @@ Law 1 still governs every detector and claim.
 4. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
    parked.
 5. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
-   or smoke-verified; no continuous polish track. Re-auth required for new OR scope.
+   or smoke-verified; no continuous polish track outside OR-043 / Creative OS sequence.
 
 Bugfixes and shared-shell changes remain allowed.
 
@@ -76,7 +75,8 @@ Bugfixes and shared-shell changes remain allowed.
 - **OR-020 / OR-029 / OR-030 / OR-031** — parked after owner smoke **2026-08-10** unless
   re-authorised.
 
-Live/messaging receive **no new feature work** (bugfixes / shared-shell only).
+Live/messaging receive **no new feature work** (bugfixes / shared-shell only) except
+**OR-043 Vibes Radio** as authorised above.
 Premium-suite phase track remains withdrawn. The Masterplan §9 sequence is the only plan.
 
 ### There is exactly one plan
@@ -99,14 +99,15 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7),
 `src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
 `src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
-`src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce).
+`src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
+`src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 authorised** — Wave R **DEPLOYED AND VERIFIED** @ `47773b69`;
-**Store commerce wave authorised** as the active M10 track.
+UNVERIFIED). **M10 authorised** — Wave R **DEPLOYED AND VERIFIED** @ `47773b69`; Store commerce
+authorised. **OR-043 Vibes Radio** authorised as active parallel track.
 
 ## Safety rules
 

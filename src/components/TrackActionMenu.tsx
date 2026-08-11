@@ -87,6 +87,7 @@ export function TrackActionMenu({
             enqueueTracks([toPlayerTrack(drop)], { playFirst: false });
             showToast("Added to queue");
           },
+          addToVibesRadio: () => void runAddToVibesRadio(),
           favourite: () => onReact?.("feel"),
           rate: () => onRate?.(),
           openArtist: () => {
@@ -143,6 +144,35 @@ export function TrackActionMenu({
       onChanged?.({ kind: "featured", dropId: drop.id });
     } else {
       showToast("Could not feature that track");
+    }
+  }
+
+  async function runAddToVibesRadio() {
+    const url = drop.audioUrl;
+    if (!url || !isPlayableMediaUrl(url)) {
+      showToast("This drop has no playable audio yet");
+      return;
+    }
+    const durationSec = drop.durationSec && drop.durationSec > 0 ? drop.durationSec : null;
+    if (!durationSec) {
+      showToast("Duration not measured for this track yet");
+      return;
+    }
+    setBusy(true);
+    const { optInToVibesRadio } = await import("@/features/radio/vibesRadio");
+    const res = await optInToVibesRadio({
+      dropId: drop.id,
+      audioUrl: url,
+      title: drop.title ?? undefined,
+      artist: drop.authorUsername ?? null,
+      durationSec,
+    });
+    setBusy(false);
+    if (res.ok) {
+      showToast("Added to Vibes Radio");
+      reset();
+    } else {
+      showToast(`Could not add to Vibes Radio — ${res.error}`);
     }
   }
 
