@@ -78,7 +78,7 @@ export function ContextualAppBar({
               <ArrowLeft className="h-4 w-4" />
             </button>
           ) : null)}
-          <AppBarWordmark className="min-w-0 pl-0.5" reactive />
+          <AppBarWordmark className="min-w-0 pl-0.5" />
         </div>
 
         <button
@@ -88,13 +88,7 @@ export function ContextualAppBar({
           className="relative z-[1] flex h-12 w-12 items-center justify-center justify-self-center overflow-visible bg-transparent p-0 active:scale-95"
           data-testid="suite-app-bar-mark"
         >
-          <BrandMark
-            reactive
-            className={cx(
-              "h-9 w-9 sm:h-10 sm:w-10",
-              !reduce && !player.playing && "animate-[vybz-hue_12s_linear_infinite]",
-            )}
-          />
+          <BrandMark className="h-9 w-9 sm:h-10 sm:w-10" />
         </button>
 
         <div className="flex min-w-0 items-center justify-end gap-1.5 justify-self-end">

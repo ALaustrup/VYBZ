@@ -10,7 +10,7 @@ import { cx } from "@/lib/utils";
  */
 export function AppBarWordmark({
   className,
-  reactive = true,
+  reactive = false,
 }: {
   className?: string;
   reactive?: boolean;

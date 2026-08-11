@@ -53,7 +53,7 @@ export function CodexPage() {
   return (
     <div className="no-scrollbar h-full overflow-y-auto px-5 pb-10 pt-4">
       <div className="mx-auto max-w-3xl">
-        <BrandLockup height="h-6" reactive className="mb-3 opacity-90" />
+        <BrandLockup height="h-6" className="mb-3 opacity-90" />
         <p className="mb-4 text-sm text-white/45">
           Free music-industry documents from <span className="text-white/70">Astra Matrix, Inc.</span> — starting points for collaborations.
         </p>
