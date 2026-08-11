@@ -116,20 +116,28 @@ Deno.serve(async (req: Request) => {
 
     if (isSecureBunnyPath(ticket.path)) {
       if (!SEC_ZONE || !SEC_PASS) return json({ error: "bunny storage not configured" }, 503);
+      // Forward Range so seeking works; previously we advertised Accept-Ranges but
+      // always returned the whole body with 200, which breaks scrubbing long tracks.
+      const range = req.headers.get("Range");
       const upstream = await fetch(`https://${SEC_HOST}/${SEC_ZONE}/${ticket.path}`, {
-        headers: { AccessKey: SEC_PASS },
+        headers: range ? { AccessKey: SEC_PASS, Range: range } : { AccessKey: SEC_PASS },
       });
       if (!upstream.ok || !upstream.body) {
         return json({ error: `bunny storage ${upstream.status}` }, 502);
       }
+      const passthrough: Record<string, string> = {
+        ...CORS,
+        "Content-Type": upstream.headers.get("Content-Type") || guessContentType(ticket.path),
+        "Cache-Control": "private, max-age=300",
+        "Accept-Ranges": "bytes",
+      };
+      const contentRange = upstream.headers.get("Content-Range");
+      if (contentRange) passthrough["Content-Range"] = contentRange;
+      const contentLength = upstream.headers.get("Content-Length");
+      if (contentLength) passthrough["Content-Length"] = contentLength;
       return new Response(upstream.body, {
-        status: 200,
-        headers: {
-          ...CORS,
-          "Content-Type": upstream.headers.get("Content-Type") || guessContentType(ticket.path),
-          "Cache-Control": "private, max-age=300",
-          "Accept-Ranges": "bytes",
-        },
+        status: upstream.status === 206 ? 206 : 200,
+        headers: passthrough,
       });
     }
 
@@ -169,6 +177,7 @@ Deno.serve(async (req: Request) => {
 
   const base = `${SUPABASE_URL}/functions/v1/audio-play`;
   const urls: Record<string, string> = {};
+  const denied: string[] = [];
 
   for (const p of paths) {
     if (typeof p !== "string" || !p) continue;
@@ -176,10 +185,22 @@ Deno.serve(async (req: Request) => {
       urls[p] = p;
       continue;
     }
+    // Visibility is enforced here because this function is the only way to reach
+    // the bytes. Fail closed: an unevaluable check denies rather than allows.
+    if (!guestFeatured) {
+      const { data: allowed, error: visErr } = await admin.rpc("can_user_play_path", {
+        p_user: uid,
+        p_path: p,
+      });
+      if (visErr || allowed !== true) {
+        denied.push(p);
+        continue;
+      }
+    }
     const ticket = await mintTicket(p, uid);
     // apikey helps some gateways; ticket carries auth for the stream itself.
     urls[p] = `${base}?t=${encodeURIComponent(ticket)}${ANON_KEY ? `&apikey=${encodeURIComponent(ANON_KEY)}` : ""}`;
   }
 
-  return json({ urls, backend: "supabase-stream" });
+  return json({ urls, denied, backend: "supabase-stream" });
 });
