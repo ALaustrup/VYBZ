@@ -3,35 +3,35 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `feat/or-041-daw-project-folder`
-**HEAD:** d69301f7
-**Current milestone:** **Creative OS / OR-041** — optional DAW project folder link.
+**Branch:** `feat/or-042-analyzer-reliability`
+**HEAD:** (pending commit)
+**Current milestone:** **Creative OS / OR-042** — Analyzer reliability (name + drop ownership).
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | Tip includes OR-040 merge `081044e0` on `main` | PR #160 merged — prod UI SHA **Not measured** this turn |
+| Production SHA | Tip includes OR-041 merge `b3ee85a1` on `main` | PR #161 merged — prod UI SHA **Not measured** this turn |
 
 ## Last completed operations
 
-40. **OR-038 Pack Maker Library→Store** — PR #158 @ `ea864180`.
 41. **OR-039 Market discovery** — PR #159 @ `f585b533`.
 42. **OR-040 Landing drop → workspace** — PR #160 @ `081044e0`.
-43. **OR-041 DAW folder link (local)** — optional session link via detectDaw; gate `or041DawFolderLinkGate`.
+43. **OR-041 DAW folder link** — PR #161 @ `b3ee85a1`.
+44. **OR-042 Analyzer reliability (local)** — desk stopPropagation + Analyzer naming; gate `or042AnalyzerReliabilityGate`.
 
 ## Deployment state
 
-OR-040 **MERGED TO MAIN** @ `081044e0`. OR-041 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-041-daw-project-folder`.
+OR-041 **MERGED TO MAIN** @ `b3ee85a1`. OR-042 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-042-analyzer-reliability`.
 
 ## Production verification
 
-OR-040 / OR-041 on https://vybz.cloud — **Not measured** this turn.
+OR-041 / OR-042 on https://vybz.cloud — **Not measured** this turn. Analyzer scan/drop under LibraryDropHost — **Not measured** until owner smoke.
 
 ## Latest verification
 
-Local: lint PASS; full suite 590 PASS; build PASS; gate or041DawFolderLinkGate PASS.
+Local: pending lint/test/build this turn.
 
 ## Permanently out of scope (not parked)
 
@@ -39,8 +39,8 @@ Dating / swipe — Law 3. No DSP-delivery claims.
 
 ## Blockers / parked
 
-OR-044 Drive/OneDrive sync parked. Follow-on OR-042 Analyzer reliability authorised next.
+OR-044 Drive/OneDrive sync parked. Creative OS sequence OR-032–OR-042 closes after OR-042 ships.
 
 ## Next authorised action
 
-Open OR-041 PR; owner smoke (Link DAW folder on banner; Ableton detect from .als; no sync claim). Then OR-042 Analyzer reliability.
+Open OR-042 PR; owner smoke (drop on Analyzer dropzone → triage, no Library toast; OrbFan says Analyzer). Then park Creative OS deepen unless re-authorised.

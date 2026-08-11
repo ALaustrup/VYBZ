@@ -25,9 +25,16 @@ type Progress = {
 
 type Queued = { file: File; focusSource: WorkingTrackSource };
 
+function pointerOverDeskDrop(e: DragEvent): boolean {
+  const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+  return !!el?.closest(
+    "input, textarea, [contenteditable='true'], [data-no-library-drop], [data-analyzer-desk]",
+  );
+}
+
 /**
- * OR-040 — signed-in shell host: drop audio anywhere → private Library + focus song workspace.
- * Guest Landing drops are drained from in-memory stash after sign-in (no unsigned upload).
+ * OR-040 / OR-042 — signed-in shell host: drop audio anywhere → private Library + focus song workspace.
+ * Analyzer / Forge desks win via data-no-library-drop + data-analyzer-desk (stopPropagation on desk).
  */
 export function LibraryDropHost({
   enabled,
@@ -181,13 +188,23 @@ export function LibraryDropHost({
     const onDragEnter = (e: DragEvent) => {
       if (!dragHasFiles(e.dataTransfer)) return;
       e.preventDefault();
+      if (pointerOverDeskDrop(e)) {
+        setDragging(false);
+        return;
+      }
       dragDepth.current += 1;
       setDragging(true);
     };
     const onDragOver = (e: DragEvent) => {
       if (!dragHasFiles(e.dataTransfer)) return;
       e.preventDefault();
+      if (pointerOverDeskDrop(e)) {
+        setDragging(false);
+        if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+        return;
+      }
       if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+      setDragging(true);
     };
     const onDragLeave = (e: DragEvent) => {
       if (!dragHasFiles(e.dataTransfer)) return;
@@ -202,9 +219,14 @@ export function LibraryDropHost({
       setDragging(false);
       const target = e.target as HTMLElement | null;
       // Desk-owned dropzones (Analyzer, Forge tools) must win over library ingest.
-      if (target?.closest("input, textarea, [contenteditable='true'], [data-no-library-drop]")) {
+      if (
+        target?.closest(
+          "input, textarea, [contenteditable='true'], [data-no-library-drop], [data-analyzer-desk]",
+        )
+      ) {
         return;
       }
+      if (pointerOverDeskDrop(e)) return;
       if (e.dataTransfer?.files?.length) enqueue(e.dataTransfer.files, "library");
     };
 

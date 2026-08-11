@@ -116,7 +116,7 @@ function OpsStatStrip({
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
     { label: "Tracks", value: stats.tracks, to: "/library" },
-    { label: "Releases", value: stats.releases, to: "/releases" },
+    { label: "Analyzer", value: stats.releases, to: "/releases" },
     { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
     {
       label: "Blocked",

@@ -419,7 +419,13 @@ export function ReleasesPage() {
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
+    e.stopPropagation();
     void enqueueFiles(Array.from(e.dataTransfer.files));
+  }
+
+  function onDragOver(e: React.DragEvent) {
+    e.preventDefault();
+    e.stopPropagation();
   }
 
   async function runFix(op: AutoFixOp, localIds: string[], label: string) {
@@ -564,7 +570,7 @@ export function ReleasesPage() {
             void onPick();
           }
         }}
-        onDragOver={(e) => e.preventDefault()}
+        onDragOver={onDragOver}
         onDrop={onDrop}
         className="forge-glass forge-plasma relative z-[1] flex cursor-pointer flex-col items-center justify-center gap-3 px-6 py-14 text-center transition hover:border-white/25"
       >
@@ -573,7 +579,8 @@ export function ReleasesPage() {
         <div className="relative z-[1]">
           <p className="font-display text-lg font-semibold text-white">Drop tracks to scan</p>
           <p className="mt-1 text-sm text-white/50">
-            or click to choose · up to {MAX_ANALYZER_BATCH} · {workers} at a time on this machine
+            Analyzer owns this drop · or click to choose · up to {MAX_ANALYZER_BATCH} · {workers} at a
+            time on this machine
           </p>
         </div>
       </div>
@@ -677,7 +684,7 @@ export function ReleasesPage() {
                           className="!px-3 !py-1.5 text-xs"
                           onClick={() => row.releaseId && navigate(`/release/${row.releaseId}`)}
                         >
-                          See how to prepare
+                          See findings
                         </Button>
                       )}
                       {hasFix && (
@@ -757,7 +764,7 @@ export function ReleasesPage() {
                   {readyRows.length} of {doneRows.length} tracks are ready.
                 </p>
                 <p className="text-sm text-white/50">
-                  Click a track that needs work to see how to prepare it.
+                  Click a track that needs work to see the next Analyzer steps.
                 </p>
               </>
             )}
