@@ -12,6 +12,9 @@ import {
 import { readId3Tags, titleFromFilename } from "@/lib/id3Tags";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+import { takeLandingDropFiles } from "@/features/workspace/landingDropStash";
+import { seedWorkingTrackFromFile } from "@/features/workspace/seedWorkingTrackFromFile";
+import type { WorkingTrackSource } from "@/features/workspace/workingSet";
 
 type Progress = {
   total: number;
@@ -20,9 +23,11 @@ type Progress = {
   current?: string;
 };
 
+type Queued = { file: File; focusSource: WorkingTrackSource };
+
 /**
- * Signed-in shell host: drop audio files anywhere to enqueue private library uploads.
- * Background sequential ingest — no batch-size cap. Originality assumed (same as Bulk claim).
+ * OR-040 — signed-in shell host: drop audio anywhere → private Library + focus song workspace.
+ * Guest Landing drops are drained from in-memory stash after sign-in (no unsigned upload).
  */
 export function LibraryDropHost({
   enabled,
@@ -34,13 +39,15 @@ export function LibraryDropHost({
   const { showToast } = useSession();
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState<Progress | null>(null);
-  const queueRef = useRef<File[]>([]);
+  const queueRef = useRef<Queued[]>([]);
   const runningRef = useRef(false);
   const dragDepth = useRef(0);
+  const focusedThisBatch = useRef(false);
 
   const pump = useCallback(async () => {
     if (runningRef.current) return;
     runningRef.current = true;
+    focusedThisBatch.current = false;
     let ok = 0;
     let fail = 0;
     let lastFailReason: string | null = null;
@@ -48,7 +55,8 @@ export function LibraryDropHost({
     setProgress({ total: totalAtStart, done: 0, failed: 0 });
 
     while (queueRef.current.length > 0) {
-      const file = queueRef.current.shift()!;
+      const item = queueRef.current.shift()!;
+      const file = item.file;
       const remaining = queueRef.current.length;
       const total = ok + fail + remaining + 1;
       setProgress({
@@ -72,8 +80,9 @@ export function LibraryDropHost({
           sha256Hex(file).catch(() => undefined),
           acousticSignature(peaks).catch(() => undefined),
         ]);
+        const title = (tags.title || titleFromFilename(file.name)).slice(0, 80) || undefined;
         const drop = await api.createDrop({
-          title: (tags.title || titleFromFilename(file.name)).slice(0, 80) || undefined,
+          title,
           seed: Math.floor(Math.random() * 1e6),
           assetKind: "track",
           audioUrl: path,
@@ -92,6 +101,16 @@ export function LibraryDropHost({
           creditedArtist: tags.artist?.slice(0, 80) || undefined,
         });
         if (!drop) throw new Error("Library record create failed");
+        if (!focusedThisBatch.current) {
+          seedWorkingTrackFromFile({
+            file,
+            source: item.focusSource,
+            dropId: drop.id,
+            title: title ?? null,
+            artistName: tags.artist ?? null,
+          });
+          focusedThisBatch.current = true;
+        }
         ok++;
       } catch (err) {
         fail++;
@@ -101,7 +120,7 @@ export function LibraryDropHost({
         total: ok + fail + queueRef.current.length,
         done: ok + fail,
         failed: fail,
-        current: queueRef.current[0]?.name,
+        current: queueRef.current[0]?.file.name,
       });
     }
 
@@ -111,9 +130,9 @@ export function LibraryDropHost({
       showToast(
         fail === 0
           ? ok === 1
-            ? "Added 1 track to your library"
-            : `Added ${ok} tracks to your library`
-          : `Added ${ok} · ${fail} failed`
+            ? "Added to library · opened in song workspace"
+            : `Added ${ok} to library · first track opened in song workspace`
+          : `Added ${ok} · ${fail} failed · workspace focused when upload succeeded`,
       );
       onIngested?.();
     } else if (fail > 0) {
@@ -126,7 +145,7 @@ export function LibraryDropHost({
   }, [onIngested, showToast]);
 
   const enqueue = useCallback(
-    (list: FileList | File[]) => {
+    (list: FileList | File[], focusSource: WorkingTrackSource = "library") => {
       const { files, skippedNonAudio, skippedOversize } = collectLibraryAudioFiles(list);
       if (skippedOversize > 0) {
         showToast(`${skippedOversize} file${skippedOversize === 1 ? "" : "s"} over 1 GB — skipped`);
@@ -138,15 +157,23 @@ export function LibraryDropHost({
       if (!progress && !runningRef.current) {
         showToast(
           files.length === 1
-            ? "Adding to library (private)…"
-            : `Adding ${files.length} tracks to library (private)…`
+            ? "Adding to library · focusing song workspace…"
+            : `Adding ${files.length} tracks · focusing first in song workspace…`,
         );
       }
-      queueRef.current.push(...files);
+      queueRef.current.push(...files.map((file) => ({ file, focusSource })));
       void pump();
     },
-    [progress, pump, showToast]
+    [progress, pump, showToast],
   );
+
+  // Drain guest Landing stash once the signed-in shell is ready (OR-040).
+  useEffect(() => {
+    if (!enabled) return;
+    const pending = takeLandingDropFiles();
+    if (!pending.length) return;
+    enqueue(pending, "landing");
+  }, [enabled, enqueue]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -178,7 +205,7 @@ export function LibraryDropHost({
       if (target?.closest("input, textarea, [contenteditable='true'], [data-no-library-drop]")) {
         return;
       }
-      if (e.dataTransfer?.files?.length) enqueue(e.dataTransfer.files);
+      if (e.dataTransfer?.files?.length) enqueue(e.dataTransfer.files, "library");
     };
 
     window.addEventListener("dragenter", onDragEnter);
@@ -201,11 +228,12 @@ export function LibraryDropHost({
         <div
           className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-center bg-ink-950/70 backdrop-blur-sm"
           aria-hidden
+          data-testid="library-drop-overlay"
         >
           <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-veil-300/50 bg-ink-900/90 px-10 py-8">
             <Upload className="h-8 w-8 text-veil-300" />
-            <p className="font-display text-lg text-white">Drop to add to library</p>
-            <p className="text-[12px] text-white/45">Private tracks · no batch limit</p>
+            <p className="font-display text-lg text-white">Drop to open song workspace</p>
+            <p className="text-[12px] text-white/45">Adds to Library (private) · focuses first track</p>
           </div>
         </div>
       )}
@@ -213,7 +241,7 @@ export function LibraryDropHost({
         <div
           className={cx(
             "fixed bottom-[max(5.5rem,env(safe-area-inset-bottom))] left-1/2 z-[88] w-[min(22rem,calc(100%-2rem))] -translate-x-1/2",
-            "rounded-2xl border border-white/10 bg-ink-900/95 px-4 py-3 shadow-card backdrop-blur-xl"
+            "rounded-2xl border border-white/10 bg-ink-900/95 px-4 py-3 shadow-card backdrop-blur-xl",
           )}
           role="status"
           aria-live="polite"

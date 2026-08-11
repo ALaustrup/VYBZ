@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { KeyRound, Loader2 } from "lucide-react";
+import { KeyRound, Loader2, Upload } from "lucide-react";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { BuildStamp } from "@/components/BuildStamp";
@@ -10,11 +10,14 @@ import { VibesRadioNowPlaying } from "@/features/radio/VibesRadioNowPlaying";
 import { VibesRadioVisualizer } from "@/features/radio/VibesRadioVisualizer";
 import { normalizeInviteCode } from "@/lib/alphaAccess";
 import { stashPendingInviteKey } from "@/lib/pendingInviteKey";
+import { collectLibraryAudioFiles, dragHasFiles } from "@/lib/libraryDropIngest";
+import { stashLandingDropFiles, peekLandingDropFiles } from "@/features/workspace/landingDropStash";
 import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 
 /**
- * Signed-out alpha gate — brand + invite key only (Masterplan §13 progressive disclosure).
+ * Signed-out alpha gate — brand + invite key (Masterplan §13 progressive disclosure).
+ * OR-040: drag-drop stashes audio in memory until sign-in — never uploads unsigned-in.
  * Vibes Radio plays immediately for guests (track 2 interstitials only — never track 1).
  */
 export function LandingPage() {
@@ -23,6 +26,8 @@ export function LandingPage() {
   const [code, setCode] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [dropHint, setDropHint] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
 
   function onEnter(e: FormEvent) {
     e.preventDefault();
@@ -37,20 +42,107 @@ export function LandingPage() {
     navigate("/enter");
   }
 
+  const acceptFiles = useCallback((list: FileList | File[] | null) => {
+    if (!list) return;
+    const { files, skippedNonAudio, skippedOversize } = collectLibraryAudioFiles(list);
+    if (skippedOversize > 0) {
+      setDropHint(`${skippedOversize} file(s) over 1 GB — skipped`);
+      return;
+    }
+    if (!files.length) {
+      if (skippedNonAudio > 0) setDropHint("Drop audio files (WAV, FLAC, MP3, …)");
+      return;
+    }
+    stashLandingDropFiles(files);
+    const n = peekLandingDropFiles().length;
+    setDropHint(
+      n === 1
+        ? "1 track ready — enter with your invite key to open the song workspace (session only until sign-in)."
+        : `${n} tracks ready — enter to add to Library and focus the first in song workspace (session only until sign-in).`,
+    );
+  }, []);
+
   return (
     <div
       className="public-scroll-frame public-ops-shell nexus-void relative flex min-h-[100dvh] flex-col text-white"
       data-public-shell="landing"
       data-testid="public-landing"
+      onDragEnter={(e) => {
+        if (!dragHasFiles(e.dataTransfer)) return;
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragOver={(e) => {
+        if (!dragHasFiles(e.dataTransfer)) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+      }}
+      onDragLeave={(e) => {
+        if (e.currentTarget === e.target) setDragging(false);
+      }}
+      onDrop={(e) => {
+        if (!dragHasFiles(e.dataTransfer)) return;
+        e.preventDefault();
+        setDragging(false);
+        acceptFiles(e.dataTransfer.files);
+      }}
     >
       <GeometricBackdrop intensity="hero" />
       <VibesRadioVisualizer />
       <VibesRadioHost audience="guest" />
 
+      {dragging ? (
+        <div
+          className="pointer-events-none fixed inset-0 z-[40] flex items-center justify-center bg-ink-950/55"
+          data-testid="landing-drop-overlay"
+          aria-hidden
+        >
+          <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-white/30 bg-ink-900/90 px-8 py-6">
+            <Upload className="h-7 w-7 text-white/70" />
+            <p className="font-display text-base text-white">Drop to stash for song workspace</p>
+            <p className="text-[12px] text-white/45">No upload until you sign in</p>
+          </div>
+        </div>
+      ) : null}
+
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 py-12">
         <LandingLogo />
 
         <VibesRadioNowPlaying className="mt-6 w-full max-w-sm" />
+
+        <div
+          className="forge-glass relative mt-6 w-full max-w-sm !rounded-2xl p-4 text-center"
+          data-testid="landing-drop-zone"
+          data-no-library-drop
+        >
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+            Song workspace
+          </p>
+          <p className="relative z-[1] mt-1 text-[13px] text-white/55">
+            Drop a track here, then enter — we stash it in this session only (no cloud upload while signed out).
+          </p>
+          <label className="relative z-[1] mt-3 inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-[12px] text-white/70 hover:border-white/30">
+            <Upload className="h-3.5 w-3.5" />
+            Choose audio
+            <input
+              type="file"
+              accept="audio/*,.wav,.aiff,.flac,.mp3,.ogg,.m4a,.opus"
+              multiple
+              className="sr-only"
+              data-testid="landing-drop-input"
+              onChange={(e) => {
+                acceptFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          {dropHint ? (
+            <p className="relative z-[1] mt-2 text-[12px] text-[rgb(var(--app-accent-rgb))]" data-testid="landing-drop-hint">
+              {dropHint}
+            </p>
+          ) : null}
+        </div>
 
         <motion.form
           onSubmit={onEnter}
