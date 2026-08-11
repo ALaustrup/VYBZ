@@ -289,6 +289,9 @@ After the audio-only Analyzer intake desk (Tier A auto-fix + Library add):
 Owner explored suite apps in depth after M10 Wave R + Store Market wedge 1. **Not authorised
 to build** until AGENTS names a milestone. Parked as decision-required / OR entries.
 
+Architecture brief (audit only): [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md)
+— song workspace hero, workstation map, platform doorways, proposed build sequence.
+
 | ID | Idea | Status |
 |---|---|---|
 | OR-032 | **Library-first working set** — one ingest; tools open the active track from Library / Analyzer pending audio; no re-drop per app | Decision required |
