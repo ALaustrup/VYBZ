@@ -122,39 +122,78 @@ async function pickRandomPool(): Promise<{
   };
 }
 
+/**
+ * Queue a catalog/pool track. "Hear something new" is only a bumper immediately
+ * before that track — never a standalone filler that can loop forever.
+ */
+async function enqueueUserTrackWithInterstitial(item: {
+  audio_url: string;
+  title: string;
+  artist: string | null;
+  duration_sec: number;
+  drop_id?: string | null;
+  pool_id?: string | null;
+  source: string;
+}): Promise<void> {
+  const { data: pending } = await admin
+    .from("vibes_radio_queue")
+    .select("kind")
+    .order("position", { ascending: true })
+    .limit(32);
+  const last = pending?.length ? pending[pending.length - 1] : null;
+  const broadcast = await loadBroadcast();
+  const queueEmpty = !pending?.length;
+  // Current bumper already covers the next track — do not stack another interstitial.
+  const currentCoversNext =
+    queueEmpty && broadcast?.kind === "interstitial";
+
+  if (last?.kind !== "interstitial" && !currentCoversNext) {
+    await enqueue({ ...INTERSTITIAL, artist: INTERSTITIAL.artist });
+  }
+
+  await enqueue({
+    kind: "user_track",
+    audio_url: item.audio_url,
+    title: item.title,
+    artist: item.artist,
+    duration_sec: item.duration_sec,
+    drop_id: item.drop_id ?? null,
+    pool_id: item.pool_id ?? null,
+    source: item.source,
+  });
+}
+
 async function refillQueue(preferGreeting: boolean): Promise<void> {
   const { data: pending } = await admin
     .from("vibes_radio_queue")
-    .select("id")
+    .select("id, kind")
     .order("position", { ascending: true })
-    .limit(8);
+    .limit(16);
 
-  let need = Math.max(0, 4 - (pending?.length ?? 0));
+  const userTracksQueued = (pending ?? []).filter((r) => r.kind === "user_track").length;
+  // Keep a small runway of real tracks — never pad with interstitial-only rows.
+  let need = Math.max(0, 2 - userTracksQueued);
   if (need === 0) return;
 
-  if (preferGreeting && need > 0) {
-    await enqueue({ ...GREETING, artist: GREETING.artist });
-    need -= 1;
-  }
-
-  while (need > 0) {
+  let added = 0;
+  while (added < need) {
     const pool = await pickRandomPool();
-    if (pool) {
-      await enqueue({
-        kind: "user_track",
-        audio_url: pool.audio_url,
-        title: pool.title,
-        artist: pool.artist,
-        duration_sec: pool.duration_sec,
-        drop_id: pool.drop_id,
-        pool_id: pool.id,
-        source: "pool",
-      });
-      need -= 1;
-      if (need <= 0) break;
+    if (!pool) break;
+
+    if (preferGreeting && added === 0) {
+      await enqueue({ ...GREETING, artist: GREETING.artist });
     }
-    await enqueue({ ...INTERSTITIAL, artist: INTERSTITIAL.artist });
-    need -= 1;
+
+    await enqueueUserTrackWithInterstitial({
+      audio_url: pool.audio_url,
+      title: pool.title,
+      artist: pool.artist,
+      duration_sec: pool.duration_sec,
+      drop_id: pool.drop_id,
+      pool_id: pool.id,
+      source: "pool",
+    });
+    added += 1;
   }
 }
 
@@ -191,20 +230,37 @@ async function advanceIfNeeded(broadcast: BroadcastRow, preferGreeting: boolean)
 
   await refillQueue(preferGreeting);
 
-  const { data: next } = await admin
-    .from("vibes_radio_queue")
-    .select("*")
-    .order("position", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  // Drop orphan bumpers (interstitial with no following catalog track) left by older fills.
+  for (let guard = 0; guard < 8; guard++) {
+    const { data: head } = await admin
+      .from("vibes_radio_queue")
+      .select("*")
+      .order("position", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (!head) return broadcast;
 
-  if (!next) {
-    const bed = await enqueue({ ...INTERSTITIAL, artist: INTERSTITIAL.artist });
-    if (!bed) return broadcast;
-    return (await applyItem(bed)) ?? broadcast;
+    if (head.kind === "interstitial") {
+      const { data: rest } = await admin
+        .from("vibes_radio_queue")
+        .select("kind")
+        .neq("id", head.id)
+        .order("position", { ascending: true })
+        .limit(8);
+      const hasFollowingTrack = (rest ?? []).some(
+        (r) => r.kind === "user_track" || r.kind === "artist_cue",
+      );
+      if (!hasFollowingTrack) {
+        await admin.from("vibes_radio_queue").delete().eq("id", head.id);
+        continue;
+      }
+    }
+
+    return (await applyItem(head as QueueRow)) ?? broadcast;
   }
 
-  return (await applyItem(next as QueueRow)) ?? broadcast;
+  // Empty runway: stay on the finished item (idle). Do not loop "Hear something new".
+  return broadcast;
 }
 
 function payloadFor(broadcast: BroadcastRow, audience: "guest" | "member") {
@@ -307,8 +363,7 @@ async function handleOptIn(req: Request, body: {
 
   if (error) return json({ error: "pool_upsert_failed", detail: error.message }, 500);
 
-  await enqueue({
-    kind: "user_track",
+  await enqueueUserTrackWithInterstitial({
     audio_url: body.audioUrl,
     title,
     artist,
