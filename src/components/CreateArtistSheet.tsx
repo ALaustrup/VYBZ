@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BadgeCheck, Loader2, Music2, X } from "lucide-react";
+import { BadgeCheck, Camera, Loader2, Music2, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { GENRES } from "@/lib/profileFields";
 import { cx } from "@/lib/utils";
@@ -23,6 +23,9 @@ export function CreateArtistSheet({ open, onClose, drops, onCreated, showToast }
   const [selected, setSelected] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [slugOk, setSlugOk] = useState<boolean | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const coverRef = useRef<HTMLInputElement>(null);
 
   const eligible = useMemo(() => {
     const n = name.trim().toLowerCase();
@@ -34,6 +37,11 @@ export function CreateArtistSheet({ open, onClose, drops, onCreated, showToast }
     if (!open) return;
     setName(""); setSlug(""); setSlugTouched(false); setBio(""); setGenres([]);
     setSelected([]); setBusy(false); setSlugOk(null);
+    setCoverFile(null);
+    setCoverPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
   }, [open]);
 
   useEffect(() => {
@@ -62,6 +70,15 @@ export function CreateArtistSheet({ open, onClose, drops, onCreated, showToast }
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
 
+  function pickCover(file: File | null) {
+    if (!file || !file.type.startsWith("image/")) return;
+    setCoverFile(file);
+    setCoverPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  }
+
   async function submit() {
     if (busy) return;
     if (selected.length < 2) {
@@ -72,8 +89,17 @@ export function CreateArtistSheet({ open, onClose, drops, onCreated, showToast }
     const res = await api.createArtistProfile({
       slug, displayName: name.trim(), bio: bio.trim() || undefined, genres, dropIds: selected,
     });
+    if (!res.artist) {
+      setBusy(false);
+      showToast(res.error || "Couldn't create artist profile.");
+      return;
+    }
+    if (coverFile) {
+      const ext = (coverFile.name.split(".").pop() || "jpg").toLowerCase().slice(0, 5);
+      const url = await api.uploadAvatar(coverFile, ext);
+      if (url) await api.updateArtistProfile(res.artist.id, { coverUrl: url });
+    }
     setBusy(false);
-    if (!res.artist) { showToast(res.error || "Couldn't create artist profile."); return; }
     showToast(`@${res.artist.slug} is live`);
     onCreated(res.artist.slug);
     onClose();
@@ -114,6 +140,22 @@ export function CreateArtistSheet({ open, onClose, drops, onCreated, showToast }
                   {slugOk === true && <BadgeCheck className="h-4 w-4 shrink-0 text-emerald-300" />}
                   {slugOk === false && <span className="shrink-0 text-[11px] text-wild">Taken</span>}
                 </div>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Cover (optional)</label>
+                <input ref={coverRef} type="file" accept="image/*" className="hidden"
+                  onChange={(e) => pickCover(e.target.files?.[0] ?? null)} />
+                <button
+                  type="button"
+                  onClick={() => coverRef.current?.click()}
+                  className="relative flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-dashed border-white/15 bg-white/[0.03] text-[13px] text-white/50 hover:border-white/25"
+                >
+                  {coverPreview ? (
+                    <img src={coverPreview} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <span className="inline-flex items-center gap-2"><Camera className="h-4 w-4" /> Add cover image</span>
+                  )}
+                </button>
               </div>
               <div>
                 <label className="mb-1.5 block text-[12px] font-semibold text-white/60">Bio (optional)</label>

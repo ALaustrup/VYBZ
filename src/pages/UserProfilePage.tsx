@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Gift, Loader2, MessageCircle, Radio, Star, Users, Flag, UserPlus } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
-import { useResolvedCosmetics, Flair, CosmeticAvatarShell } from "@/lib/cosmetics";
+import { useResolvedCosmetics, Flair, CosmeticAvatarShell, accentWashStyle } from "@/lib/cosmetics";
 import * as api from "@/lib/api";
 import { TrackCard, toPlayerTrack } from "@/components/TrackCard";
 import { playTrack } from "@/lib/audioBus";
@@ -115,7 +115,7 @@ export function UserProfilePage() {
   }
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5">
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5" style={accentWashStyle(cosmetics.accent)}>
       <div className="mb-3 flex items-start gap-3">
         <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
           <Avatar url={profile.avatarUrl} name={profile.username} id={id} size="lg" square />

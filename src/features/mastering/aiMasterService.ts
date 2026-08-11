@@ -4,8 +4,6 @@
  */
 
 import {
-  AI_MASTERING_FREE_SECONDS,
-  AI_MASTERING_USD_PER_SECOND,
   masterWavBuffer,
   type MasteringMetrics,
   type MasteringResult,
@@ -15,8 +13,6 @@ import {
   type InferredMetadata,
 } from "@vybz/processing/metadata";
 import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
-import { monthTotals, recordCost } from "@/platform/costs/recordCost";
-import { debitAICredits, getAiCreditBalance } from "@/platform/costs/aiCredits";
 import { PlatformError } from "@/platform/bridge/errors";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 
@@ -65,25 +61,12 @@ function newId(): string {
   return crypto.randomUUID();
 }
 
-export async function aiMasteringMonthSeconds(): Promise<number> {
-  const totals = await monthTotals();
-  return totals.byFeature["ai_mastering"]?.units ?? 0;
-}
-
-export async function assertAiMasteringAllowed(extraSeconds: number): Promise<void> {
+/** Kill-switch only — no prepaid AI-minute / credit balance gate. */
+export async function assertAiMasteringAllowed(_extraSeconds = 0): Promise<void> {
   if (isFeatureKillSwitched("ai_mastering") || isFeatureKillSwitched("processing")) {
     throw new PlatformError(
       "validation",
-      "AI mastering disabled by Cost Sentinel kill-switch (feature:ai_mastering:disabled)"
-    );
-  }
-  const used = await aiMasteringMonthSeconds();
-  const freeLeft = Math.max(0, AI_MASTERING_FREE_SECONDS - used);
-  const prepaid = await getAiCreditBalance();
-  if (freeLeft + prepaid < extraSeconds) {
-    throw new PlatformError(
-      "validation",
-      "AI credits exhausted (balance ≤ 0) — top up at /settings/credits"
+      "AI mastering disabled by feature kill-switch (feature:ai_mastering:disabled)"
     );
   }
 }
@@ -153,21 +136,6 @@ export async function runLocalMasterJob(opts: {
       typeof URL !== "undefined" && typeof URL.createObjectURL === "function"
         ? URL.createObjectURL(masteredBlob)
         : undefined;
-    const seconds = Math.max(0.001, mastered.metrics.durationSeconds);
-    const usd = seconds * AI_MASTERING_USD_PER_SECOND;
-    const usedBefore = await aiMasteringMonthSeconds();
-    const freeLeft = Math.max(0, AI_MASTERING_FREE_SECONDS - usedBefore);
-    const prepaidDebit = Math.max(0, seconds - freeLeft);
-    await recordCost("ai_mastering", seconds, usd, {
-      meta: { job_id: jobId, proc_version: mastered.metrics.procVersion },
-    });
-    if (prepaidDebit > 0) {
-      await debitAICredits(prepaidDebit, {
-        usd: prepaidDebit * AI_MASTERING_USD_PER_SECOND,
-        reason: "ai_mastering",
-        meta: { job_id: jobId, proc_version: mastered.metrics.procVersion },
-      });
-    }
 
     let metadata: InferredMetadata | undefined;
     if (opts.inferMeta !== false) {
@@ -176,12 +144,6 @@ export async function runLocalMasterJob(opts: {
         title: opts.fileName,
         durationSeconds: mastered.metrics.durationSeconds,
       });
-      // Only bill an operation that produced something.
-      if (metadata.source !== "unavailable") {
-        await recordCost("ai_metadata", 1, 0, {
-          meta: { job_id: jobId, source: metadata.source },
-        });
-      }
     }
 
     tick("completed", 100, {

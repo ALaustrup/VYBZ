@@ -29,7 +29,7 @@ import { swarmSeedOptIn, setSwarmSeedOptIn } from "@/lib/swarm";
 import { cx } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { useReduceFxOverride, setReduceFx, useReduceFx, useFxIntensity, setFxIntensity } from "@/lib/display";
-import { useResolvedCosmetics, Flair, CosmeticAvatarShell } from "@/lib/cosmetics";
+import { useResolvedCosmetics, Flair, CosmeticAvatarShell, accentWashStyle } from "@/lib/cosmetics";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { formatVc, formatVcAddress } from "@/lib/vc";
 import type { Drop, Credit } from "@/types";
@@ -84,7 +84,11 @@ export function ProfilePage() {
   const facets = profile.profile ?? {};
 
   return (
-    <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1">
+    <div
+      className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1"
+      style={accentWashStyle(cosmetics.accent)}
+      data-testid="profile-stage"
+    >
       {tab === "hub" && <ArtistHome />}
       {tab === "listen" && <DashListenPanel />}
       {tab === "live" && <DashLivePanel />}
@@ -222,7 +226,7 @@ export function ProfilePage() {
                 )}
                 <PasskeysCard />
                 <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
-                  <LinkRow icon={Sparkles} title="Flair" body="Profile Enhancement — looks only" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
+                  <LinkRow icon={Sparkles} title="Cosmetics" body="Accent, flair, frame, backdrop — Store equip" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
                   <LinkRow icon={ScrollText} title="Codex & Legal" body="Contracts, Terms, Privacy, Vc" onClick={() => { setSettingsOpen(false); navigate("/codex"); }} />
                   {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
                     <LinkRow icon={Shield} title="Moderate" body="Report queue" onClick={() => { setSettingsOpen(false); navigate("/mod"); }} />

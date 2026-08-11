@@ -29,16 +29,12 @@ test.describe("a11y smoke", () => {
     await expect(dropzone).toBeFocused();
   });
 
-  test("Cost Sentinel path is reachable or falls back safely", async ({ page }) => {
+  test("/settings/costs redirects away from Cost Sentinel", async ({ page }) => {
     await page.addInitScript(() => sessionStorage.setItem("vybz.intro", "1"));
     await page.goto("/settings/costs");
     await expect(page.locator("body")).toBeVisible();
-    const sentinel = page.getByTestId("cost-sentinel-page");
-    const root = page.locator("main, #root");
-    await expect(root.first().or(sentinel)).toBeVisible();
-    if ((await sentinel.count()) > 0) {
-      await expect(page.getByRole("heading", { name: /Usage/i })).toBeVisible();
-    }
+    await expect(page.getByTestId("cost-sentinel-page")).toHaveCount(0);
+    await expect(page).not.toHaveURL(/\/settings\/costs/);
   });
 
   test("storefront settlement fixture exposes Pending manual", async ({ page }) => {

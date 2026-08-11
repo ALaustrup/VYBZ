@@ -100,8 +100,8 @@ export const AI_REVIEW_SURFACES: AiReviewSurface[] = [
   {
     id: "settings",
     path: `${AI_REVIEW_BASE}/settings`,
-    productPaths: ["/settings/credits"],
-    purpose: "Settings / AI credits entry for members",
+    productPaths: ["/profile/edit", "/settings"],
+    purpose: "Settings entry redirects to profile prefs for members",
   },
 ];
 

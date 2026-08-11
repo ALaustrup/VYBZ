@@ -70,8 +70,6 @@ import { StorefrontDashboardPage } from "@/pages/StorefrontDashboardPage";
 import { StorefrontEditorPage } from "@/pages/StorefrontEditorPage";
 import { StorefrontPackPage } from "@/pages/StorefrontPackPage";
 import { MarketPage } from "@/pages/MarketPage";
-import { CostSentinelDashboardPage } from "@/features/costs/CostSentinelDashboardPage";
-import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
 import { MetadataEditorPage } from "@/features/tools/MetadataEditorPage";
 import { ArtCheckPage } from "@/features/tools/ArtCheckPage";
 import { MidiMakerPage } from "@/features/tools/MidiMakerPage";
@@ -126,6 +124,14 @@ export function App() {
   if (E2E_FIXTURES_ENABLED) {
     const fixture = resolveE2eFixture(location.pathname);
     if (fixture) return fixture;
+  }
+
+  // Suite UX — Cost Sentinel / AI minutes withdrawn (redirect before auth / backend gates).
+  if (location.pathname === "/settings/costs") {
+    return <Navigate to="/" replace />;
+  }
+  if (location.pathname === "/settings/credits") {
+    return <Navigate to="/store" replace />;
   }
 
   if (!backendEnabled) {
@@ -233,8 +239,8 @@ export function App() {
             <Route path="/market" element={<MarketPage />} />
           </>
         ) : null}
-        <Route path="/settings/costs" element={<CostSentinelDashboardPage />} />
-        <Route path="/settings/credits" element={<AiCreditsPage />} />
+        <Route path="/settings/costs" element={<Navigate to="/profile/edit" replace />} />
+        <Route path="/settings/credits" element={<Navigate to="/store" replace />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/mod" element={<ModPage />} />
         <Route path="/apply-mod" element={<ModApplyPage />} />

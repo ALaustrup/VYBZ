@@ -26,15 +26,17 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
-Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
-**Active wedge: OR-042 Analyzer reliability** (name Analyzer only; desk owns scan/drop). Prefer small
-reviewable PRs on `feat/or-042-*` / `feat/creative-os-*`. Gates:
-`or041DawFolderLinkGate.test.ts`, `or042AnalyzerReliabilityGate.test.ts`.
+**Suite UX** authorised **2026-08-11** (owner: after OR-042 merge). Active on
+`feat/suite-ux-*`. Scope: Cost Sentinel + AI minutes removal; Settings without money/usage;
+hidden scrollbars + wider stage; professional dashboard motion; livelier profile via cosmetics
++ artist cover. Gate: `suiteUxCostRemovalGate.test.ts`.
+
+**Creative OS — Song Workspace** sequence **OR-032–OR-042 CLOSED** (OR-042 merged PR #162 @
+`373746af`). No continuous Creative OS polish; park new ideas in IDEAS_BACKLOG. OR-044 Drive
+sync remains parked.
 
 **OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
-`xixmneooyufbeftdfpcm`; interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`.
-Bugfixes only unless re-authorised.
+`xixmneooyufbeftdfpcm`; interstitial bumper-only. Bugfixes only unless re-authorised.
 
 **M10 Store commerce** remains authorised as a **parallel later wedge** only when it does
 not fight the song-workspace model (Market browse shipped via PR #147). Wave **R**
@@ -51,27 +53,28 @@ which platform they are on.
 
 ### Authorised track
 
-1. **Creative OS / OR-042** (active) — Analyzer drop ownership + user-facing Analyzer naming.
-   OR-032–OR-041 shipped. Creative OS song-workspace sequence closes after this wedge.
+1. **Suite UX** (active) — cost/AI-minutes removal, Settings strip, viewport, dashboard
+   motion, profile liveliness. Prefer small reviewable PRs on `feat/suite-ux-*`.
 2. **Follow-on** — park new Creative OS ideas in IDEAS_BACKLOG; OR-044 Drive sync remains parked.
 3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
    feed (no invented inventory; no DSP-delivery claims).
 
 ### Closed / parked tracks (post-smoke)
 
-0. **Suite visual polish (shipped)** — PR #140 @ `46934283`; baseline for M10 redesign.
-1. **M10 Wave R (closed)** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**. Gate:
-   `m10SuiteRedesignGate.test.ts` (R0–R5). No continuous redesign polish track.
-2. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
+0. **Creative OS OR-032–OR-042 (closed)** — OR-042 PR #162 @ `373746af`.
+1. **Suite visual polish (baseline)** — PR #140 @ `46934283`; Suite UX wedge above is the
+   only authorised follow-on chrome work (not an open-ended redesign track).
+2. **M10 Wave R (closed)** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**. Gate:
+   `m10SuiteRedesignGate.test.ts` (R0–R5).
+3. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
    playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
    behind stable interfaces (Law 5). Extend via versioned contracts only.
-3. **M8 (parked)** — assemble + rule-cited findings shipped; deepen parked.
-4. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
+4. **M8 (parked)** — assemble + rule-cited findings shipped; deepen parked.
+5. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
    parked.
-5. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
-   or smoke-verified; no continuous polish track outside Creative OS sequence / OR-043
-   bugfixes. Re-auth required for new OR scope outside that sequence.
-6. **OR-043 Vibes Radio (shipped)** — PR #152 @ `866eddcb`; bumper fix PR #153 @ `72b0833e`.
+6. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
+   or smoke-verified; re-auth required for new OR scope.
+7. **OR-043 Vibes Radio (shipped)** — PR #152 @ `866eddcb`; bumper fix PR #153 @ `72b0833e`.
 
 Bugfixes and shared-shell changes remain allowed.
 
@@ -119,14 +122,15 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/or040LandingDropGate.test.ts` (Creative OS OR-040),
 `src/features/prepare/or041DawFolderLinkGate.test.ts` (Creative OS OR-041),
 `src/features/prepare/or042AnalyzerReliabilityGate.test.ts` (Creative OS OR-042),
-`src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
+`src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio),
+`src/features/prepare/suiteUxCostRemovalGate.test.ts` (Suite UX cost/AI-minutes removal).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED).
 **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged; Store commerce
-**OR-034 shipped** (PR #154). **OR-035 shipped** (PR #155). **OR-036 shipped** (PR #156). **OR-037 shipped** (PR #157). **OR-038 shipped** (PR #158). **OR-039 shipped** (PR #159). **OR-040 shipped** (PR #160). **OR-041 shipped** (PR #161). **Active:** **OR-042** Analyzer reliability.
+**OR-034–OR-041 shipped**. **OR-042 shipped** (PR #162 @ `373746af`). **Active:** **Suite UX**.
 
 ## Safety rules
 

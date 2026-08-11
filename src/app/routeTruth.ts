@@ -106,8 +106,6 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/tools/packs", title: "Storefront", keywords: ["packs", "sell", "sample packs"], flag: "storefront" },
   { path: "/visuals/studio", title: "Visualizer studio", keywords: ["visuals", "loop", "video"] },
   { path: "/visuals/tutorial", title: "Visualizer tutorial", keywords: ["visuals", "guide", "how to"] },
-  { path: "/settings/costs", title: "Cost Sentinel", keywords: ["spend", "budget", "providers"] },
-  { path: "/settings/credits", title: "AI minutes", keywords: ["credits", "quota", "usage"] },
   { path: "/profile/edit", title: "Edit profile", keywords: ["account", "bio", "avatar", "settings"] },
   { path: "/desktop/process", title: "Desktop batch", keywords: ["convert", "batch", "process"] },
   { path: "/desktop/waveform", title: "Waveform preview", keywords: ["waveform", "peaks"] },

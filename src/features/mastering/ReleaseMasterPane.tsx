@@ -11,10 +11,6 @@ import {
   subscribeAiJobs,
   type AiMasterJob,
 } from "@/features/mastering/aiMasterService";
-import {
-  AI_LOW_BALANCE_SECONDS,
-  getAiCreditBalance,
-} from "@/platform/costs/aiCredits";
 import { playTrack, toggle, usePlayerShell } from "@/lib/audioBus";
 import { stopAudioPreview, useAudioPreviewUrlCleanup } from "@/lib/audioPreview";
 import { decodeToBuffer } from "@/lib/audioEdit";
@@ -55,13 +51,11 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
   const [error, setError] = useState<string | null>(null);
   const [ab, setAb] = useState<"A" | "B">("B");
   const [file, setFile] = useState<File | null>(null);
-  const [creditBalance, setCreditBalance] = useState<number | null>(null);
   const [matchLoudness, setMatchLoudness] = useState(true);
   const [listenAUrl, setListenAUrl] = useState<string | null>(null);
   const [listenBUrl, setListenBUrl] = useState<string | null>(null);
   const [matchLabel, setMatchLabel] = useState<string | null>(null);
   const [matchBusy, setMatchBusy] = useState(false);
-  const latestStatus = jobs[0]?.status;
   const player = usePlayerShell();
 
   const unmatchedUrl =
@@ -78,16 +72,6 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
 
   useAudioPreviewUrlCleanup(listenAUrl, MASTER_PREVIEW_PREFIX);
   useAudioPreviewUrlCleanup(listenBUrl, MASTER_PREVIEW_PREFIX);
-
-  useEffect(() => {
-    let cancelled = false;
-    void getAiCreditBalance().then((b) => {
-      if (!cancelled) setCreditBalance(b);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [latestStatus]);
 
   useEffect(() => {
     return () => {
@@ -288,20 +272,6 @@ export function ReleaseMasterPane({ e2eMode = false, projectId: projectIdProp }:
           <h1 className="nexus-headline text-xl">MasterReady · e2e</h1>
           <Badge tone="info">fixture</Badge>
         </header>
-      )}
-
-      {creditBalance !== null && creditBalance < AI_LOW_BALANCE_SECONDS && (
-        <div
-          className="forge-card border-suite-warning/40"
-          data-testid="master-low-balance-banner"
-        >
-          <p className="text-sm text-snow">
-            AI minute balance low ({Math.floor(creditBalance)}s).{" "}
-            <Link to="/settings/credits" className="text-[rgb(var(--accent-rgb))] underline hover:brightness-110">
-              Top up credits
-            </Link>
-          </p>
-        </div>
       )}
 
       <div className="forge-glass relative p-4 md:p-5">

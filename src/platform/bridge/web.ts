@@ -8,9 +8,7 @@ import type {
 import { capabilitiesFor } from "@/platform/bridge/capabilities";
 import { cancelled, normalizeUnknown, PlatformError } from "@/platform/bridge/errors";
 import type { PlatformBridge } from "@/platform/bridge/types";
-import { createCostSentinel } from "@/platform/costs/sentinel";
 import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
-import { recordCost } from "@/platform/costs/recordCost";
 import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
 import { PORTABLE_FFT_MAX_BYTES } from "@vybz/processing/waveform";
 import { bindBrowserMediaSession } from "@/platform/bridge/mediaSession";
@@ -18,7 +16,6 @@ import { bindPlaybackLifecycle } from "@/platform/bridge/playbackLifecycle";
 import { bindAudioFocus } from "@/platform/bridge/audioFocusBind";
 
 const SESSION_KEY = "vybz.platform.session.v1";
-const costSentinel = createCostSentinel();
 
 function newId(): string {
   return crypto.randomUUID();
@@ -141,7 +138,7 @@ export function createWebBridge(): PlatformBridge {
         ) {
           throw new PlatformError(
             "validation",
-            "Processing disabled by Cost Sentinel kill-switch (feature:processing:disabled)"
+            "Processing disabled by feature kill-switch (feature:processing:disabled)"
           );
         }
         const caps = capabilitiesFor("web");
@@ -184,9 +181,6 @@ export function createWebBridge(): PlatformBridge {
             sizeBytes: input.file.sizeBytes,
             arrayBuffer: () => input.file.blob!.arrayBuffer(),
           });
-          const minutes = Math.max(0.001, (result.durationSeconds || 0) / 60);
-          costSentinel.record({ jobMinutes: minutes, storageBytes: input.file.sizeBytes });
-          void recordCost("processing", minutes, 0);
           return {
             jobId: newId(),
             status: "succeeded",

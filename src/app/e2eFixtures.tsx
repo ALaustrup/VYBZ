@@ -10,9 +10,7 @@ import { DynamicBackground } from "@/components/DynamicBackground";
 import { BRAND_BG } from "@/lib/surfaceTheme";
 import { FLAGS } from "@/lib/flags";
 import { StorefrontOrdersE2EFixturePage } from "@/pages/StorefrontOrdersE2EFixturePage";
-import { CostSentinelE2EFixturePage } from "@/pages/CostSentinelE2EFixturePage";
 import { MasteringE2EFixturePage } from "@/pages/MasteringE2EFixturePage";
-import { AiCreditsE2EFixturePage } from "@/pages/AiCreditsE2EFixturePage";
 import { CollabSessionsE2EFixturePage } from "@/pages/CollabSessionsE2EFixturePage";
 import { ShellOrbE2EFixturePage } from "@/pages/ShellOrbE2EFixturePage";
 import { TrackActionsE2EFixturePage } from "@/pages/TrackActionsE2EFixturePage";
@@ -42,10 +40,6 @@ export function resolveE2eFixture(pathname: string): ReactElement | null {
   switch (pathname) {
     case "/__e2e__/mastering":
       return <MasteringE2EFixturePage />;
-    case "/__e2e__/cost-sentinel":
-      return <CostSentinelE2EFixturePage />;
-    case "/__e2e__/ai-credits":
-      return <AiCreditsE2EFixturePage />;
     case "/__e2e__/collab":
       return <CollabSessionsE2EFixturePage />;
     case "/__e2e__/shell":

@@ -16,7 +16,6 @@ import { CommandDashboard } from "@/components/dashboard/CommandDashboard";
 import { CorrectPage } from "@/features/correction/CorrectPage";
 import { ReleasesPage } from "@/features/prepare/ReleasesPage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
-import { AiCreditsPage } from "@/features/costs/AiCreditsPage";
 import { BRAND_BG } from "@/lib/surfaceTheme";
 import { CodexPage } from "@/pages/CodexPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
@@ -92,7 +91,7 @@ export function AiReviewPortal() {
         <Route path={`${AI_REVIEW_BASE}/codex`} element={<CodexPage />} />
         <Route path={`${AI_REVIEW_BASE}/discover`} element={<DiscoverPage />} />
         <Route path={`${AI_REVIEW_BASE}/profile`} element={<ProfileEditPage />} />
-        <Route path={`${AI_REVIEW_BASE}/settings`} element={<AiCreditsPage />} />
+        <Route path={`${AI_REVIEW_BASE}/settings`} element={<Navigate to={`${AI_REVIEW_BASE}/home`} replace />} />
         <Route path="*" element={<Navigate to={AI_REVIEW_BASE} replace />} />
       </Routes>
     </ErrorBoundary>

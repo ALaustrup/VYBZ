@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
 import type { Cosmetic, CosmeticData } from "@/types";
@@ -77,4 +77,15 @@ export function CosmeticAvatarShell({
       {children}
     </span>
   );
+}
+
+/** Soft page wash from equipped accent (profile / hub chrome). */
+export function accentWashStyle(accent?: CosmeticData): CSSProperties | undefined {
+  if (!accent?.c0 || !accent?.c1) return undefined;
+  return {
+    backgroundImage: [
+      `radial-gradient(ellipse 110% 55% at 20% -5%, ${accent.c0}2e, transparent 55%)`,
+      `radial-gradient(ellipse 90% 45% at 100% 0%, ${accent.c1}24, transparent 50%)`,
+    ].join(", "),
+  };
 }

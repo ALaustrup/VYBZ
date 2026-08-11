@@ -20,7 +20,6 @@ export const SUITE_APP_ACCENT_RGB: Record<SuiteAppId, string> = {
   library: "45 212 191", // catalog teal
   codex: "148 163 184", // quiet fog
   store: "34 211 238", // market cool (not purple)
-  credits: "56 189 248", // utility sky (was indigo)
   settings: "148 163 184", // quiet utility
 };
 
