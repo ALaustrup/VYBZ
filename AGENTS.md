@@ -28,9 +28,9 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 **Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
 Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
-**Active wedge: OR-038 Pack Maker ← Library → Store**. Prefer small
-reviewable PRs on `feat/or-038-*` / `feat/creative-os-*`. Gates:
-`or037ConverterFormatsGate.test.ts`, `or038PackMakerLibraryGate.test.ts`.
+**Active wedge: OR-039 Market discovery** (browse/listen over measured packs). Prefer small
+reviewable PRs on `feat/or-039-*` / `feat/creative-os-*`. Gates:
+`or038PackMakerLibraryGate.test.ts`, `or039MarketDiscoveryGate.test.ts`.
 
 **OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
 `xixmneooyufbeftdfpcm`; interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`.
@@ -51,11 +51,11 @@ which platform they are on.
 
 ### Authorised track
 
-1. **Creative OS / OR-038** (active) — Pack Maker from Library multi-select → measured ZIP →
-   storefront handoff auto-upload. OR-032–OR-037 shipped.
+1. **Creative OS / OR-039** (active) — Market search/genre chips + preview listen on real
+   `preview_path` only; Discover soft-linked for songs. OR-032–OR-038 shipped.
 2. **Follow-on Creative OS wedges** (authorised sequence, separate PRs) — see
-   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-039 iTunes-style Market discovery,
-   Landing drop→workspace, DAW project folder link, Analyzer reliability.
+   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-040 Landing drop→workspace,
+   DAW project folder link, Analyzer reliability.
 3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
    feed (no invented inventory; no DSP-delivery claims).
 
@@ -117,6 +117,7 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/or036MidiMakerGate.test.ts` (Creative OS OR-036),
 `src/features/prepare/or037ConverterFormatsGate.test.ts` (Creative OS OR-037),
 `src/features/prepare/or038PackMakerLibraryGate.test.ts` (Creative OS OR-038),
+`src/features/prepare/or039MarketDiscoveryGate.test.ts` (Creative OS OR-039),
 `src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
@@ -124,7 +125,7 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED).
 **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged; Store commerce
-**OR-034 shipped** (PR #154). **OR-035 shipped** (PR #155). **OR-036 shipped** (PR #156). **OR-037 shipped** (PR #157). **Active:** **OR-038** Pack Maker ← Library → Store.
+**OR-034 shipped** (PR #154). **OR-035 shipped** (PR #155). **OR-036 shipped** (PR #156). **OR-037 shipped** (PR #157). **OR-038 shipped** (PR #158). **Active:** **OR-039** Market discovery.
 
 ## Safety rules
 
