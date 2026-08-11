@@ -33,12 +33,16 @@ import { isPlayableMediaUrl, playTrack, toggle, usePlayer } from "@/lib/audioBus
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
-import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
+import { getPrepareOwnerId, getReleaseBundle, listReleases } from "@/features/prepare/service";
+import { nextDeskStepsFromFindings } from "@/features/prepare/nextDeskFromFindings";
+import { WhatNextDesks } from "@/features/prepare/WhatNextDesks";
+import type { FindingLike } from "@/features/prepare/analyzerReady";
 import { useSession } from "@/store/session";
 import { paletteFor, cx } from "@/lib/utils";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import type { StorefrontOrder } from "@/features/storefront/types";
 import type { Drop } from "@/types";
+import type { NextDeskStep } from "@/features/prepare/nextDeskFromFindings";
 
 const SEVERITY_STYLE: Record<ActionSeverity, { icon: typeof AlertTriangle; tone: string }> = {
   blocking: { icon: AlertTriangle, tone: "text-suite-danger" },
@@ -286,6 +290,7 @@ export function ArtistHome() {
   const [drops, setDrops] = useState<Drop[]>([]);
   const [releases, setReleases] = useState<ReleaseProject[]>([]);
   const [orders, setOrders] = useState<StorefrontOrder[]>([]);
+  const [whatNext, setWhatNext] = useState<NextDeskStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [openAlbum, setOpenAlbum] = useState<DropGroup | null>(null);
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
@@ -305,6 +310,23 @@ export function ArtistHome() {
     setDrops(myDrops);
     setReleases(myReleases);
     setOrders(myOrders);
+
+    // Measured What-next from open findings on a few drafts/blocked releases (Law 1 codes only).
+    const focus = myReleases
+      .filter((r) => r.status === "draft" || r.status === "blocked")
+      .slice(0, 3);
+    const bundles = await Promise.all(
+      focus.map((r) => getReleaseBundle(ownerId, r.id).catch(() => null)),
+    );
+    const findings: FindingLike[] = [];
+    let releaseId: string | null = null;
+    for (const b of bundles) {
+      if (!b?.findings?.length) continue;
+      if (!releaseId) releaseId = b.project.id;
+      for (const f of b.findings) findings.push(f);
+    }
+    setWhatNext(nextDeskStepsFromFindings(findings, { releaseId, limit: 5 }));
+
     setLoading(false);
   }, [userId]);
 
@@ -381,6 +403,12 @@ export function ArtistHome() {
       ) : (
         <>
           <OpsStatStrip stats={stats} onNavigate={navigate} />
+          {whatNext.length > 0 ? (
+            <section className="forge-glass relative !rounded-2xl p-4 sm:p-5" data-testid="ops-home-what-next">
+              <span className="forge-glass-edge pointer-events-none" aria-hidden />
+              <WhatNextDesks steps={whatNext} title="What next" className="relative z-[1]" />
+            </section>
+          ) : null}
           <OpsActionCentre items={actions} onNavigate={navigate} />
 
           {recentTracks.length > 0 ? (
