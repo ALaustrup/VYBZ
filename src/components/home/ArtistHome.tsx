@@ -133,7 +133,7 @@ function OpsStatStrip({
           <button
             type="button"
             onClick={() => onNavigate(c.to)}
-            className="forge-glass forge-plasma relative w-full !rounded-xl !p-3 text-left transition hover:border-white/20"
+            className="forge-glass forge-plasma relative w-full !rounded-xl !p-3 text-left transition hover:-translate-y-0.5 hover:border-[rgb(var(--app-accent-rgb)/0.4)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(var(--app-accent-rgb)/0.55)] active:scale-[0.985] motion-reduce:hover:translate-y-0"
           >
             <span className="forge-glass-edge pointer-events-none" aria-hidden />
             <span

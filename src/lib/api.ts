@@ -2174,6 +2174,20 @@ export async function createArtistProfile(input: {
   return { artist: row ? toArtist(row as Record<string, unknown>) : null };
 }
 
+/** Member-owned patch for official artist visuals (RLS: artist_profiles update members). */
+export async function updateArtistProfile(
+  artistId: string,
+  patch: { coverUrl?: string | null; avatarUrl?: string | null; bio?: string | null },
+): Promise<boolean> {
+  const row: Record<string, unknown> = {};
+  if (patch.coverUrl !== undefined) row.cover_url = patch.coverUrl;
+  if (patch.avatarUrl !== undefined) row.avatar_url = patch.avatarUrl;
+  if (patch.bio !== undefined) row.bio = patch.bio;
+  if (Object.keys(row).length === 0) return true;
+  const { error } = await db().from("artist_profiles").update(row).eq("id", artistId);
+  return !error;
+}
+
 export async function dropsForArtist(artistId: string, limit = 40): Promise<Drop[]> {
   const myId = await currentUserId();
   const { data } = await db().from("drops")

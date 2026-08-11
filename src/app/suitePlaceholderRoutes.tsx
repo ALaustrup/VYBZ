@@ -155,7 +155,7 @@ export function suitePlaceholderRoutes() {
             product="home"
             title="Settings"
             description="Account, privacy, and Suite preferences."
-            phaseNote="Cost Sentinel: /settings/costs · AI minutes: /settings/credits."
+            phaseNote="Account prefs live under Profile → Edit (/profile/edit)."
           />
         }
       />

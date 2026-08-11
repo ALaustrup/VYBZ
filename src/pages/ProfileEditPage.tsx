@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Camera, Check, Coins, Loader2, Navigation, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Camera, Check, Loader2, Navigation, Sparkles } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
@@ -15,19 +15,10 @@ import type { ProfileDetails } from "@/types";
 
 const LOOKING_FOR_OPTIONS = CHOICE_FIELDS.find((f) => f.key === "lookingFor")?.options ?? [];
 
-/** V¢ packs — same Stripe products as StorePage (Law 6 utility credits). */
-const CREDIT_PACKS = [
-  { id: "starter", dollars: 5, credits: 100, label: "Starter" },
-  { id: "plus", dollars: 10, credits: 200, label: "Plus" },
-  { id: "pro", dollars: 25, credits: 500, label: "Studio" },
-] as const;
-
 export function ProfileEditPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { profile, refreshProfile, showToast } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
-  const packagesRef = useRef<HTMLDivElement>(null);
   const moduleSaveRef = useRef<(() => Promise<void>) | null>(null);
   const [bio, setBio] = useState("");
   const [locationText, setLocationText] = useState("");
@@ -48,8 +39,6 @@ export function ProfileEditPage() {
   const [profession, setProfession] = useState<string | null>(null);
   const [secondaries, setSecondaries] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
-  const [topupBusy, setTopupBusy] = useState<string | null>(null);
-  const [vcBalance, setVcBalance] = useState<number | null>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -65,18 +54,6 @@ export function ProfileEditPage() {
     setSecondaries((f.professions ?? []).filter((p) => p !== (f.profession ?? null)));
     api.getMyRoles().then((r) => { setOffers(r.offers.map((o) => o.roleId)); setSeeks(r.seeks.map((s) => s.roleId)); });
   }, [profile]);
-
-  useEffect(() => {
-    void api.listCosmetics().then((s) => setVcBalance(s?.credits ?? null)).catch(() => undefined);
-  }, []);
-
-  useEffect(() => {
-    if (location.hash !== "#packages") return;
-    const t = window.setTimeout(() => {
-      packagesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
-    return () => window.clearTimeout(t);
-  }, [location.hash]);
 
   const tog = (arr: string[], set: (v: string[]) => void, v: string, max = 99) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v].slice(0, max));
@@ -117,19 +94,6 @@ export function ProfileEditPage() {
       },
       { enableHighAccuracy: false, timeout: 12000 },
     );
-  }
-
-  async function buyCredits(packId: string) {
-    setTopupBusy(packId);
-    try {
-      const url = await api.startCreditTopup(packId, window.location.origin);
-      if (url) { window.location.href = url; return; }
-      showToast("Could not start checkout.");
-    } catch (e) {
-      showToast((e as Error).message);
-    } finally {
-      setTopupBusy(null);
-    }
   }
 
   async function save() {
@@ -201,42 +165,22 @@ export function ProfileEditPage() {
           <textarea value={influences} onChange={(e) => setInfluences(e.target.value.slice(0, 200))} rows={2} placeholder="Influences (optional)" className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
         </Section>
 
-        <div ref={packagesRef} id="packages">
-          <Section title="Packages">
-            <div className="flex items-start gap-2 text-[13px] leading-relaxed text-white/50">
-              <Package className="mt-0.5 h-4 w-4 shrink-0 text-veil-300" />
-              <p>
-                Buy <span className="text-white/75">VYBZ Credits (V¢)</span> to tip and support artists on Discover.
-                V¢ is closed-loop utility credit — not tradeable and not withdrawable.
-              </p>
-            </div>
-            {vcBalance != null && (
-              <p className="flex items-center gap-1.5 text-[13px] text-white/70">
-                <Coins className="h-4 w-4 text-veil-300" /> Balance · {vcBalance} V¢
-              </p>
-            )}
-            <div className="grid gap-2 sm:grid-cols-3">
-              {CREDIT_PACKS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  disabled={!!topupBusy}
-                  onClick={() => void buyCredits(p.id)}
-                  className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-left transition hover:border-white/25 hover:bg-white/[0.07] disabled:opacity-50"
-                >
-                  <p className="text-[13px] font-semibold text-white">{p.label}</p>
-                  <p className="mt-1 font-mono text-[12px] text-veil-200">{p.credits} V¢</p>
-                  <p className="mt-0.5 text-[11px] text-white/40">${p.dollars}</p>
-                  {topupBusy === p.id ? (
-                    <Loader2 className="mt-2 h-4 w-4 animate-spin text-white/50" />
-                  ) : (
-                    <span className="mt-2 inline-block text-[11px] font-semibold text-white/70">Buy</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </Section>
-        </div>
+        <Section title="Look">
+          <div className="flex items-start gap-2 text-[13px] leading-relaxed text-white/50">
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-veil-300" />
+            <p>
+              Equip accent, flair, frame, and backdrop from the Store. Looks only — not a free-form colour picker.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/store")}
+            className="btn btn-ghost h-10 w-full justify-between px-3.5 py-0 text-[13px]"
+          >
+            <span>Open cosmetics Store</span>
+            <Sparkles className="h-3.5 w-3.5 text-veil-300" />
+          </button>
+        </Section>
 
         <Section title="Presence">
           <Toggle label="Open to work / collaboration" on={openToWork} onClick={() => setOpenToWork((v) => !v)} />

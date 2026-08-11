@@ -96,7 +96,7 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
       productId: "home",
     },
     {
-      path: "/profile/edit#packages",
+      path: "/store",
       label: "Packages",
       hint: "Buy V¢ for tips and support",
       icon: Package,
@@ -143,8 +143,6 @@ export const ARCHIVED_NAV_PATHS = [
   "/studio",
   "/live",
   "/market",
-  "/settings/credits",
-  "/settings/costs",
   "/store",
   "/rooms",
 ] as const;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
@@ -30,6 +31,14 @@ import { statusTone } from "@/features/prepare/severity";
 import { Badge } from "@/components/ui/Badge";
 import { formatVcAddress } from "@/lib/vc";
 import { cx } from "@/lib/utils";
+import { useReduceFx } from "@/lib/display";
+import {
+  pageEnter,
+  springSnappy,
+  staggerContainer,
+  staggerItem,
+  withReduce,
+} from "@/lib/motion";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import type { StorefrontOrder } from "@/features/storefront/types";
 import type { Drop, LiveSessionCard } from "@/types";
@@ -54,6 +63,7 @@ export function CommandDashboard({
   onLiveMore?: () => void;
 }) {
   const navigate = useNavigate();
+  const reduce = useReduceFx();
   const { userId, profile } = useSession();
   const [drops, setDrops] = useState<Drop[]>([]);
   const [releases, setReleases] = useState<ReleaseProject[]>([]);
@@ -101,31 +111,50 @@ export function CommandDashboard({
   const isNewAccount = drops.length === 0 && releases.length === 0;
 
   return (
-    <div className="space-y-5" data-testid="command-dashboard">
-      <header>
+    <motion.div
+      className="space-y-5"
+      data-testid="command-dashboard"
+      initial={reduce ? false : "hidden"}
+      animate="visible"
+      variants={reduce ? undefined : staggerContainer}
+      transition={withReduce(reduce, pageEnter.transition)}
+    >
+      <motion.header variants={reduce ? undefined : staggerItem}>
         <p className="nexus-eyebrow">
           {profile?.username ? formatVcAddress(profile.username) : "Your studio"}
         </p>
         <h1 className="nexus-headline mt-1 text-2xl">
           {isNewAccount ? "Let's get your first track measured" : "Where things stand"}
         </h1>
-      </header>
+      </motion.header>
 
       {isNewAccount ? (
-        <NewAccountStart onScan={() => navigate("/releases")} />
+        <motion.div variants={reduce ? undefined : staggerItem}>
+          <NewAccountStart onScan={() => navigate("/releases")} />
+        </motion.div>
       ) : (
         <>
-          <StatStrip stats={stats} onNavigate={navigate} />
-          <ActionCentre items={actions} onNavigate={navigate} />
-          {recent.length > 0 && <ContinueWorking releases={recent} onNavigate={navigate} />}
+          <motion.div variants={reduce ? undefined : staggerItem}>
+            <StatStrip stats={stats} onNavigate={navigate} reduce={reduce} />
+          </motion.div>
+          <motion.div variants={reduce ? undefined : staggerItem}>
+            <ActionCentre items={actions} onNavigate={navigate} reduce={reduce} />
+          </motion.div>
+          {recent.length > 0 && (
+            <motion.div variants={reduce ? undefined : staggerItem}>
+              <ContinueWorking releases={recent} onNavigate={navigate} reduce={reduce} />
+            </motion.div>
+          )}
           {myRecentDrops.length > 0 && (
-            <RecentUploads drops={myRecentDrops} onOpenLibrary={() => navigate("/library")} />
+            <motion.div variants={reduce ? undefined : staggerItem}>
+              <RecentUploads drops={myRecentDrops} onOpenLibrary={() => navigate("/library")} />
+            </motion.div>
           )}
         </>
       )}
 
       {live.length > 0 && (
-        <section>
+        <motion.section variants={reduce ? undefined : staggerItem}>
           <SectionHead icon={Radio} label="Live now" actionLabel="All" onAction={onLiveMore} />
           <ul className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
             {live.map((s) => (
@@ -133,7 +162,7 @@ export function CommandDashboard({
                 <button
                   type="button"
                   onClick={() => navigate(`/live/${s.id}`)}
-                  className="forge-card flex w-36 flex-col gap-2 !p-3 text-left active:scale-[0.98]"
+                  className="forge-card flex w-36 flex-col gap-2 !p-3 text-left transition hover:border-[rgb(var(--app-accent-rgb)/0.35)] active:scale-[0.985]"
                 >
                   <span className="flex items-center gap-2">
                     <Avatar url={s.avatarUrl} name={s.username} id={s.hostId} size="sm" />
@@ -153,29 +182,31 @@ export function CommandDashboard({
               </li>
             ))}
           </ul>
-        </section>
+        </motion.section>
       )}
 
       {fresh.length > 0 && (
-        <section>
+        <motion.section variants={reduce ? undefined : staggerItem}>
           <SectionHead icon={AudioLines} label="Fresh from other artists" actionLabel="More" onAction={onListenMore} />
           <div className="grid gap-3 sm:grid-cols-2">
             {fresh.map((d) => (
               <TrackCard key={d.id} compact drop={d} queue={fresh} />
             ))}
           </div>
-        </section>
+        </motion.section>
       )}
-    </div>
+    </motion.div>
   );
 }
 
 function StatStrip({
   stats,
   onNavigate,
+  reduce,
 }: {
   stats: DashboardStats;
   onNavigate: (to: string) => void;
+  reduce: boolean;
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
     { label: "Tracks", value: stats.tracks, to: "/library" },
@@ -193,16 +224,19 @@ function StatStrip({
     <ul className="grid grid-cols-3 gap-2 sm:grid-cols-5" data-testid="dashboard-stats">
       {cells.map((c) => (
         <li key={c.label}>
-          <button
+          <motion.button
             type="button"
             onClick={() => onNavigate(c.to)}
-            className="forge-card w-full !p-3 text-left transition hover:border-white/20"
+            whileHover={reduce ? undefined : { y: -2 }}
+            whileTap={reduce ? undefined : { scale: 0.985 }}
+            transition={withReduce(reduce, springSnappy)}
+            className="forge-card w-full !p-3 text-left transition hover:border-[rgb(var(--app-accent-rgb)/0.4)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(var(--app-accent-rgb)/0.55)]"
           >
             <span className={cx("block font-display text-xl font-semibold tabular-nums", c.tone ?? "text-white")}>
               {c.value}
             </span>
             <span className="block text-[11px] uppercase tracking-wide text-white/35">{c.label}</span>
-          </button>
+          </motion.button>
         </li>
       ))}
     </ul>
@@ -212,9 +246,11 @@ function StatStrip({
 function ActionCentre({
   items,
   onNavigate,
+  reduce,
 }: {
   items: ActionItem[];
   onNavigate: (to: string) => void;
+  reduce: boolean;
 }) {
   return (
     <section data-testid="action-centre">
@@ -233,11 +269,14 @@ function ActionCentre({
             const Icon = style.icon;
             return (
               <li key={item.id}>
-                <button
+                <motion.button
                   type="button"
                   onClick={() => onNavigate(item.href)}
                   data-testid={`action-${item.id}`}
-                  className="forge-card flex w-full items-start gap-3 text-left transition hover:border-white/20"
+                  whileHover={reduce ? undefined : { y: -1 }}
+                  whileTap={reduce ? undefined : { scale: 0.99 }}
+                  transition={withReduce(reduce, springSnappy)}
+                  className="forge-card flex w-full items-start gap-3 text-left transition hover:border-[rgb(var(--app-accent-rgb)/0.35)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[rgb(var(--app-accent-rgb)/0.55)]"
                 >
                   <Icon className={cx("mt-0.5 h-4 w-4 shrink-0", style.tone)} />
                   <span className="min-w-0 flex-1">
@@ -250,7 +289,7 @@ function ActionCentre({
                     {item.actionLabel}
                     <ArrowRight className="h-3 w-3" />
                   </span>
-                </button>
+                </motion.button>
               </li>
             );
           })}
@@ -263,9 +302,11 @@ function ActionCentre({
 function ContinueWorking({
   releases,
   onNavigate,
+  reduce,
 }: {
   releases: ReleaseProject[];
   onNavigate: (to: string) => void;
+  reduce: boolean;
 }) {
   return (
     <section data-testid="continue-working">
@@ -273,10 +314,13 @@ function ContinueWorking({
       <ul className="space-y-2">
         {releases.map((r) => (
           <li key={r.id}>
-            <button
+            <motion.button
               type="button"
               onClick={() => onNavigate(`/release/${r.id}`)}
-              className="forge-card flex w-full items-center gap-3 text-left transition hover:border-white/20"
+              whileHover={reduce ? undefined : { y: -1 }}
+              whileTap={reduce ? undefined : { scale: 0.99 }}
+              transition={withReduce(reduce, springSnappy)}
+              className="forge-card flex w-full items-center gap-3 text-left transition hover:border-[rgb(var(--app-accent-rgb)/0.35)]"
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white/90">{r.title}</span>
@@ -285,7 +329,7 @@ function ContinueWorking({
                 </span>
               </span>
               <Badge tone={statusTone(r.status)}>{r.status}</Badge>
-            </button>
+            </motion.button>
           </li>
         ))}
       </ul>

@@ -6,7 +6,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
-  Coins,
   Home,
   ImagePlus,
   Layers,
@@ -37,7 +36,6 @@ export type SuiteAppId =
   | "library"
   | "codex"
   | "store"
-  | "credits"
   | "settings";
 
 export type SuiteAppDef = {
@@ -153,14 +151,6 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     match: (p) =>
       p === "/market" || p.startsWith("/tools/packs") || p.startsWith("/pack/"),
     visible: () => FLAGS.storefront,
-  },
-  {
-    id: "credits",
-    label: "V¢",
-    path: "/settings/credits",
-    icon: Coins,
-    match: (p) => p.startsWith("/settings/credits") || p.startsWith("/settings/costs") || p.startsWith("/store"),
-    overflow: true,
   },
   {
     id: "settings",

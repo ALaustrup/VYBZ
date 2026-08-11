@@ -17,7 +17,7 @@ const CREDIT_PACKS = [
 
 /**
  * Legacy cosmetics store — Flair archived from nav.
- * Credit top-up packs remain; primary Packages UX lives on Edit profile.
+ * Credit top-up packs and cosmetics live here (Suite UX — not Settings).
  */
 export function StorePage() {
   const { refreshProfile, showToast } = useSession();

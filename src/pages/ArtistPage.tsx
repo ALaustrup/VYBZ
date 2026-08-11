@@ -49,23 +49,60 @@ export function ArtistPage() {
   const owners = members.filter((m) => m.role === "owner" || m.role === "manager");
 
   return (
-    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5">
-      <div className="mb-3 flex items-start gap-3">
-        <Avatar url={artist.avatarUrl} name={artist.displayName} id={artist.id} size="lg" square />
-        <div className="min-w-0 flex-1 pt-0.5">
-          <div className="flex flex-wrap items-center gap-2">
-            {artist.verifiedAt && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-veil-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-veil-100">
-                <BadgeCheck className="h-3 w-3" /> Official
-              </span>
-            )}
-            {artist.primaryGenres.length > 0 && (
-              <p className="text-[12px] text-white/50">{artist.primaryGenres.join(" · ")}</p>
-            )}
+    <div className="no-scrollbar h-full overflow-y-auto px-1 pb-4 pt-1.5" data-testid="artist-page">
+      {artist.coverUrl ? (
+        <div
+          className="relative mb-3 h-36 w-full overflow-hidden rounded-2xl border border-white/10 sm:h-44"
+          data-testid="artist-cover"
+        >
+          <img
+            src={artist.coverUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/25 to-transparent"
+          />
+          <div className="absolute bottom-3 left-3 right-3 flex items-end gap-3">
+            <Avatar url={artist.avatarUrl} name={artist.displayName} id={artist.id} size="lg" square />
+            <div className="min-w-0 flex-1 pb-0.5">
+              <p className="truncate font-display text-lg font-semibold text-white">{artist.displayName}</p>
+              {artist.primaryGenres.length > 0 && (
+                <p className="truncate text-[12px] text-white/55">{artist.primaryGenres.join(" · ")}</p>
+              )}
+            </div>
           </div>
-          {artist.bio && <p className="mt-1.5 text-sm leading-relaxed text-white/65">{artist.bio}</p>}
         </div>
-      </div>
+      ) : (
+        <div className="mb-3 flex items-start gap-3">
+          <Avatar url={artist.avatarUrl} name={artist.displayName} id={artist.id} size="lg" square />
+          <div className="min-w-0 flex-1 pt-0.5">
+            <div className="flex flex-wrap items-center gap-2">
+              {artist.verifiedAt && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-veil-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-veil-100">
+                  <BadgeCheck className="h-3 w-3" /> Official
+                </span>
+              )}
+              {artist.primaryGenres.length > 0 && (
+                <p className="text-[12px] text-white/50">{artist.primaryGenres.join(" · ")}</p>
+              )}
+            </div>
+            {artist.bio && <p className="mt-1.5 text-sm leading-relaxed text-white/65">{artist.bio}</p>}
+          </div>
+        </div>
+      )}
+
+      {artist.coverUrl && (
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          {artist.verifiedAt && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-veil-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-veil-100">
+              <BadgeCheck className="h-3 w-3" /> Official
+            </span>
+          )}
+          {artist.bio && <p className="w-full text-sm leading-relaxed text-white/65">{artist.bio}</p>}
+        </div>
+      )}
 
       {owners.length > 0 && (
         <div className="mb-4">

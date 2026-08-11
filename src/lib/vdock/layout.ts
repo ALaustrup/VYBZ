@@ -74,7 +74,7 @@ export const PIN_CATALOG: PinDef[] = [
   { id: "activity", label: "Live feed", to: "/?tab=live", icon: Bell, badgeUnread: true },
   { id: "discover", label: "Listen", to: "/?tab=listen", icon: Search },
   { id: "opportunities", label: "You", to: "/?tab=you", icon: FolderGit2 },
-  { id: "store", label: "Packages", to: "/profile/edit#packages", icon: Store },
+  { id: "store", label: "Packages", to: "/store", icon: Store },
   { id: "codex", label: "Codex", to: "/codex", icon: ScrollText },
   { id: "rooms", label: "You", to: "/?tab=you", icon: Hash },
   { id: "library", label: "You", to: "/?tab=you", icon: Images },

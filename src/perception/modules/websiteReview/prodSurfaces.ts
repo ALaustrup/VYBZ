@@ -19,7 +19,7 @@ export const WEBSITE_REVIEW_PROD_SURFACES: ProdSurface[] = [
   { id: "codex", path: "/codex" },
   { id: "discover", path: "/discover" },
   { id: "profile", path: "/profile/edit" },
-  { id: "settings", path: "/settings/credits" },
+  { id: "settings", path: "/profile/edit" },
   { id: "admin", path: "/admin", expectAdminBounce: true },
 ];
 

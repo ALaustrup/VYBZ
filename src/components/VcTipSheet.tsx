@@ -106,7 +106,7 @@ export function VcTipSheet({
 
   function goTopup() {
     onClose();
-    navigate("/profile/edit#packages");
+    navigate("/store");
   }
 
   return (

@@ -10,70 +10,13 @@ Last reviewed 2026-08-11.
 
 ---
 
-## 0. VYBZ Pro — owner-directed, designed, not yet authorised to build
+## 0. VYBZ Pro — WITHDRAWN from active leftover (2026-08-11)
 
-Owner direction, 2026-08-05: users keep their own files; VYBZ hosting is paid. Purchase
-runs on V¢, in the Diablo-style pattern already used for cosmetics — buy a credit pack
-with money, spend credits on the entitlement.
+Owner removed Pro hosting billing from the active leftover / decision queue (Suite UX
+authorisation). Design notes in `src/lib/proPlan.ts` may remain historical; **not authorised
+to build**. Re-auth required before any Pro hosting migration or purchase RPC.
 
-**Design status:** decided and encoded as pure rules in `src/lib/proPlan.ts`, covered by
-17 tests. **No billing exists.** Nothing charges, nothing grants, and no purchase control
-is shown, because the server RPC does not exist yet.
-
-### Recommended configuration
-
-| Decision | Recommendation | Rationale |
-|---|---|---|
-| Price | **60 V¢ / 30 days** | Exactly $3.00 at the existing $0.05 peg |
-| Currency | V¢ only | One currency, one ledger, matches cosmetics |
-| Included hosting | **10 GB** | "Unlimited" is not costable against lossless masters |
-| Overage | 6 V¢ per GB per period | Disclosed per Law 6 rather than silently throttled |
-| Grace after expiry | **30 days public**, with warnings | Nobody's release disappears the hour a payment lapses |
-| On lapse | Tracks go **private, never deleted**; owner keeps download | Deleting a creator's work for non-payment is indefensible |
-| Renewal | Extends an unexpired period | Renewing early must never destroy paid time |
-
-### What stays free forever
-
-Analysis, mastering, readiness, translation, distribution reports, export packages,
-managing and downloading your own files, messaging, live, discovery browsing. All of it
-is on-device compute or already-paid infrastructure, so it costs nothing to leave open.
-
-### What Pro pays for
-
-Hosting audio on VYBZ, publishing to the discovery feed, selling through a storefront —
-the three things that consume storage and bandwidth.
-
-### Already built
-
-- Buying V¢ with Stripe — `startCreditTopup` → `stripe-credit-topup`, packs at $5/$10/$25
-- Spending V¢ on an entitlement — the `purchase_cosmetic` RPC pattern
-- Ledger and history — `vc_award`, `vc_list_ledger`
-- Client entitlement shape — `ProfileDetails.pro`, `proUntil`, `isPro()`, `ProBadge`
-
-### Missing, and each needs owner approval
-
-1. **A `pro_until` column and `purchase_pro` RPC.** No migration in the repository sets
-   `pro` or `proUntil` today, so the entitlement is currently unreachable — `isPro()` can
-   never return true. This is a **database migration**.
-2. **Storage accounting.** Nothing measures per-user bytes, so overage cannot be billed.
-3. **Publish gating.** `PublishToCatalogCard` currently uploads for any signed-in user.
-   Gating it on Pro is a product decision with a migration behind it.
-4. **Lapse enforcement.** A scheduled job to flip lapsed users' tracks to private.
-
-### Compliance issue — resolved 2026-08-05
-
-The code, store copy, wallet copy and whitepaper previously described V¢ as the precursor
-to an exchange-listed asset with a ticker and a target listing window. Masterplan **Law 6**
-forbids cryptocurrency and speculative-finance framing, and selling credits to people told
-those credits may become tradeable is materially different from selling closed-loop credits.
-
-Owner confirmed removal on 2026-08-05. `VC_TICKER_FUTURE` is deleted, the whitepaper is
-reissued as v2.0 with the withdrawal stated in the document, and the store, wallet and
-Codex summary now say plainly that V¢ is not tradeable and cannot be withdrawn.
-
-The comment header of `20260727_0071_vc_wallet_ledger.sql` still mentions a future ticker.
-Applied migration history is never rewritten, so it stays as a historical record; the
-authoritative table comment is corrected in `20260805_0090_pro_hosting.sql`.
+~~Previous §0 design table retained in git history only.~~
 
 ---
 
@@ -83,9 +26,9 @@ These block milestone scoping. Nothing proceeds on any of them.
 
 | ID | Question | Blocks | Size |
 |---|---|---|---|
-| **DR-01** | Live streaming (LiveKit). Does it survive, and what release function does it serve? | M2, M10 | ~1,600 lines |
+| **DR-01** | ~~Live streaming (LiveKit)~~ | **WITHDRAWN** from active leftover 2026-08-11 — Live receives bugfixes / shared-shell only (AGENTS). | — |
 | **DR-02** | Messaging, cam calls, video messages, rooms. Retain, redesign, freeze or archive? | M2 | ~2,750 lines |
-| **DR-03** | Opportunities board and cosmetics. Masterplan §6 permits opportunity discovery only if later authorised. | M2 | ~510 lines |
+| **DR-03** | ~~Opportunities board and cosmetics board deepen~~ | **WITHDRAWN** from active leftover 2026-08-11 — cosmetics store equip remains; opportunity board not a work item. | — |
 | **DR-04** | V¢ tipping. Survives as "optional creator support", or separates from utility credits entirely? | M2, M11 | ~350 lines |
 | **DR-05** | Watermarking. Absent from the lifecycle in Masterplan §7. Retain, freeze or archive? | M2 | ~440 lines, 3 edge functions |
 | **DR-06** | Onboarding gate. `App.tsx` forces `RoleIntentOnboarding` before the shell. Delete it, or keep a professional-role intake? | M2 | critical path |

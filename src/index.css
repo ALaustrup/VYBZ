@@ -110,7 +110,7 @@
     --dock-reserve: calc(var(--vdock-h) + env(safe-area-inset-bottom, 0px));
     --rail-w: 5.75rem;
     --rail-width: var(--rail-w);
-    --stage-pad-x: 1rem;
+    --stage-pad-x: 0.75rem;
 
     /* Soft dark glass — frosted, next-gen, not muddy black */
     /* Aliases of the shared surface language in design/tokens.css. */
@@ -133,13 +133,13 @@
 
   @media (min-width: 640px) {
     :root {
-      --stage-pad-x: 1.5rem;
+      --stage-pad-x: 1.25rem;
     }
   }
 
   @media (min-width: 1024px) {
     :root {
-      --stage-pad-x: 2rem;
+      --stage-pad-x: 1.5rem;
     }
   }
 
@@ -272,7 +272,7 @@
   }
 
   .suite-stage-inner {
-    @apply mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-y-auto overflow-x-hidden;
+    @apply no-scrollbar mx-auto min-h-0 w-full max-w-6xl flex-1 overflow-y-auto overflow-x-hidden;
     padding-left: var(--stage-pad-x);
     padding-right: var(--stage-pad-x);
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
@@ -889,7 +889,7 @@
   }
 
   .app-stage-inner {
-    @apply mx-auto h-full min-h-0 w-full max-w-5xl overflow-y-auto overflow-x-hidden;
+    @apply no-scrollbar mx-auto h-full min-h-0 w-full max-w-6xl overflow-y-auto overflow-x-hidden;
     padding-left: var(--stage-pad-x);
     padding-right: var(--stage-pad-x);
     -webkit-overflow-scrolling: touch;
@@ -1436,6 +1436,11 @@
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.public-scroll-frame::-webkit-scrollbar {
+  display: none;
 }
 
 /* ── Premium ambience: smoother, glowing, alive interactions ───────────────── */
