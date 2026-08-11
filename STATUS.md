@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/suite-ux-cost-removal`
-**HEAD:** (set after commit)
+**HEAD:** `989a92cb`
 **Current milestone:** **Suite UX** — cost/AI-minutes removal, Settings strip, viewport, dashboard, profile.
 
 ## Production
@@ -28,14 +28,14 @@
 
 ## Deployment state
 
-OR-042 **MERGED TO MAIN** @ `373746af` (production). Suite UX on feature branch — **NOT ON MAIN**.
+OR-042 **MERGED TO MAIN** @ `373746af` (production). Suite UX tip `989a92cb` on `feat/suite-ux-cost-removal` — **NOT ON MAIN**.
 
 ## Production verification
 
 OR-042 on https://vybz.cloud — **Not measured** this turn (merge evidence only).
 Suite UX production UI — **Not measured** (not on `main`).
 
-## Validation (this branch, local)
+## Validation (tip `989a92cb`, local)
 
 | Command | Result | Evidence |
 |---|---|---|
@@ -55,4 +55,4 @@ OR-044 Drive sync parked. VYBZ Pro / DR-01 Live / DR-03 Opportunities **withdraw
 
 ## Next authorised action
 
-Push branch + open PR; after merge, production-verify Suite UX on https://vybz.cloud.
+Open/merge PR for `feat/suite-ux-cost-removal`; after merge, production-verify Suite UX on https://vybz.cloud.
