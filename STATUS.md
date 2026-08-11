@@ -3,35 +3,34 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `feat/or-035-what-next`
-**HEAD:** 7e691b89
-**Current milestone:** **Creative OS / OR-035** — measured What-next desks from finding codes.
+**Branch:** `feat/or-036-midi-maker-random`
+**HEAD:** 46cbc690
+**Current milestone:** **Creative OS / OR-036** — Midi Maker preview + random generator.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | Tip includes OR-034 merge `aedbe65d` on `main` | PR #154 merged 2026-08-11T12:58:57Z — prod UI SHA **Not measured** this turn |
-| Supabase | `xixmneooyufbeftdfpcm` | OR-043 migration + `vibes-radio` edge deployed |
+| Production SHA | Tip includes OR-035 merge `9b71d78a` on `main` | PR #155 merged 2026-08-11T13:11:38Z — prod UI SHA **Not measured** this turn |
 
 ## Last completed operations
 
-35. **OR-032 working set** — PR #151 @ `441f7f27`.
 36. **OR-034 Correct desk** — PR #154 @ `aedbe65d`.
-37. **OR-035 What next (local)** — `nextDeskFromFindings` + `WhatNextDesks` on Home / Analyzer / FindingReportCard; gate `or035WhatNextGate`.
+37. **OR-035 What next** — PR #155 @ `9b71d78a`.
+38. **OR-036 Midi Maker (local)** — random phrase generator + disclosed oscillator preview; gate `or036MidiMakerGate`.
 
 ## Deployment state
 
-OR-034 **MERGED TO MAIN** @ `aedbe65d`. OR-035 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-035-what-next`.
+OR-035 **MERGED TO MAIN** @ `9b71d78a`. OR-036 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-036-midi-maker-random`.
 
 ## Production verification
 
-OR-034 / OR-035 on https://vybz.cloud — **Not measured** this turn.
+OR-035 / OR-036 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Local: lint PASS; nextDesk + or035 gates PASS.
+Local: lint PASS; midiRandom + or036 gates PASS.
 
 ## Permanently out of scope (not parked)
 
@@ -39,8 +38,8 @@ Dating / swipe — Law 3. No DSP-delivery claims.
 
 ## Blockers / parked
 
-Follow-ons OR-036–OR-042 authorised as sequence. M7/M8 deepen parked.
+Follow-ons OR-037–OR-042 authorised as sequence.
 
 ## Next authorised action
 
-Open OR-035 PR; owner smoke (Home/Analyzer show code-driven desk chips). Then OR-036+.
+Open OR-036 PR; owner smoke (Random fills roll; Preview plays triangle). Then OR-037 Converter.

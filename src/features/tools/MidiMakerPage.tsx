@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, Loader2, Plus, Square, Trash2, Upload, Play } from "lucide-react";
+import { Download, Loader2, Plus, Shuffle, Square, Trash2, Upload, Play } from "lucide-react";
 import { Midi } from "@tonejs/midi";
 import { ToolWorkbench } from "@/components/ToolWorkbench";
 import { audioToMidi } from "@/lib/audioToMidi";
@@ -8,6 +8,10 @@ import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 import { PianoRoll, type PianoNote } from "@/features/tools/PianoRoll";
 import { playMidiPreview, type MidiPreviewHandle } from "@/features/tools/midiPreview";
+import {
+  generateRandomMidiPhrase,
+  type MidiScaleId,
+} from "@/features/tools/midiRandom";
 
 type Note = PianoNote;
 
@@ -40,7 +44,8 @@ function downloadMidi(notes: Note[], tempo: number, name: string) {
 }
 
 /**
- * Midi Maker — piano roll + note list + audio→MIDI / .mid import-export.
+ * Midi Maker — piano roll + built-in oscillator preview + random phrase generator.
+ * Preview is local Web Audio (triangle) — not a sample library or DSP claim.
  */
 export function MidiMakerPage() {
   const { showToast } = useSession();
@@ -50,6 +55,8 @@ export function MidiMakerPage() {
   const [busy, setBusy] = useState(false);
   const [showList, setShowList] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [scale, setScale] = useState<MidiScaleId>("pentatonic");
+  const [bars, setBars] = useState(2);
   const previewRef = useRef<MidiPreviewHandle | null>(null);
 
   useRegisterAppBar({ title: "Midi Maker" }, []);
@@ -114,6 +121,27 @@ export function MidiMakerPage() {
     ]);
   }, []);
 
+  const randomize = useCallback(() => {
+    stopPreview();
+    const phrase = generateRandomMidiPhrase({
+      bpm: tempo,
+      bars,
+      scale,
+      density: 8,
+    });
+    setNotes(
+      phrase.map((n) => ({
+        id: crypto.randomUUID(),
+        midi: n.midi,
+        time: n.time,
+        duration: n.duration,
+        velocity: n.velocity,
+      })),
+    );
+    if (!title || title === "untitled") setTitle(`random-${scale}-${bars}bar`);
+    showToast(`Generated ${phrase.length} notes · ${scale} · ${bars} bar${bars === 1 ? "" : "s"}`);
+  }, [bars, scale, showToast, stopPreview, tempo, title]);
+
   async function importAudio(file: File | undefined) {
     if (!file || !isAudioFile(file)) {
       showToast("Choose an audio file");
@@ -175,12 +203,20 @@ export function MidiMakerPage() {
       wide
       eyebrow="Midi Maker"
       title="Piano roll desk"
-      subtitle="Draw notes on the piano roll, or extract from audio. Export downloads a standard .mid file."
+      subtitle="Draw notes, generate a random phrase, or extract from audio. Preview uses a built-in triangle oscillator (local Web Audio). Export downloads a standard .mid file."
       testId="midi-maker"
     >
       <div className="flex flex-wrap gap-2">
         <button type="button" onClick={addNote} className="btn btn-primary px-3 py-2 text-sm">
           <Plus className="h-4 w-4" /> Add note
+        </button>
+        <button
+          type="button"
+          data-testid="midi-random-generate"
+          onClick={randomize}
+          className="btn btn-ghost px-3 py-2 text-sm"
+        >
+          <Shuffle className="h-4 w-4" /> Random
         </button>
         <label className="btn btn-ghost cursor-pointer px-3 py-2 text-sm">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
@@ -246,7 +282,7 @@ export function MidiMakerPage() {
         </button>
       </div>
 
-      <div className="forge-glass relative grid grid-cols-2 gap-3 !rounded-2xl p-4">
+      <div className="forge-glass relative grid grid-cols-2 gap-3 !rounded-2xl p-4 sm:grid-cols-4">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <label className="relative z-[1] block">
           <span className="text-[10px] uppercase text-white/35">Title</span>
@@ -267,7 +303,36 @@ export function MidiMakerPage() {
             className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none"
           />
         </label>
+        <label className="relative z-[1] block">
+          <span className="text-[10px] uppercase text-white/35">Random scale</span>
+          <select
+            data-testid="midi-random-scale"
+            value={scale}
+            onChange={(e) => setScale(e.target.value as MidiScaleId)}
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none"
+          >
+            <option value="pentatonic">Pentatonic</option>
+            <option value="major">Major</option>
+            <option value="minor">Minor</option>
+          </select>
+        </label>
+        <label className="relative z-[1] block">
+          <span className="text-[10px] uppercase text-white/35">Random bars</span>
+          <input
+            type="number"
+            min={1}
+            max={8}
+            data-testid="midi-random-bars"
+            value={bars}
+            onChange={(e) => setBars(Math.max(1, Math.min(8, Number(e.target.value) || 1)))}
+            className="mt-1 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none"
+          />
+        </label>
       </div>
+
+      <p className="text-[11px] text-white/35" data-testid="midi-preview-disclosure">
+        Preview = local triangle oscillator via Web Audio — not a sampled instrument library.
+      </p>
 
       <div className="forge-glass forge-plasma relative !rounded-2xl p-2">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
