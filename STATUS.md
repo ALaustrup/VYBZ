@@ -3,39 +3,32 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `feat/suite-ux-cost-removal`
-**HEAD:** `de4f3627`
-**Current milestone:** **Suite UX** — cost/AI-minutes removal, Settings strip, viewport, dashboard, profile.
+**Branch:** `main`
+**HEAD:** `b0d1645d`
+**Current milestone:** **Suite UX** — merged; production verify next.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel |
-| Production SHA | OR-042 merge `373746af` on `main` | `gh pr merge 162` |
+| Production SHA | Suite UX merge `b0d1645d` on `main` (Vercel auto-deploy) | `gh pr merge 163` → merge commit |
 
 ## Last completed operations
 
 46. **OR-042 Analyzer reliability** — PR #162 merged @ `373746af`. Creative OS OR-032–042 closed.
 47. **Suite UX authorised** — Cost Sentinel + AI minutes removal; Settings without money/usage; viewport; dashboard motion; profile liveliness.
-48. **Suite UX implemented** — on `feat/suite-ux-cost-removal`:
-    - Cost Sentinel / AI minutes routes redirect; mastering kill-switch only (no prepaid gate)
-    - Settings/profile edit stripped of V¢ packs; Packages → `/store`
-    - Stage scrollbars hidden; `max-w-6xl` + tighter `--stage-pad-x`
-    - CommandDashboard / ArtistHome professional motion
-    - Accent wash, artist cover render + create cover upload, cosmetics Store entry
-    - Gate: `suiteUxCostRemovalGate.test.ts`
+48. **Suite UX merged** — PR #163 @ `b0d1645d` (`feat/suite-ux-cost-removal` → `main`).
 
 ## Deployment state
 
-OR-042 **MERGED TO MAIN** @ `373746af` (production). Suite UX tip `989a92cb` on `feat/suite-ux-cost-removal` — **NOT ON MAIN**.
+Suite UX **MERGED TO MAIN** @ `b0d1645d`. Vercel production deploy **PENDING / NOT MEASURED** this turn (auto-deploy expected).
 
 ## Production verification
 
-OR-042 on https://vybz.cloud — **Not measured** this turn (merge evidence only).
-Suite UX production UI — **Not measured** (not on `main`).
+Suite UX on https://vybz.cloud — **Not measured** this turn (merge evidence only).
 
-## Validation (tip `989a92cb`, local)
+## Validation (pre-merge tip `989a92cb` / branch, local)
 
 | Command | Result | Evidence |
 |---|---|---|
@@ -55,4 +48,4 @@ OR-044 Drive sync parked. VYBZ Pro / DR-01 Live / DR-03 Opportunities **withdraw
 
 ## Next authorised action
 
-Open/merge PR for `feat/suite-ux-cost-removal`; after merge, production-verify Suite UX on https://vybz.cloud.
+Production-verify Suite UX on https://vybz.cloud (Settings no cost/minutes; mastering without prepaid gate; Store V¢; stage/viewport; profile accent/cover). Then park or authorise the next wedge.
