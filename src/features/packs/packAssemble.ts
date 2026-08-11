@@ -1,5 +1,6 @@
 /**
- * OR-020 — assemble samples into a measured ZIP (no catalog ingest).
+ * OR-020 / OR-038 — assemble samples into a measured ZIP (no catalog ingest).
+ * Library-sourced blobs use the same measure → WAV path as local drops.
  */
 
 import { dbFromLinear } from "@vybz/processing/waveform";
@@ -64,6 +65,14 @@ function bufferFromPlanar(channels: Float32Array[], sampleRate: number): AudioBu
     buf.getChannelData(c).set(channels[c]!);
   }
   return buf;
+}
+
+export async function assembleSampleFromBlob(
+  blob: Blob,
+  sourceName: string,
+): Promise<AssembledSample> {
+  const file = new File([blob], sourceName, { type: blob.type || "audio/wav" });
+  return assembleSampleFromFile(file);
 }
 
 export async function assembleSampleFromFile(file: File): Promise<AssembledSample> {

@@ -1,6 +1,6 @@
 /** Sample pack V1+ manifest — OR-020 assembly. */
 
-export const PACK_MAKER_VERSION = "or020.pack-assemble.2";
+export const PACK_MAKER_VERSION = "or038.pack-assemble.1";
 
 export type PackSampleKind = "oneshot" | "loop" | "other";
 
