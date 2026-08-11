@@ -2077,11 +2077,20 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
 }
-export async function dropsBy(authorId: string, limit = 40) {
+/** Exact number of drops an author owns — lets the library state a true total. */
+export async function countDropsBy(authorId: string): Promise<number> {
+  const { count, error } = await db().from("drops")
+    .select("id", { count: "exact", head: true })
+    .eq("author_id", authorId);
+  return error ? 0 : (count ?? 0);
+}
+
+export async function dropsBy(authorId: string, limit = 40, offset = 0) {
   const myId = await currentUserId();
   const { data } = await db().from("drops")
     .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
-    .eq("author_id", authorId).order("created_at", { ascending: false }).limit(limit);
+    .eq("author_id", authorId).order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
   // Owner sees all; others rely on RLS / client filter for private
   const rows = (data ?? []).filter((r: any) => {
     if (myId && r.author_id === myId) return true;
