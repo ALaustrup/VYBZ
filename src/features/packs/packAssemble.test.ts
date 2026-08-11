@@ -8,7 +8,7 @@ import {
 
 describe("packManifest", () => {
   it("versions and classifies sample kinds", () => {
-    expect(PACK_MAKER_VERSION).toMatch(/^or020\./);
+    expect(PACK_MAKER_VERSION).toMatch(/^or038\./);
     expect(inferSampleKind("Kick_OneShot.wav")).toBe("oneshot");
     expect(inferSampleKind("melody_loop_120.wav")).toBe("loop");
     expect(packFolderForKind("loop")).toBe("loops");

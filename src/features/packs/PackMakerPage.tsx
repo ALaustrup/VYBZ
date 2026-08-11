@@ -1,15 +1,19 @@
 /**
- * OR-020 — Sample Pack Creator (assemble measured ZIP → optional storefront handoff).
+ * OR-038 — Sample Pack Creator: Library multi-select + local drop → measured ZIP → Store.
+ * Pack working set is never auto-ingested into Library (isolation rule).
  */
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download, Store, Trash2 } from "lucide-react";
+import { Download, Library, Store, Trash2 } from "lucide-react";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import * as api from "@/lib/api";
+import type { Drop } from "@/types";
 import {
   PACK_MAKER_VERSION,
+  assembleSampleFromBlob,
   assembleSampleFromFile,
   buildPackZip,
   type AssembledSample,
@@ -28,16 +32,48 @@ function fmtDb(n: number): string {
 
 const KINDS: PackSampleKind[] = ["oneshot", "loop", "other"];
 
+function dropDisplayName(d: Drop): string {
+  const base = (d.title || "untitled").trim() || "untitled";
+  const ext = d.audioFormat ? `.${d.audioFormat.replace(/^\./, "")}` : ".wav";
+  return base.toLowerCase().endsWith(ext.toLowerCase()) ? base : `${base}${ext}`;
+}
+
 export function PackMakerPage() {
   const navigate = useNavigate();
-  const { showToast } = useSession();
+  const { showToast, userId } = useSession();
   const [title, setTitle] = useState("untitled-pack");
   const [samples, setSamples] = useState<AssembledSample[]>([]);
   const [busy, setBusy] = useState(false);
   const [lastZipSha, setLastZipSha] = useState<string | null>(null);
   const [lastContentSha, setLastContentSha] = useState<string | null>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryDrops, setLibraryDrops] = useState<Drop[]>([]);
+  const [libraryLoading, setLibraryLoading] = useState(false);
+  const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(() => new Set());
 
   useRegisterAppBar({ title: "Pack Maker", subtitle: "Assemble" }, []);
+
+  const loadLibrary = useCallback(async () => {
+    if (!userId) {
+      showToast("Sign in to add from Library");
+      return;
+    }
+    setLibraryLoading(true);
+    try {
+      const drops = await api.dropsBy(userId, 80);
+      setLibraryDrops(drops.filter((d) => !!d.audioUrl));
+    } catch {
+      showToast("Couldn't load Library");
+      setLibraryDrops([]);
+    } finally {
+      setLibraryLoading(false);
+    }
+  }, [userId, showToast]);
+
+  useEffect(() => {
+    if (!libraryOpen) return;
+    void loadLibrary();
+  }, [libraryOpen, loadLibrary]);
 
   async function onFiles(list: FileList | File[] | null) {
     const files = [...(list ?? [])].filter(isAudioFile);
@@ -53,6 +89,42 @@ export function PackMakerPage() {
       showToast(`Added ${next.length} sample(s) — not added to Library`);
     } catch {
       showToast("Couldn't decode one or more samples");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function addFromLibrary() {
+    const chosen = libraryDrops.filter((d) => selectedDropIds.has(d.id));
+    if (!chosen.length) {
+      showToast("Select Library tracks with audio");
+      return;
+    }
+    setBusy(true);
+    let added = 0;
+    let skipped = 0;
+    try {
+      const next: AssembledSample[] = [];
+      for (const drop of chosen) {
+        if (!drop.audioUrl) {
+          skipped++;
+          continue;
+        }
+        try {
+          const res = await fetch(drop.audioUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const blob = await res.blob();
+          next.push(await assembleSampleFromBlob(blob, dropDisplayName(drop)));
+          added++;
+        } catch {
+          skipped++;
+        }
+      }
+      if (next.length) setSamples((prev) => [...prev, ...next]);
+      setSelectedDropIds(new Set());
+      if (added && skipped) showToast(`Added ${added} from Library · ${skipped} unavailable (skipped)`);
+      else if (added) showToast(`Added ${added} from Library — pack set stays out of catalog auto-ingest`);
+      else showToast("No Library audio could be fetched");
     } finally {
       setBusy(false);
     }
@@ -97,7 +169,7 @@ export function PackMakerPage() {
       fileName: `${(title || "vybz-pack").replace(/[^\w.-]+/g, "_").slice(0, 48)}.zip`,
       blob,
     });
-    showToast("Handed off to storefront — upload the ZIP on the next screen");
+    showToast("Handed off to storefront — ZIP uploads into the draft");
     navigate("/tools/packs/new");
   }
 
@@ -105,11 +177,20 @@ export function PackMakerPage() {
     setSamples((prev) => prev.map((s) => (s.id === id ? { ...s, kind } : s)));
   }
 
+  function toggleDrop(id: string) {
+    setSelectedDropIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   return (
     <ToolWorkbench
       eyebrow="Packs"
       title="Pack Maker"
-      subtitle={`Assemble samples into a foldered ZIP with measured peak/RMS and a checksummed manifest. Optional storefront handoff. Not auto-added to Library. Proc ${PACK_MAKER_VERSION}.`}
+      subtitle={`Build packs from Library and local files. Measured ZIP + checksummed manifest. Store handoff uploads the real ZIP. Never auto-added to Library. Proc ${PACK_MAKER_VERSION}.`}
       testId="pack-maker"
     >
       <label className="forge-glass forge-plasma relative block !rounded-2xl p-4">
@@ -125,9 +206,69 @@ export function PackMakerPage() {
         />
       </label>
 
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          data-testid="pack-library-toggle"
+          disabled={busy}
+          onClick={() => setLibraryOpen((o) => !o)}
+          className="btn btn-ghost px-3 py-2 text-sm disabled:opacity-40"
+        >
+          <Library className="h-4 w-4" /> {libraryOpen ? "Hide Library" : "Add from Library"}
+        </button>
+      </div>
+
+      {libraryOpen ? (
+        <div
+          className="forge-glass relative space-y-3 !rounded-2xl p-4"
+          data-testid="pack-library-picker"
+          data-no-library-drop
+        >
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+            Your Library
+          </p>
+          {libraryLoading ? (
+            <p className="relative z-[1] text-[12px] text-white/45">Loading…</p>
+          ) : libraryDrops.length === 0 ? (
+            <p className="relative z-[1] text-[12px] text-white/45">
+              No Library audio with a reachable URL. Upload tracks in Library first — we never invent samples.
+            </p>
+          ) : (
+            <ul className="relative z-[1] max-h-56 space-y-1 overflow-y-auto">
+              {libraryDrops.map((d) => (
+                <li key={d.id}>
+                  <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] text-white/80 hover:bg-white/[0.04]">
+                    <input
+                      type="checkbox"
+                      checked={selectedDropIds.has(d.id)}
+                      onChange={() => toggleDrop(d.id)}
+                      data-testid={`pack-library-drop-${d.id}`}
+                    />
+                    <span className="min-w-0 truncate">{d.title || "Untitled"}</span>
+                    {d.durationSec != null ? (
+                      <span className="shrink-0 text-[11px] text-white/35">{d.durationSec.toFixed(1)}s</span>
+                    ) : null}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button
+            type="button"
+            data-testid="pack-library-add"
+            disabled={busy || selectedDropIds.size === 0}
+            onClick={() => void addFromLibrary()}
+            className="relative z-[1] btn btn-primary px-3 py-2 text-sm disabled:opacity-40"
+          >
+            Add selected to pack
+          </button>
+        </div>
+      ) : null}
+
       <ForgeDropzone
         label="Drop samples"
-        hint="or click to choose · multiple WAV / AIFF / FLAC / MP3"
+        hint="or click to choose · multiple WAV / AIFF / FLAC / MP3 · local fallback"
         accept={AUDIO_ACCEPT}
         multiple
         busy={busy}
@@ -165,7 +306,7 @@ export function PackMakerPage() {
       {samples.length === 0 ? (
         <ForgeEmptyWorkingSet
           title="No samples yet"
-          detail="Drop oneshots and loops into the stage. Working set stays local — never auto-ingested into Library."
+          detail="Add from Library or drop oneshots and loops. Pack working set stays local — never auto-ingested into Library."
         />
       ) : (
         <ul className="space-y-2" data-testid="pack-sample-list">

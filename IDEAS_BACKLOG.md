@@ -158,6 +158,7 @@ stages C/E/F.
 | — | iOS AVAudioSession focus (M9 residual) | Cap iOS deepen + Apple signing; Android AudioManager shipped |
 | — | Suite visual / placement polish — professional music-platform look (tool pages, rail, empty states, density) | Owner-scheduled; not M10; does not reopen M7–M9 contracts |
 | OR-010 | Formal migration-history workflow (`db push` vs raw SQL, CI checksum guard) | Owner process decision |
+| OR-044 | Google Drive / OneDrive Library sync (OAuth apps, sync conflict policy, egress cost) | Google Cloud + Microsoft Azure app registration; owner Pro/hosting policy |
 
 ## 6. External distribution prerequisites
 
@@ -209,6 +210,7 @@ approval and an entry in the Masterplan.
 | OR-026 | Correct deepen Tier B auto-fix ops (hum, width, EQ assist, click attenuate, BS.1770 gain-to-target) | **Shipped sequence 2026-08-09** — PRs #108–#111 (see §8.3); enough Correct deepen — further Tier B needs re-auth |
 | OR-027 | M6 close-out — loudness-matched A/B on Correct + owner M6 gate sign-off | **Authorised 2026-08-09** |
 | OR-028 | M7 Translation Lab kickoff — streaming −14 LUFS preview (disclosed) | **Authorised 2026-08-09** |
+| OR-044 | Library cloud import/export — Google Drive + OneDrive; preferred-folder sync so media stays available local↔cloud | **Idea — parked** (see §8.6); not authorised |
 
 ### 8.1 Producer toolkit (2026-08-08)
 
@@ -313,8 +315,8 @@ Owner confirmed 2026-08-11. Separate reviewable PRs after OR-032.
 | ID | Idea | Status |
 |---|---|---|
 | OR-036 | Midi Maker — built-in sound preview + random generator | Shipped (PR #156) |
-| OR-037 | Converter — many more formats | **Authorised — active wedge** |
-| OR-038 | Sample Pack Maker — build full packs from Library, publish to Store | Authorised sequence |
+| OR-037 | Converter — many more formats | Shipped (PR #157) |
+| OR-038 | Sample Pack Maker — build full packs from Library, publish to Store | **Authorised — active wedge** |
 | OR-039 | Store — iTunes-style marketplace for packs + music; discovery feed (browse/listen) | Authorised sequence |
 | OR-040 | Landing drag-drop → per-track focused song workspace | Authorised sequence |
 | OR-041 | Optional Ableton / DAW project folder link tied to a track | Authorised sequence |
@@ -331,3 +333,19 @@ Owner confirmed 2026-08-11. Separate reviewable PRs after OR-032.
 **Authorised.** Global server-clock radio replaces AmbientRadioHost. Beds at
 `public/audio/1.wav` (greeting, signed-in) and `2.wav` (interstitial, guests never hear
 track 1). Edge `vibes-radio` is logic-only; migration `20260811_0093_vibes_radio`.
+
+### 8.6 OR-044 — Library cloud sync (Google Drive + OneDrive) — parked 2026-08-11
+
+Owner requested import from Google Drive / OneDrive, export that creates a preferred
+cloud folder, and bidirectional sync so Library media stays available local↔cloud.
+
+**Status:** Idea only — **not authorised to build.** Parked until owner re-authorises as
+a discrete wedge (outside Creative OS OR-038–OR-042 sequence unless explicitly promoted).
+
+**Why gated:** OAuth client apps + secrets, provider API quotas, conflict/merge policy,
+Law 1 honesty on "always available" (offline / revoked token / quota must be disclosed),
+and VYBZ Pro hosting vs BYO cloud cost (IDEAS §0). Installing SDKs needs owner approval.
+
+**When authorised, prefer:** import-first thin wedge (picker → Library ingest) before
+full bidirectional sync; never invent catalog rows for files that failed to fetch.
+

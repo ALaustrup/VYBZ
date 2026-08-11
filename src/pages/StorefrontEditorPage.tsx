@@ -77,19 +77,36 @@ export function StorefrontEditorPage() {
   }, [id, isNew, hydrate, showToast]);
 
   useEffect(() => {
-    if (!isNew) return;
-    void import("@/features/packs/packHandoff").then(({ takePackHandoff }) => {
+    if (!isNew || !userId) return;
+    let cancelled = false;
+    void (async () => {
+      const { takePackHandoff } = await import("@/features/packs/packHandoff");
       const handoff = takePackHandoff();
-      if (!handoff) return;
+      if (!handoff || cancelled) return;
       if (handoff.title) setTitle(handoff.title);
-      showToast(`Pack Maker ZIP ready: ${handoff.fileName} — upload it below`);
-      // Leave objectUrl for the user to download if needed; revoke on unload.
-      const a = document.createElement("a");
-      a.href = handoff.objectUrl;
-      a.download = handoff.fileName;
-      // Do not auto-click — force explicit upload via PackUploader (storage path required).
-    });
-  }, [isNew, showToast]);
+      try {
+        const res = await fetch(handoff.objectUrl);
+        if (!res.ok) throw new Error(`Handoff fetch failed (${res.status})`);
+        const blob = await res.blob();
+        const file = new File([blob], handoff.fileName, { type: "application/zip" });
+        const path = await api.uploadStorefrontZip(userId, file);
+        if (cancelled) return;
+        setZipPath(path);
+        showToast(`Pack Maker ZIP uploaded: ${handoff.fileName}`);
+      } catch (e) {
+        if (!cancelled) {
+          showToast(
+            (e as Error).message || "Handoff ZIP upload failed — upload manually below",
+          );
+        }
+      } finally {
+        URL.revokeObjectURL(handoff.objectUrl);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isNew, userId, showToast]);
 
   if (!FLAGS.storefront) return <Navigate to="/" replace />;
 
