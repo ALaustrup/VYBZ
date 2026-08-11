@@ -312,7 +312,7 @@ function PublicPackShell() {
       <header className="public-ops-header forge-glass relative z-40 mx-3 mt-3 flex shrink-0 items-center gap-3 px-4 py-3 sm:mx-4">
         <span className="forge-glass-edge" aria-hidden />
         <NavLink to="/market" className="relative z-[1] flex items-center gap-2.5">
-          <BrandMark className="h-8 w-8" reactive={false} />
+          <BrandMark className="h-8 w-8" reactive />
           <span className="font-display text-sm font-semibold text-white">VYBZ</span>
         </NavLink>
         <span className="public-ops-badge relative z-[1] ml-auto hidden rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline">
@@ -350,7 +350,7 @@ function PublicDocShell() {
       <header className="public-ops-header forge-glass relative z-40 mx-3 mt-3 flex shrink-0 items-center gap-3 px-4 py-3 sm:mx-4">
         <span className="forge-glass-edge" aria-hidden />
         <NavLink to="/codex" className="relative z-[1] flex items-center gap-2.5">
-          <BrandMark className="h-8 w-8" reactive={false} />
+          <BrandMark className="h-8 w-8" reactive />
           <span className="font-display text-sm font-semibold text-white">VYBZ</span>
         </NavLink>
         <span className="public-ops-badge relative z-[1] ml-auto hidden rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline">

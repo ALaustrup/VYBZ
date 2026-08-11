@@ -49,15 +49,21 @@ describe("OR-043 Vibes Radio sync", () => {
     );
   });
 
-  it("wires guest Vibes Radio on landing and auth; member host replaces AmbientRadioHost", () => {
+  it("keeps Vibes Radio member host in suite; pre-login uses featured mini-player instead", () => {
     const landing = read("src/pages/LandingPage.tsx");
     const auth = read("src/components/AuthShell.tsx");
     const app = read("src/App.tsx");
-    expect(landing).toContain('audience="guest"');
-    expect(landing).toContain("VibesRadioVisualizer");
-    expect(landing).toContain("VibesRadioNowPlaying");
-    expect(auth).toContain('audience="guest"');
-    expect(auth).toContain("VibesRadioVisualizer");
+    const featured = read("src/features/featured/featuredTracks.ts");
+    // Pre-login: no Vibes Radio overlay on invite / auth controls.
+    expect(landing).not.toContain("VibesRadioHost");
+    expect(landing).not.toContain("VibesRadioNowPlaying");
+    expect(landing).toContain("FeaturedMiniPlayer");
+    expect(auth).not.toContain("VibesRadioHost");
+    expect(auth).not.toContain("VibesRadioNowPlaying");
+    expect(auth).toContain("FeaturedMiniPlayer");
+    expect(featured).toContain("Helix");
+    expect(featured).toContain("CYB3RNOM4D");
+    // Signed-in suite still hosts synchronized Vibes Radio.
     expect(app).toContain("VibesRadioHost");
     expect(app).toContain('audience="member"');
     expect(app).not.toContain("AmbientRadioHost");
