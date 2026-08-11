@@ -33,6 +33,7 @@ import { ExtractMidiButton } from "@/components/ExtractMidiButton";
 import { TrackCommentsSheet } from "@/components/TrackCommentsSheet";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { VizModeCycleButton, VizModeSelector } from "@/components/vdock/VizModePicker";
+import { DockVisualizer } from "@/components/vdock/DockVisualizer";
 import {
   isFavoriteCached,
   subscribeFavorites,
@@ -542,6 +543,9 @@ function NowPlayingExpanded({
               backdropDim={p.track.playback?.backdropDim}
             />
           </div>
+          {/* Same renderer and same mode store as the dock, so expanding the player
+              shows the visual the user picked rather than a different one. */}
+          <DockVisualizer className="pointer-events-none absolute inset-0 z-[1] h-full w-full opacity-90" />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink-950/60 via-transparent to-ink-950/90" />
 
           <div className="relative z-10 flex items-center justify-between px-5 pt-[max(1rem,env(safe-area-inset-top))]">
