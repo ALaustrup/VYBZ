@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Loader2, Upload } from "lucide-react";
 import { ForgeAtmosphere, type ForgeAtmosphereIntensity } from "@/components/ForgeAtmosphere";
 import { NexusPageHeader } from "@/components/NexusPageHeader";
@@ -72,13 +73,39 @@ export function ForgeDropzone({
   onFiles,
   className,
 }: ForgeDropzoneProps) {
+  const [dragOver, setDragOver] = useState(false);
+
   return (
     <label
+      data-no-library-drop
       className={cx(
         "forge-glass forge-plasma relative flex cursor-pointer flex-col items-center justify-center gap-3 px-6 py-12 text-center transition hover:border-white/25",
+        dragOver && "border-white/35 bg-white/[0.04]",
         busy && "pointer-events-none opacity-70",
         className,
       )}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(true);
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+        setDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragOver(false);
+        if (e.dataTransfer?.files?.length) onFiles(e.dataTransfer.files);
+      }}
     >
       <span className="forge-glass-edge pointer-events-none" aria-hidden />
       {busy ? (

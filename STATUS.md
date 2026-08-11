@@ -3,37 +3,41 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `main`
-**HEAD:** `3c6aab4d` (merge PR #149 Creative OS brief)
-**Current milestone:** **M10** — Store commerce wedge 1 (Market browse) merged; Creative OS song-workspace brief awaiting owner review (not authorised to build).
+**Branch:** `feat/or-032-song-workspace-wedge1`
+**HEAD:** (local; uncommitted until commit)
+**Current milestone:** **Creative OS / OR-032** — song workspace working set (wedge 1) in progress.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | Tip docs `3c6aab4d`; Wave R UI baseline `47773b69` | Market browse merged #147 @ `34801c0b` — prod SHA for Market **Not measured** this unit (docs-only follow-up) |
+| Production SHA | Wave R UI baseline `47773b69`; tip docs prior to this branch | OR-032 not on prod |
 
 ## Last completed operations
 
-29. **M10 Wave R delivery** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**.
+29. **M10 Wave R** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**.
 30. **M10 Store commerce authorised** — PR #145 / #146.
-31. **M10 Store wedge 1** — Market browse `/market` — PR #147 @ `34801c0b` merged.
-32. **OR-032–035 parked** — PR #148 @ `08dc71bd` (decision-required).
-33. **Creative OS architecture brief** — PR #149 @ `3c6aab4d` — audit only; see `docs/architecture/creative-os-song-workspace-brief.md`.
+31. **M10 Store wedge 1** — Market browse — PR #147 @ `34801c0b`.
+32. **OR-032–035 parked** then **Creative OS authorised** — owner confirmed IA 2026-08-11.
+33. **Creative OS brief** — PR #149; tip-sync PR #150.
+34. **OR-032 wedge 1 (local)** — working set + desk preload + drop ownership + suite chrome + Translation Lab rail label.
 
 ## Deployment state
 
-Wave R on production. Market browse merged to `main` — live alias SHA **Not measured** this unit.
+Wave R on production. OR-032 **IMPLEMENTED BUT NOT DELIVERED** (local branch).
 
 ## Production verification
 
-Creative OS / OR-032+ — **Not started** (not authorised).
-Market browse on prod — **Not measured** this unit.
+OR-032 — **Not measured** (not on prod).
 
 ## Latest verification
 
-Docs-only (PR #149). No lint/test/build this unit.
+Local (this unit):
+
+- `npm run lint` (`tsc --noEmit`) — PASS
+- `or032WorkingSetGate` (8) + `workingSet` (1) + `suiteApps` (4) — PASS
+- Full `npm run test` / `build` — **Not measured** this unit (stop for review)
 
 ## Permanently out of scope (not parked)
 
@@ -41,8 +45,8 @@ Dating / swipe — Law 3. No DSP-delivery claims.
 
 ## Blockers / parked
 
-M7/M8 deepen, OR deepen (incl. OR-032–035 until AGENTS authorises), Instrument Creator. Later Store wedges only if they do not fight the song-workspace model.
+Follow-ons OR-034–OR-042 authorised as sequence, not building yet. M7/M8 deepen parked.
 
 ## Next authorised action
 
-Owner review of Creative OS brief (IA / Travel rename / first wedge). Until AGENTS names a track: no Creative OS implementation. Store next wedge remains available only if owner prefers commerce over workspace first.
+Owner review of OR-032 wedge 1, then push/PR on request. After merge: OR-034 Correct desk or Library→working-set picker.

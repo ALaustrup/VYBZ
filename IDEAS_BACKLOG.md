@@ -286,31 +286,39 @@ After the audio-only Analyzer intake desk (Tier A auto-fix + Library add):
 
 ### 8.4 Owner brainstorm — media working set + suite app clarity (2026-08-11)
 
-Owner explored suite apps in depth after M10 Wave R + Store Market wedge 1. **Not authorised
-to build** until AGENTS names a milestone. Parked as decision-required / OR entries.
+Owner explored suite apps in depth after M10 Wave R + Store Market wedge 1.
 
-Architecture brief (audit only): [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md)
-— song workspace hero, workstation map, platform doorways, proposed build sequence.
+Architecture brief (authorised source of truth):
+[`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
 
 | ID | Idea | Status |
 |---|---|---|
-| OR-032 | **Library-first working set** — one ingest; tools open the active track from Library / Analyzer pending audio; no re-drop per app | Decision required |
-| OR-033 | **Rename / reposition Translate** — rail label is not language translation; product is “how the master travels” (streaming / device / codec previews) | Decision required |
-| OR-034 | **Correct desk redesign** — denser music-ops Correct workbench; clearer op map vs Analyzer Fix; optional library-sourced input | Decision required |
-| OR-035 | **Guided release workflow** — after Analyzer findings, suggested next steps (Correct op, Translation listen, Metadata, Art Check, Market) driven by measured codes only | Decision required |
+| OR-032 | **Library-first working set** — one ingest; tools open the active track from Library / Analyzer pending audio; no re-drop per app | **Authorised — active wedge** |
+| OR-033 | **Rail label Translation Lab** — product is travel listening (streaming / device / codec), not language translation | **Authorised — ships with OR-032** |
+| OR-034 | **Correct desk redesign** — denser music-ops Correct workbench; clearer op map vs Analyzer Fix; library-sourced input | Authorised sequence (next) |
+| OR-035 | **Guided release workflow / What next** — after Analyzer findings, suggested next steps driven by measured codes only | Authorised sequence |
 
-#### Recommended model for OR-032 (brainstorm only)
+#### Recommended model for OR-032
 
 1. **Canonical media** lives in Library (`drops`) + optional Analyzer session blob (`pendingUpload`).
-2. **Active working set** — one (or few) selected track(s) in suite context: `workingTrackId` + object URL / storage path; apps read context instead of requiring a new drop.
+2. **Active working set** — one (or few) selected track(s) in suite context; apps read context instead of requiring a new drop.
 3. **App intake order:** prefer working set → Library picker → dropzone fallback.
 4. **Automation (OR-035):** Analyzer finding codes already map to Correct `?op=` and Translation links; extend to a measured “next desk” strip without inventing readiness scores.
 5. **Cost honesty:** browser Object URLs are free/session; durable cloud masters touch VYBZ Pro hosting (§0) — never claim unlimited free hosting.
 
-#### Translate naming options (OR-033) — pick one later
+### 8.5 Creative OS follow-ons (authorised sequence, not yet building)
 
-- **Travel** / **Listen as** / **Preview travel** / **Translation Lab** (keep full name on rail)
-- Avoid: anything implying language, lyric, or DSP delivery
+Owner confirmed 2026-08-11. Separate reviewable PRs after OR-032.
+
+| ID | Idea | Status |
+|---|---|---|
+| OR-036 | Midi Maker — built-in sound preview + random generator | Authorised sequence |
+| OR-037 | Converter — many more formats | Authorised sequence |
+| OR-038 | Sample Pack Maker — build full packs from Library, publish to Store | Authorised sequence |
+| OR-039 | Store — iTunes-style marketplace for packs + music; discovery feed (browse/listen) | Authorised sequence |
+| OR-040 | Landing drag-drop → per-track focused song workspace | Authorised sequence |
+| OR-041 | Optional Ableton / DAW project folder link tied to a track | Authorised sequence |
+| OR-042 | Analyzer reliability — keep name **Analyzer** only; scan/drop must work | Authorised sequence (uploader ownership starts in OR-032) |
 
 #### Correct redesign notes (OR-034)
 

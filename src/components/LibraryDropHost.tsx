@@ -43,6 +43,7 @@ export function LibraryDropHost({
     runningRef.current = true;
     let ok = 0;
     let fail = 0;
+    let lastFailReason: string | null = null;
     const totalAtStart = queueRef.current.length;
     setProgress({ total: totalAtStart, done: 0, failed: 0 });
 
@@ -66,7 +67,7 @@ export function LibraryDropHost({
         if (tags.artworkUrl) URL.revokeObjectURL(tags.artworkUrl);
         const peaks = wf?.peaks ?? placeholderWaveform(Math.floor(Math.random() * 1e6), 200);
         const path = await api.uploadAudio(file, ext);
-        if (!path) throw new Error("upload");
+        if (!path) throw new Error("Storage upload failed — check sign-in and audio-assets access");
         const [sha256, fingerprint] = await Promise.all([
           sha256Hex(file).catch(() => undefined),
           acousticSignature(peaks).catch(() => undefined),
@@ -90,10 +91,11 @@ export function LibraryDropHost({
           audience: "private",
           creditedArtist: tags.artist?.slice(0, 80) || undefined,
         });
-        if (!drop) throw new Error("create");
+        if (!drop) throw new Error("Library record create failed");
         ok++;
-      } catch {
+      } catch (err) {
         fail++;
+        lastFailReason = err instanceof Error ? err.message : "Unknown upload error";
       }
       setProgress({
         total: ok + fail + queueRef.current.length,
@@ -115,7 +117,11 @@ export function LibraryDropHost({
       );
       onIngested?.();
     } else if (fail > 0) {
-      showToast("Couldn't add dropped files to your library");
+      showToast(
+        lastFailReason
+          ? `Couldn't add to library — ${lastFailReason}`
+          : "Couldn't add dropped files to your library",
+      );
     }
   }, [onIngested, showToast]);
 
@@ -168,6 +174,7 @@ export function LibraryDropHost({
       dragDepth.current = 0;
       setDragging(false);
       const target = e.target as HTMLElement | null;
+      // Desk-owned dropzones (Analyzer, Forge tools) must win over library ingest.
       if (target?.closest("input, textarea, [contenteditable='true'], [data-no-library-drop]")) {
         return;
       }

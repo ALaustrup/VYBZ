@@ -26,10 +26,11 @@ describe("suiteApps", () => {
     );
   });
 
-  it("promotes Correct and Translate onto the primary rail", () => {
+  it("promotes Correct and Translation Lab onto the primary rail", () => {
     const primary = primarySuiteApps().map((a) => a.id);
     const overflow = overflowSuiteApps().map((a) => a.id);
     expect(primary).toEqual(expect.arrayContaining(["correct", "translate"]));
+    expect(primarySuiteApps().find((a) => a.id === "translate")?.label).toBe("Translation Lab");
     expect(overflow).not.toContain("correct");
     expect(overflow).not.toContain("translate");
     expect(overflow).toEqual(expect.arrayContaining(["pack-maker", "stem-maker"]));

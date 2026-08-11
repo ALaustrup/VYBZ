@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
+import { SongWorkspaceBanner } from "@/features/workspace/SongWorkspaceBanner";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
@@ -48,6 +49,7 @@ export function SuiteShell({
         {/* Narrow viewports: horizontal suite apps. Desktop: SuiteAppRail (right). */}
         <SuiteAppRailMobile />
         {showCommandBar ? <CommandBar /> : null}
+        <SongWorkspaceBanner />
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <SuiteStage>{stage}</SuiteStage>
           <SuiteAppRail />

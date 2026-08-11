@@ -26,30 +26,39 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 
 ## Current authorised milestone
 
-**M10 — VYBZ Store & native publishing** authorised **2026-08-10**. Wave **R** visual
-redesign **DEPLOYED AND VERIFIED** via [PR #144](https://github.com/ALaustrup/VYBZ/pull/144)
-@ `47773b69` (owner smoke **2026-08-10**). **Store commerce wave now authorised** —
-Store Preview / publish / discover / support per Masterplan §10 M10 (Law 1: no invented
-metrics; no DSP-delivery claims). **M9** remains closed (**DEPLOYED BUT UNVERIFIED** for
-cross-platform deepen). **M7** / **M8** / OR deepen stay **parked**. Law 5: VDock contracts
-frozen (skin only). Law 3: no dating. Instrument Creator parked. OR-021–OR-022 and
-OR-024–OR-025 remain parked.
+**Creative OS — Song Workspace** authorised **2026-08-11** (owner confirmed IA).
+Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./docs/architecture/creative-os-song-workspace-brief.md).
+**First wedge: OR-032 working set.** Prefer small reviewable PRs on `feat/or-032-*` /
+`feat/creative-os-*` branches. Executable gate: `or032WorkingSetGate.test.ts`.
 
-**Suite visual polish (pre-M10)** shipped via [PR #140](https://github.com/ALaustrup/VYBZ/pull/140)
-@ `46934283` — absorbed into M10 redesign as baseline, not a parallel track.
+**M10 Store commerce** remains authorised as a **parallel later wedge** only when it does
+not fight the song-workspace model (Market browse shipped via PR #147). Wave **R** visual
+redesign **DEPLOYED AND VERIFIED** via [PR #144](https://github.com/ALaustrup/VYBZ/pull/144)
+@ `47773b69`. **M9** remains closed (**DEPLOYED BUT UNVERIFIED** for cross-platform deepen).
+**M7** / **M8** deepen stay **parked**. Law 5: VDock contracts frozen (skin / reactive
+chrome only). Law 3: no dating. Instrument Creator parked. OR-021–OR-022 and OR-024–OR-025
+remain parked.
 
 ### Positioning (Masterplan §1)
 
 VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
-Law 1 still governs every detector and claim.
+Law 1 still governs every detector and claim. Product feel: one creative OS — Ableton /
+DaVinci calm information density — not a busy admin dashboard. One ecosystem, three
+doorways (desktop studio / web access / mobile capture). Ask what the user is doing, not
+which platform they are on.
 
 ### Authorised track
 
-1. **M10 Store commerce** — native publish preview, discover, play, and support flows
-   (Masterplan §10 M10 exit). Prefer small reviewable PRs on `feat/m10-store-*` branches.
-   Executable Store gates must be added as commerce wedges land (`m10StoreCommerceGate`).
-   Law 1 / no DSP-delivery claims. Wave R redesign is baseline chrome only.
-   **Wedge 1 in progress:** Market browse (`/market`) over published packs.
+1. **Creative OS / OR-032** (active) — shared song workspace working set; Analyzer /
+   Correct / Translation Lab / Metadata share the active master; desk drop ownership;
+   suite chrome (centered mark, no suite back-arrow, reactive wordmark). Rail label
+   **Translation Lab** (OR-033).
+2. **Follow-on Creative OS wedges** (authorised sequence, separate PRs) — see
+   `IDEAS_BACKLOG.md` §8.4 / §8.5: OR-034 Correct desk, OR-035 What-next home, OR-036+
+   Midi preview/random, Converter formats, Pack Maker←Library→Store, iTunes-style Market
+   discovery, Landing drop→workspace, DAW project folder link, Analyzer reliability.
+3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
+   feed (no invented inventory; no DSP-delivery claims).
 
 ### Closed / parked tracks (post-smoke)
 
@@ -63,7 +72,8 @@ Law 1 still governs every detector and claim.
 4. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
    parked.
 5. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
-   or smoke-verified; no continuous polish track. Re-auth required for new OR scope.
+   or smoke-verified; no continuous polish track. Re-auth required for new OR scope
+   outside the Creative OS sequence above.
 
 Bugfixes and shared-shell changes remain allowed.
 
@@ -99,14 +109,15 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7),
 `src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
 `src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
-`src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce).
+`src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
+`src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032).
 
 ### Carry-forward
 
 M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
 disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT
-UNVERIFIED). **M10 authorised** — Wave R **DEPLOYED AND VERIFIED** @ `47773b69`;
-**Store commerce wave authorised** as the active M10 track.
+UNVERIFIED). **M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged.
+**Active:** Creative OS song workspace — **OR-032** first wedge.
 
 ## Safety rules
 

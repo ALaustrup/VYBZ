@@ -3,7 +3,7 @@
  * Ops: DC, peak, balance, silence, hum, width, EQ, click, loudness. Local-only.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Download, Pause, Play } from "lucide-react";
 import {
@@ -54,6 +54,8 @@ import {
   ForgeMetric,
   ToolWorkbench,
 } from "@/components/ToolWorkbench";
+import { setWorkingTrack, workingTrackAsFile } from "@/features/workspace/workingSet";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 
 type CorrectOp = "dc" | "peak" | "balance" | "silence" | "hum" | "width" | "eq" | "click" | "loudness";
 
@@ -338,7 +340,7 @@ export function DcOffsetCorrectPage() {
     }
   }
 
-  async function onFile(file: File | undefined) {
+  async function onFile(file: File | undefined, source: "tool-drop" | "workspace" = "tool-drop") {
     if (!file || !isAudioFile(file)) {
       showToast("Choose an audio file");
       return;
@@ -353,6 +355,16 @@ export function DcOffsetCorrectPage() {
       setSampleRate(buf.sampleRate);
       setFileName(file.name);
       runOp(nextPlanar, buf.sampleRate, op);
+      if (source === "tool-drop") {
+        setWorkingTrack({
+          title: file.name.replace(/\.[^.]+$/, "") || file.name,
+          artistName: null,
+          fileName: file.name,
+          mimeType: file.type || "audio/wav",
+          blob: file,
+          source: "tool-drop",
+        });
+      }
       showToast("Correction preview ready — bypass toggles original");
     } catch {
       showToast("Couldn't decode that file");
@@ -362,6 +374,17 @@ export function DcOffsetCorrectPage() {
       setBusy(false);
     }
   }
+
+  const working = useWorkingTrack();
+  const loadedWorkingId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!working || planar || loadedWorkingId.current === working.id) return;
+    const file = workingTrackAsFile(working);
+    if (!file) return;
+    loadedWorkingId.current = working.id;
+    void onFile(file, "workspace");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once from song workspace
+  }, [working, planar]);
 
   function onSelectOp(next: CorrectOp) {
     setOp(next);

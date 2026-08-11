@@ -1,7 +1,7 @@
 # Creative OS — Song Workspace architecture brief
 
-> **Reference, not law.** Owner review artifact (2026-08-11). Implementation requires
-> AGENTS authorisation. Related: `IDEAS_BACKLOG.md` §8.4 OR-032–035.
+> **Authorised source of truth** (owner confirmed **2026-08-11**). Implementation proceeds
+> under `AGENTS.md` Creative OS track. Related: `IDEAS_BACKLOG.md` §8.4–§8.5.
 >
 > Interactive canvas: `creative-os-architecture-brief.canvas.tsx` (Cursor canvases).
 
@@ -24,6 +24,7 @@ admin website.
 - Waveforms, artwork, subtle animation carry hierarchy
 - Dark theme, clear icons, consistent panels
 - Control room for a music career — no overwhelming dashboards
+- Suite chrome: large centered brand mark (no chip/outline); left wordmark reacts to V-Dock audio; no suite-app back arrow next to the logo
 
 ## One ecosystem, three doorways
 
@@ -39,21 +40,7 @@ Same workflow vocabulary; interface follows the job.
 **Data:** One cloud database per user. Offline-first local cache; mutations queue
 until reconnect. Platform Bridge remains the only native boundary.
 
-## Diagnosis (today)
-
-Suite rail looks like an OS; most desks still behave like separate websites.
-
-| Pattern | Surfaces |
-|---|---|
-| Drop-primary islands | Analyzer, Correct, Translate, Metadata, Art Check, Midi, Converter, Pack Maker, Stem Maker |
-| Library / API primary | Home, Library, Discover, Market browse, Codex |
-| Session bridge | Analyzer → `pendingUpload` → publish |
-| Shell playback | VDock / `audioBus` |
-
-Library drops and Analyzer pending blobs exist, but Correct / Translate / Metadata /
-Art Check ignore them and force re-upload.
-
-## Proposed information architecture
+## Confirmed information architecture
 
 ### Hero: Song workspace
 
@@ -63,51 +50,41 @@ derived only from measured finding codes (Law 1).
 
 **Intake order:** workspace media → Library picker → dropzone fallback.
 
-### Workstations (map existing surfaces)
+Optional: link/drop an Ableton Live (or any DAW) project folder tied to a specific track
+(follow-on wedge).
+
+### Workstations (confirmed)
 
 | Workstation | Maps from | Job |
 |---|---|---|
 | **Home · What next** | ArtistHome + guided next steps (OR-035) | Open song; measured next desks |
-| **Prepare** | Analyzer + Correct + Travel listen + Metadata + Art Check | Finish master & assets |
+| **Prepare** | **Analyzer** (name only) + Correct + **Translation Lab** + Metadata + Art Check | Finish master & assets |
 | **Library** | Library + track detail | Canonical media |
-| **Create** | Midi, Converter, Pack Maker, Stem Maker | Derivatives (optional) |
-| **Publish** | Market, storefront, package / credits | Preview & sell / package |
-| **Listen** | VDock (+ Discover, deepen parked) | Disclosed playback |
+| **Create** | Midi Maker (+ sound preview / random), Converter (more formats), Pack Maker, Stem Maker | Derivatives |
+| **Publish** | Store / Market — iTunes-style packs + music discovery feed | Browse, listen, publish |
+| **Listen** | V-Dock (+ Discover, deepen parked) | Disclosed playback |
 
-### Translate rename (OR-033)
+Landing (follow-on): drag-drop songs/files into VYBZ; each selected track opens its own
+focused workspace with the active track at the top and tools revolving around it.
 
-Product is **travel listening** (streaming −14, phone/car, lossy) — not language
-translation. Candidates: Travel · Listen as · Translation Lab (full name on rail).
+## Build sequence
+
+1. Approve IA + workstation map — confirmed 2026-08-11
+2. **OR-032** — working-set context; preload Correct / Translation Lab / Metadata (**active**)
+3. **OR-033** — rail label **Translation Lab** (ships with OR-032 wedge)
+4. OR-034 — Correct desk redesign on shared context
+5. OR-035 — Home What-next from finding codes
+6. OR-036+ — Midi preview/random · Converter formats · Pack←Library→Store · Market discovery · Landing drop · DAW folder · Analyzer reliability
+7. Shell continuity (Wave R chrome as baseline)
+8. Platform doorway tightening without forking the product
 
 ## Non-negotiables
 
 - Law 1 — no invented metrics / fake inventory
 - Law 3 — no dating / swipe
-- Law 5 — VDock contracts frozen (skin only)
+- Law 5 — VDock contracts frozen (skin / reactive chrome only)
 - No DSP-delivery claims
 - Domain never imports `@tauri-apps/*` / `@capacitor/*`
 - Masterplan §9 is the only plan
 - Live / messaging — bugfix / shared shell only until re-auth
 - Hosting honesty — durable masters cost under VYBZ Pro §0; analysis stays free
-
-## Suggested build sequence (approval required)
-
-1. Approve this IA + workstation map
-2. OR-032 — working-set context; preload Correct / Travel / Metadata
-3. OR-033 — Travel rename on rail
-4. OR-034 — Correct desk redesign on shared context
-5. OR-035 — Home What-next from finding codes
-6. Shell continuity (Wave R chrome as baseline)
-7. Platform doorway tightening without forking the product
-8. M10 Store commerce only if it does not fight the workspace model
-
-## Owner review ask
-
-Confirm or amend:
-
-1. Song workspace as hero  
-2. Workstation map above  
-3. Travel rename preference  
-4. First build wedge = **OR-032** working set  
-
-**No implementation until AGENTS names the authorised track.**
