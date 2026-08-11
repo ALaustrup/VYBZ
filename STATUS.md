@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/suite-ux-cost-removal`
-**HEAD:** `989a92cb`
+**HEAD:** `de4f3627`
 **Current milestone:** **Suite UX** — cost/AI-minutes removal, Settings strip, viewport, dashboard, profile.
 
 ## Production
