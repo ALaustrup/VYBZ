@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-036-midi-maker-random`
-**HEAD:** (pending commit)
+**HEAD:** 46cbc690
 **Current milestone:** **Creative OS / OR-036** — Midi Maker preview + random generator.
 
 ## Production
@@ -30,7 +30,7 @@ OR-035 / OR-036 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Pending gate/lint this unit.
+Local: lint PASS; midiRandom + or036 gates PASS.
 
 ## Permanently out of scope (not parked)
 
