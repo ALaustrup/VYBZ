@@ -2514,7 +2514,8 @@ export async function sendMessage(
     kind: opts?.kind ?? "text",
     media_url: opts?.mediaUrl ?? null,
   });
-  await db().from("dm_threads").update({ last_at: new Date().toISOString() }).eq("id", threadId);
+  // last_at is maintained by the dm_messages_touch_thread trigger. dm_threads is
+  // RLS SELECT-only, so a client update here silently matched zero rows.
   const event = opts?.kind === "video" ? "video_message" : "dm_send";
   void awardSocialVc(event, "dm", threadId).catch(() => undefined);
 }
