@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-035-what-next`
-**HEAD:** (pending commit)
+**HEAD:** 7e691b89
 **Current milestone:** **Creative OS / OR-035** — measured What-next desks from finding codes.
 
 ## Production
@@ -31,7 +31,7 @@ OR-034 / OR-035 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Pending gate/lint this unit.
+Local: lint PASS; nextDesk + or035 gates PASS.
 
 ## Permanently out of scope (not parked)
 
