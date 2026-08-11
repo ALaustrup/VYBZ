@@ -2425,10 +2425,17 @@ export async function assetProvenance(assetId: string): Promise<AssetProvenance 
 }
 
 // ── Connections + DMs ────────────────────────────────────────────────────────
-export async function connect(peerId: string) {
+/**
+ * Send a connection request. This is a *request* the peer must accept — it is not
+ * a unidirectional follow, so callers must not report it as one.
+ */
+export async function connect(peerId: string): Promise<boolean> {
   const uid = await currentUserId();
-  if (!uid || uid === peerId) return;
-  await db().from("connections").upsert({ requester_id: uid, addressee_id: peerId, status: "pending" });
+  if (!uid || uid === peerId) return false;
+  const { error } = await db()
+    .from("connections")
+    .upsert({ requester_id: uid, addressee_id: peerId, status: "pending" });
+  return !error;
 }
 
 /** Accept or decline an incoming connection request (addressee only). */
