@@ -115,7 +115,6 @@ it must be, and the test must cite the gate. References: `src/app/routeTruth.tes
 `src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
 `src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
 `src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032),
-`src/features/prepare/or034CorrectDeskGate.test.ts` (Creative OS OR-034),
 `src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio).
 
 ### Carry-forward
