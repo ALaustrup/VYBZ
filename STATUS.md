@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-032-song-workspace-wedge1`
-**HEAD:** `cd78e69e`
+**HEAD:** `cd78e69e` (feature; branch tip may include docs pins)
 **Current milestone:** **Creative OS / OR-032** — song workspace working set (wedge 1) in progress.
 
 ## Production
