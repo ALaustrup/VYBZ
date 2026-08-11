@@ -1,11 +1,13 @@
 import {
+  Bell,
   BookOpen,
   Compass,
+  Hash,
   Home,
   Library,
-  ListChecks,
   MessageSquare,
   Package,
+  Radio,
   ShieldCheck,
   UserCog,
   Wrench,
@@ -13,42 +15,43 @@ import {
 } from "lucide-react";
 import type { SuiteProductId } from "@/design/tokens";
 
+/** Which live counter, if any, badges this destination. */
+export type NavBadge = "messages" | "notifications";
+
 export type NavItem = {
   path: string;
   label: string;
   hint: string;
   icon: LucideIcon;
   productId: SuiteProductId;
+  badge?: NavBadge;
 };
 
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * Only destinations that render a working surface.
+ * The rail is the platform's single menu.
  *
- * Studio (`/studio`), Live (`/live`), and Market (`/market`) are archived from
- * navigation under Artist OS Chrome Foundation (freeze-not-delete — routes remain).
- * AI minutes / Cost Sentinel / Flair archived under Surface Overhaul.
+ * VYBZ is a social network for music, sound and audio creators, so the rail carries
+ * the social surfaces — feed, discovery, rooms, messages, notifications — and the
+ * creator's own library. Production tools are not here: they live behind the Tools
+ * launcher in the app bar so they stay optional.
+ *
+ * Only destinations that render a working surface may appear.
  */
 export function navGroups(): NavGroup[] {
   return [
     {
-      id: "create",
-      label: "Create",
+      id: "social",
+      label: "Social",
       items: [
         {
-          path: "/releases",
-          label: "Finalize",
-          hint: "Finish scans and release readiness",
-          icon: ListChecks,
-          productId: "prepare",
+          path: "/feed",
+          label: "Feed",
+          hint: "What the people you follow are sharing",
+          icon: Radio,
+          productId: "home",
         },
-      ],
-    },
-    {
-      id: "listen",
-      label: "Listen",
-      items: [
         {
           path: "/discover",
           label: "Discover",
@@ -57,23 +60,39 @@ export function navGroups(): NavGroup[] {
           productId: "home",
         },
         {
-          path: "/library",
-          label: "Library",
-          hint: "Organize tracks, projects, and stages",
-          icon: Library,
+          path: "/rooms",
+          label: "Rooms",
+          hint: "Global and member-made chat rooms",
+          icon: Hash,
           productId: "home",
         },
-      ],
-    },
-    {
-      id: "account",
-      label: "Account",
-      items: [
         {
           path: "/messages",
           label: "Messages",
           hint: "Direct conversations",
           icon: MessageSquare,
+          productId: "home",
+          badge: "messages",
+        },
+        {
+          path: "/notifications",
+          label: "Notifications",
+          hint: "Requests, replies and activity",
+          icon: Bell,
+          productId: "home",
+          badge: "notifications",
+        },
+      ],
+    },
+    {
+      id: "music",
+      label: "Music",
+      items: [
+        {
+          path: "/library",
+          label: "Library",
+          hint: "Organize tracks, projects, and stages",
+          icon: Library,
           productId: "home",
         },
       ],
@@ -144,5 +163,4 @@ export const ARCHIVED_NAV_PATHS = [
   "/live",
   "/market",
   "/store",
-  "/rooms",
 ] as const;

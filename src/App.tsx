@@ -35,6 +35,7 @@ import { ProfileEditPage } from "@/pages/ProfileEditPage";
 import { UserProfilePage } from "@/pages/UserProfilePage";
 import { ProjectPage } from "@/pages/ProjectPage";
 import { MessagesPage } from "@/pages/MessagesPage";
+import { NotificationsPage } from "@/pages/NotificationsPage";
 import { DiscoverPage } from "@/pages/DiscoverPage";
 import { MessagePopoutProvider } from "@/lib/messagePopout";
 import { MessagePopoutHost } from "@/components/MessagePopout";
@@ -214,6 +215,8 @@ export function App() {
         <Route path="/live/:id" element={<LiveWatchPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/messages/:id" element={<MessagesPage />} />
+        {/* NotificationsPage existed but was never routed — unreachable until now. */}
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/rooms" element={<RoomsPage />} />
         <Route path="/rooms/:id" element={<RoomPage />} />
         <Route path="/profile" element={<LegacyProfileRedirect />} />

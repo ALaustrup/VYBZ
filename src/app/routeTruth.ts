@@ -97,6 +97,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/feed", title: "Feed", keywords: ["activity", "posts"] },
   { path: "/live", title: "Live", keywords: ["stream", "broadcast"] },
   { path: "/messages", title: "Messages", keywords: ["dm", "inbox", "chat"] },
+  { path: "/notifications", title: "Notifications", keywords: ["alerts", "requests", "activity", "unread"] },
   { path: "/rooms", title: "Rooms", keywords: ["collab", "sessions"] },
   { path: "/social", title: "Social", keywords: ["people", "network"] },
   { path: "/connect", title: "Connect", keywords: ["people", "follow"] },
