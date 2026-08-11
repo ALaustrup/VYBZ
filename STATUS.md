@@ -14,12 +14,24 @@ tool is authorised; **nothing may be removed**, only redesigned or frozen in the
 
 | # | Slice | State |
 |---|---|---|
+| 0 | **Private-by-default playback** — prerequisite for per-track privacy | **Blocked on owner authorisation** |
 | 1 | Tools behind one launcher; rail frozen in tree | **This branch** |
 | 2 | Signed-in home = creator profile (already `/` → `ProfilePage`) restructured around identity | Not started |
-| 3 | Library on the profile; adding audio publishes to the creator's feed | Not started |
-| 4 | Feed as a first-class surface (currently `/feed`, absent from primary nav) | Not started |
-| 5 | Follow model — today the profile action creates a mutual pending `connections` row, not a follow | Not started |
-| 6 | Messaging surfaced properly (DMs already work end to end) | Not started |
+| 3 | Customisable profile showcasing the library, Public/Private per track | Blocked by slice 0 |
+| 4 | Library publishes to the creator's feed, honouring per-track visibility | Blocked by slice 0 |
+| 5 | Feed as a first-class surface (currently `/feed`, absent from primary nav) | Not started |
+| 6 | Follow model — today the profile action creates a mutual pending `connections` row, not a follow | Not started |
+| 7 | Chat rooms — global + user-created rooms and groups, artist names shown | Audit in progress |
+| 8 | Messaging surfaced properly (DMs work end to end; inbox ordering fixed in PR #170) | Not started |
+
+Slice 0 must land before 3 or 4. Shipping a Private toggle over the current policies would
+tell creators their unreleased work is protected when it is not.
+
+### Model already present (do not rebuild)
+
+`can_view_drop(author_id, audience, drop_id)` already implements public / followers /
+private-with-invite, and `drops` SELECT uses it. Per-track visibility is an enforcement and
+UI problem, not a new data model.
 
 ## Open pull requests
 

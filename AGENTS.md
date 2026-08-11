@@ -29,18 +29,47 @@ Before touching any route, read the authentication gate in `src/App.tsx` and
 **Social-first platform** authorised by the owner **2026-08-11**. This supersedes Suite UX
 as the active milestone and changes the product's centre of gravity.
 
-VYBZ is a social networking platform for music, sound and audio creators. The production
-tools are **additive**, not the focus. Scope:
+VYBZ is a **music production social platform centred on the experience of music, audio and
+sound**. It connects creators with each other and with music lovers, and gives everyone a
+premium place to share and discover all music. The production tools are **additive**, not the
+focus. Scope:
 
 1. **Tools behind a menu.** `SUITE_APPS` remains the single registry; the launcher
  (`src/shell/ToolsLauncher.tsx`) is the only permanent entry point. The suite app rail is
  frozen in the tree, imported by nothing.
-2. **Signed-in home is the creator's profile**, showing their library, which they add audio
- to, and which publishes to their feed.
-3. **All front-end work targets the social platform** — profile, library, feed, follow,
- messaging, listening to each other's work.
+2. **Signed-in home is the creator's profile** — customisable, showcasing their library.
+3. **Per-track visibility.** Every track is Public or Private on the owner's profile. The
+ data model already exists (`drops.audience` + `can_view_drop`); enforcement does not — see
+ the blocker below. **Do not ship per-track privacy until that is closed.**
+4. **Library publishes to the feed.** Adding audio surfaces it to the creator's feed subject
+ to that track's visibility.
+5. **Chat rooms.** Global rooms everyone can join, plus user-created rooms and groups.
+ Members are shown by **artist / producer name**, never a raw handle.
+6. **Discovery for listeners, not only creators.** Music lovers are first-class users.
 
 Gates: `socialFirstShellGate.test.ts`, and a new gate per social surface as it lands.
+
+### Blocker — private-by-default playback (must precede scope item 3)
+
+Measured on `xixmneooyufbeftdfpcm` 2026-08-11. `drops` SELECT is correctly gated by
+`can_view_drop`, but the audio is not:
+
+- `assets` SELECT is `(kind = ANY (…'track'…)) OR owner_id = auth.uid()` — the row, **and the
+ storage path in `url`**, is readable by anyone regardless of the drop's audience.
+- Storage `audio-assets read` is `(bucket_id = 'audio-assets')` for `authenticated` — **no**
+ owner-folder restriction, so any signed-in user can sign any object.
+
+Marking a track private therefore hides the row and leaves the audio reachable. Required
+sequence, in order — a partial application breaks playback:
+
+1. `audio-play` becomes the single playback authority: it holds service role, so it must
+ verify the caller owns the asset or passes `can_view_drop` for a drop referencing it.
+2. The client routes **all** playback through `audio-play` tickets, including
+ `{uid}/drops/…`, instead of client-side `createSignedUrls`.
+3. Only then lock storage `audio-assets read` to owner-only, so the client cannot bypass.
+4. Stop exposing `assets.url` to non-viewers.
+
+Steps 1–3 close the hole even if a path leaks, because a path is useless without a ticket.
 
 **Owner authorisation for redesign:** complete redesign and archival of any existing tool is
 authorised. **Nothing may be removed** — archival means redesigned or frozen in the tree,
