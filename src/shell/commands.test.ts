@@ -24,9 +24,11 @@ function ctx(over: Partial<CommandContext> = {}): CommandContext {
 
 describe("command registry", () => {
   it("offers no command that leads to a placeholder", () => {
+    // /market is a conditional placeholder (storefront off). With storefront on,
+    // destinations must not include any currently-dead path.
     const dead = buildCommands(ctx())
       .filter((c) => c.to)
-      .filter((c) => isPlaceholderPath(c.to!));
+      .filter((c) => isPlaceholderPath(c.to!, { storefront: true }));
     expect(dead.map((c) => c.to)).toEqual([]);
   });
 
@@ -140,13 +142,16 @@ describe("rankCommands", () => {
   });
 
   it("never puts an unavailable command first when a runnable one matches", () => {
-    // On /store, "Store" is an exact match but unavailable, while "Storefront"
-    // is a weaker match that actually goes somewhere. The runnable one leads.
+    // On /store, "Store" is an exact match but unavailable. Market / Storefront
+    // are weaker runnable matches — a runnable destination must lead.
     const onStore = buildCommands(ctx({ currentPath: "/store" }));
     const ranked = rankCommands(onStore, "store");
-    expect(ranked[0]?.to).toBe("/tools/packs");
     expect(ranked[0]?.unavailableReason).toBeUndefined();
-    expect(scoreCommand(ranked[1]!, "store")).toBeGreaterThan(scoreCommand(ranked[0]!, "store"));
+    expect(ranked[0]?.to).not.toBe("/store");
+    expect(["/tools/packs", "/market"]).toContain(ranked[0]?.to);
+    const stuck = ranked.find((c) => c.to === "/store");
+    expect(stuck?.unavailableReason).toBe("You are already here");
+    expect(ranked.indexOf(stuck!)).toBeGreaterThan(0);
   });
 
   it("only ranks by availability among commands that match at all", () => {
