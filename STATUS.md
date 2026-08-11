@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-034-correct-desk`
-**HEAD:** (pending commit)
+**HEAD:** `ee217e8c`
 **Current milestone:** **Creative OS / OR-034** — Correct desk IA / URL sync / AutoFix map.
 
 ## Production
@@ -31,7 +31,7 @@ OR-032 / OR-034 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Pending gate/lint/build on this unit.
+Local: lint PASS; or034+or032+m6+m9 gates PASS; npm run build PASS.
 
 ## Permanently out of scope (not parked)
 
