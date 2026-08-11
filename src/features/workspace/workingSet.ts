@@ -5,6 +5,8 @@
  * Law 1: no invented readiness — only media refs + labels we have.
  */
 
+import type { DawFolderLink } from "@/features/workspace/dawFolderLink";
+
 export type WorkingTrackSource = "analyzer" | "library" | "tool-drop" | "landing";
 
 export type WorkingTrack = {
@@ -18,6 +20,8 @@ export type WorkingTrack = {
   source: WorkingTrackSource;
   releaseId?: string;
   dropId?: string;
+  /** OR-041 optional local DAW folder link (session only — not Ableton sync). */
+  dawFolder?: DawFolderLink;
   setAt: number;
 };
 
@@ -55,6 +59,19 @@ export function setWorkingTrack(input: Omit<WorkingTrack, "id" | "setAt"> & { id
     source: input.source,
     releaseId: input.releaseId,
     dropId: input.dropId,
+    dawFolder: input.dawFolder,
+    setAt: Date.now(),
+  };
+  emit();
+  return current;
+}
+
+/** Attach or clear an optional DAW folder link on the active working track. */
+export function setWorkingTrackDawFolder(link: DawFolderLink | null): WorkingTrack | null {
+  if (!current) return null;
+  current = {
+    ...current,
+    dawFolder: link ? { ...link, dropId: link.dropId ?? current.dropId } : undefined,
     setAt: Date.now(),
   };
   emit();

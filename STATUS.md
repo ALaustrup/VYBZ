@@ -3,35 +3,35 @@
 > **Authority 4 of 5.** The single operational checkpoint. Every claim cites evidence.
 
 **Date:** 2026-08-11
-**Branch:** `feat/or-040-landing-drop-workspace`
-**HEAD:** 435bde29
-**Current milestone:** **Creative OS / OR-040** — Landing drop → song workspace.
+**Branch:** `feat/or-041-daw-project-folder`
+**HEAD:** (pending commit)
+**Current milestone:** **Creative OS / OR-041** — optional DAW project folder link.
 
 ## Production
 
 | Item | Value | Evidence |
 |---|---|---|
 | Alias | https://vybz.cloud | Vercel READY aliases |
-| Production SHA | Tip includes OR-039 merge `f585b533` on `main` | PR #159 merged — prod UI SHA **Not measured** this turn |
+| Production SHA | Tip includes OR-040 merge `081044e0` on `main` | PR #160 merged — prod UI SHA **Not measured** this turn |
 
 ## Last completed operations
 
-39. **OR-037 Converter formats** — PR #157 @ `a4e82c17`.
 40. **OR-038 Pack Maker Library→Store** — PR #158 @ `ea864180`.
 41. **OR-039 Market discovery** — PR #159 @ `f585b533`.
-42. **OR-040 Landing drop (local)** — guest stash + signed-in focus; gate `or040LandingDropGate`.
+42. **OR-040 Landing drop → workspace** — PR #160 @ `081044e0`.
+43. **OR-041 DAW folder link (local)** — optional session link via detectDaw; gate `or041DawFolderLinkGate`.
 
 ## Deployment state
 
-OR-039 **MERGED TO MAIN** @ `f585b533`. OR-040 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-040-landing-drop-workspace`.
+OR-040 **MERGED TO MAIN** @ `081044e0`. OR-041 **IMPLEMENTED BUT NOT DELIVERED** on `feat/or-041-daw-project-folder`.
 
 ## Production verification
 
-OR-039 / OR-040 on https://vybz.cloud — **Not measured** this turn.
+OR-040 / OR-041 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Local: lint PASS; full suite 586 PASS; build PASS; gate or040LandingDropGate PASS.
+Local: pending lint/test/build this turn.
 
 ## Permanently out of scope (not parked)
 
@@ -39,8 +39,8 @@ Dating / swipe — Law 3. No DSP-delivery claims.
 
 ## Blockers / parked
 
-OR-044 Drive/OneDrive sync parked. Follow-ons OR-041–OR-042 authorised as sequence.
+OR-044 Drive/OneDrive sync parked. Follow-on OR-042 Analyzer reliability authorised next.
 
 ## Next authorised action
 
-Open OR-040 PR; owner smoke (Landing stash → sign-in focuses workspace; in-suite drop focuses banner). Then OR-041 DAW folder.
+Open OR-041 PR; owner smoke (Link DAW folder on banner; Ableton detect from .als; no sync claim). Then OR-042 Analyzer reliability.
