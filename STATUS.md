@@ -25,7 +25,7 @@
 
 ## Deployment state
 
-Wave R on production. OR-032 **IMPLEMENTED BUT NOT DELIVERED** (local branch).
+Wave R on production. OR-032 **IMPLEMENTED BUT NOT DELIVERED** — [PR #151](https://github.com/ALaustrup/VYBZ/pull/151) open for review.
 
 ## Production verification
 
@@ -49,4 +49,4 @@ Follow-ons OR-034–OR-042 authorised as sequence, not building yet. M7/M8 deepe
 
 ## Next authorised action
 
-Owner review of OR-032 wedge 1, then push/PR on request. After merge: OR-034 Correct desk or Library→working-set picker.
+Owner review / smoke of [PR #151](https://github.com/ALaustrup/VYBZ/pull/151), then merge. After merge: OR-034 Correct desk or Library→working-set picker.
