@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `main`
-**HEAD:** see tip after the 2026-08-11 merge train
+**HEAD:** `e2e9c914` — **DEPLOYED AND VERIFIED** on https://vybz.cloud
 **Current milestone:** **Social-first platform** — authorised by the owner 2026-08-11,
 superseding Suite UX. VYBZ is a social network for music, sound and audio creators; the
 production tools are additive and live behind the Tools launcher. Complete redesign of any
@@ -46,6 +46,42 @@ Owner authorised merging every open PR. Merged to `main`:
 | #170 | DM `last_at` trigger — **migration merged but NOT applied** |
 | #171 | Chat shows the artist / producer name |
 | #172 | Home is the creator's page; ops tooling moved to Studio |
+
+Zero PRs open. `main` @ `e2e9c914`.
+
+### Correctness gate on merged main
+
+| Command | Result |
+|---|---|
+| `npm run lint` | pass (`tsc --noEmit` exit 0) |
+| `npm run test` | pass — 137 files / 610 tests |
+| `npm run build` | pass |
+| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
+
+### Production verification — 2026-08-11, unsigned
+
+Deploy status `success` for `e2e9c914`; https://vybz.cloud returns 200 serving
+`index-NPOuDrk3.js` (1091 KB raw). Markers measured present in that live bundle:
+
+`Helix` · `CYB3RNOM4D` · `featured-mini-player` · `guestFeatured` · `tools-launcher` ·
+`library-tab-tracks` · `social-stats` · `profile-song` · `Your music` · `Customise page` ·
+`ops-home-studio` · `Request sent` · `artist_profiles(display_name, created_at)`
+
+Function identifiers (`creatorNamesFor`, `countDropsBy`) are absent from the bundle text
+because minification mangles them — string literals from the same code paths are present,
+so this is not evidence of missing code.
+
+**Still Not measured:** every signed-in surface. No test account is available to the agent,
+so the dashboard, library paging at scale, chat identity and DM behaviour are unverified in
+production.
+
+### Outstanding — needs owner action
+
+1. **Apply migration `20260811_0094_dm_thread_last_at`.** Merged but **not applied**, so DM
+   inbox ordering is still broken in production exactly as before (no regression).
+2. **Private-by-default playback** — see the known issue below. Blocks per-track privacy.
+3. **Stripe payouts disabled** — `payouts_enabled: false`, past due since 2026-08-02, because
+   `business_profile.url` is `astramatrix.xyz`, which does not resolve. Dashboard-only fix.
 
 ## Known issue — private drops are not private
 
