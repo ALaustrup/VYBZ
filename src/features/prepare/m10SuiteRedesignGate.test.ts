@@ -166,7 +166,7 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(app).not.toMatch(/PublicDocShell[\s\S]{0,400}bg-paper-50/);
   });
 
-  it("Wave R5 rollup — redesign surface markers present; Store commerce still deferred", () => {
+  it("Wave R5 rollup — redesign surface markers present; Law 5 frozen", () => {
     const agents = read("AGENTS.md");
     const gate = read("src/features/prepare/m10SuiteRedesignGate.test.ts");
     // Executable gate cites itself across waves
@@ -174,10 +174,10 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(gate).toContain("Wave R2 Home ops desk");
     expect(gate).toContain("Wave R3 rolls ToolWorkbench");
     expect(gate).toContain("Wave R4 Library media desk");
-    // Authority still parks Store commerce until Wave R owner-validated / delivered
-    expect(agents).toMatch(/Store commerce deferred|Store Preview \/ publish commerce/i);
     expect(agents).toContain("m10SuiteRedesignGate.test.ts");
     // Law 5 remains frozen in authority
     expect(agents).toMatch(/Law 5.*VDock|VDock contracts frozen/i);
+    // No DSP-delivery claim in redesign authority
+    expect(agents).toMatch(/does not|never.*DSP|no DSP-delivery/i);
   });
 });
