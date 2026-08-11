@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-043-vibes-radio-sync`
-**HEAD:** (pending commit)
+**HEAD:** `4a3123c9`
 **Current milestone:** **OR-043 Vibes Radio** — synchronized global broadcast (in progress).
 
 ## Production
