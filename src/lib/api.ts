@@ -1871,12 +1871,19 @@ async function signAudio(paths: string[]): Promise<Map<string, string>> {
   const secure = real.filter(isSecurePath);
   const legacy = real.filter((p) => !isSecurePath(p));
 
-  // Legacy / new Supabase Storage paths → createSignedUrls.
+  // Supabase Storage paths (`{uid}/drops/…`). Signing directly only works while the
+  // bucket read policy is open; anything it cannot sign falls through to audio-play,
+  // which is the authority on who may hear what. Once storage read is locked to the
+  // owner, the fallback becomes the path every non-owner takes.
   if (legacy.length) {
     const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrls(legacy, SIGN_TTL);
     (data ?? []).forEach((d) => {
       if (d.path && d.signedUrl) m.set(d.path, d.signedUrl);
     });
+    const unsigned = legacy.filter((p) => !m.has(p));
+    if (unsigned.length) {
+      (await mintPlayUrls(unsigned)).forEach((v, k) => m.set(k, v));
+    }
   }
 
   // Old Bunny `drops/…` originals:
