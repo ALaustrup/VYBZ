@@ -32,9 +32,9 @@ Source of truth: [`docs/architecture/creative-os-song-workspace-brief.md`](./doc
 reviewable PRs on `feat/or-032-*` / `feat/or-034-*` / `feat/creative-os-*`. Gate:
 `or032WorkingSetGate.test.ts` (OR-034 gate lands with that wedge).
 
-**OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + edge on `xixmneooyufbeftdfpcm`;
-interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`. Bugfixes only unless
-re-authorised.
+**OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
+`xixmneooyufbeftdfpcm`; interstitial bumper-only. Gate: `or043VibesRadioGate.test.ts`.
+Bugfixes only unless re-authorised.
 
 **M10 Store commerce** remains authorised as a **parallel later wedge** only when it does
 not fight the song-workspace model (Market browse shipped via PR #147). Wave **R**
