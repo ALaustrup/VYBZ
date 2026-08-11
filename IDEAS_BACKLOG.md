@@ -312,8 +312,8 @@ Owner confirmed 2026-08-11. Separate reviewable PRs after OR-032.
 
 | ID | Idea | Status |
 |---|---|---|
-| OR-036 | Midi Maker — built-in sound preview + random generator | **Authorised — active wedge** |
-| OR-037 | Converter — many more formats | Authorised sequence |
+| OR-036 | Midi Maker — built-in sound preview + random generator | Shipped (PR #156) |
+| OR-037 | Converter — many more formats | **Authorised — active wedge** |
 | OR-038 | Sample Pack Maker — build full packs from Library, publish to Store | Authorised sequence |
 | OR-039 | Store — iTunes-style marketplace for packs + music; discovery feed (browse/listen) | Authorised sequence |
 | OR-040 | Landing drag-drop → per-track focused song workspace | Authorised sequence |

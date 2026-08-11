@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { ForgeDropzone, ToolWorkbench } from "@/components/ToolWorkbench";
 import { decodeToBuffer, encodeWav, isVideoFile } from "@/lib/audioEdit";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import {
+  CONVERTER_UNAVAILABLE_ENCODE,
+  encodeOpusWebm,
+  encodeWav24,
+  listConverterFormats,
+  toMonoBuffer,
+  type ConverterOutFormat,
+} from "@/features/tools/converterFormats";
 
 type Row = {
   id: string;
@@ -12,19 +20,23 @@ type Row = {
   status: "ready" | "working" | "done" | "error";
   outUrl?: string;
   outName?: string;
+  outLabel?: string;
   error?: string;
   sampleRate?: number;
   durationSec?: number;
 };
 
 /**
- * Media Converter v1 — decode → 16-bit WAV (honest matrix).
- * MP3 encode is not offered; browser has no MP3 encoder (see audioEdit).
+ * OR-037 Media Converter — decode → WAV16 / WAV24 / Opus-WebM (when supported).
+ * MP3/AAC/FLAC encode remain unavailable; matrix discloses that (Law 1).
  */
 export function MediaConverterPage() {
   const { showToast } = useSession();
   const [rows, setRows] = useState<Row[]>([]);
   const [targetRate, setTargetRate] = useState<44100 | 48000 | 0>(0);
+  const [outFormat, setOutFormat] = useState<ConverterOutFormat>("wav16");
+  const [mono, setMono] = useState(false);
+  const formats = useMemo(() => listConverterFormats(), []);
 
   useRegisterAppBar({ title: "Converter", subtitle: "Media" }, []);
 
@@ -48,9 +60,27 @@ export function MediaConverterPage() {
       if (targetRate && buffer.sampleRate !== targetRate) {
         buffer = await resampleBuffer(buffer, targetRate);
       }
-      const blob = encodeWav(buffer);
+      if (mono) buffer = toMonoBuffer(buffer);
+
+      let blob: Blob;
+      let ext: string;
+      let label: string;
+      if (outFormat === "wav16") {
+        blob = encodeWav(buffer);
+        ext = "wav";
+        label = "WAV 16-bit";
+      } else if (outFormat === "wav24") {
+        blob = encodeWav24(buffer);
+        ext = "wav";
+        label = "WAV 24-bit";
+      } else {
+        blob = await encodeOpusWebm(buffer);
+        ext = "webm";
+        label = "Opus/WebM";
+      }
+
       const base = row.file.name.replace(/\.[^.]+$/, "") || "audio";
-      const outName = `${base}_${buffer.sampleRate}.wav`;
+      const outName = `${base}_${buffer.sampleRate}.${ext}`;
       const outUrl = URL.createObjectURL(blob);
       setRows((list) =>
         list.map((r) =>
@@ -60,19 +90,20 @@ export function MediaConverterPage() {
                 status: "done",
                 outUrl,
                 outName,
+                outLabel: label,
                 sampleRate: buffer.sampleRate,
                 durationSec: buffer.duration,
               }
-            : r
-        )
+            : r,
+        ),
       );
     } catch (e) {
       setRows((list) =>
         list.map((r) =>
           r.id === row.id
             ? { ...r, status: "error", error: (e as Error).message || "Failed" }
-            : r
-        )
+            : r,
+        ),
       );
     }
   }
@@ -80,19 +111,21 @@ export function MediaConverterPage() {
   async function convertAll() {
     const pending = rows.filter((r) => r.status === "ready" || r.status === "error");
     for (const row of pending) await convertOne(row);
-    showToast("Conversion finished — download WAV files below");
+    showToast("Conversion finished — download files below");
   }
+
+  const selected = formats.find((f) => f.id === outFormat);
 
   return (
     <ToolWorkbench
       eyebrow="Converter"
-      title="Media to WAV"
-      subtitle="Decode masters to 16-bit WAV for delivery. Lossy MP3/AAC encode is not available in the browser — we do not fake it."
+      title="Media converter"
+      subtitle="Decode audio/video to browser-honest outputs. We never fake MP3 or AAC encode."
       testId="media-converter"
     >
       <ForgeDropzone
         label="Drop media to convert"
-        hint="or click to choose · audio or video · multiple OK"
+        hint="or click to choose · wav/aiff/flac/mp3/ogg/m4a/opus + video · multiple OK"
         accept={AUDIO_ACCEPT}
         multiple
         inputTestId="media-converter-input"
@@ -100,6 +133,53 @@ export function MediaConverterPage() {
           if (list) addFiles(list);
         }}
       />
+
+      <div
+        className="forge-glass relative space-y-3 !rounded-2xl p-4"
+        data-testid="converter-format-matrix"
+      >
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <p className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+          Output format
+        </p>
+        <div className="relative z-[1] flex flex-wrap gap-2">
+          {formats.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              disabled={!f.available}
+              data-testid={`converter-format-${f.id}`}
+              onClick={() => setOutFormat(f.id)}
+              className={`rounded-full border px-3 py-1.5 text-[12px] transition ${
+                outFormat === f.id
+                  ? "border-[rgb(var(--app-accent-rgb)/0.55)] bg-[rgb(var(--app-accent-rgb)/0.15)] text-white"
+                  : "border-white/12 bg-black/25 text-white/70 hover:border-white/25"
+              } disabled:cursor-not-allowed disabled:opacity-35`}
+            >
+              {f.label}
+              {!f.available ? " · N/A" : ""}
+            </button>
+          ))}
+        </div>
+        {selected ? (
+          <p className="relative z-[1] text-[12px] text-white/45" data-testid="converter-format-note">
+            {selected.note}
+            {selected.lossless ? " · Lossless PCM." : " · Lossy."}
+          </p>
+        ) : null}
+        <div className="relative z-[1] border-t border-white/[0.06] pt-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+            Not available to encode here
+          </p>
+          <ul className="mt-2 space-y-1 text-[12px] text-white/40" data-testid="converter-unavailable">
+            {CONVERTER_UNAVAILABLE_ENCODE.map((f) => (
+              <li key={f.id}>
+                <span className="text-white/60">{f.label}</span> — {f.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
 
       <div className="forge-glass relative flex flex-wrap items-center gap-3 !rounded-2xl p-4">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
@@ -115,13 +195,23 @@ export function MediaConverterPage() {
             <option value={48000}>48 kHz</option>
           </select>
         </label>
+        <label className="relative z-[1] flex items-center gap-2 text-[12px] text-white/50">
+          <input
+            type="checkbox"
+            checked={mono}
+            onChange={(e) => setMono(e.target.checked)}
+            data-testid="converter-mono"
+          />
+          Mono downmix
+        </label>
         <button
           type="button"
-          disabled={!rows.some((r) => r.status === "ready" || r.status === "error")}
+          disabled={!rows.some((r) => r.status === "ready" || r.status === "error") || !selected?.available}
           onClick={() => void convertAll()}
           className="relative z-[1] btn btn-primary px-4 py-2 text-sm disabled:opacity-40"
+          data-testid="converter-run"
         >
-          Convert to WAV
+          Convert
         </button>
       </div>
 
@@ -139,7 +229,7 @@ export function MediaConverterPage() {
                 {r.status === "ready" && "Ready"}
                 {r.status === "error" && (r.error || "Error")}
                 {r.status === "done" &&
-                  `${r.sampleRate} Hz · ${r.durationSec?.toFixed(1)} s · WAV`}
+                  `${r.sampleRate} Hz · ${r.durationSec?.toFixed(1)} s · ${r.outLabel ?? "out"}`}
               </p>
             </div>
             {r.status === "working" && (
@@ -151,7 +241,7 @@ export function MediaConverterPage() {
                 download={r.outName}
                 className="relative z-[1] btn btn-ghost px-3 py-1.5 text-[12px]"
               >
-                <Download className="h-3.5 w-3.5" /> WAV
+                <Download className="h-3.5 w-3.5" /> Download
               </a>
             )}
           </li>
@@ -162,7 +252,11 @@ export function MediaConverterPage() {
 }
 
 async function resampleBuffer(buffer: AudioBuffer, rate: number): Promise<AudioBuffer> {
-  const offline = new OfflineAudioContext(buffer.numberOfChannels, Math.ceil(buffer.duration * rate), rate);
+  const offline = new OfflineAudioContext(
+    buffer.numberOfChannels,
+    Math.ceil(buffer.duration * rate),
+    rate,
+  );
   const src = offline.createBufferSource();
   src.buffer = buffer;
   src.connect(offline.destination);
