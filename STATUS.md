@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-039-market-discovery`
-**HEAD:** (pending commit)
+**HEAD:** ec1e65fa
 **Current milestone:** **Creative OS / OR-039** — Market browse/listen discovery.
 
 ## Production
@@ -31,7 +31,7 @@ OR-038 / OR-039 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Local: pending lint/test/build this turn.
+Local: lint PASS; full suite 580 PASS; build PASS; gate or039MarketDiscoveryGate PASS.
 
 ## Permanently out of scope (not parked)
 
