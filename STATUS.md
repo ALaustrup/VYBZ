@@ -4,7 +4,7 @@
 
 **Date:** 2026-08-11
 **Branch:** `feat/or-041-daw-project-folder`
-**HEAD:** (pending commit)
+**HEAD:** d69301f7
 **Current milestone:** **Creative OS / OR-041** — optional DAW project folder link.
 
 ## Production
@@ -31,7 +31,7 @@ OR-040 / OR-041 on https://vybz.cloud — **Not measured** this turn.
 
 ## Latest verification
 
-Local: pending lint/test/build this turn.
+Local: lint PASS; full suite 590 PASS; build PASS; gate or041DawFolderLinkGate PASS.
 
 ## Permanently out of scope (not parked)
 
