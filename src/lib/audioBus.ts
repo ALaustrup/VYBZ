@@ -259,6 +259,21 @@ export function enqueueTracks(tracks: PlayerTrack[], opts?: { playFirst?: boolea
   if (opts?.playFirst !== false) playTrack(queue[startIdx], queue);
 }
 
+/**
+ * Replace everything after the currently playing track.
+ * Queue-only — does not touch the dry play element graph (Law 5).
+ */
+export function spliceUpcoming(tracks: PlayerTrack[]) {
+  const rest = tracks.filter((t) => isPlayableMediaUrl(t.url));
+  if (!snapshot.track || snapshot.queueIndex < 0) {
+    if (rest.length) loadQueue(rest, { autoplay: false });
+    return;
+  }
+  const current = queue[snapshot.queueIndex] ?? snapshot.track;
+  queue = [current, ...rest.filter((t) => t.id !== current.id)];
+  set({ queueLength: queue.length, queueIndex: 0 });
+}
+
 export function loadQueue(
   list: PlayerTrack[],
   opts?: { startIndex?: number; autoplay?: boolean; loop?: boolean },

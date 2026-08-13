@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
+import { MixesLibrary } from "@/features/livingMix/MixesLibrary";
 import { EmptyState } from "@/components/EmptyState";
 import { ForgeChip, ToolWorkbench } from "@/components/ToolWorkbench";
 import { useSession } from "@/store/session";
@@ -22,7 +23,7 @@ import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
 
-type Tab = "tracks" | "projects" | "stages";
+type Tab = "tracks" | "mixes" | "projects" | "stages";
 
 /** Tracks stream in a page at a time so the first screen is fast and nothing is capped. */
 const PAGE_SIZE = 100;
@@ -144,6 +145,9 @@ export function LibraryPage() {
           {/* While paging, show progress rather than a total that is still growing. */}
           Tracks ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
         </ForgeChip>
+        <ForgeChip active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
+          Mixes
+        </ForgeChip>
         <ForgeChip active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
           Projects ({posts.length})
         </ForgeChip>
@@ -162,6 +166,10 @@ export function LibraryPage() {
           featuredId={profile?.featuredDropId}
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
         />
+      ) : tab === "mixes" ? (
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
+          <MixesLibrary />
+        </div>
       ) : tab === "projects" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
           <PostsLibrary

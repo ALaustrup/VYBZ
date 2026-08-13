@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Download, ListPlus, Trash2, X } from "lucide-react";
+import { Download, ListPlus, Sparkles, Trash2, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { runBatch, describeOutcome, type BatchProgress } from "@/lib/batchRunner";
 import { enqueueTracks, isPlayableMediaUrl } from "@/lib/audioBus";
@@ -29,6 +30,7 @@ export function BatchActionBar({
   onDeleted: (ids: string[]) => void;
 }) {
   const { showToast } = useSession();
+  const navigate = useNavigate();
   const [progress, setProgress] = useState<BatchProgress | null>(null);
   const [pending, setPending] = useState<Pending>(null);
   const cancelRef = useRef(false);
@@ -41,6 +43,15 @@ export function BatchActionBar({
   const running = progress !== null;
 
   if (count === 0 && !running && !pending) return null;
+
+  function livingMix() {
+    if (!playable.length) {
+      showToast("None of the selected tracks have playable audio");
+      return;
+    }
+    navigate("/library/mix", { state: { dropIds: playable.map((d) => d.id) } });
+    onClear();
+  }
 
   function queueAll() {
     if (!playable.length) {
@@ -137,6 +148,13 @@ export function BatchActionBar({
                 </>
               ) : (
                 <>
+                  <BatchBtn
+                    icon={Sparkles}
+                    label="Living Mix"
+                    hint={playable.length !== count ? `${playable.length} playable` : undefined}
+                    onClick={livingMix}
+                    testId="batch-living-mix"
+                  />
                   <BatchBtn
                     icon={ListPlus}
                     label="Queue"
