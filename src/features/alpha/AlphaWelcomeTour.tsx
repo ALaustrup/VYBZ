@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Loader2, Sparkles, UserRound } from "lucide-react";
 import {
   ALPHA_GUIDE_STEPS,
   hasCompletedAlphaWelcome,
+  isValidUsername,
   markAlphaWelcomeComplete,
+  withName,
 } from "@/lib/alphaWelcome";
+import { useSession } from "@/store/session";
+import * as api from "@/lib/api";
 import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 
@@ -23,20 +27,41 @@ export function requestPulseFeedbackFab(): void {
 export { OPEN_FEEDBACK_EVENT, PULSE_FAB_EVENT };
 
 /**
- * First-run Alpha welcome + brief suite guide. Shown once per signed-in user
- * after they clear the invite gate (Suite shell only).
+ * First-run Alpha welcome, and the place a new account picks its artist name.
+ *
+ * Step 2 collects the username and cannot be skipped. It replaces the old
+ * full-page `UsernameSetup` blocker, so the first thing after sign-in is a
+ * welcome rather than a form. The tour re-opens on every load while the name is
+ * still missing, so dismissing it cannot strand an account without one.
  */
-export function AlphaWelcomeTour({ userId }: { userId: string }) {
+export function AlphaWelcomeTour({
+  userId,
+  username,
+}: {
+  userId: string;
+  username: string | null;
+}) {
   const reduce = useReduceFx();
-  const [open, setOpen] = useState(() => !hasCompletedAlphaWelcome(userId));
+  const { refreshProfile, showToast } = useSession();
+  const needsUsername = !username?.trim();
+  const [open, setOpen] = useState(() => needsUsername || !hasCompletedAlphaWelcome(userId));
   const [step, setStep] = useState(0);
 
+  const [nameDraft, setNameDraft] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
+
   useEffect(() => {
-    setOpen(!hasCompletedAlphaWelcome(userId));
+    setOpen(needsUsername || !hasCompletedAlphaWelcome(userId));
     setStep(0);
-  }, [userId]);
+  }, [userId, needsUsername]);
 
   function finish() {
+    // Never let the tour close over a missing name.
+    if (needsUsername) {
+      setStep(ALPHA_GUIDE_STEPS.findIndex((s) => s.id === "username"));
+      return;
+    }
     markAlphaWelcomeComplete(userId);
     setOpen(false);
     requestPulseFeedbackFab();
@@ -50,8 +75,37 @@ export function AlphaWelcomeTour({ userId }: { userId: string }) {
     setStep((s) => s + 1);
   }
 
+  async function saveUsername(e: React.FormEvent) {
+    e.preventDefault();
+    const value = nameDraft.trim();
+    if (!isValidUsername(value)) {
+      setNameError("3–24 characters: letters, numbers, _ or .");
+      return;
+    }
+    setSavingName(true);
+    setNameError(null);
+    const free = await api.usernameAvailable(value);
+    if (!free) {
+      setSavingName(false);
+      setNameError("That name is taken.");
+      return;
+    }
+    const { error } = await api.updateMyProfile({ username: value, displayName: value });
+    setSavingName(false);
+    if (error) {
+      setNameError(error);
+      return;
+    }
+    showToast(`Welcome to VYBZ, ${value}`);
+    await refreshProfile();
+    setStep((s) => s + 1);
+  }
+
   const current = ALPHA_GUIDE_STEPS[step]!;
   const isLast = step === ALPHA_GUIDE_STEPS.length - 1;
+  const isUsernameStep = "kind" in current && current.kind === "username";
+  // The name step gates the tour; everything after it may be skipped.
+  const blocked = isUsernameStep && needsUsername;
 
   return (
     <AnimatePresence>
@@ -83,9 +137,52 @@ export function AlphaWelcomeTour({ userId }: { userId: string }) {
                 </span>
               </div>
               <h2 id="alpha-welcome-title" className="font-display text-xl font-bold tracking-tight text-white">
-                {current.title}
+                {withName(current.title, username)}
               </h2>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{current.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/60">
+                {withName(current.body, username)}
+              </p>
+
+              {isUsernameStep ? (
+                needsUsername ? (
+                  <form onSubmit={saveUsername} className="mt-4" data-testid="alpha-username-step">
+                    <label className="forge-field !py-2">
+                      <UserRound className="h-4 w-4 shrink-0 text-white/35" aria-hidden />
+                      <input
+                        value={nameDraft}
+                        onChange={(e) => {
+                          setNameDraft(e.target.value.replace(/\s/g, ""));
+                          if (nameError) setNameError(null);
+                        }}
+                        placeholder="yourname"
+                        aria-label="Artist or producer name"
+                        autoFocus
+                        data-testid="alpha-username-input"
+                      />
+                    </label>
+                    {nameError ? (
+                      <p className="mt-2 text-xs font-medium text-wild" role="alert">
+                        {nameError}
+                      </p>
+                    ) : null}
+                    <button
+                      type="submit"
+                      disabled={savingName || !isValidUsername(nameDraft)}
+                      className="forge-cta mt-3 w-full disabled:opacity-40"
+                      data-testid="alpha-username-save"
+                    >
+                      {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : "Claim this name"}
+                    </button>
+                  </form>
+                ) : (
+                  <p
+                    className="mt-4 rounded-2xl border border-[rgb(var(--accent-rgb)/0.35)] bg-[rgb(var(--accent-rgb)/0.1)] px-3 py-2.5 text-[13px] text-white/80"
+                    data-testid="alpha-username-claimed"
+                  >
+                    You are <span className="font-semibold text-white">{username}</span> on VYBZ.
+                  </p>
+                )
+              ) : null}
 
               {"highlights" in current && current.highlights ? (
                 <ul className="mt-4 space-y-2" data-testid="alpha-welcome-highlights">
@@ -120,21 +217,25 @@ export function AlphaWelcomeTour({ userId }: { userId: string }) {
                     />
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={finish}
-                  className="text-xs text-white/40 transition hover:text-white/70"
-                >
-                  Skip
-                </button>
-                <button
-                  type="button"
-                  onClick={next}
-                  className="forge-cta min-h-[2.5rem] px-4 text-sm"
-                  data-testid="alpha-welcome-next"
-                >
-                  {isLast ? "Got it" : "Next"}
-                </button>
+                {blocked ? null : (
+                  <button
+                    type="button"
+                    onClick={finish}
+                    className="text-xs text-white/40 transition hover:text-white/70"
+                  >
+                    Skip
+                  </button>
+                )}
+                {blocked ? null : (
+                  <button
+                    type="button"
+                    onClick={next}
+                    className="forge-cta min-h-[2.5rem] px-4 text-sm"
+                    data-testid="alpha-welcome-next"
+                  >
+                    {isLast ? "Got it" : "Next"}
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

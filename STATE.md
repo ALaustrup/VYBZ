@@ -3,7 +3,7 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `fix/playback-authority` (from `main` @ `66046a4a`)
+**Branch:** `feat/self-serve-alpha-keys` (from `main` @ `18196050`)
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
 deployed SHA after them is **Not measured**.
 
@@ -34,12 +34,13 @@ Deleted documents remain in git history. **No feature code was removed.**
 | Command | Result |
 |---|---|
 | `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **142 files / 635 tests** |
+| `npm run test` | pass — **143 files / 647 tests** |
 | `npm run build` | pass — vite production build |
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-Measured on `fix/playback-authority`. Growth from 629 is the new `playbackAuthorityGate`.
+Measured on `feat/self-serve-alpha-keys`. Growth from 635 is `alphaKeyGate` plus the expanded
+`alphaWelcomeGate`.
 
 ## The Station — build state
 
@@ -105,6 +106,43 @@ has not been started.
 concurrently instead of once per path. **Not deployed** — production still runs v7, which is
 functionally correct but serial. The client works against either; deploying only improves
 latency on large feeds.
+
+## Alpha access — self-serve keys
+
+The gate is now **email-tagged, not invite-only**: anyone can generate a key. That is a
+deliberate product change. What the email buys is attribution and a throttle, not exclusivity,
+and the UI says so rather than implying a verification we do not perform.
+
+| Piece | State |
+|---|---|
+| Migration `0097` | **APPLIED** to `xixmneooyufbeftdfpcm` — additive; `.down.sql` written |
+| `alpha-key` edge function | **DEPLOYED** — version 1, ACTIVE, `verify_jwt: false` |
+| Generator UI on landing + invite gate | On this branch |
+
+Measured against production on 2026-08-15:
+
+- Issuing a key returns a code; an invalid address is refused.
+- Three keys per address in 24h succeed, the fourth returns `rate_limited_email`.
+- Re-issuing revokes the previous unredeemed key — after three issues, **one** was live.
+- Live endpoint with no session: `POST /functions/v1/alpha-key` → **200** with a key;
+  invalid email → **400**.
+- All smoke rows removed afterwards; zero self-issued keys remain.
+
+Throttling lives in `issue_self_alpha_key`, which is revoked from `anon` and `authenticated`
+and granted only to `service_role`, so it cannot be reached around the edge function. IPs are
+salted and hashed before storage.
+
+Email delivery is best-effort by design — the key is shown on screen, so a Resend failure
+never costs a visitor their access. **Email delivery itself is Not measured.**
+
+## Onboarding — the artist name
+
+Choosing a name moved out of the full-page `UsernameSetup` blocker and into **step 2 of the
+welcome tour**, immediately after the welcome. Later steps address the creator by that name.
+
+The step cannot be skipped: the tour re-opens whenever the name is missing regardless of the
+local completion flag, Skip and Next are withheld on that step, and `finish()` refuses to close
+over a missing name. `UsernameSetup` stays in the tree, imported by nothing.
 
 ## Known issues carried forward
 
