@@ -3,18 +3,19 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `feat/living-mix` (from `main` @ `18a458ce`)
-**Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15. Deployed SHA not re-measured
-after the docs merge.
+**Branch:** `main` @ `d631ae2b`. Zero open pull requests.
+**Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
+deployed SHA after them is **Not measured**.
 
 ## What just changed
 
-**Documentation rebuilt from zero** — merged as PR #178 @ `18a458ce`. No application behaviour
-changed; `src/product/invariants.ts` has zero runtime imports and is absent from `dist/`.
+**Documentation rebuilt from zero** — PR #178, merged @ `18a458ce`. No application behaviour
+changed; `src/product/invariants.ts` has zero runtime imports and its identifiers are absent
+from `dist/`, verified after build.
 
-**Living Mix** (PR #177) rebased onto the new `main`, dropping its edits to the deleted
-`IDEAS_BACKLOG.md` and `STATUS.md` and to the rewritten `AGENTS.md`. Code unchanged; its gate now
-asserts membership in `GATE_REGISTRY`.
+**Living Mix** — PR #177, merged @ `d631ae2b`. Rebased onto the rebuilt docs, dropping its edits
+to the deleted `IDEAS_BACKLOG.md` and `STATUS.md` and to the rewritten `AGENTS.md`. Code
+unchanged; its gate now asserts membership in `GATE_REGISTRY`.
 
 | Action | Detail |
 |---|---|
@@ -38,12 +39,13 @@ Deleted documents remain in git history. **No feature code was removed.**
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-Measured on `feat/living-mix` after the rebase. The docs-only branch measured 138 files / 615
-tests before Living Mix's three test files were reapplied.
+Measured on `feat/living-mix` immediately before it merged. The docs-only branch measured 138
+files / 615 tests before Living Mix's three test files were reapplied.
 
 ## The Station — build state
 
-**Nothing of The Station is built yet.** This branch is documentation and rule plumbing only.
+**Nothing of The Station is built yet.** What landed is documentation, rule plumbing, and the
+Living Mix on-demand surface that predates the decision.
 
 | Piece | State |
 |---|---|
@@ -56,6 +58,10 @@ tests before Living Mix's three test files were reapplied.
 | The Last Hour replay page | Not started |
 | Artist reception view | Not started |
 | New mobile-first landing | Not started |
+| Hiding non-Station surfaces from default navigation | Not started |
+
+Living Mix (`/library/mix`) shipped as the personal on-demand listening mode described in
+`PRODUCT.md` §6. It is deliberately **not** reward-bearing.
 
 ## What already exists and must not be deleted
 

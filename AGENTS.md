@@ -47,7 +47,9 @@ This applies to your own status claims exactly as much as to the product's analy
 - Never reset, seed or run destructive SQL against a production database
 - Never rewrite applied migration history — migrations are additive
 - Never put `service_role`, `sbp_`, Stripe, Resend, fal or Groq keys in `VITE_*` or a commit
-- Never force push, delete a branch, or drop a stash
+- Never delete a branch or drop a stash
+- Never force push to `main`. On your own unmerged branch, after a rebase, use
+  `--force-with-lease` and nothing weaker
 - Check `git status` before starting so you do not bury unrelated work
 - Do not commit `vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`,
   `.agents/`, `skills-lock.json`, or IDE clutter
