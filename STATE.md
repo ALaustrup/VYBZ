@@ -3,13 +3,18 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `feat/the-station` (from `main` @ `af53481e`)
+**Branch:** `feat/living-mix` (from `main` @ `18a458ce`)
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15. Deployed SHA not re-measured
-this turn.
+after the docs merge.
 
 ## What just changed
 
-**Documentation rebuilt from zero. No application behaviour changed.**
+**Documentation rebuilt from zero** — merged as PR #178 @ `18a458ce`. No application behaviour
+changed; `src/product/invariants.ts` has zero runtime imports and is absent from `dist/`.
+
+**Living Mix** (PR #177) rebased onto the new `main`, dropping its edits to the deleted
+`IDEAS_BACKLOG.md` and `STATUS.md` and to the rewritten `AGENTS.md`. Code unchanged; its gate now
+asserts membership in `GATE_REGISTRY`.
 
 | Action | Detail |
 |---|---|
@@ -28,14 +33,13 @@ Deleted documents remain in git history. **No feature code was removed.**
 | Command | Result |
 |---|---|
 | `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **138 files / 615 tests** |
+| `npm run test` | pass — **141 files / 629 tests** |
 | `npm run build` | pass — vite production build |
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-The test count differs from the 623 last recorded because this branch is cut from `main`
-@ `af53481e`, which does not yet include the three Living Mix test files in open PR #177, and
-does include `dockVisualsGate` from PR #176.
+Measured on `feat/living-mix` after the rebase. The docs-only branch measured 138 files / 615
+tests before Living Mix's three test files were reapplied.
 
 ## The Station — build state
 

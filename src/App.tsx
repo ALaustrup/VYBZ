@@ -60,6 +60,7 @@ import { ArtistPage } from "@/pages/ArtistPage";
 import { VibesRadioHost } from "@/features/radio/VibesRadioHost";
 import { ListenEarnHost } from "@/components/ListenEarnHost";
 import { LibraryPage } from "@/pages/LibraryPage";
+import { LivingMixPage } from "@/features/livingMix/LivingMixPage";
 import { TrackDetailPage } from "@/pages/TrackDetailPage";
 import { VisualizerTutorialPage } from "@/pages/VisualizerTutorialPage";
 import { VisualizerStudioPage } from "@/pages/VisualizerStudioPage";
@@ -221,6 +222,8 @@ export function App() {
         <Route path="/rooms/:id" element={<RoomPage />} />
         <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
+        <Route path="/library/mix/:listId" element={<LivingMixPage />} />
+        <Route path="/library/mix" element={<LivingMixPage />} />
         <Route path="/library" element={<LibraryPage key={feedKey} />} />
         <Route path="/tools/metadata" element={<MetadataEditorPage />} />
         <Route path="/tools/art-check" element={<ArtCheckPage />} />
