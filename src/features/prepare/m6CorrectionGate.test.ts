@@ -23,6 +23,7 @@ import {
   STEREO_WIDTH_VERSION,
   removeDcOffset,
 } from "@vybz/processing/waveform";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -33,8 +34,7 @@ const ROOT = path.resolve(__dirname, "../../..");
  */
 describe("M6 correction gate", () => {
   it("cites the M6 gate and ships versioned correction ops", () => {
-    const masterplan = readFileSync(path.join(ROOT, "VYBZ_MASTERPLAN.md"), "utf8");
-    expect(masterplan).toMatch(/M6.*Correction|Correction & Mastering/s);
+    expect(GATE_REGISTRY).toContain("m6Correction");
     expect(CORRECTION_VERSION).toMatch(/^m6\./);
     expect(PEAK_SAFETY_VERSION).toMatch(/^m6\./);
     expect(CHANNEL_BALANCE_VERSION).toMatch(/^m6\./);

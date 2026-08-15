@@ -6,6 +6,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -40,9 +41,7 @@ describe("OR-040 Landing drop → song workspace", () => {
     expect(banner).toContain('data-working-source={track.source}');
   });
 
-  it("authorises OR-040 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-040");
-    expect(agents).toContain("or040LandingDropGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or040LandingDrop");
   });
 });

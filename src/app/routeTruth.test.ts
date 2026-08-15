@@ -89,8 +89,8 @@ describe("working destinations are real", () => {
 });
 
 describe("Masterplan M3 exit gate — every visible navigation item leads somewhere", () => {
-  // This gate was written in prose in VYBZ_MASTERPLAN.md §10 and satisfied by
-  // hand in navModel.ts. Prose does not fail a build, so it is executable here.
+  // Every visible navigation item must lead somewhere real. This was once prose
+  // satisfied by hand in navModel.ts; prose cannot fail a build, so it lives here.
   //
   // `navGroups()` reads FLAGS directly, so these assertions describe the real
   // configuration under test. The flag-conditional logic itself is covered by the

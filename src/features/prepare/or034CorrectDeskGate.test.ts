@@ -1,11 +1,12 @@
 /**
  * OR-034 Correct desk gate — IA rename, URL op sync, AutoFix→CorrectOp map.
- * Cites Creative OS sequence (IDEAS_BACKLOG §8.4) after OR-032 working set.
+ * Follows the OR-032 working set in the Creative OS sequence.
  * No DSP-delivery claims; no new correction algorithms.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import { resolveCorrectOpFromQuery } from "@/features/correction/correctOps";
 
 const ROOT = path.resolve(__dirname, "../../..");
@@ -57,9 +58,7 @@ describe("OR-034 Correct desk", () => {
     expect(alias).toContain("DcOffsetCorrectPage");
   });
 
-  it("authorises OR-034 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-034");
-    expect(agents).toContain("or034CorrectDeskGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or034CorrectDesk");
   });
 });

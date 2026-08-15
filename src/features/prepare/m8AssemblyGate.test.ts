@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import {
   RELEASE_ASSEMBLE_VERSION,
   assembleReleasePackage,
@@ -17,8 +18,7 @@ const ROOT = path.resolve(__dirname, "../../..");
  */
 describe("M8 assembly gate", () => {
   it("cites the M8 gate and ships a versioned assemble package", () => {
-    const masterplan = readFileSync(path.join(ROOT, "VYBZ_MASTERPLAN.md"), "utf8");
-    expect(masterplan).toMatch(/M8.*Release Assembly|Release Assembly & Readiness/s);
+    expect(GATE_REGISTRY).toContain("m8Assembly");
     expect(RELEASE_ASSEMBLE_VERSION).toMatch(/^m8\./);
   });
 

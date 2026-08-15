@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import { dawHintLabel } from "@/features/workspace/dawFolderLink";
 
 const ROOT = path.resolve(__dirname, "../../..");
@@ -39,9 +40,7 @@ describe("OR-041 DAW project folder link", () => {
     expect(dawHintLabel("ableton")).not.toMatch(/sync/i);
   });
 
-  it("authorises OR-041 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-041");
-    expect(agents).toContain("or041DawFolderLinkGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or041DawFolderLink");
   });
 });

@@ -6,6 +6,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import { PACK_MAKER_VERSION } from "@/features/packs/packManifest";
 
 const ROOT = path.resolve(__dirname, "../../..");
@@ -40,9 +41,7 @@ describe("OR-038 Pack Maker Library → Store", () => {
     expect(page).not.toMatch(/guaranteed placement|DSP delivery|invented inventory/i);
   });
 
-  it("authorises OR-038 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-038");
-    expect(agents).toContain("or038PackMakerLibraryGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or038PackMakerLibrary");
   });
 });

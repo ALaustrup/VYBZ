@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -37,10 +38,8 @@ describe("Suite UX cost / AI-minutes removal", () => {
     expect(pane).not.toContain("master-low-balance-banner");
   });
 
-  it("authorises Suite UX cost removal in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("Suite UX");
-    expect(agents).toContain("suiteUxCostRemovalGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("suiteUxCostRemoval");
   });
 
   it("withdraws Cost Sentinel e2e fixtures from the tree or leaves them unreferenced", () => {

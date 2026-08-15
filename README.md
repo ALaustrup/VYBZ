@@ -14,14 +14,11 @@ for fans. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 **VYBZ has no anonymity.** Every account is a durable creator identity. No ads.
 No connection paywalls. Messaging free forever.
 
-> **Five authorities:** [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) (product doctrine) ·
-> [`AGENTS.md`](./AGENTS.md) (how to work here) ·
-> [`ARCHITECTURE.md`](./ARCHITECTURE.md) (verified architecture) ·
-> [`STATUS.md`](./STATUS.md) (current checkpoint) ·
-> [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) (backlog).
-> Everything under `docs/archive/` is historical and never authoritative.
->
-> **Current milestone:** see [`STATUS.md`](./STATUS.md). Phase numbering is retired.
+> **One authority:** [`PRODUCT.md`](./PRODUCT.md) — what we are building and what we refuse to
+> build. Enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
+> [`AGENTS.md`](./AGENTS.md) is how to work here · [`STATE.md`](./STATE.md) is where things
+> stand · [`docs/decisions/`](./docs/decisions/) records why.
+> Everything else under `docs/` is reference, and `docs/archive/` is never authoritative.
 
 ## What VYBZ is
 
@@ -47,8 +44,8 @@ No connection paywalls. Messaging free forever.
 - Watermark embed/detect Edge Functions
 - Supabase Storage media origin (`site-visuals` CDN); Bunny dormant
 
-Delivery state for each of these is recorded in [`STATUS.md`](./STATUS.md). Code merging is
-not delivery — see [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §12.
+Delivery state for each of these is recorded in [`STATE.md`](./STATE.md). Code merging is
+not delivery — see [`PRODUCT.md`](./PRODUCT.md) §12.
 
 ## Local development
 
@@ -66,9 +63,12 @@ Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
 
 | Doc | Purpose |
 |-----|---------|
-| [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) | Product authority |
+| [`PRODUCT.md`](./PRODUCT.md) | Product authority |
+| [`src/product/invariants.ts`](./src/product/invariants.ts) | The rules, in code |
 | [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
-| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | Platform overview |
+| [`STATE.md`](./STATE.md) | Current checkpoint |
+| [`docs/decisions/`](./docs/decisions/) | Decision records |
+| [`docs/architecture.md`](./docs/architecture.md) | Platform overview |
 | [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |
 | [`docs/`](./docs/) | Architecture, products, design, ops, engineering, agents |

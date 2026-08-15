@@ -6,6 +6,7 @@
 import { readFileSync, existsSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -87,9 +88,7 @@ describe("OR-043 Vibes Radio sync", () => {
     expect(edge).toContain("hasFollowingTrack");
   });
 
-  it("authorises OR-043 in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-043");
-    expect(agents).toContain("vibes-radio");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or043VibesRadio");
   });
 });

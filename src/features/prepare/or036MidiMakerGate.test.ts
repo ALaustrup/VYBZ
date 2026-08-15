@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import { generateRandomMidiPhrase } from "@/features/tools/midiRandom";
 
 const ROOT = path.resolve(__dirname, "../../..");
@@ -47,9 +48,7 @@ describe("OR-036 Midi Maker preview + random", () => {
     expect(app).toContain('path="/tools/midi"');
   });
 
-  it("authorises OR-036 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-036");
-    expect(agents).toContain("or036MidiMakerGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or036MidiMaker");
   });
 });

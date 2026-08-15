@@ -11,7 +11,7 @@ import {
 const ROOT = path.resolve(__dirname, "../../..");
 
 /**
- * M4 exit gate — Masterplan §10 / AGENTS.md Measurement Integrity Foundation.
+ * M4 exit gate — measurement integrity. See PRODUCT.md §9 (no fabricated measurement).
  *
  * Gate: Core meters defensible; test vectors pass within documented tolerances;
  * results consistent across environments or the difference is disclosed; no

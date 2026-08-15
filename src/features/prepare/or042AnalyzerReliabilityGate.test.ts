@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -44,9 +45,7 @@ describe("OR-042 Analyzer reliability", () => {
     expect(page).not.toMatch(/100% reliable|always succeeds|guaranteed scan/i);
   });
 
-  it("authorises OR-042 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-042");
-    expect(agents).toContain("or042AnalyzerReliabilityGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or042AnalyzerReliability");
   });
 });

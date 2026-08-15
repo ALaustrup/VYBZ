@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { DELIVERY_STATES, FROZEN_CONTRACTS, GATE_REGISTRY } from "@/product/invariants";
 import {
   DRY_PLAYBACK_VERSION,
   ambientSignal,
@@ -25,9 +26,9 @@ const ROOT = path.resolve(__dirname, "../../..");
  */
 describe("M9 VDock gate", () => {
   it("cites the M9 gate and ships a versioned dry-playback contract", () => {
-    const masterplan = readFileSync(path.join(ROOT, "VYBZ_MASTERPLAN.md"), "utf8");
-    expect(masterplan).toMatch(/M9.*VDock|VDock Completion/s);
-    expect(masterplan).toMatch(/Law 5|VDock never applies undisclosed processing/i);
+    expect(GATE_REGISTRY).toContain("m9Vdock");
+    expect(FROZEN_CONTRACTS.vdockDryPlayback).toBe(true);
+    expect(FROZEN_CONTRACTS.vdockSignalDisclosure).toBe(true);
     expect(DRY_PLAYBACK_VERSION).toMatch(/^m9\./);
   });
 
@@ -175,8 +176,7 @@ describe("M9 VDock gate", () => {
     expect(types).toContain("bindPlaybackLifecycle");
     expect(types).toContain("bindAudioFocus");
 
-    const agents = readFileSync(path.join(ROOT, "AGENTS.md"), "utf8");
-    expect(agents).toMatch(/M9.*closed|M9 VDock.*closed/i);
-    expect(agents).toMatch(/DEPLOYED BUT UNVERIFIED|Do not begin \*\*M10\*\*/i);
+    expect(FROZEN_CONTRACTS.vdockComparePreview).toBe(true);
+    expect(DELIVERY_STATES).toContain("DEPLOYED BUT UNVERIFIED");
   });
 });
