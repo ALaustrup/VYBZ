@@ -195,6 +195,7 @@ export const GATE_REGISTRY = [
   "socialFirstShell",
   "libraryCompleteness",
   "livingMix",
+  "playbackAuthority",
   "dockVisuals",
   "featuredMiniPlayer",
   "chatIdentity",

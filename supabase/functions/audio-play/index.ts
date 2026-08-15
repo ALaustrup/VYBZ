@@ -179,27 +179,39 @@ Deno.serve(async (req: Request) => {
   const urls: Record<string, string> = {};
   const denied: string[] = [];
 
-  for (const p of paths) {
-    if (typeof p !== "string" || !p) continue;
-    if (/^(https?:|blob:|data:)/i.test(p)) {
-      urls[p] = p;
-      continue;
-    }
-    // Visibility is enforced here because this function is the only way to reach
-    // the bytes. Fail closed: an unevaluable check denies rather than allows.
-    if (!guestFeatured) {
+  // The client is now required to mint every playback URL here, so a feed arrives
+  // as one batch. Evaluate visibility concurrently rather than serially — a
+  // sequential round trip per track made a large feed slow enough to feel broken.
+  const unique = Array.from(
+    new Set(paths.filter((p): p is string => typeof p === "string" && !!p)),
+  );
+
+  const decided = await Promise.all(
+    unique.map(async (p) => {
+      if (/^(https?:|blob:|data:)/i.test(p)) return { path: p, allowed: true, passthrough: true };
+      // Visibility is enforced here because this function is the only way to reach
+      // the bytes. Fail closed: an unevaluable check denies rather than allows.
+      if (guestFeatured) return { path: p, allowed: true, passthrough: false };
       const { data: allowed, error: visErr } = await admin.rpc("can_user_play_path", {
         p_user: uid,
         p_path: p,
       });
-      if (visErr || allowed !== true) {
-        denied.push(p);
-        continue;
-      }
+      return { path: p, allowed: !visErr && allowed === true, passthrough: false };
+    }),
+  );
+
+  for (const d of decided) {
+    if (!d.allowed) {
+      denied.push(d.path);
+      continue;
     }
-    const ticket = await mintTicket(p, uid);
+    if (d.passthrough) {
+      urls[d.path] = d.path;
+      continue;
+    }
+    const ticket = await mintTicket(d.path, uid);
     // apikey helps some gateways; ticket carries auth for the stream itself.
-    urls[p] = `${base}?t=${encodeURIComponent(ticket)}${ANON_KEY ? `&apikey=${encodeURIComponent(ANON_KEY)}` : ""}`;
+    urls[d.path] = `${base}?t=${encodeURIComponent(ticket)}${ANON_KEY ? `&apikey=${encodeURIComponent(ANON_KEY)}` : ""}`;
   }
 
   return json({ urls, denied, backend: "supabase-stream" });
