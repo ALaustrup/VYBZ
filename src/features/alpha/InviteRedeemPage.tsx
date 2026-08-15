@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { useSession } from "@/store/session";
+import { AlphaKeyGenerator } from "@/features/alpha/AlphaKeyGenerator";
 import * as api from "@/lib/api";
 import { normalizeInviteCode, redeemInviteErrorMessage } from "@/lib/alphaAccess";
 import { peekPendingInviteKey, takePendingInviteKey } from "@/lib/pendingInviteKey";
@@ -92,6 +93,13 @@ export function InviteRedeemPage() {
               {err}
             </p>
           ) : null}
+          <div className="mt-2 border-t border-white/10 pt-3">
+            <p className="mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              No key yet?
+            </p>
+            <AlphaKeyGenerator compact />
+          </div>
+
           <button
             type="button"
             onClick={() => void signOut()}

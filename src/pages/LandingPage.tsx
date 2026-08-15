@@ -6,6 +6,7 @@ import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { BuildStamp } from "@/components/BuildStamp";
 import { FeaturedMiniPlayer } from "@/features/featured/FeaturedMiniPlayer";
+import { AlphaKeyGenerator } from "@/features/alpha/AlphaKeyGenerator";
 import { normalizeInviteCode } from "@/lib/alphaAccess";
 import { stashPendingInviteKey } from "@/lib/pendingInviteKey";
 import { collectLibraryAudioFiles, dragHasFiles } from "@/lib/libraryDropIngest";
@@ -177,6 +178,13 @@ export function LandingPage() {
           >
             Already in? Sign in
           </Link>
+
+          <div className="relative z-[1] mt-1 border-t border-white/10 pt-3">
+            <p className="mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
+              No key yet?
+            </p>
+            <AlphaKeyGenerator />
+          </div>
 
           {dropHint ? (
             <p

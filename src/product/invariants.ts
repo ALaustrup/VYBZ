@@ -200,6 +200,7 @@ export const GATE_REGISTRY = [
   "featuredMiniPlayer",
   "chatIdentity",
   "alphaWelcome",
+  "alphaKey",
   "perceptionEngine",
   "aiReviewPortal",
   "liveManifest",

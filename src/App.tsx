@@ -6,7 +6,7 @@ import { useSession } from "@/store/session";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { PageTransition } from "@/components/PageTransition";
 import { LandingPage } from "@/pages/LandingPage";
-import { Onboarding, UsernameSetup } from "@/components/Onboarding";
+import { Onboarding } from "@/components/Onboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
 import { BulkUploadSheet } from "@/components/BulkUploadSheet";
 import { LibraryDropHost } from "@/components/LibraryDropHost";
@@ -192,10 +192,10 @@ export function App() {
     if (isPublicDoc) return <PublicDocShell />;
     return <InviteRedeemPage />;
   }
-  if (!profile.username) {
-    if (isPublicDoc) return <PublicDocShell />;
-    return <UsernameSetup />;
-  }
+  // The artist name is collected in step 2 of the welcome tour rather than by a
+  // full-page blocker, so the first thing after sign-in is a welcome. The tour
+  // re-opens while the name is missing, so it cannot be skipped past.
+  // `UsernameSetup` stays in the tree, imported by nothing.
 
   const routes = (
     <ErrorBoundary key={location.pathname}>
@@ -297,7 +297,7 @@ export function App() {
         <CamCallOverlay />
         <VideoMessageHost />
         <ReactiveFrame />
-        {userId ? <AlphaWelcomeTour userId={userId} /> : null}
+        {userId ? <AlphaWelcomeTour userId={userId} username={profile?.username ?? null} /> : null}
         <AlphaFeedbackFab />
         <Toast /><Confetti />
       </CamCallProvider>
