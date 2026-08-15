@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import {
   DOTS_LEAD_SEC,
   MAX_SPARKS_PER_TRACK,
@@ -21,6 +23,17 @@ function spark(id: string, positionSec: number): Spark {
 
 describe("spark timing", () => {
   const s = spark("a", 100);
+
+  it("leaves room to notice, read and decide", () => {
+    // 8s was tried on production and missed. Noticing, reading the question and
+    // weighing three options while music plays does not fit in single digits.
+    expect(SPARK_WINDOW_SEC).toBeGreaterThanOrEqual(15);
+    expect(DOTS_LEAD_SEC).toBeGreaterThanOrEqual(5);
+  });
+
+  it("never lets one prompt open while another is still live", () => {
+    expect(MIN_SPARK_SPACING_SEC).toBeGreaterThan(DOTS_LEAD_SEC + SPARK_WINDOW_SEC);
+  });
 
   it("is idle well before the moment", () => {
     expect(sparkStateAt(s, 0).phase).toBe("idle");
@@ -62,7 +75,8 @@ describe("choosing what to render", () => {
   });
 
   it("picks the nearer mark when both are in the same phase", () => {
-    // Overlapping live windows: at 104 both are live, but "b" is the closer mark.
+    // Spacing rules make this unreachable in practice, but the tie-break must
+    // still be deterministic if two windows ever overlap.
     const picked = activeSpark([spark("a", 100), spark("b", 103)], 104);
     expect(picked?.state.phase).toBe("live");
     expect(picked?.spark.id).toBe("b");
@@ -102,6 +116,16 @@ describe("placement rules", () => {
 
   it("skips the range check when duration is unknown rather than inventing one", () => {
     expect(rejectPlacement({ existing: [], positionSec: 9999, durationSec: null })).toBeNull();
+  });
+
+  it("uses the same spacing the database enforces", () => {
+    // place_track_spark repeats this rule server-side. If the two drift, the UI
+    // accepts a placement the database then rejects.
+    const sql = readFileSync(
+      path.resolve(__dirname, "../../../supabase/migrations/20260815_0100_spark_timing.sql"),
+      "utf8",
+    );
+    expect(sql).toContain(`< ${MIN_SPARK_SPACING_SEC}`);
   });
 
   it("refuses an answer set that cannot deliver bad news", () => {

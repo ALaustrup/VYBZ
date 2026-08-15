@@ -13,14 +13,38 @@
  * from a playback position so it can be tested exactly.
  */
 
-/** How long the dots show before the spark lands. */
-export const DOTS_LEAD_SEC = 4;
-/** How long a spark stays tappable before it bursts. */
-export const SPARK_WINDOW_SEC = 8;
+/**
+ * How long the dots show before the spark lands.
+ *
+ * The lead-in is the difference between a prompt that arrives cold and one you
+ * were ready for. Four seconds was not enough for the dots to register at all.
+ */
+export const DOTS_LEAD_SEC = 6;
+
+/**
+ * How long a spark stays tappable before it bursts.
+ *
+ * This is a judgement, not a measurement. Eight seconds was tried on production
+ * and was too short: a listener needs to notice the prompt, read the question,
+ * read three options and decide — and they are listening to music while doing
+ * it. Missing the window turns "no response" into "too slow", which quietly
+ * poisons the only figure here that has to stay honest.
+ *
+ * Tune this from real answer-versus-miss rates once there are enough of them.
+ */
+export const SPARK_WINDOW_SEC = 18;
+
 /** Sparks per track. Priced in Airtime later; capped here so a song stays a song. */
 export const MAX_SPARKS_PER_TRACK = 5;
-/** Two sparks cannot crowd each other. */
-export const MIN_SPARK_SPACING_SEC = 20;
+
+/**
+ * Two sparks cannot crowd each other.
+ *
+ * Must stay greater than `DOTS_LEAD_SEC + SPARK_WINDOW_SEC`, or one prompt's
+ * window would open while the previous one is still live. `place_track_spark`
+ * enforces the same number server-side; the gate test asserts they match.
+ */
+export const MIN_SPARK_SPACING_SEC = 30;
 
 export type Polarity = "positive" | "neutral" | "critical";
 
