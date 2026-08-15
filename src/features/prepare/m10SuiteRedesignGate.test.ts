@@ -10,6 +10,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { FROZEN_CONTRACTS, GATE_REGISTRY, PROHIBITIONS } from "@/product/invariants";
 import { SUITE_APP_ACCENT_RGB, suiteAppAccentRgb } from "@/design/suiteAppAccents";
 import { PRODUCT_ACCENT_RGB } from "@/design/tokens";
 import { SUITE_APPS, type SuiteAppId } from "@/shell/suiteApps";
@@ -167,17 +168,15 @@ describe("M10 suite redesign gate (Wave R0)", () => {
   });
 
   it("Wave R5 rollup — redesign surface markers present; Law 5 frozen", () => {
-    const agents = read("AGENTS.md");
     const gate = read("src/features/prepare/m10SuiteRedesignGate.test.ts");
     // Executable gate cites itself across waves
     expect(gate).toContain("Wave R1 loads suite-shell-chrome");
     expect(gate).toContain("Wave R2 Home ops desk");
     expect(gate).toContain("Wave R3 rolls ToolWorkbench");
     expect(gate).toContain("Wave R4 Library media desk");
-    expect(agents).toContain("m10SuiteRedesignGate.test.ts");
-    // Law 5 remains frozen in authority
-    expect(agents).toMatch(/Law 5.*VDock|VDock contracts frozen/i);
-    // No DSP-delivery claim in redesign authority
-    expect(agents).toMatch(/does not|never.*DSP|no DSP-delivery/i);
+    expect(GATE_REGISTRY).toContain("m10SuiteRedesign");
+    // Playback contracts stay frozen; no DSP-delivery claim is permitted.
+    expect(FROZEN_CONTRACTS.vdockDryPlayback).toBe(true);
+    expect(PROHIBITIONS.dspDeliveryClaims).toBe(true);
   });
 });

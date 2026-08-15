@@ -1,6 +1,6 @@
 /**
  * OR-032 Creative OS wedge 1 — song workspace working set.
- * Cites docs/architecture/creative-os-song-workspace-brief.md + IDEAS_BACKLOG §8.4.
+ * Cites docs/architecture/creative-os-song-workspace-brief.md.
  * Intake order: workspace media → Library picker (later) → dropzone fallback.
  * Law 5: VDock contracts untouched (skin / reactive wordmark only).
  */

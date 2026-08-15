@@ -1,0 +1,211 @@
+/**
+ * VYBZ invariants — the rules, in code.
+ *
+ * Doctrine used to live in prose, and sixteen gate tests grepped that prose to
+ * enforce it. That made documents load-bearing: rewording a sentence could turn
+ * the build red, and two documents could contradict each other with nothing to
+ * catch it.
+ *
+ * This file is the single machine-readable source. `PRODUCT.md` explains the
+ * intent for humans; this file is what tests enforce. If a rule is not here, no
+ * test can protect it — so it is not a rule.
+ */
+
+/* ------------------------------------------------------------------------- */
+/* Delivery vocabulary                                                        */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Permitted words for describing how far along something is.
+ * "Complete" is deliberately absent: merged is not delivered, and a green test
+ * run only proves the code compiles.
+ */
+export const DELIVERY_STATES = [
+  "DOCUMENTED ONLY",
+  "STUB OR SCAFFOLD",
+  "INFRASTRUCTURE ONLY",
+  "NATIVE-PLATFORM ONLY",
+  "PARTIALLY IMPLEMENTED",
+  "IMPLEMENTED BUT NOT DELIVERED",
+  "DEPLOYED BUT UNVERIFIED",
+  "DELIVERED AND PRODUCTION-VERIFIED",
+] as const;
+
+export type DeliveryState = (typeof DELIVERY_STATES)[number];
+
+/** Phrase used wherever a value is unknown. Never substitute a plausible default. */
+export const NOT_MEASURED = "Not measured" as const;
+
+/* ------------------------------------------------------------------------- */
+/* Principles                                                                 */
+/* ------------------------------------------------------------------------- */
+
+export const PRINCIPLES = {
+  /** No number may be shown that was not measured. Unknown reads "Not measured". */
+  neverFabricateAMeasurement: true,
+  /** Merged, reachable and deployed are different things. See DELIVERY_STATES. */
+  repositoryCompletionIsNotDelivery: true,
+  /** Playback never applies undisclosed processing. Simulations are labelled. */
+  playbackIsDryAndDisclosed: true,
+  /** Removed code is hidden and recoverable, never deleted. */
+  hideNeverDelete: true,
+  /** Attention is earned by giving attention. It can never be purchased. */
+  attentionCannotBeBought: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Prohibitions                                                               */
+/* ------------------------------------------------------------------------- */
+
+export const PROHIBITIONS = {
+  /** Dating, romance, meetup and swipe matching. Permanently out of scope. */
+  datingOrRomance: true,
+  /** VYBZ prepares releases. It does not deliver to DSPs and must not claim to. */
+  dspDeliveryClaims: true,
+  /** Domain code must reach native platforms through the Platform Bridge. */
+  directNativeSdkImportsInDomainCode: true,
+  /** Public vanity counts (followers, plays) as social proof. See PRODUCT.md. */
+  publicVanityMetrics: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Frozen contracts                                                           */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Shipped behaviour that is extended through versioned interfaces rather than
+ * redesigned. Frozen does not mean deleted — the code stays in the tree.
+ */
+export const FROZEN_CONTRACTS = {
+  /** AudioBus stays a dry HTMLAudioElement. No Web Audio graph on the play path. */
+  vdockDryPlayback: true,
+  /** Ambient and simulation playback must carry a human-readable disclosure. */
+  vdockSignalDisclosure: true,
+  /** A/B compare is loudness-matched for listening only; downloads stay unmatched. */
+  vdockComparePreview: true,
+  /** Multi-human collaboration stays in the tree, imported by nothing. */
+  multiHumanCollaboration: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* The Station economy                                                        */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Two balances, one wallet, no bridge between them.
+ *
+ * Airtime is verified time and is machine-measured. V¢ is judged value and is
+ * decided by a person. If either converts into the other, the platform's core
+ * claim — that the attention here is real — becomes false.
+ */
+export const CURRENCY = {
+  /** Airtime is earned only by answering prompts during verified listening. */
+  airtimeIsPurchasable: false,
+  /** Airtime must never become spendable money. */
+  airtimeConvertsToVc: false,
+  /** Money must never become the right to be heard. This is the one that matters. */
+  vcConvertsToAirtime: false,
+  /** Airtime is not transferable between accounts. */
+  airtimeIsTransferable: false,
+  /** V¢ remains the purchasable utility credit it already is. */
+  vcIsPurchasable: true,
+} as const;
+
+export const STATION = {
+  /** Exactly one synchronized station. Split only on measured demand. */
+  stationCount: 1,
+  /** Only reward-bearing surface on the platform. */
+  rewardBearing: true,
+  /** Reward-bearing playback cannot seek — live or replay. */
+  lockedTransportWhenEarning: true,
+  /** Publishing is always free. Only the guarantee is earned. */
+  publishingRequiresAirtime: false,
+  /** Prompt options must span positive, neutral and critical. */
+  promptOptionsMustSpanRange: true,
+  /**
+   * Auto-placed prompts sit at measured structural moments (largest energy
+   * change, opening, ending, longest quiet passage) — never at random, and
+   * never described as a musical section we cannot detect.
+   */
+  autoPromptPlacementIsMeasured: true,
+  /** Auto-placed prompts cost the same as authored ones. */
+  autoPromptsAreFree: false,
+  /** The artist is charged per answer received, not per prompt placed. */
+  chargePerAnswerReceived: true,
+  /** A listener who does not answer is recorded as "no response", never inferred. */
+  nonResponseIsRecordedNotInferred: true,
+} as const;
+
+/**
+ * Economy constants are deliberately absent.
+ *
+ * How much Airtime an answer earns, what an answer costs, and how many answers
+ * the guarantee promises cannot be derived from anything measured yet. Inventing
+ * them here would violate the first principle. They get set from observed
+ * listening supply and release demand once the station is running.
+ */
+export const ECONOMY_CONSTANTS_STATUS = NOT_MEASURED;
+
+/* ------------------------------------------------------------------------- */
+/* Preservation                                                               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Nothing built is deleted. Surfaces leaving the default experience are hidden
+ * from navigation and remain reachable in the tree and in git history.
+ */
+export const PRESERVATION = {
+  deleteExistingFeatureCode: false,
+  hideFromDefaultNavigation: true,
+  keepRoutesResolvable: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Gate registry                                                              */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Every executable gate registers here. Gate tests assert their own membership,
+ * so a gate cannot exist unregistered and an entry cannot outlive its gate.
+ *
+ * This replaces the previous convention of grepping AGENTS.md for a filename.
+ */
+export const GATE_REGISTRY = [
+  "routeTruth",
+  "m4Measurement",
+  "m5Analysis",
+  "m6Correction",
+  "m7Translation",
+  "m8Assembly",
+  "m9Vdock",
+  "m10SuiteRedesign",
+  "m10StoreCommerce",
+  "or032WorkingSet",
+  "or034CorrectDesk",
+  "or035WhatNext",
+  "or036MidiMaker",
+  "or037ConverterFormats",
+  "or038PackMakerLibrary",
+  "or039MarketDiscovery",
+  "or040LandingDrop",
+  "or041DawFolderLink",
+  "or042AnalyzerReliability",
+  "or043VibesRadio",
+  "suiteUxCostRemoval",
+  "socialFirstShell",
+  "libraryCompleteness",
+  "livingMix",
+  "dockVisuals",
+  "featuredMiniPlayer",
+  "chatIdentity",
+  "alphaWelcome",
+  "perceptionEngine",
+  "aiReviewPortal",
+  "liveManifest",
+] as const;
+
+export type GateId = (typeof GATE_REGISTRY)[number];
+
+export function isRegisteredGate(id: string): id is GateId {
+  return (GATE_REGISTRY as readonly string[]).includes(id);
+}

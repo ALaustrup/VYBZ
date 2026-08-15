@@ -23,7 +23,7 @@ const INTEGRATED_TOLERANCE_LU = 0.5;
 
 describe("M4 BS.1770-4 meter vectors", () => {
   it("cites the M4 gate: published vectors pass within documented tolerances", () => {
-    // Gate reference — VYBZ_MASTERPLAN.md §10 M4 / AGENTS.md Measurement Integrity.
+    // Measurement integrity: a published vector with a documented tolerance.
     expect(INTEGRATED_TOLERANCE_LU).toBeLessThanOrEqual(0.5);
     expect(BS1770_METER_VERSION).toMatch(/^m4\.bs1770/);
   });

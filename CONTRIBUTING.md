@@ -32,9 +32,9 @@ main                    ← production
 
 ## Documentation
 
-- Five authorities and their precedence: [`AGENTS.md`](./AGENTS.md).
-- Document map: [`ARCHITECTURE.md`](./ARCHITECTURE.md) §16.
-- Everything under `docs/` other than the five authorities is reference, not law.
+- One authority: [`PRODUCT.md`](./PRODUCT.md). Enforceable rules: `src/product/invariants.ts`.
+- How to work here: [`AGENTS.md`](./AGENTS.md). Current state: [`STATE.md`](./STATE.md).
+- Everything under `docs/` is reference, not law.
 - Archive under `docs/archive/` is never authoritative.
 
 ## Migrations

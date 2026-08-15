@@ -6,6 +6,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import { filterMarketPacks, packHasPreview } from "@/features/storefront/marketBrowse";
 
 const ROOT = path.resolve(__dirname, "../../..");
@@ -45,9 +46,7 @@ describe("OR-039 Market discovery", () => {
     expect(packHasPreview({ preview_path: null } as never)).toBe(false);
   });
 
-  it("authorises OR-039 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-039");
-    expect(agents).toContain("or039MarketDiscoveryGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or039MarketDiscovery");
   });
 });

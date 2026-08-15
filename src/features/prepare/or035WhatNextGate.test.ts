@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import { nextDeskStepsFromFindings } from "@/features/prepare/nextDeskFromFindings";
 
 const ROOT = path.resolve(__dirname, "../../..");
@@ -51,9 +52,7 @@ describe("OR-035 What next from findings", () => {
     expect(JSON.stringify(steps)).not.toMatch(/score|percent|readiness/i);
   });
 
-  it("authorises OR-035 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-035");
-    expect(agents).toContain("or035WhatNextGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or035WhatNext");
   });
 });

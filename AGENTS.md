@@ -1,231 +1,66 @@
 # AGENTS.md
 
-> **Authority 2 of 5.** How to work in this repository. Short on purpose — if you cannot
-> follow all of it, do not start.
+How to work in this repository. If you cannot follow all of it, do not start.
 
-## Instruction precedence
+## Read first
 
-1. [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) — product doctrine and the seven laws
-2. This file — operating rules
-3. [`ARCHITECTURE.md`](./ARCHITECTURE.md) — verified architecture
-4. [`STATUS.md`](./STATUS.md) — the current evidence-backed checkpoint
-5. [`IDEAS_BACKLOG.md`](./IDEAS_BACKLOG.md) — approved, deferred, frozen, decision-required
+1. [`PRODUCT.md`](./PRODUCT.md) — the only authority on what we are building
+2. [`src/product/invariants.ts`](./src/product/invariants.ts) — the rules, in code, enforced by tests
+3. [`STATE.md`](./STATE.md) — where things actually stand right now
+4. [`docs/`](./docs/) — reference material, never authority
 
-Anything under `docs/archive/` is **historical and never authoritative**. Anything else
-under `docs/` is reference, not law. If a reference document contradicts an authority, the
-authority wins and the reference gets fixed.
+There is one authority. If reference material contradicts it, the authority wins and the
+reference gets fixed. Documents cannot contradict each other into a stalemate any more,
+because only one of them decides anything.
 
-## Read before you work
+## Rules live in code, not prose
 
-Read `STATUS.md` first — it tells you the branch, HEAD, production SHA, and the one
-authorised milestone. Then read the milestone's section in the Masterplan. Then inspect the
-code you intend to change. Never edit a file you have not read.
+Sixteen gate tests used to grep `AGENTS.md` and `VYBZ_MASTERPLAN.md` for sentences. That made
+documents load-bearing: rewording could turn the build red, and nothing detected two documents
+disagreeing.
 
-Before touching any route, read the authentication gate in `src/App.tsx` and
-`ARCHITECTURE.md` §3.
+Now every enforceable rule is a value in `src/product/invariants.ts`, and gates import it.
 
-## Current authorised milestone
+**If you want a new rule, add it there with a test. A rule that no test can enforce is not a
+rule — it is a preference, and it belongs in prose where it cannot break a build.**
 
-**Social-first platform** authorised by the owner **2026-08-11**. This supersedes Suite UX
-as the active milestone and changes the product's centre of gravity.
+Every gate registers its id in `GATE_REGISTRY` and asserts its own membership.
 
-VYBZ is a **music production social platform centred on the experience of music, audio and
-sound**. It connects creators with each other and with music lovers, and gives everyone a
-premium place to share and discover all music. The production tools are **additive**, not the
-focus. Scope:
+## Never delete what exists
 
-1. **Tools behind a menu.** `SUITE_APPS` remains the single registry; the launcher
- (`src/shell/ToolsLauncher.tsx`) is the only permanent entry point. The suite app rail is
- frozen in the tree, imported by nothing.
-2. **Signed-in home is the creator's profile** — customisable, showcasing their library.
-3. **Per-track visibility.** Every track is Public or Private on the owner's profile. The
- data model already exists (`drops.audience` + `can_view_drop`); enforcement does not — see
- the blocker below. **Do not ship per-track privacy until that is closed.**
-4. **Library publishes to the feed.** Adding audio surfaces it to the creator's feed subject
- to that track's visibility.
-5. **Chat rooms.** Global rooms everyone can join, plus user-created rooms and groups.
- Members are shown by **artist / producer name**, never a raw handle.
-6. **Discovery for listeners, not only creators.** Music lovers are first-class users.
+Nothing already built gets removed. Surfaces leaving the default experience are **hidden from
+navigation** — routes still resolve, code still compiles, imports may be dropped but files
+stay. `PRESERVATION` in the invariants file encodes this.
 
-Gates: `socialFirstShellGate.test.ts`, and a new gate per social surface as it lands.
+Documentation is the sole exception, and that removal already happened.
 
-### Blocker — private-by-default playback (must precede scope item 3)
+## Never fabricate a number
 
-Measured on `xixmneooyufbeftdfpcm` 2026-08-11. `drops` SELECT is correctly gated by
-`can_view_drop`, but the audio is not:
+Not in code, not in a document, not in a report to the owner. If you did not measure it, say
+you did not measure it. The correct output for an unavailable value is **"Not measured"**.
 
-- `assets` SELECT is `(kind = ANY (…'track'…)) OR owner_id = auth.uid()` — the row, **and the
- storage path in `url`**, is readable by anyone regardless of the drop's audience.
-- Storage `audio-assets read` is `(bucket_id = 'audio-assets')` for `authenticated` — **no**
- owner-folder restriction, so any signed-in user can sign any object.
+This applies to your own status claims exactly as much as to the product's analysis results.
+"All tests pass" requires having run them.
 
-Marking a track private therefore hides the row and leaves the audio reachable. Required
-sequence, in order — a partial application breaks playback:
+## Safety
 
-1. `audio-play` becomes the single playback authority: it holds service role, so it must
- verify the caller owns the asset or passes `can_view_drop` for a drop referencing it.
-2. The client routes **all** playback through `audio-play` tickets, including
- `{uid}/drops/…`, instead of client-side `createSignedUrls`.
-3. Only then lock storage `audio-assets read` to owner-only, so the client cannot bypass.
-4. Stop exposing `assets.url` to non-viewers.
+- Never reset, seed or run destructive SQL against a production database
+- Never rewrite applied migration history — migrations are additive
+- Never put `service_role`, `sbp_`, Stripe, Resend, fal or Groq keys in `VITE_*` or a commit
+- Never force push, delete a branch, or drop a stash
+- Check `git status` before starting so you do not bury unrelated work
+- Do not commit `vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`,
+  `.agents/`, `skills-lock.json`, or IDE clutter
 
-Steps 1–3 close the hole even if a path leaks, because a path is useless without a ticket.
+## Branches
 
-**Owner authorisation for redesign:** complete redesign and archival of any existing tool is
-authorised. **Nothing may be removed** — archival means redesigned or frozen in the tree,
-recoverable from Git, never deleted.
-
-**Consequently the messaging / live / rooms freeze below is LIFTED for social work**, since
-those surfaces are now the product rather than a side quest. Law 3 still stands without
-exception: no dating, romantic, meetup or swipe functionality, ever.
-
-**Superseded:** Suite UX (merged, PR #163 @ `b0d1645d`) — shipped scope stands; no further
-Suite UX deepen. Gate `suiteUxCostRemovalGate.test.ts` remains green as a regression guard.
-
-**Creative OS — Song Workspace** sequence **OR-032–OR-042 CLOSED** (OR-042 merged PR #162 @
-`373746af`). No continuous Creative OS polish; park new ideas in IDEAS_BACKLOG. OR-044 Drive
-sync remains parked.
-
-**OR-043 Vibes Radio** shipped (PR #152 / #153) — migration + `vibes-radio` edge on
-`xixmneooyufbeftdfpcm`; interstitial bumper-only. Bugfixes only unless re-authorised.
-
-**M10 Store commerce** remains authorised as a **parallel later wedge** only when it does
-not fight the song-workspace model (Market browse shipped via PR #147). Wave **R**
-**DEPLOYED AND VERIFIED** @ `47773b69`. Law 5: VDock contracts frozen (skin / reactive
-chrome only). Law 3: no dating.
-
-### Positioning (Masterplan §1)
-
-VYBZ helps AI-assisted creators finish release-ready work. It does not fight AI music.
-Law 1 still governs every detector and claim. Product feel: one creative OS — Ableton /
-DaVinci calm information density — not a busy admin dashboard. One ecosystem, three
-doorways (desktop studio / web access / mobile capture). Ask what the user is doing, not
-which platform they are on.
-
-### Authorised track
-
-1. **Suite UX** (active) — cost/AI-minutes removal, Settings strip, viewport, dashboard
-   motion, profile liveliness. Prefer small reviewable PRs on `feat/suite-ux-*`.
-2. **Follow-on** — park new Creative OS ideas in IDEAS_BACKLOG; OR-044 Drive sync remains parked.
-3. **M10 Store commerce** — deepen only when aligned with Publish workstation / discovery
-   feed (no invented inventory; no DSP-delivery claims).
-
-### Closed / parked tracks (post-smoke)
-
-0. **Creative OS OR-032–OR-042 (closed)** — OR-042 PR #162 @ `373746af`.
-1. **Suite visual polish (baseline)** — PR #140 @ `46934283`; Suite UX wedge above is the
-   only authorised follow-on chrome work (not an open-ended redesign track).
-2. **M10 Wave R (closed)** — PR #144 @ `47773b69`; **DEPLOYED AND VERIFIED**. Gate:
-   `m10SuiteRedesignGate.test.ts` (R0–R5).
-3. **M9 VDock (closed)** — dry playback, signal disclosure, compare preview, bridge
-   playback caps / MediaSession / lifecycle / Android AudioManager focus remain frozen
-   behind stable interfaces (Law 5). Extend via versioned contracts only.
-4. **M8 (parked)** — assemble + rule-cited findings shipped; deepen parked.
-5. **M7 (parked)** — Translation Lab streaming / device / codec previews shipped; deepen
-   parked.
-6. **OR deepen (parked)** — OR-019 V1, OR-020, OR-023, OR-026–OR-031 as previously shipped
-   or smoke-verified; re-auth required for new OR scope.
-7. **OR-043 Vibes Radio (shipped)** — PR #152 @ `866eddcb`; bumper fix PR #153 @ `72b0833e`.
-
-Bugfixes and shared-shell changes remain allowed.
-
-### Shipped authorisations (no continuous deepen)
-
-- **OR-019 Stem Maker V1** — 2026-08-08; V2 parked.
-- **OR-023 Alpha invite keys** — 2026-08-08.
-- **Analyzer intake desk** — 2026-08-09.
-- **OR-026–OR-028** — shipped; Correct deepen closed unless re-authorised.
-- **OR-020 / OR-029 / OR-030 / OR-031** — parked after owner smoke **2026-08-10** unless
-  re-authorised.
-- **OR-043 Vibes Radio** — 2026-08-11; interstitial bumper-only; no continuous deepen.
-
-Live/messaging **are now in scope** under the Social-first milestone above (this reverses the
-previous freeze; the freeze text elsewhere in this file is historical). Premium-suite phase
-track remains withdrawn.
-
-### There is exactly one plan
-
-The parallel "premium suite" phase track remains **withdrawn**. The Masterplan milestone
-sequence in [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §9 is the only plan.
-
-### Law 3 + discovery
-
-Discovery, live, messaging and rooms are **re-authorised** under the Social-first milestone
-(2026-08-11) — they are the product now, not breadth for its own sake. OR-031 discovery V1
-is the starting point rather than a parked end state.
-
-Dating / romantic / meetup / swipe matching remain **permanently out of scope**. A social
-platform for creators connects people around work, never around romance. This constraint is
-not affected by the pivot.
-
-### Exit gates must be executable
-
-A gate written only in prose cannot fail a build. Where a gate can be expressed as a test,
-it must be, and the test must cite the gate. References: `src/app/routeTruth.test.ts` (M3),
-`src/features/prepare/m4MeasurementGate.test.ts` (M4), `src/features/prepare/m5AnalysisGate.test.ts` (M5),
-`src/features/prepare/m6CorrectionGate.test.ts` (M6), `src/features/prepare/m7TranslationGate.test.ts` (M7),
-`src/features/prepare/m8AssemblyGate.test.ts` (M8), `src/features/prepare/m9VdockGate.test.ts` (M9),
-`src/features/prepare/m10SuiteRedesignGate.test.ts` (M10 Wave R),
-`src/features/prepare/m10StoreCommerceGate.test.ts` (M10 Store commerce),
-`src/features/prepare/or032WorkingSetGate.test.ts` (Creative OS OR-032),
-`src/features/prepare/or034CorrectDeskGate.test.ts` (Creative OS OR-034),
-`src/features/prepare/or035WhatNextGate.test.ts` (Creative OS OR-035),
-`src/features/prepare/or036MidiMakerGate.test.ts` (Creative OS OR-036),
-`src/features/prepare/or037ConverterFormatsGate.test.ts` (Creative OS OR-037),
-`src/features/prepare/or038PackMakerLibraryGate.test.ts` (Creative OS OR-038),
-`src/features/prepare/or039MarketDiscoveryGate.test.ts` (Creative OS OR-039),
-`src/features/prepare/or040LandingDropGate.test.ts` (Creative OS OR-040),
-`src/features/prepare/or041DawFolderLinkGate.test.ts` (Creative OS OR-041),
-`src/features/prepare/or042AnalyzerReliabilityGate.test.ts` (Creative OS OR-042),
-`src/features/prepare/or043VibesRadioGate.test.ts` (OR-043 Vibes Radio),
-`src/features/prepare/suiteUxCostRemovalGate.test.ts` (Suite UX cost/AI-minutes removal),
-`src/features/prepare/socialFirstShellGate.test.ts` (Social-first shell — tools behind the
-launcher, rail preserved),
-`src/features/prepare/libraryCompletenessGate.test.ts` (library pages the whole catalogue and
-states a measured total).
-
-### Carry-forward
-
-M1–M4 closed as previously recorded (native desktop BS.1770 still approx-pending where
-disclosed). M5–M6 closed; **M7–M8 deepen parked**; **M9 VDock closed** (DEPLOYED BUT UNVERIFIED).
-**M10 Wave R DEPLOYED AND VERIFIED** @ `47773b69`; Market browse merged; Store commerce
-**OR-034–OR-041 shipped**. **OR-042 shipped** (PR #162 @ `373746af`). **Active:** **Suite UX**.
-
-## Safety rules
-
-- Never reset or seed a production database. Never run destructive SQL.
-- Never rewrite applied migration history. Migrations are additive.
-- Never expose secrets. `service_role`, `sbp_`, Stripe secret, Resend, fal and Groq keys
-  never go in `VITE_*` or in a commit.
-- Never overwrite unrelated uncommitted work. Check `git status` before you start.
-- Never force push. Never delete a branch, tag or stash.
-- Preserve rollback paths. Prefer additive change.
-- Do not commit: `vizualz/`, `public/**/loop.{mp4,webm}`, `public/backdrop/*.{mp4,webm}`,
-  `.agents/`, `skills-lock.json`, IDE clutter.
-
-## Law 1 applies to you
-
-Never write a number you did not measure — in code, in a document, or in a report to the
-owner. If you did not verify it, say you did not verify it. If a measurement is unavailable,
-the correct output is "Not measured". This applies to your own status claims as much as to
-the product's analysis results.
-
-## Branch policy
-
-`main` is production; Vercel deploys it automatically on merge. Work on a descriptive
-branch (`docs/…`, `fix/…`, `feat/…`) and open a pull request. One milestone per branch;
-prefer several small reviewable PRs over one large one.
-
-## Preservation
-
-Before any removal, record the starting branch, commit and working-tree state, confirm no
-unrelated work is staged, and ensure the removed code is recoverable from Git history.
-Frozen code stays in the tree, is imported by nothing, and must not enter a production
-bundle.
+`main` is production and deploys automatically on merge. Work on a descriptive branch
+(`feat/…`, `fix/…`, `docs/…`) and open a pull request. Prefer several small reviewable PRs
+over one large one.
 
 ## Validation
 
-Correctness gate — all three must pass:
+All three must pass before anything is claimed:
 
 ```
 npm run lint     # tsc --noEmit
@@ -233,45 +68,31 @@ npm run test
 npm run build
 ```
 
-E2E: `npm run test:e2e`. Fixture guard: `npm run check:no-fixtures` must pass against
-`dist/`. Fixtures are enabled only by `npm run build:e2e`, which produces a
-**non-deployable** build.
+Fixture guard: `npm run check:no-fixtures` against `dist/`. E2E: `npm run test:e2e`.
+Fixtures are enabled only by `npm run build:e2e`, which produces a **non-deployable** build.
 
-Delivery gate — before claiming anything is done, satisfy every row of Masterplan §12 and
-declare one of the permitted delivery states. **Never write "complete."** Merged is not
-delivered; reachable is not discoverable; a green CI run proves only that the code compiles.
+Merged is not delivered. Reachable is not discoverable. A green run proves the code compiles
+and nothing more. Use the delivery vocabulary in `PRODUCT.md` §12 and never write "complete".
 
-## Authorisation
+## Ask before
 
-You may, without asking: read, search, run the validation commands, create a branch, commit
-to that branch.
+Pushing · opening or merging a pull request · tagging · any database migration · any
+deployment · activating a paid service · installing a dependency · anything irreversible.
 
-You must ask the owner first for: pushing, opening or merging a pull request, creating or
-moving a tag, any database migration, any deployment, activating any paid service,
-installing new dependencies, and any destructive or irreversible action.
+You may always, without asking: read, search, run the validation commands, create a branch,
+and commit to it.
 
-## Updating STATUS.md
+## Keep STATE.md true
 
-`STATUS.md` is the single operational checkpoint and must never go stale. Update it at the
-end of any unit of work with: date, branch, exact HEAD, production SHA, current milestone,
-last completed operation, working-tree state, deployment state, production-verification
-state, blockers, next authorised action, latest verification results, and known
-contradictions. Every completion claim cites evidence — a SHA, a command output, a live
-response, or a screenshot.
-
-## Standing prohibitions
-
-- No dating, romantic, love, meetup or swipe functionality. Permanently out of scope.
-- No multi-human collaboration work. Frozen.
-- No claim, in code or copy, that VYBZ distributes to DSPs. It does not.
-- No new abstraction without a current consumer.
-- Domain code never imports `@tauri-apps/*` or `@capacitor/*` — use the Platform Bridge.
-- Do not set `VITE_FEATURE_BUNNY_AUDIO=on`.
-- Do not tag `Beta-1A`.
-- Park new ideas in `IDEAS_BACKLOG.md`. A backlog entry is not authorisation to build it.
+Update it at the end of any unit of work: date, branch, HEAD, what changed, validation
+results, what is deployed, what is unverified, and what is blocked. Every completion claim
+cites evidence — a SHA, command output, a live response, or a screenshot.
 
 ## Stack
 
 Vite 6 · React 18 · TypeScript 5.6 strict · Tailwind 3 · npm · Node 20+.
-`npm run dev` → http://localhost:5173. Client env requires `VITE_SUPABASE_URL` and
+`npm run dev` → http://localhost:5173. Requires `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_ANON_KEY`; without them the app hard-stops by design.
+
+Domain code never imports `@tauri-apps/*` or `@capacitor/*` — go through the Platform Bridge
+in `src/platform/`.

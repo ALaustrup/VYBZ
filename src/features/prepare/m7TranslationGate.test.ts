@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import {
   CODEC_TRANSLATION_VERSION,
   STREAMING_NORM_PREVIEW_VERSION,
@@ -20,8 +21,7 @@ const ROOT = path.resolve(__dirname, "../../..");
  */
 describe("M7 translation gate", () => {
   it("cites the M7 gate and ships a versioned streaming-norm preview", () => {
-    const masterplan = readFileSync(path.join(ROOT, "VYBZ_MASTERPLAN.md"), "utf8");
-    expect(masterplan).toMatch(/M7.*Translation|Translation Lab/s);
+    expect(GATE_REGISTRY).toContain("m7Translation");
     expect(STREAMING_NORM_PREVIEW_VERSION).toMatch(/^m7\./);
   });
 

@@ -5,6 +5,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 import {
   CONVERTER_UNAVAILABLE_ENCODE,
   encodeWav24,
@@ -83,9 +84,7 @@ describe("OR-037 Converter formats", () => {
     expect(app).toContain("MediaConverterPage");
   });
 
-  it("authorises OR-037 gate in AGENTS", () => {
-    const agents = read("AGENTS.md");
-    expect(agents).toContain("OR-037");
-    expect(agents).toContain("or037ConverterFormatsGate");
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or037ConverterFormats");
   });
 });
