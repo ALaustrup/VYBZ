@@ -81,4 +81,19 @@ describe("self-serve alpha key", () => {
     expect(read("src/pages/LandingPage.tsx")).toContain("AlphaKeyGenerator");
     expect(read("src/features/alpha/InviteRedeemPage.tsx")).toContain("AlphaKeyGenerator");
   });
+
+  it("never nests a form inside its host form", () => {
+    // Both mount points already sit inside a <form>. A nested form is invalid
+    // HTML: the browser drops the inner one, the submit handler never binds, and
+    // the click submits the outer invite form instead — which is exactly what
+    // happened the first time this shipped.
+    const ui = read("src/features/alpha/AlphaKeyGenerator.tsx");
+    // A rendered form would leave a closing tag; the prose above may not.
+    expect(ui).not.toContain("</form>");
+    expect(ui).not.toMatch(/type="submit"/);
+    expect(ui).toContain('type="button"');
+    // Enter still works, without bubbling to the host form.
+    expect(ui).toContain('if (e.key !== "Enter") return;');
+    expect(ui).toContain("e.preventDefault()");
+  });
 });

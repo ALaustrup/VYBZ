@@ -15,6 +15,11 @@ import {
  * never costs someone their access. The address is therefore attribution rather
  * than verification, and the copy says so instead of implying a check we do not
  * run.
+ *
+ * Deliberately not a `<form>`: both mount points (the landing invite panel and
+ * the invite gate) are already inside one, and nested forms are invalid HTML —
+ * the browser drops the inner one, so the submit handler never binds and the
+ * click submits the outer form instead. Enter is handled on the input.
  */
 export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
   const [email, setEmail] = useState("");
@@ -25,8 +30,7 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
 
   const valid = isValidEmail(email);
 
-  async function generate(e: React.FormEvent) {
-    e.preventDefault();
+  async function generate() {
     if (!valid || busy) return;
     setBusy(true);
     setError(null);
@@ -97,10 +101,10 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <form
-      onSubmit={generate}
+    <div
       className="w-full"
       data-testid="alpha-key-generator"
+      role="group"
       aria-label="Generate an alpha access key"
     >
       {!compact && (
@@ -121,13 +125,20 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
               setEmail(e.target.value);
               setError(null);
             }}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              // Stop the surrounding invite form from submitting instead.
+              e.preventDefault();
+              void generate();
+            }}
             placeholder="you@example.com"
             aria-label="Email address"
             data-testid="alpha-key-email"
           />
         </label>
         <button
-          type="submit"
+          type="button"
+          onClick={() => void generate()}
           disabled={!valid || busy}
           className="forge-cta !min-h-10 shrink-0 !px-4 !text-sm disabled:opacity-40"
           data-testid="alpha-key-generate"
@@ -146,6 +157,6 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
           {alphaKeyErrorMessage(error)}
         </p>
       )}
-    </form>
+    </div>
   );
 }
