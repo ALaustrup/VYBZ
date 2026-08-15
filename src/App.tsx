@@ -16,6 +16,7 @@ import { VDock } from "@/components/vdock/VDock";
 import { SuiteShell } from "@/shell/SuiteShell";
 import { AlphaWelcomeTour } from "@/features/alpha/AlphaWelcomeTour";
 import { SparkHost } from "@/features/sparks/SparkHost";
+import { ListenRecorder } from "@/features/reception/ListenRecorder";
 import { AlphaFeedbackFab } from "@/features/alpha/AlphaFeedbackFab";
 import { suitePlaceholderRoutes } from "@/app/suitePlaceholderRoutes";
 import { ensureEliteFxDefault } from "@/lib/display";
@@ -294,6 +295,7 @@ export function App() {
         />
         <VibesRadioHost audience="member" yieldToUser />
         <SparkHost />
+        <ListenRecorder />
         <ListenEarnHost />
         <MessagePopoutHost />
         <CamCallOverlay />

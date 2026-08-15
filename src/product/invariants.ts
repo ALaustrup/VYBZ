@@ -196,6 +196,7 @@ export const GATE_REGISTRY = [
   "libraryCompleteness",
   "livingMix",
   "sparks",
+  "reception",
   "playbackAuthority",
   "dockVisuals",
   "featuredMiniPlayer",

@@ -3,7 +3,7 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `feat/sparks-phase-1` (from `main` @ `f3d69a77`)
+**Branch:** `feat/reception-phase-2` (from `main` @ `d3b1263d`)
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
 deployed SHA after them is **Not measured**.
 
@@ -34,12 +34,12 @@ Deleted documents remain in git history. **No feature code was removed.**
 | Command | Result |
 |---|---|
 | `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **145 files / 676 tests** |
+| `npm run test` | pass — **146 files / 685 tests** |
 | `npm run build` | pass — vite production build |
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-Measured on `feat/sparks-phase-1`. Growth from 647 is `sparkEngine` and `sparksGate`.
+Measured on `feat/reception-phase-2`. Growth from 676 is `receptionGate`.
 
 ## Sparks — Phase 1 (shipped)
 
@@ -68,6 +68,35 @@ only, never who answered.
 
 Charging is deliberately absent — the constants are not measured yet.
 
+## Reception — Phase 2 (shipped)
+
+`drop_plays` only ever recorded that a play happened — `(drop_id, user_id, created_at)`. That
+is the same fiction every platform sells. Completion was not measurable at all.
+
+`drop_listens` records one row per listening session with the furthest point reached and
+whether playback actually reported the end. The owner gets a **Reception** tab on their own
+track: started, finished, distinct listeners, how many came back on a different day, the
+median stop point, where unfinished listens stopped, and the spark answers.
+
+| Piece | State |
+|---|---|
+| Migration `0099` (`drop_listens`, `record_listen`, `listen_report`, `listen_dropoff`) | **APPLIED**, `.down.sql` written |
+| Session recorder | `ListenRecorder` in `App.tsx` — checkpoints every 15s, flushes on track change and page hide |
+| Reception view | `ReceptionPanel`, owner-only tab on the track page |
+
+Verified against production on 2026-08-15, then all rows deleted:
+
+- 3 sessions across 2 listeners → `sessions 3, listeners 2, finished 1, returning 1,
+  median 107s, duration 240s`. The returning count correctly caught the listener who came
+  back two days later.
+- Drop-off bucketed correctly (60s and 107s of 240s → buckets 2 and 4).
+- **A non-owner gets `{ok: false}` and an empty drop-off.** Aggregates never leave the owner.
+
+**Completion is observed, never inferred** — it is set from playback reporting the end, not
+from a position crossing a threshold. Listens under 5 seconds are ignored. Unknown track
+length reads "Not measured" rather than a substitute. The panel states outright that whether
+anyone *enjoyed* it is not measured.
+
 ## The Station — build state
 
 **Nothing of The Station is built yet.** What landed is documentation, rule plumbing, and the
@@ -82,7 +111,7 @@ Living Mix on-demand surface that predates the decision.
 | Per-answer charging | Not started |
 | Locked-transport playback | Not started |
 | The Last Hour replay page | Not started |
-| Artist reception view | Not started |
+| Artist reception view | **Phase 2 shipped** — see above |
 | New mobile-first landing | Not started |
 | Hiding non-Station surfaces from default navigation | Not started |
 
@@ -216,8 +245,7 @@ Revoke it whenever, with `update public.profiles set banned = true where usernam
 Phase plan agreed 2026-08-15: prove the mechanic, then the payoff, then the place, then the
 economy, then the shell.
 
-1. **Phase 2 — the reception view.** A dedicated read of what came back, beyond the counts
-   currently inline on the track page.
+1. ~~Phase 2 — the reception view.~~ **Shipped.**
 2. **Phase 3 — The Station.** Block programming over the Vibes Radio clock, scheduling into
    airings, locked transport, and telling an artist when their track airs.
 3. **Phase 4 — Airtime.** Ledger, earn-by-answering, per-answer charging. Constants set from
