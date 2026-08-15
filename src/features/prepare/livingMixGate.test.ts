@@ -9,6 +9,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -17,6 +18,10 @@ function read(rel: string) {
 }
 
 describe("Living Mix catalog session", () => {
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("livingMix");
+  });
+
   it("is reachable from Library without a new suite-app id", () => {
     const apps = read("src/shell/suiteApps.ts");
     expect(apps).not.toMatch(/living-mix/);
