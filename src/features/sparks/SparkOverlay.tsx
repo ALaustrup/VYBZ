@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { getSnapshot, subscribe } from "@/lib/audioBus";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { useReduceFx } from "@/lib/display";
@@ -22,6 +23,8 @@ export function SparkOverlay({ trackId, sparks }: { trackId: string; sparks: Spa
     null,
   );
   const [answered, setAnswered] = useState<Record<string, number>>({});
+  /** Answered sparks whose confirmation has had its moment. */
+  const [dismissed, setDismissed] = useState<Record<string, true>>({});
   const shownRef = useRef<Set<string>>(new Set());
   const frameRef = useRef<number | null>(null);
 
@@ -29,6 +32,7 @@ export function SparkOverlay({ trackId, sparks }: { trackId: string; sparks: Spa
   useEffect(() => {
     shownRef.current = new Set();
     setAnswered({});
+    setDismissed({});
     setCurrent(null);
   }, [trackId]);
 
@@ -75,10 +79,15 @@ export function SparkOverlay({ trackId, sparks }: { trackId: string; sparks: Spa
   if (!current) return null;
   const { spark, phase, progress } = current;
   const chosen = answered[spark.id];
+  if (chosen !== undefined && dismissed[spark.id]) return null;
 
   async function choose(index: number) {
-    setAnswered((a) => ({ ...a, [spark.id]: index }));
-    await answerSpark(spark.id, index);
+    const id = spark.id;
+    setAnswered((a) => ({ ...a, [id]: index }));
+    // Thank them and get out of the way. The window may have 15 seconds left,
+    // and a confirmation does not need them.
+    window.setTimeout(() => setDismissed((d) => ({ ...d, [id]: true })), 2200);
+    await answerSpark(id, index);
   }
 
   return (
@@ -89,70 +98,85 @@ export function SparkOverlay({ trackId, sparks }: { trackId: string; sparks: Spa
         data-testid="spark-overlay"
         data-spark-phase={phase}
       >
-        {phase === "dots" ? (
-          <div
-            className="mat-surface-strong pointer-events-none flex items-center gap-1.5 rounded-full px-3 py-2"
-            aria-hidden
-            data-testid="spark-dots"
-          >
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className={cx(
-                  "h-1.5 w-1.5 rounded-full bg-[rgb(var(--accent-rgb))]",
-                  !reduce && "animate-pulse",
-                )}
-                style={{ opacity: 0.35 + 0.65 * Math.max(0, Math.min(1, progress * 3 - i)) }}
-              />
-            ))}
-          </div>
-        ) : chosen === undefined ? (
-          <div
-            role="group"
-            aria-label={spark.question}
-            className="mat-surface-strong pointer-events-auto w-full max-w-sm rounded-2xl border border-white/12 p-3 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.85)]"
-            data-testid="spark-prompt"
-          >
-            <div className="mb-2 flex items-center gap-2">
-              <span className="relative flex h-5 w-5 shrink-0" aria-hidden>
+        <AnimatePresence mode="wait">
+          {phase === "dots" ? (
+            <motion.div
+              key="dots"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mat-surface-strong pointer-events-none flex items-center gap-2 rounded-full px-3.5 py-2.5"
+              aria-hidden
+              data-testid="spark-dots"
+            >
+              {[0, 1, 2].map((i) => (
                 <span
-                  className="absolute inset-0 rounded-full"
+                  key={i}
+                  className={cx(
+                    "h-2 w-2 rounded-full bg-[rgb(var(--accent-rgb))]",
+                    !reduce && "animate-pulse",
+                  )}
                   style={{
-                    background: `conic-gradient(rgb(var(--accent-rgb)) ${progress * 360}deg, rgba(255,255,255,0.12) 0deg)`,
+                    opacity: 0.3 + 0.7 * Math.max(0, Math.min(1, progress * 3 - i)),
+                    animationDelay: `${i * 160}ms`,
                   }}
                 />
-                <span className="absolute inset-[3px] rounded-full bg-ink-950" />
-              </span>
-              <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-white/90">
-                {spark.question}
-              </p>
-            </div>
-            <div className="flex gap-1.5">
-              {spark.options.map((o, i) => (
-                <button
-                  key={o.label}
-                  type="button"
-                  onClick={() => void choose(i)}
-                  data-testid={`spark-option-${i}`}
-                  className="flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl bg-white/[0.06] px-2 py-2 transition hover:bg-white/[0.12] active:scale-95"
-                >
-                  <span className="text-lg leading-none" aria-hidden>
-                    {o.emoji}
-                  </span>
-                  <span className="truncate text-[11px] text-white/70">{o.label}</span>
-                </button>
               ))}
-            </div>
-          </div>
-        ) : (
-          <div
-            className="mat-surface-strong pointer-events-none rounded-full px-3 py-2 text-[12px] text-white/70"
-            data-testid="spark-answered"
-            role="status"
-          >
-            {spark.options[chosen]?.emoji} Sent — thanks
-          </div>
-        )}
+            </motion.div>
+          ) : chosen === undefined ? (
+            <motion.div
+              key="prompt"
+              // The arrival has to be noticeable or the window is spent noticing it.
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 420, damping: 26 }}
+              role="group"
+              aria-label={spark.question}
+              className="mat-surface-strong pointer-events-auto w-full max-w-sm overflow-hidden rounded-2xl border border-[rgb(var(--accent-rgb)/0.35)] shadow-[0_24px_70px_-20px_rgba(0,0,0,0.9)]"
+              data-testid="spark-prompt"
+            >
+              <div className="p-3">
+                <p className="mb-2 text-[13px] font-medium text-white/90">{spark.question}</p>
+                <div className="flex gap-1.5">
+                  {spark.options.map((o, i) => (
+                    <button
+                      key={o.label}
+                      type="button"
+                      onClick={() => void choose(i)}
+                      data-testid={`spark-option-${i}`}
+                      className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl bg-white/[0.06] px-2 py-2.5 transition hover:bg-white/[0.14] active:scale-95"
+                    >
+                      <span className="text-xl leading-none" aria-hidden>
+                        {o.emoji}
+                      </span>
+                      <span className="truncate text-[11px] text-white/75">{o.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Time left, readable peripherally — a 20px ring was not. */}
+              <div className="h-1 w-full bg-white/[0.06]" aria-hidden>
+                <div
+                  className="h-full bg-[rgb(var(--accent-rgb)/0.8)]"
+                  style={{ width: `${Math.max(0, 100 - progress * 100)}%` }}
+                />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="done"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="mat-surface-strong pointer-events-none rounded-full px-3.5 py-2 text-[12px] text-white/75"
+              data-testid="spark-answered"
+              role="status"
+            >
+              {spark.options[chosen]?.emoji} Sent — thanks
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </OverlayPortal>
   );
