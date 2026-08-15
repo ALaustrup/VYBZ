@@ -3,7 +3,7 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `feat/reception-phase-2` (from `main` @ `d3b1263d`)
+**Branch:** `main` @ `20d7dc9b`. Zero open pull requests.
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
 deployed SHA after them is **Not measured**.
 
@@ -67,6 +67,30 @@ recorded as **"no response"** rather than inferred to be bored; and the owner se
 only, never who answered.
 
 Charging is deliberately absent — the constants are not measured yet.
+
+## Production walkthrough — the spark loop, in a browser
+
+**2026-08-15, signed in as `aireviewer` on https://vybz.cloud.** The first end-to-end UI
+verification of a VYBZ feature on the live site.
+
+A temporary drop owned by the reviewer was created, walked, and deleted. Measured:
+
+| Step | Result |
+|---|---|
+| Sign in, clear the welcome tour incl. the name step | Worked |
+| Sparks panel on the owner's Overview tab | Present — "Sparks · 0 of 5", six questions, suggested moments at 0:30 and 8:16 |
+| Place a spark at a suggested moment | Placed; counter moved to 1 of 5 |
+| Prompt appears during playback | Appeared after 0:30 with "Still with it?" and 🔒 locked in · 😐 drifting · 🚪 lost me |
+| Prompt bursts when ignored | Recorded as `no response`, exactly as designed |
+| Tap an option | **Recorded** — `option_index 0`, `answered_at 23:40:38` |
+| Reception tab | Real figures: 1 person, median stop 2:52 of 8:36, spark counts, drop-off chart |
+| Console errors | None |
+
+The gap between `shown_at` (23:30:45) and `answered_at` (23:40:38) is the upsert behaving
+correctly: the exposure was recorded on the first pass and the answer filled it in on a later
+one, without overwriting the original showing.
+
+All walkthrough rows removed afterwards; sparks, responses and listens are all zero.
 
 ## Reception — Phase 2 (shipped)
 
@@ -174,8 +198,9 @@ object in the bucket. Reversible via the paired `.down.sql`.
 Service-role callers (`audio-play`, `watermark`) bypass RLS by design, which is why playback
 and downloads are unaffected.
 
-**Still Not measured:** the browser UI signed in on vybz.cloud (library at scale, chat
-identity, DM ordering). Only the audio path was exercised.
+**Still Not measured:** library at scale, chat identity, and DM ordering signed in on
+vybz.cloud. The audio path and the full spark loop have now been exercised — see the
+walkthrough above.
 
 **Step 4** requires the client to request tickets by **asset id** rather than by storage path,
 so `assets.url` never needs to leave the server. That is a contract change to `audio-play` and
