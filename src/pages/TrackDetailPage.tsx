@@ -23,6 +23,7 @@ import * as api from "@/lib/api";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
 import type { Drop } from "@/types";
 import { SparkDesk } from "@/features/sparks/SparkDesk";
+import { ReceptionPanel } from "@/features/reception/ReceptionPanel";
 import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 import { setWorkingTrackDawFolder } from "@/features/workspace/workingSet";
 import {
@@ -31,7 +32,14 @@ import {
   pickDawProjectFolder,
 } from "@/features/workspace/dawFolderLink";
 
-type Tab = "overview" | "comments" | "provenance";
+type Tab = "overview" | "reception" | "comments" | "provenance";
+
+/** Reception is what happened to your own work, so only the owner sees it. */
+function tabsFor(isOwner: boolean): Tab[] {
+  return isOwner
+    ? ["overview", "reception", "comments", "provenance"]
+    : ["overview", "comments", "provenance"];
+}
 
 function fmtTime(s: number): string {
   if (!Number.isFinite(s) || s < 0) return "0:00";
@@ -261,7 +269,7 @@ export function TrackDetailPage() {
       </section>
 
       <nav className="flex gap-1.5" role="tablist" aria-label="Track sections">
-        {(["overview", "comments", "provenance"] as Tab[]).map((t) => (
+        {tabsFor(drop.authorId === userId).map((t) => (
           <button
             key={t}
             type="button"
@@ -281,6 +289,8 @@ export function TrackDetailPage() {
           </button>
         ))}
       </nav>
+
+      {tab === "reception" && drop.authorId === userId && <ReceptionPanel dropId={drop.id} />}
 
       {tab === "overview" && (
         <>
