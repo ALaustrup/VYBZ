@@ -1824,24 +1824,46 @@ export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: nu
   });
 }
 
+/** A feed can ask for hundreds of paths at once; keep each mint request bounded. */
+const PLAY_TICKET_BATCH = 50;
+
 /** Mint playback URLs via audio-play tickets (Bunny Storage stream or Supabase signed). */
 async function mintPlayUrls(paths: string[]): Promise<Map<string, string>> {
   const m = new Map<string, string>();
   if (!paths.length) return m;
   const sess = (await db().auth.getSession()).data.session;
   if (!sess) return m;
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/audio-play`, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${sess.access_token}`,
-      apikey: SUPABASE_ANON_KEY,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ paths }),
-  });
-  if (!res.ok) return m;
-  const j = await res.json().catch(() => null);
-  Object.entries((j?.urls as Record<string, string>) ?? {}).forEach(([k, v]) => m.set(k, v));
+
+  const batches: string[][] = [];
+  for (let i = 0; i < paths.length; i += PLAY_TICKET_BATCH) {
+    batches.push(paths.slice(i, i + PLAY_TICKET_BATCH));
+  }
+
+  const results = await Promise.all(
+    batches.map(async (batch) => {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/audio-play`, {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${sess.access_token}`,
+            apikey: SUPABASE_ANON_KEY,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ paths: batch }),
+        });
+        if (!res.ok) return null;
+        return (await res.json().catch(() => null)) as { urls?: Record<string, string> } | null;
+      } catch {
+        // A failed batch yields no URLs for those paths; callers already treat a
+        // missing URL as unplayable rather than rendering a broken player.
+        return null;
+      }
+    }),
+  );
+
+  for (const j of results) {
+    Object.entries(j?.urls ?? {}).forEach(([k, v]) => m.set(k, v));
+  }
   return m;
 }
 
@@ -1863,40 +1885,34 @@ async function bunnySign(paths: string[]): Promise<Map<string, string>> {
   return m;
 }
 
+/**
+ * Resolve stored paths to playable URLs through the playback authority.
+ *
+ * `audio-play` is the only thing that evaluates `can_user_play_path`, so it is the
+ * only thing allowed to hand out a way to reach the bytes. The client must never
+ * sign storage objects for playback: it holds an anon key against a bucket policy
+ * that cannot see a drop's audience, so signing here would authorise everyone.
+ *
+ * The Bunny CDN branch survives only behind `FLAGS.bunnyAudio`, which is off, and
+ * `bunny-sign` performs its own server-side check.
+ */
 async function signAudio(paths: string[]): Promise<Map<string, string>> {
   const m = new Map<string, string>();
-  const real = paths.filter((p) => p && !/^(https?:|data:|blob:)/i.test(p));
+  const real = Array.from(
+    new Set(paths.filter((p) => p && !/^(https?:|data:|blob:)/i.test(p))),
+  );
   if (!real.length) return m;
 
-  const secure = real.filter(isSecurePath);
-  const legacy = real.filter((p) => !isSecurePath(p));
-
-  // Supabase Storage paths (`{uid}/drops/…`). Signing directly only works while the
-  // bucket read policy is open; anything it cannot sign falls through to audio-play,
-  // which is the authority on who may hear what. Once storage read is locked to the
-  // owner, the fallback becomes the path every non-owner takes.
-  if (legacy.length) {
-    const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrls(legacy, SIGN_TTL);
-    (data ?? []).forEach((d) => {
-      if (d.path && d.signedUrl) m.set(d.path, d.signedUrl);
-    });
-    const unsigned = legacy.filter((p) => !m.has(p));
-    if (unsigned.length) {
-      (await mintPlayUrls(unsigned)).forEach((v, k) => m.set(k, v));
-    }
+  // Legacy Bunny CDN token auth, disabled by default.
+  if (FLAGS.bunnyAudio) {
+    const secure = real.filter(isSecurePath);
+    if (secure.length) (await bunnySign(secure)).forEach((v, k) => m.set(k, v));
   }
 
-  // Old Bunny `drops/…` originals:
-  // - CDN token auth when FLAGS.bunnyAudio is on
-  // - otherwise audio-play streams from Bunny Storage AccessKey (no CDN credits)
-  if (secure.length) {
-    if (FLAGS.bunnyAudio) {
-      (await bunnySign(secure)).forEach((v, k) => m.set(k, v));
-    }
-    const missing = secure.filter((p) => !m.has(p));
-    if (missing.length) {
-      (await mintPlayUrls(missing)).forEach((v, k) => m.set(k, v));
-    }
+  // Everything else — including `{uid}/drops/…` — goes through the ticket path.
+  const remaining = real.filter((p) => !m.has(p));
+  if (remaining.length) {
+    (await mintPlayUrls(remaining)).forEach((v, k) => m.set(k, v));
   }
 
   return m;
@@ -2453,6 +2469,10 @@ export async function downloadAsset(assetId: string): Promise<DownloadResult | n
     const u = (await bunnySign([path as string])).get(path as string);
     return u ? { url: u, watermarked: false, revoke: false } : null;
   }
+  // Last resort, reached only when the watermark function is unreachable. Once
+  // storage read is locked to the owner (migration 0096) this can sign your own
+  // files only; the watermark function stays the download authority for everyone
+  // else, so a non-owner gets no download rather than an unauthorised one.
   const { data } = await db().storage.from(AUDIO_BUCKET).createSignedUrl(path as string, SIGN_TTL, { download: true });
   return data?.signedUrl ? { url: data.signedUrl, watermarked: false, revoke: false } : null;
 }

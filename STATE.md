@@ -3,7 +3,7 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `main` @ `d631ae2b`. Zero open pull requests.
+**Branch:** `fix/playback-authority` (from `main` @ `66046a4a`)
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
 deployed SHA after them is **Not measured**.
 
@@ -34,13 +34,12 @@ Deleted documents remain in git history. **No feature code was removed.**
 | Command | Result |
 |---|---|
 | `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **141 files / 629 tests** |
+| `npm run test` | pass — **142 files / 635 tests** |
 | `npm run build` | pass — vite production build |
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-Measured on `feat/living-mix` immediately before it merged. The docs-only branch measured 138
-files / 615 tests before Living Mix's three test files were reapplied.
+Measured on `fix/playback-authority`. Growth from 629 is the new `playbackAuthorityGate`.
 
 ## The Station — build state
 
@@ -76,13 +75,38 @@ authenticated HTTPS; the Perception Engine; DAW folder detection; WebGL reactive
 
 Full inventory is in [`docs/architecture.md`](./docs/architecture.md).
 
-## Known issues carried forward
+## Playback authority — private-by-default sequence
 
-**Private playback is partially migrated.** `can_user_play_path` and the `audio-play` check
-landed in PR #173, but the client still prefers `createSignedUrls` in places, storage read is
-not owner-locked, and `assets.url` is still exposed to non-viewers. Steps 2–4 of that sequence
-remain open. This matters more now: **locked-transport, verified listening is the foundation of
-Airtime**, so playback authority must be finished before the economy can be trusted.
+Airtime depends on verified listening, so this must be finished before the economy means
+anything.
+
+| Step | What | State |
+|---|---|---|
+| 1 | `audio-play` checks `can_user_play_path`, fails closed | **Done** — PR #173, deployed as edge v7 |
+| 2 | Client routes **all** playback through tickets | **IMPLEMENTED BUT NOT DELIVERED** — this branch |
+| 3 | Lock `audio-assets` storage read to the owner folder | Migration written, **deliberately not applied** |
+| 4 | Stop exposing `assets.url` to non-viewers | Designed, not built |
+
+**Step 2** removed the `createSignedUrls` bypass from `signAudio`. The client could previously
+sign any object in the bucket with the anon key, which skipped the visibility check entirely.
+Ticket minting is now batched at 50 paths per request with batches issued in parallel.
+
+**Step 3 must not be applied until step 2 is deployed and verified on vybz.cloud.** The
+currently deployed client signs storage directly; locking the bucket while it is live would
+break playback of every non-owned track instantly. Measured 2026-08-15, the policy to be
+replaced is `audio-assets read` — `SELECT` for `{authenticated}` `using (bucket_id =
+'audio-assets')`, with no owner scoping at all. Reversible via the paired `.down.sql`.
+
+**Step 4** requires the client to request tickets by **asset id** rather than by storage path,
+so `assets.url` never needs to leave the server. That is a contract change to `audio-play` and
+has not been started.
+
+**Edge drift:** `supabase/functions/audio-play/index.ts` in the repo now evaluates visibility
+concurrently instead of once per path. **Not deployed** — production still runs v7, which is
+functionally correct but serial. The client works against either; deploying only improves
+latency on large feeds.
+
+## Known issues carried forward
 
 **Migration `20260811_0094_dm_thread_last_at`** was merged but, as last recorded, not applied.
 Not re-measured this turn.
@@ -95,7 +119,10 @@ so every member-only flow on `vybz.cloud` is `Not measured`.
 
 ## Next
 
-1. Owner reviews this branch.
-2. Finish playback authority (steps 2–4) — Airtime depends on it.
-3. Design and build the mobile-first Station interface.
-4. Hide non-Station surfaces from default navigation without deleting them.
+1. Merge and deploy step 2, then **verify audio still plays on vybz.cloud** — including a track
+   you do not own.
+2. Only then apply migration `0096` to lock storage read, and re-verify.
+3. Deploy the updated `audio-play` edge to remove the serial visibility check.
+4. Build step 4 — tickets by asset id, so `assets.url` stops leaving the server.
+5. Design and build the mobile-first Station interface.
+6. Hide non-Station surfaces from default navigation without deleting them.
