@@ -15,6 +15,7 @@ import { ReactiveFrame } from "@/components/ReactiveFrame";
 import { VDock } from "@/components/vdock/VDock";
 import { SuiteShell } from "@/shell/SuiteShell";
 import { AlphaWelcomeTour } from "@/features/alpha/AlphaWelcomeTour";
+import { SparkHost } from "@/features/sparks/SparkHost";
 import { AlphaFeedbackFab } from "@/features/alpha/AlphaFeedbackFab";
 import { suitePlaceholderRoutes } from "@/app/suitePlaceholderRoutes";
 import { ensureEliteFxDefault } from "@/lib/display";
@@ -292,6 +293,7 @@ export function App() {
           onIngested={() => setFeedKey((k) => k + 1)}
         />
         <VibesRadioHost audience="member" yieldToUser />
+        <SparkHost />
         <ListenEarnHost />
         <MessagePopoutHost />
         <CamCallOverlay />

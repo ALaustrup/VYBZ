@@ -3,7 +3,7 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `feat/self-serve-alpha-keys` (from `main` @ `18196050`)
+**Branch:** `feat/sparks-phase-1` (from `main` @ `f3d69a77`)
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
 deployed SHA after them is **Not measured**.
 
@@ -34,13 +34,39 @@ Deleted documents remain in git history. **No feature code was removed.**
 | Command | Result |
 |---|---|
 | `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **143 files / 647 tests** |
+| `npm run test` | pass — **145 files / 676 tests** |
 | `npm run build` | pass — vite production build |
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-Measured on `feat/self-serve-alpha-keys`. Growth from 635 is `alphaKeyGate` plus the expanded
-`alphaWelcomeGate`.
+Measured on `feat/sparks-phase-1`. Growth from 647 is `sparkEngine` and `sparksGate`.
+
+## Sparks — Phase 1 (shipped)
+
+Artists place prompts at moments they are unsure about; listeners answer them during
+ordinary playback. No station, no scheduling, no economy yet — this proves the mechanic.
+
+| Piece | State |
+|---|---|
+| Timing engine + curated option sets | `src/features/sparks/sparkEngine.ts`, 20 tests |
+| Migration `0098` (`track_sparks`, `spark_responses`, RPCs) | **APPLIED**, `.down.sql` written |
+| Listener overlay (dots → ring → prompt → burst) | `SparkOverlay` via `SparkHost` in `App.tsx` |
+| Artist desk (place, remove, read results) | `SparkDesk` on the owner's track page |
+
+Verified against production on 2026-08-15, then all rows deleted:
+
+- Place, show, answer and report round-trip: 1 answered, 1 shown-and-silent, 2 shown.
+- An all-positive answer set is rejected server-side (`options_not_spanning`).
+- A spark within 20s of another is rejected (`too_close`).
+- A valid placement succeeds.
+
+**Design rules that hold, enforced in both the engine and the database:** the prompt lands
+*after* the moment so it never sits on the passage being measured; every answer set spans
+positive, neutral and critical so it can return bad news; a listener who lets it burst is
+recorded as **"no response"** rather than inferred to be bored; and the owner sees counts
+only, never who answered.
+
+Charging is deliberately absent — the constants are not measured yet.
 
 ## The Station — build state
 
@@ -51,7 +77,7 @@ Living Mix on-demand surface that predates the decision.
 |---|---|
 | One synchronized station | **PARTIALLY IMPLEMENTED** — `vibes_radio_broadcast/_queue/_pool`, `vibes-radio` edge, skew-corrected clock all exist from OR-043 |
 | Block programming | Not started |
-| Sparks (prompt mechanic) | Not started |
+| Sparks (prompt mechanic) | **Phase 1 shipped** — see above; not yet on the station |
 | Airtime balance and ledger | Not started — `vc_ledger` exists for V¢ only |
 | Per-answer charging | Not started |
 | Locked-transport playback | Not started |
@@ -187,8 +213,18 @@ Revoke it whenever, with `update public.profiles set banned = true where usernam
 
 ## Next
 
-1. Deploy the updated `audio-play` edge to remove the serial visibility check (repo is ahead of
-   the deployed v7; functionally equivalent, only latency differs).
-2. Build step 4 — tickets by asset id, so `assets.url` stops leaving the server.
-3. Design and build the mobile-first Station interface.
-4. Hide non-Station surfaces from default navigation without deleting them.
+Phase plan agreed 2026-08-15: prove the mechanic, then the payoff, then the place, then the
+economy, then the shell.
+
+1. **Phase 2 — the reception view.** A dedicated read of what came back, beyond the counts
+   currently inline on the track page.
+2. **Phase 3 — The Station.** Block programming over the Vibes Radio clock, scheduling into
+   airings, locked transport, and telling an artist when their track airs.
+3. **Phase 4 — Airtime.** Ledger, earn-by-answering, per-answer charging. Constants set from
+   what phases 1–3 measure, never invented.
+4. **Phase 5 — the new shell.** Mobile-first Station landing; non-Station surfaces hidden from
+   navigation, never deleted.
+
+Carried over: deploy the updated `audio-play` edge (repo is ahead of the deployed v7;
+functionally equivalent, only latency differs), and playback step 4 — tickets by asset id so
+`assets.url` stops leaving the server.
