@@ -22,6 +22,7 @@ import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx, paletteFor, formatCount } from "@/lib/utils";
 import type { Drop } from "@/types";
+import { SparkDesk } from "@/features/sparks/SparkDesk";
 import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 import { setWorkingTrackDawFolder } from "@/features/workspace/workingSet";
 import {
@@ -281,7 +282,20 @@ export function TrackDetailPage() {
         ))}
       </nav>
 
-      {tab === "overview" && <Overview drop={drop} />}
+      {tab === "overview" && (
+        <>
+          <Overview drop={drop} />
+          {drop.authorId === userId ? (
+            <div className="mt-4">
+              <SparkDesk
+                dropId={drop.id}
+                durationSec={drop.durationSec ?? null}
+                peaks={drop.waveform ?? null}
+              />
+            </div>
+          ) : null}
+        </>
+      )}
       {tab === "comments" && (
         <Comments
           comments={comments}
