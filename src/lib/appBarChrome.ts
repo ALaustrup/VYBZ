@@ -46,18 +46,18 @@ export function chromeForPath(pathname: string): ChromeDef {
   if (pathname.startsWith("/store")) {
     return { title: "Store" };
   }
-  if (pathname.startsWith("/releases")) return { title: "Analyzer" };
+  if (pathname.startsWith("/releases")) return { title: "Scan" };
   if (pathname.startsWith("/tools/metadata")) {
-    return { title: "Metadata", subtitle: "Editor" };
+    return { title: "Names" };
   }
   if (pathname.startsWith("/tools/art-check")) {
-    return { title: "Art Check" };
+    return { title: "Cover" };
   }
   if (pathname.startsWith("/tools/midi")) {
-    return { title: "Midi Maker" };
+    return { title: "MIDI" };
   }
   if (pathname.startsWith("/tools/convert")) {
-    return { title: "Converter", subtitle: "Media" };
+    return { title: "Convert" };
   }
   if (pathname.startsWith("/admin")) return { title: "Admin", showBack: true, backTo: "/" };
   if (pathname.startsWith("/mod")) return { title: "Mod", showBack: true, backTo: "/" };

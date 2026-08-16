@@ -79,7 +79,7 @@ export function LibraryPage() {
 
   useRegisterAppBar({
     title: "Library",
-    subtitle: "Media desk",
+    subtitle: "Your files",
   }, []);
 
   const staged = useMemo(
@@ -91,20 +91,20 @@ export function LibraryPage() {
     <ToolWorkbench
       wide
       eyebrow="Library"
-      title="Media desk"
-      subtitle="Drop audio anywhere in VYBZ to add private tracks. Organize uploads, project posts, and stage visuals — counts are measured from your library."
+      title="Your files"
+      subtitle="Drop audio anywhere to add it."
       testId="library-desk"
       className="library-desk flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
     >
       {FLAGS.storefront && (
         <p className="-mt-2 text-[12px] text-white/40">
-          Selling sample packs?{" "}
+          Selling packs?{" "}
           <button
             type="button"
             className="text-[rgb(var(--app-accent-rgb))] underline-offset-2 hover:underline"
             onClick={() => navigate("/tools/packs")}
           >
-            Open Storefront
+            Your packs
           </button>
         </p>
       )}
@@ -114,14 +114,14 @@ export function LibraryPage() {
           <span className="forge-glass-edge pointer-events-none" aria-hidden />
           <div className="relative z-[1] mb-2 flex items-center justify-between gap-2">
             <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
-              <ListChecks className="h-3.5 w-3.5 text-[rgb(var(--app-accent-rgb))]" /> Analyzer scans
+              <ListChecks className="h-3.5 w-3.5 text-[rgb(var(--app-accent-rgb))]" /> Scans
             </p>
             <button
               type="button"
               onClick={() => navigate("/releases")}
               className="text-[11px] font-semibold text-white/50 hover:text-white/80"
             >
-              Open desk
+              Open scan
             </button>
           </div>
           <div className="relative z-[1] no-scrollbar flex gap-2 overflow-x-auto pb-0.5">
@@ -210,8 +210,8 @@ function PostsLibrary({
     return (
       <EmptyState
         icon={Layers}
-        title="No project posts yet"
-        body="Posts you publish to a Project space show up here for rename and delete."
+        title="No project posts"
+        body="Posts you put in a project show up here."
       />
     );
   }
@@ -330,8 +330,8 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
     return (
       <EmptyState
         icon={ImageIcon}
-        title="No stage backdrops yet"
-        body="When you attach a video or still backdrop to a track, it appears here."
+        title="No backdrops yet"
+        body="Attach a still or video to a track and it shows here."
       />
     );
   }

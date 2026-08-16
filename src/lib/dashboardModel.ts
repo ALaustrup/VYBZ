@@ -83,10 +83,10 @@ export function buildActionItems({
       count: blocked.length,
       title:
         blocked.length === 1
-          ? `“${first.title}” is blocked from release`
-          : `${blocked.length} releases are blocked`,
-      detail: "A readiness check found something that will stop distribution.",
-      actionLabel: blocked.length === 1 ? "Open release" : "Review releases",
+          ? `“${first.title}” is blocked`
+          : `${blocked.length} scans are blocked`,
+      detail: "A check found something that will stop a release.",
+      actionLabel: blocked.length === 1 ? "Open scan" : "See scans",
       href: blocked.length === 1 ? `/release/${first.id}` : "/releases",
     });
   }
@@ -101,9 +101,9 @@ export function buildActionItems({
       title:
         drafts.length === 1
           ? `“${first.title}” is still a draft`
-          : `${drafts.length} releases are still drafts`,
-      detail: "Warnings remain open — worth clearing before you publish.",
-      actionLabel: drafts.length === 1 ? "Continue" : "Review drafts",
+          : `${drafts.length} scans are still drafts`,
+      detail: "Open warnings left. Clear them before you publish.",
+      actionLabel: drafts.length === 1 ? "Continue" : "See drafts",
       href: drafts.length === 1 ? `/release/${first.id}` : "/releases",
     });
   }
@@ -116,9 +116,9 @@ export function buildActionItems({
       id: "orders-pending-settlement",
       severity: "attention",
       count: pendingOrders.length,
-      title: `${pendingOrders.length} paid ${pendingOrders.length === 1 ? "order" : "orders"} awaiting settlement`,
-      detail: "Payment cleared. Mark each one settled once you have paid out.",
-      actionLabel: "Open storefront",
+      title: `${pendingOrders.length} paid ${pendingOrders.length === 1 ? "order" : "orders"} to pay out`,
+      detail: "They paid. Mark settled after you pay yourself out.",
+      actionLabel: "Your packs",
       href: "/tools/packs",
     });
   }
@@ -130,8 +130,8 @@ export function buildActionItems({
       severity: "attention",
       count: untitled.length,
       title: `${untitled.length} ${untitled.length === 1 ? "track has" : "tracks have"} no title`,
-      detail: "Untitled tracks are hard to find and are rejected by distributors.",
-      actionLabel: "Open library",
+      detail: "Untitled files are hard to find later.",
+      actionLabel: "Library",
       href: "/library",
     });
   }
@@ -142,9 +142,9 @@ export function buildActionItems({
       id: "tracks-without-file",
       severity: "suggestion",
       count: noFile.length,
-      title: `${noFile.length} ${noFile.length === 1 ? "track has" : "tracks have"} no downloadable file`,
-      detail: "Listeners can stream these but cannot download them.",
-      actionLabel: "Open library",
+      title: `${noFile.length} ${noFile.length === 1 ? "track has" : "tracks have"} no file`,
+      detail: "People can play these but cannot download them.",
+      actionLabel: "Library",
       href: "/library",
     });
   }
@@ -154,8 +154,8 @@ export function buildActionItems({
       id: "no-releases",
       severity: "suggestion",
       count: drops.length,
-      title: "None of your tracks have been prepared for release",
-      detail: "A readiness scan checks loudness, peaks, artwork and metadata before you publish.",
+      title: "None of your tracks have been scanned",
+      detail: "A scan checks loudness, peaks, art, and names.",
       actionLabel: "Scan a track",
       href: "/releases",
     });
@@ -178,14 +178,14 @@ export function recentReleases(releases: ReleaseProject[], limit = 4): ReleasePr
 export function nextStepFor(release: ReleaseProject): string {
   switch (release.status) {
     case "blocked":
-      return "Resolve blocking findings";
+      return "Resolve what's blocking it";
     case "draft":
       return "Review open findings";
     case "scanning":
       return "Scan in progress";
     case "ready":
-      return "Package for distribution";
+      return "Package the ZIP";
     default:
-      return "Open release";
+      return "Open scan";
   }
 }

@@ -92,8 +92,7 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
             <span className="text-[11px] text-white/40">Also sent to {email}</span>
           </div>
           <p className="mt-3 text-[12px] leading-relaxed text-white/50">
-            Sign in, then paste this where VYBZ asks for an invite key. It works once and
-            expires in 30 days. You will choose your artist name straight after.
+            Sign in and paste this key. One use. 30 days. Then pick your name.
           </p>
         </div>
       </div>
@@ -105,12 +104,11 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
       className="w-full"
       data-testid="alpha-key-generator"
       role="group"
-      aria-label="Generate an alpha access key"
+      aria-label="Get an invite key"
     >
       {!compact && (
         <p className="mb-2 text-[12px] leading-relaxed text-white/50">
-          The VYBZ alpha is open. Enter your email and we will generate an access key
-          tied to it. We do not check the address — it just ties the key to you.
+          Enter your email. We make a key. We do not check the address — it just ties the key to you.
         </p>
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -147,7 +145,7 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
           ) : (
             <>
-              <KeyRound className="h-4 w-4" aria-hidden /> Generate Key
+              <KeyRound className="h-4 w-4" aria-hidden /> Get key
             </>
           )}
         </button>

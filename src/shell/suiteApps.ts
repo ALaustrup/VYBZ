@@ -79,7 +79,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "analyzer",
-    label: "Analyzer",
+    label: "Scan",
     path: "/releases",
     icon: Waves,
     match: (p) =>
@@ -90,7 +90,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "metadata",
-    label: "Metadata",
+    label: "Names",
     path: "/tools/metadata",
     icon: Tags,
     match: (p) => p.startsWith("/tools/metadata"),
@@ -98,7 +98,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "art-check",
-    label: "Art Check",
+    label: "Cover",
     path: "/tools/art-check",
     icon: ImagePlus,
     match: (p) => p.startsWith("/tools/art-check"),
@@ -106,7 +106,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "correct",
-    label: "Correct",
+    label: "Fix",
     path: "/tools/correct",
     icon: SlidersHorizontal,
     match: (p) => p.startsWith("/tools/correct"),
@@ -114,7 +114,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "translate",
-    label: "Translation Lab",
+    label: "Listen check",
     path: "/tools/translate",
     icon: Radio,
     match: (p) => p.startsWith("/tools/translate"),
@@ -122,7 +122,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "midi-maker",
-    label: "Midi Maker",
+    label: "MIDI",
     path: "/tools/midi",
     icon: Piano,
     match: (p) => p.startsWith("/tools/midi"),
@@ -131,7 +131,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "media-converter",
-    label: "Converter",
+    label: "Convert",
     path: "/tools/convert",
     icon: RefreshCw,
     match: (p) => p.startsWith("/tools/convert"),
@@ -140,7 +140,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
   },
   {
     id: "pack-maker",
-    label: "Packs",
+    label: "Pack",
     path: "/tools/pack-maker",
     icon: Package,
     match: (p) => p.startsWith("/tools/pack-maker"),

@@ -53,7 +53,7 @@ export function LivePage() {
           <EmptyState
             icon={Radio}
             title="No one live yet"
-            body="Watch creators here. Start a session from the Orb or the Go live control in the bar."
+            body="Start a session from the orb."
           />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">

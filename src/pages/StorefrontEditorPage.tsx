@@ -92,11 +92,11 @@ export function StorefrontEditorPage() {
         const path = await api.uploadStorefrontZip(userId, file);
         if (cancelled) return;
         setZipPath(path);
-        showToast(`Pack Maker ZIP uploaded: ${handoff.fileName}`);
+        showToast(`ZIP uploaded: ${handoff.fileName}`);
       } catch (e) {
         if (!cancelled) {
           showToast(
-            (e as Error).message || "Handoff ZIP upload failed — upload manually below",
+            (e as Error).message || "ZIP upload failed. Add it below.",
           );
         }
       } finally {
@@ -176,14 +176,14 @@ export function StorefrontEditorPage() {
   }
 
   async function uploadPreview(file: File) {
-    if (!userId) throw new Error("Sign in required");
+    if (!userId) throw new Error("Sign in first");
     const path = await api.uploadStorefrontPreview(userId, file);
     setPreviewPath(path);
     showToast("Preview uploaded");
   }
 
   async function uploadZip(file: File) {
-    if (!userId) throw new Error("Sign in required");
+    if (!userId) throw new Error("Sign in first");
     const path = await api.uploadStorefrontZip(userId, file);
     setZipPath(path);
     showToast("ZIP uploaded");
@@ -232,8 +232,8 @@ export function StorefrontEditorPage() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-semibold text-white">{isNew ? "New sample pack" : "Edit pack"}</h1>
-          <p className="mt-1 text-sm text-white/45">Draft locally, publish when ZIP is ready. Fans pay VYBZ; you settle manually.</p>
+          <h1 className="text-xl font-semibold text-white">{isNew ? "New pack" : "Edit pack"}</h1>
+          <p className="mt-1 text-sm text-white/45">Save draft. Publish when the ZIP is ready.</p>
         </div>
         <PackCopyPanel
           keywords={keywords || title || genre}
@@ -250,7 +250,7 @@ export function StorefrontEditorPage() {
       </div>
 
       <label className="block space-y-1.5">
-        <span className="text-xs text-white/45">Keywords for AI (optional)</span>
+        <span className="text-xs text-white/45">Words for AI (optional)</span>
         <input
           className="input w-full"
           value={keywords}
@@ -289,12 +289,12 @@ export function StorefrontEditorPage() {
           className="input min-h-[120px] w-full resize-y"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Premium marketing copy for your pack"
+          placeholder="What's in the pack"
         />
       </label>
 
       <label className="block space-y-1.5">
-        <span className="text-xs text-white/45">Features (one per line)</span>
+        <span className="text-xs text-white/45">What's in it (one per line)</span>
         <textarea
           className="input min-h-[90px] w-full resize-y"
           value={featuresText}
@@ -307,7 +307,7 @@ export function StorefrontEditorPage() {
         <PackUploader
           kind="preview"
           label="Preview audio"
-          hint="MP3 or WAV · public stream"
+          hint="MP3 or WAV · anyone can hear this"
           accept="audio/mpeg,audio/wav,audio/x-wav,audio/mp4,.mp3,.wav"
           currentName={previewPath ? previewPath.split("/").pop() : null}
           onUpload={uploadPreview}
@@ -315,7 +315,7 @@ export function StorefrontEditorPage() {
         <PackUploader
           kind="zip"
           label="Pack ZIP"
-          hint="Private · delivered after purchase"
+          hint="Sent after they pay"
           accept="application/zip,.zip"
           currentName={zipPath ? zipPath.split("/").pop() : null}
           onUpload={uploadZip}
@@ -332,7 +332,7 @@ export function StorefrontEditorPage() {
             className="btn btn-ghost inline-flex items-center gap-1.5 px-3 py-1.5 text-xs"
           >
             {artBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
-            Generate box art
+            Make cover
           </button>
         </div>
         <img
@@ -357,11 +357,11 @@ export function StorefrontEditorPage() {
           onClick={() => void save({ publish: true })}
           className="btn btn-primary px-4 py-2 text-sm"
         >
-          Publish storefront
+          Publish
         </button>
         {status === "published" && slug && (
           <Link to={`/pack/${slug}`} className="btn btn-ghost px-4 py-2 text-sm">
-            View storefront
+            View listing
           </Link>
         )}
       </div>

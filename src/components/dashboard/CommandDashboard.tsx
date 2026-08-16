@@ -124,7 +124,7 @@ export function CommandDashboard({
           {profile?.username ? formatVcAddress(profile.username) : "Your studio"}
         </p>
         <h1 className="nexus-headline mt-1 text-2xl">
-          {isNewAccount ? "Let's get your first track measured" : "Where things stand"}
+          {isNewAccount ? "Drop a track to start" : "Where things stand"}
         </h1>
       </motion.header>
 
@@ -187,7 +187,7 @@ export function CommandDashboard({
 
       {fresh.length > 0 && (
         <motion.section variants={reduce ? undefined : staggerItem}>
-          <SectionHead icon={AudioLines} label="Fresh from other artists" actionLabel="More" onAction={onListenMore} />
+          <SectionHead icon={AudioLines} label="Fresh tracks" actionLabel="More" onAction={onListenMore} />
           <div className="grid gap-3 sm:grid-cols-2">
             {fresh.map((d) => (
               <TrackCard key={d.id} compact drop={d} queue={fresh} />
@@ -210,7 +210,7 @@ function StatStrip({
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
     { label: "Tracks", value: stats.tracks, to: "/library" },
-    { label: "Analyzer", value: stats.releases, to: "/releases" },
+    { label: "Scan", value: stats.releases, to: "/releases" },
     { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
     {
       label: "Blocked",
@@ -254,12 +254,12 @@ function ActionCentre({
 }) {
   return (
     <section data-testid="action-centre">
-      <p className="nexus-eyebrow mb-2">Needs your attention</p>
+      <p className="nexus-eyebrow mb-2">Needs you</p>
       {items.length === 0 ? (
         <div className="forge-card flex items-center gap-3 !py-4">
           <CheckCircle2 className="h-5 w-5 shrink-0 text-suite-success" />
           <p className="text-sm text-white/60">
-            Nothing outstanding. Every release you have prepared is clear of blocking findings.
+            All clear. Nothing blocking you.
           </p>
         </div>
       ) : (
@@ -310,7 +310,7 @@ function ContinueWorking({
 }) {
   return (
     <section data-testid="continue-working">
-      <SectionHead icon={ScanSearch} label="Continue working" actionLabel="All releases" onAction={() => onNavigate("/releases")} />
+      <SectionHead icon={ScanSearch} label="Keep going" actionLabel="All scans" onAction={() => onNavigate("/releases")} />
       <ul className="space-y-2">
         {releases.map((r) => (
           <li key={r.id}>
@@ -325,7 +325,7 @@ function ContinueWorking({
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white/90">{r.title}</span>
                 <span className="block truncate text-[12px] text-white/40">
-                  {r.artistName || "Artist not set"} · {nextStepFor(r)}
+                  {r.artistName || "No artist"} · {nextStepFor(r)}
                 </span>
               </span>
               <Badge tone={statusTone(r.status)}>{r.status}</Badge>
@@ -340,7 +340,7 @@ function ContinueWorking({
 function RecentUploads({ drops, onOpenLibrary }: { drops: Drop[]; onOpenLibrary: () => void }) {
   return (
     <section data-testid="recent-uploads">
-      <SectionHead icon={AudioLines} label="Your recent uploads" actionLabel="Library" onAction={onOpenLibrary} />
+      <SectionHead icon={AudioLines} label="Recent files" actionLabel="Library" onAction={onOpenLibrary} />
       <div className="grid gap-3 sm:grid-cols-2">
         {drops.map((d) => (
           <TrackCard key={d.id} compact drop={d} queue={drops} />
@@ -360,11 +360,10 @@ function NewAccountStart({ onScan }: { onScan: () => void }) {
           Nothing measured yet
         </p>
         <p className="mx-auto mt-1.5 max-w-sm text-[13px] leading-relaxed text-white/50">
-          Upload a master and VYBZ will measure loudness, peaks, artwork and metadata, then tell
-          you exactly what stands between you and release.
+          Drop a file. We measure loudness, peaks, art, and names.
         </p>
         <button type="button" onClick={onScan} className="forge-cta mt-4" data-testid="dashboard-first-scan">
-          Scan your first track
+          Scan a track
         </button>
       </div>
     </div>

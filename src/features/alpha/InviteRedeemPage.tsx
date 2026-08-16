@@ -35,7 +35,7 @@ export function InviteRedeemPage() {
       return;
     }
     takePendingInviteKey();
-    showToast(res.already ? "Alpha access already active" : "Invite accepted — welcome to alpha");
+    showToast(res.already ? "Already in." : "You're in.");
     await refreshProfile();
   }
 

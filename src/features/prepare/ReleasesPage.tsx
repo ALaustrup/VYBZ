@@ -544,10 +544,10 @@ export function ReleasesPage() {
 
       <div className="relative z-[1]">
         <NexusPageHeader
-          eyebrow="Analyzer"
-          title="Intake desk"
+          eyebrow="Scan"
+          title="Scan the audio"
           titleTestId="analyzer-desk-title"
-          subtitle={`Drop up to ${MAX_ANALYZER_BATCH} tracks — we measure on this device and tell you if they clear this audio check. Cover art is separate (Art Check). Before/After previews play through VDock with disclosed signals; auto-fix A/B uses loudness-matched listen (${VDOCK_COMPARE_PREVIEW_VERSION}) when buffers are ready.`}
+          subtitle={`Drop up to ${MAX_ANALYZER_BATCH} tracks. We measure them. A/B plays in VDock.`}
         />
       </div>
 
@@ -566,6 +566,7 @@ export function ReleasesPage() {
         role="button"
         tabIndex={0}
         data-testid="analyzer-dropzone"
+        data-compare-version={VDOCK_COMPARE_PREVIEW_VERSION}
         data-no-library-drop
         onClick={() => onPick()}
         onKeyDown={(e) => {
@@ -583,8 +584,7 @@ export function ReleasesPage() {
         <div className="relative z-[1]">
           <p className="font-display text-lg font-semibold text-white">Drop tracks to scan</p>
           <p className="mt-1 text-sm text-white/50">
-            Analyzer owns this drop · or click to choose · up to {MAX_ANALYZER_BATCH} · {workers} at a
-            time on this machine
+            Analyzer owns this drop · click to pick · up to {MAX_ANALYZER_BATCH} · {workers} at a time
           </p>
         </div>
       </div>
@@ -638,7 +638,7 @@ export function ReleasesPage() {
                             ? row.error
                             : issue && !ready
                               ? issue.title || issue.code
-                              : row.artistName || "Ready for this audio check"}
+                              : row.artistName || "Ready"}
                       </p>
                     </button>
                     {row.phase === "scanning" || row.phase === "queued" ? (
@@ -755,14 +755,14 @@ export function ReleasesPage() {
               <>
                 <p className="font-display text-lg font-semibold text-white">All tracks cleared this check.</p>
                 <p className="text-sm text-white/50">
-                  Ready means no blocking audio issues here — not store approval. Re-check after any new bounce.
+                  Ready means no blocking audio issues here — not store approval. Scan again after a new bounce.
                 </p>
               </>
             ) : readyRows.length === 0 ? (
               <>
                 <p className="font-display text-lg font-semibold text-white">None ready yet.</p>
                 <p className="text-sm text-white/50">
-                  Click a track for its full report, or use Fix when we can correct it on-device.
+                  Open a track for the report, or use Fix when we can clean it here.
                 </p>
               </>
             ) : (
@@ -771,7 +771,7 @@ export function ReleasesPage() {
                   {readyRows.length} of {doneRows.length} tracks are ready.
                 </p>
                 <p className="text-sm text-white/50">
-                  Click a track that needs work to see the next Analyzer steps.
+                  Open a track that needs work to see what's next.
                 </p>
               </>
             )}

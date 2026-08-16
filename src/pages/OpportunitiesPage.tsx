@@ -97,12 +97,12 @@ export function OpportunitiesPage() {
             <EmptyState
               icon={Sparkles}
               title="Nothing ranked for you yet"
-              body="Add the roles you offer on your profile — openings that need those skills land here first."
+              body="Add the roles you offer on your profile. Openings that need those skills land here."
             />
           ) : tab === "commission" ? (
-            <EmptyState icon={DollarSign} title="No open commissions yet" body="Commission a musician for paid work — a track, topline, mix, or stem package. Post a brief and a budget." />
+            <EmptyState icon={DollarSign} title="No paid gigs yet" body="Post a brief and a budget." />
           ) : (
-            <EmptyState icon={Briefcase} title="No open roles yet" body="Post what you're looking for — a vocalist, a mix engineer, a guitarist — and reach every musician who fits." />
+            <EmptyState icon={Briefcase} title="No open roles yet" body="Post what you need — vocalist, mix, guitar." />
           )
         ) : (
           <div className="divide-y divide-[var(--hairline)]">

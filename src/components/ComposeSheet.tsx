@@ -230,7 +230,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   async function releaseAll() {
     if (!releasable.length || releasing) return;
     if (!ownershipClaim) {
-      showToast("Check the originality box — VYBZ is for your own music.");
+      showToast("Tick the box — this has to be your music.");
       return;
     }
     setReleasing(true);
@@ -301,10 +301,10 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             <div className="flex shrink-0 items-center justify-between px-5 py-3">
               <div>
                 <h2 className="font-display text-xl font-semibold tracking-tight text-white">
-                  {items.length > 1 ? `${items.length} tracks` : "New drop"}
+                  {items.length > 1 ? `${items.length} files` : "New file"}
                 </h2>
                 <p className="text-[12px] text-white/40">
-                  {busyLabel ?? "Drop files in — they upload while you fill in the details."}
+                  {busyLabel ?? "Drop files. They upload while you name them."}
                 </p>
               </div>
               <button type="button" onClick={close} aria-label="Close" className="flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90">
@@ -344,9 +344,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
               >
                 <AudioLines className="h-6 w-6 text-white/30" />
                 <span className="text-[13px] font-medium text-white/70">
-                  {items.length ? "Add more tracks" : "Choose audio or video · or drop files here"}
+                  {items.length ? "Add more" : "Drop audio here"}
                 </span>
-                <span className="text-[11px] text-white/35">Uploading starts immediately</span>
+                <span className="text-[11px] text-white/35">Upload starts now</span>
               </button>
 
               {items.length > 0 && (
@@ -361,7 +361,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                 <div className="mt-4 space-y-3">
                   <div>
                     <p className="mb-1.5 text-[12px] font-semibold text-white/60">
-                      Release type · applies to all
+                      Type (all files)
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {RELEASE_TYPES.map((r) => (
@@ -379,7 +379,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
 
                   <div>
                     <p className="mb-1.5 text-[12px] font-semibold text-white/60">
-                      Audience · applies to all
+                      Who can hear it
                     </p>
                     <div className="flex gap-1.5">
                       <button type="button" onClick={() => setAudience("public")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "public" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Globe className="h-3.5 w-3.5" /> Public</button>
@@ -399,7 +399,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
             <div className="shrink-0 border-t border-[var(--hairline)] bg-ink-900/95 px-5 py-3 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur">
               {summary.failed > 0 && (
                 <p className="mb-2 text-[11px] text-wild">
-                  {summary.failed} failed — retry from the row, the others are unaffected.
+                  {summary.failed} failed. Retry that row.
                 </p>
               )}
               <button
@@ -414,13 +414,13 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                 ) : (
                   <>
                     <Send className="h-4 w-4" />
-                    {releasable.length > 1 ? `Release ${releasable.length} drops` : "Release your drop"}
+                    {releasable.length > 1 ? `Save ${releasable.length} files` : "Save file"}
                   </>
                 )}
               </button>
               {summary.inFlight > 0 && (
                 <p className="mt-2 text-center text-[11px] text-white/35">
-                  Uploads keep running if you close this.
+                  Upload keeps going if you close this.
                 </p>
               )}
             </div>

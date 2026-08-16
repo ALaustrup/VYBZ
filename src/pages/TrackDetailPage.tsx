@@ -113,7 +113,7 @@ export function TrackDetailPage() {
         body={error ?? "Not found."}
         action={
           <Link className="text-suite-cyan underline" to="/library">
-            Back to library
+            Library
           </Link>
         }
       />

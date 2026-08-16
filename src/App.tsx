@@ -327,10 +327,10 @@ function PublicPackShell() {
           <span className="font-display text-sm font-semibold text-white">VYBZ</span>
         </NavLink>
         <span className="public-ops-badge relative z-[1] ml-auto hidden rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline">
-          {onMarket ? "Market · public" : "Sample pack · public"}
+          {onMarket ? "Shop" : "Pack"}
         </span>
         <NavLink to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
-          Enter VYBZ
+          Enter
         </NavLink>
       </header>
       <main
@@ -368,7 +368,7 @@ function PublicDocShell() {
           Codex · Astra Matrix, Inc.
         </span>
         <NavLink to="/enter" className="relative z-[1] forge-cta-ghost min-h-[2.25rem] px-3 py-1.5 text-xs">
-          Enter VYBZ
+          Enter
         </NavLink>
       </header>
       <main className="relative z-10 mx-auto w-full max-w-3xl flex-1 overflow-hidden px-1 sm:px-2">

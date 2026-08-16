@@ -124,21 +124,21 @@ export function MediaConverterPage() {
   async function convertAll() {
     const pending = rows.filter((r) => r.status === "ready" || r.status === "error");
     for (const row of pending) await convertOne(row);
-    showToast("Conversion finished — download files below");
+    showToast("Done. Download below.");
   }
 
   const selected = formats.find((f) => f.id === outFormat);
 
   return (
     <ToolWorkbench
-      eyebrow="Converter"
-      title="Media converter"
-      subtitle="Decode audio/video to browser-honest outputs. We never fake MP3 or AAC encode."
+      eyebrow="Convert"
+      title="Convert"
+      subtitle="We decode what we can. We never fake MP3 or AAC."
       testId="media-converter"
     >
       <ForgeDropzone
         label="Drop media to convert"
-        hint="or click to choose · wav/aiff/flac/mp3/ogg/m4a/opus + video · multiple OK"
+        hint="or click · WAV, AIFF, FLAC, MP3, video"
         accept={AUDIO_ACCEPT}
         multiple
         inputTestId="media-converter-input"

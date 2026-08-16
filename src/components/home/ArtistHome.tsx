@@ -117,7 +117,7 @@ function OpsStatStrip({
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
     { label: "Tracks", value: stats.tracks, to: "/library" },
-    { label: "Analyzer", value: stats.releases, to: "/releases" },
+    { label: "Scan", value: stats.releases, to: "/releases" },
     { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
     {
       label: "Blocked",
@@ -251,8 +251,8 @@ function RecentTrackRow({
       <div className="relative z-[1] flex shrink-0 gap-1">
         <button
           type="button"
-          title="Analyze"
-          aria-label={`Analyze ${drop.title || "track"}`}
+          title="Scan"
+          aria-label={`Scan ${drop.title || "track"}`}
           onClick={() => navigate("/releases")}
           className="forge-chip !min-h-8 !min-w-8 !h-8 !w-8"
         >
@@ -260,8 +260,8 @@ function RecentTrackRow({
         </button>
         <button
           type="button"
-          title="Correct"
-          aria-label={`Correct ${drop.title || "track"}`}
+          title="Fix"
+          aria-label={`Fix ${drop.title || "track"}`}
           onClick={() => navigate("/tools/correct")}
           className="forge-chip !min-h-8 !min-w-8 !h-8 !w-8"
         >
@@ -520,7 +520,7 @@ export function ArtistHome() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
                     Recent tracks
                   </p>
-                  <h2 className="font-display text-lg font-semibold text-white">Quick actions</h2>
+                  <h2 className="font-display text-lg font-semibold text-white">Recent</h2>
                 </div>
                 <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
                   All tracks
@@ -540,7 +540,7 @@ export function ArtistHome() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
                   Library
                 </p>
-                <h2 className="font-display text-lg font-semibold text-white">Your music</h2>
+                <h2 className="font-display text-lg font-semibold text-white">Your files</h2>
               </div>
               <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
                 Open library
@@ -551,9 +551,9 @@ export function ArtistHome() {
               <div className="forge-glass forge-plasma relative flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
                 <span className="forge-glass-edge pointer-events-none" aria-hidden />
                 <Music2 className="relative z-[1] h-8 w-8 text-[rgb(var(--app-accent-rgb)/0.75)]" strokeWidth={1.5} />
-                <p className="relative z-[1] font-display text-base text-white/90">No releases yet</p>
+                <p className="relative z-[1] font-display text-base text-white/90">Nothing here yet</p>
                 <p className="relative z-[1] max-w-sm text-sm text-white/45">
-                  Upload tracks or run a readiness scan — albums group automatically from metadata.
+                  Upload files or scan them.
                 </p>
                 <Link
                   to="/releases"
@@ -583,7 +583,7 @@ export function ArtistHome() {
               </div>
               <Link to="/releases" className="text-[12px] text-white/40 transition hover:text-white/75">
                 <span className="inline-flex items-center gap-1.5">
-                  <ScanLine className="h-3 w-3" /> Prepare a release
+                  <ScanLine className="h-3 w-3" /> Scan
                 </span>
               </Link>
             </div>

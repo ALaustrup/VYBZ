@@ -211,8 +211,8 @@ export function CommandPalette({
               aria-controls={LIST_ID}
               aria-activedescendant={active ? optionId(active.id) : undefined}
               aria-autocomplete="list"
-              aria-label="Search commands and destinations"
-              placeholder="Go somewhere, or run something…"
+              aria-label="Search"
+              placeholder="Go somewhere…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={onKeyDown}

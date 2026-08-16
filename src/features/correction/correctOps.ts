@@ -22,7 +22,7 @@ export const CORRECT_OP_SUBTITLE: Record<CorrectOp, string> = {
   hum: "Mains hum",
   width: "Stereo width",
   eq: "EQ assist",
-  click: "Click attenuate",
+  click: "Click soften",
   loudness: "Loudness gain",
 };
 

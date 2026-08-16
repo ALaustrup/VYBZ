@@ -56,7 +56,7 @@ describe("OR-032 song workspace working set", () => {
 
   it("labels Translation Lab on the suite rail (OR-033)", () => {
     const apps = read("src/shell/suiteApps.ts");
-    expect(apps).toMatch(/id:\s*"translate"[\s\S]{0,80}label:\s*"Translation Lab"/);
+    expect(apps).toMatch(/id:\s*"translate"[\s\S]{0,80}label:\s*"Listen check"/);
     expect(apps).not.toMatch(/id:\s*"translate"[\s\S]{0,80}label:\s*"Translate"/);
   });
 

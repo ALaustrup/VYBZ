@@ -62,8 +62,8 @@ export function SocialPage() {
     return (
       <EmptyState
         icon={Radio}
-        title="Social Live off"
-        body="Set VITE_FEATURE_SOCIAL_LIVE on (default) to use the Social hub."
+        title="Social is off"
+        body="Turn VITE_FEATURE_SOCIAL_LIVE on to use this."
       />
     );
   }

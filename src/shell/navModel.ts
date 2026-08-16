@@ -41,14 +41,14 @@ export function navGroups(): NavGroup[] {
         {
           path: "/library",
           label: "Library",
-          hint: "Organize tracks you already uploaded",
+          hint: "Your files",
           icon: Library,
           productId: "home",
         },
         {
           path: "/make/dashboard",
           label: "Sales",
-          hint: "Library counts and pack orders",
+          hint: "What sold",
           icon: Radio,
           productId: "market",
         },
@@ -74,7 +74,7 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
     {
       path: "/store",
       label: "Packages",
-      hint: "Buy V¢ for tips and support",
+      hint: "Buy V¢",
       icon: Package,
       productId: "home",
     },
@@ -94,7 +94,7 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
     items.push({
       path: "/admin",
       label: "Admin",
-      hint: "Platform console",
+      hint: "Admin",
       icon: Wrench,
       productId: "home",
     });
@@ -105,7 +105,7 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 export const HOME_ITEM: NavItem = {
   path: "/make",
   label: "Make pack",
-  hint: "Guided flow from upload to sale",
+  hint: "Upload to sale",
   icon: Package,
   productId: "market",
 };

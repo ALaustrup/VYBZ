@@ -31,17 +31,17 @@ function ThreadList() {
     <div className="flex h-full flex-col">
       <div className="no-scrollbar flex-1 overflow-y-auto px-3 pb-6 pt-2 sm:px-4">
         <p className="mb-3 text-[13px] text-white/40">
-          Private conversations with other creators. A separate Chats section for rooms comes later.
+          Private chats.
         </p>
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
           : threads.length === 0 ? (
             <EmptyState
               icon={MessageSquare}
               title="No messages yet"
-              body="Start a conversation from someone's profile. Your inbox will show up here."
+              body="Start a chat from someone's page."
               action={
                 <button type="button" onClick={() => navigate("/discover")} className="btn btn-primary h-9 px-4 py-0 text-xs">
-                  Browse Discover
+                  Discover
                 </button>
               }
             />

@@ -73,9 +73,9 @@ export function StorefrontPackPage({ publicShell = false }: { publicShell?: bool
   if (!pack) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <p className="text-white/60">This pack is unavailable.</p>
+        <p className="text-white/60">This pack isn't up.</p>
         {publicShell && (
-          <Link to="/enter" className="btn btn-primary mt-4 inline-flex px-4 py-2 text-sm">Enter VYBZ</Link>
+          <Link to="/enter" className="btn btn-primary mt-4 inline-flex px-4 py-2 text-sm">Enter</Link>
         )}
       </div>
     );
@@ -86,7 +86,7 @@ export function StorefrontPackPage({ publicShell = false }: { publicShell?: bool
       {publicShell && (
         <div className="mb-2 flex items-center justify-between">
           <Link to="/"><BrandLockup height="h-7" /></Link>
-          <Link to="/enter" className="btn btn-ghost px-3 py-1.5 text-xs">Enter VYBZ</Link>
+          <Link to="/enter" className="btn btn-ghost px-3 py-1.5 text-xs">Enter</Link>
         </div>
       )}
 
@@ -94,14 +94,14 @@ export function StorefrontPackPage({ publicShell = false }: { publicShell?: bool
         <div className="flex items-start gap-3 rounded-2xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
           <div>
-            <div className="font-medium">Payment received</div>
-            <p className="mt-0.5 text-emerald-100/75">Check your email for a secure download link (valid 24 hours).</p>
+            <div className="font-medium">Paid</div>
+            <p className="mt-0.5 text-emerald-100/75">Check email for the ZIP. Link lasts 24 hours.</p>
           </div>
         </div>
       )}
       {checkoutState === "cancel" && (
         <p className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/55">
-          Checkout canceled — no charge was made.
+          Canceled. No charge.
         </p>
       )}
 
@@ -127,7 +127,7 @@ export function StorefrontPackPage({ publicShell = false }: { publicShell?: bool
             <audio controls preload="metadata" src={previewUrl} className="w-full" />
           )}
           <div className="pt-1 text-sm text-white/40">
-            {formatPackPrice(pack.price_cents, pack.currency)} · Instant download after purchase
+            {formatPackPrice(pack.price_cents, pack.currency)} · ZIP by email after pay
           </div>
           <PackCheckoutButton
             packId={pack.id}

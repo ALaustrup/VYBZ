@@ -80,7 +80,7 @@ export function TranslationLabPage() {
   const [findings, setFindings] = useState<TranslationFinding[]>([]);
   const [disclosure, setDisclosure] = useState<string | null>(null);
 
-  useRegisterAppBar({ title: "Translation Lab", subtitle: "How it travels" }, []);
+  useRegisterAppBar({ title: "Listen check" }, []);
 
   useAudioPreviewUrlCleanup(originalUrl, "translation-preview:");
   useAudioPreviewUrlCleanup(streamingUrl, "translation-preview:");
@@ -219,9 +219,9 @@ export function TranslationLabPage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Translation"
-      title="Translation Lab"
-      subtitle={`Hear approximate streaming loudness (${STREAMING_NORM_TARGET_LUFS} LUFS), phone/car listening EQ, and a lossy-style codec simulation. Simulations are labelled — not exact platform or device processing.`}
+      eyebrow="Listen"
+      title="How it might sound"
+      subtitle={`Stream loudness (${STREAMING_NORM_TARGET_LUFS} LUFS), phone/car EQ, lossy preview. Guesses — not exact on any platform.`}
       testId="translation-lab"
     >
       <ForgeDropzone
@@ -319,10 +319,9 @@ export function TranslationLabPage() {
               aria-label="Translation findings"
             >
               <div>
-                <h2 className="text-sm font-semibold text-white">Actionable findings</h2>
+                <h2 className="text-sm font-semibold text-white">What we found</h2>
                 <p className="text-[11px] text-white/40">
-                  Measured against this preview target. Correct assists are starting points, not
-                  platform certification.
+                  Against this preview. Fix is a starting point, not a store pass.
                 </p>
               </div>
               {findings.map((finding) => {

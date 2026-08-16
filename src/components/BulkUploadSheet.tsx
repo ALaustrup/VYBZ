@@ -147,7 +147,7 @@ export function BulkUploadSheet({
   async function release() {
     if (!rows.length || posting) return;
     if (!ownershipClaim) {
-      showToast("Check the originality box — VYBZ is for your own music.");
+      showToast("Tick the box — this has to be your music.");
       return;
     }
     setPosting(true);

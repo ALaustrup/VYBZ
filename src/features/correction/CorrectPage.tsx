@@ -450,18 +450,17 @@ export function CorrectPage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Correct desk"
-      title="Correct"
-      subtitle="Measured A/B workbench — bypass and loudness-matched listening. Analyzer Fix stays in-desk batch. Download stays dry (unmatched). No credits charged."
+      eyebrow="Fix"
+      title="Fix the audio"
+      subtitle="A/B the change. Download is the dry file. No credits."
       testId="correct-desk"
     >
       <p className="text-[12px] leading-relaxed text-white/45" data-testid="correct-desk-copy">
-        Correct is the A/B correction workbench. Analyzer Fix applies ship-tier assists in place on
-        findings. This desk does not invent distributor placement.
+        A/B the change. Analyzer Fix applies the same cleanup in place. We do not invent distributor placement.
       </p>
       {audioSource === "workspace" && (
         <p className="text-[12px] text-cyan-200/70" data-testid="correct-workspace-source">
-          Using song workspace audio — drop below only if you want a different file.
+          Using the open track. Drop a different file if you want.
         </p>
       )}
       <div className="forge-glass forge-plasma relative space-y-3 !rounded-2xl p-3 sm:p-4" role="group" aria-label="Correction operation">
@@ -511,8 +510,8 @@ export function CorrectPage() {
       </div>
 
       <ForgeDropzone
-        label="Drop audio to correct"
-        hint="or click to choose · local only · no credits · fallback if workspace empty"
+        label="Drop audio to fix"
+        hint="or click · local · no credits"
         accept={AUDIO_ACCEPT}
         busy={busy}
         onFiles={(list) => void onFile(list?.[0])}

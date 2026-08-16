@@ -46,11 +46,11 @@ export function PackPipelineBar() {
       const result = await handoffPackMakerToStorefront();
       setBusy(false);
       if (result === "empty") {
-        showToast("No pack built yet — Skip to publish with a ZIP you already have, or stay and assemble.");
+        showToast("No ZIP yet. Build one here, or Skip and upload your own.");
         return;
       }
       if (result === "failed") {
-        showToast("Couldn't build the ZIP. Stay here or Skip and upload one on the next step.");
+        showToast("ZIP failed. Stay and retry, or Skip and upload one.");
         return;
       }
     }
@@ -73,7 +73,7 @@ export function PackPipelineBar() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/35">
-            Pack session · {stage.id} / 8
+            Pack · {stage.id} / 8
           </p>
           <h2 className="mt-0.5 font-display text-lg font-semibold tracking-tight text-white sm:text-xl">
             {stage.label}

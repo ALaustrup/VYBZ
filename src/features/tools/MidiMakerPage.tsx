@@ -61,7 +61,7 @@ export function MidiMakerPage() {
   const [bars, setBars] = useState(2);
   const previewRef = useRef<MidiPreviewHandle | null>(null);
 
-  useRegisterAppBar({ title: "Midi Maker" }, []);
+  useRegisterAppBar({ title: "MIDI" }, []);
 
   useEffect(() => {
     return () => {
@@ -214,9 +214,9 @@ export function MidiMakerPage() {
   return (
     <ToolWorkbench
       wide
-      eyebrow="Midi Maker"
-      title="Piano roll desk"
-      subtitle="Draw notes, generate a random phrase, or extract from audio. Preview uses a built-in triangle oscillator (local Web Audio). Export downloads a standard .mid file."
+      eyebrow="MIDI"
+      title="Piano roll"
+      subtitle="Draw notes or pull them from audio. Export is a .mid file."
       testId="midi-maker"
     >
       <div className="flex flex-wrap gap-2">
