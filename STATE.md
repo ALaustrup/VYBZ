@@ -3,7 +3,7 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-15
-**Branch:** `main` @ `20d7dc9b`. Zero open pull requests.
+**Branch:** `main` @ `faf6ce01`. Zero open pull requests. Clean tree.
 **Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
 deployed SHA after them is **Not measured**.
 
@@ -34,12 +34,12 @@ Deleted documents remain in git history. **No feature code was removed.**
 | Command | Result |
 |---|---|
 | `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **146 files / 685 tests** |
+| `npm run test` | pass — **147 files / 696 tests** |
 | `npm run build` | pass — vite production build |
 | `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
 | `npm run test:e2e` | Not measured |
 
-Measured on `feat/reception-phase-2`. Growth from 676 is `receptionGate`.
+Measured on `main` @ `faf6ce01`.
 
 ## Sparks — Phase 1 (shipped)
 
@@ -121,6 +121,43 @@ from a position crossing a threshold. Listens under 5 seconds are ignored. Unkno
 length reads "Not measured" rather than a substitute. The panel states outright that whether
 anyone *enjoyed* it is not measured.
 
+## The Station — Phase 3, first slice (schema only)
+
+Vibes Radio refills its queue by picking a **random** row from the opted-in pool. That is a
+lottery: an artist can never be told when their track plays. `station_airings` makes it a
+line — first in, first out — so "you are third" is a fact.
+
+| Piece | State |
+|---|---|
+| Migration `0101` (`station_airings`, submit / cancel / line / claim / aired) | **APPLIED**, `.down.sql` written |
+| Migration `0102` (total ordering fix) | **APPLIED** |
+| Edge refill wired to `claim_next_airing` | **Not started** — still picks from the pool |
+| Artist-facing "you are Nth in line" UI | **Not started** |
+| Block programming (dayparting) | Not started |
+| Locked transport while on the station | Not started |
+| "Your track airs soon" notification | Not started |
+
+**Nothing is user-visible yet.** The database is ready; the radio behaves exactly as before.
+
+Bug found and fixed during testing: two submissions inside one transaction share `now()`, so
+`submitted_at < submitted_at` was false both ways and **each row reported itself as first**.
+Ordering now compares `(submitted_at, id)` as a row, making it total. Verified with identical
+timestamps: `ahead 0` and `ahead 1`, estimated wait 516s, `waiting 2`.
+
+No wall-clock airtime is promised — the wait is `estimatedWaitSec` and labelled an estimate,
+because the station also plays bumpers and some tracks have no recorded duration. A gate test
+fails if a `scheduled_for` column appears. Private tracks are refused. Claiming is
+service-role only, since a client that could claim could jump the line.
+
+Verified against production then cleared: submit, duplicate refused, line position, claim,
+mark aired. `station_airings` is empty.
+
+## Live demo data on production
+
+Two sparks are on the owner's **Helix** track at **0:20** and **1:00**, placed deliberately so
+the mechanic can be demonstrated. They are real and will collect real answers. Remove them from
+the Sparks panel on the track's Overview tab whenever they have served their purpose.
+
 ## The Station — build state
 
 **Nothing of The Station is built yet.** What landed is documentation, rule plumbing, and the
@@ -128,7 +165,7 @@ Living Mix on-demand surface that predates the decision.
 
 | Piece | State |
 |---|---|
-| One synchronized station | **PARTIALLY IMPLEMENTED** — `vibes_radio_broadcast/_queue/_pool`, `vibes-radio` edge, skew-corrected clock all exist from OR-043 |
+| One synchronized station | **PARTIALLY IMPLEMENTED** — clock, queue and pool from OR-043; the line from `0101` |
 | Block programming | Not started |
 | Sparks (prompt mechanic) | **Phase 1 shipped** — see above; not yet on the station |
 | Airtime balance and ledger | Not started — `vc_ledger` exists for V¢ only |
@@ -271,8 +308,9 @@ Phase plan agreed 2026-08-15: prove the mechanic, then the payoff, then the plac
 economy, then the shell.
 
 1. ~~Phase 2 — the reception view.~~ **Shipped.**
-2. **Phase 3 — The Station.** Block programming over the Vibes Radio clock, scheduling into
-   airings, locked transport, and telling an artist when their track airs.
+2. **Phase 3 — The Station.** In progress. Next slice: wire the edge refill to
+   `claim_next_airing` and `mark_airing_aired`, then the artist-facing line UI. After that,
+   block programming, locked transport, and the airs-soon notification.
 3. **Phase 4 — Airtime.** Ledger, earn-by-answering, per-answer charging. Constants set from
    what phases 1–3 measure, never invented.
 4. **Phase 5 — the new shell.** Mobile-first Station landing; non-Station surfaces hidden from
