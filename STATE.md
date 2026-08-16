@@ -152,9 +152,32 @@ service-role only, since a client that could claim could jump the line.
 Verified against production then cleared: submit, duplicate refused, line position, claim,
 mark aired. `station_airings` is empty.
 
-## Next major slice — rebuild the uploader
+## Uploader rebuild — built, unverified in a browser
 
-Authorised by the owner 2026-08-15. Not started.
+Authorised 2026-08-15, built 2026-08-16 on `fix/uploader-diagnosis`.
+
+**Validation:** `npm run lint` clean · `npm run test` 733 passed across 150 files (was 701/148)
+· `npm run build` succeeds. Commits `ce3983c3` (hash worker and stall watchdog), `a8419241`
+(queue, batch sheet, gate). **Not yet exercised against a real upload** — compiling and passing
+tests is not the same as a file reaching storage, and the original defect was a runtime hang.
+
+**Delivered:**
+
+- `src/features/upload/uploadQueue.ts` — enqueue starts the upload in the same tick. Container
+  tags fill the form within a second; the decode that measures tempo and key runs *beside* the
+  upload, since one is network-bound and the other CPU-bound. Two uploads at a time. An
+  auto-detected value never overwrites a typed one, and an edit takes the field permanently.
+- `ComposeSheet` is now a list of files, each with its own progress, errors and metadata. One
+  bad file cannot take the batch down. Release is only a row insert.
+- Hash moved to a Web Worker behind a size guard and a timeout; every failure path resolves
+  `undefined` and the drop continues. An absent hash is honest, a lost drop is not.
+- `uploadAudio` gained an activity-based stall watchdog rather than `xhr.timeout`, because a
+  large master legitimately takes a long time but silence never does.
+- Asset-kind picker and VDock settings removed from intake. `VisualPicker` and
+  `BulkUploadSheet` remain in the tree, mounted by nothing, per the preservation rule.
+- Gate `uploader` registered and enforced in `src/features/prepare/uploaderGate.test.ts`.
+
+**Still open:** per-track artwork (needs a migration — `Drop` has no artwork field).
 
 **Why:** today the form gates the upload — you type, then bytes move. Flipped, bytes move while
 you type, so the metadata form stops being a toll booth and becomes something you do while
@@ -198,16 +221,12 @@ after the upload resolves. Everything after that runs with no indicator of any k
 - **L300** `createDrop` — `assets.insert`, then `drops.insert` with column fallbacks, then an
   awaited `signAudio` round trip to the `audio-play` edge. No step has a timeout.
 
-So after 100% the sheet is genuinely doing work while showing nothing. Two candidates remain,
-and they are distinguishable by whether the bar was still on screen:
-
-1. **Bar still visible reading "Finalizing…"** — the XHR never got its `onload`; bytes were
-   sent and the storage ACK never arrived. `uploadAudio` (`src/lib/api.ts` L1771–1825) sets no
-   `xhr.timeout`, so it waits forever.
-2. **Bar gone, sheet idle** — past L283, so it is the full-file hash or the inserts. Consistent
-   with the measured evidence, since neither an `assets` nor a `drops` row appeared.
-
-Either way a 4K ffmpeg encode saturating CPU and uplink at the same time would stretch it.
+So after 100% the sheet is genuinely doing work while showing nothing. **The owner reports the bar had disappeared and the sheet sat idle**, which places the hang
+after L283. An insert that *failed* would have returned null and toasted "Couldn't post that
+drop", and no toast appeared, so it did not fail — it never returned. That points at
+`sha256Hex`: it calls `arrayBuffer()` on the whole file, so a large WAV is fully resident in
+memory while a 4K ffmpeg encode is competing for it. SubtleCrypto has no streaming digest, so
+there is no incremental version of this on the main thread.
 The rebuild must fix the reporting regardless of which one it was: progress hits 100% when
 bytes are handed to the network, not when the server accepts them, and the phase after that is
 invisible. A slow-but-working upload is currently indistinguishable from a dead one.
