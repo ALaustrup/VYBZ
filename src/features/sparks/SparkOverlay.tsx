@@ -17,7 +17,15 @@ import { answerSpark, markSparkShown } from "./sparkApi";
  *
  * Nothing here touches the audio graph — playback stays dry.
  */
-export function SparkOverlay({ trackId, sparks }: { trackId: string; sparks: Spark[] }) {
+export function SparkOverlay({
+  trackId,
+  sparks,
+  onAnsweredCountChange,
+}: {
+  trackId: string;
+  sparks: Spark[];
+  onAnsweredCountChange?: (answered: number) => void;
+}) {
   const reduce = useReduceFx();
   const [current, setCurrent] = useState<{ spark: Spark; phase: string; progress: number } | null>(
     null,
@@ -83,7 +91,11 @@ export function SparkOverlay({ trackId, sparks }: { trackId: string; sparks: Spa
 
   async function choose(index: number) {
     const id = spark.id;
-    setAnswered((a) => ({ ...a, [id]: index }));
+    setAnswered((a) => {
+      const next = { ...a, [id]: index };
+      onAnsweredCountChange?.(Object.keys(next).length);
+      return next;
+    });
     // Thank them and get out of the way. The window may have 15 seconds left,
     // and a confirmation does not need them.
     window.setTimeout(() => setDismissed((d) => ({ ...d, [id]: true })), 2200);

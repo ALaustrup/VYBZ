@@ -44,6 +44,7 @@ import { useReduceFx } from "@/lib/display";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+import { sparkStatusLabel, useSparkStatus } from "@/features/sparks/sparkStatusStore";
 
 /** Suite cyan — typed fallback when a track has no accent. */
 const DEFAULT_ACCENT = COLOR_V2.cyan;
@@ -168,6 +169,10 @@ export function MusicDockPlayer() {
   const rootRef = useRef<HTMLDivElement>(null);
   const playBtnRef = useRef<HTMLButtonElement>(null);
   const metaFillRef = useRef<HTMLSpanElement>(null);
+  const metaTimeRef = useRef<HTMLSpanElement>(null);
+  const sparkStatus = useSparkStatus();
+  const sparkLabel =
+    sparkStatus.trackId === p.track?.id ? sparkStatusLabel(sparkStatus) : null;
 
   const favorited = useSyncExternalStore(
     subscribeFavorites,
@@ -213,15 +218,27 @@ export function MusicDockPlayer() {
           `0 0 14px -2px ${baseAccent}, 0 0 22px -8px ${baseAccent}, inset 0 1px 0 rgba(255,255,255,0.35)`;
         btn.style.border = `1px solid color-mix(in srgb, ${baseAccent} 55%, white)`;
       }
+      const idle = getPlaybackProgress();
       const fill = metaFillRef.current;
-      if (fill) fill.style.transform = `scaleX(${getPlaybackProgress().fraction})`;
+      if (fill) fill.style.transform = `scaleX(${idle.fraction})`;
+      writeTime(idle.currentTime, idle.duration);
+    };
+
+    // The clock is written through a ref, not state: the dock subscribes to the
+    // shell snapshot precisely so it does not re-render on every timeupdate.
+    const writeTime = (currentTime: number, duration: number) => {
+      const el = metaTimeRef.current;
+      if (!el) return;
+      const next = duration > 0 ? `${fmt(currentTime)} / ${fmt(duration)}` : fmt(currentTime);
+      if (el.textContent !== next) el.textContent = next;
     };
 
     const tick = () => {
       if (!running) return;
-      const { fraction } = getPlaybackProgress();
+      const { fraction, currentTime, duration } = getPlaybackProgress();
       const fill = metaFillRef.current;
       if (fill) fill.style.transform = `scaleX(${fraction})`;
+      writeTime(currentTime, duration);
 
       const btn = playBtnRef.current;
       const root = rootRef.current;
@@ -293,12 +310,39 @@ export function MusicDockPlayer() {
             {p.track?.artist ?? "Pick a track from Library or Discover"}
           </span>
           {p.signal?.disclosure ? (
+            // Law 5: when playback is not a catalog master, say so. This wins the
+            // line, because an honesty notice outranks a convenience readout.
             <span
               className="mt-0.5 block truncate text-[9px] leading-snug text-amber-200/75 sm:text-[10px]"
               data-vdock-disclosure
               title={p.signal.disclosure}
             >
               {p.signal.disclosure}
+            </span>
+          ) : p.track ? (
+            <span
+              className="mt-0.5 flex items-center gap-1.5 truncate text-[9px] leading-snug text-white/45 sm:text-[10px]"
+              data-testid="vdock-meta-status"
+            >
+              <span ref={metaTimeRef} className="font-mono tabular-nums">
+                {fmt(0)}
+              </span>
+              {sparkLabel ? (
+                <>
+                  <span aria-hidden className="text-white/20">·</span>
+                  <span
+                    className={cx(
+                      "truncate",
+                      sparkLabel === "Feedback sent"
+                        ? "text-[rgb(var(--accent-rgb)/0.85)]"
+                        : "text-white/55",
+                    )}
+                    data-testid="vdock-spark-status"
+                  >
+                    {sparkLabel}
+                  </span>
+                </>
+              ) : null}
             </span>
           ) : null}
           <span className="vdock-meta-rail mt-1 block max-w-[11rem] overflow-hidden sm:max-w-[16rem]" aria-hidden>
