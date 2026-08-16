@@ -60,6 +60,27 @@ export async function listenReport(dropId: string): Promise<ListenReport | null>
   };
 }
 
+/** Catalogue-wide reception for the signed-in creator's own dashboard. */
+export type ListenSummary = {
+  listeners: number;
+  finished: number;
+  sessions: number;
+  answers: number;
+};
+
+export async function myListenSummary(): Promise<ListenSummary | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("my_listen_summary");
+  if (error || !data) return null;
+  const r = data as Record<string, unknown>;
+  return {
+    listeners: Number(r.listeners ?? 0),
+    finished: Number(r.finished ?? 0),
+    sessions: Number(r.sessions ?? 0),
+    answers: Number(r.answers ?? 0),
+  };
+}
+
 export async function listenDropoff(dropId: string, buckets = 10): Promise<DropoffBucket[]> {
   if (!supabase) return [];
   const { data, error } = await supabase.rpc("listen_dropoff", {

@@ -33,6 +33,7 @@ import { isPlayableMediaUrl, playTrack, toggle, usePlayer } from "@/lib/audioBus
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { FLAGS } from "@/lib/flags";
 import * as api from "@/lib/api";
+import { myListenSummary, type ListenSummary } from "@/features/reception/listenApi";
 import { getPrepareOwnerId, getReleaseBundle, listReleases } from "@/features/prepare/service";
 import { nextDeskStepsFromFindings } from "@/features/prepare/nextDeskFromFindings";
 import { WhatNextDesks } from "@/features/prepare/WhatNextDesks";
@@ -279,18 +280,37 @@ function RecentTrackRow({
   );
 }
 
-/** Sum of a measured field across the catalogue — never an estimate (Law 1). */
-function sumOf(drops: Drop[], pick: (d: Drop) => number | undefined): number {
-  return drops.reduce((n, d) => n + (pick(d) ?? 0), 0);
-}
-
-/** Social counters for the profile dashboard. Every figure is measured from drops. */
+/**
+ * Reception counters for your own dashboard.
+ *
+ * This used to show "Vybs" — a reaction tally that was almost always zero and
+ * said nothing about whether anyone heard the work. It now reports measured
+ * listening: people who actually played something, and how many reached the end.
+ *
+ * Owner-only by construction: this is your hub, not a public profile, so it is
+ * private reception rather than social proof.
+ */
 function SocialStats({ drops }: { drops: Drop[] }) {
+  const [summary, setSummary] = useState<ListenSummary | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const s = await myListenSummary();
+      if (!cancelled) setSummary(s);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [drops.length]);
+
   const items = [
-    { label: "Tracks", value: drops.length },
-    { label: "Plays", value: sumOf(drops, (d) => d.plays) },
-    { label: "Vybs", value: sumOf(drops, (d) => d.feels) },
+    { label: "Tracks", value: String(drops.length) },
+    // Null until the summary loads; a dash beats a zero that might be wrong.
+    { label: "Listeners", value: summary ? summary.listeners.toLocaleString() : "—" },
+    { label: "Finished", value: summary ? summary.finished.toLocaleString() : "—" },
   ];
+
   return (
     <div className="flex flex-wrap gap-2" data-testid="social-stats">
       {items.map((s) => (
@@ -299,7 +319,7 @@ function SocialStats({ drops }: { drops: Drop[] }) {
           className="forge-card flex min-w-[6.5rem] flex-1 flex-col !p-3"
         >
           <span className="font-display text-xl font-semibold tabular-nums text-white">
-            {s.value.toLocaleString()}
+            {s.value}
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">
             {s.label}

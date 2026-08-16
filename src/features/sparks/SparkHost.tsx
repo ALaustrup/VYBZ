@@ -4,6 +4,7 @@ import { useSession } from "@/store/session";
 import { listSparks } from "./sparkApi";
 import type { Spark } from "./sparkEngine";
 import { SparkOverlay } from "./SparkOverlay";
+import { clearSparkStatus, setSparkStatus } from "./sparkStatusStore";
 
 /**
  * Loads the prompts for whatever is playing and mounts the overlay.
@@ -24,6 +25,7 @@ export function SparkHost() {
     if (!trackId || !userId) {
       setSparks([]);
       setLoadedFor(null);
+      clearSparkStatus();
       return;
     }
     if (loadedFor === trackId) return;
@@ -34,6 +36,7 @@ export function SparkHost() {
       if (cancelled) return;
       setSparks(found);
       setLoadedFor(trackId);
+      setSparkStatus({ trackId, total: found.length, answered: 0 });
     })();
     return () => {
       cancelled = true;
@@ -41,5 +44,13 @@ export function SparkHost() {
   }, [trackId, userId, loadedFor]);
 
   if (!trackId || sparks.length === 0) return null;
-  return <SparkOverlay trackId={trackId} sparks={sparks} />;
+  return (
+    <SparkOverlay
+      trackId={trackId}
+      sparks={sparks}
+      onAnsweredCountChange={(answered) =>
+        setSparkStatus({ trackId, total: sparks.length, answered })
+      }
+    />
+  );
 }

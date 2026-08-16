@@ -84,10 +84,18 @@ export function BrandMark({
   className,
   title = "VYBZ",
   reactive = false,
+  orb = false,
 }: {
   className?: string;
   title?: string;
   reactive?: boolean;
+  /**
+   * Circular treatment: soft ring and a slow hue cycle.
+   *
+   * Time-based, not audio-driven — the marks stay still against playback by
+   * design (see featuredMiniPlayerGate). Honours reduced-motion via CSS.
+   */
+  orb?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   const iconRef = useRef<IconEl>(null);
@@ -134,6 +142,17 @@ export function BrandMark({
       </g>
     </svg>
   );
+
+  if (orb) {
+    return (
+      <span
+        className="vybz-mark-orb relative inline-flex shrink-0 items-center justify-center rounded-full"
+        data-testid="brand-mark-orb"
+      >
+        <span className="vybz-mark-orb-spin relative z-10 inline-flex">{mark}</span>
+      </span>
+    );
+  }
 
   if (!reactive) return mark;
 
