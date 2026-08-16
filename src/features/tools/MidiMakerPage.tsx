@@ -6,6 +6,8 @@ import { audioToMidi } from "@/lib/audioToMidi";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import { workingTrackAsFile } from "@/features/workspace/workingSet";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 import { PianoRoll, type PianoNote } from "@/features/tools/PianoRoll";
 import { playMidiPreview, type MidiPreviewHandle } from "@/features/tools/midiPreview";
 import {
@@ -167,6 +169,17 @@ export function MidiMakerPage() {
       setBusy(false);
     }
   }
+
+  const working = useWorkingTrack();
+  const loadedWorkingId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!working || notes.length || loadedWorkingId.current === working.id) return;
+    const file = workingTrackAsFile(working);
+    if (!file) return;
+    loadedWorkingId.current = working.id;
+    void importAudio(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once from song workspace
+  }, [working, notes.length]);
 
   async function importMidiFile(file: File | undefined) {
     if (!file) return;

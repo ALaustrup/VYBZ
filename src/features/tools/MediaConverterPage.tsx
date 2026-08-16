@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { ForgeDropzone, ToolWorkbench } from "@/components/ToolWorkbench";
 import { decodeToBuffer, encodeWav, isVideoFile } from "@/lib/audioEdit";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import { workingTrackAsFile } from "@/features/workspace/workingSet";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 import {
   CONVERTER_UNAVAILABLE_ENCODE,
   encodeOpusWebm,
@@ -52,6 +54,17 @@ export function MediaConverterPage() {
     }
     setRows((r) => [...r, ...next]);
   }
+
+  const working = useWorkingTrack();
+  const loadedWorkingId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!working || rows.length || loadedWorkingId.current === working.id) return;
+    const file = workingTrackAsFile(working);
+    if (!file) return;
+    loadedWorkingId.current = working.id;
+    addFiles([file]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once from song workspace
+  }, [working, rows.length]);
 
   async function convertOne(row: Row) {
     setRows((list) => list.map((r) => (r.id === row.id ? { ...r, status: "working" } : r)));

@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  buildAlbumActions,
   buildTrackActions,
   trackFileSummary,
+  TRACK_TOOLS,
+  type AlbumActionContext,
+  type AlbumActionHandlers,
   type TrackActionContext,
   type TrackActionHandlers,
 } from "@/lib/trackActions";
@@ -61,6 +65,7 @@ function handlers(): TrackActionHandlers {
     feature: vi.fn(),
     report: vi.fn(),
     requestDelete: vi.fn(),
+    openInTool: vi.fn(),
   };
 }
 
@@ -209,6 +214,75 @@ describe("buildTrackActions — targeting", () => {
     const nonEmpty = groups.filter((g) => g.actions.length > 0);
     for (const g of nonEmpty) expect(g.actions.length).toBeGreaterThan(0);
     expect(nonEmpty.length).toBeGreaterThan(3);
+  });
+});
+
+describe("buildTrackActions — tools", () => {
+  it("offers every creative desk on a track that has audio", () => {
+    const got = ids(buildTrackActions(ctx(), handlers()));
+    for (const tool of TRACK_TOOLS) expect(got).toContain(`tool-${tool.id}`);
+  });
+
+  it("hands the chosen desk to the handler, and only that one", () => {
+    const h = handlers();
+    const groups = buildTrackActions(ctx(), h);
+    find(groups, "tool-correct")?.onSelect?.();
+    expect(h.openInTool).toHaveBeenCalledTimes(1);
+    expect(h.openInTool).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "correct", path: "/tools/correct" })
+    );
+  });
+
+  it("keeps the menu mounted, because the transfer needs somewhere to report", () => {
+    const groups = buildTrackActions(ctx(), handlers());
+    for (const tool of TRACK_TOOLS) {
+      expect(find(groups, `tool-${tool.id}`)?.keepOpen).toBe(true);
+    }
+  });
+
+  it("explains itself rather than opening a desk with nothing to work on", () => {
+    const noAudio = buildTrackActions(ctx({ isPlayable: false }), handlers());
+    expect(find(noAudio, "tool-correct")?.disabledReason).toMatch(/audio/i);
+    const offline = buildTrackActions(ctx({ online: false }), handlers());
+    expect(find(offline, "tool-stems")?.disabledReason).toMatch(/offline/i);
+  });
+
+  it("routes each desk to a distinct tools path", () => {
+    const paths = TRACK_TOOLS.map((t) => t.path);
+    expect(new Set(paths).size).toBe(paths.length);
+    for (const p of paths) expect(p).toMatch(/^\/tools\//);
+  });
+});
+
+describe("buildAlbumActions", () => {
+  function albumCtx(over: Partial<AlbumActionContext> = {}): AlbumActionContext {
+    const drops = [drop({ id: "a", title: "Intro" }), drop({ id: "b", title: "Second" })];
+    return { label: "Neon Nights", drops, leadTrack: drops[0]!, online: true, ...over };
+  }
+  function albumHandlers(): AlbumActionHandlers {
+    return { openAlbumInMetadata: vi.fn(), openLeadTrackInTool: vi.fn() };
+  }
+
+  it("offers metadata across the whole release and counts the tracks", () => {
+    const groups = buildAlbumActions(albumCtx(), albumHandlers());
+    const meta = groups.flatMap((g) => g.actions).find((a) => a.id === "album-metadata");
+    expect(meta?.label).toBe("Edit metadata for 2 tracks");
+  });
+
+  it("never implies an audio desk processes the whole release", () => {
+    const groups = buildAlbumActions(albumCtx(), albumHandlers());
+    const lead = groups.find((g) => g.id === "album-lead-track");
+    expect(lead?.label).toContain("One track only");
+    expect(lead?.label).toContain("Intro");
+    for (const action of lead?.actions ?? []) expect(action.hint).toBe("1 track");
+    // Metadata is the only whole-release desk, so it must not appear here.
+    expect(lead?.actions.some((a) => a.id.endsWith("metadata"))).toBe(false);
+  });
+
+  it("disables the audio desks with a reason when no track has audio", () => {
+    const groups = buildAlbumActions(albumCtx({ leadTrack: null }), albumHandlers());
+    const lead = groups.find((g) => g.id === "album-lead-track");
+    for (const action of lead?.actions ?? []) expect(action.disabledReason).toBeTruthy();
   });
 });
 
