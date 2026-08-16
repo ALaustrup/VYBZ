@@ -189,13 +189,32 @@ Not caused by the storage lock (migration `0096` changed **read**, not insert) a
 rejection either, since `uploadAudio` logs `[uploadAudio] storage rejected …` and would have
 surfaced a failure toast. A silent hang points at the request still being in flight.
 
-Most likely environmental: a 4K ffmpeg encode was running at the same time, competing for CPU
-and uplink. **Unconfirmed** — needs the browser console line or a retry once the machine is
-idle. Diagnose before rebuilding, so the rewrite does not bake the failure in.
+**Read the code 2026-08-15 and the silence is by construction.** `ComposeSheet.post()`
+(`src/components/ComposeSheet.tsx` L252–321) clears the progress bar at **L283**, immediately
+after the upload resolves. Everything after that runs with no indicator of any kind:
 
-Related real defect regardless of cause: progress reaches 100% when bytes are handed to the
-network, then the UI goes silent while the server works, so a slow-but-working upload is
-indistinguishable from a dead one.
+- **L286–289** `sha256Hex(prepared.file)` — hashes the **whole file again** on the main thread.
+  Its `.catch(() => undefined)` swallows any failure silently.
+- **L300** `createDrop` — `assets.insert`, then `drops.insert` with column fallbacks, then an
+  awaited `signAudio` round trip to the `audio-play` edge. No step has a timeout.
+
+So after 100% the sheet is genuinely doing work while showing nothing. Two candidates remain,
+and they are distinguishable by whether the bar was still on screen:
+
+1. **Bar still visible reading "Finalizing…"** — the XHR never got its `onload`; bytes were
+   sent and the storage ACK never arrived. `uploadAudio` (`src/lib/api.ts` L1771–1825) sets no
+   `xhr.timeout`, so it waits forever.
+2. **Bar gone, sheet idle** — past L283, so it is the full-file hash or the inserts. Consistent
+   with the measured evidence, since neither an `assets` nor a `drops` row appeared.
+
+Either way a 4K ffmpeg encode saturating CPU and uplink at the same time would stretch it.
+The rebuild must fix the reporting regardless of which one it was: progress hits 100% when
+bytes are handed to the network, not when the server accepts them, and the phase after that is
+invisible. A slow-but-working upload is currently indistinguishable from a dead one.
+
+Also worth noting for the rewrite: **L261 `prepareUploadFile` decodes the entire file on the
+main thread before a single byte is sent**, so the bar sits at 0% through a full decode. That
+is the other half of why intake feels dead.
 
 ## Live demo data on production
 
