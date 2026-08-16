@@ -3,6 +3,10 @@
 **Reference, not authority.** [`PRODUCT.md`](../PRODUCT.md) decides what we build; this
 describes how the existing system is wired so you can find things. Measured 2026-08-15.
 
+The default product is the pack suite and marketplace (`PRODUCT.md` v2, decision 0003).
+Vibes Radio and The Station remain in this inventory as parked surfaces. They are not
+deleted and they are not what we build next.
+
 Scale: **714 TypeScript files · 77,321 lines** across `src` and `packages` · **111 migrations**
 · **30 edge functions** · 140 test files.
 

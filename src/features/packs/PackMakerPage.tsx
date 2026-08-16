@@ -21,6 +21,7 @@ import {
 } from "@/features/packs/packAssemble";
 import type { PackSampleKind } from "@/features/packs/packManifest";
 import { savePackHandoff } from "@/features/packs/packHandoff";
+import { getPackMakerSession, setPackMakerSession } from "@/features/packs/packMakerSession";
 import {
   ForgeDropzone,
   ForgeEmptyWorkingSet,
@@ -42,17 +43,22 @@ function dropDisplayName(d: Drop): string {
 export function PackMakerPage() {
   const navigate = useNavigate();
   const { showToast, userId } = useSession();
-  const [title, setTitle] = useState("untitled-pack");
-  const [samples, setSamples] = useState<AssembledSample[]>([]);
+  const seeded = getPackMakerSession();
+  const [title, setTitle] = useState(seeded.title);
+  const [samples, setSamples] = useState<AssembledSample[]>(() => seeded.samples);
   const [busy, setBusy] = useState(false);
-  const [lastZipSha, setLastZipSha] = useState<string | null>(null);
-  const [lastContentSha, setLastContentSha] = useState<string | null>(null);
+  const [lastZipSha, setLastZipSha] = useState<string | null>(seeded.lastZipSha);
+  const [lastContentSha, setLastContentSha] = useState<string | null>(seeded.lastContentSha);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryDrops, setLibraryDrops] = useState<Drop[]>([]);
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(() => new Set());
 
   useRegisterAppBar({ title: "Pack Maker", subtitle: "Assemble" }, []);
+
+  useEffect(() => {
+    setPackMakerSession({ title, samples, lastZipSha, lastContentSha });
+  }, [title, samples, lastZipSha, lastContentSha]);
 
   const loadLibrary = useCallback(async () => {
     if (!userId) {

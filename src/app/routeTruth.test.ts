@@ -136,22 +136,22 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).toContain("/store");
   });
 
-  it("carries the social surfaces in the rail, and no production tool", () => {
-    // Social-first: the rail is the platform menu. Tools reach users through the
-    // Tools launcher instead, so a tool route appearing here is a regression.
+  it("carries the pack pipeline in the rail, not social or desk tools", () => {
     const linked = navItems().map((i) => i.path);
+    expect(linked).toContain("/make");
+    expect(linked).toContain("/library");
+    expect(linked).toContain("/make/dashboard");
     for (const social of ["/feed", "/discover", "/rooms", "/messages", "/notifications"]) {
-      expect(linked, `rail must offer ${social}`).toContain(social);
+      expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);
     }
     for (const tool of ["/releases", "/tools/correct", "/tools/translate", "/tools/packs"]) {
-      expect(linked, `${tool} belongs in the Tools launcher`).not.toContain(tool);
+      expect(linked, `${tool} is a pipeline stage, not a rail item`).not.toContain(tool);
     }
   });
 
   it("badges only counters the rail can actually measure", () => {
     const badged = navItems().filter((i) => i.badge);
-    expect(badged.map((i) => i.path).sort()).toEqual(["/messages", "/notifications"]);
-    for (const i of badged) expect(["messages", "notifications"]).toContain(i.badge);
+    expect(badged).toEqual([]);
   });
 
   it("offers Packages via Store (V¢ packs), not Settings money surfaces", () => {

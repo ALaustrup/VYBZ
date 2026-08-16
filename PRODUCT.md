@@ -4,243 +4,187 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 1 · 2026-08-15 · supersedes every prior masterplan, backlog and status doctrine.
+> Version 2 · 2026-08-16 · supersedes Version 1 (The Station, 2026-08-15).
+> Decision: [`docs/decisions/0003-pack-suite-marketplace.md`](./docs/decisions/0003-pack-suite-marketplace.md).
 
 ---
 
 ## 1. The problem
 
-You spend a week, or a year, on something. You release it.
+You finish a folder of loops, oneshots, and phrases. It is the work. It is not a product.
 
-Four thousand views. Ninety-one likes. Twelve fire emojis.
+The names are a mess. Tempo is in the filename if you are lucky. Kind is a guess. There is no
+ZIP a stranger can unzip and trust. There is no page that takes a card. So the folder sits
+on a drive, or it gets dumped on a marketplace that invents plays and "trending" shelves, or
+you spend a weekend making the pack by hand and never do it again.
 
-And you have no idea what happened. Did anyone reach the part you rebuilt eleven times? Did
-anyone finish it? Was it playing muted in a feed while someone scrolled past? You will never
-know, because a "view" is three seconds with the sound off, and everybody knows the number is
-a lie.
-
-Worse: the silence is unfalsifiable. You cannot tell whether nobody heard it because it was
-not good enough, or because an algorithm did not pick you that day. So you cannot learn, you
-cannot improve, and you cannot even properly grieve it and move on.
-
-**That is the hole. Not obscurity — the absence of any true signal that your work landed in
-another human being.**
+**That is the hole. Not obscurity — a folder of files that never becomes something you can
+sell, honestly.**
 
 ## 2. What VYBZ is
 
-**VYBZ is the only place that tells a creator the truth about their work.**
+**VYBZ is a sample pack creation suite with a marketplace.**
 
-One synchronized station. Real people listening at the same moment. The artist decides what
-they need to know, and listeners answer while the music plays. Every number reported is
-measured, and everything unknown says so.
+A producer drops a folder, hears the files, gives them honest tags, builds a measured ZIP,
+and can sell it. Every number on a pack is measured. Everything unknown reads
+**Not measured**.
 
-Not reach. Not engagement. The honest answer to *did it land*.
+Not a radio station. Not a social network. Not DSP distribution. The job is organize, tag,
+preview, package, sell.
 
-## 3. The Station
+## 3. The suite
 
-There is exactly **one** station. Everyone who tunes in hears the same thing at the same
-position, kept in step by a server clock with per-client skew correction.
+The default UI is one guided flow. Each stage is an existing desk, not a rewrite.
+The producer can skip a stage; skip does not invent completion.
 
-One station is a deliberate constraint. Concurrency pools in a single room, so it always
-sounds alive, and when a track airs it is a genuine shared moment rather than a private
-impression. Twenty ghost-town stations would be worse than one busy one.
-
-**Taste is handled by time, not fragmentation.** The station is programmed in blocks the way
-radio has always solved this — late night is slow, drive time is uptempo. Tracks are placed
-into the block that fits.
-
-**Splitting is a measured decision.** A second station opens when queue depth and concurrent
-listening justify it — never because a genre list was written in advance.
-
-### Placement inputs, and their honesty
-
-Three inputs decide where a track sits, and each is labelled for what it is:
-
-| Input | Source | Honest description |
+| Stage | Job | Surface |
 |---|---|---|
-| **Declared** | Artist's profile and release tags | What the artist says it is |
-| **Measured** | BPM, key, duration, loudness, spectral balance | Computed from the audio |
-| **Learned** | Listener taste embeddings | Inferred from behaviour |
+| **0** | Upload assets | `/make` — same upload queue as ComposeSheet |
+| **1** | Metadata edit / fix | `/tools/metadata` |
+| **2** | Artwork create / check | `/tools/art-check` |
+| **3** | Analyze pack assets | `/releases` |
+| **4** | Show findings + auto-fix | `/tools/correct` |
+| **5** | Pack Maker | `/tools/pack-maker` |
+| **6** | Download / export / publish | `/tools/packs/new` |
+| **7** | Published listing | `/tools/packs` |
+| **8** | Library + sales | `/make/dashboard` |
 
-VYBZ never claims to have *detected* a genre or a chorus. Local metadata inference honestly
-returns nothing today, and model-suggested tags are labelled as suggestions. A fabricated
-measurement wearing a lab coat is still fabricated.
+The stepper stays on screen for every stage path. Desks keep their own routes.
+ComposeSheet, Library, and the seller dashboard are not deleted.
 
-## 4. Sparks — the feedback mechanic
+**Two ingest paths, both kept:**
 
-*Name provisional. It must not be called a star: every product on earth uses stars for
-ratings, and listeners would read tapping one as "I like this."*
+1. **Library** — files become catalog rows you can search and reuse.
+2. **Pack Maker** — files stay in the pack working set and are **never** auto-ingested into
+   the library. Assembling a pack must not dump samples into the public catalog.
 
-The artist marks the moments they are unsure about. During playback:
+Pack Maker is a multi-file suite, not a one-track desk. It belongs in the default experience.
 
-1. Small dots appear quietly **during** the passage — something is coming, stay present.
-2. Just **after** the passage ends, a spark forms with a filling ring.
-3. Tap it and three options appear, chosen by the artist for that exact moment.
-4. Tap one. The artist receives it in real time.
-5. Ignore it and it bursts. That opportunity is gone.
+## 4. Honesty of tags
 
-### Why the timing is what it is
+Three kinds of label, never mixed:
 
-The prompt lands **after** the passage, never during it. A countdown running into the drop
-would make the listener watch numbers instead of hearing the drop — the instrument would
-disturb the thing it measures. Dots signal presence; the spark collects the impression while
-it is still hot.
-
-The ring fills rather than counting down in digits. Numbers demand reading, and reading is
-attention stolen from listening.
-
-### Rules that keep the data worth having
-
-- **Options carry words, not just emoji.** 🔥 "hits hard" · 😐 "flat here" · 🌊 "too much".
-  Emoji for speed, the word for meaning. Twenty taps of 🔥 with no label is another fake metric.
-- **The three options must span positive, neutral and critical.** An artist who could pick
-  three flattering options would build a compliment machine. A feedback system that cannot
-  deliver bad news is not a feedback system.
-- **Density is capped by price, with enforced spacing.** More than a few per track and the
-  song becomes whack-a-mole.
-- **No response is recorded as no response.** It might mean bored; it might mean completely
-  absorbed. We do not know, so we do not infer.
-- **The burst is quiet.** A loud animation during a soft passage is a loud animation during a
-  soft passage.
-
-### Automatic placement
-
-An artist who sets nothing still gets sparks, at the **same price**, pre-placed as an editable
-draft they can accept, move or replace.
-
-Placement is at **measured structural moments** — the largest energy change, the opening
-where listeners actually leave, the ending, the longest quiet passage — never at random.
-Random placement asks people about nothing in particular and produces noise. Each is described
-by what was measured, never as a musical section we cannot detect.
-
-## 5. What the artist receives
-
-> **19 of 24 answered "still with it" at 0:42.**
-> **At 3:10 — 6 too long, 15 just right, 3 too short.**
-> **Most present at 1:55: bass (11), vocals (7), drums (4), space (2).**
-> **8 no response.**
-> **Emotional response beyond the options asked: Not measured.**
-
-Every line is true. The last line is why the others can be believed.
-
-**And they can be there when it happens.** The artist is told when their track airs, shows up,
-and watches strangers react in real time. That is the point of the whole system: not a
-dashboard the next morning, but being in the room the first time it lands.
-
-## 6. The economy
-
-**One wallet. Two balances. No bridge between them.**
-
-| | **Airtime** | **V¢** |
+| Kind | Source | What we may say |
 |---|---|---|
-| What it is | Verified time, machine-measured | Judged value, human-decided |
-| Earned by | Answering sparks during verified listening | Tips, sales, responses an artist marks useful |
-| Spent on | Being answered | Cosmetics, storefront, subscriptions, tips |
-| Purchasable | **Never** | Yes, as today |
-| Transferable | No | Yes |
+| **Declared** | Filename, artist-typed fields, pack title and genre | What a person wrote |
+| **Measured** | Duration, peak, RMS, sample rate, channels, content SHA | Computed from the bytes |
+| **Inferred** | Analysis that has no evidence | **Not used.** Local genre/mood inference returns nothing today. |
 
-**Airtime and V¢ never convert, in either direction.** This is the invariant everything else
-rests on. If money can become the right to be heard, VYBZ is a pay-for-promotion service with
-nicer design, and the claim that the attention here is real becomes false. If Airtime can
-become money, listening becomes a farm.
+VYBZ never claims to have *detected* a genre, a key mode the name did not state, or a
+musical section we cannot measure. A fabricated BPM wearing a lab coat is still fabricated.
 
-### How it flows
+## 5. The marketplace
 
-**Earning:** listening qualifies you; **answering pays you.** Passive playback earns nothing,
-so leaving a tab open overnight is pointless. Response quality feeds back into the rate, so
-consistent low-effort tapping earns less over time.
+Published packs are listed on **Market** (`/market`) from `storefront_packs_public` only.
+Empty means zero published packs, not a placeholder catalog. Filters never invent rows.
+There are no play counts, no trending shelves, no "guaranteed placement."
 
-**Spending:** the artist commits a budget — up to *N* answers on this spark — and is charged
-**per answer received**, not per spark placed. When the budget fills, the spark retires. A
-track that airs to four people at 4am is not billed as though thirty answered.
+A public pack page (`/pack/:slug`) shows title, price, description, and a preview when one
+exists. It never exposes `zip_path`. The ZIP is delivered after payment — today by a signed
+download link mailed to the buyer.
 
-**Rewards exist only on The Station.** Browsing, profiles, the library, Living Mix and all
-on-demand playback stay free, unlimited, and earn nothing. One surface to defend against
-fraud instead of an entire app.
+**Selling is optional.** Packaging a ZIP for yourself is a full use of the product. The
+marketplace is the front door for buyers, not a tax on making a pack.
 
-**Reward-bearing playback is locked-transport** — no seeking, live or replay — so nobody can
-jump straight to a spark timestamp and tap.
+Platform fee is **10%**, tracked on the order. Settlement of the producer is
+`pending_manual` → `settled_off_platform` until automatic payouts are
+production-verified. That is the designed path, not a temporary shame.
 
-### Constants are deliberately unset
+Measured 2026-08-16: one live $1.00 purchase completed; the buyer received the ZIP by email.
+Checkout and fulfillment for that order are **DELIVERED AND PRODUCTION-VERIFIED**. A second,
+non-owner customer is **Not measured**.
 
-How much an answer earns, what an answer costs, and how many the guarantee promises **cannot
-be derived from anything measured yet**. Inventing them here would be the exact dishonesty
-this product exists to oppose. They get set from observed listening supply against real
-release demand once the station runs.
+## 6. Money
 
-## 7. The Guarantee
+**Buyers pay in fiat, through Stripe, on the platform account.** That is how a pack is sold.
 
-> Your track will air in a slot with a real audience, and you will receive real answers to
-> the questions you asked — or you were not charged.
+**V¢ remains** the purchasable utility credit it already is — cosmetics, tips, storefront
+adjacent spend. It does not buy a listing, a search rank, or the right to upload.
 
-Because artists are charged per answer received, an unfulfilled guarantee costs nothing. The
-scheduler holds a track until a slot with genuine listeners exists rather than burning a
-release at 4am to three insomniacs and calling the promise kept.
+**Airtime** — verified listening time from The Station — stays in the invariants file and
+in the parked Station subsystem. It is not used by the pack suite. Airtime and V¢ still
+never convert, in either direction. Money still cannot buy the right to be heard on any
+future Station surface.
 
-**The Last Hour** extends witness beyond the broadcast: recently aired tracks can be replayed,
-and answers still earn and still count against the artist's budget. This is what lets a single
-station serve more releases than its broadcast minutes allow.
+Pack price bounds are $1.00–$5,000.00, as the storefront already enforces.
 
-## 8. Publishing is always free
+No economy constant for "what a pack should cost" is invented here. Producers set a price.
 
-Upload anything, any time, at no cost. It lives on your profile and in your library
-permanently.
+## 7. Publishing is always free
 
-**Only the guarantee is earned.** Airtime buys rotation and answers — never the right to exist
-here. A zero balance means your track still airs; it simply carries no sparks and no promise.
-New members receive a starter grant so their first release gets the full experience before
-they have earned anything, because the feeling is the product and nobody grinds for something
-they have not felt.
+Upload anything, any time, at no cost. It lives in your library.
+
+**Only a sale is charged.** A zero balance still lets you ingest, tag, preview, and build a
+ZIP. The marketplace takes a cut of a completed purchase, not of existence.
+
+We do not pay people to upload. Pay-for-upload fills a catalog with generated slop.
+
+## 8. Parked: The Station
+
+Version 1 of this document made one synchronized station the product. That decision is
+superseded. The radio, the line, sparks, reception, and Airtime remain implemented to the
+degree `STATE.md` records. They are not deleted. They are not the front door.
+
+If The Station returns, it returns as a measured decision with its own record, not by
+quietly rewriting this file back.
 
 ## 9. What we refuse
 
 **No public vanity metrics.** No follower counts, no play counts as social proof, no
-leaderboards. Reception goes privately to the person who made the thing. Nothing worth gaming
-means numbers that stay true.
+leaderboards of packs. Reception and sales figures go to the person who made the thing.
 
-**No purchasable attention.** See §6.
+**No purchasable attention.** Money does not buy Market rank, "featured," or a fake listen.
 
-**No paying for uploads.** Pay people to upload and the platform fills with generated slop
-within a month, because generating a track now costs seconds. The reward for uploading is
-being heard.
+**No paying for uploads.** See §7.
 
 **No fabricated measurement.** Unknown reads **"Not measured"**. Approximate is labelled
-approximate. Simulated is labelled simulated.
+approximate. Simulated is labelled simulated. Filename tempo is declared-from-name.
 
 **No dating, romance, meetup or swipe matching.** Permanently out of scope.
 
-**No claim that VYBZ delivers to DSPs.** It prepares releases and produces verified packages.
-It does not distribute.
+**No claim that VYBZ delivers to DSPs.** It prepares packs and listings. It does not
+distribute to Beatport, Splice, or Spotify.
+
+**No invented inventory.** Market shows published `storefront_packs` rows or an honest empty
+state.
 
 **No undisclosed processing on the play path.** Playback is dry. Simulations are labelled.
 
+**No Station, radio, or social expansion** while the pack loop is the product. Those
+surfaces stay in the tree. They do not get new work, new nav, or new promises.
+
 ## 10. Preservation — hide, never delete
 
-**Nothing already built is deleted.** Everything VYBZ has — the analyzer, correction desk,
-translation lab, stem and pack makers, midi maker, converter, storefront, rooms, live,
-messages, projects, visualizer studio — stays in the tree, stays reachable, and keeps working.
+**Nothing already built is deleted.** The analyzer, correction desk, translation lab, stem
+maker, midi maker, converter, storefront, rooms, live, messages, projects, visualizer
+studio, sparks, reception, Living Mix, and Vibes Radio stay in the tree, stay reachable,
+and keep working.
 
 Surfaces leaving the default experience are **hidden from navigation**, not removed. Routes
 still resolve. Code still compiles. History still holds everything.
+
+The Station, sparks-on-station, Airtime earning, and the social home are **parked**. Their
+invariants in `src/product/invariants.ts` still apply *to those surfaces* if they are
+switched on again. They are not the default product.
 
 The new interface becomes the front door. What is behind it is still the house.
 
 ## 11. Interface direction
 
-**The new default experience is The Station**, and it is what every user — creator or listener
-— lands on.
+**The default experience is the staged pack pipeline** (`/make`, stages 0–8). The rail
+leads with Make pack, Library, and Sales. Social home, feed, and rooms stay reachable
+and off the default rail.
 
-**Mobile first.** Designed for a phone held in one hand at arm's length, then adapted upward
-to desktop. Not a desktop layout squeezed down.
+Desks that operate on one track stay summonable from that track. Routes for parked
+surfaces still resolve.
 
-**Android as a first-class target**, through the existing Capacitor shell and Platform Bridge.
+**Mobile first.** Designed for a phone held in one hand, then adapted upward to desktop.
 
-**VR is a considered horizon**, not a commitment. A synchronized station with a shared audience
-and reactive visuals has an obvious immersive form, and the reactive visual engines already
-exist. It gets designed when the core loop is proven, and never at the cost of the phone.
+**Android as a first-class target**, through the existing Capacitor shell and Platform
+Bridge.
 
-**Foreground earning, honestly stated.** A phone in a pocket cannot tap a spark. Backgrounded
-playback still plays; it simply does not earn, and we say so plainly rather than pretending.
+**VR is a considered horizon**, not a commitment, and never at the cost of the phone or
+the pack loop.
 
 ## 12. Delivery vocabulary
 
@@ -258,8 +202,8 @@ they disagree about what a user experiences, **production wins and the documents
 
 ## 13. Definition of success
 
-An artist uploads something they spent months on. Within days it airs to real people. They are
-there when it happens. Strangers answer the exact questions they were losing sleep over. They
-earn from helping others the same way.
+A producer drops a folder they have been sitting on. The same day they have a measured ZIP
+and a page that takes a card. A stranger buys it. The ZIP arrives. The producer can see the
+order and settle it.
 
-They never again spend a year on something and find out nothing.
+They never again finish the work and have only a folder.

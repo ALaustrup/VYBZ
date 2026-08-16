@@ -1,6 +1,6 @@
 # 0001 — The Station
 
-**Date:** 2026-08-15 · **Status:** Accepted · **Decided by:** owner
+**Date:** 2026-08-15 · **Status:** Superseded by [`0003-pack-suite-marketplace.md`](./0003-pack-suite-marketplace.md) on 2026-08-16 · **Decided by:** owner
 
 Decision records are append-only. If this is superseded, write a new record and mark this one
 superseded. Never edit history.

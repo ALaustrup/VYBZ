@@ -1,11 +1,11 @@
 # VYBZ
 
 > **Find Yours.**  
-> **Everything between finished and released.**
+> **A folder of files is not a product.**
 
-VYBZ is the **release operating system for independent music** — prepare, protect,
-credit, master, package, distribute, and present your work, then keep it playing
-for fans. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
+VYBZ is a **sample pack creation suite with a marketplace** — ingest, tag, preview,
+package a measured ZIP, and sell it. Owner: **Astra Matrix, Inc.** Canonical domain:
+**`vybz.cloud`**. The rest of the house (desks, radio, social) stays in the tree.
 
 **One account · one cloud · three clients:** **VYBZ Cloud** (web) · **VYBZ Desktop**
 (Tauri 2, Windows first) · **VYBZ Mobile** (Capacitor / Android first), all on
@@ -24,15 +24,11 @@ No connection paywalls. Messaging free forever.
 
 | Module | Role |
 |--------|------|
-| **Home** | Release and audience command center |
-| **Studio** | Music Repos — versions, branches, collaboration |
-| **Prepare** | Know what is ready; fix what is not |
-| **Credits** | Contributors, splits, approvals |
-| **MasterReady** | Analysis and deliverables |
-| **CoverLab** | Artwork readiness and repair |
-| **Sentinel** | Secure prerelease sharing and provenance |
-| **Relay** | Distribution packages and delivery status |
-| **Artist / VDock / Live / Market** | Public catalog, playback, performance, digital products |
+| **Library** | Ingest and organize the files you already have |
+| **Pack Maker** | Tag, measure, and build a ZIP with a SHA manifest |
+| **Storefront / Market** | Publish a pack, take a card, deliver the ZIP |
+| **Desks** | Correct, translate, metadata, stems, midi, convert — from a track, not from empty nav |
+| **Parked** | Station, sparks-on-station, rooms, live, social home — reachable, not the default |
 
 ## What's shipped today (foundation)
 

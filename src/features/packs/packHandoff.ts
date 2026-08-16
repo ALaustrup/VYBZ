@@ -28,6 +28,16 @@ export function savePackHandoff(opts: { title: string; fileName: string; blob: B
   sessionStorage.setItem(KEY, JSON.stringify(payload));
 }
 
+export function peekPackHandoff(): PackHandoff | null {
+  const raw = sessionStorage.getItem(KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as PackHandoff;
+  } catch {
+    return null;
+  }
+}
+
 export function takePackHandoff(): PackHandoff | null {
   const raw = sessionStorage.getItem(KEY);
   if (!raw) return null;

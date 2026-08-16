@@ -88,10 +88,14 @@ export const FROZEN_CONTRACTS = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
-/* The Station economy                                                        */
+/* The Station economy (parked)                                               */
 /* ------------------------------------------------------------------------- */
 
 /**
+ * Parked with PRODUCT.md v2 / decision 0003. Default product is the pack suite.
+ * These values still bind the Station subsystem if it is switched on again.
+ * Do not delete them. Do not use Airtime in the pack marketplace.
+ *
  * Two balances, one wallet, no bridge between them.
  *
  * Airtime is verified time and is machine-measured. V¢ is judged value and is
@@ -200,6 +204,7 @@ export const GATE_REGISTRY = [
   "stationLine",
   "accountMenu",
   "uploader",
+  "packPipeline",
   "trackTools",
   "playbackAuthority",
   "dockVisuals",

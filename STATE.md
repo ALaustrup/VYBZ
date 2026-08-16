@@ -2,10 +2,53 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-15
-**Branch:** `main` @ `faf6ce01`. Zero open pull requests. Clean tree.
-**Production:** https://vybz.cloud — HTTP 200 measured 2026-08-15 before these merges. The
-deployed SHA after them is **Not measured**.
+**Date:** 2026-08-16
+**Branch:** `continue-next` @ `6bcfb4b9` (same SHA as `main` / `origin/main`). Uncommitted
+docs rewrite (this file, `PRODUCT.md` v2, decision 0003) plus isolated `server/mpp`.
+Zero open pull requests.
+**Production:** https://vybz.cloud — landing `data-testid="build-sha"` read **Build 6bcfb4b**
+on 2026-08-16. Production still serves the pre-rewrite SPA copy; authority in the repo is
+now the pack suite. Deploying this docs-only change does not alter application behaviour.
+
+## First paid storefront order — 2026-08-16
+
+Owner-reported and independently measured.
+
+The owner bought the **$1.00** listing and **received the ZIP by email**. That is the
+storefront checkout → Stripe webhook → Resend signed-URL path, on production, with real
+card rails. Previously this path was code-only.
+
+Measured 2026-08-16 against `storefront_packs_public` (anon): **one** published pack.
+
+| Field | Value |
+|---|---|
+| Title | Untitled pack |
+| Slug | `untitled-pack-hrw5np` |
+| Price | `100` cents |
+| Preview / cover | both null |
+| Created | 2026-08-16T17:58:54Z |
+| Public page | https://vybz.cloud/pack/untitled-pack-hrw5np |
+
+**This proves:** a published pack with a ZIP can be paid for, and the buyer gets a download
+mail. Platform Checkout and webhook fulfillment are **DELIVERED AND PRODUCTION-VERIFIED**
+for this one order.
+
+**Not measured:** Pack Maker assemble, library upload, Library → Pack fetch, whether
+**Settle now** was clicked, Stripe Connect payouts (last recorded `payouts_enabled: false`).
+Email delivery of this one message was observed by the owner; Resend as a system is not
+otherwise measured.
+
+The listing is still live as "Untitled pack". Unpublish or rename when it has served as
+the proof.
+
+## Authority — pack suite (2026-08-16)
+
+Owner directed a rewrite of product authority from The Station to a sample pack creation
+suite plus marketplace. Decision [`0003`](docs/decisions/0003-pack-suite-marketplace.md)
+supersedes [`0001`](docs/decisions/0001-the-station.md). `PRODUCT.md` is now Version 2.
+
+`STATION` and `CURRENCY` in `src/product/invariants.ts` were **not** deleted. They still
+constrain the parked Station subsystem. No application code changed in this unit.
 
 ## What just changed
 
@@ -445,17 +488,14 @@ Revoke it whenever, with `update public.profiles set banned = true where usernam
 
 ## Next
 
-Phase plan agreed 2026-08-15: prove the mechanic, then the payoff, then the place, then the
-economy, then the shell.
+Authority now matches the till. Application code does not, yet: Pack Maker is still hidden
+from the tools launcher. Do not start Station refill.
 
-1. ~~Phase 2 — the reception view.~~ **Shipped.**
-2. **Phase 3 — The Station.** In progress. Next slice: wire the edge refill to
-   `claim_next_airing` and `mark_airing_aired`, then the artist-facing line UI. After that,
-   block programming, locked transport, and the airs-soon notification.
-3. **Phase 4 — Airtime.** Ledger, earn-by-answering, per-answer charging. Constants set from
-   what phases 1–3 measure, never invented.
-4. **Phase 5 — the new shell.** Mobile-first Station landing; non-Station surfaces hidden from
-   navigation, never deleted.
+1. **Settle** the $1 order if it is still Pending manual.
+2. **Unpublish or rename** `untitled-pack-hrw5np`.
+3. **Pack pipeline** is in the tree (`/make`, stages 0–8). Not yet walked end-to-end
+   in a browser this turn.
+4. **One producer who is not you.** Until then this is a self-purchase.
 
 Carried over: deploy the updated `audio-play` edge (repo is ahead of the deployed v7;
 functionally equivalent, only latency differs), and playback step 4 — tickets by asset id so

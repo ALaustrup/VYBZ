@@ -8,6 +8,7 @@ import type { SuiteAppId } from "@/shell/suiteApps";
 
 export const SUITE_APP_ACCENT_RGB: Record<SuiteAppId, string> = {
   home: "0 194 255", // command cyan
+  "pack-pipeline": "20 184 166", // pack teal
   analyzer: "125 211 252", // ice / scan
   metadata: "56 189 248", // tool sky
   "art-check": "94 234 212", // mint check
