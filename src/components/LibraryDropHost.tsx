@@ -6,12 +6,13 @@ import {
   audioMeta,
   computeWaveform,
   placeholderWaveform,
-  sha256Hex,
   acousticSignature,
 } from "@/lib/waveform";
+import { hashBlobGuarded } from "@/lib/sha256Worker";
 import { readId3Tags, titleFromFilename } from "@/lib/id3Tags";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
+import { filesFromDataTransfer } from "@/features/upload/dataTransferFiles";
 import { takeLandingDropFiles } from "@/features/workspace/landingDropStash";
 import { seedWorkingTrackFromFile } from "@/features/workspace/seedWorkingTrackFromFile";
 import type { WorkingTrackSource } from "@/features/workspace/workingSet";
@@ -84,7 +85,7 @@ export function LibraryDropHost({
         const path = await api.uploadAudio(file, ext);
         if (!path) throw new Error("Storage upload failed — check sign-in and audio-assets access");
         const [sha256, fingerprint] = await Promise.all([
-          sha256Hex(file).catch(() => undefined),
+          hashBlobGuarded(file),
           acousticSignature(peaks).catch(() => undefined),
         ]);
         const title = (tags.title || titleFromFilename(file.name)).slice(0, 80) || undefined;
@@ -227,7 +228,11 @@ export function LibraryDropHost({
         return;
       }
       if (pointerOverDeskDrop(e)) return;
-      if (e.dataTransfer?.files?.length) enqueue(e.dataTransfer.files, "library");
+      // Synchronous call: a folder's entries are gone once this handler yields,
+      // and a dropped folder puts nothing in `files` at all.
+      void filesFromDataTransfer(e.dataTransfer).then((files) => {
+        if (files.length) enqueue(files, "library");
+      });
     };
 
     window.addEventListener("dragenter", onDragEnter);

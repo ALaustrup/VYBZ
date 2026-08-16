@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Download, FileAudio, Loader2, Save, Upload } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CheckCircle2, Download, FileAudio, Loader2, Save, Upload } from "lucide-react";
 import { ForgeDropzone, ToolWorkbench } from "@/components/ToolWorkbench";
 import { readId3Tags, titleFromFilename, type Id3Tags } from "@/lib/id3Tags";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
@@ -14,6 +14,15 @@ import {
 } from "@/features/tools/metadataDraft";
 import { setWorkingTrack, workingTrackAsFile } from "@/features/workspace/workingSet";
 import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
+import {
+  MetadataLibraryRail,
+  type LibrarySelection,
+} from "@/features/tools/MetadataLibraryRail";
+import {
+  draftFromDrop,
+  loadDropMetadataMany,
+  saveDropMetadata,
+} from "@/features/tools/dropMetadataApi";
 
 const STORAGE_KEY = "vybz.metadataEditor.draft.v1";
 
@@ -48,23 +57,107 @@ function Field({
  * Does not fabricate values (Law 1).
  */
 export function MetadataEditorPage() {
-  const { showToast } = useSession();
-  const [draft, setDraft] = useState<MetadataDraft>(emptyMetadataDraft);
+  const { showToast, profile } = useSession();
+  const [localDraft, setLocalDraft] = useState<MetadataDraft>(emptyMetadataDraft);
   const [busy, setBusy] = useState(false);
+
+  /** Null while drafting against a dropped file; set once a library track is open. */
+  const [selection, setSelection] = useState<LibrarySelection | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, MetadataDraft>>({});
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [dirty, setDirty] = useState<Record<string, true>>({});
+  const [loadingTracks, setLoadingTracks] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const draft = (activeId ? drafts[activeId] : undefined) ?? localDraft;
 
   useRegisterAppBar({ title: "Metadata", subtitle: "Editor" }, []);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setDraft({ ...emptyMetadataDraft(), ...JSON.parse(raw) });
+      if (raw) setLocalDraft({ ...emptyMetadataDraft(), ...JSON.parse(raw) });
     } catch {
       /* ignore */
     }
   }, []);
 
   function patch<K extends keyof MetadataDraft>(key: K, value: MetadataDraft[K]) {
-    setDraft((d) => ({ ...d, [key]: value }));
+    if (activeId) {
+      const id = activeId;
+      setDrafts((all) => ({ ...all, [id]: { ...all[id], [key]: value } }));
+      setDirty((d) => (d[id] ? d : { ...d, [id]: true }));
+      return;
+    }
+    setLocalDraft((d) => ({ ...d, [key]: value }));
+  }
+
+  /**
+   * Open a whole album at once. Metadata for every track is fetched in one
+   * round trip so switching between them is instant rather than a spinner each.
+   */
+  const openSelection = useCallback(async (next: LibrarySelection) => {
+    setSelection(next);
+    setLoadingTracks(true);
+    setDirty({});
+    try {
+      const ids = next.drops.map((d) => d.id);
+      const saved = await loadDropMetadataMany(ids);
+      const built: Record<string, MetadataDraft> = {};
+      for (const drop of next.drops) built[drop.id] = draftFromDrop(drop, saved.get(drop.id));
+      setDrafts(built);
+      setActiveId(next.drops[0]?.id ?? null);
+    } finally {
+      setLoadingTracks(false);
+    }
+  }, []);
+
+  async function saveTracks(ids: string[]) {
+    if (!ids.length || saving) return;
+    setSaving(true);
+    let ok = 0;
+    let failed = 0;
+    try {
+      for (const id of ids) {
+        const d = drafts[id];
+        if (!d) continue;
+        const res = await saveDropMetadata(id, d);
+        if (res.ok) {
+          ok++;
+          setDirty((prev) => {
+            const { [id]: _drop, ...rest } = prev;
+            return rest;
+          });
+        } else {
+          failed++;
+        }
+      }
+    } finally {
+      setSaving(false);
+    }
+    if (failed > 0) {
+      showToast(`Saved ${ok} · ${failed} failed`);
+    } else {
+      showToast(ok === 1 ? "Track saved" : `${ok} tracks saved`);
+    }
+  }
+
+  /** Route a whole-draft change to the open track, or to the local file draft. */
+  function updateDraft(fn: (d: MetadataDraft) => MetadataDraft) {
+    if (activeId) {
+      const id = activeId;
+      setDrafts((all) => ({ ...all, [id]: fn(all[id]) }));
+      setDirty((d) => (d[id] ? d : { ...d, [id]: true }));
+      return;
+    }
+    setLocalDraft(fn);
+  }
+
+  function backToFileDraft() {
+    setSelection(null);
+    setActiveId(null);
+    setDrafts({});
+    setDirty({});
   }
 
   async function onFile(file: File | undefined, source: "tool-drop" | "workspace" = "tool-drop") {
@@ -76,7 +169,7 @@ export function MetadataEditorPage() {
     try {
       const tags: Id3Tags = await readId3Tags(file);
       if (tags.artworkUrl) URL.revokeObjectURL(tags.artworkUrl);
-      setDraft((d) => ({
+      updateDraft((d) => ({
         ...d,
         title: tags.title || titleFromFilename(file.name) || d.title,
         artist: tags.artist || d.artist,
@@ -135,8 +228,8 @@ export function MetadataEditorPage() {
     try {
       const text = await file.text();
       const next = parseMetadataDraftJson(text);
-      setDraft(next);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      updateDraft(() => next);
+      if (!activeId) localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       showToast("Draft loaded from JSON");
     } catch {
       showToast("Not a valid VYBZ metadata draft");
@@ -150,8 +243,60 @@ export function MetadataEditorPage() {
       subtitle="Import tags from a master when they exist — never invent ISRC/UPC."
       testId="metadata-editor"
     >
+      <MetadataLibraryRail
+        ownerId={profile?.id}
+        selectedKey={selection?.key ?? null}
+        onSelect={(next) => void openSelection(next)}
+      />
+
+      {selection && (
+        <section className="forge-glass relative space-y-3 !rounded-2xl p-4" data-testid="metadata-track-tabs">
+          <span className="forge-glass-edge pointer-events-none" aria-hidden />
+          <div className="relative z-[1] flex items-center justify-between gap-3">
+            <p className="nexus-eyebrow">
+              {selection.label} · {selection.drops.length}{" "}
+              {selection.drops.length === 1 ? "track" : "tracks"}
+            </p>
+            <button
+              type="button"
+              onClick={backToFileDraft}
+              className="text-[11px] text-white/40 underline-offset-2 hover:text-white/70 hover:underline"
+            >
+              Close
+            </button>
+          </div>
+          {loadingTracks ? (
+            <p className="relative z-[1] flex items-center gap-2 text-[12px] text-white/40">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading tracks…
+            </p>
+          ) : (
+            <div className="no-scrollbar relative z-[1] -mx-1 flex gap-1.5 overflow-x-auto px-1">
+              {selection.drops.map((drop, i) => (
+                <button
+                  key={drop.id}
+                  type="button"
+                  onClick={() => setActiveId(drop.id)}
+                  className={cx(
+                    "flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-medium transition",
+                    activeId === drop.id
+                      ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40"
+                      : "bg-white/[0.04] text-white/55 hover:text-white/80",
+                  )}
+                >
+                  <span className="tabular-nums text-white/35">{i + 1}</span>
+                  <span className="max-w-[10rem] truncate">
+                    {drafts[drop.id]?.title || drop.title || "Untitled"}
+                  </span>
+                  {dirty[drop.id] && <span className="h-1.5 w-1.5 rounded-full bg-veil-300" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       <ForgeDropzone
-        label="Import tags from audio"
+        label={selection ? "Import tags into this track from a file" : "Import tags from audio"}
         hint="or click to choose · empty fields stay empty"
         accept={AUDIO_ACCEPT}
         busy={busy}
@@ -160,9 +305,33 @@ export function MetadataEditorPage() {
       />
 
       <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={saveDraft} className="btn btn-ghost px-4 py-2.5 text-sm">
-          <Save className="h-4 w-4" /> Save draft
-        </button>
+        {selection ? (
+          <>
+            <button
+              type="button"
+              onClick={() => void saveTracks(activeId ? [activeId] : [])}
+              disabled={saving || !activeId}
+              data-testid="metadata-save-track"
+              className="btn btn-primary px-4 py-2.5 text-sm disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Save this track
+            </button>
+            <button
+              type="button"
+              onClick={() => void saveTracks(Object.keys(dirty))}
+              disabled={saving || !Object.keys(dirty).length}
+              className="btn btn-ghost px-4 py-2.5 text-sm disabled:opacity-40"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Save {Object.keys(dirty).length || "all"} edited
+            </button>
+          </>
+        ) : (
+          <button type="button" onClick={saveDraft} className="btn btn-ghost px-4 py-2.5 text-sm">
+            <Save className="h-4 w-4" /> Save draft
+          </button>
+        )}
         <button
           type="button"
           data-testid="metadata-json-download"
@@ -238,8 +407,9 @@ export function MetadataEditorPage() {
       </section>
 
       <p className={cx("text-[11px] text-white/30")}>
-        Drafts stay on this device. JSON export/import is for handoff — cloud write-back lands when
-        release schema is wired. Never invent ISRC/UPC.
+        {selection
+          ? "Saved to your library. Title, artist and album update the track itself; the rest is release metadata only you can see. Never invent ISRC/UPC."
+          : "No track selected, so this draft stays on this device. Pick something from your library above to edit it for real. Never invent ISRC/UPC."}
       </p>
     </ToolWorkbench>
   );

@@ -10,6 +10,7 @@ import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { fetchLibraryTrackMaster } from "@/features/workspace/loadLibraryTrack";
 import type { Drop } from "@/types";
 import {
   PACK_MAKER_VERSION,
@@ -106,15 +107,15 @@ export function PackMakerPage() {
     try {
       const next: AssembledSample[] = [];
       for (const drop of chosen) {
-        if (!drop.audioUrl) {
+        // Shared retrieval, so a fix to how a master is reached reaches every
+        // surface at once rather than only the desks.
+        const got = await fetchLibraryTrackMaster(drop);
+        if (!got.ok) {
           skipped++;
           continue;
         }
         try {
-          const res = await fetch(drop.audioUrl);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const blob = await res.blob();
-          next.push(await assembleSampleFromBlob(blob, dropDisplayName(drop)));
+          next.push(await assembleSampleFromBlob(got.blob, dropDisplayName(drop)));
           added++;
         } catch {
           skipped++;

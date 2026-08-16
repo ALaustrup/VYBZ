@@ -3,20 +3,71 @@ import {
   FileAudio,
   Flag,
   Heart,
+  Languages,
+  Layers,
   Link2,
   ListEnd,
   ListPlus,
   Maximize2,
   Pause,
   Pencil,
+  Piano,
   Play,
   Radio,
+  RefreshCw,
+  SlidersHorizontal,
   Star,
+  Tags,
   Trash2,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
 import type { MenuGroup } from "@/components/menu/ContextMenu";
 import type { Drop } from "@/types";
+
+export type TrackToolId = "correct" | "translate" | "metadata" | "convert" | "midi" | "stems";
+
+export type TrackToolDef = {
+  id: TrackToolId;
+  label: string;
+  /** Route that renders the desk. Hidden from navigation, still resolvable. */
+  path: string;
+  icon: LucideIcon;
+  /**
+   * True when the desk genuinely works on a whole release. Only Metadata does —
+   * the audio desks hold one master at a time, so an album action for them has
+   * to name the single track it opened.
+   */
+  wholeAlbum: boolean;
+};
+
+/**
+ * The desks a track can be sent to from its own menu.
+ *
+ * Art Check is deliberately absent: it grades cover artwork, and a Drop carries
+ * a dock backdrop rather than release art, so there would be nothing honest to
+ * hand it.
+ */
+export const TRACK_TOOLS: readonly TrackToolDef[] = [
+  {
+    id: "correct",
+    label: "Correct",
+    path: "/tools/correct",
+    icon: SlidersHorizontal,
+    wholeAlbum: false,
+  },
+  {
+    id: "translate",
+    label: "Translation Lab",
+    path: "/tools/translate",
+    icon: Languages,
+    wholeAlbum: false,
+  },
+  { id: "metadata", label: "Metadata", path: "/tools/metadata", icon: Tags, wholeAlbum: true },
+  { id: "convert", label: "Converter", path: "/tools/convert", icon: RefreshCw, wholeAlbum: false },
+  { id: "midi", label: "Midi Maker", path: "/tools/midi", icon: Piano, wholeAlbum: false },
+  { id: "stems", label: "Stem Maker", path: "/tools/stems", icon: Layers, wholeAlbum: false },
+] as const;
 
 /**
  * Everything the action model needs to decide what a viewer may do with one track.
@@ -57,6 +108,8 @@ export type TrackActionHandlers = {
   feature: () => void;
   report: () => void;
   requestDelete: () => void;
+  /** Fetch this track's master into the working set, then open the desk. */
+  openInTool: (tool: TrackToolDef) => void;
 };
 
 const OFFLINE = "You are offline.";
@@ -134,6 +187,22 @@ export function buildTrackActions(
         onSelect: handlers.rate,
       },
     ],
+  };
+
+  const tools: MenuGroup = {
+    id: "tools",
+    label: "Open in tool",
+    actions: TRACK_TOOLS.map((tool) => ({
+      id: `tool-${tool.id}`,
+      label: tool.label,
+      icon: tool.icon,
+      // The master has to be fetched before the desk has anything to work on,
+      // so the menu stays mounted and becomes the progress surface. Closing
+      // first would drop the user into an empty tool with no explanation.
+      keepOpen: true,
+      disabledReason: !isPlayable ? NO_AUDIO : !online ? OFFLINE : undefined,
+      onSelect: () => handlers.openInTool(tool),
+    })),
   };
 
   const details: MenuGroup = {
@@ -240,7 +309,77 @@ export function buildTrackActions(
         ],
   };
 
-  return [playback, engage, details, files, manage, safety];
+  return [playback, engage, tools, details, files, manage, safety];
+}
+
+/* ------------------------------------------------------------------------- */
+/* Albums                                                                     */
+/* ------------------------------------------------------------------------- */
+
+export type AlbumActionContext = {
+  /** Album name as the library grouped it. */
+  label: string;
+  drops: Drop[];
+  /**
+   * The one track an audio desk would act on. Null when no track in the album
+   * has playable audio.
+   */
+  leadTrack: Drop | null;
+  online: boolean;
+};
+
+export type AlbumActionHandlers = {
+  /** Metadata is the only desk that opens every track in a release. */
+  openAlbumInMetadata: () => void;
+  openLeadTrackInTool: (tool: TrackToolDef) => void;
+};
+
+const NO_ALBUM_AUDIO = "No track in this release has playable audio yet.";
+
+/**
+ * Build the contextual menu for a whole release.
+ *
+ * The split is the honest one: Metadata acts on every track, and the audio
+ * desks act on exactly one, which is named in the group heading so nothing here
+ * implies a release-wide render that does not happen.
+ */
+export function buildAlbumActions(
+  ctx: AlbumActionContext,
+  handlers: AlbumActionHandlers
+): MenuGroup[] {
+  const { drops, leadTrack, online } = ctx;
+  const count = drops.length;
+  const leadName = leadTrack?.title?.trim() || "Untitled";
+
+  const release: MenuGroup = {
+    id: "release",
+    label: "Whole release",
+    actions: [
+      {
+        id: "album-metadata",
+        label: `Edit metadata for ${count} ${count === 1 ? "track" : "tracks"}`,
+        icon: Tags,
+        disabledReason: !count ? "This release has no tracks." : !online ? OFFLINE : undefined,
+        onSelect: handlers.openAlbumInMetadata,
+      },
+    ],
+  };
+
+  const single: MenuGroup = {
+    id: "album-lead-track",
+    label: `One track only · ${leadName}`,
+    actions: TRACK_TOOLS.filter((t) => !t.wholeAlbum).map((tool) => ({
+      id: `album-tool-${tool.id}`,
+      label: tool.label,
+      icon: tool.icon,
+      hint: "1 track",
+      keepOpen: true,
+      disabledReason: !leadTrack?.audioUrl ? NO_ALBUM_AUDIO : !online ? OFFLINE : undefined,
+      onSelect: () => handlers.openLeadTrackInTool(tool),
+    })),
+  };
+
+  return [release, single];
 }
 
 /** Human-readable technical summary from the fields a Drop actually carries. */

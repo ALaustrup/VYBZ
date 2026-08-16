@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, Trash2 } from "lucide-react";
 import { ContextMenu, type MenuAnchor } from "@/components/menu/ContextMenu";
 import { ReportModal } from "@/components/ReportModal";
+import { OpenInTool } from "@/features/workspace/OpenInTool";
 import { OverlayPortal } from "@/lib/overlayPortal";
-import { buildTrackActions, trackFileSummary } from "@/lib/trackActions";
+import { buildTrackActions, trackFileSummary, type TrackToolDef } from "@/lib/trackActions";
 import { enqueueTracks, isPlayableMediaUrl, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { useSession } from "@/store/session";
@@ -48,7 +49,10 @@ export function TrackActionMenu({
   const player = usePlayer();
   const online = useOnline();
   const { userId, showToast } = useSession();
-  const [stage, setStage] = useState<"menu" | "confirm-delete" | "rename" | "details">("menu");
+  const [stage, setStage] = useState<"menu" | "confirm-delete" | "rename" | "details" | "tool">(
+    "menu"
+  );
+  const [tool, setTool] = useState<TrackToolDef | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
@@ -58,6 +62,7 @@ export function TrackActionMenu({
 
   const reset = useCallback(() => {
     setStage("menu");
+    setTool(null);
     setBusy(false);
     onClose();
   }, [onClose]);
@@ -113,6 +118,10 @@ export function TrackActionMenu({
           feature: () => void runFeature(),
           report: () => setReportOpen(true),
           requestDelete: () => setStage("confirm-delete"),
+          openInTool: (next) => {
+            setTool(next);
+            setStage("tool");
+          },
         }
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -232,6 +241,19 @@ export function TrackActionMenu({
         />
         {report}
       </>
+    );
+  }
+
+  if (stage === "tool" && tool) {
+    return (
+      <OpenInTool
+        tool={tool}
+        drop={drop}
+        // Metadata edits the library row itself, so name the row when the
+        // viewer owns it. Other viewers get the desk with the master loaded.
+        to={tool.id === "metadata" && isOwner ? `${tool.path}?drop=${drop.id}` : undefined}
+        onClose={reset}
+      />
     );
   }
 

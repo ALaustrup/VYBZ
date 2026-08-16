@@ -3,11 +3,13 @@
  * Does not auto-add to Library. No AI separation.
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { useSession } from "@/store/session";
+import { workingTrackAsFile } from "@/features/workspace/workingSet";
+import { useWorkingTrack } from "@/features/workspace/useWorkingTrack";
 import {
   STEM_MAKER_VERSION,
   inferStemRole,
@@ -62,6 +64,17 @@ export function StemMakerPage() {
       setBusy(false);
     }
   }
+
+  const working = useWorkingTrack();
+  const loadedWorkingId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!working || stems.length || loadedWorkingId.current === working.id) return;
+    const file = workingTrackAsFile(working);
+    if (!file) return;
+    loadedWorkingId.current = working.id;
+    void onFiles([file]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seed once from song workspace
+  }, [working, stems.length]);
 
   async function exportZip() {
     if (!stems.length) {

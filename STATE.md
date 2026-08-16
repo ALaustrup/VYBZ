@@ -152,9 +152,90 @@ service-role only, since a client that could claim could jump the line.
 Verified against production then cleared: submit, duplicate refused, line position, claim,
 mark aired. `station_airings` is empty.
 
-## Next major slice — rebuild the uploader
+## Uploader rebuild — built, unverified in a browser
 
-Authorised by the owner 2026-08-15. Not started.
+Authorised 2026-08-15, built 2026-08-16 on `fix/uploader-diagnosis`.
+
+**Validation:** `npm run lint` clean · `npm run test` 733 passed across 150 files (was 701/148)
+· `npm run build` succeeds. Commits `ce3983c3` (hash worker and stall watchdog), `a8419241`
+(queue, batch sheet, gate). **Not yet exercised against a real upload** — compiling and passing
+tests is not the same as a file reaching storage, and the original defect was a runtime hang.
+
+**Delivered:**
+
+- `src/features/upload/uploadQueue.ts` — enqueue starts the upload in the same tick. Container
+  tags fill the form within a second; the decode that measures tempo and key runs *beside* the
+  upload, since one is network-bound and the other CPU-bound. Two uploads at a time. An
+  auto-detected value never overwrites a typed one, and an edit takes the field permanently.
+- `ComposeSheet` is now a list of files, each with its own progress, errors and metadata. One
+  bad file cannot take the batch down. Release is only a row insert.
+- Hash moved to a Web Worker behind a size guard and a timeout; every failure path resolves
+  `undefined` and the drop continues. An absent hash is honest, a lost drop is not.
+- `uploadAudio` gained an activity-based stall watchdog rather than `xhr.timeout`, because a
+  large master legitimately takes a long time but silence never does.
+- Asset-kind picker and VDock settings removed from intake. `VisualPicker` and
+  `BulkUploadSheet` remain in the tree, mounted by nothing, per the preservation rule.
+- Gate `uploader` registered and enforced in `src/features/prepare/uploaderGate.test.ts`.
+
+**Still open:** per-track artwork (needs a migration — `Drop` has no artwork field).
+
+## Metadata editor — library editing, built 2026-08-16
+
+The editor could only ever draft against a dropped file and save to
+`localStorage`; of its sixteen fields only `title` and `artist` had a write path at all.
+Measured 2026-08-16: thirteen fields had no column anywhere.
+
+**Migration `0103_drop_metadata` applied** to `xixmneooyufbeftdfpcm`. Verified after apply:
+17 columns, RLS enabled, one owner-only policy, both functions present. It deliberately does
+**not** duplicate title/artist/album — those stay on `drops`, so a track has one title. Adds
+`update_drop_album`, since `drops.album` has been insert-only since `0058`. Identifiers are
+length-capped but not format-validated: a real code in an odd shape beats a rejection, and a
+format checker is the first step towards generating one.
+
+**Built:** `MetadataLibraryRail` (albums first, then singles) and `dropMetadataApi`. Selecting
+an album opens every track, each independently editable, metadata for all of them fetched in
+one round trip. Copy now states which of the two things it is doing rather than implying a save.
+
+**Known limitation:** a save is four writes across two tables and is not atomic. If the library
+columns succeed and the metadata row fails, the result is partial; the editor reports the
+failure but does not roll back. Worth an RPC that does both in one transaction if it bites.
+
+**Not verified against a real track** — lint clean, 733 tests pass, but no album has been
+opened and saved in a browser.
+
+## Desks run on tracks you already have — built 2026-08-16
+
+Every desk used to make you drag in a file the system was already holding. Inverted: a desk is
+summoned from the track context menu, and desks left navigation.
+
+**Validation:** lint clean · 772 tests across 152 files · build succeeds. Commits `a0f94035`,
+`8e600fc5`, `26c4f410`.
+
+Most of the bridge already existed and had been left unfinished — `workingSet` carries a real
+Blob across navigation and its `source` union already listed `"library"`, which nothing had
+ever set. Correct, Translation Lab and Metadata already hydrated from it.
+
+**Built:** `loadLibraryTrack.ts` (fetch a drop's audio into the working set), `OpenInTool.tsx`,
+a Tools group in `buildTrackActions` plus `buildAlbumActions`, working-set hydration for
+Converter, Midi Maker and Stem Maker, and gate `trackTools`.
+
+**The rule that matters:** a desk gets the **master via the play ticket, never `downloadAsset`**,
+which can apply a forensic watermark. A correction or analysis desk run on a watermarked copy
+would be measuring the watermark and reporting it as the track's. The gate forbids the import.
+
+**Navigation:** only Library, Store (flag-gated) and Settings are browsable. Ten desks are
+context-menu only. Routes resolve and pages remain, per the preservation rule.
+
+**Bug the gate caught:** `activeSuiteAppId` walked only *visible* apps, so hiding the desks
+broke the shell's ability to name the desk you were standing in. It now walks all of them —
+visibility governs the launcher, not identity.
+
+**Unverified in a browser:** no track has actually been sent to a desk. Retrieval is modelled on
+Pack Maker's proven `fetch(signed url) → blob`, but large-master timing and the abort path have
+not been observed.
+
+**Session-only:** `workingSet` does not survive a reload. Send a track to a desk, reload, and
+the desk is empty.
 
 **Why:** today the form gates the upload — you type, then bytes move. Flipped, bytes move while
 you type, so the metadata form stops being a toll booth and becomes something you do while
@@ -189,13 +270,28 @@ Not caused by the storage lock (migration `0096` changed **read**, not insert) a
 rejection either, since `uploadAudio` logs `[uploadAudio] storage rejected …` and would have
 surfaced a failure toast. A silent hang points at the request still being in flight.
 
-Most likely environmental: a 4K ffmpeg encode was running at the same time, competing for CPU
-and uplink. **Unconfirmed** — needs the browser console line or a retry once the machine is
-idle. Diagnose before rebuilding, so the rewrite does not bake the failure in.
+**Read the code 2026-08-15 and the silence is by construction.** `ComposeSheet.post()`
+(`src/components/ComposeSheet.tsx` L252–321) clears the progress bar at **L283**, immediately
+after the upload resolves. Everything after that runs with no indicator of any kind:
 
-Related real defect regardless of cause: progress reaches 100% when bytes are handed to the
-network, then the UI goes silent while the server works, so a slow-but-working upload is
-indistinguishable from a dead one.
+- **L286–289** `sha256Hex(prepared.file)` — hashes the **whole file again** on the main thread.
+  Its `.catch(() => undefined)` swallows any failure silently.
+- **L300** `createDrop` — `assets.insert`, then `drops.insert` with column fallbacks, then an
+  awaited `signAudio` round trip to the `audio-play` edge. No step has a timeout.
+
+So after 100% the sheet is genuinely doing work while showing nothing. **The owner reports the bar had disappeared and the sheet sat idle**, which places the hang
+after L283. An insert that *failed* would have returned null and toasted "Couldn't post that
+drop", and no toast appeared, so it did not fail — it never returned. That points at
+`sha256Hex`: it calls `arrayBuffer()` on the whole file, so a large WAV is fully resident in
+memory while a 4K ffmpeg encode is competing for it. SubtleCrypto has no streaming digest, so
+there is no incremental version of this on the main thread.
+The rebuild must fix the reporting regardless of which one it was: progress hits 100% when
+bytes are handed to the network, not when the server accepts them, and the phase after that is
+invisible. A slow-but-working upload is currently indistinguishable from a dead one.
+
+Also worth noting for the rewrite: **L261 `prepareUploadFile` decodes the entire file on the
+main thread before a single byte is sent**, so the bar sits at 0% through a full decode. That
+is the other half of why intake feels dead.
 
 ## Live demo data on production
 

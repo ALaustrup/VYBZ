@@ -1763,12 +1763,63 @@ export async function creatorNamesFor(ids: string[]): Promise<Map<string, string
 /** Secure-zone (token-authed Bunny) paths look like `drops/…` or `projects/…`. */
 const isSecurePath = (p: string) => /^(drops|projects|repo-blobs)\//.test(p);
 
+/** No byte has moved for this long while sending — the connection is gone, not slow. */
+const UPLOAD_STALL_MS = 60_000;
+/** After the last byte the server is still finalizing, so it gets a longer leash. */
+const UPLOAD_ACK_STALL_MS = 180_000;
+/** How often the watchdog checks; the window it enforces is the constant above. */
+const UPLOAD_WATCHDOG_TICK_MS = 5_000;
+
+export type UploadFailureReason = "rejected" | "network" | "stalled";
+
+/**
+ * Abort an upload that has stopped making progress.
+ *
+ * Deliberately not `xhr.timeout`: a large master legitimately takes a long time,
+ * and a total-duration cap would kill uploads that are working. What is never
+ * legitimate is silence — no progress event and no acknowledgement — which is
+ * exactly the state a hung upload sits in forever otherwise.
+ */
+function watchUploadForStall(xhr: XMLHttpRequest, onStall: () => void): () => void {
+  let lastActivity = Date.now();
+  let limitMs = UPLOAD_STALL_MS;
+  const onUploadProgress = () => {
+    lastActivity = Date.now();
+  };
+  const onUploadEnd = () => {
+    lastActivity = Date.now();
+    limitMs = UPLOAD_ACK_STALL_MS;
+  };
+  const stop = () => {
+    clearInterval(timer);
+    xhr.upload.removeEventListener("progress", onUploadProgress);
+    xhr.upload.removeEventListener("loadend", onUploadEnd);
+  };
+  xhr.upload.addEventListener("progress", onUploadProgress);
+  xhr.upload.addEventListener("loadend", onUploadEnd);
+  const timer = setInterval(() => {
+    if (Date.now() - lastActivity < limitMs) return;
+    stop();
+    onStall();
+    xhr.abort();
+  }, UPLOAD_WATCHDOG_TICK_MS);
+  return stop;
+}
+
 /**
  * Upload a protected drop original to Supabase Storage (`audio-assets`).
  * Path shape `{uid}/drops/{ts}-{id}.{ext}` — matches bucket RLS (folder = auth.uid()).
  * Bunny CDN is optional (`FLAGS.bunnyAudio`); default path no longer burns Bunny credits.
+ *
+ * Resolves the stored path, or null. `onFailure` says which kind of null it is so
+ * callers can tell a rejection from a dead connection.
  */
-export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: number) => void): Promise<string | null> {
+export async function uploadAudio(
+  file: Blob,
+  ext: string,
+  onProgress?: (pct: number) => void,
+  onFailure?: (reason: UploadFailureReason) => void,
+): Promise<string | null> {
   const sess = (await db().auth.getSession()).data.session;
   if (!sess?.user?.id) return null;
   const uid = sess.user.id;
@@ -1787,12 +1838,28 @@ export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: nu
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
       };
+      const stopWatchdog = watchUploadForStall(xhr, () => {
+        console.warn("[uploadAudio] stalled — no progress, aborting");
+        onFailure?.("stalled");
+      });
       xhr.onload = () => {
+        stopWatchdog();
         if (xhr.status >= 200 && xhr.status < 300) {
           try { resolve((JSON.parse(xhr.responseText).path as string) ?? null); } catch { resolve(null); }
-        } else resolve(null);
+        } else {
+          onFailure?.("rejected");
+          resolve(null);
+        }
       };
-      xhr.onerror = () => resolve(null);
+      xhr.onerror = () => {
+        stopWatchdog();
+        onFailure?.("network");
+        resolve(null);
+      };
+      xhr.onabort = () => {
+        stopWatchdog();
+        resolve(null);
+      };
       xhr.send(file);
     });
   }
@@ -1809,15 +1876,27 @@ export async function uploadAudio(file: Blob, ext: string, onProgress?: (pct: nu
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
     };
+    const stopWatchdog = watchUploadForStall(xhr, () => {
+      console.warn("[uploadAudio] stalled — no progress, aborting");
+      onFailure?.("stalled");
+    });
     xhr.onload = () => {
+      stopWatchdog();
       if (xhr.status >= 200 && xhr.status < 300) resolve(path);
       else {
         console.warn("[uploadAudio] storage rejected", xhr.status, String(xhr.responseText || "").slice(0, 240));
+        onFailure?.("rejected");
         resolve(null);
       }
     };
     xhr.onerror = () => {
+      stopWatchdog();
       console.warn("[uploadAudio] network error");
+      onFailure?.("network");
+      resolve(null);
+    };
+    xhr.onabort = () => {
+      stopWatchdog();
       resolve(null);
     };
     xhr.send(file);

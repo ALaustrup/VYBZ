@@ -141,10 +141,19 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Supabase storage path → redirect to signed URL
+    // Supabase storage path → redirect to signed URL.
+    //
+    // Built by hand rather than with Response.redirect, which emits only a
+    // Location header. An <audio> element follows a bare redirect happily
+    // because it does not enforce CORS, but fetch() does: without these headers
+    // on the redirect itself the browser refuses to follow it and throws, so
+    // the same track that plays fine cannot be opened in a desk.
     const { data, error } = await admin.storage.from(AUDIO_BUCKET).createSignedUrl(ticket.path, TTL);
     if (error || !data?.signedUrl) return json({ error: "sign failed" }, 502);
-    return Response.redirect(data.signedUrl, 302);
+    return new Response(null, {
+      status: 302,
+      headers: { ...CORS, Location: data.signedUrl },
+    });
   }
 
   // ── Mint tickets ──────────────────────────────────────────────────────────

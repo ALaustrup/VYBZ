@@ -1,39 +1,32 @@
 import { describe, expect, it } from "vitest";
 import {
   activeSuiteAppId,
-  overflowSuiteApps,
-  primarySuiteApps,
+  SUITE_APPS,
   visibleSuiteApps,
 } from "@/shell/suiteApps";
 
+/** Desks that a track is sent to, rather than places you browse. */
+const CONTEXT_MENU_DESKS = [
+  "analyzer", "metadata", "art-check", "midi-maker", "media-converter",
+  "correct", "translate", "pack-maker", "stem-maker", "codex",
+];
+
 describe("suiteApps", () => {
-  it("exposes Wave 1 tools including Analyzer and Metadata", () => {
-    const ids = visibleSuiteApps().map((a) => a.id);
-    expect(ids).toEqual(
-      expect.arrayContaining([
-        "analyzer",
-        "metadata",
-        "art-check",
-        "midi-maker",
-        "media-converter",
-        "correct",
-        "translate",
-        "pack-maker",
-        "stem-maker",
-        "library",
-        "codex",
-      ])
-    );
+  it("keeps every desk registered even though none are browsable", () => {
+    // They left navigation; they did not leave the app.
+    const all = SUITE_APPS.map((a) => a.id);
+    expect(all).toEqual(expect.arrayContaining(CONTEXT_MENU_DESKS));
   });
 
-  it("promotes Correct and Translation Lab onto the primary rail", () => {
-    const primary = primarySuiteApps().map((a) => a.id);
-    const overflow = overflowSuiteApps().map((a) => a.id);
-    expect(primary).toEqual(expect.arrayContaining(["correct", "translate"]));
-    expect(primarySuiteApps().find((a) => a.id === "translate")?.label).toBe("Translation Lab");
-    expect(overflow).not.toContain("correct");
-    expect(overflow).not.toContain("translate");
-    expect(overflow).toEqual(expect.arrayContaining(["pack-maker", "stem-maker"]));
+  it("offers only Library and Settings to browse", () => {
+    // Store is here too, behind its own flag. Everything else is summoned from
+    // a track, because a desk with no track loaded is an empty room.
+    const ids = visibleSuiteApps().map((a) => a.id);
+    for (const desk of CONTEXT_MENU_DESKS) {
+      expect(ids, desk).not.toContain(desk);
+    }
+    expect(ids).toContain("library");
+    expect(ids).toContain("settings");
   });
 
   it("selects Analyzer for release routes", () => {
