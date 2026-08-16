@@ -16,6 +16,7 @@ import {
   itemStatusLabel, markUploadFailed, markUploadReleased, removeUploadItem, retryUpload,
   summarizeQueue, useUploadQueue, type UploadItem,
 } from "@/features/upload/uploadQueue";
+import { filesFromDataTransfer } from "@/features/upload/dataTransferFiles";
 import { cx, paletteFor } from "@/lib/utils";
 import type { PostAudience, ReleaseType } from "@/types";
 
@@ -214,7 +215,11 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   function onDrop(e: DragEvent<HTMLDivElement>) {
     e.preventDefault();
     setDragging(false);
-    add(e.dataTransfer?.files ?? null);
+    // Called synchronously: the item list is emptied once this handler yields.
+    void filesFromDataTransfer(e.dataTransfer).then((files) => {
+      if (files.length) add(files);
+      else showToast("Nothing to upload in that drop.");
+    });
   }
 
   useEffect(() => {
