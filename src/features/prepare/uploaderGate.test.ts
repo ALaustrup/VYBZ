@@ -116,4 +116,12 @@ describe("uploader", () => {
   it("keeps the originality claim, which is a product rule and not chrome", () => {
     expect(code(COMPOSE)).toMatch(/OriginalityClaim/);
   });
+
+  it("gets out of the way once there is nothing left to act on", () => {
+    // Releasing everything used to leave an empty sheet sitting over the app.
+    // It closes on an empty queue, and only on an empty queue — a failed row is
+    // a reason to stay so it can be retried.
+    const compose = code(COMPOSE);
+    expect(compose).toMatch(/getUploadQueue\(\)\.length === 0\s*\)?\s*onClose\(\)/);
+  });
 });

@@ -13,6 +13,7 @@ import { AUDIO_ACCEPT, acousticSignature, qualityLabel } from "@/lib/waveform";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
 import {
   buildDropInput, canReleaseItem, clearReleasedUploads, editUploadMeta, enqueueUploads,
+  getUploadQueue,
   itemStatusLabel, markUploadFailed, markUploadReleased, removeUploadItem, retryUpload,
   summarizeQueue, useUploadQueue, type UploadItem,
 } from "@/features/upload/uploadQueue";
@@ -258,6 +259,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       );
       onPosted();
       clearReleasedUploads();
+      // An empty sheet is just in the way. Anything that failed, or is still
+      // uploading, is a reason to stay open — nothing left is a reason to go.
+      if (getUploadQueue().length === 0) onClose();
     }
   }
 
