@@ -203,6 +203,40 @@ failure but does not roll back. Worth an RPC that does both in one transaction i
 **Not verified against a real track** — lint clean, 733 tests pass, but no album has been
 opened and saved in a browser.
 
+## Desks run on tracks you already have — built 2026-08-16
+
+Every desk used to make you drag in a file the system was already holding. Inverted: a desk is
+summoned from the track context menu, and desks left navigation.
+
+**Validation:** lint clean · 772 tests across 152 files · build succeeds. Commits `a0f94035`,
+`8e600fc5`, `26c4f410`.
+
+Most of the bridge already existed and had been left unfinished — `workingSet` carries a real
+Blob across navigation and its `source` union already listed `"library"`, which nothing had
+ever set. Correct, Translation Lab and Metadata already hydrated from it.
+
+**Built:** `loadLibraryTrack.ts` (fetch a drop's audio into the working set), `OpenInTool.tsx`,
+a Tools group in `buildTrackActions` plus `buildAlbumActions`, working-set hydration for
+Converter, Midi Maker and Stem Maker, and gate `trackTools`.
+
+**The rule that matters:** a desk gets the **master via the play ticket, never `downloadAsset`**,
+which can apply a forensic watermark. A correction or analysis desk run on a watermarked copy
+would be measuring the watermark and reporting it as the track's. The gate forbids the import.
+
+**Navigation:** only Library, Store (flag-gated) and Settings are browsable. Ten desks are
+context-menu only. Routes resolve and pages remain, per the preservation rule.
+
+**Bug the gate caught:** `activeSuiteAppId` walked only *visible* apps, so hiding the desks
+broke the shell's ability to name the desk you were standing in. It now walks all of them —
+visibility governs the launcher, not identity.
+
+**Unverified in a browser:** no track has actually been sent to a desk. Retrieval is modelled on
+Pack Maker's proven `fetch(signed url) → blob`, but large-master timing and the abort path have
+not been observed.
+
+**Session-only:** `workingSet` does not survive a reload. Send a track to a desk, reload, and
+the desk is empty.
+
 **Why:** today the form gates the upload — you type, then bytes move. Flipped, bytes move while
 you type, so the metadata form stops being a toll booth and becomes something you do while
 waiting. On a large WAV that is the difference between minutes of dead time and none.
