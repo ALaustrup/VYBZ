@@ -17,6 +17,7 @@ import { isVideoFile, prepareUploadFile } from "@/lib/audioEdit";
 import { readId3Tags, titleFromFilename, type Id3Tags } from "@/lib/id3Tags";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
 import { hashBlobGuarded } from "@/lib/sha256Worker";
+import { hintsFromFilename } from "@/features/upload/filenameHints";
 import {
   audioMeta,
   computeWaveform,
@@ -91,6 +92,12 @@ export interface UploadItem {
 
 export function createUploadItem(file: File, id: string, seed: number): UploadItem {
   const meta = audioMeta(file);
+  // The name is the most reliable thing we have about a sample-pack file, and
+  // it is already in hand — no decode, no waiting.
+  const hint = hintsFromFilename(file.name);
+  const autoFilled: EditableMetaField[] = [];
+  if (hint.bpm) autoFilled.push("bpm");
+  if (hint.musicalKey) autoFilled.push("musicalKey");
   return {
     id,
     file,
@@ -102,13 +109,13 @@ export function createUploadItem(file: File, id: string, seed: number): UploadIt
     dropId: null,
     seed,
     touched: [],
-    autoFilled: [],
+    autoFilled,
     meta: {
       title: titleFromFilename(file.name).slice(0, 80),
       creditedArtist: "",
       album: "",
-      bpm: "",
-      musicalKey: "",
+      bpm: hint.bpm ? String(hint.bpm) : "",
+      musicalKey: hint.musicalKey ?? "",
       durationSec: 0,
       peaks: placeholderWaveform(seed, WAVEFORM_BUCKETS),
       format: isVideoFile(file) ? "WAV" : meta.format,
@@ -176,6 +183,20 @@ export function applyTags(item: UploadItem, tags: Id3Tags): UploadItem {
   return next;
 }
 
+/**
+ * Below this, tempo and key detection is not evidence.
+ *
+ * Measured on a 43-file pack: sixteen loops of 5.5 seconds, every one labelled
+ * 174 BPM by its own filename, were detected as 77 through 156. Not one right,
+ * and not even consistent halves or doubles — noise reported as measurement.
+ *
+ * A duration floor is a proxy for confidence, not confidence itself; the
+ * analyser exposes no certainty to check. It is set conservatively because a
+ * wrong tempo is worse than an empty field: an empty field asks you, and a
+ * wrong one does not.
+ */
+export const MIN_ANALYSIS_SEC = 20;
+
 /** Decode results: measured values always land, editable ones respect edits. */
 export function applyAnalysis(item: UploadItem, wf: WaveformResult | null): UploadItem {
   if (!wf) return item;
@@ -188,8 +209,16 @@ export function applyAnalysis(item: UploadItem, wf: WaveformResult | null): Uplo
       sampleRate: wf.sampleRate || item.meta.sampleRate,
     },
   };
-  if (wf.bpm) next = withMeta(next, "bpm", String(wf.bpm));
-  if (wf.key && MUSICAL_KEYS.includes(wf.key)) next = withMeta(next, "musicalKey", wf.key);
+
+  // Detection is the last word, not the first: it fills what the filename and
+  // the container tags could not, and only on files long enough to hold the
+  // evidence.
+  const seconds = wf.duration || item.meta.durationSec;
+  if (seconds && seconds < MIN_ANALYSIS_SEC) return next;
+  if (wf.bpm && !next.meta.bpm) next = withMeta(next, "bpm", String(wf.bpm));
+  if (wf.key && !next.meta.musicalKey && MUSICAL_KEYS.includes(wf.key)) {
+    next = withMeta(next, "musicalKey", wf.key);
+  }
   return next;
 }
 
