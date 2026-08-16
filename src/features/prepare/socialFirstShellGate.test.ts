@@ -37,7 +37,9 @@ describe("social-first shell", () => {
     // Every non-home app that is visible today remains reachable from the menu.
     const expected = SUITE_APPS.filter((a) => a.id !== "home" && (a.visible ? a.visible() : true));
     expect(ids).toHaveLength(expected.length);
-    expect(ids).toContain("analyzer");
+    // Analyzer used to be here. It is now summoned from the track it analyses,
+    // so the launcher carries only the places you browse to.
+    expect(ids).not.toContain("analyzer");
     expect(ids).toContain("library");
   });
 

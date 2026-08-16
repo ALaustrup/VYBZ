@@ -51,6 +51,16 @@ export type SuiteAppDef = {
   overflow?: boolean;
 };
 
+/**
+ * Reachable by route and by the track context menu, not by browsing.
+ *
+ * A desk operates on one track. Listing desks in navigation invites you to open
+ * an empty one and then go and find the file — which is the same tax the
+ * uploader used to charge, one layer up. You reach a desk from the track it is
+ * going to work on. Routes still resolve and every page still exists.
+ */
+const CONTEXT_MENU_ONLY = () => false;
+
 export const SUITE_APPS: readonly SuiteAppDef[] = [
   {
     id: "home",
@@ -68,6 +78,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
       p.startsWith("/releases") ||
       p.startsWith("/release/") ||
       p.startsWith("/start"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "metadata",
@@ -75,6 +86,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/metadata",
     icon: Tags,
     match: (p) => p.startsWith("/tools/metadata"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "art-check",
@@ -82,6 +94,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/art-check",
     icon: ImagePlus,
     match: (p) => p.startsWith("/tools/art-check"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "correct",
@@ -89,6 +102,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/correct",
     icon: SlidersHorizontal,
     match: (p) => p.startsWith("/tools/correct"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "translate",
@@ -96,6 +110,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/tools/translate",
     icon: Radio,
     match: (p) => p.startsWith("/tools/translate"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "midi-maker",
@@ -104,6 +119,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     icon: Piano,
     match: (p) => p.startsWith("/tools/midi"),
     overflow: true,
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "media-converter",
@@ -112,6 +128,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     icon: RefreshCw,
     match: (p) => p.startsWith("/tools/convert"),
     overflow: true,
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "pack-maker",
@@ -120,6 +137,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     icon: Package,
     match: (p) => p.startsWith("/tools/pack-maker"),
     overflow: true,
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "stem-maker",
@@ -128,6 +146,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     icon: Layers,
     match: (p) => p.startsWith("/tools/stems"),
     overflow: true,
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "library",
@@ -142,6 +161,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/codex",
     icon: BookOpen,
     match: (p) => p.startsWith("/codex") || p.startsWith("/legal"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "store",
@@ -175,15 +195,18 @@ export function overflowSuiteApps(): SuiteAppDef[] {
 }
 
 export function activeSuiteAppId(pathname: string): SuiteAppId | null {
+  // Every app, not just the visible ones. Visibility decides what the launcher
+  // offers; it must not decide whether the shell can name the desk you are
+  // standing in. A context-menu-only desk still needs its own title.
   // Prefer the most specific match (longest path prefix among matches).
   let best: SuiteAppDef | null = null;
-  for (const app of visibleSuiteApps()) {
+  for (const app of SUITE_APPS) {
     if (!app.match(pathname)) continue;
     if (!best || app.path.length > best.path.length) best = app;
   }
   // Home match is broad — prefer other apps when they match.
   if (best?.id === "home") {
-    for (const app of visibleSuiteApps()) {
+    for (const app of SUITE_APPS) {
       if (app.id !== "home" && app.match(pathname)) return app.id;
     }
   }

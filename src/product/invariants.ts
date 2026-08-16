@@ -200,6 +200,7 @@ export const GATE_REGISTRY = [
   "stationLine",
   "accountMenu",
   "uploader",
+  "trackTools",
   "playbackAuthority",
   "dockVisuals",
   "featuredMiniPlayer",
