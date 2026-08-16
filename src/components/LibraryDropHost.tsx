@@ -6,9 +6,9 @@ import {
   audioMeta,
   computeWaveform,
   placeholderWaveform,
-  sha256Hex,
   acousticSignature,
 } from "@/lib/waveform";
+import { hashBlobGuarded } from "@/lib/sha256Worker";
 import { readId3Tags, titleFromFilename } from "@/lib/id3Tags";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
@@ -84,7 +84,7 @@ export function LibraryDropHost({
         const path = await api.uploadAudio(file, ext);
         if (!path) throw new Error("Storage upload failed — check sign-in and audio-assets access");
         const [sha256, fingerprint] = await Promise.all([
-          sha256Hex(file).catch(() => undefined),
+          hashBlobGuarded(file),
           acousticSignature(peaks).catch(() => undefined),
         ]);
         const title = (tags.title || titleFromFilename(file.name)).slice(0, 80) || undefined;
