@@ -56,18 +56,6 @@ function fmt(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-function hueShift(hex: string, bass: number, mid: number, high: number): string {
-  const h = hex.replace("#", "");
-  const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16);
-  let r = (n >> 16) & 255;
-  let g = (n >> 8) & 255;
-  let b = n & 255;
-  r = Math.min(255, Math.round(r + high * 40 + mid * 10));
-  g = Math.min(255, Math.round(g + mid * 50 + bass * 15));
-  b = Math.min(255, Math.round(b + bass * 55 + high * 20));
-  return `rgb(${r},${g},${b})`;
-}
-
 /**
  * Compact now-playing **widget** (legacy compact chip).
  * Prefer MusicDockPlayer in the music dock.
@@ -241,21 +229,15 @@ export function MusicDockPlayer() {
       writeTime(currentTime, duration);
 
       const btn = playBtnRef.current;
-      const root = rootRef.current;
-      if (!reduce && p.playing && btn && root) {
+      if (!reduce && p.playing && btn) {
+        // Glow only. The button previously hue-shifted, scaled and rewrote its
+        // background and border every frame, which read as frantic rather than
+        // alive. Colour and size now hold still; only the halo breathes.
         const beat = readBands();
-        const color = hueShift(baseAccent, beat.bass, beat.mid, beat.high);
-        const scale = 1 + beat.bass * 0.22 + beat.level * 0.08;
-        const glow = 18 + beat.bass * 36 + beat.level * 20;
-        root.style.setProperty("--vdock-accent", color);
-        btn.style.setProperty("--vdock-beat-scale", String(scale));
+        const glow = 14 + beat.bass * 15 + beat.level * 7;
         btn.style.setProperty("--vdock-beat-glow", `${glow}px`);
-        btn.style.setProperty("--vdock-halo-scale", String(0.92 + beat.bass * 0.28));
-        btn.style.background =
-          `radial-gradient(circle at 40% 35%, ${color}, color-mix(in srgb, ${color} 35%, var(--color-abyss)) 70%)`;
         btn.style.boxShadow =
-          `0 0 ${glow}px -2px ${color}, 0 0 ${glow * 1.6}px -8px ${color}, inset 0 1px 0 rgba(255,255,255,0.35)`;
-        btn.style.border = `1px solid color-mix(in srgb, ${color} 55%, white)`;
+          `0 0 ${glow}px -4px ${baseAccent}, 0 0 ${glow * 1.5}px -10px ${baseAccent}, inset 0 1px 0 rgba(255,255,255,0.35)`;
       }
       raf = requestAnimationFrame(tick);
     };
