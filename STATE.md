@@ -152,6 +152,51 @@ service-role only, since a client that could claim could jump the line.
 Verified against production then cleared: submit, duplicate refused, line position, claim,
 mark aired. `station_airings` is empty.
 
+## Next major slice — rebuild the uploader
+
+Authorised by the owner 2026-08-15. Not started.
+
+**Why:** today the form gates the upload — you type, then bytes move. Flipped, bytes move while
+you type, so the metadata form stops being a toll booth and becomes something you do while
+waiting. On a large WAV that is the difference between minutes of dead time and none.
+
+**Scope:**
+
+1. **Upload starts the moment a file lands.** Background queue, per-file progress, honest
+   per-file error states, and a client-side timeout so a stall fails loudly instead of hanging.
+2. **Batch in the drops uploader.** The separate album uploader (`BulkUploadSheet`) is
+   **hidden, not deleted** — unmounted and left in the tree, like `ProfileMenu` and the suite
+   rail.
+3. **Auto metadata from the file**, shown while it uploads, with the user filling gaps.
+   `readId3Tags` and `computeWaveform` already exist.
+4. **Remove VDock settings from intake.** Backdrop, reactive style and dim are how a finished
+   track presents; that belongs on the track page, not before the file has landed.
+5. **Remove the asset-type picker.** The drops uploader is for tracks — stems, loops and packs
+   deliberately do not auto-ingest into the catalogue, so it is a question with one answer.
+
+**Artwork is a separate slice.** Measured 2026-08-15: `Drop` has **no artwork field at all**.
+Artist profiles, projects and storefront packs carry covers; tracks do not. Per-track art means
+a migration, a storage path and display everywhere a track appears — sequence it after the
+uploader itself.
+
+### Open bug blocking the rebuild
+
+**A single-track upload reached 100% and then did nothing.** Measured on 2026-08-15: no new row
+in `storage.objects` and no new `assets` row — the newest of each is from 2026-08-11. So the
+request never completed; the bytes were sent and the server never accepted them.
+
+Not caused by the storage lock (migration `0096` changed **read**, not insert) and not a
+rejection either, since `uploadAudio` logs `[uploadAudio] storage rejected …` and would have
+surfaced a failure toast. A silent hang points at the request still being in flight.
+
+Most likely environmental: a 4K ffmpeg encode was running at the same time, competing for CPU
+and uplink. **Unconfirmed** — needs the browser console line or a retry once the machine is
+idle. Diagnose before rebuilding, so the rewrite does not bake the failure in.
+
+Related real defect regardless of cause: progress reaches 100% when bytes are handed to the
+network, then the UI goes silent while the server works, so a slow-but-working upload is
+indistinguishable from a dead one.
+
 ## Live demo data on production
 
 Two sparks are on the owner's **Helix** track at **0:20** and **1:00**, placed deliberately so

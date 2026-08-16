@@ -31,6 +31,9 @@ public/backdrop/*.mp4
 public/backdrop/*.webm
 public/vdock/visuals/**/loop.mp4
 public/vdock/visuals/**/loop.webm
+# Posters ship from the site-visuals bucket with the loops, not from the repo.
+public/vdock/visuals/**/preview.webp
+public/backdrop/poster.webp
 .agents/
 skills-lock.json
 
