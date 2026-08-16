@@ -244,7 +244,7 @@ export function ProfileEditPage() {
           </div>
         </Section>
 
-        <Section title="I bring (roles you offer)">
+        <Section title="I bring">
           {ROLE_FAMILIES.map((fam) => (
             <div key={fam.id} className="space-y-1.5">
               <p className="text-[10px] uppercase tracking-wide text-white/35">{fam.label}</p>
@@ -253,7 +253,7 @@ export function ProfileEditPage() {
           ))}
         </Section>
 
-        <Section title="Looking for (roles you seek)">
+        <Section title="Looking for">
           {ROLE_FAMILIES.map((fam) => (
             <div key={fam.id} className="space-y-1.5">
               <p className="text-[10px] uppercase tracking-wide text-white/35">{fam.label}</p>

@@ -3,12 +3,32 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-16
-**Branch:** `continue-next` @ `6bcfb4b9` (same SHA as `main` / `origin/main`). Uncommitted
-docs rewrite (this file, `PRODUCT.md` v2, decision 0003) plus isolated `server/mpp`.
-Zero open pull requests.
-**Production:** https://vybz.cloud — landing `data-testid="build-sha"` read **Build 6bcfb4b**
-on 2026-08-16. Production still serves the pre-rewrite SPA copy; authority in the repo is
-now the pack suite. Deploying this docs-only change does not alter application behaviour.
+**Branch:** `continue-next` @ `c6a32101` plus uncommitted copy rewrite. Isolated `server/mpp`
+and `.env.example` / `package.json` leftovers are **not** part of this unit.
+**Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
+This copy pass is not deployed.
+
+## Copy rewrite — 2026-08-16
+
+Owner asked for every label, button, heading, and description to be short, plain, and
+producer-natural. User-facing strings were cut across the pack pipeline, desks, shop,
+landing, menus, and leftover social surfaces. Routes still resolve. Nothing built was
+deleted.
+
+Left locked because tests and product law require them: **Music ops**, **Analyzer owns
+this drop**, **does not invent listings**, **Pending manual**, **Settle now**, **Settled
+off-platform**, **We do not check the address**.
+
+**Not measured:** a signed-in browser walk of the new copy. No web browser tool was
+available in this session. Verification is lint + unit tests + production build.
+
+| Command | Result |
+|---|---|
+| `npm run lint` | pass — `tsc --noEmit` exit 0 |
+| `npm run test` | pass — **158 files / 808 tests** |
+| `npm run build` | pass — vite production build |
+| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
+| `npm run test:e2e` | Not measured |
 
 ## First paid storefront order — 2026-08-16
 

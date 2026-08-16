@@ -108,7 +108,7 @@ describe("buildTrackActions — availability reasons", () => {
 
   it("disables download with a reason when no asset is attached", () => {
     const groups = buildTrackActions(ctx({ hasAsset: false }), handlers());
-    expect(find(groups, "download")?.disabledReason).toMatch(/asset/i);
+    expect(find(groups, "download")?.disabledReason).toMatch(/file to download/i);
   });
 
   it("disables network actions when offline and leaves local playback enabled", () => {
@@ -205,7 +205,7 @@ describe("buildTrackActions — targeting", () => {
       /remove/i
     );
     expect(find(buildTrackActions(ctx({ hasVybbed: false }), handlers()), "favourite")?.label).toMatch(
-      /vyb this/i
+      /^vyb$/i
     );
   });
 
@@ -266,7 +266,7 @@ describe("buildAlbumActions", () => {
   it("offers metadata across the whole release and counts the tracks", () => {
     const groups = buildAlbumActions(albumCtx(), albumHandlers());
     const meta = groups.flatMap((g) => g.actions).find((a) => a.id === "album-metadata");
-    expect(meta?.label).toBe("Edit metadata for 2 tracks");
+    expect(meta?.label).toBe("Names for 2 tracks");
   });
 
   it("never implies an audio desk processes the whole release", () => {

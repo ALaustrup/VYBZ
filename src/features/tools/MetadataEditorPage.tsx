@@ -71,7 +71,7 @@ export function MetadataEditorPage() {
 
   const draft = (activeId ? drafts[activeId] : undefined) ?? localDraft;
 
-  useRegisterAppBar({ title: "Metadata", subtitle: "Editor" }, []);
+  useRegisterAppBar({ title: "Names" }, []);
 
   useEffect(() => {
     try {
@@ -238,9 +238,9 @@ export function MetadataEditorPage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Metadata"
-      title="Release fields"
-      subtitle="Import tags from a master when they exist — never invent ISRC/UPC."
+      eyebrow="Names"
+      title="Names and tags"
+      subtitle="We only fill what's already on the file. No fake ISRC or UPC."
       testId="metadata-editor"
     >
       <MetadataLibraryRail
@@ -296,8 +296,8 @@ export function MetadataEditorPage() {
       )}
 
       <ForgeDropzone
-        label={selection ? "Import tags into this track from a file" : "Import tags from audio"}
-        hint="or click to choose · empty fields stay empty"
+        label={selection ? "Pull tags from a file" : "Pull tags from a file"}
+        hint="or click · empty fields stay empty"
         accept={AUDIO_ACCEPT}
         busy={busy}
         inputTestId="metadata-audio-import"

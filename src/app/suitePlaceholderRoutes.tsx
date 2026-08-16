@@ -40,9 +40,9 @@ export function suitePlaceholderRoutes() {
         element={
           <SuitePlaceholderPage
             product="credits"
-            title="Credit Passport"
-            description="Normalize and approve credits before release."
-            phaseNote="Phase 3 — Open a release, then Credits on that release."
+            title="Credits"
+            description="Names and splits on a release."
+            phaseNote="Open a release, then Credits."
           />
         }
       />
@@ -51,9 +51,9 @@ export function suitePlaceholderRoutes() {
         element={
           <SuitePlaceholderPage
             product="master"
-            title="MasterReady"
-            description="Loudness, peaks, and master delivery checks."
-            phaseNote="Phase 15 — Open a release, then Master on that release (/release/:id/master)."
+            title="Master"
+            description="Loudness, peaks, and the master."
+            phaseNote="Open a release, then Master."
           />
         }
       />
@@ -63,9 +63,9 @@ export function suitePlaceholderRoutes() {
         element={
           <SuitePlaceholderPage
             product="coverlab"
-            title="CoverLab"
-            description="Artwork, stills, and cover systems."
-            phaseNote="Phase 5 — CoverLab."
+            title="Cover"
+            description="Artwork and stills."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -74,9 +74,9 @@ export function suitePlaceholderRoutes() {
         element={
           <SuitePlaceholderPage
             product="coverlab"
-            title="Release artwork"
-            description="Artwork pipeline for this release."
-            phaseNote="Phase 5 — CoverLab."
+            title="Release art"
+            description="Cover art for this release."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -86,8 +86,8 @@ export function suitePlaceholderRoutes() {
           <SuitePlaceholderPage
             product="sentinel"
             title="Sentinel"
-            description="Secure rooms, watermark, and evidentiary protect."
-            phaseNote="Phase 6 — Sentinel."
+            description="Private rooms and watermarks."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -96,9 +96,9 @@ export function suitePlaceholderRoutes() {
         element={
           <SuitePlaceholderPage
             product="sentinel"
-            title="Secure room"
-            description="A protected Sentinel room."
-            phaseNote="Phase 6 — Sentinel."
+            title="Private room"
+            description="A locked room."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -108,8 +108,8 @@ export function suitePlaceholderRoutes() {
           <SuitePlaceholderPage
             product="relay"
             title="Relay"
-            description="Distribution dashboard and delivery status."
-            phaseNote="Phase 7 — Relay."
+            description="Where the release was sent."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -119,8 +119,8 @@ export function suitePlaceholderRoutes() {
           <SuitePlaceholderPage
             product="relay"
             title="Delivery"
-            description="Delivery partners and package status for this release."
-            phaseNote="Phase 7 — Relay."
+            description="Where this release was sent."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -130,9 +130,9 @@ export function suitePlaceholderRoutes() {
           element={
             <SuitePlaceholderPage
               product="market"
-              title="Market"
-              description="Digital marketplace for packs and support goods."
-              phaseNote="Enable VITE_FEATURE_STOREFRONT (default on) for Sample Pack Market."
+              title="Shop"
+              description="Packs for sale."
+              phaseNote="Turn on VITE_FEATURE_STOREFRONT to open the shop."
             />
           }
         />
@@ -143,8 +143,8 @@ export function suitePlaceholderRoutes() {
           <SuitePlaceholderPage
             product="home"
             title="Wallet"
-            description="Earnings, Vc, and payouts — Suite wallet page."
-            phaseNote="Phase 1 — Wallet page placeholder (replaces tab redirect)."
+            description="Earnings and payouts."
+            phaseNote="Not built yet."
           />
         }
       />
@@ -154,8 +154,8 @@ export function suitePlaceholderRoutes() {
           <SuitePlaceholderPage
             product="home"
             title="Settings"
-            description="Account, privacy, and Suite preferences."
-            phaseNote="Account prefs live under Profile → Edit (/profile/edit)."
+            description="Account and privacy."
+            phaseNote="Use Edit profile for now."
           />
         }
       />

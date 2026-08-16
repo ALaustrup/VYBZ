@@ -25,7 +25,7 @@ export function ArtCheckPage() {
   const [busy, setBusy] = useState(false);
   const [fixedUrl, setFixedUrl] = useState<string | null>(null);
 
-  useRegisterAppBar({ title: "Art Check" }, []);
+  useRegisterAppBar({ title: "Cover" }, []);
 
   async function onPick(f: File | undefined) {
     if (!f || !f.type.startsWith("image/")) {
@@ -68,9 +68,9 @@ export function ArtCheckPage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Art Check"
-      title="Cover art desk"
-      subtitle={`Measure square / ${ART_STORE_MIN_PX}px store-style rules and ${ART_FILE_WARN_BYTES / (1024 * 1024)}–${ART_FILE_FAIL_BYTES / (1024 * 1024)} MiB soft caps — not a DSP submission claim. Fix resizes and pads; brighten only when measured luma is low.`}
+      eyebrow="Cover"
+      title="Cover art"
+      subtitle={`Square, at least ${ART_STORE_MIN_PX}px. Over ${ART_FILE_WARN_BYTES / (1024 * 1024)} MB we warn, ${ART_FILE_FAIL_BYTES / (1024 * 1024)} MB is too big. Fix resizes and pads.`}
       testId="art-check"
     >
       <ForgeDropzone

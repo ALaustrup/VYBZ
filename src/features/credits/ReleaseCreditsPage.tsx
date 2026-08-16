@@ -117,8 +117,8 @@ export function ReleaseCreditsPage() {
       <NexusPageHeader
         eyebrow="Credits"
         title={releaseTitle}
-        subtitle="Every name accounted for. Every split confirmed."
-        backTo={{ href: `/release/${id}`, label: "← Prepare" }}
+        subtitle="Every name. Every split."
+        backTo={{ href: `/release/${id}`, label: "← Scan" }}
       />
       <h1 className="sr-only" data-testid="credits-release-title">{releaseTitle}</h1>
       {splitWarning ? <p className="text-xs text-white/45">{splitWarning}</p> : null}

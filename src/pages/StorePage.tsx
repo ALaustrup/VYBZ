@@ -136,7 +136,7 @@ export function StorePage() {
       </header>
 
       {(featured.length > 0 || otherPacks.length > 0) && (
-        <Group title="Enhancement packages">
+        <Group title="Packages">
           <div className="grid gap-3 sm:grid-cols-2">
             {[...featured, ...otherPacks].map((p) => {
               const ownedAll = p.itemIds.every((id) => store.owned.includes(id));

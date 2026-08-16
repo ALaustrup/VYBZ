@@ -56,8 +56,8 @@ export function LandingPage() {
     const n = peekLandingDropFiles().length;
     setDropHint(
       n === 1
-        ? "1 track ready — enter to open it after sign-in (session only · no upload until you sign in)."
-        : `${n} tracks ready — enter to open them after sign-in (session only · no upload until you sign in).`,
+        ? "1 file ready. Sign in to open it. Nothing uploaded yet."
+        : `${n} files ready. Sign in to open them. Nothing uploaded yet.`,
     );
   }, []);
 
@@ -114,7 +114,7 @@ export function LandingPage() {
         >
           <div className="flex flex-col items-center gap-2 rounded-3xl border border-dashed border-white/30 bg-ink-900/90 px-8 py-6">
             <Upload className="h-7 w-7 text-white/70" />
-            <p className="font-display text-base text-white">Drop to stash for after you enter</p>
+            <p className="font-display text-base text-white">Drop it. We hold it until you sign in.</p>
             <p className="text-[12px] text-white/45">No upload until you sign in</p>
           </div>
         </div>
@@ -176,7 +176,7 @@ export function LandingPage() {
             className={cx("relative z-[1] landing-neon-cta-ghost", !reduce && "landing-neon-cta-ghost--pulse")}
             data-testid="landing-signin"
           >
-            Already in? Sign in
+            Sign in
           </Link>
 
           <div className="relative z-[1] mt-1 border-t border-white/10 pt-3">

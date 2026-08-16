@@ -355,7 +355,7 @@ export function DiscoverPage() {
         <EmptyState
           icon={Compass}
           title="Nothing matches"
-          body="Try a broader search, or clear filters. New public uploads appear here as creators publish."
+          body="Try a broader search, or clear filters."
         />
       ) : view === "grid" ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

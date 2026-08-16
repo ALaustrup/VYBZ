@@ -105,7 +105,7 @@ export function NowPlayingRail() {
             </>
           ) : (
             <p className="text-[12px] leading-relaxed text-white/40">
-              Nothing playing. Choose a track from Discover, Library, or Home.
+              Nothing playing. Pick a track.
             </p>
           )}
         </div>

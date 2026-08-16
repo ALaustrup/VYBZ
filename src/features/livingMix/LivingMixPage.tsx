@@ -141,14 +141,13 @@ export function LivingMixPage() {
       wide
       eyebrow="Library"
       title="Living Mix"
-      subtitle="A seeded session over your catalog — a new seed each play, never a frozen playlist. Rules, not invented producers."
+      subtitle="A new seed each play. Not a frozen playlist."
       testId="living-mix"
       className="flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
     >
       <p className="-mt-2 text-[12px] leading-relaxed text-white/40" data-testid="living-mix-honesty">
-        Energy is what you choose, not a mood we measured. VDock stays dry — nothing is
-        morphed or layered on the play path. Stem Maker is one menu away when you want
-        stems; they are not auto-generated here.
+        Energy is what you pick, not a mood we measured. Nothing is morphed on the play
+        path. Stem Maker is one menu away. Stems are not auto-generated here.
       </p>
 
       {loading ? (
@@ -205,7 +204,7 @@ export function LivingMixPage() {
               onClick={() => navigate("/tools/stems")}
               className="flex items-center gap-1.5 rounded-full bg-white/[0.08] px-3 py-2 text-[12px] font-semibold text-white/70 hover:text-white active:scale-95"
             >
-              <Layers className="h-3.5 w-3.5" /> Stem Maker
+              <Layers className="h-3.5 w-3.5" /> Stems
               {stemCount > 0 ? <span className="font-mono text-[10px] text-white/40">{stemCount}</span> : null}
             </button>
           </div>

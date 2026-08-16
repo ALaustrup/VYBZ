@@ -51,22 +51,22 @@ export type TrackToolDef = {
 export const TRACK_TOOLS: readonly TrackToolDef[] = [
   {
     id: "correct",
-    label: "Correct",
+    label: "Fix",
     path: "/tools/correct",
     icon: SlidersHorizontal,
     wholeAlbum: false,
   },
   {
     id: "translate",
-    label: "Translation Lab",
+    label: "Listen check",
     path: "/tools/translate",
     icon: Languages,
     wholeAlbum: false,
   },
-  { id: "metadata", label: "Metadata", path: "/tools/metadata", icon: Tags, wholeAlbum: true },
-  { id: "convert", label: "Converter", path: "/tools/convert", icon: RefreshCw, wholeAlbum: false },
-  { id: "midi", label: "Midi Maker", path: "/tools/midi", icon: Piano, wholeAlbum: false },
-  { id: "stems", label: "Stem Maker", path: "/tools/stems", icon: Layers, wholeAlbum: false },
+  { id: "metadata", label: "Names", path: "/tools/metadata", icon: Tags, wholeAlbum: true },
+  { id: "convert", label: "Convert", path: "/tools/convert", icon: RefreshCw, wholeAlbum: false },
+  { id: "midi", label: "MIDI", path: "/tools/midi", icon: Piano, wholeAlbum: false },
+  { id: "stems", label: "Stems", path: "/tools/stems", icon: Layers, wholeAlbum: false },
 ] as const;
 
 /**
@@ -112,10 +112,10 @@ export type TrackActionHandlers = {
   openInTool: (tool: TrackToolDef) => void;
 };
 
-const OFFLINE = "You are offline.";
-const NO_AUDIO = "This drop has no playable audio yet.";
-const NO_ASSET = "No downloadable asset was attached to this drop.";
-const NO_ARTIST = "This drop has no linked artist account.";
+const OFFLINE = "You're offline.";
+const NO_AUDIO = "No audio yet.";
+const NO_ASSET = "No file to download.";
+const NO_ARTIST = "No artist on this track.";
 
 /**
  * Build the contextual menu for a single track.
@@ -174,14 +174,14 @@ export function buildTrackActions(
     actions: [
       {
         id: "favourite",
-        label: hasVybbed ? "Remove Vyb" : "Vyb this track",
+        label: hasVybbed ? "Remove Vyb" : "Vyb",
         icon: Heart,
         disabledReason: online ? undefined : OFFLINE,
         onSelect: handlers.favourite,
       },
       {
         id: "rate",
-        label: "Rate this track",
+        label: "Rate",
         icon: Star,
         disabledReason: online ? undefined : OFFLINE,
         onSelect: handlers.rate,
@@ -191,7 +191,7 @@ export function buildTrackActions(
 
   const tools: MenuGroup = {
     id: "tools",
-    label: "Open in tool",
+    label: "Tools",
     actions: TRACK_TOOLS.map((tool) => ({
       id: `tool-${tool.id}`,
       label: tool.label,
@@ -218,21 +218,21 @@ export function buildTrackActions(
       {
         // Swaps the surface to a detail panel, so the menu must not close first.
         id: "file-details",
-        label: "Quick file details",
+        label: "File info",
         icon: FileAudio,
         keepOpen: true,
         onSelect: handlers.viewDetails,
       },
       {
         id: "open-artist",
-        label: isOwner ? "Open your profile" : "Open artist",
+        label: isOwner ? "Your page" : "Artist",
         icon: UserRound,
         disabledReason: drop.authorId ? undefined : NO_ARTIST,
         onSelect: handlers.openArtist,
       },
       {
         id: "copy-artist-link",
-        label: "Copy artist link",
+        label: "Copy link",
         icon: Link2,
         disabledReason: drop.authorId ? undefined : NO_ARTIST,
         onSelect: handlers.copyArtistLink,
@@ -246,7 +246,7 @@ export function buildTrackActions(
     actions: [
       {
         id: "download",
-        label: "Download original",
+        label: "Download",
         icon: Download,
         disabledReason: !hasAsset ? NO_ASSET : !online ? OFFLINE : undefined,
         onSelect: handlers.download,
@@ -261,7 +261,7 @@ export function buildTrackActions(
       ? [
           {
             id: "rename",
-            label: "Rename track",
+            label: "Rename",
             icon: Pencil,
             keepOpen: true,
             disabledReason: online ? undefined : OFFLINE,
@@ -269,10 +269,10 @@ export function buildTrackActions(
           },
           {
             id: "feature",
-            label: isFeatured ? "Featured on your profile" : "Feature on your profile",
+            label: isFeatured ? "On your page" : "Pin to your page",
             icon: Star,
             disabledReason: isFeatured
-              ? "Already featured."
+              ? "Already pinned."
               : online
                 ? undefined
                 : OFFLINE,
@@ -288,7 +288,7 @@ export function buildTrackActions(
       ? [
           {
             id: "delete",
-            label: "Delete track",
+            label: "Delete",
             icon: Trash2,
             danger: true,
             keepOpen: true,
@@ -300,7 +300,7 @@ export function buildTrackActions(
           {
             // Opens the report dialog in place of the menu, so the surface must stay mounted.
             id: "report",
-            label: "Report this track",
+            label: "Report",
             icon: Flag,
             keepOpen: true,
             disabledReason: online ? undefined : OFFLINE,
@@ -334,7 +334,7 @@ export type AlbumActionHandlers = {
   openLeadTrackInTool: (tool: TrackToolDef) => void;
 };
 
-const NO_ALBUM_AUDIO = "No track in this release has playable audio yet.";
+const NO_ALBUM_AUDIO = "No playable audio in this set.";
 
 /**
  * Build the contextual menu for a whole release.
@@ -353,11 +353,11 @@ export function buildAlbumActions(
 
   const release: MenuGroup = {
     id: "release",
-    label: "Whole release",
+    label: "Whole album",
     actions: [
       {
         id: "album-metadata",
-        label: `Edit metadata for ${count} ${count === 1 ? "track" : "tracks"}`,
+        label: `Names for ${count} ${count === 1 ? "track" : "tracks"}`,
         icon: Tags,
         disabledReason: !count ? "This release has no tracks." : !online ? OFFLINE : undefined,
         onSelect: handlers.openAlbumInMetadata,

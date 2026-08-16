@@ -125,8 +125,8 @@ export function Onboarding() {
 
   return (
     <AuthShell
-      title={isJoin ? "Create your studio" : "Welcome back"}
-      subtitle="Release intelligence for independent producers."
+      title={isJoin ? "Join VYBZ" : "Welcome back"}
+      subtitle="Make packs. Sell them."
     >
       {pk && !usePassword ? (
         <div className="flex flex-col gap-3">
@@ -235,7 +235,7 @@ export function Onboarding() {
       </button>
 
       <p className="text-center text-[11px] text-white/32">
-        <Link to="/releases/new" className="hover:text-white/58">Try free scan first</Link>
+        <Link to="/releases/new" className="hover:text-white/58">Scan a file first</Link>
       </p>
     </AuthShell>
   );
@@ -273,7 +273,7 @@ export function UsernameSetup() {
   }
 
   return (
-    <AuthShell title="Claim your name" subtitle="Your identity across releases and social.">
+    <AuthShell title="Pick your name" subtitle="This is the name on your packs.">
       <form onSubmit={save} className="flex flex-col gap-3">
         <ForgeField icon={<UserRound className="h-4 w-4" />}>
           <input

@@ -31,31 +31,31 @@ export function markAlphaWelcomeComplete(userId: string): void {
 export const ALPHA_GUIDE_STEPS = [
   {
     id: "welcome",
-    title: "Welcome to VYBZ Alpha Test!",
-    body: "Thanks for helping us pressure-test the release suite. This is a short tour of what is live today.",
+    title: "Welcome to VYBZ",
+    body: "A short look at what's here.",
   },
   {
     id: "username",
     kind: "username",
     title: "What should we call you?",
-    body: "Pick your artist or producer name. It is how everyone on VYBZ sees you — on your page, in rooms, and on anything you release.",
+    body: "This name shows on your packs and page.",
   },
   {
     id: "suite",
-    title: "What is available now, {name}",
-    body: "Use the app rail to jump between tools. These are ready for Alpha:",
+    title: "What's here, {name}",
+    body: "Start with Make pack. Also ready:",
     highlights: [
-      { label: "Analyzer", blurb: "Drop masters, triage readiness, Tier A auto-fix" },
-      { label: "Correct", blurb: "DC, peak safety, balance, silence trim + A/B" },
-      { label: "Library", blurb: "Your catalog after you add tracks from Analyzer" },
-      { label: "Stems", blurb: "Assemble exported stems into a pack" },
-      { label: "Tools", blurb: "Metadata, Art Check, MIDI, Converter" },
+      { label: "Scan", blurb: "Drop files. We measure them." },
+      { label: "Fix", blurb: "Clean the audio. A/B the change." },
+      { label: "Library", blurb: "Your files." },
+      { label: "Stems", blurb: "Zip stems you already bounced." },
+      { label: "Tools", blurb: "Names, cover, MIDI, convert." },
     ],
   },
   {
     id: "feedback",
     title: "Tell us what breaks, {name}",
-    body: "When you’re done here, look for the glowing bug button. Tap it anytime to send feedback — screenshots welcome.",
+    body: "Hit the bug button. Screenshots help.",
   },
 ] as const;
 

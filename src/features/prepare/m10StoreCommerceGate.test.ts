@@ -52,7 +52,7 @@ describe("M10 Store commerce gate (Market browse)", () => {
   it("separates cosmetics /store from Market storefront", () => {
     const truth = read("src/app/routeTruth.ts");
     expect(truth).toContain('{ path: "/store", title: "Store"');
-    expect(truth).toContain('{ path: "/market", title: "Market"');
+    expect(truth).toContain('{ path: "/market", title: "Shop"');
     expect(truth).toMatch(/keywords: \["credits", "cosmetics"/);
   });
 

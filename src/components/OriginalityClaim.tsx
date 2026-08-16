@@ -22,14 +22,10 @@ export function OriginalityClaim({
         required
       />
       <span className="text-[12px] leading-relaxed text-white/75">
-        <span className="font-semibold text-white/90">I confirm this is original work I created or fully own.</span>
+        <span className="font-semibold text-white/90">I made this, or I own it.</span>
         {" "}
-        VYBZ is for unreleased / original tracks, stems, and mixes of your own sound —
-        not music you copied from other artists. Uploading someone else’s copyrighted
-        material without authorization is prohibited; we will remove it and may suspend
-        accounts that keep doing it. By uploading, you accept that rights holders and
-        their agencies may contact you and pursue legal claims (including lawsuits)
-        against you personally. See our{" "}
+        Don&apos;t upload other people&apos;s music. We will take it down. You deal with
+        any copyright claims. See{" "}
         <Link to="/legal/dmca" className="text-cyan-200 underline decoration-cyan-200/40 underline-offset-2" onClick={(e) => e.stopPropagation()}>
           Copyright &amp; DMCA
         </Link>{" "}

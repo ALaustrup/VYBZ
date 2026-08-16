@@ -37,7 +37,7 @@ export function StemMakerPage() {
   const [applyDc, setApplyDc] = useState(false);
   const [applyPeak, setApplyPeak] = useState(false);
 
-  useRegisterAppBar({ title: "Stem Maker", subtitle: "Assemble" }, []);
+  useRegisterAppBar({ title: "Stems" }, []);
 
   async function onFiles(list: FileList | File[] | null) {
     const files = [...(list ?? [])].filter(isAudioFile);
@@ -57,7 +57,7 @@ export function StemMakerPage() {
         next.push({ ...partial, fileName: "" });
       }
       setStems((prev) => [...prev, ...next]);
-      showToast(`Added ${next.length} stem(s) — not added to Library`);
+      showToast(`Added ${next.length} stem(s). Not in Library.`);
     } catch {
       showToast("Couldn't decode one or more stems");
     } finally {
@@ -102,14 +102,17 @@ export function StemMakerPage() {
   return (
     <ToolWorkbench
       eyebrow="Stems"
-      title="Stem Maker"
-      subtitle={`Assemble producer-exported stems into a labeled WAV set with measured peak/RMS and a checksummed manifest. Optional DC / peak-safety from Correct. Not AI separation. Proc ${STEM_MAKER_VERSION}.`}
+      title="Stem set"
+      subtitle="Zip stems you already bounced. Not AI split."
       testId="stem-maker"
     >
       <div className="forge-glass forge-plasma relative grid gap-3 !rounded-2xl p-4 sm:grid-cols-2">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <label className="relative z-[1] block">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+          <span
+            className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35"
+            data-proc={STEM_MAKER_VERSION}
+          >
             Set title
           </span>
           <input
@@ -127,7 +130,7 @@ export function StemMakerPage() {
               onChange={(e) => setApplyDc(e.target.checked)}
               data-testid="stem-opt-dc"
             />
-            Apply DC remove
+            Remove DC
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -136,14 +139,14 @@ export function StemMakerPage() {
               onChange={(e) => setApplyPeak(e.target.checked)}
               data-testid="stem-opt-peak"
             />
-            Apply peak safety
+            Peak safety
           </label>
         </div>
       </div>
 
       <ForgeDropzone
         label="Drop stems"
-        hint="or click to choose · multiple files · local working set"
+        hint="or click · multiple files"
         accept={AUDIO_ACCEPT}
         multiple
         busy={busy}
