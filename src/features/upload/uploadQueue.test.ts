@@ -19,6 +19,7 @@ import {
   summarizeQueue,
   type UploadItem,
 } from "@/features/upload/uploadQueue";
+import type { Id3Tags } from "@/lib/id3Tags";
 
 function audioFile(name = "take-one.wav", size = 1024): File {
   const f = new File([new Uint8Array(1)], name, { type: "audio/wav" });
@@ -28,6 +29,14 @@ function audioFile(name = "take-one.wav", size = 1024): File {
 
 function item(overrides: Partial<UploadItem> = {}): UploadItem {
   return { ...createUploadItem(audioFile(), "id-1", 7), ...overrides };
+}
+
+function tags(partial: Partial<Id3Tags>): Id3Tags {
+  return {
+    title: null, artist: null, album: null, genre: null,
+    genreMatched: null, bpm: null, year: null, artworkUrl: null,
+    ...partial,
+  } as Id3Tags;
 }
 
 describe("collectUploadFiles", () => {
@@ -49,7 +58,7 @@ describe("collectUploadFiles", () => {
 
 describe("metadata precedence", () => {
   it("fills empty fields from container tags", () => {
-    const next = applyTags(item(), { title: "Nightdrive", artist: "Vela", album: "Interior" });
+    const next = applyTags(item(), tags({ title: "Nightdrive", artist: "Vela", album: "Interior" }));
     expect(next.meta.title).toBe("Nightdrive");
     expect(next.meta.creditedArtist).toBe("Vela");
     expect(next.autoFilled).toContain("title");
@@ -57,13 +66,13 @@ describe("metadata precedence", () => {
 
   it("never overwrites something the artist typed", () => {
     const typed = editMeta(item(), "title", "My Own Title");
-    const next = applyTags(typed, { title: "Tag Title" });
+    const next = applyTags(typed, tags({ title: "Tag Title" }));
     expect(next.meta.title).toBe("My Own Title");
     expect(next.autoFilled).not.toContain("title");
   });
 
   it("lets an edit take a field back from auto-fill", () => {
-    const auto = applyTags(item(), { title: "Tag Title" });
+    const auto = applyTags(item(), tags({ title: "Tag Title" }));
     expect(auto.autoFilled).toContain("title");
     const edited = editMeta(auto, "title", "Mine");
     expect(edited.autoFilled).not.toContain("title");

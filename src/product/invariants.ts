@@ -199,6 +199,7 @@ export const GATE_REGISTRY = [
   "reception",
   "stationLine",
   "accountMenu",
+  "uploader",
   "playbackAuthority",
   "dockVisuals",
   "featuredMiniPlayer",
