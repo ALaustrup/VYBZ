@@ -179,6 +179,30 @@ tests is not the same as a file reaching storage, and the original defect was a 
 
 **Still open:** per-track artwork (needs a migration — `Drop` has no artwork field).
 
+## Metadata editor — library editing, built 2026-08-16
+
+The editor could only ever draft against a dropped file and save to
+`localStorage`; of its sixteen fields only `title` and `artist` had a write path at all.
+Measured 2026-08-16: thirteen fields had no column anywhere.
+
+**Migration `0103_drop_metadata` applied** to `xixmneooyufbeftdfpcm`. Verified after apply:
+17 columns, RLS enabled, one owner-only policy, both functions present. It deliberately does
+**not** duplicate title/artist/album — those stay on `drops`, so a track has one title. Adds
+`update_drop_album`, since `drops.album` has been insert-only since `0058`. Identifiers are
+length-capped but not format-validated: a real code in an odd shape beats a rejection, and a
+format checker is the first step towards generating one.
+
+**Built:** `MetadataLibraryRail` (albums first, then singles) and `dropMetadataApi`. Selecting
+an album opens every track, each independently editable, metadata for all of them fetched in
+one round trip. Copy now states which of the two things it is doing rather than implying a save.
+
+**Known limitation:** a save is four writes across two tables and is not atomic. If the library
+columns succeed and the metadata row fails, the result is partial; the editor reports the
+failure but does not roll back. Worth an RPC that does both in one transaction if it bites.
+
+**Not verified against a real track** — lint clean, 733 tests pass, but no album has been
+opened and saved in a browser.
+
 **Why:** today the form gates the upload — you type, then bytes move. Flipped, bytes move while
 you type, so the metadata form stops being a toll booth and becomes something you do while
 waiting. On a large WAV that is the difference between minutes of dead time and none.
