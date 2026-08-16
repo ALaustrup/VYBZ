@@ -41,4 +41,12 @@ describe("packPipeline", () => {
     expect(shell).toContain("PackPipelineBar");
     expect(existsSync(path.join(ROOT, "src/shell/PrimaryRail.tsx"))).toBe(true);
   });
+
+  it("offers Skip without treating it as Continue", () => {
+    const bar = read("src/features/packPipeline/PackPipelineBar.tsx");
+    expect(bar).toContain('data-testid="pack-stage-skip"');
+    expect(bar).toContain("markStageSkipped");
+    expect(bar).toContain("markStageComplete");
+    expect(bar).toContain("handoffPackMakerToStorefront");
+  });
 });
