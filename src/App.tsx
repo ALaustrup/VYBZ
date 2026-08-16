@@ -80,6 +80,8 @@ import { MediaConverterPage } from "@/features/tools/MediaConverterPage";
 import { CorrectPage } from "@/features/correction/CorrectPage";
 import { TranslationLabPage } from "@/features/translation/TranslationLabPage";
 import { PackMakerPage } from "@/features/packs/PackMakerPage";
+import { PackUploadStage } from "@/features/packPipeline/PackUploadStage";
+import { PackSalesStage } from "@/features/packPipeline/PackSalesStage";
 import { StemMakerPage } from "@/features/stems/StemMakerPage";
 import { InviteRedeemPage } from "@/features/alpha/InviteRedeemPage";
 import { PasswordLockPage } from "@/features/alpha/PasswordLockPage";
@@ -222,6 +224,8 @@ export function App() {
         <Route path="/rooms/:id" element={<RoomPage />} />
         <Route path="/profile" element={<LegacyProfileRedirect />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
+        <Route path="/make/dashboard" element={<PackSalesStage />} />
+        <Route path="/make" element={<PackUploadStage />} />
         <Route path="/library/mix/:listId" element={<LivingMixPage />} />
         <Route path="/library/mix" element={<LivingMixPage />} />
         <Route path="/library" element={<LibraryPage key={feedKey} />} />

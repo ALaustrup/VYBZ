@@ -81,6 +81,8 @@ export function isPlaceholderPath(path: string, flags?: { storefront: boolean })
  */
 export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/", title: "Home", keywords: ["profile", "dashboard", "start"] },
+  { path: "/make", title: "Make pack", keywords: ["upload", "pipeline", "sample pack", "flow"] },
+  { path: "/make/dashboard", title: "Pack sales", keywords: ["orders", "sales", "dashboard"] },
   { path: "/library", title: "Library", keywords: ["tracks", "media", "files", "catalog"] },
   { path: "/library/mix", title: "Living Mix", keywords: ["mix", "catalog", "session", "living"] },
   { path: "/releases", title: "Analyzer", keywords: ["prepare", "projects", "scan", "finalize", "analyze", "analyser"] },

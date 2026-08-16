@@ -204,6 +204,7 @@ export const GATE_REGISTRY = [
   "stationLine",
   "accountMenu",
   "uploader",
+  "packPipeline",
   "trackTools",
   "playbackAuthority",
   "dockVisuals",

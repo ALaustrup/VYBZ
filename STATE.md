@@ -493,8 +493,8 @@ from the tools launcher. Do not start Station refill.
 
 1. **Settle** the $1 order if it is still Pending manual.
 2. **Unpublish or rename** `untitled-pack-hrw5np`.
-3. **Unhide Pack Maker** in default nav (`suiteApps.ts` + `trackToolsGate`) so the suite
-   matches `PRODUCT.md` §11. Ask before that PR.
+3. **Pack pipeline** is in the tree (`/make`, stages 0–8). Not yet walked end-to-end
+   in a browser this turn.
 4. **One producer who is not you.** Until then this is a self-purchase.
 
 Carried over: deploy the updated `audio-play` edge (repo is ahead of the deployed v7;

@@ -34,17 +34,23 @@ preview, package, sell.
 
 ## 3. The suite
 
-Five jobs, in this order. Each already has a surface. None of them is allowed to invent
-inventory or a measurement.
+The default UI is one guided flow. Each stage is an existing desk, not a rewrite.
+The producer can skip a stage; skip does not invent completion.
 
-| Job | Surface | Honest description |
+| Stage | Job | Surface |
 |---|---|---|
-| **Ingest** | Library uploader, or Pack Maker dropzone | Bytes land. Filename tempo/key fill only when the name states them. |
-| **Organize** | Library | Search, filter, sort, group by fields a `Drop` actually carries. |
-| **Tag** | Filename hints, Pack Maker kind, metadata editor | Declared and measured are labelled as such. A bare `F` is not "F major". |
-| **Preview** | VDock, pack preview audio | Playback is dry. A pack preview plays only when a `preview_path` exists. |
-| **Package** | Pack Maker | Measured WAVs in `loops/` `oneshots/` `samples/`, plus a SHA manifest. |
-| **Sell** | Storefront → `/pack/:slug` → Market | Stripe Checkout. Buyer gets the ZIP. Producer is settled by hand until Connect payouts are verified. |
+| **0** | Upload assets | `/make` — same upload queue as ComposeSheet |
+| **1** | Metadata edit / fix | `/tools/metadata` |
+| **2** | Artwork create / check | `/tools/art-check` |
+| **3** | Analyze pack assets | `/releases` |
+| **4** | Show findings + auto-fix | `/tools/correct` |
+| **5** | Pack Maker | `/tools/pack-maker` |
+| **6** | Download / export / publish | `/tools/packs/new` |
+| **7** | Published listing | `/tools/packs` |
+| **8** | Library + sales | `/make/dashboard` |
+
+The stepper stays on screen for every stage path. Desks keep their own routes.
+ComposeSheet, Library, and the seller dashboard are not deleted.
 
 **Two ingest paths, both kept:**
 
@@ -165,11 +171,12 @@ The new interface becomes the front door. What is behind it is still the house.
 
 ## 11. Interface direction
 
-**The default experience is the pack loop:** Library → Pack Maker → Storefront / Market.
+**The default experience is the staged pack pipeline** (`/make`, stages 0–8). The rail
+leads with Make pack, Library, and Sales. Social home, feed, and rooms stay reachable
+and off the default rail.
 
-Signed-in navigation should make those three findable without a memorized URL. Desks that
-operate on one track stay summonable from that track. Routes for parked surfaces still
-resolve.
+Desks that operate on one track stay summonable from that track. Routes for parked
+surfaces still resolve.
 
 **Mobile first.** Designed for a phone held in one hand, then adapted upward to desktop.
 

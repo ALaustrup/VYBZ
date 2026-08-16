@@ -18,7 +18,7 @@ describe("suiteApps", () => {
     expect(all).toEqual(expect.arrayContaining(CONTEXT_MENU_DESKS));
   });
 
-  it("offers only Library and Settings to browse", () => {
+  it("offers only Make pack, Library and Settings to browse", () => {
     // Store is here too, behind its own flag. Everything else is summoned from
     // a track, because a desk with no track loaded is an empty room.
     const ids = visibleSuiteApps().map((a) => a.id);
@@ -26,7 +26,13 @@ describe("suiteApps", () => {
       expect(ids, desk).not.toContain(desk);
     }
     expect(ids).toContain("library");
+    expect(ids).toContain("pack-pipeline");
     expect(ids).toContain("settings");
+  });
+
+  it("selects the pack pipeline for /make", () => {
+    expect(activeSuiteAppId("/make")).toBe("pack-pipeline");
+    expect(activeSuiteAppId("/make/dashboard")).toBe("pack-pipeline");
   });
 
   it("selects Analyzer for release routes", () => {

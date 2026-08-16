@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
 import { SongWorkspaceBanner } from "@/features/workspace/SongWorkspaceBanner";
@@ -8,6 +9,8 @@ import { CommandPalette } from "@/shell/CommandPalette";
 import { PrimaryRail } from "@/shell/PrimaryRail";
 import { SuiteStage, useActiveSuiteAppId } from "@/shell/SuiteStage";
 import { shellModeClass } from "@/shell/shellMode";
+import { PackPipelineBar } from "@/features/packPipeline/PackPipelineBar";
+import { isPackPipelinePath } from "@/features/packPipeline/stages";
 
 export function SuiteShell({
   stage,
@@ -32,6 +35,7 @@ export function SuiteShell({
 }) {
   const shellMode = useShellMode();
   const suiteAppId = useActiveSuiteAppId();
+  const { pathname } = useLocation();
   return (
     <div
       className={`suite-shell suite-density-premium ${shellModeClass(shellMode)}`}
@@ -48,6 +52,7 @@ export function SuiteShell({
         {/* Tools moved behind the app-bar launcher so the shell leads with the
             social surfaces. SuiteAppRail stays in the tree, imported by nothing. */}
         {showCommandBar ? <CommandBar /> : null}
+        {isPackPipelinePath(pathname) ? <PackPipelineBar /> : null}
         <SongWorkspaceBanner />
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <SuiteStage>{stage}</SuiteStage>

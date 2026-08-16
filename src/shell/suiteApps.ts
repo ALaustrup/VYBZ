@@ -24,6 +24,7 @@ import { FLAGS } from "@/lib/flags";
 
 export type SuiteAppId =
   | "home"
+  | "pack-pipeline"
   | "analyzer"
   | "metadata"
   | "art-check"
@@ -68,6 +69,13 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/",
     icon: Home,
     match: (p) => p === "/" || p.startsWith("/u/") || p.startsWith("/profile"),
+  },
+  {
+    id: "pack-pipeline",
+    label: "Make pack",
+    path: "/make",
+    icon: Package,
+    match: (p) => p === "/make" || p.startsWith("/make/"),
   },
   {
     id: "analyzer",

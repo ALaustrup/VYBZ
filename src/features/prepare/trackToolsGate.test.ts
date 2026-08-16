@@ -85,12 +85,13 @@ describe("trackTools", () => {
     }
   });
 
-  it("shows only Library, Store and Settings in navigation", () => {
+  it("shows only Library, Make pack, Store and Settings in navigation", () => {
     const visible = visibleSuiteApps().map((a) => a.id);
     for (const id of HIDDEN_DESKS) {
       expect(visible, id).not.toContain(id);
     }
     expect(visible).toContain("library");
+    expect(visible).toContain("pack-pipeline");
     expect(visible).toContain("settings");
   });
 
