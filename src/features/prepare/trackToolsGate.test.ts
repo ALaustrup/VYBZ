@@ -62,6 +62,15 @@ describe("trackTools", () => {
     expect(code("src/features/workspace/loadLibraryTrack.ts")).toMatch(/source: "library"/);
   });
 
+  it("reaches a master through one path only", () => {
+    // Pack Maker fetched drop.audioUrl itself and was silently broken by a CORS
+    // problem the desks never saw. One retrieval path means one place to fix.
+    for (const rel of ["src/features/packs/PackMakerPage.tsx", ...DESK_PAGES]) {
+      expect(code(rel), rel).not.toMatch(/fetch\(\s*\w*\.?audioUrl/);
+    }
+    expect(code("src/features/packs/PackMakerPage.tsx")).toMatch(/fetchLibraryTrackMaster/);
+  });
+
   it("offers no desk that cannot receive a track", () => {
     expect(TRACK_TOOLS.length).toBeGreaterThan(0);
     for (const page of DESK_PAGES) {

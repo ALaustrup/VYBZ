@@ -253,19 +253,25 @@ async function fetchMaster(url: string, opts: LoadLibraryTrackOptions): Promise<
   }
 }
 
+export type LibraryMaster =
+  | { ok: true; blob: Blob; contentType: string | null; url: string }
+  | { ok: false; reason: LibraryTrackLoadFailure };
+
 /**
- * Load one Library track's master into the working set.
+ * Fetch one Library track's master bytes.
  *
- * Returns false rather than throwing; the reason reaches the caller through
- * `onPhase` so a surface can say what went wrong instead of sitting empty.
+ * The single retrieval path. Anything that wants a library track's audio goes
+ * through here rather than calling fetch on `drop.audioUrl` itself — that is
+ * how Pack Maker ended up quietly broken by a CORS problem the desks did not
+ * know about, and how the two could diverge again.
  */
-export async function loadLibraryTrackIntoWorkingSet(
+export async function fetchLibraryTrackMaster(
   drop: Drop,
-  opts: LoadLibraryTrackOptions = {}
-): Promise<boolean> {
-  const fail = (reason: LibraryTrackLoadFailure) => {
+  opts: LoadLibraryTrackOptions = {},
+): Promise<LibraryMaster> {
+  const fail = (reason: LibraryTrackLoadFailure): LibraryMaster => {
     opts.onPhase?.({ phase: "failed", reason });
-    return false;
+    return { ok: false, reason };
   };
 
   opts.onPhase?.({ phase: "resolving" });
@@ -283,7 +289,23 @@ export async function loadLibraryTrackIntoWorkingSet(
   if (!got.ok) return fail(got.reason);
   if (opts.signal?.aborted) return fail("cancelled");
 
-  const ext = libraryTrackExtension(drop, { contentType: got.contentType, url });
+  return { ok: true, blob: got.blob, contentType: got.contentType, url };
+}
+
+/**
+ * Load one Library track's master into the working set.
+ *
+ * Returns false rather than throwing; the reason reaches the caller through
+ * `onPhase` so a surface can say what went wrong instead of sitting empty.
+ */
+export async function loadLibraryTrackIntoWorkingSet(
+  drop: Drop,
+  opts: LoadLibraryTrackOptions = {}
+): Promise<boolean> {
+  const got = await fetchLibraryTrackMaster(drop, opts);
+  if (!got.ok) return false;
+
+  const ext = libraryTrackExtension(drop, { contentType: got.contentType, url: got.url });
   setWorkingTrack({
     title: drop.title?.trim() || libraryTrackFileName(drop, null),
     artistName: drop.creditedArtist?.trim() || drop.authorUsername || null,
