@@ -226,16 +226,16 @@ export function ProfilePage() {
                 )}
                 <PasskeysCard />
                 <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
-                  <LinkRow icon={Sparkles} title="Cosmetics" body="Accent, flair, frame, backdrop — Store equip" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
-                  <LinkRow icon={ScrollText} title="Codex & Legal" body="Contracts, Terms, Privacy, Vc" onClick={() => { setSettingsOpen(false); navigate("/codex"); }} />
+                  <LinkRow icon={Sparkles} title="Looks" body="Accent, flair, frame, backdrop" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
+                  <LinkRow icon={ScrollText} title="Docs & legal" body="Terms, privacy, contracts" onClick={() => { setSettingsOpen(false); navigate("/codex"); }} />
                   {(profile.platformRole === "moderator" || profile.platformRole === "admin" || profile.isAdmin) && (
                     <LinkRow icon={Shield} title="Moderate" body="Report queue" onClick={() => { setSettingsOpen(false); navigate("/mod"); }} />
                   )}
                   {profile.platformRole === "member" && !profile.isAdmin && (
-                    <LinkRow icon={Shield} title="Become a moderator" body="Help keep VYBZ real" onClick={() => { setSettingsOpen(false); navigate("/apply-mod"); }} />
+                    <LinkRow icon={Shield} title="Become a moderator" body="Help keep the place clean" onClick={() => { setSettingsOpen(false); navigate("/apply-mod"); }} />
                   )}
                   {profile.isAdmin && (
-                    <LinkRow icon={ShieldCheck} title="Admin" body="Members & matchmaking" onClick={() => { setSettingsOpen(false); navigate("/admin"); }} />
+                    <LinkRow icon={ShieldCheck} title="Admin" body="Members" onClick={() => { setSettingsOpen(false); navigate("/admin"); }} />
                   )}
                   <LinkRow
                     icon={Bug}

@@ -32,7 +32,7 @@ export function MarketPage({ publicShell = false }: { publicShell?: boolean }) {
   const [genre, setGenre] = useState<string | null>(null);
   const player = usePlayer();
 
-  useRegisterAppBar({ title: "Market", subtitle: "Browse & listen" }, []);
+  useRegisterAppBar({ title: "Shop" }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +46,7 @@ export function MarketPage({ publicShell = false }: { publicShell?: boolean }) {
       } catch (e) {
         if (!cancelled) {
           setPacks([]);
-          setError((e as Error).message || "Could not load Market");
+          setError((e as Error).message || "Couldn't load shop");
         }
       }
     })();
@@ -98,9 +98,9 @@ export function MarketPage({ publicShell = false }: { publicShell?: boolean }) {
   return (
     <ToolWorkbench
       wide
-      eyebrow="Market"
-      title="Sample pack Market"
-      subtitle="Browse and preview published packs. Listings come from live storefront rows — empty means zero published packs, not a placeholder catalog."
+      eyebrow="Shop"
+      title="Packs for sale"
+      subtitle="Real listings only. Empty means nothing is up."
       testId="market-browse"
       className={publicShell ? "!pb-10" : undefined}
     >
@@ -108,19 +108,19 @@ export function MarketPage({ publicShell = false }: { publicShell?: boolean }) {
         {!publicShell && (
           <>
             <Link to="/tools/packs" className="forge-cta inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
-              <Store className="h-3.5 w-3.5" /> Seller dashboard
+              <Store className="h-3.5 w-3.5" /> Your packs
             </Link>
             <Link to="/tools/packs/new" className="forge-cta-ghost inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
               <Plus className="h-3.5 w-3.5" /> New pack
             </Link>
             <Link to="/tools/pack-maker" className="forge-cta-ghost inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
-              <Package className="h-3.5 w-3.5" /> Pack Maker
+              <Package className="h-3.5 w-3.5" /> Build ZIP
             </Link>
           </>
         )}
         {publicShell && (
           <Link to="/enter" className="forge-cta-ghost inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
-            Sign in to sell packs
+            Sign in
           </Link>
         )}
         <Link
@@ -128,7 +128,7 @@ export function MarketPage({ publicShell = false }: { publicShell?: boolean }) {
           className="forge-cta-ghost inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs"
           data-testid="market-discover-link"
         >
-          Songs &amp; samples on Discover
+          Songs
         </Link>
       </div>
 
@@ -148,9 +148,9 @@ export function MarketPage({ publicShell = false }: { publicShell?: boolean }) {
         >
           <span className="forge-glass-edge pointer-events-none" aria-hidden />
           <Package className="relative z-[1] h-8 w-8 text-[rgb(var(--app-accent-rgb))]" />
-          <p className="relative z-[1] font-display text-base font-semibold text-white/85">No published packs yet</p>
+          <p className="relative z-[1] font-display text-base font-semibold text-white/85">Nothing for sale</p>
           <p className="relative z-[1] max-w-sm text-sm text-white/45">
-            When creators publish a sample pack, it appears here. VYBZ does not invent listings or claim DSP distribution.
+            Packs show up here when someone publishes one. VYBZ does not invent listings.
           </p>
         </div>
       ) : (

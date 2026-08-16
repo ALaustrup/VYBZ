@@ -77,8 +77,8 @@ export function ModApplyPage() {
       ) : (
         <>
           <div className="mb-5 grid gap-2.5 sm:grid-cols-2">
-            <Perk icon={<Award className="h-4 w-4 text-aqua-200" />} title="Earn rewards" body="Every action earns credits toward cosmetic perks." />
-            <Perk icon={<Heart className="h-4 w-4 text-wild" />} title="Shape the culture" body="Protect a platform built for real discovery." />
+            <Perk icon={<Award className="h-4 w-4 text-aqua-200" />} title="Earn rewards" body="Actions earn credits for looks." />
+            <Perk icon={<Heart className="h-4 w-4 text-wild" />} title="Keep it real" body="Keep the place clean." />
           </div>
           {form()}
         </>

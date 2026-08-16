@@ -54,7 +54,7 @@ export function PackMakerPage() {
   const [libraryLoading, setLibraryLoading] = useState(false);
   const [selectedDropIds, setSelectedDropIds] = useState<Set<string>>(() => new Set());
 
-  useRegisterAppBar({ title: "Pack Maker", subtitle: "Assemble" }, []);
+  useRegisterAppBar({ title: "Pack", subtitle: "Build ZIP" }, []);
 
   useEffect(() => {
     setPackMakerSession({ title, samples, lastZipSha, lastContentSha });
@@ -93,7 +93,7 @@ export function PackMakerPage() {
       const next: AssembledSample[] = [];
       for (const file of files) next.push(await assembleSampleFromFile(file));
       setSamples((prev) => [...prev, ...next]);
-      showToast(`Added ${next.length} sample(s) — not added to Library`);
+      showToast(`Added ${next.length} sample(s). Not in Library.`);
     } catch {
       showToast("Couldn't decode one or more samples");
     } finally {
@@ -130,7 +130,7 @@ export function PackMakerPage() {
       if (next.length) setSamples((prev) => [...prev, ...next]);
       setSelectedDropIds(new Set());
       if (added && skipped) showToast(`Added ${added} from Library · ${skipped} unavailable (skipped)`);
-      else if (added) showToast(`Added ${added} from Library — pack set stays out of catalog auto-ingest`);
+      else if (added) showToast(`Added ${added} from Library`);
       else showToast("No Library audio could be fetched");
     } finally {
       setBusy(false);
@@ -176,7 +176,7 @@ export function PackMakerPage() {
       fileName: `${(title || "vybz-pack").replace(/[^\w.-]+/g, "_").slice(0, 48)}.zip`,
       blob,
     });
-    showToast("Handed off to storefront — ZIP uploads into the draft");
+    showToast("ZIP sent to the listing");
     navigate("/tools/packs/new");
   }
 
@@ -195,14 +195,17 @@ export function PackMakerPage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Packs"
-      title="Pack Maker"
-      subtitle={`Build packs from Library and local files. Measured ZIP + checksummed manifest. Store handoff uploads the real ZIP. Never auto-added to Library. Proc ${PACK_MAKER_VERSION}.`}
+      eyebrow="Pack"
+      title="Build the ZIP"
+      subtitle="Add files or drop them here. They stay out of your library."
       testId="pack-maker"
     >
       <label className="forge-glass forge-plasma relative block !rounded-2xl p-4">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
-        <span className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">
+        <span
+          className="relative z-[1] text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35"
+          data-proc={PACK_MAKER_VERSION}
+        >
           Pack title
         </span>
         <input
@@ -239,7 +242,7 @@ export function PackMakerPage() {
             <p className="relative z-[1] text-[12px] text-white/45">Loading…</p>
           ) : libraryDrops.length === 0 ? (
             <p className="relative z-[1] text-[12px] text-white/45">
-              No Library audio with a reachable URL. Upload tracks in Library first — we never invent samples.
+              No library audio yet. Upload tracks first.
             </p>
           ) : (
             <ul className="relative z-[1] max-h-56 space-y-1 overflow-y-auto">
@@ -275,7 +278,7 @@ export function PackMakerPage() {
 
       <ForgeDropzone
         label="Drop samples"
-        hint="or click to choose · multiple WAV / AIFF / FLAC / MP3 · local fallback"
+        hint="or click · WAV, AIFF, FLAC, MP3"
         accept={AUDIO_ACCEPT}
         multiple
         busy={busy}
@@ -299,7 +302,7 @@ export function PackMakerPage() {
           onClick={() => void onStorefront()}
           className="btn btn-ghost px-3 py-2 text-sm disabled:opacity-40"
         >
-          <Store className="h-4 w-4" /> To storefront
+          <Store className="h-4 w-4" /> Sell this
         </button>
       </div>
 
@@ -313,7 +316,7 @@ export function PackMakerPage() {
       {samples.length === 0 ? (
         <ForgeEmptyWorkingSet
           title="No samples yet"
-          detail="Add from Library or drop oneshots and loops. Pack working set stays local — never auto-ingested into Library."
+          detail="Add files. They won't go in your library."
         />
       ) : (
         <ul className="space-y-2" data-testid="pack-sample-list">

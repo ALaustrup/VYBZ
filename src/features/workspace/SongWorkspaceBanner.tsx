@@ -14,9 +14,9 @@ import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 
 const SOURCE_LABEL: Record<string, string> = {
-  analyzer: "Analyzer",
+  analyzer: "Scan",
   library: "Library",
-  "tool-drop": "Desk drop",
+  "tool-drop": "Drop",
   landing: "Landing",
 };
 
@@ -31,7 +31,7 @@ export function SongWorkspaceBanner({ className }: { className?: string }) {
 
   async function linkFolder() {
     if (!directoryPickerAvailable()) {
-      showToast("Folder link needs Chrome/Edge directory access — Not available here");
+      showToast("Folder link needs Chrome or Edge.");
       return;
     }
     try {
@@ -39,7 +39,7 @@ export function SongWorkspaceBanner({ className }: { className?: string }) {
       if (!link) return;
       setWorkingTrackDawFolder(link);
       showToast(
-        `Linked “${link.folderName}” locally this session · ${dawHintLabel(link.dawHint)} — not synced`,
+        `Linked “${link.folderName}” this session · ${dawHintLabel(link.dawHint)} — not synced`,
       );
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
@@ -60,7 +60,7 @@ export function SongWorkspaceBanner({ className }: { className?: string }) {
         <Disc3 className="h-4 w-4 shrink-0 text-[rgb(var(--app-accent-rgb))]" aria-hidden />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[11px] uppercase tracking-[0.14em] text-white/35">
-            Song workspace · {SOURCE_LABEL[track.source] ?? track.source}
+            This track · {SOURCE_LABEL[track.source] ?? track.source}
           </p>
           <p className="truncate font-display text-sm font-semibold text-white/90">
             {track.title || track.fileName}
@@ -74,19 +74,19 @@ export function SongWorkspaceBanner({ className }: { className?: string }) {
             to="/tools/correct"
             className="rounded-lg px-2 py-1 text-[11px] text-white/55 transition hover:bg-white/8 hover:text-white/85"
           >
-            Correct
+            Fix
           </Link>
           <Link
             to="/tools/translate"
             className="rounded-lg px-2 py-1 text-[11px] text-white/55 transition hover:bg-white/8 hover:text-white/85"
           >
-            Translation Lab
+            Listen check
           </Link>
           <Link
             to="/tools/metadata"
             className="rounded-lg px-2 py-1 text-[11px] text-white/55 transition hover:bg-white/8 hover:text-white/85"
           >
-            Metadata
+            Names
           </Link>
           <button
             type="button"
@@ -107,7 +107,7 @@ export function SongWorkspaceBanner({ className }: { className?: string }) {
           <>
             <FolderOpen className="h-3.5 w-3.5 text-white/40" aria-hidden />
             <p className="min-w-0 flex-1 truncate text-[11px] text-white/45">
-              DAW folder (local session): {track.dawFolder.folderName} ·{" "}
+              DAW folder: {track.dawFolder.folderName} ·{" "}
               {dawHintLabel(track.dawFolder.dawHint)} · {track.dawFolder.fileCount} files
               {track.dawFolder.hasAls ? " · .als seen" : ""}
               {track.dawFolder.hasDawproject ? " · .dawproject seen" : ""} — not synced
@@ -129,7 +129,7 @@ export function SongWorkspaceBanner({ className }: { className?: string }) {
             onClick={() => void linkFolder()}
           >
             <FolderOpen className="h-3.5 w-3.5" />
-            Link DAW project folder (optional · local)
+            Link DAW folder
           </button>
         )}
       </div>

@@ -33,10 +33,10 @@ describe("OR-042 Analyzer reliability", () => {
     const home = read("src/components/home/ArtistHome.tsx");
     const dash = read("src/components/dashboard/CommandDashboard.tsx");
     const apps = read("src/shell/suiteApps.ts");
-    expect(orb).toMatch(/id:\s*"releases"[\s\S]{0,40}label:\s*"Analyzer"/);
-    expect(home).toMatch(/label:\s*"Analyzer"[\s\S]{0,40}to:\s*"\/releases"/);
-    expect(dash).toMatch(/label:\s*"Analyzer"[\s\S]{0,40}to:\s*"\/releases"/);
-    expect(apps).toMatch(/label:\s*"Analyzer"/);
+    expect(orb).toMatch(/id:\s*"releases"[\s\S]{0,40}label:\s*"Scan"/);
+    expect(home).toMatch(/label:\s*"Scan"[\s\S]{0,40}to:\s*"\/releases"/);
+    expect(dash).toMatch(/label:\s*"Scan"[\s\S]{0,40}to:\s*"\/releases"/);
+    expect(apps).toMatch(/label:\s*"Scan"/);
     expect(orb).not.toMatch(/label:\s*"Releases"/);
   });
 

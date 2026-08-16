@@ -18,7 +18,7 @@ export function StorefrontDashboardPage() {
   const [tab, setTab] = useState<Tab>("packs");
   const [settlingId, setSettlingId] = useState<string | null>(null);
 
-  useRegisterAppBar({ title: "Sample Packs" }, []);
+  useRegisterAppBar({ title: "Your packs" }, []);
 
   const load = useCallback(async () => {
     try {
@@ -42,7 +42,7 @@ export function StorefrontDashboardPage() {
     setSettlingId(orderId);
     try {
       await api.settleStorefrontOrder(orderId);
-      showToast("Marked settled off-platform.");
+      showToast("Marked paid out.");
       await load();
     } catch (e) {
       showToast((e as Error).message);
@@ -62,9 +62,9 @@ export function StorefrontDashboardPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-6 pb-28 suite-grid suite-grid-dense" data-testid="storefront-dashboard">
       <NexusPageHeader
-        eyebrow="Tools"
-        title="Sample Pack Storefront"
-        subtitle="Upload a pack, generate copy and cover art, publish a storefront. Fans pay VYBZ; you settle manually (ACH / Zelle / Vc) — platform fee 10%."
+        eyebrow="Sell"
+        title="Your packs"
+        subtitle="Buyers pay here. You pay yourself out. We take 10%."
       />
 
       <div className="flex gap-2" role="tablist" aria-label="Storefront sections">
@@ -101,7 +101,7 @@ export function StorefrontDashboardPage() {
           {packs.length === 0 ? (
             <div className="forge-card py-12 text-center">
               <Package className="mx-auto mb-3 h-8 w-8 text-white/30" />
-              <p className="text-sm text-white/50">No packs yet. Create your first storefront.</p>
+              <p className="text-sm text-white/50">No packs yet.</p>
             </div>
           ) : (
             <ul className="space-y-2">

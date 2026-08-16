@@ -122,8 +122,8 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
         ) : drops.length === 0 ? (
           <EmptyState
             icon={AudioLines}
-            title="Your feed is waking up"
-            body="Follow artists, rate tracks, or share a drop from the dock — your Listen feed fills from taste."
+            title="Nothing here yet"
+            body="Follow people or drop a track. The feed fills from that."
           />
         ) : (
           <div className={cx("mx-auto", gridCls)}>

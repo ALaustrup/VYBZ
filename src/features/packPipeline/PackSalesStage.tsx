@@ -50,7 +50,7 @@ export function PackSalesStage() {
     setSettlingId(orderId);
     try {
       await api.settleStorefrontOrder(orderId);
-      showToast("Marked settled off-platform.");
+      showToast("Marked paid out.");
       await load();
     } catch (e) {
       showToast((e as Error).message);
@@ -61,9 +61,9 @@ export function PackSalesStage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Session"
-      title="Library and sales"
-      subtitle="What you hold, and what sold. Enjoyment is Not measured."
+      eyebrow="Sales"
+      title="Files and sales"
+      subtitle="What you have, and what sold."
       testId="pack-sales-stage"
       className="max-w-4xl"
     >
@@ -73,29 +73,29 @@ export function PackSalesStage() {
           <p className="mt-1 font-display text-2xl text-white" data-testid="pack-sales-library-count">
             {trackTotal == null ? "—" : trackTotal}
           </p>
-          <p className="text-[11px] text-white/40">measured tracks</p>
+          <p className="text-[11px] text-white/40">tracks</p>
         </div>
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">Packs</p>
           <p className="mt-1 font-display text-2xl text-white">
             {packs == null ? "—" : packs.length}
           </p>
-          <p className="text-[11px] text-white/40">drafts and live</p>
+          <p className="text-[11px] text-white/40">live + drafts</p>
         </div>
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">Orders</p>
           <p className="mt-1 font-display text-2xl text-white">{orders.length}</p>
-          <p className="text-[11px] text-white/40">recorded sales</p>
+          <p className="text-[11px] text-white/40">sales</p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <Link to="/library" className="forge-cta inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
-          <Library className="h-3.5 w-3.5" /> Open Library
+          <Library className="h-3.5 w-3.5" /> Library
         </Link>
         {FLAGS.storefront ? (
           <Link to="/tools/packs" className="forge-cta-ghost inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
-            <Package className="h-3.5 w-3.5" /> Seller dashboard
+            <Package className="h-3.5 w-3.5" /> Your packs
           </Link>
         ) : null}
       </div>
@@ -103,7 +103,7 @@ export function PackSalesStage() {
       <section className="space-y-2">
         <h2 className="nexus-eyebrow">Published packs</h2>
         {!FLAGS.storefront ? (
-          <p className="text-sm text-white/40">Storefront is off.</p>
+          <p className="text-sm text-white/40">Shop is off.</p>
         ) : packs == null ? (
           <Loader2 className="h-5 w-5 animate-spin text-white/40" />
         ) : packs.length === 0 ? (
@@ -138,7 +138,7 @@ export function PackSalesStage() {
             onSettle={(id) => void settleOrder(id)}
           />
         ) : (
-          <p className="text-sm text-white/40">Storefront is off.</p>
+          <p className="text-sm text-white/40">Shop is off.</p>
         )}
       </section>
     </ToolWorkbench>

@@ -37,7 +37,7 @@ export function WhatNextDesks({
         ))}
       </ul>
       <p className="mt-2 text-[11px] text-white/35">
-        Suggested from open finding codes only — not a readiness score.
+        From open issues only. Not a score.
       </p>
     </div>
   );

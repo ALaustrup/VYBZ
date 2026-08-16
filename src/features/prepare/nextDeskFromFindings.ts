@@ -31,10 +31,10 @@ function deskForCode(
   releaseId: string | null | undefined,
 ): { desk: NextDeskId; href: string; label: string } | null {
   if (code.startsWith("ARTWORK_")) {
-    return { desk: "art-check", href: "/tools/art-check", label: "Art Check" };
+    return { desk: "art-check", href: "/tools/art-check", label: "Cover" };
   }
   if (code.startsWith("METADATA_")) {
-    return { desk: "metadata", href: "/tools/metadata", label: "Metadata" };
+    return { desk: "metadata", href: "/tools/metadata", label: "Names" };
   }
 
   const ship = shipAutoFixForCode(code);
@@ -42,9 +42,9 @@ function deskForCode(
     const correctHref = `/tools/correct?op=${encodeURIComponent(ship.op)}`;
     if (ship.op === "loudness") {
       // Loudness ship → Correct primary; Translation Lab as travel preview is separate.
-      return { desk: "correct", href: correctHref, label: `Correct · ${ship.label}` };
+      return { desk: "correct", href: correctHref, label: `Fix · ${ship.label}` };
     }
-    return { desk: "correct", href: correctHref, label: `Correct · ${ship.label}` };
+    return { desk: "correct", href: correctHref, label: `Fix · ${ship.label}` };
   }
 
   if (code.startsWith("AUDIO_")) {
@@ -52,10 +52,10 @@ function deskForCode(
       return {
         desk: "release",
         href: `/release/${releaseId}`,
-        label: "Open release report",
+        label: "Open report",
       };
     }
-    return { desk: "correct", href: "/tools/correct", label: "Open Correct desk" };
+    return { desk: "correct", href: "/tools/correct", label: "Open Fix" };
   }
 
   return null;
@@ -68,7 +68,7 @@ function translationCompanion(code: string): NextDeskStep | null {
   return {
     desk: "translate",
     href: "/tools/translate",
-    label: "Translation Lab · streaming preview",
+    label: "Listen check",
     code,
     severity: "info",
   };

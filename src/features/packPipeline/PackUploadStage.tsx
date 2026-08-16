@@ -45,7 +45,7 @@ export function PackUploadStage() {
   async function releaseAll() {
     if (!releasable.length || releasing) return;
     if (!ownershipClaim) {
-      showToast("Check the originality box — VYBZ is for your own music.");
+      showToast("Tick the box — this has to be your music.");
       return;
     }
     setReleasing(true);
@@ -74,15 +74,15 @@ export function PackUploadStage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Session"
-      title="Drop the session"
-      subtitle="Loops, oneshots, phrases. Bytes move the moment they land. Continue when you are ready."
+      eyebrow="Upload"
+      title="Drop your files"
+      subtitle="They upload as soon as they land."
       testId="pack-upload-stage"
       className="max-w-4xl"
     >
       <ForgeDropzone
         label="Drop audio here"
-        hint="WAV, AIFF, FLAC, MP3 · upload starts immediately"
+        hint="WAV, AIFF, FLAC, MP3"
         accept={AUDIO_ACCEPT}
         multiple
         inputTestId="pack-upload-input"
@@ -116,7 +116,7 @@ export function PackUploadStage() {
       ) : (
         <p className="flex items-center gap-2 text-[13px] text-white/35">
           <AudioLines className="h-4 w-4" />
-          Nothing in the tray yet. You can still Continue — later stages just start empty.
+          Nothing here yet. Continue anyway if you want.
         </p>
       )}
 

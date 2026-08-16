@@ -23,7 +23,7 @@ describe("Alpha welcome + feedback gate", () => {
 
   it("welcomes first, then claims the artist name, then tours the suite", () => {
     expect(ALPHA_GUIDE_STEPS.length).toBe(4);
-    expect(ALPHA_GUIDE_STEPS[0]!.title).toMatch(/Welcome to VYBZ Alpha Test/i);
+    expect(ALPHA_GUIDE_STEPS[0]!.title).toMatch(/Welcome to VYBZ/i);
     expect(ALPHA_GUIDE_STEPS[1]!.id).toBe("username");
     expect(ALPHA_GUIDE_STEPS[2]!.highlights?.length).toBeGreaterThan(2);
     expect(ALPHA_GUIDE_STEPS[3]!.id).toBe("feedback");
