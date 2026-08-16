@@ -45,6 +45,10 @@
   --app-accent-rgb: 20 184 166;
   --accent-rgb: 20 184 166;
 }
+.suite-shell[data-suite-app="pack-pipeline"] {
+  --app-accent-rgb: 20 184 166;
+  --accent-rgb: 20 184 166;
+}
 .suite-shell[data-suite-app="stem-maker"] {
   --app-accent-rgb: 6 182 212;
   --accent-rgb: 6 182 212;

@@ -20,7 +20,7 @@ export function PackSalesStage() {
   const [settlingId, setSettlingId] = useState<string | null>(null);
   const [trackTotal, setTrackTotal] = useState<number | null>(null);
 
-  useRegisterAppBar({ title: "Make pack", subtitle: "Stage 8 · Sales" }, []);
+  useRegisterAppBar({ title: "Make pack", subtitle: "Sales" }, []);
 
   const load = useCallback(async () => {
     try {
@@ -61,11 +61,34 @@ export function PackSalesStage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Stage 8"
+      eyebrow="Session"
       title="Library and sales"
-      subtitle="Your catalog and what sold. Counts are measured. Enjoyment is Not measured."
+      subtitle="What you hold, and what sold. Enjoyment is Not measured."
       testId="pack-sales-stage"
+      className="max-w-4xl"
     >
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">Library</p>
+          <p className="mt-1 font-display text-2xl text-white" data-testid="pack-sales-library-count">
+            {trackTotal == null ? "—" : trackTotal}
+          </p>
+          <p className="text-[11px] text-white/40">measured tracks</p>
+        </div>
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">Packs</p>
+          <p className="mt-1 font-display text-2xl text-white">
+            {packs == null ? "—" : packs.length}
+          </p>
+          <p className="text-[11px] text-white/40">drafts and live</p>
+        </div>
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/35">Orders</p>
+          <p className="mt-1 font-display text-2xl text-white">{orders.length}</p>
+          <p className="text-[11px] text-white/40">recorded sales</p>
+        </div>
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <Link to="/library" className="forge-cta inline-flex items-center gap-1.5 !min-h-9 !px-3 !text-xs">
           <Library className="h-3.5 w-3.5" /> Open Library
@@ -76,12 +99,6 @@ export function PackSalesStage() {
           </Link>
         ) : null}
       </div>
-
-      {trackTotal != null ? (
-        <p className="text-[12px] text-white/40" data-testid="pack-sales-library-count">
-          Library tracks: {trackTotal}
-        </p>
-      ) : null}
 
       <section className="space-y-2">
         <h2 className="nexus-eyebrow">Published packs</h2>
@@ -94,9 +111,9 @@ export function PackSalesStage() {
         ) : (
           <ul className="space-y-2">
             {packs.map((p) => (
-              <li key={p.id} className="forge-card flex items-center justify-between gap-3 !rounded-xl px-3 py-2.5">
+              <li key={p.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-white/85">{p.title || "Untitled pack"}</p>
+                  <p className="truncate text-sm text-white/90">{p.title || "Untitled pack"}</p>
                   <p className="text-[11px] text-white/40">
                     {p.status} · {formatPackPrice(p.price_cents, p.currency)}
                   </p>

@@ -32,7 +32,7 @@ export function PackUploadStage() {
   const [releasing, setReleasing] = useState(false);
   const [audience] = useState<PostAudience>("private");
 
-  useRegisterAppBar({ title: "Make pack", subtitle: "Stage 0 · Upload" }, []);
+  useRegisterAppBar({ title: "Make pack", subtitle: "Upload" }, []);
 
   const releasable = items.filter(canReleaseItem);
 
@@ -74,17 +74,19 @@ export function PackUploadStage() {
 
   return (
     <ToolWorkbench
-      eyebrow="Stage 0"
-      title="Upload assets"
-      subtitle="Drop loops, oneshots and phrases. They upload while you stay here. Continue when you are ready — this step does not invent a pack."
+      eyebrow="Session"
+      title="Drop the session"
+      subtitle="Loops, oneshots, phrases. Bytes move the moment they land. Continue when you are ready."
       testId="pack-upload-stage"
+      className="max-w-4xl"
     >
       <ForgeDropzone
         label="Drop audio here"
-        hint="or click to choose · upload starts immediately"
+        hint="WAV, AIFF, FLAC, MP3 · upload starts immediately"
         accept={AUDIO_ACCEPT}
         multiple
         inputTestId="pack-upload-input"
+        className="!py-16"
         onFiles={takeFiles}
       />
 
@@ -93,22 +95,33 @@ export function PackUploadStage() {
           {items.map((item) => (
             <li
               key={item.id}
-              className="forge-card flex items-center justify-between gap-3 !rounded-xl px-3 py-2.5 text-sm"
+              className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03]"
             >
-              <div className="min-w-0">
-                <p className="truncate text-white/85">{item.name}</p>
-                <p className="text-[11px] text-white/40">{itemStatusLabel(item)}</p>
+              <div className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-white/90">{item.name}</p>
+                  <p className="text-[11px] text-white/40">{itemStatusLabel(item)}</p>
+                </div>
+                <span className="shrink-0 text-[11px] tabular-nums text-white/40">{item.percent}%</span>
               </div>
-              <span className="shrink-0 text-[11px] tabular-nums text-white/35">{item.percent}%</span>
+              <div className="h-0.5 bg-white/[0.06]">
+                <div
+                  className="h-full bg-[rgb(var(--app-accent-rgb))] transition-[width]"
+                  style={{ width: `${item.percent}%` }}
+                />
+              </div>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-[13px] text-white/40">No files yet. A later stage can also pull from Library.</p>
+        <p className="flex items-center gap-2 text-[13px] text-white/35">
+          <AudioLines className="h-4 w-4" />
+          Nothing in the tray yet. You can still Continue — later stages just start empty.
+        </p>
       )}
 
       {items.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-4 rounded-2xl border border-white/[0.08] bg-black/20 p-4">
           <OriginalityClaim checked={ownershipClaim} onChange={setOwnershipClaim} />
           <button
             type="button"
@@ -126,12 +139,7 @@ export function PackUploadStage() {
             </p>
           ) : null}
         </div>
-      ) : (
-        <p className="flex items-center gap-2 text-[12px] text-white/30">
-          <AudioLines className="h-4 w-4" />
-          Continue skips nothing required — an empty library just means later stages start empty.
-        </p>
-      )}
+      ) : null}
     </ToolWorkbench>
   );
 }

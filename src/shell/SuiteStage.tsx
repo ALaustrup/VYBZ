@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { isPackPipelinePath } from "@/features/packPipeline/stages";
+import { cx } from "@/lib/utils";
 import { activeSuiteAppId } from "@/shell/suiteApps";
 
 /**
@@ -9,8 +11,13 @@ import { activeSuiteAppId } from "@/shell/suiteApps";
  * (set on SuiteShell). Keeps dock-reserve padding on the inner scroll surface.
  */
 export function SuiteStage({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  const pack = isPackPipelinePath(pathname);
   return (
-    <main className="suite-stage suite-stage-frame" data-testid="suite-stage">
+    <main
+      className={cx("suite-stage suite-stage-frame", pack && "suite-stage--pack")}
+      data-testid="suite-stage"
+    >
       <ErrorBoundary>
         <div className="suite-stage-inner">{children}</div>
       </ErrorBoundary>
