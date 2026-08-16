@@ -198,6 +198,7 @@ export const GATE_REGISTRY = [
   "sparks",
   "reception",
   "stationLine",
+  "accountMenu",
   "playbackAuthority",
   "dockVisuals",
   "featuredMiniPlayer",

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Disc3, Plus, Search, Upload } from "lucide-react";
 import { BrandMark } from "@/components/Brand";
+import { AccountMenu } from "@/components/shell/AccountMenu";
 import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
 import { chromeForPath } from "@/lib/appBarChrome";
 import { useAppBarBridge } from "@/lib/appBarBridge";
@@ -170,6 +171,7 @@ export function ContextualAppBar({
               )}
             </AnimatePresence>
           </div>
+          <AccountMenu />
         </div>
       </div>
     </header>
