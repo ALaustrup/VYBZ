@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`303f726a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the feed/live/profile polish: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`5caefea8`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the feed/live/profile polish: **Not measured**.
 
 ## Feed, live stage, and profile polish — 2026-08-18
 
