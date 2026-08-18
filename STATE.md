@@ -4,22 +4,13 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`f397cb92`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`ffed8df5`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
 
-## 3-panel live homepage — 2026-08-18
+## Revert 3-panel homepage — 2026-08-18
 
-Default signed-in surface is one fusion screen at `/live` (`/` redirects there). Old apps are hidden from default chrome, not deleted. Routes still resolve. Default nav is only `/live`. Tools launcher is unmounted from the app bar; the file stays.
+Owner rejected the 3-panel addition. Reverted `c23b3efe`. `/live` is the prior Who's live page. Suite rail, tools launcher, and `/` hub are back. Fusion files existed only in that commit.
 
-| Piece | State | Evidence |
-|---|---|---|
-| Homepage shell | **IMPLEMENTED BUT NOT DELIVERED** | `LiveHomePage` left / center / right. Tokens in `liveHome.css` |
-| Hide apps | **IMPLEMENTED BUT NOT DELIVERED** | `navGroups()` empty. `ARCHIVED_NAV_PATHS` includes make, rooms, mix, library, store |
-| Visible | Homepage, `/u/:id` profiles, VDock visualizers | Unchanged routes |
-| Tips | Existing `TipButton` | Hidden if payouts off |
-| ATC / mint | Unchanged | No new rates. Stats missing → Not measured |
-| Browser walk | Not measured | No web browser tool this session |
-
-`npm run lint` pass. `npm run test` pass — **180 files / 903 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
 ## Daily clock is 2h, not 3h — 2026-08-18
 

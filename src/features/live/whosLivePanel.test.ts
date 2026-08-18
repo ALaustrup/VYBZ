@@ -22,7 +22,7 @@ describe("Who's live panel", () => {
     expect(panel).toContain("earn Airtime");
     expect(read("src/pages/LiveWatchPage.tsx")).toContain("listen-earn-meter");
     expect(read("src/pages/LiveWatchPage.tsx")).toContain("listenCredited");
-    expect(read("src/pages/LiveHomePage.tsx")).toContain("WhosLivePanel");
+    expect(read("src/pages/LivePage.tsx")).toContain("WhosLivePanel");
     expect(read("src/components/home/ArtistHome.tsx")).toContain("WhosLivePanel");
     expect(read("src/components/dashboard/DashLivePanel.tsx")).toContain("WhosLivePanel");
   });

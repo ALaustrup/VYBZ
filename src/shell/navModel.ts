@@ -1,7 +1,12 @@
 import {
+  BookOpen,
+  Disc,
+  Library,
+  Package,
   Radio,
   ShieldCheck,
   UserCog,
+  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -30,7 +35,55 @@ export type NavGroup = { id: string; label: string; items: NavItem[] };
  * Only destinations that render a working surface may appear.
  */
 export function navGroups(): NavGroup[] {
-  return [];
+  return [
+    {
+      id: "live",
+      label: "Live",
+      items: [
+        {
+          path: "/library/mix",
+          label: "Living Mix",
+          hint: "Mix engine",
+          icon: Disc,
+          productId: "home",
+        },
+        {
+          path: "/rooms",
+          label: "Rooms",
+          hint: "Collab sessions",
+          icon: Users,
+          productId: "home",
+        },
+      ],
+    },
+    {
+      id: "studio",
+      label: "Studio",
+      items: [
+        {
+          path: "/library",
+          label: "Library",
+          hint: "Your files",
+          icon: Library,
+          productId: "home",
+        },
+        {
+          path: "/make",
+          label: "Make pack",
+          hint: "Sample pack builder",
+          icon: Package,
+          productId: "market",
+        },
+        {
+          path: "/make/dashboard",
+          label: "Sales",
+          hint: "What sold",
+          icon: Radio,
+          productId: "market",
+        },
+      ],
+    },
+  ];
 }
 
 /**
@@ -47,6 +100,14 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
       icon: UserCog,
       productId: "home",
     },
+    {
+      path: "/store",
+      label: "Packages",
+      hint: "Buy V¢",
+      icon: Package,
+      productId: "home",
+    },
+    { path: "/codex", label: "Codex", hint: "Docs and legal", icon: BookOpen, productId: "home" },
   ];
   const mod = isAdmin || role === "admin" || role === "moderator";
   if (mod) {
@@ -91,11 +152,5 @@ export const ARCHIVED_NAV_PATHS = [
   "/discover",
   "/messages",
   "/notifications",
-  "/library",
-  "/library/mix",
-  "/rooms",
-  "/make",
-  "/make/dashboard",
-  "/codex",
   "/",
 ] as const;

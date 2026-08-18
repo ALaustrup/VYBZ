@@ -36,7 +36,6 @@ export function SuiteShell({
   const shellMode = useShellMode();
   const suiteAppId = useActiveSuiteAppId();
   const { pathname } = useLocation();
-  const fusionHome = pathname === "/" || pathname === "/live";
   return (
     <div
       className={`suite-shell suite-density-premium ${shellModeClass(shellMode)}`}
@@ -45,7 +44,7 @@ export function SuiteShell({
       data-suite-app={suiteAppId ?? "home"}
       data-testid="suite-shell"
     >
-      {fusionHome ? null : <PrimaryRail />}
+      <PrimaryRail />
       <div className="suite-shell-main">
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
