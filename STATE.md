@@ -6,6 +6,14 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Session provenance Phase 0–1 — 2026-08-17
+
+Decision [`0006`](docs/decisions/0006-session-provenance.md). `PRODUCT.md` v5. `HUMAN_PROVENANCE` + `humanProvenance` gate. Package proves a measured live session; **refuses** a “not AI” claim.
+
+Migration `0106` (tables `provenance_sessions` / `provenance_events`, RPCs open/append/seal, `human_session` on the existing ledger CHECK). **INFRASTRUCTURE ONLY. Not applied.** Not hooked to Go Live or host burn. Stripe and ATC formulas untouched.
+
+`npm run lint` pass. `npm run test` pass — **167 files / 861 tests**.
+
 ## ATC Phase 2–3 + 0105 applied — 2026-08-17
 
 **0105 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked`. Verified tables: `airtime_balances`, `airtime_ledger`, `listen_credit_events`, `listen_credit_sessions`. Verified RPCs: `grant_daily_free`, `get_airtime_balance`, `consume_airtime`, `report_listen_heartbeat`, `can_start_live`, `atc_abuse_review`, `_atc_award_verified`.

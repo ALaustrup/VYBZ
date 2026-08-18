@@ -108,7 +108,39 @@ export const LIVE_MIX_STREAMING = {
   postSessionPackMonetization: true,
   /** Going live burns Airtime Credits. Listening stays free. */
   hostingRequiresAtc: true,
+  /** Sealed live sessions can emit a session-provenance package. */
+  sessionProvenanceAvailable: true,
 } as const;
+
+/* ------------------------------------------------------------------------- */
+/* Session provenance (not an AI-negative proof)                              */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Human / session provenance (decision 0006).
+ * Proves a measured live session happened for an authenticated host.
+ * Does not prove the audio was composed by a human or was not AI-generated.
+ */
+export const HUMAN_PROVENANCE = {
+  /** Package is about a live_sessions row, not Living Mix and not 1:1 DM calls. */
+  bindsToPublicLiveSession: true,
+  /** Full strength only when airtime_ledger has host_consume for that session. */
+  fullStrengthRequiresAtcBurn: true,
+  /** Signing material stays on the server. Clients do not hold session private keys. */
+  serverHoldsSigningMaterial: true,
+  /** Client-sent mix hashes and pointer/MIDI flags are declared, not measured. */
+  clientSignalsAreDeclared: true,
+  /** We never assert the mix was not AI-generated. That is not measurable here. */
+  refusesNotAiClaim: true,
+  /** Existing forensic watermark + C2PA worker stay; this does not replace them. */
+  doesNotReplaceForensicWatermark: true,
+} as const;
+
+export const PROVENANCE_STRENGTHS = ["thin", "full"] as const;
+export type ProvenanceStrength = (typeof PROVENANCE_STRENGTHS)[number];
+
+export const PROVENANCE_EVENT_TYPES = ["open", "atc_burn", "signal", "seal"] as const;
+export type ProvenanceEventType = (typeof PROVENANCE_EVENT_TYPES)[number];
 
 /* ------------------------------------------------------------------------- */
 /* Airtime Credits (ATC) — live hosting commons                               */
@@ -297,6 +329,7 @@ export const GATE_REGISTRY = [
   "aiReviewPortal",
   "liveManifest",
   "airtimeCredits",
+  "humanProvenance",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

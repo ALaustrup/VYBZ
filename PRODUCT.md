@@ -4,8 +4,8 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 4 · 2026-08-17 · supersedes Version 3 (Live Mix Platform, 2026-08-17), Version 2 (Pack Suite, 2026-08-16) and Version 1 (The Station, 2026-08-15).
-> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated).
+> Version 5 · 2026-08-17 · supersedes Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
+> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove).
 
 ---
 
@@ -31,6 +31,7 @@ Core experience pillars:
 - **Multi-device & Android synchronization:** Seamless companion control, mobile live broadcast rigs, and lockstep device sync.
 - **Persistent continuity & post-stream monetization:** Tools to split stems, measure loudness, package live recordings into verified sample packs, and sell them directly on the marketplace.
 - **Airtime Credits (ATC):** Hosting time is earned by giving verified attention. Listening is always free.
+- **Session provenance:** A sealed live mix can emit a measured package (who hosted, that ATC was burned, a chained event log). It does not prove the music was not AI-generated.
 
 ## 3. The Live Mix Platform Architecture
 
@@ -99,6 +100,7 @@ VYBZ never fabricates play counts, listener engagement, or musical analysis. A f
 - **No purchasable attention:** Money cannot buy live stream ranking, "featured" tags, fake listens, or ATC.
 - **No dating, romance, meetup or swipe matching:** Permanently out of scope.
 - **No fabricated measurement:** Everything unmeasured reads **"Not measured"**.
+- **No “not AI” proof:** Session provenance never claims the audio was human-composed or not fully AI-generated. That is not measurable from presence, ATC, or a client hash.
 - **No undisclosed processing on the play path:** Stream and playback paths remain dry and disclosed.
 
 ## 10. Preservation — Hide, Never Delete
