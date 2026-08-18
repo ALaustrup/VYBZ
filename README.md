@@ -78,3 +78,7 @@ issues that include exploit detail for unpatched production flaws.
 ## License / ownership
 
 Proprietary — Astra Matrix, Inc. Repository: [ALaustrup/VYBZ](https://github.com/ALaustrup/VYBZ).
+
+---
+
+by ASTRA MATRIX
