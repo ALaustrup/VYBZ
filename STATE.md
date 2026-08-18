@@ -6,6 +6,14 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Owner walk — new account live >45 min — 2026-08-18
+
+Owner-reported against local `npm run dev` (http://localhost:5173), code HEAD **`9b6baa7b`** (PRODUCT v7 lock). New account. Stayed live **over 45 minutes**. Owner: all seemed working.
+
+That is a signed-in walk of go-live + host stay. It is **not** a production walk. Bootstrap grant, leftover-seconds end, `.vprov` download, and Stage File were **not separately reported**.
+
+Web app **not deployed**. Reception / referral still refused.
+
 ## Product lock v7 — live audio for any host — 2026-08-18
 
 Slices 2, 3, and 1 were verified in the tree at **`0c04d717`** (not fiction):
