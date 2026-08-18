@@ -140,6 +140,10 @@ export const HUMAN_PROVENANCE = {
   clientAudioShaIsDeclared: true,
   /** A measured audio SHA requires stored bytes. Missing is Not measured. */
   measuredAudioShaRequiresStoredBytes: true,
+  /** assets.sha256 may be bound after seal. The file-is-the-mix link stays declared. */
+  assetToSessionLinkIsDeclared: true,
+  /** C2PA on the file is not inferred from a missing ledger row. */
+  c2paOnFileIsNotInferred: true,
 } as const;
 
 export const PROVENANCE_STRENGTHS = ["thin", "full"] as const;

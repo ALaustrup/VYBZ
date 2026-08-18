@@ -32,6 +32,8 @@ describe("human / session provenance", () => {
     expect(HUMAN_PROVENANCE.doesNotReplaceForensicWatermark).toBe(true);
     expect(HUMAN_PROVENANCE.clientAudioShaIsDeclared).toBe(true);
     expect(HUMAN_PROVENANCE.measuredAudioShaRequiresStoredBytes).toBe(true);
+    expect(HUMAN_PROVENANCE.assetToSessionLinkIsDeclared).toBe(true);
+    expect(HUMAN_PROVENANCE.c2paOnFileIsNotInferred).toBe(true);
     expect(LIVE_MIX_STREAMING.sessionProvenanceAvailable).toBe(true);
     expect(PROVENANCE_EVENT_TYPES).toContain("atc_burn");
   });
@@ -43,6 +45,7 @@ describe("human / session provenance", () => {
     expect(product).toContain("does not prove the music was not AI-generated");
     expect(product).toContain("No “not AI” proof");
     expect(product).toContain("audio SHA is measured only from stored bytes");
+    expect(product).toContain("C2PA ledger events are counted");
   });
 
   it("keeps the ledger off Stripe and off Living Mix / 1:1 calls", () => {
@@ -114,5 +117,21 @@ describe("human / session provenance", () => {
     expect(pack).toContain("audioSha");
     expect(pack).toContain("audioShaKind");
     expect(pack).toContain("A client DAW PCM digest is declared");
+  });
+
+  it("binds stored-bytes SHA through 0108 and does not invoke the C2PA worker", () => {
+    const sql = read("supabase/migrations/20260818_0108_session_stored_audio.sql");
+    expect(sql).toContain("bind_session_stored_audio");
+    expect(sql).toContain("c2pa_ledger_events");
+    expect(sql).toContain("Not measured");
+    expect(sql).not.toMatch(/stripe/i);
+    expect(sql).not.toMatch(/c2patool|C2PA_WORKER/i);
+    const api = read("src/features/provenance/provenanceApi.ts");
+    expect(api).toContain("bind_session_stored_audio");
+    expect(api).toContain("listHostHashedAssets");
+    const drawer = read("src/features/broadcast/SessionToolDrawer.tsx");
+    expect(drawer).toContain("StoredRecapBind");
+    const watch = read("src/pages/LiveWatchPage.tsx");
+    expect(watch).toContain("canBindStoredAudio");
   });
 });

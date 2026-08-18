@@ -1,6 +1,14 @@
 import { buildZip, sha256Hex } from "@/features/distribution/packageZip";
 import { NOT_MEASURED, type ProvenanceEventType, type ProvenanceStrength } from "@/product/invariants";
-import { audioBindFromEvents, audioShaLabel, type AudioShaKind } from "./audioBind";
+import {
+  audioBindFromEvents,
+  audioShaLabel,
+  bindAudioSha,
+  bindStoredAsset,
+  c2paLedgerLabel,
+  type AudioShaKind,
+  type StoredAudioBind,
+} from "./audioBind";
 
 export type SealedProvenanceEvent = {
   seq: number;
@@ -23,6 +31,7 @@ export type SealedProvenance = {
   openedAt: string;
   sealedAt: string | null;
   events: SealedProvenanceEvent[];
+  storedAudio?: StoredAudioBind | null;
 };
 
 export type VprovManifest = {
@@ -39,10 +48,25 @@ export type VprovManifest = {
   notAiClaim: typeof NOT_MEASURED;
   audioSha: string | null;
   audioShaKind: AudioShaKind | null;
+  audioAssetId: string | null;
+  audioLink: "declared" | null;
+  c2paLedgerEvents: number | null;
 };
 
+export function resolveSessionAudio(row: SealedProvenance) {
+  const declared = audioBindFromEvents(row.events);
+  const stored = row.storedAudio ?? bindStoredAsset({});
+  const audio = bindAudioSha({
+    measuredHex: stored.hex,
+    declaredHex: declared.hex,
+    declaredSource: declared.source === "daw_pcm_client" ? "daw_pcm_client" : null,
+    declaredBytesHashed: declared.bytesHashed,
+  });
+  return { audio, stored };
+}
+
 export function buildVprovManifest(row: SealedProvenance): VprovManifest {
-  const audio = audioBindFromEvents(row.events);
+  const { audio, stored } = resolveSessionAudio(row);
   return {
     version: 1,
     format: "vybz.vprov",
@@ -57,10 +81,14 @@ export function buildVprovManifest(row: SealedProvenance): VprovManifest {
     notAiClaim: NOT_MEASURED,
     audioSha: audio.hex,
     audioShaKind: audio.kind,
+    audioAssetId: stored.assetId,
+    audioLink: stored.linkKind,
+    c2paLedgerEvents: stored.c2paLedgerEvents,
   };
 }
 
 export function buildVerifyReport(row: SealedProvenance): string {
+  const { audio, stored } = resolveSessionAudio(row);
   const lines = [
     "VYBZ session provenance",
     "",
@@ -76,10 +104,14 @@ export function buildVerifyReport(row: SealedProvenance): string {
     `Events: ${row.eventCount}`,
     `Chain root: ${row.chainRoot ?? NOT_MEASURED}`,
     `Not AI: ${NOT_MEASURED}`,
-    `Audio SHA: ${audioShaLabel(audioBindFromEvents(row.events))}`,
+    `Audio SHA: ${audioShaLabel(audio)}`,
+    `Audio link to session: ${stored.linkKind ?? NOT_MEASURED}`,
+    `C2PA: ${c2paLedgerLabel(stored.c2paLedgerEvents)}`,
     "",
     "Declared signal events are client-observed flags, not studio capture.",
     "A client DAW PCM digest is declared. A measured SHA requires stored bytes.",
+    "Binding a catalog file to this live session is declared, even when the SHA is measured.",
+    "C2PA ledger events are counted. The file C2PA box is not parsed. The C2PA worker is not replaced.",
     "Full strength means this session burned Airtime. Thin means it did not.",
   ];
   return lines.join("\n");

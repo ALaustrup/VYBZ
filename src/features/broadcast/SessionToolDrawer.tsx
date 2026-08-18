@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, Download, Package, Sliders, Wrench } from "lucide-react";
 import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
+import { StoredRecapBind } from "@/features/provenance/StoredRecapBind";
+import type { StoredAudioBind } from "@/features/provenance/audioBind";
 import type { ProvenanceStrength } from "@/product/invariants";
 import { cx } from "@/lib/utils";
 
@@ -23,6 +25,9 @@ type SessionToolDrawerProps = {
   ended: boolean;
   provenanceStrength?: ProvenanceStrength | null;
   onDownloadProvenance?: () => void;
+  canBindStoredAudio?: boolean;
+  storedAudio?: StoredAudioBind | null;
+  onStoredAudio?: (next: StoredAudioBind) => void;
 };
 
 export function SessionToolDrawer({
@@ -31,6 +36,9 @@ export function SessionToolDrawer({
   ended,
   provenanceStrength,
   onDownloadProvenance,
+  canBindStoredAudio,
+  storedAudio,
+  onStoredAudio,
 }: SessionToolDrawerProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(ended);
@@ -73,6 +81,13 @@ export function SessionToolDrawer({
           <p className="text-[11px] text-white/40">
             Records the live session. Does not prove the music was not AI-generated.
           </p>
+          {canBindStoredAudio && onStoredAudio && (
+            <StoredRecapBind
+              liveSessionId={sessionId}
+              current={storedAudio}
+              onBound={onStoredAudio}
+            />
+          )}
           {onDownloadProvenance && (
             <button
               type="button"

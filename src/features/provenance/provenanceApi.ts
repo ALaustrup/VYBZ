@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { ProvenanceStrength } from "@/product/invariants";
+import { bindStoredAsset, isSha256Hex, type StoredAudioBind } from "./audioBind";
 import { buildVprovZip, type SealedProvenance } from "./buildVprov";
 import type { DeclaredHostSignals } from "./hostSignals";
 
@@ -120,7 +121,7 @@ export async function fetchSealedProvenance(liveSessionId: string): Promise<Seal
   if (!supabase) return null;
   const { data: row, error } = await supabase
     .from("provenance_sessions")
-    .select("id, live_session_id, host_id, status, strength, event_count, chain_root, atc_burned, opened_at, sealed_at")
+    .select("id, live_session_id, host_id, status, strength, event_count, chain_root, atc_burned, opened_at, sealed_at, manifest")
     .eq("live_session_id", liveSessionId)
     .eq("status", "sealed")
     .maybeSingle();
@@ -130,6 +131,7 @@ export async function fetchSealedProvenance(liveSessionId: string): Promise<Seal
     .select("seq, event_type, payload, prev_hash, row_hash, created_at")
     .eq("session_id", row.id)
     .order("seq", { ascending: true });
+  const manifest = (row.manifest ?? {}) as Record<string, unknown>;
   return {
     id: row.id,
     liveSessionId: row.live_session_id,
@@ -141,6 +143,11 @@ export async function fetchSealedProvenance(liveSessionId: string): Promise<Seal
     atcBurned: Number(row.atc_burned ?? 0),
     openedAt: row.opened_at,
     sealedAt: row.sealed_at ?? null,
+    storedAudio: bindStoredAsset({
+      sha256: manifest.audio_sha,
+      assetId: manifest.audio_asset_id,
+      c2paLedgerEvents: manifest.c2pa_ledger_events,
+    }),
     events: (evs ?? []).map((e) => ({
       seq: Number(e.seq),
       eventType: String(e.event_type),
@@ -150,6 +157,47 @@ export async function fetchSealedProvenance(liveSessionId: string): Promise<Seal
       createdAt: String(e.created_at),
     })),
   };
+}
+
+export type HashedAsset = { id: string; title: string | null; sha256: string };
+
+export async function listHostHashedAssets(limit = 24): Promise<HashedAsset[]> {
+  if (!supabase) return [];
+  const { data: auth } = await supabase.auth.getUser();
+  const uid = auth.user?.id;
+  if (!uid) return [];
+  const { data, error } = await supabase
+    .from("assets")
+    .select("id, title, sha256")
+    .eq("owner_id", uid)
+    .not("sha256", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return data.flatMap((r) => {
+    const hex = typeof r.sha256 === "string" ? r.sha256.toLowerCase() : "";
+    if (!isSha256Hex(hex)) return [];
+    return [{ id: String(r.id), title: typeof r.title === "string" ? r.title : null, sha256: hex }];
+  });
+}
+
+export async function bindSessionStoredAudio(
+  liveSessionId: string,
+  assetId: string,
+): Promise<StoredAudioBind | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("bind_session_stored_audio", {
+    p_live: liveSessionId,
+    p_asset: assetId,
+  });
+  if (error || !data) return null;
+  const r = data as Record<string, unknown>;
+  if (r.ok !== true) return null;
+  return bindStoredAsset({
+    sha256: r.audio_sha,
+    assetId: r.audio_asset_id,
+    c2paLedgerEvents: r.c2pa_ledger_events,
+  });
 }
 
 export async function downloadVprovPackage(liveSessionId: string): Promise<boolean> {

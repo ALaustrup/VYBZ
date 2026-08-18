@@ -45,6 +45,8 @@ describe("vprov package", () => {
     expect(m.notAiClaim).toBe(NOT_MEASURED);
     expect(m.audioSha).toBeNull();
     expect(m.audioShaKind).toBeNull();
+    expect(m.audioLink).toBeNull();
+    expect(m.c2paLedgerEvents).toBeNull();
     expect(m.format).toBe("vybz.vprov");
     expect(m.strength).toBe("full");
     expect(m.atcBurned).toBe(60);
@@ -80,6 +82,27 @@ describe("vprov package", () => {
     expect(m.audioShaKind).toBe("declared");
     expect(buildVerifyReport(withSha)).toContain("declared client DAW PCM");
     expect(buildVerifyReport(withSha)).not.toContain("measured from stored bytes");
+  });
+
+  it("prefers a stored-bytes SHA and does not claim a file C2PA box", () => {
+    const withStored: SealedProvenance = {
+      ...sample,
+      storedAudio: {
+        hex: "d".repeat(64),
+        assetId: "asset-1",
+        linkKind: "declared",
+        c2paLedgerEvents: 0,
+      },
+    };
+    const m = buildVprovManifest(withStored);
+    expect(m.audioSha).toBe("d".repeat(64));
+    expect(m.audioShaKind).toBe("measured");
+    expect(m.audioLink).toBe("declared");
+    expect(m.c2paLedgerEvents).toBe(0);
+    const report = buildVerifyReport(withStored);
+    expect(report).toContain("measured from stored bytes");
+    expect(report).toContain("file C2PA box: Not measured");
+    expect(report).toContain("C2PA worker is not replaced");
   });
 
   it("builds a zip with the three required files", async () => {

@@ -6,6 +6,24 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Session provenance Phase 6 — stored-bytes SHA + C2PA ledger count — 2026-08-18
+
+Host can bind one owned catalog asset to a sealed session. `assets.sha256` is **measured**. The claim that the file is the live mix is **declared**. C2PA is a **ledger event count**; the file C2PA box is **Not measured**. The C2PA worker is not invoked and not replaced.
+
+**0108 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked -f supabase/migrations/20260818_0108_session_stored_audio.sql`. Verified RPCs: `bind_session_stored_audio`, `session_stored_audio`.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Stored SHA bind | **IMPLEMENTED BUT NOT DELIVERED** | 0108 + `StoredRecapBind` on ended host session |
+| C2PA | **PARTIALLY IMPLEMENTED** | Ledger count only. Worker untouched |
+| Event chain | Unchanged | Bind writes `provenance_sessions.manifest` after seal |
+| Reception bonus / referral | Not started | Still must not invent mint rates |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **174 files / 887 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** ATC reception bonus / referral only after locked rates. Deploy + signed-in walk of Stage File, ATC meter, `.vprov` download, and stored recap bind.
+
 ## Session provenance Phase 5 — audio SHA bind — 2026-08-18
 
 A `.vprov` package now carries an audio SHA field. A digest of host-decoded DAW PCM is **declared**. A measured SHA still requires stored bytes (none are bound yet). Missing reads **Not measured**. C2PA is untouched. No new migration. ATC mint/burn formulas, Stripe, LiveKit, and Living Mix are unchanged.

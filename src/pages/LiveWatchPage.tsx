@@ -540,6 +540,12 @@ export function LiveWatchPage() {
                 showToast(ok ? "Session provenance downloaded" : "No sealed package for this session");
               })();
             } : undefined}
+            canBindStoredAudio={!!isHost && !!sealed}
+            storedAudio={sealed?.storedAudio}
+            onStoredAudio={(next) => {
+              setSealed((row) => (row ? { ...row, storedAudio: next } : row));
+              showToast("Stored SHA bound. Link to this live is declared.");
+            }}
           />
 
           {/* Chat Input */}

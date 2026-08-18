@@ -57,3 +57,31 @@ export function audioBindFromEvents(events: SealedProvenanceEvent[]): AudioShaBi
   }
   return declared;
 }
+
+export type StoredAudioBind = {
+  hex: string | null;
+  assetId: string | null;
+  linkKind: "declared" | null;
+  c2paLedgerEvents: number | null;
+};
+
+/** SHA from assets.sha256 is measured. Linking that file to the live mix is declared. */
+export function bindStoredAsset(input: {
+  sha256?: unknown;
+  assetId?: unknown;
+  c2paLedgerEvents?: unknown;
+}): StoredAudioBind {
+  const hex = typeof input.sha256 === "string" ? input.sha256.toLowerCase() : null;
+  const n = input.c2paLedgerEvents;
+  return {
+    hex: isSha256Hex(hex) ? hex : null,
+    assetId: typeof input.assetId === "string" && input.assetId.length > 0 ? input.assetId : null,
+    linkKind: isSha256Hex(hex) ? "declared" : null,
+    c2paLedgerEvents: typeof n === "number" && Number.isInteger(n) && n >= 0 ? n : null,
+  };
+}
+
+export function c2paLedgerLabel(count: number | null): string {
+  if (count == null) return NOT_MEASURED;
+  return `${count} ledger event${count === 1 ? "" : "s"} (file C2PA box: ${NOT_MEASURED})`;
+}
