@@ -100,6 +100,7 @@ describe("human / session provenance", () => {
     expect(watch).toContain("SessionProvenanceBadge");
     expect(watch).toContain("downloadVprovPackage");
     expect(watch).toContain("Download .vprov");
+    expect(watch).toContain("SessionProvenanceReport");
   });
 
   it("binds a client DAW digest as declared and never as measured", () => {
@@ -133,5 +134,10 @@ describe("human / session provenance", () => {
     expect(drawer).toContain("StoredRecapBind");
     const watch = read("src/pages/LiveWatchPage.tsx");
     expect(watch).toContain("canBindStoredAudio");
+    const report = read("src/features/provenance/SessionProvenanceReport.tsx");
+    expect(report).toContain("session-provenance-report");
+    expect(report).toContain("NOT_MEASURED");
+    expect(report).toContain("Does not prove the music was not AI-generated");
+    expect(report).not.toMatch(/Human certified/i);
   });
 });

@@ -30,6 +30,7 @@ import { downloadVprovPackage, fetchSealedProvenance, recordDeclaredAudioSha } f
 import { noteChatSent } from "@/features/provenance/hostSignals";
 import { finishDeclaredPcmHash, useDeclaredAudioSha } from "@/features/provenance/useDeclaredAudioSha";
 import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
+import { SessionProvenanceReport } from "@/features/provenance/SessionProvenanceReport";
 import { useHostSignals } from "@/features/provenance/useHostSignals";
 import type { SealedProvenance } from "@/features/provenance/buildVprov";
 import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
@@ -549,6 +550,22 @@ export function LiveWatchPage() {
             <div ref={endRef} />
           </div>
 
+          {isHost && ended && sealed && (
+            <div className="border-t border-[var(--hairline)] p-3">
+              <SessionProvenanceReport
+                row={sealed}
+                busy={provBusy}
+                onDownload={() => {
+                  void (async () => {
+                    setProvBusy(true);
+                    const ok = await downloadVprovPackage(session.id);
+                    setProvBusy(false);
+                    showToast(ok ? "Session provenance downloaded" : "No sealed package for this session");
+                  })();
+                }}
+              />
+            </div>
+          )}
           {isHost && !ended && session.source === "daw" && (
             <div className="border-t border-[var(--hairline)] p-3">
               <DawBridgePanel compact />

@@ -6,6 +6,18 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Slice 3 — session provenance report — 2026-08-18
+
+Ended host sessions show an in-app verification report and a `.vprov` download. Copy is **Session provenance**, never “Human certified.” Not-AI stays **Not measured**. Full strength still requires measured ATC burn. No new economy rules. SessionToolDrawer was not edited.
+
+| Piece | State | Evidence |
+|---|---|---|
+| In-app report | **IMPLEMENTED BUT NOT DELIVERED** | `SessionProvenanceReport` on ended host `LiveWatchPage` |
+| `.vprov` zip | **IMPLEMENTED BUT NOT DELIVERED** | Existing package + report download |
+| Reception / referral | Refused | Unchanged |
+
+`npm run lint` pass. `npm run test` pass — **176 files / 892 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
 ## Slice 2 — go-live Airtime gate — 2026-08-18
 
 Host-facing Airtime card on Go Live and the live stage. Daily free and earned are shown separately. Start stays blocked below 300 ATC. Burn starts on go-live. A leftover shorter than 30s is played out, then the session ends — no hard cut. Reception / referral stay refused. Stripe still cannot mint ATC.
