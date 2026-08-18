@@ -5,6 +5,7 @@
  * the expanded player must render the same visual. They previously diverged: the
  * dock drew DockVisualizer from the mode store while the expanded player drew only
  * TrackVisualizer from the track seed, so the picked mode was invisible full-screen.
+ * Vizualz films play as muted loops; they never attach to the dry play element.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -31,6 +32,8 @@ describe("dock visuals", () => {
     // Every mode in the store is offered, so the panel cannot drift from it.
     expect(panel).toContain("VDOCK_VIZ_MODES");
     expect(panel).toContain("setVdockVizMode");
+    expect(panel).toContain("VDOCK_VISUALS");
+    expect(panel).toContain("setVdockVisualId");
   });
 
   it("renders the same visualizer in the dock and the expanded player", () => {
@@ -48,5 +51,17 @@ describe("dock visuals", () => {
       expect(f).toContain("subscribeVdockVizMode");
       expect(f).toContain("getVdockVizMode");
     }
+    expect(visualizer).toContain("resolveVdockVisual");
+    expect(visualizer).toContain("<video");
+    expect(visualizer).not.toMatch(/createMediaElementSource/);
+  });
+
+  it("puts a faded Vizualz film on the page backdrop", () => {
+    const bg = read("src/components/DynamicBackground.tsx");
+    expect(bg).toContain("DEFAULT_BACKDROP_VISUAL_ID");
+    expect(bg).toContain("<video");
+    expect(bg).toContain("pointermove");
+    expect(bg).toContain("readBands");
+    expect(bg).not.toMatch(/createMediaElementSource/);
   });
 });

@@ -1,22 +1,28 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { frequencyBinCount, readFrequencies, usePlayerShell } from "@/lib/audioBus";
+import { frequencyBinCount, getSnapshot, readBands, readFrequencies, usePlayerShell } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
+import { bindStageVideo } from "@/lib/stageVideoSync";
 import { getVdockVizMode, subscribeVdockVizMode, type VdockVizMode } from "@/lib/vdockVizMode";
+import { getVdockVisualId, subscribeVdockVisualId } from "@/lib/vdockVisualChoice";
+import { resolveVdockVisual } from "@/lib/vdockVisualResolve";
 import { vdockVisual } from "@/lib/vdockVisualManifest";
 
 /**
- * Audio-reactive dock visualizer — mode from vybz.vdock.vizMode.
- * Track Vizualz / custom video live on NowPlayingStage only.
+ * Audio-reactive dock visualizer — Vizualz film plus the meter from vybz.vdock.vizMode.
+ * Track-bound visuals win; otherwise the listener's picked film plays.
  */
 export function DockVisualizer({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { playing, track } = usePlayerShell();
   const reduce = useReduceFx();
   const mode = useSyncExternalStore(subscribeVdockVizMode, getVdockVizMode, getVdockVizMode);
+  const pickedId = useSyncExternalStore(subscribeVdockVisualId, getVdockVisualId, getVdockVisualId);
   const accent = track?.accent ?? "#00C2FF";
   const catalog = vdockVisual(track?.playback?.vdockVisualId);
   const customUrl = track?.playback?.backdropUrl;
-  const hasStageVisual = !!(catalog || customUrl);
+  const film = resolveVdockVisual(catalog?.id ?? pickedId);
+  const hasStageVisual = !!(film || customUrl);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -188,13 +194,54 @@ export function DockVisualizer({ className }: { className?: string }) {
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [accent, playing, reduce, track?.id, hasStageVisual, mode]);
+  }, [accent, playing, reduce, track?.id, hasStageVisual, mode, film?.id]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !film || reduce) return;
+    const tick = () => {
+      const snap = getSnapshot();
+      bindStageVideo(v, {
+        playing: snap.playing && !snap.loading,
+        mode: "loop",
+      });
+      const bands = snap.playing ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
+      const pulse = 0.22 + bands.level * 0.38;
+      v.style.opacity = String(snap.playing ? 0.28 + pulse : 0.16);
+      v.style.filter = `saturate(${1.05 + bands.mid * 0.35}) brightness(${0.72 + bands.bass * 0.28})`;
+    };
+    tick();
+    const id = window.setInterval(tick, 180);
+    return () => window.clearInterval(id);
+  }, [film?.id, reduce, playing]);
 
   return (
     <div
       className={className ?? "pointer-events-none absolute inset-0 h-full w-full"}
       style={{ contain: "paint" }}
     >
+      {film && !reduce ? (
+        <video
+          ref={videoRef}
+          key={film.id}
+          className="absolute inset-0 h-full w-full object-cover"
+          muted
+          playsInline
+          loop
+          preload="metadata"
+          poster={film.poster}
+          aria-hidden
+        >
+          <source src={film.webm} type="video/webm" />
+          <source src={film.mp4} type="video/mp4" />
+        </video>
+      ) : film ? (
+        <img
+          src={film.poster}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-25"
+        />
+      ) : null}
       <canvas
         ref={canvasRef}
         aria-hidden

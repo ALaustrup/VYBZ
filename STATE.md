@@ -4,7 +4,15 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`07456f78`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this hub: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`07456f78`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of Vizualz dock: **Not measured**.
+
+## Vizualz in the dock and backdrop — 2026-08-18
+
+Dock visualizer plays the Vizualz catalog as muted loops under the meter. The options panel lists the films plus bars / mirror / wave / pulse. The page backdrop uses a faded Ember Drift loop that follows the pointer and the measured audio bands. Reduce-motion keeps the still. The dry play element is untouched.
+
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Browser walk: **Not measured**. Loops are not committed; production needs the `site-visuals` CDN. Local `npm run dev` reads `public/vdock/visuals`.
 
 ## Signed-in Home is the landing — 2026-08-18
 
