@@ -40,6 +40,7 @@ import { getDawBridge, peekDawBridge, releaseDawBridge } from "@/features/broadc
 import { CompanionPanel } from "@/features/companion/CompanionPanel";
 import { takeLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { joinLiveSessionSfu, type LiveSfuSession } from "@/lib/livekitSfu";
+import { FLAGS } from "@/lib/flags";
 import { formatVc, formatVcAddress } from "@/lib/vc";
 import { cx } from "@/lib/utils";
 import type { LiveMessage, LiveSessionDetail } from "@/types";
@@ -98,7 +99,7 @@ export function LiveWatchPage() {
   }, [msgs.length]);
 
   useEffect(() => {
-    if (!isHost || !session || session.status !== "live") return;
+    if (!FLAGS.atc || !isHost || !session || session.status !== "live") return;
     let alive = true;
     void fetchAtcBalance().then((b) => {
       if (alive && b) {
@@ -220,13 +221,13 @@ export function LiveWatchPage() {
   useDeclaredAudioSha(!!session && isHost && session.status === "live" && session.source === "daw");
   const listenCredited = useListenEarn({
     sessionId: id,
-    enabled: !!session && !isHost && session.status === "live",
+    enabled: FLAGS.atc && !!session && !isHost && session.status === "live",
     playing,
     onAwarded: (n) => showToast(`+${n} ATC earned`),
   });
   useHostBurn({
     sessionId: id,
-    enabled: !!session && isHost && session.status === "live",
+    enabled: FLAGS.atc && !!session && isHost && session.status === "live",
     signalInputs: () => ({
       dawStreaming: peekDawBridge()?.status === "streaming",
       micTrackLive: !!vizStream?.getAudioTracks().some((t) => t.enabled && t.readyState === "live"),
@@ -314,7 +315,9 @@ export function LiveWatchPage() {
                 {ended
                   ? "This session is over. Session provenance records the live, not whether the audio was AI."
                   : isHost
-                    ? "Listeners hear you in real time. Hosting burns Airtime. Listening stays free."
+                    ? FLAGS.atc
+                      ? "Listeners hear you in real time. Hosting burns Airtime. Listening stays free."
+                      : "Listeners hear you in real time."
                     : "Real-time audio from this host. Listening is free."}
               </p>
             </div>
@@ -349,7 +352,7 @@ export function LiveWatchPage() {
                     <Volume2 className="h-3 w-3" /> {peekDawBridge()!.info!.sampleRate / 1000}kHz Stereo
                   </span>
                 )}
-                {isHost && !ended && hostAtc && (
+                {FLAGS.atc && isHost && !ended && hostAtc && (
                   <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-amber-200 border border-white/10">
                     {formatAtcClock(hostAtc.total)}
                   </span>
@@ -368,6 +371,7 @@ export function LiveWatchPage() {
         <div className="flex items-center gap-2 border-t border-[var(--hairline)] bg-ink-950/90 px-4 py-2.5 backdrop-blur-md">
           {!isHost && !ended && (
             <>
+              {FLAGS.atc ? (
               <span
                 data-testid="listen-earn-meter"
                 className="hidden sm:flex h-9 shrink-0 items-center rounded-xl border border-white/10 bg-white/[0.04] px-2.5 font-mono text-[11px] text-cyan-100"
@@ -375,6 +379,7 @@ export function LiveWatchPage() {
               >
                 +{formatAtcClock(listenCredited)}
               </span>
+              ) : null}
               <TipButton
                 userId={session.hostId}
                 username={session.username}
@@ -450,7 +455,7 @@ export function LiveWatchPage() {
           !chatOpen && "hidden lg:flex",
           "max-h-[45%] lg:max-h-full min-h-[14rem]"
         )}>
-          {isHost && !ended && (
+          {FLAGS.atc && isHost && !ended && (
             <div className="border-b border-[var(--hairline)] p-3">
               <AtcHostCard
                 balance={hostAtc}

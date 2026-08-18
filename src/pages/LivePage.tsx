@@ -9,6 +9,7 @@ import {
 import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
+import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 import { isMusicSource } from "@/features/broadcast/liveSource";
 import { WhosLivePanel } from "@/features/live/WhosLivePanel";
@@ -82,7 +83,7 @@ export function LivePage() {
               Who's live
             </h1>
             <p className="mt-0.5 text-xs text-white/50 max-w-xl">
-              Artists and producers on stage right now. Listening is free. Stay to earn Airtime.
+              Artists and producers on stage right now. Listening is free.{FLAGS.atc ? " Stay to earn Airtime." : ""}
             </p>
           </div>
           <div className="flex items-center gap-3">

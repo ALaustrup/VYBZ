@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "@/store/session";
+import { FLAGS } from "@/lib/flags";
 import { fetchAtcBalance, type AtcBalanceResponse } from "./atcApi";
 
 const POLL_MS = 60_000;
@@ -10,7 +11,7 @@ export function useAtcBalance(): AtcBalanceResponse | null | undefined {
   const [balance, setBalance] = useState<AtcBalanceResponse | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!userId) {
+    if (!FLAGS.atc || !userId) {
       setBalance(undefined);
       return undefined;
     }
@@ -34,5 +35,5 @@ export function useAtcBalance(): AtcBalanceResponse | null | undefined {
     };
   }, [userId]);
 
-  return userId ? balance : undefined;
+  return FLAGS.atc && userId ? balance : undefined;
 }

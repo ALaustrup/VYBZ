@@ -27,4 +27,10 @@ export const FLAGS = {
   storefront: !off(import.meta.env.VITE_FEATURE_STOREFRONT),
   /** Phase 2 — Prepare MVP (release list, findings, local drafts). Default ON. */
   prepare: !off(import.meta.env.VITE_FEATURE_PREPARE),
+  /**
+   * Airtime Credits on the live path. Default OFF — parked, not deleted.
+   * Ledger, RPCs, and UI stay in the tree. Set VITE_FEATURE_ATC=on to restore
+   * the header clock, go-live gate, host burn, and listen earn.
+   */
+  atc: on(import.meta.env.VITE_FEATURE_ATC),
 } as const;

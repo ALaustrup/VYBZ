@@ -1,11 +1,13 @@
 import { Timer } from "lucide-react";
 import { NOT_MEASURED } from "@/product/invariants";
+import { FLAGS } from "@/lib/flags";
 import { formatAtcClock } from "./atcHeartbeat";
 import { useAtcBalance } from "./useAtcBalance";
 
 /** Header clock of remaining ATC. Displays only what the server returned. */
 export function AtcMeter() {
   const balance = useAtcBalance();
+  if (!FLAGS.atc) return null;
   if (balance === undefined) return null;
 
   const daily = balance ? formatAtcClock(balance.dailyFreeRemaining) : NOT_MEASURED;
