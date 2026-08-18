@@ -110,6 +110,8 @@ describe("airtime credits", () => {
     expect(meter).toContain("formatAtcClock");
     expect(meter).toContain("NOT_MEASURED");
     expect(meter).toContain("atc-meter");
+    expect(meter).toContain("dailyFreeRemaining");
+    expect(meter).not.toMatch(/formatAtcClock\(balance\.total\)/);
     const hook = read("src/features/airtime/useAtcBalance.ts");
     expect(hook).toContain("fetchAtcBalance");
     expect(hook).not.toMatch(/earnedBalance \+|dailyFreeRemaining \+/);

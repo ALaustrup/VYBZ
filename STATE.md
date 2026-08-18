@@ -4,7 +4,13 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`efdf795a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`d3a60272`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+
+## Daily clock is 2h, not 3h — 2026-08-18
+
+Owner quoted **daily 2h 0m**. Daily free is still 7200 ATC. The header and Go Live card now lead with that daily clock (`2h`, no leftover `0m`). The 1h starter stays under **earned**. Hosting still burns daily first, then earned. Amounts unchanged.
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
 ## ATC clock shows 3h on a new account — 2026-08-18
 

@@ -31,7 +31,11 @@ export function AtcHostCard({
         <Timer className="h-3.5 w-3.5 text-cyan-200/80" /> Airtime
       </p>
       <p className="mt-1 font-display text-[1.65rem] font-semibold leading-none tracking-tight text-white">
-        {split ? formatAtcClock(split.total) : NOT_MEASURED}
+        {split ? formatAtcClock(split.daily) : NOT_MEASURED}
+      </p>
+      <p className="mt-1 text-[11px] text-white/40">
+        Daily free
+        {split ? ` · ${formatAtcClock(split.earned)} earned` : ""}
       </p>
       <div className="mt-3 grid grid-cols-2 gap-2">
         <div className="rounded-xl bg-black/25 px-2.5 py-2">
