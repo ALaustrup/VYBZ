@@ -75,6 +75,9 @@ export function WhosLivePanel({
             <h2 className="mt-0.5 font-display text-lg font-semibold text-white sm:text-xl">
               Artists and producers on now
             </h2>
+            <p className="mt-1 text-[12px] text-white/45" data-testid="listen-earn-hint">
+              Listening is free. Stay on a live to earn Airtime. Hosting burns it.
+            </p>
           </div>
           {rail ? (
             <button

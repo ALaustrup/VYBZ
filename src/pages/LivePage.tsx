@@ -82,7 +82,7 @@ export function LivePage() {
               Who's live
             </h1>
             <p className="mt-0.5 text-xs text-white/50 max-w-xl">
-              Artists and producers on stage right now. Mix, talk, episode, or vent. Listening is free.
+              Artists and producers on stage right now. Listening is free. Stay to earn Airtime.
             </p>
           </div>
           <div className="flex items-center gap-3">

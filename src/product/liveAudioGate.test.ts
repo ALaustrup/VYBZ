@@ -47,7 +47,8 @@ describe("live audio lock", () => {
     expect(live).toContain("Go live");
     expect(live).toContain("Who's live");
     expect(live).toContain("WhosLivePanel");
-    expect(live).toContain("Mix, talk, episode, or vent");
+    expect(live).toContain("Listening is free");
+    expect(live).toContain("Stay to earn Airtime");
     expect(live).toContain("Talk");
     expect(live).toContain("Music");
     expect(live).not.toMatch(/Produce & Stream Live/);

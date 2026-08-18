@@ -4,7 +4,18 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**. Production verify: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`62ea2a84`** (PR [#195](https://github.com/ALaustrup/VYBZ/pull/195) merged). Landing SHA last measured: **Build 6bcfb4b**. Production verify of this tip: **Not measured**.
+
+## Listen-to-earn discovery — 2026-08-18
+
+Who's live states listening is free and staying earns Airtime. The watch stage shows measured ATC credited this stay (`useListenEarn`). No new mint rates.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Discovery copy | **IMPLEMENTED BUT NOT DELIVERED** | `listen-earn-hint` on `WhosLivePanel` |
+| In-session meter | **IMPLEMENTED BUT NOT DELIVERED** | `listen-earn-meter` on `LiveWatchPage` from `listenCredited` |
+| GitHub | Merged | PR #195 · `main` `62ea2a84` |
+| Browser walk | Not measured | No web browser tool this session |
 
 ## Who's live panel — 2026-08-18
 
