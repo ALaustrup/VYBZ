@@ -51,6 +51,10 @@ export const PRINCIPLES = {
   hideNeverDelete: true,
   /** Attention is earned by giving attention. It can never be purchased. */
   attentionCannotBeBought: true,
+  /** Money follows a session (tips, products, tools). It never becomes hosting time. */
+  moneyFollowsTheSessionNotTheClock: true,
+  /** Hosting is viewpoint-neutral. Illegal content is still refused. */
+  viewpointNeutralHosting: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -66,6 +70,10 @@ export const PROHIBITIONS = {
   directNativeSdkImportsInDomainCode: true,
   /** Public vanity counts (followers, plays) as social proof. See PRODUCT.md. */
   publicVanityMetrics: true,
+  /** Buying ATC, paying to listen by default, or paying for rank / homepage. */
+  payingForClockOrRank: true,
+  /** Ticketed events are out of this lock until a later decision. */
+  ticketedEventsInThisLock: false,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -88,13 +96,178 @@ export const FROZEN_CONTRACTS = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
+/* Live mix audio streaming platform                                          */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Authoritative direction (PRODUCT.md v7 / decisions 0004–0009).
+ * VYBZ is a real-time live audio platform. Not sample-pack. Not music-only.
+ */
+export const LIVE_MIX_STREAMING = {
+  /** Real-time live rooms are the core front-door experience. */
+  liveMixIsPrimary: true,
+  /** Audio streaming uses LiveKit SFU stereo music mode (no telephony filtering). */
+  losslessMusicAudioConstraints: true,
+  /** Master bus audio capture via DAW broadcast plug-in (VST3 / CLAP / AU). */
+  directDawBroadcastSupported: true,
+  /** Android companion mode and mobile live streaming enabled via Platform Bridge. */
+  androidMultiDeviceSync: true,
+  /** Post-session products (packs, replay, stems) are allowed. They are not ATC. */
+  postSessionPackMonetization: true,
+  /** Going live burns Airtime Credits. Listening stays free. */
+  hostingRequiresAtc: true,
+  /** Sealed live sessions can emit a session-provenance package. */
+  sessionProvenanceAvailable: true,
+  /** Public /u/:id is the host Stage File. */
+  publicStageFile: true,
+} as const;
+
+export const LIVE_AUDIO = {
+  /** Not a sample-pack app. Not music-only. */
+  liveAudioIsTheProduct: true,
+  /** Producers, artists, podcasters, talkers, open-mic, vent — same rooms. */
+  hostsAreNotMusicOnly: true,
+  /** Talk, podcast, and music are first-class on the host profile. */
+  talkPodcastAndMusicAreFirstClass: true,
+  /** ATC is the only hosting clock. */
+  airtimeIsOnlyHostingClock: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Session provenance (not an AI-negative proof)                              */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Human / session provenance (decision 0006).
+ * Proves a measured live session happened for an authenticated host.
+ * Does not prove the audio was composed by a human or was not AI-generated.
+ */
+export const HUMAN_PROVENANCE = {
+  /** Package is about a live_sessions row, not Living Mix and not 1:1 DM calls. */
+  bindsToPublicLiveSession: true,
+  /** Full strength only when airtime_ledger has host_consume for that session. */
+  fullStrengthRequiresAtcBurn: true,
+  /** Signing material stays on the server. Clients do not hold session private keys. */
+  serverHoldsSigningMaterial: true,
+  /** Client-sent mix hashes and pointer/MIDI flags are declared, not measured. */
+  clientSignalsAreDeclared: true,
+  /** We never assert the mix was not AI-generated. That is not measurable here. */
+  refusesNotAiClaim: true,
+  /** Existing forensic watermark + C2PA worker stay; this does not replace them. */
+  doesNotReplaceForensicWatermark: true,
+  /** A SHA computed in the host browser is declared, never measured. */
+  clientAudioShaIsDeclared: true,
+  /** A measured audio SHA requires stored bytes. Missing is Not measured. */
+  measuredAudioShaRequiresStoredBytes: true,
+  /** assets.sha256 may be bound after seal. The file-is-the-mix link stays declared. */
+  assetToSessionLinkIsDeclared: true,
+  /** C2PA on the file is not inferred from a missing ledger row. */
+  c2paOnFileIsNotInferred: true,
+} as const;
+
+export const PROVENANCE_STRENGTHS = ["thin", "full"] as const;
+export type ProvenanceStrength = (typeof PROVENANCE_STRENGTHS)[number];
+
+export const PROVENANCE_EVENT_TYPES = ["open", "atc_burn", "signal", "seal"] as const;
+export type ProvenanceEventType = (typeof PROVENANCE_EVENT_TYPES)[number];
+
+/* ------------------------------------------------------------------------- */
+/* Artist / producer Stage File                                               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Public profile (decision 0007). A stage, not a social graph.
+ */
+export const ARTIST_STAGE_PROFILE = {
+  /** Live nights are the lead surface on /u/:id. */
+  liveNightsLead: true,
+  /** Connect is a request. The other person must accept. */
+  connectIsARequest: true,
+  /** Book-a-session opens a DM and must say it is not a calendar. */
+  bookIsAMessageNotACalendar: true,
+  /** Profile cells are measured or omitted. Unknown is not invented. */
+  measuredStatsOnly: true,
+  /** No public follower or play-count vanity. */
+  noVanityFollowerCounts: true,
+  /** Seal copy is Session provenance, never “Human certified.” */
+  sessionSealNotHumanCertified: true,
+  /** /u/:id stays resolvable. The old storefront is not deleted. */
+  routeStaysResolvable: true,
+  /** Talk, podcast, and music share this profile. It is not artist-only. */
+  notArtistOnly: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Airtime Credits (ATC) — live hosting commons                               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * ATC is the hosting gate for live mix (decision 0005 / PRODUCT.md v4).
+ * It is not Station Airtime. Station Airtime stays parked in CURRENCY / STATION.
+ *
+ * Policy numbers below are declared product law, not measurements of production.
+ */
+export const AIRTIME_CREDITS = {
+  listeningIsAlwaysFree: true,
+  hostingRequiresAtc: true,
+  atcIsPurchasable: false,
+  atcConvertsToMoney: false,
+  moneyConvertsToAtc: false,
+  atcIsTransferable: false,
+  atcIsGiftable: false,
+  serverAuthoritativeLedgerOnly: true,
+  dailyFreeDoesNotStack: true,
+  consumeDailyFreeFirst: true,
+  clientsNeverTrustOwnBalance: true,
+  /** Reception bonus and referral cannot mint until amounts are declared. */
+  refuseUnmeasuredMint: true,
+} as const;
+
+/** Creation types whose mint amount is Not measured. Not a zero grant. */
+export const ATC_UNMEASURED_MINTS = ["reception_bonus", "referral"] as const;
+
+export const ATC_CREATION_TYPES = [
+  "daily_grant",
+  "listen_earn",
+  "reception_bonus",
+  "referral",
+  "bootstrap",
+  "admin_adjust",
+] as const;
+
+export const ATC_DESTRUCTION_TYPES = ["host_consume", "admin_adjust"] as const;
+
+export type AtcLedgerType = (typeof ATC_CREATION_TYPES)[number];
+
+/** Declared policy. Not a measurement of observed listen/host supply. */
+export const ATC_POLICY = {
+  secondsPerAtc: 1,
+  dailyFreeGrantAtc: 7200,
+  baseAtcPerVerifiedMinute: 50,
+  hostStartMinimumAtc: 300,
+  hostWarningRemainingAtc: 60,
+  maxQualityMultiplier: 1.8,
+  sparkMultiplier: 1.2,
+  stayMultiplier: 1.15,
+  discoveryMultiplier: 1.25,
+  firstListenMultiplier: 1.1,
+  newUserBootstrapDays: 7,
+  newUserStarterAtc: 3600,
+  heartbeatChunkSeconds: 30,
+  hostBurnChunkSeconds: 30,
+  maxConcurrentEarnSessions: 4,
+  stayContinuousSeconds: 1200,
+  discoveryViewerCeiling: 5,
+} as const;
+
+/* ------------------------------------------------------------------------- */
 /* The Station economy (parked)                                               */
 /* ------------------------------------------------------------------------- */
 
 /**
- * Parked with PRODUCT.md v2 / decision 0003. Default product is the pack suite.
+ * Parked with decision 0004 / PRODUCT.md v3. Default product is live mix streaming.
  * These values still bind the Station subsystem if it is switched on again.
- * Do not delete them. Do not use Airtime in the pack marketplace.
+ * Do not delete them. Do not use Airtime in the live mix marketplace.
  *
  * Two balances, one wallet, no bridge between them.
  *
@@ -215,6 +388,10 @@ export const GATE_REGISTRY = [
   "perceptionEngine",
   "aiReviewPortal",
   "liveManifest",
+  "airtimeCredits",
+  "humanProvenance",
+  "artistStageProfile",
+  "liveAudio",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

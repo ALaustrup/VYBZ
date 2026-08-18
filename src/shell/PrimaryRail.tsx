@@ -150,7 +150,7 @@ export function PrimaryRail() {
           <p className="suite-rail-ops-eyebrow">VYBZ</p>
           <p className="suite-rail-ops-title">Music ops</p>
           <p className="mt-0.5 px-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/30">
-            Pack suite
+            Live mix
           </p>
           {/* "Music ops" is the ops chrome marker asserted by m10SuiteRedesignGate. */}
           <div className="mt-2 px-0.5">

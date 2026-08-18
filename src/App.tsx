@@ -55,6 +55,7 @@ import { ModApplyPage } from "@/pages/ModApplyPage";
 import { StorePage } from "@/pages/StorePage";
 import { LivePage } from "@/pages/LivePage";
 import { LiveWatchPage } from "@/pages/LiveWatchPage";
+import { CompanionPage } from "@/pages/CompanionPage";
 import { SocialPage } from "@/pages/SocialPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 import { ArtistPage } from "@/pages/ArtistPage";
@@ -215,6 +216,7 @@ export function App() {
         <Route path="/projects/:id" element={<ProjectRoomPage />} />
         <Route path="/social" element={<SocialPage />} />
         <Route path="/live" element={<LivePage />} />
+        <Route path="/live/:id/companion" element={<CompanionPage />} />
         <Route path="/live/:id" element={<LiveWatchPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/messages/:id" element={<MessagesPage />} />

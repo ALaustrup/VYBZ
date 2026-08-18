@@ -1,10 +1,12 @@
 import {
   BookOpen,
+  Disc,
   Library,
   Package,
   Radio,
   ShieldCheck,
   UserCog,
+  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -25,18 +27,38 @@ export type NavItem = {
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * The rail is the pack-suite menu.
+ * The rail is the live-mix platform menu (PRODUCT.md v3).
  *
- * Default experience is the staged pack pipeline (PRODUCT.md v2). Social
- * surfaces stay reachable by URL and are listed in ARCHIVED_NAV_PATHS.
+ * Default experience leads with live mix streaming, active rooms, and studio tools.
+ * Other surfaces stay reachable by URL and are listed in ARCHIVED_NAV_PATHS.
  *
  * Only destinations that render a working surface may appear.
  */
 export function navGroups(): NavGroup[] {
   return [
     {
-      id: "pack",
-      label: "Pack",
+      id: "live",
+      label: "Live",
+      items: [
+        {
+          path: "/library/mix",
+          label: "Living Mix",
+          hint: "Mix engine",
+          icon: Disc,
+          productId: "home",
+        },
+        {
+          path: "/rooms",
+          label: "Rooms",
+          hint: "Collab sessions",
+          icon: Users,
+          productId: "home",
+        },
+      ],
+    },
+    {
+      id: "studio",
+      label: "Studio",
       items: [
         {
           path: "/library",
@@ -44,6 +66,13 @@ export function navGroups(): NavGroup[] {
           hint: "Your files",
           icon: Library,
           productId: "home",
+        },
+        {
+          path: "/make",
+          label: "Make pack",
+          hint: "Sample pack builder",
+          icon: Package,
+          productId: "market",
         },
         {
           path: "/make/dashboard",
@@ -103,11 +132,11 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 }
 
 export const HOME_ITEM: NavItem = {
-  path: "/make",
-  label: "Make pack",
-  hint: "Upload to sale",
-  icon: Package,
-  productId: "market",
+  path: "/live",
+  label: "Live Mix",
+  hint: "Live mix streaming",
+  icon: Radio,
+  productId: "home",
 };
 
 export function navItems(): NavItem[] {
@@ -117,12 +146,10 @@ export function navItems(): NavItem[] {
 /** Paths archived from nav but still linkable by URL (freeze-not-delete). */
 export const ARCHIVED_NAV_PATHS = [
   "/studio",
-  "/live",
   "/market",
   "/store",
   "/feed",
   "/discover",
-  "/rooms",
   "/messages",
   "/notifications",
   "/",

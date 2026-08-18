@@ -1,4 +1,4 @@
-/** Hand off local camera/display MediaStream from GoLiveSheet → LiveWatchPage. */
+/** Hand off local camera / display / DAW MediaStream from GoLiveSheet → LiveWatchPage. */
 
 let handoff: MediaStream | null = null;
 

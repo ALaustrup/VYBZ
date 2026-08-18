@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, Globe2, Loader2, Monitor, Radio, Users, X } from "lucide-react";
+import { Cable, Camera, Globe2, Loader2, Monitor, Radio, Users, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -8,6 +8,13 @@ import { useReduceFx } from "@/lib/display";
 import { setLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { cx } from "@/lib/utils";
+import { AtcHostCard } from "@/features/airtime/AtcHostCard";
+import { canStartLive, fetchAtcBalance, type AtcBalanceResponse } from "@/features/airtime/atcApi";
+import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
+import { canStartHost } from "@/features/airtime/atcAccounting";
+import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
+import { getDawBridge, isDawBridgeRetained, retainDawBridge } from "@/features/broadcast/dawBridgeSession";
+import { ATC_POLICY } from "@/product/invariants";
 import type { LiveAudience, LiveSource } from "@/types";
 
 type WizardStep = "source" | "audience" | "details";
@@ -31,10 +38,14 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [gates, setGates] = useState<api.InfraGatesStatus | null>(null);
+  const [atc, setAtc] = useState<AtcBalanceResponse | null>(null);
 
   useEffect(() => {
     if (!open) {
-      if (!handedOff.current) stopPreview();
+      if (!handedOff.current) {
+        stopPreview();
+        if (!isDawBridgeRetained()) getDawBridge().disconnect();
+      }
       handedOff.current = false;
       setTitle("");
       setIntent("");
@@ -47,6 +58,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       return;
     }
     void api.fetchInfraGates().then(setGates);
+    void fetchAtcBalance().then(setAtc);
   }, [open]);
 
   useEffect(() => {
@@ -94,7 +106,32 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
     setBusy(true);
     setErr(null);
     try {
-      if (!previewing) await startPreview();
+      if (source === "daw") {
+        const daw = getDawBridge();
+        if (daw.status === "disconnected") {
+          setErr("Connect the DAW Master Link first.");
+          setBusy(false);
+          return;
+        }
+        streamRef.current = daw.getMediaStream();
+        if (!streamRef.current) {
+          setErr("DAW audio isn't ready yet. Click Connect again.");
+          setBusy(false);
+          return;
+        }
+      } else if (!previewing) {
+        await startPreview();
+      }
+      const gate = await canStartLive();
+      if (!gate?.ok) {
+        setErr(
+          gate?.error === "insufficient"
+            ? `Need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} of Airtime to go live. Listen to earn more.`
+            : "Couldn't check Airtime.",
+        );
+        setBusy(false);
+        return;
+      }
       const session = await api.startLiveSession({
         title: title.trim() || undefined,
         source,
@@ -106,6 +143,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
         setBusy(false);
         return;
       }
+      if (source === "daw") retainDawBridge();
       if (streamRef.current) {
         setLivePreviewHandoff(streamRef.current);
         streamRef.current = null;
@@ -155,6 +193,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
             <div className="mx-5 h-px bg-[var(--hairline)]" />
 
             <div className="no-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
+              <AtcHostCard balance={atc} />
               {step === "source" && (
                 <>
                   <div className="relative aspect-video overflow-hidden rounded-2xl border border-[var(--hairline)] bg-ink-950/60">
@@ -171,6 +210,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                       { id: "camera" as const, label: "Camera", icon: Camera },
                       { id: "display" as const, label: "Display", icon: Monitor },
                       { id: "both" as const, label: "Both", icon: Radio },
+                      { id: "daw" as const, label: "DAW Master", icon: Cable },
                     ]).map(({ id, label, icon: Icon }) => (
                       <button key={id} type="button" onClick={() => { setSource(id); stopPreview(); }}
                         className={cx("relative flex items-center gap-1.5 pb-2.5 text-[13px] font-medium transition",
@@ -180,9 +220,24 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                       </button>
                     ))}
                   </div>
-                  <button type="button" onClick={() => void startPreview()} className="btn btn-ghost w-full py-3 text-sm">
-                    {previewing ? "Refresh preview" : "Start preview"}
-                  </button>
+                  {source === "daw" ? (
+                    <DawBridgePanel
+                      compact
+                      disconnectOnUnmount={false}
+                      onStreamReady={(stream) => {
+                        streamRef.current = stream;
+                        setPreviewing(true);
+                      }}
+                      onDisconnect={() => {
+                        streamRef.current = null;
+                        setPreviewing(false);
+                      }}
+                    />
+                  ) : (
+                    <button type="button" onClick={() => void startPreview()} className="btn btn-ghost w-full py-3 text-sm">
+                      {previewing ? "Refresh preview" : "Start preview"}
+                    </button>
+                  )}
                 </>
               )}
 
@@ -269,7 +324,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                 </button>
               )}
               {step === "details" && (
-                <button type="button" onClick={() => void goLive()} disabled={busy} className="btn btn-primary flex-1 py-3.5">
+                <button type="button" onClick={() => void goLive()} disabled={busy || (atc != null && !canStartHost(atc))} data-testid="go-live-start" className="btn btn-primary flex-1 py-3.5">
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Radio className="h-4 w-4" /> Go</>}
                 </button>
               )}

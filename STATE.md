@@ -2,11 +2,262 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-16
-**Branch:** `continue-next` @ `c6a32101` plus uncommitted copy rewrite. Isolated `server/mpp`
-and `.env.example` / `package.json` leftovers are **not** part of this unit.
+**Date:** 2026-08-18
+**Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
-This copy pass is not deployed.
+
+## Owner walk — new account live >45 min — 2026-08-18
+
+Owner-reported against local `npm run dev` (http://localhost:5173), code HEAD **`9b6baa7b`** (PRODUCT v7 lock). New account. Stayed live **over 45 minutes**. Owner: all seemed working.
+
+That is a signed-in walk of go-live + host stay. It is **not** a production walk. Bootstrap grant, leftover-seconds end, `.vprov` download, and Stage File were **not separately reported**.
+
+Web app **not deployed**. Reception / referral still refused.
+
+## Product lock v7 — live audio for any host — 2026-08-18
+
+Slices 2, 3, and 1 were verified in the tree at **`0c04d717`** (not fiction):
+
+| Slice | Evidence in tree |
+|---|---|
+| 2 Go-live gate | `AtcHostCard` on `GoLiveSheet` + `LiveWatchPage`. Start uses `canStartHost`. Leftover buffer in `useHostBurn` |
+| 3 Provenance package | `SessionProvenanceReport` + `downloadVprovPackage`. Copy is Session provenance, never Human certified |
+| 1 Bootstrap | `grant_bootstrap_atc` 3600 / 7 days in 0110. Reception/referral still `rates_not_measured` |
+
+This commit locks **PRODUCT.md Version 7** and decision [`0009`](docs/decisions/0009-live-audio-for-any-host.md). No new features. No new mints. No schema churn. SessionToolDrawer, Airtime Phase 1, and 0008 were not reopened.
+
+**Shipped (code, not delivered):** live rooms, ATC clock, go-live card, leftover end, `.vprov` + in-app report, bootstrap 3600/7d, host Stage File.
+
+**Refused:** reception bonus, referral, buying ATC, paying to listen, paying for rank, ticketed events (out of this lock), “Human certified,” not-AI proof.
+
+**Not measured:** signed-in browser walk. Web app not deployed.
+
+`npm run lint` pass. `npm run test` pass — **177 files / 897 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+## Slice 1 — new-user bootstrap — 2026-08-18
+
+**0110 applied** to `xixmneooyufbeftdfpcm`. `grant_bootstrap_atc` credits **3600** earned ATC once if the profile is ≤ 7 days old. `get_airtime_balance` calls it after the daily grant. Reception bonus and referral still return `rates_not_measured`. Stripe cannot mint ATC.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Bootstrap mint | **IMPLEMENTED BUT NOT DELIVERED** | 0110 + `mayGrantBootstrap` |
+| Reception / referral | Refused | 0008 / 0109 unchanged |
+| Browser walk | Not measured | Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **176 files / 894 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+## Slice 3 — session provenance report — 2026-08-18
+
+Ended host sessions show an in-app verification report and a `.vprov` download. Copy is **Session provenance**, never “Human certified.” Not-AI stays **Not measured**. Full strength still requires measured ATC burn. No new economy rules. SessionToolDrawer was not edited.
+
+| Piece | State | Evidence |
+|---|---|---|
+| In-app report | **IMPLEMENTED BUT NOT DELIVERED** | `SessionProvenanceReport` on ended host `LiveWatchPage` |
+| `.vprov` zip | **IMPLEMENTED BUT NOT DELIVERED** | Existing package + report download |
+| Reception / referral | Refused | Unchanged |
+
+`npm run lint` pass. `npm run test` pass — **176 files / 892 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+## Slice 2 — go-live Airtime gate — 2026-08-18
+
+Host-facing Airtime card on Go Live and the live stage. Daily free and earned are shown separately. Start stays blocked below 300 ATC. Burn starts on go-live. A leftover shorter than 30s is played out, then the session ends — no hard cut. Reception / referral stay refused. Stripe still cannot mint ATC.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Start gate UI | **IMPLEMENTED BUT NOT DELIVERED** | `AtcHostCard` on `GoLiveSheet`. Go disabled when `canStartHost` is false |
+| In-session meter | **IMPLEMENTED BUT NOT DELIVERED** | Host card on `LiveWatchPage` + leftover buffer in `useHostBurn` |
+| Reception / referral | Refused | 0008 / 0109 unchanged |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **176 files / 892 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+## HEAD f9a6b6e5 is green — 2026-08-18
+
+HEAD `f9a6b6e5` is green — lint, tests, and production build passed. SessionToolDrawer Package import is closed.
+
+## ATC Phase 5 lock — reception / referral do not mint — 2026-08-18
+
+Live-mix + ATC + provenance + Stage File vision is already written (`PRODUCT.md` v6, 0004–0007). **Airtime Phase 1 ledger is already applied (0105).** This slice does not rebuild it.
+
+Decision [`0008`](docs/decisions/0008-atc-unmeasured-mints.md). Reception bonus and referral stay as ledger types. Their mint amounts are **Not measured**. Server RPCs return `rates_not_measured` and insert nothing. Daily grant / listen earn / host consume / Stripe / LiveKit / Living Mix unchanged.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Docs / invariants | **IMPLEMENTED BUT NOT DELIVERED** | 0008, `ATC_UNMEASURED_MINTS`, `refuseUnmeasuredMint` |
+| Refuse RPCs | **INFRASTRUCTURE ONLY** | 0109 `award_reception_bonus` / `award_referral` |
+| Bootstrap mint | Not started | Amounts already declared (3600 / 7d). Not this slice |
+| Browser walk | Not measured | No web browser tool this session |
+
+`npm run lint` pass. `npm run test` pass — **175 files / 890 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** New-user bootstrap mint (declared 3600 / 7d) if wanted. Reception/referral stay refused until amounts are declared. Deploy + signed-in walk.
+
+## Session provenance Phase 6 — stored-bytes SHA + C2PA ledger count — 2026-08-18
+
+Host can bind one owned catalog asset to a sealed session. `assets.sha256` is **measured**. The claim that the file is the live mix is **declared**. C2PA is a **ledger event count**; the file C2PA box is **Not measured**. The C2PA worker is not invoked and not replaced.
+
+**0108 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked -f supabase/migrations/20260818_0108_session_stored_audio.sql`. Verified RPCs: `bind_session_stored_audio`, `session_stored_audio`.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Stored SHA bind | **IMPLEMENTED BUT NOT DELIVERED** | 0108 + `StoredRecapBind` on ended host session |
+| C2PA | **PARTIALLY IMPLEMENTED** | Ledger count only. Worker untouched |
+| Event chain | Unchanged | Bind writes `provenance_sessions.manifest` after seal |
+| Reception bonus / referral | Not started | Still must not invent mint rates |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **174 files / 887 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** ATC reception bonus / referral only after locked rates. Deploy + signed-in walk of Stage File, ATC meter, `.vprov` download, and stored recap bind.
+
+## Session provenance Phase 5 — audio SHA bind — 2026-08-18
+
+A `.vprov` package now carries an audio SHA field. A digest of host-decoded DAW PCM is **declared**. A measured SHA still requires stored bytes (none are bound yet). Missing reads **Not measured**. C2PA is untouched. No new migration. ATC mint/burn formulas, Stripe, LiveKit, and Living Mix are unchanged.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Bind rules | **IMPLEMENTED BUT NOT DELIVERED** | `audioBind.ts` — client hex cannot become measured |
+| DAW PCM hasher | **PARTIALLY IMPLEMENTED** | Incremental SHA-256 of decoded stereo PCM. Camera/display stays Not measured |
+| Package field | **IMPLEMENTED BUT NOT DELIVERED** | `manifest.audioSha` + `verify.txt`. Web app not deployed |
+| C2PA / stored-bytes SHA | Not started | Phase 6 |
+| Reception bonus / referral | Not started | Still must not invent mint rates |
+| Browser walk | Not measured | No web browser tool this session |
+
+`npm run lint` pass. `npm run test` pass — **174 files / 884 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** C2PA / stored-bytes SHA (Phase 6). ATC reception bonus / referral only after locked rates. Deploy + signed-in walk.
+
+## Vision lock v6 + ATC Phase 4 meter — 2026-08-18
+
+Authority now names the full stack: live mix + ATC + session provenance + artist/producer Stage File.
+
+- `PRODUCT.md` **Version 6**. Decision [`0007`](docs/decisions/0007-artist-stage-file.md).
+- `ARTIST_STAGE_PROFILE` + `LIVE_MIX_STREAMING.publicStageFile` + gate `artistStageProfile`.
+- ATC Phase 1 ledger was already applied (0105). This slice is **Phase 4: header meter only**. It reads `get_airtime_balance`. It does not mint, burn, or change Stripe / LiveKit / Living Mix / auth.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Docs / invariants | **IMPLEMENTED BUT NOT DELIVERED** | PRODUCT v6, 0007, `ARTIST_STAGE_PROFILE` |
+| ATC header meter | **IMPLEMENTED BUT NOT DELIVERED** | `AtcMeter` on `ContextualAppBar`. Failed fetch → **Not measured**. |
+| Reception bonus / referral | Not started | Phase 5. Still must not invent mint formulas. |
+| Provenance audio SHA / C2PA bind | Not started | Phase 5–6. |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed. |
+
+`npm run lint` pass. `npm run test` pass — **171 files / 874 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** ATC reception bonus / referral only after a closed-loop spec that does not invent rates. Or provenance Phase 5 (audio SHA bind). Deploy + signed-in walk of `/u/:id` and the header clock.
+
+## Artist Stage File profile — 2026-08-18
+
+Public `/u/:id` is now the Stage File: cinematic hero, live nights first, measured stats only, Session provenance seal (never “Human certified”). Connect is still a request. Book-a-session opens a DM and says it is not a calendar. Existing `/u/:id` route kept.
+
+**0107 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked -f supabase/migrations/20260818_0107_host_stage_nights.sql`. Verified `list_host_stage_nights(p_host uuid, p_limit integer)`. Security-definer; world/public sessions plus sealed strength / ATC burned only; no event payloads.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Stage File UI | **IMPLEMENTED BUT NOT DELIVERED** | `ArtistStageProfile` + `UserProfilePage` loader. Web app not deployed. |
+| Public nights RPC | **INFRASTRUCTURE ONLY** | 0107 applied. Fallback `live_sessions` select if RPC fails (no seal flags). |
+| Browser walk | Not measured | No web browser tool in this session. |
+
+`npm run lint` pass. `npm run test` pass — **171 files / 870 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+## Session provenance Phase 4 — 2026-08-18
+
+Host can download a `.vprov` zip (`manifest.json`, `events.jsonl`, `verify.txt`) from an ended sealed session. Badge copy is **Session provenance · Full|Thin**, never “Human certified.” `notAiClaim` is **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **169 files / 868 tests**. Browser walk **Not measured**.
+
+## Session provenance Phase 3 — 2026-08-18
+
+Declared host-signal ticks ride the same 30s ATC burn clock. Payload is labelled `kind: "declared"` (pointer, key, chat, DAW streaming, live mic track, tab focused). Not a musicianship proof. Not a not-AI claim.
+
+`npm run lint` pass. `npm run test` pass — **168 files / 864 tests**.
+
+## Session provenance Phase 2 + 0106 applied — 2026-08-18
+
+**0106 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked`. Verified tables: `provenance_sessions`, `provenance_events`.
+
+Phase 2 wiring (`PARTIALLY IMPLEMENTED`): `startLiveSession` opens a provenance row (failure does not block go-live). Each successful `consume_airtime` appends an `atc_burn` event. `endLiveSession` seals before ending the live row. Strength is still computed at seal from measured `host_consume` totals. No download UI yet.
+
+`npm run lint` pass. `npm run test` pass — **167 files / 861 tests**. Browser walk **Not measured**. Web app **not deployed**.
+
+## Session provenance Phase 0–1 — 2026-08-17
+
+Decision [`0006`](docs/decisions/0006-session-provenance.md). `PRODUCT.md` v5. `HUMAN_PROVENANCE` + `humanProvenance` gate. Package proves a measured live session; **refuses** a “not AI” claim.
+
+Migration `0106` (tables + RPCs). Applied 2026-08-18 — see Phase 2 section above.
+
+## ATC Phase 2–3 + 0105 applied — 2026-08-17
+
+**0105 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked`. Verified tables: `airtime_balances`, `airtime_ledger`, `listen_credit_events`, `listen_credit_sessions`. Verified RPCs: `grant_daily_free`, `get_airtime_balance`, `consume_airtime`, `report_listen_heartbeat`, `can_start_live`, `atc_abuse_review`, `_atc_award_verified`.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Listen earn | **PARTIALLY IMPLEMENTED** | Viewer heartbeats every 15s. Credit only after 30s focused+playing. Quality from live chat, stay, discovery, first listen — server-side. `award_listen_credit` revoked from authenticated. |
+| Host burn | **PARTIALLY IMPLEMENTED** | `can_start_live` requires 300 ATC. Host consumes 30s ticks. Warn at 60s. Exhaustion ends the session. |
+| Abuse review | **INFRASTRUCTURE ONLY** | Admin Airtime tab lists 24h earn rows. Not production-walked. |
+| Reception bonus / referral / UI meter | Not started | Phase 4–5 |
+
+`npm run lint` pass. `npm run test` pass — **165 files / 853 tests**. Browser walk **Not measured**.
+
+## ATC spec lock + 0104 applied — 2026-08-17
+
+**0104 applied to production** (`xixmneooyufbeftdfpcm`) via `npx supabase db query --linked -f supabase/migrations/20260817_0104_live_source_daw.sql`. Verified:
+
+```
+live_sessions_source_check     CHECK (source = ANY (ARRAY['camera','display','both','daw']))
+live_sessions_input_mode_check CHECK (input_mode IS NULL OR input_mode = ANY (ARRAY['camera','display','both','daw']))
+```
+
+Backfill: **0** existing rows had `source = 'daw'` after apply (no prior `monetization.ingest = daw` rows). `db push` was not used — remote `schema_migrations` still drifts from local filenames.
+
+**ATC Phase 0 (DOCUMENTED ONLY / invariants locked):** `PRODUCT.md` v4. Decision [`0005`](docs/decisions/0005-airtime-credits.md). `AIRTIME_CREDITS` + `ATC_POLICY` + `airtimeCredits` gate. Hosting is no longer described as free. Listening stays free. Station Airtime stays parked and separate. Stripe never mints ATC.
+
+**ATC Phase 1 ledger:** applied with Phase 2–3 (see above).
+
+## Native `source = 'daw'` — 2026-08-17
+
+Go Live inserts `live_sessions.source = 'daw'`. Migration `0104` is **applied** (see above). Client still retries as `display` + ingest on a leftover `23514`.
+
+## Phase C–E — DAW link, companion deck, session desks — 2026-08-17
+
+Implemented the next slice of `implementation_plan.md` on `continue-next`. Nothing already built was deleted.
+
+| Piece | Delivery state | Evidence |
+|---|---|---|
+| DAW wire protocol + loopback client (`src/features/broadcast/`) | **PARTIALLY IMPLEMENTED** | 19 unit tests in `pluginProtocol`, `dawBridge`, `liveSource` |
+| Native VST3 / CLAP / AU plug-in | **NATIVE-PLATFORM ONLY** | Not in this repository. Client talks to `ws://127.0.0.1:48480/vybz-stream` |
+| Go Live source `daw` | **PARTIALLY IMPLEMENTED** | Client inserts `source = 'daw'`. Additive migration `20260817_0104_live_source_daw.sql` widens the CHECK and backfills `monetization.ingest = 'daw'` rows. **Not applied** to production. Until it is, a check-violation retries as `display` + ingest. |
+| Companion deck `/live/:id/companion` | **PARTIALLY IMPLEMENTED** | Supabase realtime protocol + remote faders. Faders do not change the published mix. |
+| In-session desks + post-live Pack Maker link | **PARTIALLY IMPLEMENTED** | Drawer links existing `/tools/*` routes. Stems are not auto-assembled. |
+
+**Not measured:** signed-in browser walk of Go Live → DAW connect → companion faders. No web browser tool was available in this session.
+
+| Command | Result |
+|---|---|
+| `npm run lint` | pass — `tsc --noEmit` exit 0 |
+| `npm run test` | pass — **162 files / 832 tests** |
+| `npm run build` | pass — vite production build |
+| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
+| `npm run test:e2e` | Not measured |
+
+## Strategic Pivot: Live Mix Audio Streaming Platform — 2026-08-17
+
+Owner directed complete product authority pivot: **VYBZ is to become the ultimate live mix audio streaming platform, giving producers and artists a place to produce their music, sound and audio projects with listeners around the world in real time live.**
+
+- **Authority:** `PRODUCT.md` is now Version 3. Decision [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) supersedes [`0003`](docs/decisions/0003-pack-suite-marketplace.md) and [`0001`](docs/decisions/0001-the-station.md).
+- **Core Pillars:** Live mix production rooms, direct DAW Master Channel broadcast plug-in (VST3 / CLAP / AU), low-latency LiveKit SFU stereo audio plane, Android multi-device synchronization & companion mode, real-time Sparks feedback, and post-session sample pack monetization.
+- **Phase B Delivered:** Primary navigation re-prioritized to lead with Live Mix (`/live`), Living Mix (`/library/mix`), and Collab Rooms (`/rooms`). Responsive stage console implemented in `LiveWatchPage` (side-by-side console on desktop/tablets, stacked on mobile) and `LivePage` (live mix hero stage with HD stereo indicators and genre filters).
+- **Preservation:** Non-negotiable PRESERVATION invariant held: **zero** feature code, routes, or database tables deleted. Sample pack pipeline, marketplace, and 9 DSP desks remain fully functional and subordinated to live mix workflows.
+- **Validation:** Full unit test suite passes: **158 test files / 808 tests**. Lint clean. Production build succeeds. 13 fixture markers absent from `dist/`.
+
+| Command | Result |
+|---|---|
+| `npm run lint` | pass — `tsc --noEmit` exit 0 |
+| `npm run test` | pass — **158 files / 808 tests** |
+| `npm run build` | pass — vite production build |
+| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
+| `npm run test:e2e` | Not measured |
 
 ## Copy rewrite — 2026-08-16
 
@@ -21,14 +272,6 @@ off-platform**, **We do not check the address**.
 
 **Not measured:** a signed-in browser walk of the new copy. No web browser tool was
 available in this session. Verification is lint + unit tests + production build.
-
-| Command | Result |
-|---|---|
-| `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **158 files / 808 tests** |
-| `npm run build` | pass — vite production build |
-| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
-| `npm run test:e2e` | Not measured |
 
 ## First paid storefront order — 2026-08-16
 
@@ -60,15 +303,6 @@ otherwise measured.
 
 The listing is still live as "Untitled pack". Unpublish or rename when it has served as
 the proof.
-
-## Authority — pack suite (2026-08-16)
-
-Owner directed a rewrite of product authority from The Station to a sample pack creation
-suite plus marketplace. Decision [`0003`](docs/decisions/0003-pack-suite-marketplace.md)
-supersedes [`0001`](docs/decisions/0001-the-station.md). `PRODUCT.md` is now Version 2.
-
-`STATION` and `CURRENCY` in `src/product/invariants.ts` were **not** deleted. They still
-constrain the parked Station subsystem. No application code changed in this unit.
 
 ## What just changed
 

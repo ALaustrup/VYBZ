@@ -21,6 +21,15 @@ import type {
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
   SocialScore,
 } from "@/types";
+import { canStartLive } from "@/features/airtime/atcApi";
+import { openProvenanceForLive, sealProvenanceForLive } from "@/features/provenance/provenanceApi";
+import {
+  dawIngestPatch,
+  isCheckViolation,
+  legacyDawFallback,
+  persistableLiveSource,
+  resolveLiveSource,
+} from "@/features/broadcast/liveSource";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
 import { parseVcAddress } from "@/lib/vc";
@@ -3425,7 +3434,7 @@ export async function topLiveSessions(limit = 3): Promise<import("@/types").Live
     avatarUrl: r.avatar_url ?? null,
     roleLabel: r.role_label ?? null,
     title: r.title ?? null,
-    source: (r.source ?? "camera") as import("@/types").LiveSource,
+    source: resolveLiveSource(r.source, r.monetization as Record<string, unknown> | null),
     intent: r.intent ?? null,
     viewerCount: Number(r.viewer_count ?? 0),
     playbackHls: r.playback_hls ?? null,
@@ -3603,7 +3612,7 @@ export async function listLiveSessions(limit = 40): Promise<LiveSessionCard[]> {
     avatarUrl: r.avatar_url ?? null,
     roleLabel: r.role_label ?? null,
     title: r.title ?? null,
-    source: r.source as LiveSource,
+    source: resolveLiveSource(r.source, r.monetization as Record<string, unknown> | null),
     intent: r.intent ?? null,
     viewerCount: r.viewer_count ?? 0,
     playbackHls: r.playback_hls ?? null,
@@ -3635,7 +3644,7 @@ export async function getLiveSession(id: string): Promise<LiveSessionDetail | nu
     avatarUrl: host?.avatar_url ?? null,
     roleLabel: (profile.roleLabel as string) ?? (profile.role as string) ?? null,
     title: data.title ?? null,
-    source: data.source as LiveSource,
+    source: resolveLiveSource(data.source, mon),
     intent: data.intent ?? null,
     viewerCount: data.viewer_count ?? 0,
     playbackHls: data.playback_hls ?? null,
@@ -3665,6 +3674,9 @@ export async function startLiveSession(input: {
   const me = await currentUserId();
   if (!me) return null;
 
+  const gate = await canStartLive();
+  if (!gate?.ok) return null;
+
   // End any prior live session for this host (unique index).
   await db().from("live_sessions").update({ status: "ended", ended_at: new Date().toISOString(), stream_key: null })
     .eq("host_id", me).eq("status", "live");
@@ -3689,21 +3701,34 @@ export async function startLiveSession(input: {
 
   const visibility = input.visibility === "circle" ? "circle" : "world";
 
-  const { data, error } = await db().from("live_sessions").insert({
+  const baseRow = {
     host_id: me,
     title: input.title?.trim() || null,
-    source: input.source,
     intent: input.intent?.trim() || null,
     bunny_guid: bunny.guid ?? null,
     playback_hls: bunny.playbackHls ?? null,
     rtmp_url: bunny.rtmpUrl ?? null,
     stream_key: bunny.streamKey ?? null,
-    input_mode: input.source,
     quality_tier: "ultra",
     visibility,
     audio_mode: "music",
     sfu_provider: "livekit",
+  };
+
+  let { data, error } = await db().from("live_sessions").insert({
+    ...baseRow,
+    source: persistableLiveSource(input.source),
+    input_mode: persistableLiveSource(input.source),
+    monetization: dawIngestPatch(input.source),
   }).select("*").single();
+
+  if (error && input.source === "daw" && isCheckViolation(error)) {
+    const fallback = legacyDawFallback(input.source);
+    ({ data, error } = await db().from("live_sessions").insert({
+      ...baseRow,
+      ...fallback,
+    }).select("*").single());
+  }
   if (error || !data) return null;
 
   void awardSocialVc("go_live", "live", data.id).catch(() => undefined);
@@ -3718,10 +3743,13 @@ export async function startLiveSession(input: {
     });
   } catch { /* SFU optional until secrets exist */ }
 
+  void openProvenanceForLive(data.id).catch(() => undefined);
+
   return getLiveSession(data.id);
 }
 
 export async function endLiveSession(id: string): Promise<void> {
+  await sealProvenanceForLive(id).catch(() => false);
   await db().rpc("end_live_session", { p_id: id });
   try {
     const { data: sess } = await db().auth.getSession();

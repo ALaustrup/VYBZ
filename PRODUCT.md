@@ -4,192 +4,129 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 2 · 2026-08-16 · supersedes Version 1 (The Station, 2026-08-15).
-> Decision: [`docs/decisions/0003-pack-suite-marketplace.md`](./docs/decisions/0003-pack-suite-marketplace.md).
+> Version 7 · 2026-08-18 · supersedes Version 6 (Stage File + ATC meter, 2026-08-18), Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
+> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (live rooms) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (public profile) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet) · [`0009`](docs/decisions/0009-live-audio-for-any-host.md) (who may host).
 
 ---
 
 ## 1. The problem
 
-You finish a folder of loops, oneshots, and phrases. It is the work. It is not a product.
+People who need to be heard — a producer finishing a mix, a podcaster cutting an episode, someone who has to talk it out — have no honest live room. Social apps compress audio into telephony mud, rank by purchase and outrage, and treat speech as a vibe to be filtered. Music tools stay silent and private. Sample-pack shops sell files, not presence.
 
-The names are a mess. Tempo is in the filename if you are lucky. Kind is a guess. There is no
-ZIP a stranger can unzip and trust. There is no page that takes a card. So the folder sits
-on a drive, or it gets dumped on a marketplace that invents plays and "trending" shelves, or
-you spend a weekend making the pack by hand and never do it again.
-
-**That is the hole. Not obscurity — a folder of files that never becomes something you can
-sell, honestly.**
+**That is the hole: there is no real-time live audio stage where anyone with something to say or play can host, listeners can stay for free, and hosting time is earned by giving attention.**
 
 ## 2. What VYBZ is
 
-**VYBZ is a sample pack creation suite with a marketplace.**
+**VYBZ is a real-time live audio platform.** Not a sample-pack app. Not music-only.
 
-A producer drops a folder, hears the files, gives them honest tags, builds a measured ZIP,
-and can sell it. Every number on a pack is measured. Everything unknown reads
-**Not measured**.
+Hosts are anyone with something to say or play: producers, artists, podcasters, talkers, open-mic, people who need to vent. Same rooms. Same Airtime Credits. Same session provenance. Same go-live gate.
 
-Not a radio station. Not a social network. Not DSP distribution. The job is organize, tag,
-preview, package, sell.
+Core experience pillars:
+- **Live rooms** (`/live`, `/live/:id`): one person hosts, listeners hear it in real time.
+- **Airtime Credits (ATC):** the only hosting clock. Listening is always free. Remaining ATC is shown as a measured clock; unknown reads **Not measured**.
+- **Session provenance:** a host-downloadable proof that a verified human ran a real-time VYBZ session. It does not prove the music was not AI-generated. An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. C2PA ledger events are counted; the file C2PA box is **Not measured**.
+- **Host Stage File** (`/u/:id`): public host profile. Talk, podcast, and music are first-class. Live nights lead. Connect is a request. Booking is a message, not a calendar.
+- **DAW Master Channel ingest** (VST3 / CLAP / AU) when the host is mixing from a studio.
+- **Companion + Android:** remote control and mobile ingest through the Platform Bridge.
+- **Post-session products:** replay, episode, stems, transcript, measured packs — money on the session, never on the clock.
 
-## 3. The suite
+## 3. Surfaces
 
-The default UI is one guided flow. Each stage is an existing desk, not a rewrite.
-The producer can skip a stage; skip does not invent completion.
-
-| Stage | Job | Surface |
+| Surface | Job | Primary Role |
 |---|---|---|
-| **0** | Upload assets | `/make` — same upload queue as ComposeSheet |
-| **1** | Metadata edit / fix | `/tools/metadata` |
-| **2** | Artwork create / check | `/tools/art-check` |
-| **3** | Analyze pack assets | `/releases` |
-| **4** | Show findings + auto-fix | `/tools/correct` |
-| **5** | Pack Maker | `/tools/pack-maker` |
-| **6** | Download / export / publish | `/tools/packs/new` |
-| **7** | Published listing | `/tools/packs` |
-| **8** | Library + sales | `/make/dashboard` |
+| **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter | **Core Stage** |
+| **Live discovery** (`/live`) | Who is on, right now | **Front door** |
+| **Host Stage File** (`/u/:id`) | Public host identity. Talk, podcast, music | **Public identity** |
+| **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
+| **Living Mix** (`/library/mix`) | Catalog sequencer. Not a public live | **On-demand mix** |
+| **In-session desks** (`/tools/*`) | Existing DSP / stem / MIDI / translation desks | **Toolkit** |
+| **DAW bridge** | Master-bus ingest when the host is in a DAW | **Studio ingest** |
+| **Marketplace** (`/market`, `/pack/:slug`) | Post-session products, not the hosting clock | **Session money** |
+| **Library** (`/library`) | Files you already have | **Media** |
 
-The stepper stays on screen for every stage path. Desks keep their own routes.
-ComposeSheet, Library, and the seller dashboard are not deleted.
+## 4. Airtime is the only hosting clock
 
-**Two ingest paths, both kept:**
+- **1 ATC = 1 second of hosting.**
+- **Daily free grant = 7200 ATC.** It does not stack. Overwritten each calendar day in the stored timezone.
+- **Earned ATC persists.**
+- **Hosting burns daily free first, then earned.**
+- **Listening is always free.** ATC never gates playback. **Hosting burns Airtime Credits.**
+- ATC is not purchasable, not transferable, not giftable. It cannot become money. Money cannot become ATC.
+- **Stripe never creates ATC.**
+- ATC is created only by daily grant, verified listen, reception bonus, referral, new-user bootstrap, or explicit admin adjust. **ATC is destroyed only by** host consumption or explicit admin adjust.
+- **Reception bonus and referral do not mint yet.** Their amounts are **Not measured**. The ledger refuses those mints until amounts are declared policy. This is not a zero award.
+- **Bootstrap** is only the declared mint: **3600 ATC**, once, inside **7 days** of profile creation.
+- The go-live gate requires the declared start minimum (300 ATC). The host sees daily free and earned before start. A leftover shorter than a burn chunk is played out — no hard cut.
+- **Station Airtime stays parked.** The Station's prompt-answer Airtime (`CURRENCY` / `STATION`) is a different, parked subsystem. Do not mix the two ledgers.
 
-1. **Library** — files become catalog rows you can search and reuse.
-2. **Pack Maker** — files stay in the pack working set and are **never** auto-ingested into
-   the library. Assembling a pack must not dump samples into the public catalog.
+## 5. Money follows the session, never the clock
 
-Pack Maker is a multi-file suite, not a one-track desk. It belongs in the default experience.
+Allowed:
+- Tips (fiat / V¢) during a live
+- Creator subscriptions
+- Post-session products: replay, episode, stems, transcript, measured packs
+- Premium tools
 
-## 4. Honesty of tags
+Forbidden:
+- Buying ATC
+- Paying for default listen access
+- Paying for rank or homepage placement
+
+**Ticketed events stay out of this lock** unless a later decision says otherwise.
+
+V¢ remains purchasable utility for tips and cosmetics. It never buys search placement, stream ranking, or ATC.
+
+## 6. Session provenance
+
+A sealed public live may emit a downloadable package (`.vprov`) and an in-app verification report.
+
+- Binds to `live_sessions`, never Living Mix, never 1:1 `liveSession.ts` calls.
+- **Full** strength only when that live consumed ATC. Otherwise **thin**.
+- Copy is **Session provenance**, never “Human certified.”
+- **No “not AI” proof.** Presence, ATC, and a hash cannot measure that.
+
+## 7. Speech
+
+Hosting is **viewpoint-neutral**. We do not kill a live because the take is unpopular.
+
+We still do not host illegal content (CSAM, true threats, and the rest of that legal floor). That is law, not a vibe filter.
+
+## 8. Honesty of Measurement
 
 Three kinds of label, never mixed:
 
 | Kind | Source | What we may say |
 |---|---|---|
-| **Declared** | Filename, artist-typed fields, pack title and genre | What a person wrote |
-| **Measured** | Duration, peak, RMS, sample rate, channels, content SHA | Computed from the bytes |
-| **Inferred** | Analysis that has no evidence | **Not used.** Local genre/mood inference returns nothing today. |
-
-VYBZ never claims to have *detected* a genre, a key mode the name did not state, or a
-musical section we cannot measure. A fabricated BPM wearing a lab coat is still fabricated.
-
-## 5. The marketplace
-
-Published packs are listed on **Market** (`/market`) from `storefront_packs_public` only.
-Empty means zero published packs, not a placeholder catalog. Filters never invent rows.
-There are no play counts, no trending shelves, no "guaranteed placement."
-
-A public pack page (`/pack/:slug`) shows title, price, description, and a preview when one
-exists. It never exposes `zip_path`. The ZIP is delivered after payment — today by a signed
-download link mailed to the buyer.
-
-**Selling is optional.** Packaging a ZIP for yourself is a full use of the product. The
-marketplace is the front door for buyers, not a tax on making a pack.
-
-Platform fee is **10%**, tracked on the order. Settlement of the producer is
-`pending_manual` → `settled_off_platform` until automatic payouts are
-production-verified. That is the designed path, not a temporary shame.
-
-Measured 2026-08-16: one live $1.00 purchase completed; the buyer received the ZIP by email.
-Checkout and fulfillment for that order are **DELIVERED AND PRODUCTION-VERIFIED**. A second,
-non-owner customer is **Not measured**.
-
-## 6. Money
-
-**Buyers pay in fiat, through Stripe, on the platform account.** That is how a pack is sold.
-
-**V¢ remains** the purchasable utility credit it already is — cosmetics, tips, storefront
-adjacent spend. It does not buy a listing, a search rank, or the right to upload.
-
-**Airtime** — verified listening time from The Station — stays in the invariants file and
-in the parked Station subsystem. It is not used by the pack suite. Airtime and V¢ still
-never convert, in either direction. Money still cannot buy the right to be heard on any
-future Station surface.
-
-Pack price bounds are $1.00–$5,000.00, as the storefront already enforces.
-
-No economy constant for "what a pack should cost" is invented here. Producers set a price.
-
-## 7. Publishing is always free
-
-Upload anything, any time, at no cost. It lives in your library.
-
-**Only a sale is charged.** A zero balance still lets you ingest, tag, preview, and build a
-ZIP. The marketplace takes a cut of a completed purchase, not of existence.
-
-We do not pay people to upload. Pay-for-upload fills a catalog with generated slop.
-
-## 8. Parked: The Station
-
-Version 1 of this document made one synchronized station the product. That decision is
-superseded. The radio, the line, sparks, reception, and Airtime remain implemented to the
-degree `STATE.md` records. They are not deleted. They are not the front door.
-
-If The Station returns, it returns as a measured decision with its own record, not by
-quietly rewriting this file back.
+| **Declared** | Filename, host-typed title, “this file is the recap” | What a person wrote |
+| **Measured** | Duration, peak, RMS, BS.1770-4 LUFS, sample rate, channels, content SHA, ATC burned | Computed from the bytes or the ledger |
+| **Inferred** | Analysis that has no evidence | **Not used.** Unknown reads **Not measured**. |
 
 ## 9. What we refuse
 
-**No public vanity metrics.** No follower counts, no play counts as social proof, no
-leaderboards of packs. Reception and sales figures go to the person who made the thing.
+- **No public vanity metrics:** No follower counts or fake play counts as social proof.
+- **No purchasable attention:** Money cannot buy live ranking, "featured" tags, fake listens, or ATC.
+- **No dating, romance, meetup or swipe matching:** Permanently out of scope.
+- **No fabricated measurement:** Everything unmeasured reads **"Not measured"**.
+- **No “not AI” proof.**
+- **No undisclosed processing on the play path.**
+- **No killing a live for an unpopular take.** Illegal content is still refused.
 
-**No purchasable attention.** Money does not buy Market rank, "featured," or a fake listen.
+## 10. Preservation — Hide, Never Delete
 
-**No paying for uploads.** See §7.
+**Nothing already built is deleted.** The sample pack pipeline, marketplace, analyzer, correction desk, translation lab, stem maker, MIDI maker, converter, rooms, live sessions, messages, projects, visualizer studio, sparks, reception, Living Mix, and Vibes Radio stay in the tree, stay reachable, and keep compiling.
 
-**No fabricated measurement.** Unknown reads **"Not measured"**. Approximate is labelled
-approximate. Simulated is labelled simulated. Filename tempo is declared-from-name.
+Surfaces leaving the default experience are **hidden from navigation**, not removed. Routes still resolve. Code still compiles.
 
-**No dating, romance, meetup or swipe matching.** Permanently out of scope.
+## 11. Interface Direction
 
-**No claim that VYBZ delivers to DSPs.** It prepares packs and listings. It does not
-distribute to Beatport, Splice, or Spotify.
+- **Live-first:** default UI leads with live rooms, host profiles, and Library.
+- **Host profiles are not artist-only.** Talk, podcast, and music share `/u/:id`.
+- **Auto-adjusting** across phone, companion, and desktop studio.
+- **Dark, audio-first.**
 
-**No invented inventory.** Market shows published `storefront_packs` rows or an honest empty
-state.
+## 12. Delivery Vocabulary
 
-**No undisclosed processing on the play path.** Playback is dry. Simulations are labelled.
-
-**No Station, radio, or social expansion** while the pack loop is the product. Those
-surfaces stay in the tree. They do not get new work, new nav, or new promises.
-
-## 10. Preservation — hide, never delete
-
-**Nothing already built is deleted.** The analyzer, correction desk, translation lab, stem
-maker, midi maker, converter, storefront, rooms, live, messages, projects, visualizer
-studio, sparks, reception, Living Mix, and Vibes Radio stay in the tree, stay reachable,
-and keep working.
-
-Surfaces leaving the default experience are **hidden from navigation**, not removed. Routes
-still resolve. Code still compiles. History still holds everything.
-
-The Station, sparks-on-station, Airtime earning, and the social home are **parked**. Their
-invariants in `src/product/invariants.ts` still apply *to those surfaces* if they are
-switched on again. They are not the default product.
-
-The new interface becomes the front door. What is behind it is still the house.
-
-## 11. Interface direction
-
-**The default experience is the staged pack pipeline** (`/make`, stages 0–8). The rail
-leads with Make pack, Library, and Sales. Social home, feed, and rooms stay reachable
-and off the default rail.
-
-Desks that operate on one track stay summonable from that track. Routes for parked
-surfaces still resolve.
-
-**Mobile first.** Designed for a phone held in one hand, then adapted upward to desktop.
-
-**Android as a first-class target**, through the existing Capacitor shell and Platform
-Bridge.
-
-**VR is a considered horizon**, not a commitment, and never at the cost of the phone or
-the pack loop.
-
-## 12. Delivery vocabulary
-
-A capability is delivered only when it is implemented, integrated, reachable, discoverable,
-deployed, production-verified, and changes what a user can do.
+A capability is delivered only when it is implemented, integrated, reachable, discoverable, deployed, production-verified, and changes what a user can do.
 
 Permitted states — never "complete":
 
@@ -197,13 +134,8 @@ Permitted states — never "complete":
 `PARTIALLY IMPLEMENTED` · `IMPLEMENTED BUT NOT DELIVERED` · `DEPLOYED BUT UNVERIFIED` ·
 `DELIVERED AND PRODUCTION-VERIFIED`
 
-Production is the truth about the product. The repository is the truth about the code. When
-they disagree about what a user experiences, **production wins and the documents get fixed.**
+## 13. Definition of Success
 
-## 13. Definition of success
+A host taps Go Live. Listeners hear them — mix, talk, episode, or vent — in real time. Hosting burns Airtime. Listening stays free. When the session ends, the host can download a session-provenance package and, if they want, sell something that came from that night.
 
-A producer drops a folder they have been sitting on. The same day they have a measured ZIP
-and a page that takes a card. A stranger buys it. The ZIP arrives. The producer can see the
-order and settle it.
-
-They never again finish the work and have only a folder.
+Nobody had to buy the right to be heard. Nobody had to buy the right to listen.

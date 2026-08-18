@@ -120,28 +120,29 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     }
   });
 
-  it("never links Studio, Live, Market, AI minutes or Cost Sentinel", () => {
-    // Artist OS — freeze-not-delete: routes stay linkable by URL, navModel must not advertise them.
-    // Suite UX: Store (/store) is the authorised V¢ + cosmetics surface (not Settings money).
-    // Social-first (2026-08-11): Rooms left this list — chat is a core surface now.
+  it("never links Studio, Market, AI minutes or Cost Sentinel", () => {
+    // Live-first (PRODUCT.md v3): Live and Rooms are core surfaces.
+    // Studio and unrouted money surfaces stay out of default nav.
     const linked = [
       ...navItems().map((i) => i.path),
       ...accountItems("admin", true).map((i) => i.path.split("#")[0]),
     ];
     expect(linked).not.toContain("/studio");
-    expect(linked).not.toContain("/live");
     expect(linked).not.toContain("/market");
     expect(linked).not.toContain("/settings/credits");
     expect(linked).not.toContain("/settings/costs");
     expect(linked).toContain("/store");
   });
 
-  it("carries the pack pipeline in the rail, not social or desk tools", () => {
+  it("carries live mix streaming and studio tools in the rail", () => {
     const linked = navItems().map((i) => i.path);
-    expect(linked).toContain("/make");
+    expect(linked).toContain("/live");
+    expect(linked).toContain("/library/mix");
+    expect(linked).toContain("/rooms");
     expect(linked).toContain("/library");
+    expect(linked).toContain("/make");
     expect(linked).toContain("/make/dashboard");
-    for (const social of ["/feed", "/discover", "/rooms", "/messages", "/notifications"]) {
+    for (const social of ["/feed", "/discover", "/messages", "/notifications"]) {
       expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);
     }
     for (const tool of ["/releases", "/tools/correct", "/tools/translate", "/tools/packs"]) {
