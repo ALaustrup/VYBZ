@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { useSession } from "@/store/session";
@@ -13,6 +13,7 @@ import { cx } from "@/lib/utils";
 
 /** Hard-gate screen: signed-in users without alpha_access_at redeem here. */
 export function InviteRedeemPage() {
+  const navigate = useNavigate();
   const { email, refreshProfile, signOut, showToast } = useSession();
   const reduce = useReduceFx();
   const [code, setCode] = useState(() => peekPendingInviteKey() ?? "");
@@ -37,6 +38,7 @@ export function InviteRedeemPage() {
     takePendingInviteKey();
     showToast(res.already ? "Already in." : "You're in.");
     await refreshProfile();
+    navigate("/live", { replace: true });
   }
 
   useEffect(() => {
@@ -97,7 +99,7 @@ export function InviteRedeemPage() {
             <p className="mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
               No key yet?
             </p>
-            <AlphaKeyGenerator compact />
+            <AlphaKeyGenerator compact onIssued={(issued) => void redeem(issued)} />
           </div>
 
           <button

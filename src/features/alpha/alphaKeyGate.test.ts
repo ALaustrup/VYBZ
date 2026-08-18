@@ -68,7 +68,7 @@ describe("self-serve alpha key", () => {
     const edge = read("supabase/functions/alpha-key/index.ts");
     // Email send is fire-and-forget; the response still carries the code.
     expect(edge).toContain("void sendKeyEmail");
-    expect(edge).toMatch(/return json\(\{ ok: true, code: result\.code/);
+    expect(edge).toMatch(/ok: true,\s*code: result\.code/);
 
     const ui = read("src/features/alpha/AlphaKeyGenerator.tsx");
     expect(ui).toContain("alpha-key-code");
@@ -77,9 +77,32 @@ describe("self-serve alpha key", () => {
     expect(ui).toContain("We do not check the address");
   });
 
+  it("creates the account with the key and never auto-logs an existing address", () => {
+    const edge = read("supabase/functions/alpha-key/index.ts");
+    expect(edge).toContain("createUser");
+    expect(edge).toContain("email_confirm: true");
+    expect(edge).toContain("generateLink");
+    expect(edge).toContain('account: "exists"');
+    expect(edge).toContain("tokenHash");
+    const claim = read("src/features/alpha/claimAlphaAccess.ts");
+    expect(claim).toContain("establishSession");
+    expect(claim).toContain("redeemInviteKey");
+    expect(claim).toContain('status: "needs_login"');
+    expect(claim).not.toMatch(/signInWithPassword/);
+    const ui = read("src/features/alpha/AlphaKeyGenerator.tsx");
+    expect(ui).toContain("claimAlphaAccess");
+    expect(ui).toContain('navigate("/live"');
+  });
+
   it("is reachable both before sign-in and at the gate", () => {
     expect(read("src/pages/LandingPage.tsx")).toContain("AlphaKeyGenerator");
     expect(read("src/features/alpha/InviteRedeemPage.tsx")).toContain("AlphaKeyGenerator");
+    const enter = read("src/components/Onboarding.tsx");
+    expect(enter).not.toMatch(/Create an account|Create account with passkey|New to VYBZ/);
+    expect(enter).toContain("login-go-back");
+    expect(enter).toContain("Sign in with passkey");
+    expect(enter).toContain("Use a password instead");
+    expect(enter).not.toContain("signUpWithPasskey");
   });
 
   it("never nests a form inside its host form", () => {

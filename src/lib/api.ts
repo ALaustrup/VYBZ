@@ -66,6 +66,13 @@ export async function signIn(email: string, password: string) {
   if (error) throw error;
   return data;
 }
+
+/** Signed-in user chooses their own password. Does not lock the wipe gate. */
+export async function setAccountPassword(password: string): Promise<{ error?: string }> {
+  const { error } = await db().auth.updateUser({ password });
+  if (error) return { error: error.message };
+  return {};
+}
 export async function signOut() {
   await db().auth.signOut();
 }
