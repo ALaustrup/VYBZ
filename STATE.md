@@ -4,7 +4,13 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`36519f1c`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this merge: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`303f726a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this library polish: **Not measured**.
+
+## Library copy and settings gear — 2026-08-18
+
+Library no longer shows "Your files", "Drop audio anywhere to add it.", or "Selling packs? Your packs". The Stages chip and the stage-backdrop filter toggle are hidden from the library filters. The far-right app-bar control is a gear, not the avatar. StagesLibrary stays in the file.
+
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Browser walk: **Not measured**.
 
 ## Rail identity and darker dock — 2026-08-18
 

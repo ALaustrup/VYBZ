@@ -42,31 +42,19 @@ export function AccountMenu() {
   }, [open]);
 
   const name = profile?.username?.trim() || null;
-  const initial = (name ?? email ?? "?").slice(0, 1).toUpperCase();
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="Account"
+        aria-label="Settings"
         aria-expanded={open}
         aria-haspopup="menu"
         data-testid="account-menu-button"
         className={cx("forge-chip flex h-10 w-10 active:scale-90", open && "forge-chip--active")}
       >
-        {profile?.avatarUrl ? (
-          <img
-            src={profile.avatarUrl}
-            alt=""
-            className="h-7 w-7 rounded-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[12px] font-semibold text-white/80">
-            {initial}
-          </span>
-        )}
+        <Settings className="h-5 w-5" strokeWidth={1.75} aria-hidden />
       </button>
 
       <AnimatePresence>
