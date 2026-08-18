@@ -7,6 +7,7 @@ import * as api from "@/lib/api";
 import { useReduceFx } from "@/lib/display";
 import { setLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
+import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 import { AtcHostCard } from "@/features/airtime/AtcHostCard";
 import { canStartLive, fetchAtcBalance, type AtcBalanceResponse } from "@/features/airtime/atcApi";
@@ -66,7 +67,8 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       setPurpose(null);
       return;
     }
-    void fetchAtcBalance().then(setAtc);
+    if (FLAGS.atc) void fetchAtcBalance().then(setAtc);
+    else setAtc(null);
   }, [open]);
 
   useEffect(() => {
@@ -130,15 +132,17 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       } else if (!previewing) {
         await startPreview();
       }
-      const gate = await canStartLive();
-      if (!gate?.ok) {
-        setErr(
-          gate?.error === "insufficient"
-            ? `Need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} of Airtime to go live. Listen to earn more.`
-            : "Couldn't check Airtime.",
-        );
-        setBusy(false);
-        return;
+      if (FLAGS.atc) {
+        const gate = await canStartLive();
+        if (!gate?.ok) {
+          setErr(
+            gate?.error === "insufficient"
+              ? `Need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} of Airtime to go live. Listen to earn more.`
+              : "Couldn't check Airtime.",
+          );
+          setBusy(false);
+          return;
+        }
       }
       const session = await api.startLiveSession({
         title: title.trim() || undefined,
@@ -204,7 +208,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
             <div className="mx-5 h-px bg-[var(--hairline)]" />
 
             <div className="no-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
-              <AtcHostCard balance={atc} />
+              {FLAGS.atc ? <AtcHostCard balance={atc} /> : null}
               {step === "source" && (
                 <>
                   <div className="relative aspect-video overflow-hidden rounded-2xl border border-[var(--hairline)] bg-ink-950/60">
@@ -342,7 +346,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                 </button>
               )}
               {step === "details" && (
-                <button type="button" onClick={() => void goLive()} disabled={busy || (atc != null && !canStartHost(atc))} data-testid="go-live-start" className="btn btn-primary flex-1 py-3.5">
+                <button type="button" onClick={() => void goLive()} disabled={busy || (FLAGS.atc && atc != null && !canStartHost(atc))} data-testid="go-live-start" className="btn btn-primary flex-1 py-3.5">
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Radio className="h-4 w-4" /> Go</>}
                 </button>
               )}

@@ -4,7 +4,17 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`ffed8df5`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`ffed8df5`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of parked ATC: **Not measured**.
+
+## Park Airtime Credits — 2026-08-18
+
+Owner asked to put ATC off for now. Not deleted. `FLAGS.atc` is opt-in (`VITE_FEATURE_ATC=on`). Default is off.
+
+When off: header clock hidden, go-live skip the 300 ATC gate, host burn and listen earn do not run, earn copy stays out of `/live` and Who's live. Ledger, RPCs, migrations, and UI files stay in the tree. Admin Airtime tab stays. Set `VITE_FEATURE_ATC=on` to restore.
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Production still serves the previous main SHA until this is merged. Browser walk of the parked path: **Not measured** — no browser tool this session.
 
 ## Revert 3-panel homepage — 2026-08-18
 

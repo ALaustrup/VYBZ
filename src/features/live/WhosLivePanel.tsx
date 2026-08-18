@@ -4,6 +4,7 @@ import { Eye, Loader2, Radio } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { LiveTileStage, liveSeedFromId } from "@/components/LiveTileStage";
 import * as api from "@/lib/api";
+import { FLAGS } from "@/lib/flags";
 import { cx, timeAgo } from "@/lib/utils";
 import type { LiveSessionCard } from "@/types";
 
@@ -76,7 +77,9 @@ export function WhosLivePanel({
               Artists and producers on now
             </h2>
             <p className="mt-1 text-[12px] text-white/45" data-testid="listen-earn-hint">
-              Listening is free. Stay on a live to earn Airtime. Hosting burns it.
+              {FLAGS.atc
+                ? "Listening is free. Stay on a live to earn Airtime. Hosting burns it."
+                : "Listening is free."}
             </p>
           </div>
           {rail ? (

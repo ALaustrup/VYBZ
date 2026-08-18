@@ -142,6 +142,9 @@ describe("airtime credits", () => {
     const api = read("src/features/airtime/atcApi.ts");
     expect(api).toContain("requestUnmeasuredMint");
     expect(api).toContain("award_reception_bonus");
+    const flags = read("src/lib/flags.ts");
+    expect(flags).toContain("atc: on(import.meta.env.VITE_FEATURE_ATC)");
+    expect(flags).toContain("parked");
   });
 
   it("grants bootstrap only at the declared 3600 / 7-day rate", () => {

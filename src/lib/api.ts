@@ -3681,8 +3681,10 @@ export async function startLiveSession(input: {
   const me = await currentUserId();
   if (!me) return null;
 
-  const gate = await canStartLive();
-  if (!gate?.ok) return null;
+  if (FLAGS.atc) {
+    const gate = await canStartLive();
+    if (!gate?.ok) return null;
+  }
 
   // End any prior live session for this host (unique index).
   await db().from("live_sessions").update({ status: "ended", ended_at: new Date().toISOString(), stream_key: null })
