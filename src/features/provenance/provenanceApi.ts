@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { DeclaredHostSignals } from "./hostSignals";
 
 const byLive = new Map<string, string>();
 
@@ -40,6 +41,27 @@ export async function recordAtcBurnEvent(liveSessionId: string, seconds: number)
     p_session: pid,
     p_type: "atc_burn",
     p_payload: { seconds },
+    p_ledger: null,
+  });
+  if (error || !data) return false;
+  return (data as { ok?: boolean }).ok === true;
+}
+
+export async function recordDeclaredSignals(
+  liveSessionId: string,
+  signals: DeclaredHostSignals,
+): Promise<boolean> {
+  if (!supabase) return false;
+  let pid = byLive.get(liveSessionId);
+  if (!pid) {
+    const opened = await openProvenanceForLive(liveSessionId);
+    pid = opened.id;
+  }
+  if (!pid) return false;
+  const { data, error } = await supabase.rpc("append_provenance_event", {
+    p_session: pid,
+    p_type: "signal",
+    p_payload: signals,
     p_ledger: null,
   });
   if (error || !data) return false;

@@ -21,6 +21,8 @@ import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { useHostBurn, useListenEarn } from "@/features/airtime/AtcLiveHooks";
 import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
+import { noteChatSent } from "@/features/provenance/hostSignals";
+import { useHostSignals } from "@/features/provenance/useHostSignals";
 import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
 import { SessionToolDrawer } from "@/features/broadcast/SessionToolDrawer";
 import { getDawBridge, peekDawBridge, releaseDawBridge } from "@/features/broadcast/dawBridgeSession";
@@ -163,11 +165,16 @@ export function LiveWatchPage() {
     setSending(true);
     const m = await api.sendLiveMessage(id, text);
     setSending(false);
-    if (m) { setText(""); setMsgs((prev) => [...prev, m]); }
+    if (m) {
+      setText("");
+      setMsgs((prev) => [...prev, m]);
+      if (isHost) noteChatSent();
+    }
     else showToast("Couldn't send");
   }
 
   const playing = sfuActive || !!session?.playbackHls;
+  useHostSignals(!!session && isHost && session.status === "live");
   useListenEarn({
     sessionId: id,
     enabled: !!session && !isHost && session.status === "live",
@@ -177,6 +184,10 @@ export function LiveWatchPage() {
   useHostBurn({
     sessionId: id,
     enabled: !!session && isHost && session.status === "live",
+    signalInputs: () => ({
+      dawStreaming: peekDawBridge()?.status === "streaming",
+      micTrackLive: !!vizStream?.getAudioTracks().some((t) => t.enabled && t.readyState === "live"),
+    }),
     onBalances: (b) => setHostAtcLeft(b.total),
     onWarn: (total) => showToast(`Airtime low · ${formatAtcClock(total)} left`),
     onExhausted: () => { void end(); },

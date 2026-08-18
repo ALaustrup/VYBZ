@@ -6,6 +6,12 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Session provenance Phase 3 — 2026-08-18
+
+Declared host-signal ticks ride the same 30s ATC burn clock. Payload is labelled `kind: "declared"` (pointer, key, chat, DAW streaming, live mic track, tab focused). Not a musicianship proof. Not a not-AI claim.
+
+`npm run lint` pass. `npm run test` pass — **168 files / 864 tests**.
+
 ## Session provenance Phase 2 + 0106 applied — 2026-08-18
 
 **0106 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked`. Verified tables: `provenance_sessions`, `provenance_events`.

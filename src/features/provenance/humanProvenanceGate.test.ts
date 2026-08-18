@@ -69,4 +69,19 @@ describe("human / session provenance", () => {
     expect(hook).toContain("seal_provenance_session");
     expect(hook).toContain('p_type: "atc_burn"');
   });
+
+  it("records declared host signals on the ATC burn clock", () => {
+    const signals = read("src/features/provenance/hostSignals.ts");
+    expect(signals).toContain('kind: "declared"');
+    expect(signals).toContain("notePointer");
+    expect(signals).toContain("noteChatSent");
+    const burn = read("src/features/airtime/AtcLiveHooks.ts");
+    expect(burn).toContain("recordDeclaredSignals");
+    expect(burn).toContain("takeHostSignalSnapshot");
+    const api = read("src/features/provenance/provenanceApi.ts");
+    expect(api).toContain('p_type: "signal"');
+    const watch = read("src/pages/LiveWatchPage.tsx");
+    expect(watch).toContain("useHostSignals");
+    expect(watch).toContain("noteChatSent");
+  });
 });

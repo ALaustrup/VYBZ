@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ATC_POLICY } from "@/product/invariants";
 import type { AtcBalances } from "./atcAccounting";
+import { recordDeclaredSignals } from "@/features/provenance/provenanceApi";
+import { takeHostSignalSnapshot } from "@/features/provenance/hostSignals";
 import { consumeHostAirtime, reportListenHeartbeat } from "./atcApi";
 
 const HEARTBEAT_MS = 15_000;
@@ -45,11 +47,14 @@ export function useListenEarn(opts: {
 export function useHostBurn(opts: {
   sessionId: string;
   enabled: boolean;
+  signalInputs?: () => { dawStreaming: boolean; micTrackLive: boolean };
   onBalances?: (b: AtcBalances & { total: number }) => void;
   onExhausted?: () => void;
   onWarn?: (total: number) => void;
 }): void {
   const warned = useRef(false);
+  const signalRef = useRef(opts.signalInputs);
+  signalRef.current = opts.signalInputs;
 
   useEffect(() => {
     if (!opts.enabled) return undefined;
@@ -58,6 +63,12 @@ export function useHostBurn(opts: {
     const tick = async () => {
       const res = await consumeHostAirtime(opts.sessionId, ATC_POLICY.hostBurnChunkSeconds);
       if (cancelled || !res) return;
+      const extras = signalRef.current?.() ?? { dawStreaming: false, micTrackLive: false };
+      const focused = typeof document === "undefined" ? false : document.visibilityState === "visible";
+      void recordDeclaredSignals(
+        opts.sessionId,
+        takeHostSignalSnapshot({ ...extras, focused }),
+      ).catch(() => false);
       opts.onBalances?.({
         dailyFreeRemaining: res.dailyFreeRemaining,
         earnedBalance: res.earnedBalance,
