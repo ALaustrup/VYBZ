@@ -6,6 +6,17 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**. Production verify: **Not measured**.
 
+## Who's live panel — 2026-08-18
+
+Once inside, the first live surface is a **Who's live** panel of current hosts (name, handle, role/title, watchers). Same panel on `/live`, the hub, and the profile live tab. Empty reads "No one is live." Go live stays in the app bar.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Who's live | **IMPLEMENTED BUT NOT DELIVERED** | `WhosLivePanel` on `LivePage`, `ArtistHome`, `DashLivePanel`. Reads `listLiveSessions` |
+| Browser walk | Not measured | No web browser tool this session |
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
 ## Key → account → Who's on — 2026-08-18
 
 Self-serve key now starts the account. The key stays bound to the email. A typo is unrecoverable because the address is not verified. Login is passkey or password only. New people go back to the key form. After the name is claimed, the tour asks for a passkey or password. First room is Live / Who's on.

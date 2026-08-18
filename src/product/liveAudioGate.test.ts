@@ -45,6 +45,8 @@ describe("live audio lock", () => {
   it("puts Go Live and any-host copy on the live front door", () => {
     const live = readFileSync(path.join(ROOT, "src/pages/LivePage.tsx"), "utf8");
     expect(live).toContain("Go live");
+    expect(live).toContain("Who's live");
+    expect(live).toContain("WhosLivePanel");
     expect(live).toContain("Mix, talk, episode, or vent");
     expect(live).toContain("Talk");
     expect(live).toContain("Music");
