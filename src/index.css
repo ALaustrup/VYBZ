@@ -4,7 +4,6 @@
 @import "./design/suite-app-accents.css";
 @import "./design/suite-shell-chrome.css";
 @import "./design/suite-public-shell.css";
-@import "./shell/liveHome.css";
 
 @tailwind base;
 @tailwind components;

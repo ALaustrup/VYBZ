@@ -205,8 +205,7 @@ export function App() {
       <AnimatePresence mode="wait" initial={false}>
         <PageTransition routeKey={location.pathname}>
           <Routes location={location}>
-        <Route path="/" element={<Navigate to="/live" replace />} />
-        <Route path="/you" element={<ProfilePage />} />
+        <Route path="/" element={<ProfilePage />} />
         <Route path="/enter" element={<Navigate to="/live" replace />} />
         <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
