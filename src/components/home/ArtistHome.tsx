@@ -15,16 +15,14 @@ import {
   Sparkles,
   Waves,
 } from "lucide-react";
-import { Avatar } from "@/components/Avatar";
 import { AlbumLightbox } from "@/components/home/AlbumLightbox";
+import { EpisodeCard } from "@/components/home/EpisodeCard";
+import { HomeShelf, HomeShelfRow } from "@/components/home/HomeShelf";
 import { HubActivity } from "@/components/home/HubActivity";
 import { WallAlerts } from "@/components/home/WallAlerts";
+import { FeedTrackRow } from "@/components/FeedTrackRow";
 import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
-import { ProfessionBadges } from "@/components/ProfessionBadges";
-import { ProBadge } from "@/components/ProBadge";
-import { RoleClassBadge } from "@/components/RoleClassBadge";
-import { Flair, CosmeticAvatarShell, useResolvedCosmetics } from "@/lib/cosmetics";
 import { groupDrops, type DropGroup } from "@/lib/libraryQuery";
 import {
   buildActionItems,
@@ -36,6 +34,7 @@ import {
 import { isPlayableMediaUrl, playTrack, toggle, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { FLAGS } from "@/lib/flags";
+import { supabase } from "@/lib/supabase";
 import * as api from "@/lib/api";
 import { myListenSummary, type ListenSummary } from "@/features/reception/listenApi";
 import { getPrepareOwnerId, getReleaseBundle, listReleases } from "@/features/prepare/service";
@@ -47,8 +46,18 @@ import { useSession } from "@/store/session";
 import { paletteFor, cx } from "@/lib/utils";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import type { StorefrontOrder } from "@/features/storefront/types";
-import type { Drop } from "@/types";
+import type { Drop, Reaction } from "@/types";
 import type { NextDeskStep } from "@/features/prepare/nextDeskFromFindings";
+
+type HomeFilter = "all" | "live" | "uploads" | "library";
+type FeedItem = Drop & { myReaction?: Reaction };
+
+function dayGreeting(now = new Date()): string {
+  const h = now.getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
 
 const SEVERITY_STYLE: Record<ActionSeverity, { icon: typeof AlertTriangle; tone: string }> = {
   blocking: { icon: AlertTriangle, tone: "text-suite-danger" },
@@ -75,41 +84,59 @@ function AlbumTile({
   const seed = group.drops[0]?.seed ?? 1;
   const [c0, c1] = paletteFor(seed);
   const monogram = (group.label || "S").slice(0, 1).toUpperCase();
+  const firstPlayable = group.drops.find((d) => isPlayableMediaUrl(d.audioUrl));
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className={cx(
-        "group forge-glass relative aspect-square w-full overflow-hidden !rounded-xl p-0 text-left",
-        "transition duration-200 hover:-translate-y-0.5 hover:border-white/20",
-        "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
-      )}
-      aria-label={`${group.label}, ${group.drops.length} tracks`}
-    >
-      {cover ? (
-        <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-95" />
-      ) : (
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(145deg, ${c0}55 0%, #05070c 55%, ${c1}40 100%)`,
-          }}
-          aria-hidden
-        >
-          <span className="absolute inset-0 flex items-center justify-center font-display text-5xl font-semibold text-white/25">
-            {monogram}
-          </span>
+    <div className="group relative">
+      <button
+        type="button"
+        onClick={onOpen}
+        className={cx(
+          "forge-glass relative aspect-square w-full overflow-hidden !rounded-xl p-0 text-left",
+          "transition duration-200 hover:-translate-y-0.5 hover:border-white/20",
+          "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+        )}
+        aria-label={`${group.label}, ${group.drops.length} tracks`}
+      >
+        {cover ? (
+          <img src={cover} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80 transition group-hover:opacity-95" />
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(145deg, ${c0}55 0%, #05070c 55%, ${c1}40 100%)`,
+            }}
+            aria-hidden
+          >
+            <span className="absolute inset-0 flex items-center justify-center font-display text-5xl font-semibold text-white/25">
+              {monogram}
+            </span>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-3">
+          <p className="truncate font-display text-[14px] font-semibold text-white">{group.label}</p>
+          <p className="mt-0.5 text-[11px] text-white/50">
+            {group.drops.length} track{group.drops.length === 1 ? "" : "s"}
+          </p>
         </div>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-3">
-        <p className="truncate font-display text-[14px] font-semibold text-white">{group.label}</p>
-        <p className="mt-0.5 text-[11px] text-white/50">
-          {group.drops.length} track{group.drops.length === 1 ? "" : "s"}
-        </p>
-      </div>
-    </button>
+      </button>
+      {firstPlayable ? (
+        <button
+          type="button"
+          aria-label={`Play ${group.label}`}
+          onClick={() => {
+            playTrack(
+              toPlayerTrack(firstPlayable),
+              group.drops.filter((d) => isPlayableMediaUrl(d.audioUrl)).map(toPlayerTrack),
+            );
+          }}
+          className="absolute bottom-3 right-3 z-[1] grid h-10 w-10 place-items-center rounded-full bg-[rgb(var(--neon-mint))] text-black opacity-0 shadow-lg transition duration-200 group-hover:opacity-100 motion-reduce:opacity-100"
+        >
+          <Play className="h-4 w-4 translate-x-px" />
+        </button>
+      ) : null}
+    </div>
   );
 }
 
@@ -379,26 +406,26 @@ function ProfileSong({ drop }: { drop: Drop }) {
 }
 
 /**
- * Signed-in Home — the creator's own page.
+ * Signed-in Home — Spotify shelves + SoundCloud stream.
  *
- * VYBZ is a social platform for music, audio and sound, so this reads as a profile
- * first: who you are, the track you want heard, your catalogue. The production
- * tooling is still here and still measured, but it sits below the fold in Studio
- * rather than framing the page. Every figure comes from dashboardModel /
- * listReleases / drops (Law 1).
+ * Greeting and filter chips lead. Live, newest public uploads, and library
+ * sit in horizontal shelves. The waveform stream is the SoundCloud row.
+ * Studio stays below the fold. Every figure still comes from dashboardModel /
+ * listReleases / drops (Law 1). Nothing already built was removed.
  */
 export function ArtistHome() {
   const navigate = useNavigate();
   const { profile, userId } = useSession();
   const [drops, setDrops] = useState<Drop[]>([]);
+  const [feed, setFeed] = useState<FeedItem[]>([]);
   const [releases, setReleases] = useState<ReleaseProject[]>([]);
   const [orders, setOrders] = useState<StorefrontOrder[]>([]);
   const [whatNext, setWhatNext] = useState<NextDeskStep[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedLoading, setFeedLoading] = useState(true);
   const [openAlbum, setOpenAlbum] = useState<DropGroup | null>(null);
   const [goLive, setGoLive] = useState(false);
-  const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
-  const facets = profile?.profile ?? {};
+  const [filter, setFilter] = useState<HomeFilter>("all");
 
   const load = useCallback(async () => {
     if (!userId) return;
@@ -434,9 +461,35 @@ export function ArtistHome() {
     setLoading(false);
   }, [userId]);
 
+  const loadFeed = useCallback(async (silent = false) => {
+    if (!silent) setFeedLoading(true);
+    const next = await api.listDrops(24).catch(() => [] as FeedItem[]);
+    setFeed(next);
+    setFeedLoading(false);
+  }, []);
+
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    void loadFeed();
+  }, [loadFeed]);
+
+  useEffect(() => {
+    const sb = supabase;
+    if (!sb) return;
+    let t: ReturnType<typeof setTimeout> | null = null;
+    const bump = () => {
+      if (t) clearTimeout(t);
+      t = setTimeout(() => void loadFeed(true), 500);
+    };
+    const ch = sb.channel("home:drops").on("postgres_changes", { event: "INSERT", schema: "public", table: "drops" }, bump).subscribe();
+    return () => {
+      if (t) clearTimeout(t);
+      void sb.removeChannel(ch);
+    };
+  }, [loadFeed]);
 
   const albums = useMemo(() => groupDrops(drops, "album"), [drops]);
   const stats = useMemo(() => buildStats(drops, releases), [drops, releases]);
@@ -445,128 +498,169 @@ export function ArtistHome() {
     [drops, releases, orders],
   );
   const recentTracks = useMemo(
-    () => [...drops].sort((a, b) => b.createdAt - a.createdAt).slice(0, 6),
+    () => [...drops].sort((a, b) => b.createdAt - a.createdAt).slice(0, 8),
     [drops],
   );
   const profileSong = useMemo(
     () => drops.find((d) => d.id === profile?.featuredDropId) ?? null,
     [drops, profile?.featuredDropId],
   );
+  const episodeShelf = useMemo(() => feed.slice(0, 12), [feed]);
+  const streamRows = useMemo(() => feed.slice(0, 8), [feed]);
+  const greetName =
+    profile?.displayName?.trim().split(/\s+/)[0] || profile?.username || "";
+
+  function reactFeed(d: FeedItem, r: Reaction) {
+    const next = d.myReaction === r ? undefined : r;
+    setFeed((list) => list.map((x) => {
+      if (x.id !== d.id) return x;
+      let feels = x.feels;
+      if (x.myReaction === "feel") feels--;
+      if (next === "feel") feels++;
+      return { ...x, feels, myReaction: next };
+    }));
+    if (next) void api.react(d.id, next);
+  }
 
   if (!profile) return null;
 
+  const showLive = filter === "all" || filter === "live";
+  const showUploads = filter === "all" || filter === "uploads";
+  const showLibrary = filter === "all" || filter === "library";
+
+  const chips: Array<{ id: HomeFilter; label: string }> = [
+    { id: "all", label: "All" },
+    { id: "live", label: "Live" },
+    { id: "uploads", label: "Uploads" },
+    { id: "library", label: "Library" },
+  ];
+
   return (
-    <div className="relative space-y-6 pb-4 pt-1" data-testid="ops-home">
+    <div className="relative space-y-7 pb-6 pt-2 sm:pt-3" data-testid="ops-home">
       <div className="pointer-events-none absolute inset-x-0 -top-2 h-[22rem] overflow-hidden rounded-[1.5rem]">
         <ForgeAtmosphere intensity="subtle" wave />
       </div>
 
-      <header className="forge-glass forge-plasma relative overflow-hidden !rounded-2xl p-5 sm:p-6" data-testid="hub-hero">
-        <span className="forge-glass-edge pointer-events-none" aria-hidden />
-        <div className="relative z-[2] flex flex-wrap items-start gap-4">
-          <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
-            <Avatar url={profile.avatarUrl} name={profile.username} id={profile.id} size="lg" square />
-          </CosmeticAvatarShell>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--app-accent-rgb)/0.65)]">
-              Your stage
+      <header className="relative z-[2]" data-testid="hub-hero">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
+              {dayGreeting()}
             </p>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                {profile.displayName?.trim() || profile.username || "Artist"}
-              </h1>
-              <Flair data={cosmetics.flair} />
-              <ProfessionBadges primary={facets.profession} all={facets.professions} />
-              <RoleClassBadge roleClass={facets.roleClass} />
-              <ProBadge profile={facets} />
-            </div>
-            {profile.username ? (
-              <p className="mt-1 font-mono text-[13px] text-white/45">@{profile.username}</p>
-            ) : null}
-            {profile.bio ? (
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">{profile.bio}</p>
-            ) : null}
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setGoLive(true)}
-                data-testid="hub-go-live"
-                className="cta-pill inline-flex h-11 items-center gap-2 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-mint))] px-5 text-sm font-semibold text-black shadow-glow"
-              >
-                <Radio className="h-4 w-4 animate-pulse" /> Go live
-              </button>
-              <Link
-                to="/live"
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
-              >
-                Who's live
-              </Link>
-              <Link
-                to="/library"
-                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/70 transition hover:border-white/25 hover:text-white"
-              >
-                <Music2 className="h-3.5 w-3.5" /> Library
-              </Link>
-              <Link
-                to="/profile/edit"
-                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/70 transition hover:border-white/25 hover:text-white"
-              >
-                <Sparkles className="h-3.5 w-3.5" /> Edit
-              </Link>
-            </div>
+            <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              {greetName || "Home"}
+            </h1>
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setGoLive(true)}
+              data-testid="hub-go-live"
+              className="cta-pill inline-flex h-11 items-center gap-2 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-mint))] px-5 text-sm font-semibold text-black shadow-glow"
+            >
+              <Radio className="h-4 w-4 animate-pulse" /> Go live
+            </button>
+            <Link
+              to="/live"
+              className="inline-flex h-11 items-center gap-2 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+            >
+              Who's live
+            </Link>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2" data-testid="home-filter" role="tablist" aria-label="Home shelves">
+          {chips.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              role="tab"
+              aria-selected={filter === c.id}
+              onClick={() => setFilter(c.id)}
+              className={cx(
+                "h-8 rounded-full px-4 text-[13px] font-semibold transition",
+                filter === c.id
+                  ? "bg-white text-black"
+                  : "bg-white/[0.08] text-white/70 hover:bg-white/[0.14] hover:text-white",
+              )}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
       </header>
 
       <WallAlerts />
 
-      <WhosLivePanel variant="rail" className="relative z-[1]" />
+      {showLive ? <WhosLivePanel variant="shelf" className="relative z-[1]" /> : null}
 
-      <HubActivity />
+      {showUploads ? (
+        <>
+          <HomeShelf eyebrow="Listen" title="Newest uploads" to="/feed" toLabel="Show all" testId="home-newest">
+            {feedLoading ? (
+              <div className="flex justify-center py-10">
+                <Loader2 className="h-6 w-6 animate-spin text-white/40" />
+              </div>
+            ) : episodeShelf.length === 0 ? (
+              <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-8 text-center">
+                <p className="text-sm text-white/55">Nothing public yet</p>
+                <p className="mt-0.5 text-[12px] text-white/35">New uploads land here the moment they go public.</p>
+              </div>
+            ) : (
+              <HomeShelfRow>
+                {episodeShelf.map((d) => (
+                  <EpisodeCard
+                    key={d.id}
+                    drop={d}
+                    queue={episodeShelf}
+                    onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
+                  />
+                ))}
+              </HomeShelfRow>
+            )}
+          </HomeShelf>
 
-      {loading ? (
+          {!feedLoading && streamRows.length > 0 ? (
+            <HomeShelf eyebrow="Stream" title="Latest" to="/feed" toLabel="Open feed" testId="home-stream">
+              <div className="flex flex-col gap-2">
+                {streamRows.map((d) => (
+                  <FeedTrackRow
+                    key={d.id}
+                    drop={d}
+                    queue={streamRows}
+                    onReact={(r) => reactFeed(d, r)}
+                    onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
+                  />
+                ))}
+              </div>
+            </HomeShelf>
+          ) : null}
+        </>
+      ) : null}
+
+      {showLibrary && loading ? (
         <div className="flex justify-center py-10" data-testid="ops-home-loading">
           <Loader2 className="h-6 w-6 animate-spin text-white/40" />
         </div>
-      ) : (
+      ) : showLibrary ? (
         <>
-          <SocialStats drops={drops} />
           {profileSong ? <ProfileSong drop={profileSong} /> : null}
 
           {recentTracks.length > 0 ? (
-            <section data-testid="ops-home-recent">
-              <div className="mb-2 flex items-end justify-between gap-3 px-0.5">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
-                    Recent tracks
-                  </p>
-                  <h2 className="font-display text-lg font-semibold text-white">Recent</h2>
-                </div>
-                <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
-                  All tracks
-                </Link>
-              </div>
-              <ul className="space-y-1.5">
+            <HomeShelf eyebrow="Jump back in" title="Your recent" to="/library" toLabel="All tracks" testId="ops-home-recent">
+              <HomeShelfRow>
                 {recentTracks.map((d) => (
+                  <EpisodeCard key={d.id} drop={d} queue={recentTracks} />
+                ))}
+              </HomeShelfRow>
+              <ul className="mt-3 space-y-1.5">
+                {recentTracks.slice(0, 4).map((d) => (
                   <RecentTrackRow key={d.id} drop={d} queue={recentTracks} />
                 ))}
               </ul>
-            </section>
+            </HomeShelf>
           ) : null}
 
-          <section className="relative z-[1]" data-testid="ops-home-catalog">
-            <div className="mb-3 flex items-end justify-between gap-3 px-0.5">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
-                  Library
-                </p>
-                <h2 className="font-display text-lg font-semibold text-white">Your files</h2>
-              </div>
-              <Link to="/library" className="text-[12px] text-white/45 transition hover:text-white/80">
-                Open library
-              </Link>
-            </div>
-
+          <HomeShelf eyebrow="Library" title="Your library" to="/library" toLabel="Open library" testId="ops-home-catalog">
             {albums.length === 0 ? (
               <div className="forge-glass forge-plasma relative flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
                 <span className="forge-glass-edge pointer-events-none" aria-hidden />
@@ -583,13 +677,17 @@ export function ArtistHome() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+              <HomeShelfRow>
                 {albums.map((g) => (
-                  <AlbumTile key={g.key} group={g} onOpen={() => setOpenAlbum(g)} />
+                  <div key={g.key} className="w-[9.75rem] shrink-0 snap-start sm:w-[11.25rem]">
+                    <AlbumTile group={g} onOpen={() => setOpenAlbum(g)} />
+                  </div>
                 ))}
-              </div>
+              </HomeShelfRow>
             )}
-          </section>
+          </HomeShelf>
+
+          <SocialStats drops={drops} />
 
           {/* Studio — the production tooling is optional, so it sits below the
               creator's page rather than framing it. Nothing was removed. */}
@@ -617,7 +715,9 @@ export function ArtistHome() {
             <OpsActionCentre items={actions} onNavigate={navigate} />
           </section>
         </>
-      )}
+      ) : null}
+
+      <HubActivity />
 
       {openAlbum ? (
         <AlbumLightbox
