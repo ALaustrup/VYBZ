@@ -19,6 +19,15 @@ import type { LiveAudience, LiveSource } from "@/types";
 
 type WizardStep = "source" | "audience" | "details";
 
+const LIVE_PURPOSES = [
+  { id: "mix", label: "Mix" },
+  { id: "talk", label: "Talk" },
+  { id: "podcast", label: "Podcast" },
+  { id: "vent", label: "Vent" },
+] as const;
+
+type LivePurpose = (typeof LIVE_PURPOSES)[number]["id"];
+
 /**
  * Go-live wizard — source → Circle | World → title/intent → Go.
  */
@@ -37,7 +46,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
   const [previewing, setPreviewing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [gates, setGates] = useState<api.InfraGatesStatus | null>(null);
+  const [purpose, setPurpose] = useState<LivePurpose | null>(null);
   const [atc, setAtc] = useState<AtcBalanceResponse | null>(null);
 
   useEffect(() => {
@@ -54,10 +63,9 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       setStep("source");
       setErr(null);
       setBusy(false);
-      setGates(null);
+      setPurpose(null);
       return;
     }
-    void api.fetchInfraGates().then(setGates);
     void fetchAtcBalance().then(setAtc);
   }, [open]);
 
@@ -135,7 +143,10 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       const session = await api.startLiveSession({
         title: title.trim() || undefined,
         source,
-        intent: intent.trim() || profile?.profile?.roleLabel || undefined,
+        intent: intent.trim()
+          || (purpose ? LIVE_PURPOSES.find((p) => p.id === purpose)?.label : undefined)
+          || profile?.profile?.roleLabel
+          || undefined,
         visibility: audience,
       });
       if (!session) {
@@ -272,31 +283,38 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
 
               {step === "details" && (
                 <>
+                  <div>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-white/40">What is this</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {LIVE_PURPOSES.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setPurpose(p.id)}
+                          className={cx(
+                            "rounded-xl border px-2 py-2 text-[12px] font-medium transition",
+                            purpose === p.id
+                              ? "border-[rgb(var(--neon-cyan)/0.6)] bg-[rgb(var(--neon-cyan)/0.12)] text-white"
+                              : "border-white/10 bg-white/[0.03] text-white/55 hover:text-white",
+                          )}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 80))}
                     placeholder="Title (optional)"
                     className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
                   <input value={intent} onChange={(e) => setIntent(e.target.value.slice(0, 80))}
-                    placeholder="Intent — e.g. Seeking a vocalist"
+                    placeholder="What you're on about (optional)"
                     className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-sm text-white placeholder:text-white/35 focus:border-veil-400/60 focus:outline-none" />
                   <p className="text-[12px] text-white/40">
-                    {audience === "circle" ? "👁 Circle" : "🌍 World"}
+                    {audience === "circle" ? "Circle" : "World"}
                     {" · "}
                     {source}
+                    {purpose ? ` · ${LIVE_PURPOSES.find((p) => p.id === purpose)?.label}` : ""}
                   </p>
-                  {gates && (
-                    <ul className="space-y-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-[11px] text-white/50">
-                      <li>
-                        <span className={gates.turnConfigured ? "text-emerald-300/90" : "text-amber-200/80"}>
-                          {gates.turnConfigured ? "TURN ready" : "TURN not provisioned"}
-                        </span>
-                      </li>
-                      <li>
-                        <span className={gates.bunnyLiveConfigured ? "text-emerald-300/90" : "text-amber-200/80"}>
-                          {gates.bunnyLiveConfigured ? "Bunny Stream ready" : "Bunny optional"}
-                        </span>
-                      </li>
-                    </ul>
-                  )}
                 </>
               )}
 

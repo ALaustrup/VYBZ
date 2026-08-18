@@ -41,4 +41,32 @@ describe("live audio lock", () => {
     expect(product).toContain("viewpoint-neutral");
     expect(product).toContain("Ticketed events stay out of this lock");
   });
+
+  it("puts Go Live and any-host copy on the live front door", () => {
+    const live = readFileSync(path.join(ROOT, "src/pages/LivePage.tsx"), "utf8");
+    expect(live).toContain("Go live");
+    expect(live).toContain("Mix, talk, episode, or vent");
+    expect(live).toContain("Talk");
+    expect(live).toContain("Music");
+    expect(live).not.toMatch(/Produce & Stream Live/);
+    expect(live).not.toMatch(/Start Live Mix/);
+    expect(live).not.toMatch(/Live Mix Radio/);
+    const nav = readFileSync(path.join(ROOT, "src/shell/navModel.ts"), "utf8");
+    expect(nav).toMatch(/path: "\/live"/);
+    expect(nav).toMatch(/label: "Live"/);
+    expect(nav).not.toMatch(/label: "Live Mix"/);
+    const go = readFileSync(path.join(ROOT, "src/components/GoLiveSheet.tsx"), "utf8");
+    expect(go).toContain("Talk");
+    expect(go).toContain("Podcast");
+    expect(go).toContain("Vent");
+    expect(go).not.toMatch(/TURN ready|Bunny Stream ready/);
+    const watch = readFileSync(path.join(ROOT, "src/pages/LiveWatchPage.tsx"), "utf8");
+    expect(watch).toContain("TipButton");
+    expect(watch).toContain("Back to Live");
+    expect(watch).not.toMatch(/Back to Live Mix|Connecting to live mix|producer's studio/);
+    const profile = readFileSync(path.join(ROOT, "src/features/profile/ArtistStageProfile.tsx"), "utf8");
+    expect(profile).toContain("TipButton");
+    expect(profile).toContain("No live nights yet");
+    expect(profile).not.toMatch(/No live mixes yet|Join live mix/);
+  });
 });

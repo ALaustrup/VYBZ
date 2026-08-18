@@ -27,9 +27,9 @@ export type NavItem = {
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * The rail is the live-mix platform menu (PRODUCT.md v3).
+ * The rail is the live-audio platform menu (PRODUCT.md v7).
  *
- * Default experience leads with live mix streaming, active rooms, and studio tools.
+ * Default experience leads with live rooms, then Living Mix and studio tools.
  * Other surfaces stay reachable by URL and are listed in ARCHIVED_NAV_PATHS.
  *
  * Only destinations that render a working surface may appear.
@@ -133,8 +133,8 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 
 export const HOME_ITEM: NavItem = {
   path: "/live",
-  label: "Live Mix",
-  hint: "Live mix streaming",
+  label: "Live",
+  hint: "Who's on right now",
   icon: Radio,
   productId: "home",
 };
