@@ -199,9 +199,10 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    // Masters are encode-only; watching them crashes Vite (EBUSY on large MP4s).
+    // Masters and native compile output are not app source; watching them
+    // crashes Vite (EBUSY on locked .obj / large MP4s).
     watch: {
-      ignored: ["**/Vizualz/**", "**/vizualz/**"],
+      ignored: ["**/Vizualz/**", "**/vizualz/**", "**/native/**"],
     },
   },
 });

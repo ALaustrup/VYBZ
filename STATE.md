@@ -20,6 +20,8 @@ Loopback probe against `VLinkNode.exe` on `ws://127.0.0.1:48480/vybz-stream` (sa
 
 Pushed `continue-next` `b190234d`. Merged `--no-ff` to `main` `9c4de24d`. Pushed `origin/main`. Vercel Ready: **Not measured**. Loaded in a DAW: **Not measured**.
 
+Vite `server.watch` now ignores `native/**`. Watching `native/vlink/build/*.obj` crashed `npm run dev` with EBUSY (measured twice).
+
 ## Home is the owner's library — 2026-08-18
 
 Owner asked to take the failed Spotify/SoundCloud home off the stage. `/` now shows only the signed-in user's library (`UploadsLibrary`, paged to the measured total). Other people are not on Home. Find them from the People menu in the app bar (`searchCreators` → `/u/:id`) or More → People (`/connect`). Live, feed, alerts, Go Live, and Studio stay in the tree and stay reachable; they are hidden from the Home view, not deleted.
