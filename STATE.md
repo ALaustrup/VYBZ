@@ -4,13 +4,15 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`303f726a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the feed/live/profile polish: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`5caefea8`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the feed/live/profile polish: **Not measured**.
 
 ## Feed, live stage, and profile polish — 2026-08-18
 
 Feed is in the rail and leads with newest public uploads (SoundCloud-style rows). Public compose lands on `/feed` and already writes the same drop the profile reads. + uploads one track; album/batch left the plus menu. Live watch fills the stage and no longer paints a reactive overlay on the video. Profile hero is shorter; uploads lead; roster/affiliates sit under More.
 
-`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Browser walk: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Pushed `continue-next` `2d8be2a5`. Merged `--no-ff` to `main` `5caefea8`. Pushed `origin/main`. Browser walk: **Not measured**.
 
 ## Library copy and settings gear — 2026-08-18
 
