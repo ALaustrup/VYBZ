@@ -115,10 +115,10 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
       )}
 
       <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
-        <div className="mx-auto mb-3 max-w-2xl px-0.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Listen</p>
-          <h1 className="font-display text-xl font-semibold text-white">Newest uploads</h1>
-          <p className="mt-0.5 text-[12px] text-white/45">Tracks, demos and samples the moment they go public.</p>
+        <div className="mx-auto mb-4 max-w-2xl px-0.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Stream</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">Newest uploads</h1>
+          <p className="mt-1 text-[13px] text-white/45">Tracks, demos and samples the moment they go public.</p>
         </div>
         <div className="mx-auto max-w-2xl px-0.5">
           <FeedHero />

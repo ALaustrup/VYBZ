@@ -29,7 +29,7 @@ export function WhosLivePanel({
 }: {
   sessions?: LiveSessionCard[];
   loading?: boolean;
-  variant?: "grid" | "rail";
+  variant?: "grid" | "rail" | "shelf";
   emptyAction?: ReactNode;
   showHeading?: boolean;
   className?: string;
@@ -59,6 +59,8 @@ export function WhosLivePanel({
   const items = sessions ?? own ?? [];
   const busy = sessions ? loading : ownLoading;
   const rail = variant === "rail";
+  const shelf = variant === "shelf";
+  const row = rail || shelf;
 
   return (
     <section
@@ -73,7 +75,10 @@ export function WhosLivePanel({
               <span className="h-1.5 w-1.5 rounded-full bg-wild animate-pulse" />
               Who's live
             </p>
-            <h2 className="mt-0.5 font-display text-lg font-semibold text-white sm:text-xl">
+            <h2 className={cx(
+              "mt-0.5 font-display font-semibold tracking-tight text-white",
+              shelf ? "text-xl sm:text-2xl" : "text-lg sm:text-xl",
+            )}>
               Artists and producers on now
             </h2>
             <p className="mt-1 text-[12px] text-white/45" data-testid="listen-earn-hint">
@@ -82,11 +87,11 @@ export function WhosLivePanel({
                 : "Listening is free."}
             </p>
           </div>
-          {rail ? (
+          {row ? (
             <button
               type="button"
               onClick={() => navigate("/live")}
-              className="text-[12px] text-white/45 transition hover:text-white/80"
+              className="text-[12px] font-semibold text-white/45 transition hover:text-white/80"
             >
               All live
             </button>
@@ -108,10 +113,16 @@ export function WhosLivePanel({
           <p className="mt-0.5 text-[12px] text-white/35">When an artist or producer goes on, they show up here.</p>
           {emptyAction}
         </div>
-      ) : rail ? (
+      ) : row ? (
         <div className="no-scrollbar -mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-1">
           {items.map((s) => (
-            <HostCard key={s.id} session={s} compact onOpen={() => navigate(`/live/${s.id}`)} />
+            <HostCard
+              key={s.id}
+              session={s}
+              compact={rail}
+              shelf={shelf}
+              onOpen={() => navigate(`/live/${s.id}`)}
+            />
           ))}
         </div>
       ) : (
@@ -128,10 +139,12 @@ export function WhosLivePanel({
 function HostCard({
   session: s,
   compact,
+  shelf,
   onOpen,
 }: {
   session: LiveSessionCard;
   compact?: boolean;
+  shelf?: boolean;
   onOpen: () => void;
 }) {
   const name = hostName(s);
@@ -144,9 +157,13 @@ function HostCard({
       className={cx(
         "broadcast-bezel group relative overflow-hidden rounded-3xl border border-white/10 bg-ink-900/80 text-left shadow-[0_20px_50px_-28px_rgba(0,0,0,0.85)] backdrop-blur-md transition hover:border-cyan-300/35 hover:scale-[1.01] active:scale-[0.99]",
         compact ? "w-[16.5rem] shrink-0 snap-start" : "",
+        shelf ? "w-[17.5rem] shrink-0 snap-start sm:w-[20.5rem]" : "",
       )}
     >
-      <div className={cx("relative flex flex-col justify-between p-5", compact ? "min-h-[10.5rem]" : "min-h-[13.5rem]")}>
+      <div className={cx(
+        "relative flex flex-col justify-between p-5",
+        shelf ? "min-h-[14.5rem]" : compact ? "min-h-[10.5rem]" : "min-h-[13.5rem]",
+      )}>
         <LiveTileStage seed={liveSeedFromId(s.hostId)} />
         <div className="relative z-[1] flex items-start gap-3">
           <div className="relative shrink-0">
