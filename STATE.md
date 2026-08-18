@@ -6,11 +6,26 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## ATC spec lock + 0104 applied — 2026-08-17
+
+**0104 applied to production** (`xixmneooyufbeftdfpcm`) via `npx supabase db query --linked -f supabase/migrations/20260817_0104_live_source_daw.sql`. Verified:
+
+```
+live_sessions_source_check     CHECK (source = ANY (ARRAY['camera','display','both','daw']))
+live_sessions_input_mode_check CHECK (input_mode IS NULL OR input_mode = ANY (ARRAY['camera','display','both','daw']))
+```
+
+Backfill: **0** existing rows had `source = 'daw'` after apply (no prior `monetization.ingest = daw` rows). `db push` was not used — remote `schema_migrations` still drifts from local filenames.
+
+**ATC Phase 0 (DOCUMENTED ONLY / invariants locked):** `PRODUCT.md` v4. Decision [`0005`](docs/decisions/0005-airtime-credits.md). `AIRTIME_CREDITS` + `ATC_POLICY` + `airtimeCredits` gate. Hosting is no longer described as free. Listening stays free. Station Airtime stays parked and separate. Stripe never mints ATC.
+
+**ATC Phase 1 (INFRASTRUCTURE ONLY, not applied):** migration `0105` (balances, ledger, listen_credit_events, grant/get/consume/award RPCs). Host start is **not** gated. Listen earn is **not** wired to LiveKit. Edge function not deployed.
+
+`npm run lint` pass. `npm run test` pass — **164 files / 847 tests**. Build not re-run (docs + ledger only). `0105` not applied.
+
 ## Native `source = 'daw'` — 2026-08-17
 
-Go Live now inserts `live_sessions.source = 'daw'`. Migration `0104` (additive, `.down.sql` written) widens `live_sessions_source_check` and `live_sessions_input_mode_check` and backfills rows that only had `monetization.ingest`. **Not applied** to production. Client retries as `display` + ingest on Postgres `23514`.
-
-`npm run lint` pass. `npm run test` pass — **162 files / 834 tests**. Build not re-run this slice (no UI change). Migration not applied.
+Go Live inserts `live_sessions.source = 'daw'`. Migration `0104` is **applied** (see above). Client still retries as `display` + ingest on a leftover `23514`.
 
 ## Phase C–E — DAW link, companion deck, session desks — 2026-08-17
 

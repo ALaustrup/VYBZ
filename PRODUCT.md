@@ -4,8 +4,8 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 3 · 2026-08-17 · supersedes Version 2 (Pack Suite, 2026-08-16) and Version 1 (The Station, 2026-08-15).
-> Decision: [`docs/decisions/0004-live-mix-streaming-platform.md`](./docs/decisions/0004-live-mix-streaming-platform.md).
+> Version 4 · 2026-08-17 · supersedes Version 3 (Live Mix Platform, 2026-08-17), Version 2 (Pack Suite, 2026-08-16) and Version 1 (The Station, 2026-08-15).
+> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated).
 
 ---
 
@@ -30,6 +30,7 @@ Core experience pillars:
 - **Listener presence & interaction:** Active audience presence, real-time feedback prompts (Sparks), live tipping (V¢ / Stripe), and identity-verified chat inside the live experience.
 - **Multi-device & Android synchronization:** Seamless companion control, mobile live broadcast rigs, and lockstep device sync.
 - **Persistent continuity & post-stream monetization:** Tools to split stems, measure loudness, package live recordings into verified sample packs, and sell them directly on the marketplace.
+- **Airtime Credits (ATC):** Hosting time is earned by giving verified attention. Listening is always free.
 
 ## 3. The Live Mix Platform Architecture
 
@@ -82,15 +83,20 @@ VYBZ never fabricates play counts, listener engagement, or musical analysis. A f
 
 ## 8. Money & Economy
 
-- **Live Tipping:** Listeners tip producers during live mix sessions in fiat (via Stripe) or V¢ utility credits.
-- **Pack Sales:** Recorded live mixes packaged into sample packs are sold on the platform with a 10% fee.
-- **Publishing & Streaming:** Going live and hosting sessions is free. The platform charges a cut only on completed sales and tipping transactions.
-- **V¢ Remains Utility:** V¢ is purchasable for tips and cosmetics; it never buys search placement or artificial stream ranking.
+- **Listening is always free and unlimited.** ATC never gates playback.
+- **Hosting burns Airtime Credits (ATC).** 1 ATC = 1 second of publishing. Daily free grant is 7200 ATC (2 hours), overwritten each calendar day in the user's stored timezone. Earned ATC is the only path beyond that grant.
+- **ATC is a closed loop.** Non-purchasable, non-transferable, non-giftable. It cannot become money. Money cannot become ATC. Stripe is not on this path.
+- **ATC is created only by** daily grant, verified listen, reception bonus, referral, new-user bootstrap, or explicit admin adjust. **ATC is destroyed only by** host consumption or explicit admin adjust.
+- **Verified attention only.** Credit is awarded in discrete chunks after LiveKit presence plus server-validated playback heartbeats. Clients never invent or trust their own balance.
+- **Live Tipping:** Listeners tip producers in fiat (Stripe) or V¢. Tips are not ATC.
+- **Pack Sales:** Recorded live mixes packaged into sample packs are sold with a 10% fee.
+- **V¢ Remains Utility:** V¢ is purchasable for tips and cosmetics; it never buys search placement, stream ranking, or ATC.
+- **Station Airtime stays parked.** The Station's prompt-answer Airtime (`CURRENCY` / `STATION`) is a different, parked subsystem. Do not mix the two ledgers.
 
 ## 9. What we refuse
 
 - **No public vanity metrics:** No follower counts or fake play counts as social proof.
-- **No purchasable attention:** Money cannot buy live stream ranking, "featured" tags, or fake listens.
+- **No purchasable attention:** Money cannot buy live stream ranking, "featured" tags, fake listens, or ATC.
 - **No dating, romance, meetup or swipe matching:** Permanently out of scope.
 - **No fabricated measurement:** Everything unmeasured reads **"Not measured"**.
 - **No undisclosed processing on the play path:** Stream and playback paths remain dry and disclosed.

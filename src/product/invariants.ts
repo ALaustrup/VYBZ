@@ -106,6 +106,61 @@ export const LIVE_MIX_STREAMING = {
   androidMultiDeviceSync: true,
   /** Post-live mix export generates measured sample packs for the marketplace. */
   postSessionPackMonetization: true,
+  /** Going live burns Airtime Credits. Listening stays free. */
+  hostingRequiresAtc: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Airtime Credits (ATC) — live hosting commons                               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * ATC is the hosting gate for live mix (decision 0005 / PRODUCT.md v4).
+ * It is not Station Airtime. Station Airtime stays parked in CURRENCY / STATION.
+ *
+ * Policy numbers below are declared product law, not measurements of production.
+ */
+export const AIRTIME_CREDITS = {
+  listeningIsAlwaysFree: true,
+  hostingRequiresAtc: true,
+  atcIsPurchasable: false,
+  atcConvertsToMoney: false,
+  moneyConvertsToAtc: false,
+  atcIsTransferable: false,
+  atcIsGiftable: false,
+  serverAuthoritativeLedgerOnly: true,
+  dailyFreeDoesNotStack: true,
+  consumeDailyFreeFirst: true,
+  clientsNeverTrustOwnBalance: true,
+} as const;
+
+export const ATC_CREATION_TYPES = [
+  "daily_grant",
+  "listen_earn",
+  "reception_bonus",
+  "referral",
+  "bootstrap",
+  "admin_adjust",
+] as const;
+
+export const ATC_DESTRUCTION_TYPES = ["host_consume", "admin_adjust"] as const;
+
+export type AtcLedgerType = (typeof ATC_CREATION_TYPES)[number];
+
+/** Declared policy. Not a measurement of observed listen/host supply. */
+export const ATC_POLICY = {
+  secondsPerAtc: 1,
+  dailyFreeGrantAtc: 7200,
+  baseAtcPerVerifiedMinute: 50,
+  hostStartMinimumAtc: 300,
+  hostWarningRemainingAtc: 60,
+  maxQualityMultiplier: 1.8,
+  sparkMultiplier: 1.2,
+  stayMultiplier: 1.15,
+  discoveryMultiplier: 1.25,
+  firstListenMultiplier: 1.1,
+  newUserBootstrapDays: 7,
+  newUserStarterAtc: 3600,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -236,6 +291,7 @@ export const GATE_REGISTRY = [
   "perceptionEngine",
   "aiReviewPortal",
   "liveManifest",
+  "airtimeCredits",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];
