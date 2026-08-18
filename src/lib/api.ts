@@ -22,6 +22,7 @@ import type {
   SocialScore,
 } from "@/types";
 import { canStartLive } from "@/features/airtime/atcApi";
+import { openProvenanceForLive, sealProvenanceForLive } from "@/features/provenance/provenanceApi";
 import {
   dawIngestPatch,
   isCheckViolation,
@@ -3742,10 +3743,13 @@ export async function startLiveSession(input: {
     });
   } catch { /* SFU optional until secrets exist */ }
 
+  void openProvenanceForLive(data.id).catch(() => undefined);
+
   return getLiveSession(data.id);
 }
 
 export async function endLiveSession(id: string): Promise<void> {
+  await sealProvenanceForLive(id).catch(() => false);
   await db().rpc("end_live_session", { p_id: id });
   try {
     const { data: sess } = await db().auth.getSession();

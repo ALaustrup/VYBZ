@@ -2,17 +2,23 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-17
+**Date:** 2026-08-18
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
+
+## Session provenance Phase 2 + 0106 applied — 2026-08-18
+
+**0106 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked`. Verified tables: `provenance_sessions`, `provenance_events`.
+
+Phase 2 wiring (`PARTIALLY IMPLEMENTED`): `startLiveSession` opens a provenance row (failure does not block go-live). Each successful `consume_airtime` appends an `atc_burn` event. `endLiveSession` seals before ending the live row. Strength is still computed at seal from measured `host_consume` totals. No download UI yet.
+
+`npm run lint` pass. `npm run test` pass — **167 files / 861 tests**. Browser walk **Not measured**. Web app **not deployed**.
 
 ## Session provenance Phase 0–1 — 2026-08-17
 
 Decision [`0006`](docs/decisions/0006-session-provenance.md). `PRODUCT.md` v5. `HUMAN_PROVENANCE` + `humanProvenance` gate. Package proves a measured live session; **refuses** a “not AI” claim.
 
-Migration `0106` (tables `provenance_sessions` / `provenance_events`, RPCs open/append/seal, `human_session` on the existing ledger CHECK). **INFRASTRUCTURE ONLY. Not applied.** Not hooked to Go Live or host burn. Stripe and ATC formulas untouched.
-
-`npm run lint` pass. `npm run test` pass — **167 files / 861 tests**.
+Migration `0106` (tables + RPCs). Applied 2026-08-18 — see Phase 2 section above.
 
 ## ATC Phase 2–3 + 0105 applied — 2026-08-17
 

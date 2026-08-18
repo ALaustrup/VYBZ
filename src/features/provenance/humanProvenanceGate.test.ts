@@ -57,10 +57,16 @@ describe("human / session provenance", () => {
     expect(sql).toContain("revoke all on function public.open_provenance_session(uuid) from anon");
   });
 
-  it("does not hook Go Live or host burn yet", () => {
+  it("opens on Go Live, records ATC burn, and seals on end", () => {
     const api = read("src/lib/api.ts");
-    expect(api).not.toMatch(/open_provenance_session|seal_provenance_session/);
-    const hooks = read("src/features/airtime/AtcLiveHooks.ts");
-    expect(hooks).not.toMatch(/provenance/);
+    expect(api).toContain("openProvenanceForLive");
+    expect(api).toContain("sealProvenanceForLive");
+    const consume = read("src/features/airtime/atcApi.ts");
+    expect(consume).toContain("recordAtcBurnEvent");
+    const hook = read("src/features/provenance/provenanceApi.ts");
+    expect(hook).toContain("open_provenance_session");
+    expect(hook).toContain("append_provenance_event");
+    expect(hook).toContain("seal_provenance_session");
+    expect(hook).toContain('p_type: "atc_burn"');
   });
 });

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { recordAtcBurnEvent } from "@/features/provenance/provenanceApi";
 import type { AtcBalances } from "./atcAccounting";
 
 export type AtcBalanceResponse = AtcBalances & {
@@ -46,7 +47,11 @@ export async function consumeHostAirtime(
     p_seconds: seconds,
   });
   if (error || !data) return null;
-  return asBalances(data as Record<string, unknown>);
+  const balances = asBalances(data as Record<string, unknown>);
+  if (balances.ok) {
+    void recordAtcBurnEvent(sessionId, seconds).catch(() => false);
+  }
+  return balances;
 }
 
 export type ListenHeartbeatResult = {
