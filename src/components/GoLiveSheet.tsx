@@ -119,13 +119,13 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       if (source === "daw") {
         const daw = getDawBridge();
         if (daw.status === "disconnected") {
-          setErr("Connect the DAW Master Link first.");
+          setErr("Connect VLink first.");
           setBusy(false);
           return;
         }
         streamRef.current = daw.getMediaStream();
-        if (!streamRef.current) {
-          setErr("DAW audio isn't ready yet. Click Connect again.");
+        if (!streamRef.current || streamRef.current.getAudioTracks().length === 0) {
+          setErr("VLink audio isn't ready yet. Click Connect, then try again.");
           setBusy(false);
           return;
         }
@@ -225,7 +225,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                       { id: "camera" as const, label: "Camera", icon: Camera },
                       { id: "display" as const, label: "Display", icon: Monitor },
                       { id: "both" as const, label: "Both", icon: Radio },
-                      { id: "daw" as const, label: "DAW Master", icon: Cable },
+                      { id: "daw" as const, label: "VLink", icon: Cable },
                     ]).map(({ id, label, icon: Icon }) => (
                       <button key={id} type="button" onClick={() => { setSource(id); stopPreview(); }}
                         className={cx("relative flex items-center gap-1.5 pb-2.5 text-[13px] font-medium transition",

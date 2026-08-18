@@ -1,12 +1,15 @@
 /**
- * VYBZ Broadcast plug-in wire protocol.
+ * VLink / VYBZ Broadcast plug-in wire protocol.
  *
- * The native VST3 / CLAP / AU plug-in is NATIVE-PLATFORM ONLY and is not in
- * this repository. This module is the contract the desktop/web client speaks
- * when a plug-in is listening on the loopback port.
+ * Native source lives in `native/vlink`. A compiled `.vst3` is
+ * NATIVE-PLATFORM ONLY. This module is the contract the desktop/web client
+ * speaks when VLink is listening on the loopback port.
  *
  * Control messages are UTF-8 JSON text frames.
  * Audio frames are binary: 16-byte header + interleaved Float32 LE stereo PCM.
+ *
+ * Transport fields the host did not validate are omitted (`null`). VLink does
+ * not enumerate the DAW project.
  */
 
 import type { DeliveryState } from "@/product/invariants";
@@ -30,6 +33,21 @@ export type DawInfo = {
   channels: 2;
   bufferSize: number;
   latencyMs: number;
+  /** Declared plug-in name when the node sent one (VLink). */
+  pluginName?: string;
+  pluginVersion?: string;
+};
+
+/** Host transport as reported by the plug-in. Missing host fields stay null. */
+export type DawTransport = {
+  playing: boolean;
+  recording: boolean;
+  cycling: boolean;
+  sampleRate: number;
+  tempoBpm: number | null;
+  timeSigNum: number | null;
+  timeSigDen: number | null;
+  projectTimeSamples: number | null;
 };
 
 export type DawMeterState = {
@@ -44,10 +62,13 @@ export type DawMeterState = {
 export type DawControlMessage =
   | { type: "hello"; info: DawInfo }
   | { type: "meter"; meter: DawMeterState }
+  | { type: "transport"; transport: DawTransport }
   | { type: "status"; status: DawProtocolStatus }
   | { type: "ping" }
   | { type: "pong" }
-  | { type: "telemetry"; listeners: number | null; sparksCount: number | null };
+  | { type: "telemetry"; listeners: number | null; sparksCount: number | null }
+  | { type: "api"; id: string; method: string }
+  | { type: "api-result"; id: string; ok: boolean; result?: unknown; error?: string };
 
 export type DawPcmFrame = {
   version: number;
@@ -89,7 +110,36 @@ export function parseDawInfo(value: unknown): DawInfo | null {
   }
   if (sampleRate < 8000 || sampleRate > 192000) return null;
   if (bufferSize < 16 || bufferSize > 8192) return null;
-  return { dawName, pluginFormat, sampleRate, channels, bufferSize, latencyMs };
+  const pluginName = typeof value.pluginName === "string" ? value.pluginName.trim() : "";
+  const pluginVersion = typeof value.pluginVersion === "string" ? value.pluginVersion.trim() : "";
+  return {
+    dawName,
+    pluginFormat,
+    sampleRate,
+    channels,
+    bufferSize,
+    latencyMs,
+    ...(pluginName ? { pluginName } : {}),
+    ...(pluginVersion ? { pluginVersion } : {}),
+  };
+}
+
+export function parseDawTransport(value: unknown): DawTransport | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.playing !== "boolean") return null;
+  const sampleRate = finiteNumber(value.sampleRate);
+  if (!sampleRate || sampleRate < 8000 || sampleRate > 192000) return null;
+  const optNum = (v: unknown): number | null => (v === null || v === undefined ? null : finiteNumber(v));
+  return {
+    playing: value.playing,
+    recording: value.recording === true,
+    cycling: value.cycling === true,
+    sampleRate,
+    tempoBpm: optNum(value.tempoBpm),
+    timeSigNum: optNum(value.timeSigNum),
+    timeSigDen: optNum(value.timeSigDen),
+    projectTimeSamples: optNum(value.projectTimeSamples),
+  };
 }
 
 export function parseDawMeter(value: unknown): DawMeterState | null {
@@ -141,6 +191,21 @@ export function parseControlMessage(raw: string): DawControlMessage | null {
     case "meter": {
       const meter = parseDawMeter(parsed.meter);
       return meter ? { type: "meter", meter } : null;
+    }
+    case "transport": {
+      const transport = parseDawTransport(parsed.transport);
+      return transport ? { type: "transport", transport } : null;
+    }
+    case "api": {
+      const id = typeof parsed.id === "string" ? parsed.id : "";
+      const method = typeof parsed.method === "string" ? parsed.method : "";
+      return id && method ? { type: "api", id, method } : null;
+    }
+    case "api-result": {
+      const id = typeof parsed.id === "string" ? parsed.id : "";
+      if (!id || typeof parsed.ok !== "boolean") return null;
+      const error = typeof parsed.error === "string" ? parsed.error : undefined;
+      return { type: "api-result", id, ok: parsed.ok, result: parsed.result, error };
     }
     case "status": {
       return STATUSES.includes(parsed.status as DawProtocolStatus)

@@ -8,7 +8,7 @@ import {
   getDawBridge,
   isDawBridgeRetained,
 } from "@/features/broadcast/dawBridgeSession";
-import type { DawInfo, DawMeterState, DawProtocolStatus } from "@/features/broadcast/pluginProtocol";
+import type { DawInfo, DawMeterState, DawProtocolStatus, DawTransport } from "@/features/broadcast/pluginProtocol";
 import { DEFAULT_DAW_WS_URL } from "@/features/broadcast/pluginProtocol";
 import { cx } from "@/lib/utils";
 
@@ -31,6 +31,7 @@ export function DawBridgePanel({
   const [status, setStatus] = useState<DawProtocolStatus>(() => getDawBridge().status);
   const [info, setInfo] = useState<DawInfo | null>(() => getDawBridge().info);
   const [meter, setMeter] = useState<DawMeterState | null>(() => getDawBridge().meter);
+  const [transport, setTransport] = useState<DawTransport | null>(() => getDawBridge().transport);
   const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
@@ -45,10 +46,12 @@ export function DawBridgePanel({
         if (s === "disconnected") {
           setInfo(null);
           setMeter(null);
+          setTransport(null);
           onDisconnect?.();
         }
       },
       onMeterUpdate: setMeter,
+      onTransport: setTransport,
       onInfo: setInfo,
     });
 
@@ -114,7 +117,7 @@ export function DawBridgePanel({
             <Cable className="h-4 w-4" />
           </span>
           <div>
-            <p className="text-xs font-semibold text-white">DAW Master Link</p>
+            <p className="text-xs font-semibold text-white">VLink</p>
             <p className="text-[10px] text-white/40 font-mono">
               {isLive ? "Streaming" : isConnected ? "Connected" : "Plug-in not connected"}
             </p>
@@ -146,10 +149,14 @@ export function DawBridgePanel({
         <div className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-3 py-2 mb-2">
           <Headphones className="h-4 w-4 shrink-0 text-cyan-300" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-white/90">{info.dawName}</p>
+            <p className="truncate text-xs font-medium text-white/90">
+              {info.pluginName ? `${info.pluginName} · ${info.dawName}` : info.dawName}
+            </p>
             <p className="text-[10px] font-mono text-white/40">
               {info.pluginFormat.toUpperCase()} · {info.sampleRate / 1000}kHz · {info.bufferSize} samples ·{" "}
               {info.latencyMs.toFixed(1)}ms
+              {transport?.tempoBpm != null ? ` · ${transport.tempoBpm.toFixed(1)} BPM` : ""}
+              {transport?.playing ? " · playing" : ""}
             </p>
           </div>
         </div>
@@ -167,18 +174,18 @@ export function DawBridgePanel({
           <div className="flex items-center justify-between text-[9px] font-mono text-white/35">
             <span className="flex items-center gap-1">
               <Activity className="h-2.5 w-2.5 text-emerald-400" />
-              LUFS {meter.lufsIntegrated.toFixed(1)}
+              {meter.lufsIntegrated.toFixed(1)} LU (mean-square)
             </span>
-            <span>True Peak {meter.truePeak.toFixed(1)} dBFS</span>
+            <span>Peak {meter.truePeak.toFixed(1)} dBFS</span>
           </div>
         </div>
       )}
 
       {!isConnected && !compact && (
         <p className="mt-2 text-[10px] text-white/30 leading-relaxed">
-          Insert the <strong className="text-white/50">VYBZ Broadcast</strong> plug-in on your DAW&apos;s
-          master channel, then click Connect. The native plug-in is not in this build — this panel talks
-          to whatever is listening on {DEFAULT_DAW_WS_URL.replace("ws://", "")}.
+          Insert <strong className="text-white/50">VLink</strong> on the master, then Connect.
+          Source is in <span className="font-mono">native/vlink</span>. This panel talks to{" "}
+          {DEFAULT_DAW_WS_URL.replace("ws://", "")}.
         </p>
       )}
     </div>
