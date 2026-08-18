@@ -4,7 +4,13 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`d3a60272`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`ffed8df5`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+
+## Revert 3-panel homepage — 2026-08-18
+
+Owner rejected the 3-panel addition. Reverted `c23b3efe`. `/live` is the prior Who's live page. Suite rail, tools launcher, and `/` hub are back. Fusion files existed only in that commit.
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
 ## Daily clock is 2h, not 3h — 2026-08-18
 
