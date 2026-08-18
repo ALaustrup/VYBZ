@@ -92,7 +92,7 @@ export const FROZEN_CONTRACTS = {
 /* ------------------------------------------------------------------------- */
 
 /**
- * Authoritative direction (PRODUCT.md v3 / decision 0004).
+ * Authoritative direction (PRODUCT.md v6 / decisions 0004–0007).
  * VYBZ is the ultimate live mix audio streaming platform.
  */
 export const LIVE_MIX_STREAMING = {
@@ -110,6 +110,8 @@ export const LIVE_MIX_STREAMING = {
   hostingRequiresAtc: true,
   /** Sealed live sessions can emit a session-provenance package. */
   sessionProvenanceAvailable: true,
+  /** Public /u/:id is the artist/producer Stage File. */
+  publicStageFile: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -141,6 +143,30 @@ export type ProvenanceStrength = (typeof PROVENANCE_STRENGTHS)[number];
 
 export const PROVENANCE_EVENT_TYPES = ["open", "atc_burn", "signal", "seal"] as const;
 export type ProvenanceEventType = (typeof PROVENANCE_EVENT_TYPES)[number];
+
+/* ------------------------------------------------------------------------- */
+/* Artist / producer Stage File                                               */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Public profile (decision 0007). A stage, not a social graph.
+ */
+export const ARTIST_STAGE_PROFILE = {
+  /** Live nights are the lead surface on /u/:id. */
+  liveNightsLead: true,
+  /** Connect is a request. The other person must accept. */
+  connectIsARequest: true,
+  /** Book-a-session opens a DM and must say it is not a calendar. */
+  bookIsAMessageNotACalendar: true,
+  /** Profile cells are measured or omitted. Unknown is not invented. */
+  measuredStatsOnly: true,
+  /** No public follower or play-count vanity. */
+  noVanityFollowerCounts: true,
+  /** Seal copy is Session provenance, never “Human certified.” */
+  sessionSealNotHumanCertified: true,
+  /** /u/:id stays resolvable. The old storefront is not deleted. */
+  routeStaysResolvable: true,
+} as const;
 
 /* ------------------------------------------------------------------------- */
 /* Airtime Credits (ATC) — live hosting commons                               */
@@ -330,6 +356,7 @@ export const GATE_REGISTRY = [
   "liveManifest",
   "airtimeCredits",
   "humanProvenance",
+  "artistStageProfile",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

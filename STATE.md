@@ -6,6 +6,26 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Vision lock v6 + ATC Phase 4 meter — 2026-08-18
+
+Authority now names the full stack: live mix + ATC + session provenance + artist/producer Stage File.
+
+- `PRODUCT.md` **Version 6**. Decision [`0007`](docs/decisions/0007-artist-stage-file.md).
+- `ARTIST_STAGE_PROFILE` + `LIVE_MIX_STREAMING.publicStageFile` + gate `artistStageProfile`.
+- ATC Phase 1 ledger was already applied (0105). This slice is **Phase 4: header meter only**. It reads `get_airtime_balance`. It does not mint, burn, or change Stripe / LiveKit / Living Mix / auth.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Docs / invariants | **IMPLEMENTED BUT NOT DELIVERED** | PRODUCT v6, 0007, `ARTIST_STAGE_PROFILE` |
+| ATC header meter | **IMPLEMENTED BUT NOT DELIVERED** | `AtcMeter` on `ContextualAppBar`. Failed fetch → **Not measured**. |
+| Reception bonus / referral | Not started | Phase 5. Still must not invent mint formulas. |
+| Provenance audio SHA / C2PA bind | Not started | Phase 5–6. |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed. |
+
+`npm run lint` pass. `npm run test` pass — **171 files / 874 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** ATC reception bonus / referral only after a closed-loop spec that does not invent rates. Or provenance Phase 5 (audio SHA bind). Deploy + signed-in walk of `/u/:id` and the header clock.
+
 ## Artist Stage File profile — 2026-08-18
 
 Public `/u/:id` is now the Stage File: cinematic hero, live nights first, measured stats only, Session provenance seal (never “Human certified”). Connect is still a request. Book-a-session opens a DM and says it is not a calendar. Existing `/u/:id` route kept.

@@ -63,7 +63,7 @@ describe("airtime credits", () => {
 
   it("rewrites PRODUCT so hosting is no longer described as free", () => {
     const product = read("PRODUCT.md");
-    expect(product).toContain("Version 5");
+    expect(product).toContain("Version 6");
     expect(product).toContain("Listening is always free");
     expect(product).toContain("Hosting burns Airtime Credits");
     expect(product).not.toMatch(/Going live and hosting sessions is free/);
@@ -94,5 +94,18 @@ describe("airtime credits", () => {
     const watch = read("src/pages/LiveWatchPage.tsx");
     expect(watch).toContain("useListenEarn");
     expect(watch).toContain("useHostBurn");
+  });
+
+  it("shows a header meter that never invents a clock", () => {
+    const bar = read("src/components/shell/ContextualAppBar.tsx");
+    expect(bar).toContain("<AtcMeter");
+    const meter = read("src/features/airtime/AtcMeter.tsx");
+    expect(meter).toContain("useAtcBalance");
+    expect(meter).toContain("formatAtcClock");
+    expect(meter).toContain("NOT_MEASURED");
+    expect(meter).toContain("atc-meter");
+    const hook = read("src/features/airtime/useAtcBalance.ts");
+    expect(hook).toContain("fetchAtcBalance");
+    expect(hook).not.toMatch(/earnedBalance \+|dailyFreeRemaining \+/);
   });
 });

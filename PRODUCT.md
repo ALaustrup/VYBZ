@@ -4,8 +4,8 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 5 · 2026-08-17 · supersedes Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
-> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove).
+> Version 6 · 2026-08-18 · supersedes Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
+> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (how an artist or producer is shown).
 
 ---
 
@@ -30,8 +30,9 @@ Core experience pillars:
 - **Listener presence & interaction:** Active audience presence, real-time feedback prompts (Sparks), live tipping (V¢ / Stripe), and identity-verified chat inside the live experience.
 - **Multi-device & Android synchronization:** Seamless companion control, mobile live broadcast rigs, and lockstep device sync.
 - **Persistent continuity & post-stream monetization:** Tools to split stems, measure loudness, package live recordings into verified sample packs, and sell them directly on the marketplace.
-- **Airtime Credits (ATC):** Hosting time is earned by giving verified attention. Listening is always free.
+- **Airtime Credits (ATC):** Hosting time is earned by giving verified attention. Listening is always free. Remaining ATC is shown as a measured clock; unknown reads **Not measured**.
 - **Session provenance:** A sealed live mix can emit a measured package (who hosted, that ATC was burned, a chained event log). It does not prove the music was not AI-generated.
+- **Artist / producer Stage File:** The public profile (`/u/:id`) is a stage, not a social graph. Live nights lead. Stats are measured. Connect is a request. Booking is a message, not a calendar.
 
 ## 3. The Live Mix Platform Architecture
 
@@ -47,6 +48,7 @@ VYBZ replaces static steppers with a live-audio-friendly interface that auto-ada
 | **DAW Broadcast Bridge** (`VST3 / CLAP / Desktop`) | Master bus audio capture streamed directly from Ableton, FL Studio, Logic, Reaper | **Master Channel Ingest** |
 | **Marketplace & Storefront** (`/market`, `/pack/:slug`) | Post-session export of live mixes into measured, sellable sample packs | **Monetization** |
 | **Library & Working Set** (`/library`) | Ingest, organize, and summon assets directly into live sessions | **Media Repository** |
+| **Artist Stage File** (`/u/:id`) | Public artist/producer stage: live nights, sealed session badge, catalog, measured cells | **Public identity** |
 
 ## 4. DAW Integration: The VYBZ Broadcast Plug-in
 
@@ -96,7 +98,7 @@ VYBZ never fabricates play counts, listener engagement, or musical analysis. A f
 
 ## 9. What we refuse
 
-- **No public vanity metrics:** No follower counts or fake play counts as social proof.
+- **No public vanity metrics:** No follower counts or fake play counts as social proof. Public profiles may show sealed nights, rated tracks, and accepted connections only when those numbers were measured.
 - **No purchasable attention:** Money cannot buy live stream ranking, "featured" tags, fake listens, or ATC.
 - **No dating, romance, meetup or swipe matching:** Permanently out of scope.
 - **No fabricated measurement:** Everything unmeasured reads **"Not measured"**.
@@ -111,7 +113,7 @@ Surfaces leaving the default experience are **hidden from navigation**, not remo
 
 ## 11. Interface Direction
 
-- **Live-First & Audio-Friendly:** The default UI leads with Live Mix sessions, Stage Discovery, Studio Rooms, and Library.
+- **Live-First & Audio-Friendly:** The default UI leads with Live Mix sessions, Stage Discovery, Studio Rooms, Library, and the public Stage File.
 - **Auto-Adjusting Responsive Layout:** Ergonomically tailored for single-hand mobile (Android), tablet companion mode, desktop studio screens, and multi-monitor setups.
 - **Dark, Sleek, Audio-Reactive:** Modern glassmorphism with high-contrast audio meters and WebGL reactive visual stages.
 

@@ -29,6 +29,7 @@ VYBZ is the **ultimate live mix audio streaming platform**, giving producers and
 | **Studio Tool Drawer** | 9 DSP correction desks, Stem splitter, MIDI maker, and Car/Club acoustic preview |
 | **Marketplace & Pack Maker** | Export recorded live mixes as measured sample packs with SHA manifests and sell via Stripe |
 | **Library** | Organize, search, and summon catalog files directly into live sessions |
+| **Artist Stage File** | Public `/u/:id` stage — live nights first, measured stats, session seal |
 
 ## What's shipped today (foundation)
 
@@ -64,7 +65,7 @@ Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
 | [`src/product/invariants.ts`](./src/product/invariants.ts) | The rules, in code |
 | [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
 | [`STATE.md`](./STATE.md) | Current checkpoint |
-| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0004) |
+| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0007) |
 | [`docs/architecture.md`](./docs/architecture.md) | Platform overview |
 | [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |

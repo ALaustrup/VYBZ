@@ -13,6 +13,7 @@ import { isApplePlatform } from "@/lib/platformKeys";
 import { cx } from "@/lib/utils";
 import { openCommandPalette } from "@/shell/commandPaletteStore";
 import { ToolsLauncherButton } from "@/shell/ToolsLauncher";
+import { AtcMeter } from "@/features/airtime/AtcMeter";
 
 /**
  * Soft frosted top bar — VYBZ wordmark (audio-reactive) · centered brand mark · search/upload.
@@ -94,6 +95,7 @@ export function ContextualAppBar({
 
         <div className="flex min-w-0 items-center justify-end gap-1.5 justify-self-end">
           {bridge.actions}
+          <AtcMeter />
           <ToolsLauncherButton />
           <button
             type="button"
