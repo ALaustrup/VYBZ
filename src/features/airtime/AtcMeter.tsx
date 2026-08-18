@@ -8,9 +8,10 @@ export function AtcMeter() {
   const balance = useAtcBalance();
   if (balance === undefined) return null;
 
-  const clock = balance ? formatAtcClock(balance.total) : NOT_MEASURED;
+  const daily = balance ? formatAtcClock(balance.dailyFreeRemaining) : NOT_MEASURED;
+  const earned = balance ? formatAtcClock(balance.earnedBalance) : NOT_MEASURED;
   const title = balance
-    ? `Daily ${formatAtcClock(balance.dailyFreeRemaining)} · Earned ${formatAtcClock(balance.earnedBalance)}. Hosting burns this. Listening is free.`
+    ? `Daily ${daily} · Earned ${earned}. Hosting burns daily first. Listening is free.`
     : "Airtime remaining is not measured.";
 
   return (
@@ -20,13 +21,14 @@ export function AtcMeter() {
       className="flex h-9 items-center gap-1 rounded-full px-2 font-mono text-[11px] text-cyan-100/90"
     >
       <Timer className="h-3.5 w-3.5 shrink-0 text-cyan-200/80" aria-hidden />
-      <span>{clock}</span>
+      <span>{daily}</span>
+      <span className="hidden font-sans text-[10px] text-white/40 sm:inline">daily</span>
       {balance && (
         <span className="hidden font-sans text-[10px] text-white/40 sm:inline">
-          {formatAtcClock(balance.dailyFreeRemaining)} daily · {formatAtcClock(balance.earnedBalance)} earned
+          · {earned} earned
         </span>
       )}
-      <span className="sr-only">Airtime remaining</span>
+      <span className="sr-only">Daily Airtime remaining {daily}. Earned {earned}.</span>
     </span>
   );
 }
