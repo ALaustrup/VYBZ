@@ -12,8 +12,9 @@ Owner directed complete product authority pivot: **VYBZ is to become the ultimat
 
 - **Authority:** `PRODUCT.md` is now Version 3. Decision [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) supersedes [`0003`](docs/decisions/0003-pack-suite-marketplace.md) and [`0001`](docs/decisions/0001-the-station.md).
 - **Core Pillars:** Live mix production rooms, direct DAW Master Channel broadcast plug-in (VST3 / CLAP / AU), low-latency LiveKit SFU stereo audio plane, Android multi-device synchronization & companion mode, real-time Sparks feedback, and post-session sample pack monetization.
+- **Phase B Delivered:** Primary navigation re-prioritized to lead with Live Mix (`/live`), Living Mix (`/library/mix`), and Collab Rooms (`/rooms`). Responsive stage console implemented in `LiveWatchPage` (side-by-side console on desktop/tablets, stacked on mobile) and `LivePage` (live mix hero stage with HD stereo indicators and genre filters).
 - **Preservation:** Non-negotiable PRESERVATION invariant held: **zero** feature code, routes, or database tables deleted. Sample pack pipeline, marketplace, and 9 DSP desks remain fully functional and subordinated to live mix workflows.
-- **Validation:** Full unit test suite passes: **158 test files / 808 tests**. Lint clean. Production build succeeds.
+- **Validation:** Full unit test suite passes: **158 test files / 808 tests**. Lint clean. Production build succeeds. 13 fixture markers absent from `dist/`.
 
 | Command | Result |
 |---|---|
