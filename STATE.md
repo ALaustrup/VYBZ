@@ -4,13 +4,15 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`07456f78`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of rail identity: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`36519f1c`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this merge: **Not measured**.
 
 ## Rail identity and darker dock — 2026-08-18
 
 Left rail labels (VYBZ / Music ops / Live mix) are gone. The head is avatar, name, handle, and a notifications popover. VDock film is dimmer so transport reads. Stage sits flush to the rail (no centered max-width gap). Now-playing title and artist are larger, with a sheen and drift while playing.
 
-`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Browser walk: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Pushed `continue-next` `e816cff8`. Merged `--no-ff` to `main` `36519f1c`. Pushed `origin/main`. Browser walk: **Not measured**.
 
 ## Vizualz in the dock and backdrop — 2026-08-18
 
