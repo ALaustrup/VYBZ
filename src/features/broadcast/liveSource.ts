@@ -1,22 +1,35 @@
 /**
  * Live source mapping.
  *
- * Production `live_sessions.source` / `input_mode` CHECKs still allow only
- * camera | display | both. DAW ingest is persisted as display plus
- * monetization.ingest = "daw" until an additive migration widens the constraint.
- * Do not insert "daw" into those columns — the row will be rejected.
+ * After migration 0104, `live_sessions.source` / `input_mode` accept `daw`.
+ * Until that migration is applied, a check-violation insert falls back to
+ * display plus monetization.ingest = "daw" (see startLiveSession).
+ * resolveLiveSource still reads the legacy ingest flag.
  */
 
 import type { LiveSource } from "@/types";
 
-export type PersistableLiveSource = "camera" | "display" | "both";
+export const LIVE_SOURCES: readonly LiveSource[] = ["camera", "display", "both", "daw"];
 
-export function persistableLiveSource(source: LiveSource): PersistableLiveSource {
-  return source === "daw" ? "display" : source;
+export function persistableLiveSource(source: LiveSource): LiveSource {
+  return source;
 }
 
+/** Extra flag so pre-0104 rows and the check-violation fallback stay readable. */
 export function dawIngestPatch(source: LiveSource): Record<string, unknown> {
   return source === "daw" ? { ingest: "daw" } : {};
+}
+
+export function legacyDawFallback(source: LiveSource): {
+  source: "display";
+  input_mode: "display";
+  monetization: Record<string, unknown>;
+} {
+  return {
+    source: "display",
+    input_mode: "display",
+    monetization: dawIngestPatch(source),
+  };
 }
 
 export function resolveLiveSource(
@@ -30,4 +43,11 @@ export function resolveLiveSource(
 
 export function isMusicSource(source: LiveSource): boolean {
   return source === "display" || source === "both" || source === "daw";
+}
+
+export function isCheckViolation(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  if (error.code === "23514") return true;
+  const msg = (error.message ?? "").toLowerCase();
+  return msg.includes("live_sessions_source_check") || msg.includes("live_sessions_input_mode_check");
 }

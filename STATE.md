@@ -6,6 +6,12 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Native `source = 'daw'` — 2026-08-17
+
+Go Live now inserts `live_sessions.source = 'daw'`. Migration `0104` (additive, `.down.sql` written) widens `live_sessions_source_check` and `live_sessions_input_mode_check` and backfills rows that only had `monetization.ingest`. **Not applied** to production. Client retries as `display` + ingest on Postgres `23514`.
+
+`npm run lint` pass. `npm run test` pass — **162 files / 834 tests**. Build not re-run this slice (no UI change). Migration not applied.
+
 ## Phase C–E — DAW link, companion deck, session desks — 2026-08-17
 
 Implemented the next slice of `implementation_plan.md` on `continue-next`. Nothing already built was deleted.
@@ -14,7 +20,7 @@ Implemented the next slice of `implementation_plan.md` on `continue-next`. Nothi
 |---|---|---|
 | DAW wire protocol + loopback client (`src/features/broadcast/`) | **PARTIALLY IMPLEMENTED** | 19 unit tests in `pluginProtocol`, `dawBridge`, `liveSource` |
 | Native VST3 / CLAP / AU plug-in | **NATIVE-PLATFORM ONLY** | Not in this repository. Client talks to `ws://127.0.0.1:48480/vybz-stream` |
-| Go Live source `daw` | **PARTIALLY IMPLEMENTED** | UI + LiveKit handoff. Persisted as `display` + `monetization.ingest = "daw"` because production CHECKs still reject `source = 'daw'`. No migration applied. |
+| Go Live source `daw` | **PARTIALLY IMPLEMENTED** | Client inserts `source = 'daw'`. Additive migration `20260817_0104_live_source_daw.sql` widens the CHECK and backfills `monetization.ingest = 'daw'` rows. **Not applied** to production. Until it is, a check-violation retries as `display` + ingest. |
 | Companion deck `/live/:id/companion` | **PARTIALLY IMPLEMENTED** | Supabase realtime protocol + remote faders. Faders do not change the published mix. |
 | In-session desks + post-live Pack Maker link | **PARTIALLY IMPLEMENTED** | Drawer links existing `/tools/*` routes. Stems are not auto-assembled. |
 

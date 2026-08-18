@@ -118,7 +118,7 @@ Formal decision record superseding 0003 for primary focus while preserving sampl
 
 1. **Phase A: Direction Rewrite & Authority Alignment** — landed on `continue-next` (`f9d27c24`).
 2. **Phase B: Live-First Responsive Shell & Room UI** — landed on `continue-next` (`d9b0b47e`).
-3. **Phase C: DAW Broadcast Plug-in (VST3 / CLAP / Remote Link)** — client protocol + Go Live ingest **PARTIALLY IMPLEMENTED**. Native VST3/CLAP/AU remains **NATIVE-PLATFORM ONLY** (not in this repo). Production `live_sessions.source` CHECK still rejects `daw`; ingest is persisted as `display` + `monetization.ingest`.
+3. **Phase C: DAW Broadcast Plug-in (VST3 / CLAP / Remote Link)** — client protocol + Go Live ingest **PARTIALLY IMPLEMENTED**. Native VST3/CLAP/AU remains **NATIVE-PLATFORM ONLY** (not in this repo). Client persists `source = 'daw'`. Migration `0104` widens the CHECK; until applied, Go Live retries as `display` + `monetization.ingest`.
 4. **Phase D: Android Multi-Device Sync & Companion Control** — companion protocol + `/live/:id/companion` over Supabase realtime **PARTIALLY IMPLEMENTED**. Faders do not yet change the published mix. Domain stays on the Platform Bridge / web APIs — no Capacitor imports.
 5. **Phase E: In-Session Desks & Post-Live Pack Export** — session drawer links existing desks. Pack Maker is opened from a live session; stems are **not** auto-assembled.
 

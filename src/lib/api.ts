@@ -21,7 +21,13 @@ import type {
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
   SocialScore,
 } from "@/types";
-import { dawIngestPatch, persistableLiveSource, resolveLiveSource } from "@/features/broadcast/liveSource";
+import {
+  dawIngestPatch,
+  isCheckViolation,
+  legacyDawFallback,
+  persistableLiveSource,
+  resolveLiveSource,
+} from "@/features/broadcast/liveSource";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
 import { parseVcAddress } from "@/lib/vc";
@@ -3690,22 +3696,34 @@ export async function startLiveSession(input: {
 
   const visibility = input.visibility === "circle" ? "circle" : "world";
 
-  const { data, error } = await db().from("live_sessions").insert({
+  const baseRow = {
     host_id: me,
     title: input.title?.trim() || null,
-    source: persistableLiveSource(input.source),
     intent: input.intent?.trim() || null,
     bunny_guid: bunny.guid ?? null,
     playback_hls: bunny.playbackHls ?? null,
     rtmp_url: bunny.rtmpUrl ?? null,
     stream_key: bunny.streamKey ?? null,
-    input_mode: persistableLiveSource(input.source),
     quality_tier: "ultra",
     visibility,
     audio_mode: "music",
     sfu_provider: "livekit",
+  };
+
+  let { data, error } = await db().from("live_sessions").insert({
+    ...baseRow,
+    source: persistableLiveSource(input.source),
+    input_mode: persistableLiveSource(input.source),
     monetization: dawIngestPatch(input.source),
   }).select("*").single();
+
+  if (error && input.source === "daw" && isCheckViolation(error)) {
+    const fallback = legacyDawFallback(input.source);
+    ({ data, error } = await db().from("live_sessions").insert({
+      ...baseRow,
+      ...fallback,
+    }).select("*").single());
+  }
   if (error || !data) return null;
 
   void awardSocialVc("go_live", "live", data.id).catch(() => undefined);
