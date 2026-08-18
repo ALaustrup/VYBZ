@@ -136,6 +136,10 @@ export const HUMAN_PROVENANCE = {
   refusesNotAiClaim: true,
   /** Existing forensic watermark + C2PA worker stay; this does not replace them. */
   doesNotReplaceForensicWatermark: true,
+  /** A SHA computed in the host browser is declared, never measured. */
+  clientAudioShaIsDeclared: true,
+  /** A measured audio SHA requires stored bytes. Missing is Not measured. */
+  measuredAudioShaRequiresStoredBytes: true,
 } as const;
 
 export const PROVENANCE_STRENGTHS = ["thin", "full"] as const;

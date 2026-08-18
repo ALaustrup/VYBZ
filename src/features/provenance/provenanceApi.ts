@@ -70,6 +70,34 @@ export async function recordDeclaredSignals(
   return (data as { ok?: boolean }).ok === true;
 }
 
+export async function recordDeclaredAudioSha(
+  liveSessionId: string,
+  hex: string,
+  bytesHashed: number,
+): Promise<boolean> {
+  if (!supabase) return false;
+  let pid = byLive.get(liveSessionId);
+  if (!pid) {
+    const opened = await openProvenanceForLive(liveSessionId);
+    pid = opened.id;
+  }
+  if (!pid) return false;
+  const { data, error } = await supabase.rpc("append_provenance_event", {
+    p_session: pid,
+    p_type: "signal",
+    p_payload: {
+      kind: "declared",
+      audioSha: hex,
+      source: "daw_pcm_client",
+      bytesHashed,
+      alg: "sha256",
+    },
+    p_ledger: null,
+  });
+  if (error || !data) return false;
+  return (data as { ok?: boolean }).ok === true;
+}
+
 export async function sealProvenanceForLive(liveSessionId: string): Promise<boolean> {
   if (!supabase) return false;
   let pid = byLive.get(liveSessionId);

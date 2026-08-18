@@ -111,8 +111,11 @@ describe("dawBridge client protocol", () => {
       frameCount: 2,
       samples: new Float32Array([0, 0, 0, 0]),
     });
+    const frames: number[] = [];
+    client.subscribe({ onPcmFrame: (bytes) => frames.push(bytes.byteLength) });
     sock.emit(pcm);
     expect(client.status).toBe("streaming");
+    expect(frames[0]).toBeGreaterThan(0);
   });
 
   it("times out a plug-in that never answers", async () => {

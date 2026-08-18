@@ -30,6 +30,8 @@ describe("human / session provenance", () => {
     expect(HUMAN_PROVENANCE.clientSignalsAreDeclared).toBe(true);
     expect(HUMAN_PROVENANCE.refusesNotAiClaim).toBe(true);
     expect(HUMAN_PROVENANCE.doesNotReplaceForensicWatermark).toBe(true);
+    expect(HUMAN_PROVENANCE.clientAudioShaIsDeclared).toBe(true);
+    expect(HUMAN_PROVENANCE.measuredAudioShaRequiresStoredBytes).toBe(true);
     expect(LIVE_MIX_STREAMING.sessionProvenanceAvailable).toBe(true);
     expect(PROVENANCE_EVENT_TYPES).toContain("atc_burn");
   });
@@ -40,6 +42,7 @@ describe("human / session provenance", () => {
     expect(product).toContain("0006");
     expect(product).toContain("does not prove the music was not AI-generated");
     expect(product).toContain("No “not AI” proof");
+    expect(product).toContain("audio SHA is measured only from stored bytes");
   });
 
   it("keeps the ledger off Stripe and off Living Mix / 1:1 calls", () => {
@@ -94,5 +97,22 @@ describe("human / session provenance", () => {
     expect(watch).toContain("SessionProvenanceBadge");
     expect(watch).toContain("downloadVprovPackage");
     expect(watch).toContain("Download .vprov");
+  });
+
+  it("binds a client DAW digest as declared and never as measured", () => {
+    const bind = read("src/features/provenance/audioBind.ts");
+    expect(bind).toContain('kind: "declared"');
+    expect(bind).toContain("measuredHex");
+    const api = read("src/features/provenance/provenanceApi.ts");
+    expect(api).toContain("recordDeclaredAudioSha");
+    expect(api).toContain('source: "daw_pcm_client"');
+    const watch = read("src/pages/LiveWatchPage.tsx");
+    expect(watch).toContain("useDeclaredAudioSha");
+    expect(watch).toContain("finishDeclaredPcmHash");
+    expect(watch).toContain("recordDeclaredAudioSha");
+    const pack = read("src/features/provenance/buildVprov.ts");
+    expect(pack).toContain("audioSha");
+    expect(pack).toContain("audioShaKind");
+    expect(pack).toContain("A client DAW PCM digest is declared");
   });
 });

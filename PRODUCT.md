@@ -31,7 +31,7 @@ Core experience pillars:
 - **Multi-device & Android synchronization:** Seamless companion control, mobile live broadcast rigs, and lockstep device sync.
 - **Persistent continuity & post-stream monetization:** Tools to split stems, measure loudness, package live recordings into verified sample packs, and sell them directly on the marketplace.
 - **Airtime Credits (ATC):** Hosting time is earned by giving verified attention. Listening is always free. Remaining ATC is shown as a measured clock; unknown reads **Not measured**.
-- **Session provenance:** A sealed live mix can emit a measured package (who hosted, that ATC was burned, a chained event log). It does not prove the music was not AI-generated.
+- **Session provenance:** A sealed live mix can emit a measured package (who hosted, that ATC was burned, a chained event log). An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. It does not prove the music was not AI-generated.
 - **Artist / producer Stage File:** The public profile (`/u/:id`) is a stage, not a social graph. Live nights lead. Stats are measured. Connect is a request. Booking is a message, not a calendar.
 
 ## 3. The Live Mix Platform Architecture

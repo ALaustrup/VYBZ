@@ -6,6 +6,23 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Session provenance Phase 5 — audio SHA bind — 2026-08-18
+
+A `.vprov` package now carries an audio SHA field. A digest of host-decoded DAW PCM is **declared**. A measured SHA still requires stored bytes (none are bound yet). Missing reads **Not measured**. C2PA is untouched. No new migration. ATC mint/burn formulas, Stripe, LiveKit, and Living Mix are unchanged.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Bind rules | **IMPLEMENTED BUT NOT DELIVERED** | `audioBind.ts` — client hex cannot become measured |
+| DAW PCM hasher | **PARTIALLY IMPLEMENTED** | Incremental SHA-256 of decoded stereo PCM. Camera/display stays Not measured |
+| Package field | **IMPLEMENTED BUT NOT DELIVERED** | `manifest.audioSha` + `verify.txt`. Web app not deployed |
+| C2PA / stored-bytes SHA | Not started | Phase 6 |
+| Reception bonus / referral | Not started | Still must not invent mint rates |
+| Browser walk | Not measured | No web browser tool this session |
+
+`npm run lint` pass. `npm run test` pass — **174 files / 884 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** C2PA / stored-bytes SHA (Phase 6). ATC reception bonus / referral only after locked rates. Deploy + signed-in walk.
+
 ## Vision lock v6 + ATC Phase 4 meter — 2026-08-18
 
 Authority now names the full stack: live mix + ATC + session provenance + artist/producer Stage File.

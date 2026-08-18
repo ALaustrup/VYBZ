@@ -43,18 +43,43 @@ describe("vprov package", () => {
   it("refuses a not-AI claim in the manifest and the human report", () => {
     const m = buildVprovManifest(sample);
     expect(m.notAiClaim).toBe(NOT_MEASURED);
+    expect(m.audioSha).toBeNull();
+    expect(m.audioShaKind).toBeNull();
     expect(m.format).toBe("vybz.vprov");
     expect(m.strength).toBe("full");
     expect(m.atcBurned).toBe(60);
     const report = buildVerifyReport(sample);
     expect(report).toContain("does not claim the music was human-composed");
     expect(report).toContain(`Not AI: ${NOT_MEASURED}`);
+    expect(report).toContain(`Audio SHA: ${NOT_MEASURED}`);
   });
 
   it("writes one JSON line per event", () => {
     const lines = eventsJsonl(sample.events).split("\n");
     expect(lines).toHaveLength(2);
     expect(JSON.parse(lines[0]!).eventType).toBe("open");
+  });
+
+  it("labels a client DAW digest as declared in the package", () => {
+    const withSha: SealedProvenance = {
+      ...sample,
+      events: [
+        ...sample.events,
+        {
+          seq: 3,
+          eventType: "signal",
+          payload: { kind: "declared", audioSha: "c".repeat(64), source: "daw_pcm_client", bytesHashed: 96 },
+          prevHash: "abc",
+          rowHash: "ddd",
+          createdAt: "2026-08-18T00:02:01.000Z",
+        },
+      ],
+    };
+    const m = buildVprovManifest(withSha);
+    expect(m.audioSha).toBe("c".repeat(64));
+    expect(m.audioShaKind).toBe("declared");
+    expect(buildVerifyReport(withSha)).toContain("declared client DAW PCM");
+    expect(buildVerifyReport(withSha)).not.toContain("measured from stored bytes");
   });
 
   it("builds a zip with the three required files", async () => {

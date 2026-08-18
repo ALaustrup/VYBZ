@@ -29,6 +29,8 @@ export type DawBridgeListener = {
   onStatusChange?: (status: DawProtocolStatus) => void;
   onMeterUpdate?: (meter: DawMeterState) => void;
   onInfo?: (info: DawInfo) => void;
+  /** Decoded stereo PCM bytes. Callers must not treat this as a measured master. */
+  onPcmFrame?: (bytes: Uint8Array, sampleRate: number) => void;
 };
 
 export type WebSocketLike = {
@@ -103,6 +105,12 @@ export function createDawBridgeClient(options?: {
     }
   }
 
+  function emitPcm(samples: Float32Array, sampleRate: number) {
+    if (listeners.size === 0 || samples.byteLength < 1) return;
+    const bytes = new Uint8Array(samples.buffer, samples.byteOffset, samples.byteLength);
+    listeners.forEach((l) => l.onPcmFrame?.(bytes, sampleRate));
+  }
+
   function enqueuePcm(samples: Float32Array, sampleRate: number) {
     if (!audioCtx || !destNode) return;
     const frames = Math.floor(samples.length / 2);
@@ -129,12 +137,15 @@ export function createDawBridgeClient(options?: {
     if (framed) {
       setStatus("streaming");
       enqueuePcm(framed.samples, framed.sampleRate);
+      emitPcm(framed.samples, framed.sampleRate);
       return;
     }
     const legacy = decodeLegacyPcm(data);
     if (legacy) {
+      const sr = info?.sampleRate ?? audioCtx?.sampleRate ?? 48000;
       setStatus("streaming");
-      enqueuePcm(legacy, info?.sampleRate ?? audioCtx?.sampleRate ?? 48000);
+      enqueuePcm(legacy, sr);
+      emitPcm(legacy, sr);
     }
   }
 

@@ -1,5 +1,6 @@
 import { buildZip, sha256Hex } from "@/features/distribution/packageZip";
 import { NOT_MEASURED, type ProvenanceEventType, type ProvenanceStrength } from "@/product/invariants";
+import { audioBindFromEvents, audioShaLabel, type AudioShaKind } from "./audioBind";
 
 export type SealedProvenanceEvent = {
   seq: number;
@@ -36,9 +37,12 @@ export type VprovManifest = {
   eventCount: number;
   chainRoot: string | null;
   notAiClaim: typeof NOT_MEASURED;
+  audioSha: string | null;
+  audioShaKind: AudioShaKind | null;
 };
 
 export function buildVprovManifest(row: SealedProvenance): VprovManifest {
+  const audio = audioBindFromEvents(row.events);
   return {
     version: 1,
     format: "vybz.vprov",
@@ -51,6 +55,8 @@ export function buildVprovManifest(row: SealedProvenance): VprovManifest {
     eventCount: row.eventCount,
     chainRoot: row.chainRoot,
     notAiClaim: NOT_MEASURED,
+    audioSha: audio.hex,
+    audioShaKind: audio.kind,
   };
 }
 
@@ -70,8 +76,10 @@ export function buildVerifyReport(row: SealedProvenance): string {
     `Events: ${row.eventCount}`,
     `Chain root: ${row.chainRoot ?? NOT_MEASURED}`,
     `Not AI: ${NOT_MEASURED}`,
+    `Audio SHA: ${audioShaLabel(audioBindFromEvents(row.events))}`,
     "",
     "Declared signal events are client-observed flags, not studio capture.",
+    "A client DAW PCM digest is declared. A measured SHA requires stored bytes.",
     "Full strength means this session burned Airtime. Thin means it did not.",
   ];
   return lines.join("\n");

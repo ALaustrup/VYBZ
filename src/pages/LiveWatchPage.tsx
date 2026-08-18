@@ -22,8 +22,9 @@ import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { useHostBurn, useListenEarn } from "@/features/airtime/AtcLiveHooks";
 import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
-import { downloadVprovPackage, fetchSealedProvenance } from "@/features/provenance/provenanceApi";
+import { downloadVprovPackage, fetchSealedProvenance, recordDeclaredAudioSha } from "@/features/provenance/provenanceApi";
 import { noteChatSent } from "@/features/provenance/hostSignals";
+import { finishDeclaredPcmHash, useDeclaredAudioSha } from "@/features/provenance/useDeclaredAudioSha";
 import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
 import { useHostSignals } from "@/features/provenance/useHostSignals";
 import type { SealedProvenance } from "@/features/provenance/buildVprov";
@@ -195,6 +196,7 @@ export function LiveWatchPage() {
 
   const playing = sfuActive || !!session?.playbackHls;
   useHostSignals(!!session && isHost && session.status === "live");
+  useDeclaredAudioSha(!!session && isHost && session.status === "live" && session.source === "daw");
   useListenEarn({
     sessionId: id,
     enabled: !!session && !isHost && session.status === "live",
@@ -214,6 +216,8 @@ export function LiveWatchPage() {
   });
 
   async function end() {
+    const digest = finishDeclaredPcmHash();
+    if (digest) await recordDeclaredAudioSha(id, digest.hex, digest.bytesHashed).catch(() => false);
     await sfuRef.current?.disconnect();
     sfuRef.current = null;
     if (session?.source === "daw") releaseDawBridge();
