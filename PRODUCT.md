@@ -4,107 +4,112 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 6 · 2026-08-18 · supersedes Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
-> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (how an artist or producer is shown) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet).
+> Version 7 · 2026-08-18 · supersedes Version 6 (Stage File + ATC meter, 2026-08-18), Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
+> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (live rooms) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (public profile) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet) · [`0009`](docs/decisions/0009-live-audio-for-any-host.md) (who may host).
 
 ---
 
 ## 1. The problem
 
-Music production has spent decades isolated in bedrooms, private studios, and silent project files.
+People who need to be heard — a producer finishing a mix, a podcaster cutting an episode, someone who has to talk it out — have no honest live room. Social apps compress audio into telephony mud, rank by purchase and outrage, and treat speech as a vibe to be filtered. Music tools stay silent and private. Sample-pack shops sell files, not presence.
 
-A producer works for hours or weeks on a track or mix. They post a 15-second snippet on social media to beg for algorithmic attention, or wait months for a DSP release that delivers nothing but a flat play count. There is no stage where creators can produce, test, refine, and perform their sound live with a global audience in real time—with pristine, studio-grade audio fidelity and zero friction.
-
-Traditional live streaming platforms compress audio into telephony mud, introduce seconds of latency, lack music production context, and offer no integration with digital audio workstations (DAWs).
-
-**That is the hole: producers have nowhere to create, perform, and mix audio projects live with the world, directly from their studio workflow, in high fidelity and real time.**
+**That is the hole: there is no real-time live audio stage where anyone with something to say or play can host, listeners can stay for free, and hosting time is earned by giving attention.**
 
 ## 2. What VYBZ is
 
-**VYBZ is to become the ultimate live mix audio streaming platform, giving producers and artists a place to produce their music, sound and audio projects with listeners around the world in real time live.**
+**VYBZ is a real-time live audio platform.** Not a sample-pack app. Not music-only.
+
+Hosts are anyone with something to say or play: producers, artists, podcasters, talkers, open-mic, people who need to vent. Same rooms. Same Airtime Credits. Same session provenance. Same go-live gate.
 
 Core experience pillars:
-- **Real-time collaborative live production / mixing sessions:** Multi-producer stages and interactive rooms where music is shaped live.
-- **Low-latency audio streaming of live mixes:** Studio-quality, full-frequency stereo audio streamed with sub-second latency to global listeners.
-- **Direct DAW Master Channel integration:** Dedicated remote broadcast plug-in (VST3 / CLAP / AU) dropping directly onto the master channel to stream studio output in pristine fidelity.
-- **Listener presence & interaction:** Active audience presence, real-time feedback prompts (Sparks), live tipping (V¢ / Stripe), and identity-verified chat inside the live experience.
-- **Multi-device & Android synchronization:** Seamless companion control, mobile live broadcast rigs, and lockstep device sync.
-- **Persistent continuity & post-stream monetization:** Tools to split stems, measure loudness, package live recordings into verified sample packs, and sell them directly on the marketplace.
-- **Airtime Credits (ATC):** Hosting time is earned by giving verified attention. Listening is always free. Remaining ATC is shown as a measured clock; unknown reads **Not measured**.
-- **Session provenance:** A sealed live mix can emit a measured package (who hosted, that ATC was burned, a chained event log). An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. Binding a catalog file to the session is declared. C2PA ledger events are counted; the file C2PA box is **Not measured**. It does not prove the music was not AI-generated.
-- **Artist / producer Stage File:** The public profile (`/u/:id`) is a stage, not a social graph. Live nights lead. Stats are measured. Connect is a request. Booking is a message, not a calendar.
+- **Live rooms** (`/live`, `/live/:id`): one person hosts, listeners hear it in real time.
+- **Airtime Credits (ATC):** the only hosting clock. Listening is always free. Remaining ATC is shown as a measured clock; unknown reads **Not measured**.
+- **Session provenance:** a host-downloadable proof that a verified human ran a real-time VYBZ session. It does not prove the music was not AI-generated. An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. C2PA ledger events are counted; the file C2PA box is **Not measured**.
+- **Host Stage File** (`/u/:id`): public host profile. Talk, podcast, and music are first-class. Live nights lead. Connect is a request. Booking is a message, not a calendar.
+- **DAW Master Channel ingest** (VST3 / CLAP / AU) when the host is mixing from a studio.
+- **Companion + Android:** remote control and mobile ingest through the Platform Bridge.
+- **Post-session products:** replay, episode, stems, transcript, measured packs — money on the session, never on the clock.
 
-## 3. The Live Mix Platform Architecture
-
-VYBZ replaces static steppers with a live-audio-friendly interface that auto-adapts across all screen sizes and devices.
+## 3. Surfaces
 
 | Surface | Job | Primary Role |
 |---|---|---|
-| **Live Mix Room** (`/live/:id`) | Interactive live mixing stage with real-time waveform HUD, visualizer, chat, presence, and tip goals | **Core Stage** |
-| **Live Discovery** (`/live`) | Real-time browser of active producer sessions, genre tags, and live listener counts | **Discovery Front Door** |
-| **Studio Collab Rooms** (`/rooms`, `/projects/:id`) | Multi-human collaborative studios with LiveKit audio, split sheets, and versioning | **Co-Production** |
-| **Living Mix Engine** (`/library/mix`) | Intelligent on-demand track sequencing, transition scoring, and energy management | **Automated Mix Core** |
-| **In-Session Tool Drawer** (`/tools/*`) | 9 DSP correction desks, Stem splitter, MIDI extractor, Translation Lab (car/club monitors) | **Studio Toolkit** |
-| **DAW Broadcast Bridge** (`VST3 / CLAP / Desktop`) | Master bus audio capture streamed directly from Ableton, FL Studio, Logic, Reaper | **Master Channel Ingest** |
-| **Marketplace & Storefront** (`/market`, `/pack/:slug`) | Post-session export of live mixes into measured, sellable sample packs | **Monetization** |
-| **Library & Working Set** (`/library`) | Ingest, organize, and summon assets directly into live sessions | **Media Repository** |
-| **Artist Stage File** (`/u/:id`) | Public artist/producer stage: live nights, sealed session badge, catalog, measured cells | **Public identity** |
+| **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter | **Core Stage** |
+| **Live discovery** (`/live`) | Who is on, right now | **Front door** |
+| **Host Stage File** (`/u/:id`) | Public host identity. Talk, podcast, music | **Public identity** |
+| **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
+| **Living Mix** (`/library/mix`) | Catalog sequencer. Not a public live | **On-demand mix** |
+| **In-session desks** (`/tools/*`) | Existing DSP / stem / MIDI / translation desks | **Toolkit** |
+| **DAW bridge** | Master-bus ingest when the host is in a DAW | **Studio ingest** |
+| **Marketplace** (`/market`, `/pack/:slug`) | Post-session products, not the hosting clock | **Session money** |
+| **Library** (`/library`) | Files you already have | **Media** |
 
-## 4. DAW Integration: The VYBZ Broadcast Plug-in
+## 4. Airtime is the only hosting clock
 
-A core requirement for professional producers is zero-friction audio capture:
-1. **Master Bus Insert:** A lightweight native plug-in (VST3 / CLAP / AU) dropped onto the master channel of any DAW.
-2. **Lossless PCM Capture:** Intercepts 32-bit float stereo audio directly from the DAW audio buffer with zero coloration.
-3. **Ultra-Low Latency Transport:** Hands off audio to the VYBZ LiveKit SFU using uncompressed stereo music constraints (Opus up to 510 kbps, 48 kHz).
-4. **In-DAW Live HUD:** Real-time stream telemetry, active listener count, live chat alerts, and Sparks audience feedback rendered directly inside the DAW plugin UI.
+- **1 ATC = 1 second of hosting.**
+- **Daily free grant = 7200 ATC.** It does not stack. Overwritten each calendar day in the stored timezone.
+- **Earned ATC persists.**
+- **Hosting burns daily free first, then earned.**
+- **Listening is always free.** ATC never gates playback. **Hosting burns Airtime Credits.**
+- ATC is not purchasable, not transferable, not giftable. It cannot become money. Money cannot become ATC.
+- **Stripe never creates ATC.**
+- ATC is created only by daily grant, verified listen, reception bonus, referral, new-user bootstrap, or explicit admin adjust. **ATC is destroyed only by** host consumption or explicit admin adjust.
+- **Reception bonus and referral do not mint yet.** Their amounts are **Not measured**. The ledger refuses those mints until amounts are declared policy. This is not a zero award.
+- **Bootstrap** is only the declared mint: **3600 ATC**, once, inside **7 days** of profile creation.
+- The go-live gate requires the declared start minimum (300 ATC). The host sees daily free and earned before start. A leftover shorter than a burn chunk is played out — no hard cut.
+- **Station Airtime stays parked.** The Station's prompt-answer Airtime (`CURRENCY` / `STATION`) is a different, parked subsystem. Do not mix the two ledgers.
 
-## 5. Multi-Device & Android Synchronization
+## 5. Money follows the session, never the clock
 
-VYBZ treats Android as a first-class production and listening target:
-- **Companion Control Mode:** Android devices function as hardware-like remote controllers for desktop live sessions (faders, mutes, cue triggers, chat).
-- **Mobile Live Ingest:** Artists can broadcast live mix sessions from mobile audio interfaces on location.
-- **Lockstep Sync:** Verified listener playback synchronized across devices with low latency.
+Allowed:
+- Tips (fiat / V¢) during a live
+- Creator subscriptions
+- Post-session products: replay, episode, stems, transcript, measured packs
+- Premium tools
 
-## 6. Subordinated Production Tooling & Post-Stream Monetization
+Forbidden:
+- Buying ATC
+- Paying for default listen access
+- Paying for rank or homepage placement
 
-Everything already built in the VYBZ ecosystem serves the live mix experience:
-- **In-Session Desks:** The 9 audio correction tools, stem isolation engine, MIDI generator, and translation monitors are accessible as on-demand side panels during live sessions.
-- **Post-Live Pack Generation:** When a live mixing session ends, the producer can export the recorded audio/stems into a measured sample pack with one click.
-- **Storefront & Marketplace:** Published packs are sold on the marketplace (`/market`) with honest SHA manifests, delivering measured ZIPs via Stripe checkout.
+**Ticketed events stay out of this lock** unless a later decision says otherwise.
 
-## 7. Honesty of Measurement
+V¢ remains purchasable utility for tips and cosmetics. It never buys search placement, stream ranking, or ATC.
+
+## 6. Session provenance
+
+A sealed public live may emit a downloadable package (`.vprov`) and an in-app verification report.
+
+- Binds to `live_sessions`, never Living Mix, never 1:1 `liveSession.ts` calls.
+- **Full** strength only when that live consumed ATC. Otherwise **thin**.
+- Copy is **Session provenance**, never “Human certified.”
+- **No “not AI” proof.** Presence, ATC, and a hash cannot measure that.
+
+## 7. Speech
+
+Hosting is **viewpoint-neutral**. We do not kill a live because the take is unpopular.
+
+We still do not host illegal content (CSAM, true threats, and the rest of that legal floor). That is law, not a vibe filter.
+
+## 8. Honesty of Measurement
 
 Three kinds of label, never mixed:
 
 | Kind | Source | What we may say |
 |---|---|---|
-| **Declared** | Filename, artist-typed fields, pack/stream title and genre | What a person wrote |
-| **Measured** | Duration, peak, RMS, BS.1770-4 LUFS, sample rate, channels, content SHA | Computed from the bytes |
+| **Declared** | Filename, host-typed title, “this file is the recap” | What a person wrote |
+| **Measured** | Duration, peak, RMS, BS.1770-4 LUFS, sample rate, channels, content SHA, ATC burned | Computed from the bytes or the ledger |
 | **Inferred** | Analysis that has no evidence | **Not used.** Unknown reads **Not measured**. |
-
-VYBZ never fabricates play counts, listener engagement, or musical analysis. A fabricated number wearing a lab coat is still fabricated.
-
-## 8. Money & Economy
-
-- **Listening is always free and unlimited.** ATC never gates playback.
-- **Hosting burns Airtime Credits (ATC).** 1 ATC = 1 second of publishing. Daily free grant is 7200 ATC (2 hours), overwritten each calendar day in the user's stored timezone. Earned ATC is the only path beyond that grant.
-- **ATC is a closed loop.** Non-purchasable, non-transferable, non-giftable. It cannot become money. Money cannot become ATC. Stripe is not on this path.
-- **ATC is created only by** daily grant, verified listen, reception bonus, referral, new-user bootstrap, or explicit admin adjust. **ATC is destroyed only by** host consumption or explicit admin adjust.
-- **Reception bonus and referral do not mint yet.** Their amounts are **Not measured**. The ledger refuses those mints until amounts are declared policy. This is not a zero award.
-- **Verified attention only.** Credit is awarded in discrete chunks after LiveKit presence plus server-validated playback heartbeats. Clients never invent or trust their own balance.
-- **Live Tipping:** Listeners tip producers in fiat (Stripe) or V¢. Tips are not ATC.
-- **Pack Sales:** Recorded live mixes packaged into sample packs are sold with a 10% fee.
-- **V¢ Remains Utility:** V¢ is purchasable for tips and cosmetics; it never buys search placement, stream ranking, or ATC.
-- **Station Airtime stays parked.** The Station's prompt-answer Airtime (`CURRENCY` / `STATION`) is a different, parked subsystem. Do not mix the two ledgers.
 
 ## 9. What we refuse
 
-- **No public vanity metrics:** No follower counts or fake play counts as social proof. Public profiles may show sealed nights, rated tracks, and accepted connections only when those numbers were measured.
-- **No purchasable attention:** Money cannot buy live stream ranking, "featured" tags, fake listens, or ATC.
+- **No public vanity metrics:** No follower counts or fake play counts as social proof.
+- **No purchasable attention:** Money cannot buy live ranking, "featured" tags, fake listens, or ATC.
 - **No dating, romance, meetup or swipe matching:** Permanently out of scope.
 - **No fabricated measurement:** Everything unmeasured reads **"Not measured"**.
-- **No “not AI” proof:** Session provenance never claims the audio was human-composed or not fully AI-generated. That is not measurable from presence, ATC, or a client hash.
-- **No undisclosed processing on the play path:** Stream and playback paths remain dry and disclosed.
+- **No “not AI” proof.**
+- **No undisclosed processing on the play path.**
+- **No killing a live for an unpopular take.** Illegal content is still refused.
 
 ## 10. Preservation — Hide, Never Delete
 
@@ -114,9 +119,10 @@ Surfaces leaving the default experience are **hidden from navigation**, not remo
 
 ## 11. Interface Direction
 
-- **Live-First & Audio-Friendly:** The default UI leads with Live Mix sessions, Stage Discovery, Studio Rooms, Library, and the public Stage File.
-- **Auto-Adjusting Responsive Layout:** Ergonomically tailored for single-hand mobile (Android), tablet companion mode, desktop studio screens, and multi-monitor setups.
-- **Dark, Sleek, Audio-Reactive:** Modern glassmorphism with high-contrast audio meters and WebGL reactive visual stages.
+- **Live-first:** default UI leads with live rooms, host profiles, and Library.
+- **Host profiles are not artist-only.** Talk, podcast, and music share `/u/:id`.
+- **Auto-adjusting** across phone, companion, and desktop studio.
+- **Dark, audio-first.**
 
 ## 12. Delivery Vocabulary
 
@@ -130,6 +136,6 @@ Permitted states — never "complete":
 
 ## 13. Definition of Success
 
-A producer fires up their DAW, inserts the VYBZ Broadcast plug-in onto their master channel, and taps "Go Live". Within seconds, listeners around the world tune in to pristine stereo sound, interact in real-time, send sparks and tips, and experience music being born live. When the session ends, the producer exports the session stems as a measured pack and lists it on the store.
+A host taps Go Live. Listeners hear them — mix, talk, episode, or vent — in real time. Hosting burns Airtime. Listening stays free. When the session ends, the host can download a session-provenance package and, if they want, sell something that came from that night.
 
-Music production is no longer a silent, lonely island.
+Nobody had to buy the right to be heard. Nobody had to buy the right to listen.

@@ -51,6 +51,10 @@ export const PRINCIPLES = {
   hideNeverDelete: true,
   /** Attention is earned by giving attention. It can never be purchased. */
   attentionCannotBeBought: true,
+  /** Money follows a session (tips, products, tools). It never becomes hosting time. */
+  moneyFollowsTheSessionNotTheClock: true,
+  /** Hosting is viewpoint-neutral. Illegal content is still refused. */
+  viewpointNeutralHosting: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -66,6 +70,10 @@ export const PROHIBITIONS = {
   directNativeSdkImportsInDomainCode: true,
   /** Public vanity counts (followers, plays) as social proof. See PRODUCT.md. */
   publicVanityMetrics: true,
+  /** Buying ATC, paying to listen by default, or paying for rank / homepage. */
+  payingForClockOrRank: true,
+  /** Ticketed events are out of this lock until a later decision. */
+  ticketedEventsInThisLock: false,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -92,11 +100,11 @@ export const FROZEN_CONTRACTS = {
 /* ------------------------------------------------------------------------- */
 
 /**
- * Authoritative direction (PRODUCT.md v6 / decisions 0004–0007).
- * VYBZ is the ultimate live mix audio streaming platform.
+ * Authoritative direction (PRODUCT.md v7 / decisions 0004–0009).
+ * VYBZ is a real-time live audio platform. Not sample-pack. Not music-only.
  */
 export const LIVE_MIX_STREAMING = {
-  /** Real-time live mix sessions are the core front-door experience. */
+  /** Real-time live rooms are the core front-door experience. */
   liveMixIsPrimary: true,
   /** Audio streaming uses LiveKit SFU stereo music mode (no telephony filtering). */
   losslessMusicAudioConstraints: true,
@@ -104,14 +112,25 @@ export const LIVE_MIX_STREAMING = {
   directDawBroadcastSupported: true,
   /** Android companion mode and mobile live streaming enabled via Platform Bridge. */
   androidMultiDeviceSync: true,
-  /** Post-live mix export generates measured sample packs for the marketplace. */
+  /** Post-session products (packs, replay, stems) are allowed. They are not ATC. */
   postSessionPackMonetization: true,
   /** Going live burns Airtime Credits. Listening stays free. */
   hostingRequiresAtc: true,
   /** Sealed live sessions can emit a session-provenance package. */
   sessionProvenanceAvailable: true,
-  /** Public /u/:id is the artist/producer Stage File. */
+  /** Public /u/:id is the host Stage File. */
   publicStageFile: true,
+} as const;
+
+export const LIVE_AUDIO = {
+  /** Not a sample-pack app. Not music-only. */
+  liveAudioIsTheProduct: true,
+  /** Producers, artists, podcasters, talkers, open-mic, vent — same rooms. */
+  hostsAreNotMusicOnly: true,
+  /** Talk, podcast, and music are first-class on the host profile. */
+  talkPodcastAndMusicAreFirstClass: true,
+  /** ATC is the only hosting clock. */
+  airtimeIsOnlyHostingClock: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -174,6 +193,8 @@ export const ARTIST_STAGE_PROFILE = {
   sessionSealNotHumanCertified: true,
   /** /u/:id stays resolvable. The old storefront is not deleted. */
   routeStaysResolvable: true,
+  /** Talk, podcast, and music share this profile. It is not artist-only. */
+  notArtistOnly: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -370,6 +391,7 @@ export const GATE_REGISTRY = [
   "airtimeCredits",
   "humanProvenance",
   "artistStageProfile",
+  "liveAudio",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

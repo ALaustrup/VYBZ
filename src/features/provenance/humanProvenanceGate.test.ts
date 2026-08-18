@@ -40,7 +40,7 @@ describe("human / session provenance", () => {
 
   it("writes the refusal into PRODUCT", () => {
     const product = read("PRODUCT.md");
-    expect(product).toContain("Version 6");
+    expect(product).toContain("Version 7");
     expect(product).toContain("0006");
     expect(product).toContain("does not prove the music was not AI-generated");
     expect(product).toContain("No “not AI” proof");

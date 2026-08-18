@@ -1,9 +1,9 @@
 # VYBZ
 
 > **Find Yours.**  
-> **Produce, perform, and mix live with the world in real time.**
+> **Go live. Talk, play, or mix. Listening is free.**
 
-VYBZ is the **ultimate live mix audio streaming platform**, giving producers and artists a place to produce their music, sound, and audio projects with listeners around the world in real time live. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
+VYBZ is a **real-time live audio platform**. Not a sample-pack app. Not music-only. Hosts are anyone with something to say or play. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 
 **One account · one cloud · three clients + DAW plug-in:**
 - **VYBZ Web:** Interactive live stage, rooms, and visualizers.
@@ -29,7 +29,7 @@ VYBZ is the **ultimate live mix audio streaming platform**, giving producers and
 | **Studio Tool Drawer** | 9 DSP correction desks, Stem splitter, MIDI maker, and Car/Club acoustic preview |
 | **Marketplace & Pack Maker** | Export recorded live mixes as measured sample packs with SHA manifests and sell via Stripe |
 | **Library** | Organize, search, and summon catalog files directly into live sessions |
-| **Artist Stage File** | Public `/u/:id` stage — live nights first, measured stats, session seal |
+| **Host Stage File** | Public `/u/:id` — talk, podcast, and music. Live nights first |
 
 ## What's shipped today (foundation)
 
@@ -61,11 +61,11 @@ Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
 
 | Doc | Purpose |
 |-----|---------|
-| [`PRODUCT.md`](./PRODUCT.md) | Product authority (Live Mix Audio Streaming Platform) |
+| [`PRODUCT.md`](./PRODUCT.md) | Product authority (live audio for any host) |
 | [`src/product/invariants.ts`](./src/product/invariants.ts) | The rules, in code |
 | [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
 | [`STATE.md`](./STATE.md) | Current checkpoint |
-| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0007) |
+| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0009) |
 | [`docs/architecture.md`](./docs/architecture.md) | Platform overview |
 | [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |

@@ -26,12 +26,13 @@ describe("artist stage profile", () => {
     expect(ARTIST_STAGE_PROFILE.noVanityFollowerCounts).toBe(true);
     expect(ARTIST_STAGE_PROFILE.sessionSealNotHumanCertified).toBe(true);
     expect(ARTIST_STAGE_PROFILE.routeStaysResolvable).toBe(true);
+    expect(ARTIST_STAGE_PROFILE.notArtistOnly).toBe(true);
     expect(LIVE_MIX_STREAMING.publicStageFile).toBe(true);
   });
 
   it("writes the Stage File into PRODUCT", () => {
     const product = read("PRODUCT.md");
-    expect(product).toContain("Version 6");
+    expect(product).toContain("Version 7");
     expect(product).toContain("0007");
     expect(product).toContain("Stage File");
     expect(product).toContain("Connect is a request");

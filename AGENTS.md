@@ -4,7 +4,7 @@ How to work in this repository. If you cannot follow all of it, do not start.
 
 ## Read first
 
-1. [`PRODUCT.md`](./PRODUCT.md) — the only authority on what we are building
+1. [`PRODUCT.md`](./PRODUCT.md) — the only authority. VYBZ is a real-time live audio platform. Not a sample-pack app. Not music-only.
 2. [`src/product/invariants.ts`](./src/product/invariants.ts) — the rules, in code, enforced by tests
 3. [`STATE.md`](./STATE.md) — where things actually stand right now
 4. [`docs/`](./docs/) — reference material, never authority

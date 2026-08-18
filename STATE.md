@@ -6,6 +6,26 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Product lock v7 — live audio for any host — 2026-08-18
+
+Slices 2, 3, and 1 were verified in the tree at **`0c04d717`** (not fiction):
+
+| Slice | Evidence in tree |
+|---|---|
+| 2 Go-live gate | `AtcHostCard` on `GoLiveSheet` + `LiveWatchPage`. Start uses `canStartHost`. Leftover buffer in `useHostBurn` |
+| 3 Provenance package | `SessionProvenanceReport` + `downloadVprovPackage`. Copy is Session provenance, never Human certified |
+| 1 Bootstrap | `grant_bootstrap_atc` 3600 / 7 days in 0110. Reception/referral still `rates_not_measured` |
+
+This commit locks **PRODUCT.md Version 7** and decision [`0009`](docs/decisions/0009-live-audio-for-any-host.md). No new features. No new mints. No schema churn. SessionToolDrawer, Airtime Phase 1, and 0008 were not reopened.
+
+**Shipped (code, not delivered):** live rooms, ATC clock, go-live card, leftover end, `.vprov` + in-app report, bootstrap 3600/7d, host Stage File.
+
+**Refused:** reception bonus, referral, buying ATC, paying to listen, paying for rank, ticketed events (out of this lock), “Human certified,” not-AI proof.
+
+**Not measured:** signed-in browser walk. Web app not deployed.
+
+`npm run lint` pass. `npm run test` pass — **177 files / 897 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
 ## Slice 1 — new-user bootstrap — 2026-08-18
 
 **0110 applied** to `xixmneooyufbeftdfpcm`. `grant_bootstrap_atc` credits **3600** earned ATC once if the profile is ≤ 7 days old. `get_airtime_balance` calls it after the daily grant. Reception bonus and referral still return `rates_not_measured`. Stripe cannot mint ATC.

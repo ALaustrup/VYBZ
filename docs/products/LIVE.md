@@ -4,12 +4,12 @@
 
 ## Purpose
 
-The core stage of VYBZ. Low-latency, high-fidelity audio streaming and collaborative live mixing sessions where producers create, perform, and refine music live with listeners worldwide.
+The core stage of VYBZ. Real-time live audio. Hosts are anyone with something to say or play.
 
 ## Customer
 
-- **Producers / Artists:** Going live from their DAW (via the VYBZ Broadcast Master Channel plug-in), browser, or mobile rig to produce, test tracks, DJ, and mix live.
-- **Global Audience:** Listening to pristine, full-bandwidth stereo mixes in real time, interacting via chat, sending Sparks reactions, and tipping the host.
+- **Hosts:** Producers, artists, podcasters, talkers, open-mic — browser, phone, or DAW.
+- **Listeners:** Free, real-time audio. Chat, sparks, tips. No ATC required to listen.
 
 ## Core Capabilities
 
@@ -18,7 +18,7 @@ The core stage of VYBZ. Low-latency, high-fidelity audio streaming and collabora
 - **Interactive Listener Arena:** Real-time presence, WebGL audio-reactive visual stage, Sparks feedback prompts, and V¢ / Stripe live tipping.
 - **Airtime Credits:** Hosting burns ATC earned by verified listening. Listening itself is free. Stripe never mints ATC.
 - **Session provenance:** A sealed live mix can emit a measured event chain. An audio SHA is measured only from stored bytes; a client DAW digest is declared. Binding a catalog file is declared. C2PA on the file is Not measured. It does not claim the audio was not AI-generated.
-- **Artist Stage File:** Public `/u/:id` leads with live nights and the session seal. Connect is a request. Booking is a message.
+- **Host Stage File:** Public `/u/:id` leads with live nights. Talk, podcast, and music. Connect is a request. Booking is a message.
 - **Android Sync & Companion Mode:** Using Android devices as companion faders, cue triggers, and mobile broadcast rigs.
 - **In-Session Tool Drawer:** Instant access to 9 DSP correction desks, Stem extraction, MIDI generation, and Car/Club translation monitors.
 - **Post-Session Export:** One-click conversion of recorded live session stems into measured sample packs for sale on the marketplace.
@@ -32,4 +32,4 @@ The core stage of VYBZ. Low-latency, high-fidelity audio streaming and collabora
 
 ## Copy One-Liner
 
-**Produce, perform, and mix live with the world in real time.**
+**Go live. Talk, play, or mix. Listening is free.**
