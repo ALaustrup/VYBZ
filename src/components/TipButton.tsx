@@ -44,7 +44,7 @@ export function TipButton({ userId, username, className }: { userId: string; use
 
   return (
     <>
-      <button onClick={() => setOpen(true)}
+      <button type="button" onClick={() => setOpen(true)} data-testid="stripe-tip"
         className={cx("flex shrink-0 items-center gap-1.5 rounded-full bg-feel/20 px-3 py-1.5 text-xs font-semibold text-feel active:scale-95", className)}>
         <Heart className="h-3.5 w-3.5" /> Tip
       </button>
@@ -53,10 +53,10 @@ export function TipButton({ userId, username, className }: { userId: string; use
           <div className="forge-glass-edge w-full max-w-sm p-5" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center gap-2">
               <Heart className="h-4 w-4 text-feel" />
-              <h2 className="nexus-headline flex-1 text-lg">Tip @{username ?? "musician"}</h2>
+              <h2 className="nexus-headline flex-1 text-lg">Tip @{username ?? "host"}</h2>
               <button onClick={() => setOpen(false)} aria-label="Close" className="forge-chip flex h-8 w-8 items-center justify-center !p-0"><X className="h-4 w-4" /></button>
             </div>
-            <p className="mb-3 text-[13px] text-white/55">Support their next track, mix, or stem pack — goes straight via Stripe.</p>
+            <p className="mb-3 text-[13px] text-white/55">Goes to this host via Stripe. If payouts are off, this button does not appear.</p>
             <div className="mb-3 grid grid-cols-4 gap-2">
               {PRESETS.map((p) => (
                 <button key={p} onClick={() => { setAmount(p); setCustom(""); }}

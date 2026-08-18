@@ -20,6 +20,7 @@ import { Discography } from "@/components/Discography";
 import { AffiliateLinks } from "@/components/AffiliateLinks";
 import { ArtistRoster } from "@/components/ArtistRoster";
 import { ProBadge } from "@/components/ProBadge";
+import { TipButton } from "@/components/TipButton";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { Avatar } from "@/components/Avatar";
 import { accentWashStyle, CosmeticAvatarShell, Flair, type ResolvedCosmetics } from "@/lib/cosmetics";
@@ -114,7 +115,7 @@ export function ArtistStageProfile({
             type="button"
             onClick={() => navigate(`/live/${liveNow.id}`)}
             className="absolute inset-0 z-[1]"
-            aria-label="Join live mix"
+            aria-label="Join live"
           />
         )}
         <div className="relative z-[2] flex h-full flex-col justify-end px-4 pb-6 sm:px-8">
@@ -137,7 +138,7 @@ export function ArtistStageProfile({
                 <ProBadge profile={f} />
               </div>
               <h1 className="mt-1 font-display text-[2.25rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-5xl">
-                {profile.displayName || profile.username || "Artist"}
+                {profile.displayName || profile.username || "Host"}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {addr && <p className="font-mono text-[13px] text-cyan-200/90">{addr}</p>}
@@ -184,8 +185,9 @@ export function ArtistStageProfile({
                 {busy === "msg" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageCircle className="h-3.5 w-3.5" />}
                 Message
               </button>
+              <TipButton userId={id} username={profile.username} className="h-10 px-3" />
               <button type="button" onClick={() => setTipOpen(true)} className="btn btn-ghost h-10 px-3 py-0 text-xs">
-                <Gift className="h-3.5 w-3.5" /> Tip
+                <Gift className="h-3.5 w-3.5" /> Tip Vc
               </button>
             </>
           )}
@@ -221,7 +223,7 @@ export function ArtistStageProfile({
           <section>
             <p className="eyebrow mb-3">On the stage</p>
             {nights.length === 0 ? (
-              <p className="text-sm text-white/40">No live mixes yet.</p>
+              <p className="text-sm text-white/40">No live nights yet.</p>
             ) : (
               <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
                 {nights.map((n) => (
@@ -242,7 +244,7 @@ export function ArtistStageProfile({
                       )}
                     </div>
                     <div className="space-y-1.5 p-3">
-                      <p className="truncate font-display text-sm font-semibold">{n.title || n.intent || "Live mix"}</p>
+                      <p className="truncate font-display text-sm font-semibold">{n.title || n.intent || "Live"}</p>
                       <p className="font-mono text-[11px] text-white/40">
                         {timeAgo(n.startedAt)}
                         {n.viewerCount > 0 ? ` · ${n.viewerCount} watching` : ""}

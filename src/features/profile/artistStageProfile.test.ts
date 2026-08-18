@@ -49,6 +49,9 @@ describe("artist stage profile", () => {
     expect(ui).toContain("this is not a calendar");
     expect(ui).toContain("profile-connect");
     expect(ui).toContain("Request sent");
+    expect(ui).toContain("No live nights yet");
+    expect(ui).toContain("TipButton");
     expect(ui).not.toMatch(/Followers|Human certified|AI-free/i);
+    expect(ui).not.toMatch(/No live mixes yet|Join live mix/);
   });
 });

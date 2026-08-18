@@ -4,7 +4,23 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
+**Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**. `main` is **`61d9661a`** (merge of continue-next). This slice is not on `main` until pushed.
+
+## Live UI + Stripe tips on stage — 2026-08-18
+
+`main` already holds continue-next via merge **`61d9661a`** (nine files taken `--theirs`; Pack Maker stayed in the tree). This slice is the keep-going work after that push.
+
+Go Live is the `/live` front door for any host. Stripe `TipButton` / `startTip` is on the watch stage and host profile. V¢ tip stays. No second wallet. No ATC writes. If payouts are off, the Stripe button does not render.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Live front door | **IMPLEMENTED BUT NOT DELIVERED** | `LivePage` any-host copy; rail `HOME_ITEM` is Live → `/live`; Go Live purpose chips Mix / Talk / Podcast / Vent |
+| Stripe tips on stage | **IMPLEMENTED BUT NOT DELIVERED** | `TipButton` on `LiveWatchPage` + `ArtistStageProfile`. Hides unless `FLAGS.tips` and `creatorTipsEnabled`. Uses `startTip` → `stripe-tip` |
+| Host profile copy | **IMPLEMENTED BUT NOT DELIVERED** | Stage File says host / live nights, not artist-only mixes |
+| SessionToolDrawer / 0008 | Unchanged | Drawer not edited. Reception / referral still refused |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **178 files / 900 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
 ## Owner walk — new account live >45 min — 2026-08-18
 

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { LiveVisualizer } from "@/components/LiveVisualizer";
+import { TipButton } from "@/components/TipButton";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -271,7 +272,7 @@ export function LiveWatchPage() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
         <p className="text-white/55">Stream not found.</p>
-        <button type="button" onClick={() => navigate("/live")} className="btn btn-ghost px-4 py-2 text-sm">Back to Live Mix</button>
+        <button type="button" onClick={() => navigate("/live")} className="btn btn-ghost px-4 py-2 text-sm">Back to Live</button>
       </div>
     );
   }
@@ -307,14 +308,14 @@ export function LiveWatchPage() {
                 <Radio className={cx("relative h-12 w-12", ended ? "text-white/25" : "animate-pulse text-cyan-300")} />
               </div>
               <p className="font-display text-lg font-semibold text-white">
-                {ended ? "Stream ended" : isHost ? "You're live on VYBZ" : "Connecting to live mix…"}
+                {ended ? "Session ended" : isHost ? "You're live" : "Connecting…"}
               </p>
               <p className="max-w-xs text-[13px] text-white/45">
                 {ended
-                  ? "This session is over. Session provenance records the live, not whether the music was AI."
+                  ? "This session is over. Session provenance records the live, not whether the audio was AI."
                   : isHost
-                    ? "LiveKit SFU broadcast is active in lossless stereo music mode."
-                    : "Pristine stereo audio streaming directly from the producer's studio."}
+                    ? "Listeners hear you in real time. Hosting burns Airtime. Listening stays free."
+                    : "Real-time audio from this host. Listening is free."}
               </p>
             </div>
           )}
@@ -337,7 +338,7 @@ export function LiveWatchPage() {
                     {formatVcAddress(session.username) || session.username || "Creator"}
                   </span>
                   <span className="block truncate text-[11px] text-white/60">
-                    {session.title || session.intent || session.roleLabel || "Live Mix"} · {session.viewerCount} watching
+                    {session.title || session.intent || session.roleLabel || "Live"} · {session.viewerCount} watching
                   </span>
                 </span>
               </button>
@@ -367,6 +368,11 @@ export function LiveWatchPage() {
         <div className="flex items-center gap-2 border-t border-[var(--hairline)] bg-ink-950/90 px-4 py-2.5 backdrop-blur-md">
           {!isHost && !ended && (
             <>
+              <TipButton
+                userId={session.hostId}
+                username={session.username}
+                className="h-9 flex-1 justify-center rounded-xl"
+              />
               <button
                 type="button"
                 onClick={() => setTipOpen(true)}
@@ -529,7 +535,7 @@ export function LiveWatchPage() {
             {msgs.length === 0 && (
               <div className="text-center py-6">
                 <Headphones className="h-6 w-6 text-white/20 mx-auto mb-1.5" />
-                <p className="text-[12px] text-white/35">Identity live chat. Real producers and listeners only.</p>
+                <p className="text-[12px] text-white/35">Live chat. Host and listeners only.</p>
               </div>
             )}
             {msgs.map((m) => (

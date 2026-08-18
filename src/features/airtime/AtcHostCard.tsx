@@ -50,7 +50,7 @@ export function AtcHostCard({
       <p className="mt-2.5 text-[11px] leading-snug text-white/45">
         {live
           ? warn
-            ? "Airtime low. The mix will end when this runs out — no hard cut on the last seconds."
+            ? "Airtime low. The session will end when this runs out — no hard cut on the last seconds."
             : "Hosting burns daily free first, then earned. Listening stays free."
           : blocked
             ? `Need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} to go live. Listen to earn more. Listening is free.`

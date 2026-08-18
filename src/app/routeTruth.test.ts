@@ -121,7 +121,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
   });
 
   it("never links Studio, Market, AI minutes or Cost Sentinel", () => {
-    // Live-first (PRODUCT.md v3): Live and Rooms are core surfaces.
+    // Live-first (PRODUCT.md v7): Live and Rooms are core surfaces.
     // Studio and unrouted money surfaces stay out of default nav.
     const linked = [
       ...navItems().map((i) => i.path),

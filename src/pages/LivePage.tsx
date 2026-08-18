@@ -5,6 +5,7 @@ import {
   Eye,
   Headphones,
   Loader2,
+  Mic,
   Monitor,
   Radio,
   Sliders,
@@ -21,7 +22,7 @@ import { cx, timeAgo } from "@/lib/utils";
 import { isMusicSource } from "@/features/broadcast/liveSource";
 import type { LiveSessionCard } from "@/types";
 
-type FilterTab = "all" | "music" | "collab";
+type FilterTab = "all" | "talk" | "music";
 
 export function LivePage() {
   const navigate = useNavigate();
@@ -32,12 +33,13 @@ export function LivePage() {
   const [filter, setFilter] = useState<FilterTab>("all");
 
   useRegisterAppBar({
-    title: "Live Mix",
-    subtitle: "Real-time production & streaming",
+    title: "Live",
+    subtitle: "Who's on right now",
     actions: (
       <button
         type="button"
         onClick={() => setGoLive(true)}
+        data-testid="go-live"
         className="cta-pill flex h-9 items-center gap-1.5 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-mint))] text-black font-semibold shadow-glow px-4 text-xs"
       >
         <Radio className="h-3.5 w-3.5 animate-pulse" /> Go live
@@ -66,6 +68,7 @@ export function LivePage() {
 
   const filteredItems = items.filter((item) => {
     if (filter === "music") return isMusicSource(item.source);
+    if (filter === "talk") return !isMusicSource(item.source);
     return true;
   });
 
@@ -80,14 +83,14 @@ export function LivePage() {
             <div className="flex items-center gap-2">
               <span className="flex h-2 w-2 rounded-full bg-wild animate-pulse" />
               <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-wild">
-                Live Mix Radio & Sessions
+                Live now
               </span>
             </div>
             <h1 className="mt-1 font-display text-xl sm:text-2xl font-bold text-white">
-              Produce & Stream Live
+              Go live
             </h1>
             <p className="mt-0.5 text-xs text-white/50 max-w-xl">
-              Low-latency stereo streaming for producers, live mix sessions, and listeners around the globe.
+              Mix, talk, episode, or vent. Listening is free. Hosting burns Airtime.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -114,7 +117,19 @@ export function LivePage() {
                 : "text-white/40 hover:text-white/70",
             )}
           >
-            All Live ({items.length})
+            All ({items.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter("talk")}
+            className={cx(
+              "rounded-lg px-3 py-1 text-xs font-medium transition flex items-center gap-1.5",
+              filter === "talk"
+                ? "bg-white/10 text-white font-semibold shadow-inner"
+                : "text-white/40 hover:text-white/70",
+            )}
+          >
+            <Mic className="h-3 w-3" /> Talk
           </button>
           <button
             type="button"
@@ -126,7 +141,7 @@ export function LivePage() {
                 : "text-white/40 hover:text-white/70",
             )}
           >
-            <Headphones className="h-3 w-3" /> DAW / Mix Sessions
+            <Headphones className="h-3 w-3" /> Music
           </button>
           <button
             type="button"
@@ -146,15 +161,16 @@ export function LivePage() {
         ) : filteredItems.length === 0 ? (
           <EmptyState
             icon={Radio}
-            title="No live mix sessions active"
-            body="Be the first to fire up your DAW and broadcast your sound in real time."
+            title="No one is live"
+            body="Be the first on stage — mix, talk, episode, or vent."
             action={
               <button
                 type="button"
                 onClick={() => setGoLive(true)}
+                data-testid="go-live-empty"
                 className="btn btn-primary mt-2 h-9 px-4 text-xs font-semibold"
               >
-                <Radio className="h-3.5 w-3.5 mr-1" /> Start Live Mix
+                <Radio className="h-3.5 w-3.5 mr-1" /> Go live
               </button>
             }
           />
@@ -180,12 +196,12 @@ export function LivePage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <p className="truncate font-display text-[15px] font-semibold text-white group-hover:text-cyan-100 transition">
-                          {s.username || s.displayName || "Creator"}
+                          {s.username || s.displayName || "Host"}
                         </p>
                         <SourceBadge source={s.source} />
                       </div>
                       <p className="truncate text-[13px] text-white/65 font-medium mt-0.5">
-                        {s.title || s.intent || s.roleLabel || "Live Production Session"}
+                        {s.title || s.intent || s.roleLabel || "Live"}
                       </p>
                     </div>
                   </div>
@@ -195,7 +211,7 @@ export function LivePage() {
                       <Eye className="h-3 w-3 text-cyan-300" /> {s.viewerCount} watching
                     </span>
                     <span className="flex items-center gap-1">
-                      <Volume2 className="h-3 w-3 text-emerald-400" /> Stereo HD
+                      <Volume2 className="h-3 w-3 text-emerald-400" /> Live audio
                     </span>
                     <span>{timeAgo(s.startedAt)}</span>
                   </div>
