@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`9c4de24d`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
 
 ## VLink VST3 — 2026-08-18
 
@@ -20,7 +20,7 @@ Loopback probe against `VLinkNode.exe` on `ws://127.0.0.1:48480/vybz-stream` (sa
 
 Pushed `continue-next` `b190234d`. Merged `--no-ff` to `main` `9c4de24d`. Pushed `origin/main`. Vercel Ready: **Not measured**. Loaded in a DAW: **Not measured**.
 
-Vite `server.watch` now ignores `native/**`. Watching `native/vlink/build/*.obj` crashed `npm run dev` with EBUSY (measured twice).
+Vite `server.watch` now ignores `native/**`. Watching `native/vlink/build/*.obj` crashed `npm run dev` with EBUSY (measured twice). Pushed `12da6464`. Merged `--no-ff` to `main` `82d61df6`.
 
 ## Home is the owner's library — 2026-08-18
 
