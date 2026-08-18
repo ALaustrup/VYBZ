@@ -21,6 +21,7 @@ import type {
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
   SocialScore,
 } from "@/types";
+import { dawIngestPatch, persistableLiveSource, resolveLiveSource } from "@/features/broadcast/liveSource";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
 import { parseVcAddress } from "@/lib/vc";
@@ -3425,7 +3426,7 @@ export async function topLiveSessions(limit = 3): Promise<import("@/types").Live
     avatarUrl: r.avatar_url ?? null,
     roleLabel: r.role_label ?? null,
     title: r.title ?? null,
-    source: (r.source ?? "camera") as import("@/types").LiveSource,
+    source: resolveLiveSource(r.source, r.monetization as Record<string, unknown> | null),
     intent: r.intent ?? null,
     viewerCount: Number(r.viewer_count ?? 0),
     playbackHls: r.playback_hls ?? null,
@@ -3603,7 +3604,7 @@ export async function listLiveSessions(limit = 40): Promise<LiveSessionCard[]> {
     avatarUrl: r.avatar_url ?? null,
     roleLabel: r.role_label ?? null,
     title: r.title ?? null,
-    source: r.source as LiveSource,
+    source: resolveLiveSource(r.source, r.monetization as Record<string, unknown> | null),
     intent: r.intent ?? null,
     viewerCount: r.viewer_count ?? 0,
     playbackHls: r.playback_hls ?? null,
@@ -3635,7 +3636,7 @@ export async function getLiveSession(id: string): Promise<LiveSessionDetail | nu
     avatarUrl: host?.avatar_url ?? null,
     roleLabel: (profile.roleLabel as string) ?? (profile.role as string) ?? null,
     title: data.title ?? null,
-    source: data.source as LiveSource,
+    source: resolveLiveSource(data.source, mon),
     intent: data.intent ?? null,
     viewerCount: data.viewer_count ?? 0,
     playbackHls: data.playback_hls ?? null,
@@ -3692,17 +3693,18 @@ export async function startLiveSession(input: {
   const { data, error } = await db().from("live_sessions").insert({
     host_id: me,
     title: input.title?.trim() || null,
-    source: input.source,
+    source: persistableLiveSource(input.source),
     intent: input.intent?.trim() || null,
     bunny_guid: bunny.guid ?? null,
     playback_hls: bunny.playbackHls ?? null,
     rtmp_url: bunny.rtmpUrl ?? null,
     stream_key: bunny.streamKey ?? null,
-    input_mode: input.source,
+    input_mode: persistableLiveSource(input.source),
     quality_tier: "ultra",
     visibility,
     audio_mode: "music",
     sfu_provider: "livekit",
+    monetization: dawIngestPatch(input.source),
   }).select("*").single();
   if (error || !data) return null;
 

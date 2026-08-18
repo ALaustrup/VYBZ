@@ -6,6 +6,28 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Phase C–E — DAW link, companion deck, session desks — 2026-08-17
+
+Implemented the next slice of `implementation_plan.md` on `continue-next`. Nothing already built was deleted.
+
+| Piece | Delivery state | Evidence |
+|---|---|---|
+| DAW wire protocol + loopback client (`src/features/broadcast/`) | **PARTIALLY IMPLEMENTED** | 19 unit tests in `pluginProtocol`, `dawBridge`, `liveSource` |
+| Native VST3 / CLAP / AU plug-in | **NATIVE-PLATFORM ONLY** | Not in this repository. Client talks to `ws://127.0.0.1:48480/vybz-stream` |
+| Go Live source `daw` | **PARTIALLY IMPLEMENTED** | UI + LiveKit handoff. Persisted as `display` + `monetization.ingest = "daw"` because production CHECKs still reject `source = 'daw'`. No migration applied. |
+| Companion deck `/live/:id/companion` | **PARTIALLY IMPLEMENTED** | Supabase realtime protocol + remote faders. Faders do not change the published mix. |
+| In-session desks + post-live Pack Maker link | **PARTIALLY IMPLEMENTED** | Drawer links existing `/tools/*` routes. Stems are not auto-assembled. |
+
+**Not measured:** signed-in browser walk of Go Live → DAW connect → companion faders. No web browser tool was available in this session.
+
+| Command | Result |
+|---|---|
+| `npm run lint` | pass — `tsc --noEmit` exit 0 |
+| `npm run test` | pass — **162 files / 832 tests** |
+| `npm run build` | pass — vite production build |
+| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
+| `npm run test:e2e` | Not measured |
+
 ## Strategic Pivot: Live Mix Audio Streaming Platform — 2026-08-17
 
 Owner directed complete product authority pivot: **VYBZ is to become the ultimate live mix audio streaming platform, giving producers and artists a place to produce their music, sound and audio projects with listeners around the world in real time live.**

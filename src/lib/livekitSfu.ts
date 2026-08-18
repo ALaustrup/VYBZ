@@ -118,6 +118,8 @@ export async function joinLiveSessionSfu(opts: {
   videoEl?: HTMLVideoElement | null;
   /** MediaStream for LiveVisualizer (cloned audio/video tracks — do not stop). */
   onAnalyserStream?: (stream: MediaStream | null) => void;
+  /** When false, caller owns localStream tracks (DAW AudioContext destination). */
+  releaseLocalOnDisconnect?: boolean;
 }): Promise<LiveSfuSession> {
   const tokenRes = await mintLiveBroadcastToken(opts.sessionId, opts.canPublish);
   if (!tokenRes.configured || !tokenRes.url || !tokenRes.token) {
@@ -221,7 +223,9 @@ export async function joinLiveSessionSfu(opts: {
       connected: true,
       disconnect: async () => {
         localOwned.forEach((t) => t.stop());
-        opts.localStream?.getTracks().forEach((t) => t.stop());
+        if (opts.releaseLocalOnDisconnect !== false) {
+          opts.localStream?.getTracks().forEach((t) => t.stop());
+        }
         vizTracks.clear();
         opts.onAnalyserStream?.(null);
         if (opts.videoEl) {

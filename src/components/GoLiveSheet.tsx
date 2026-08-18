@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, Globe2, Loader2, Monitor, Radio, Users, X } from "lucide-react";
+import { Cable, Camera, Globe2, Loader2, Monitor, Radio, Users, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -8,6 +8,8 @@ import { useReduceFx } from "@/lib/display";
 import { setLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { cx } from "@/lib/utils";
+import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
+import { getDawBridge, isDawBridgeRetained, retainDawBridge } from "@/features/broadcast/dawBridgeSession";
 import type { LiveAudience, LiveSource } from "@/types";
 
 type WizardStep = "source" | "audience" | "details";
@@ -34,7 +36,10 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
 
   useEffect(() => {
     if (!open) {
-      if (!handedOff.current) stopPreview();
+      if (!handedOff.current) {
+        stopPreview();
+        if (!isDawBridgeRetained()) getDawBridge().disconnect();
+      }
       handedOff.current = false;
       setTitle("");
       setIntent("");
@@ -94,7 +99,22 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
     setBusy(true);
     setErr(null);
     try {
-      if (!previewing) await startPreview();
+      if (source === "daw") {
+        const daw = getDawBridge();
+        if (daw.status === "disconnected") {
+          setErr("Connect the DAW Master Link first.");
+          setBusy(false);
+          return;
+        }
+        streamRef.current = daw.getMediaStream();
+        if (!streamRef.current) {
+          setErr("DAW audio isn't ready yet. Click Connect again.");
+          setBusy(false);
+          return;
+        }
+      } else if (!previewing) {
+        await startPreview();
+      }
       const session = await api.startLiveSession({
         title: title.trim() || undefined,
         source,
@@ -106,6 +126,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
         setBusy(false);
         return;
       }
+      if (source === "daw") retainDawBridge();
       if (streamRef.current) {
         setLivePreviewHandoff(streamRef.current);
         streamRef.current = null;
@@ -171,6 +192,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                       { id: "camera" as const, label: "Camera", icon: Camera },
                       { id: "display" as const, label: "Display", icon: Monitor },
                       { id: "both" as const, label: "Both", icon: Radio },
+                      { id: "daw" as const, label: "DAW Master", icon: Cable },
                     ]).map(({ id, label, icon: Icon }) => (
                       <button key={id} type="button" onClick={() => { setSource(id); stopPreview(); }}
                         className={cx("relative flex items-center gap-1.5 pb-2.5 text-[13px] font-medium transition",
@@ -180,9 +202,24 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                       </button>
                     ))}
                   </div>
-                  <button type="button" onClick={() => void startPreview()} className="btn btn-ghost w-full py-3 text-sm">
-                    {previewing ? "Refresh preview" : "Start preview"}
-                  </button>
+                  {source === "daw" ? (
+                    <DawBridgePanel
+                      compact
+                      disconnectOnUnmount={false}
+                      onStreamReady={(stream) => {
+                        streamRef.current = stream;
+                        setPreviewing(true);
+                      }}
+                      onDisconnect={() => {
+                        streamRef.current = null;
+                        setPreviewing(false);
+                      }}
+                    />
+                  ) : (
+                    <button type="button" onClick={() => void startPreview()} className="btn btn-ghost w-full py-3 text-sm">
+                      {previewing ? "Refresh preview" : "Start preview"}
+                    </button>
+                  )}
                 </>
               )}
 

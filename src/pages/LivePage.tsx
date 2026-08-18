@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
+  Cable,
   Eye,
   Headphones,
   Loader2,
@@ -17,6 +18,7 @@ import { LiveTileStage, liveSeedFromId } from "@/components/LiveTileStage";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
 import { cx, timeAgo } from "@/lib/utils";
+import { isMusicSource } from "@/features/broadcast/liveSource";
 import type { LiveSessionCard } from "@/types";
 
 type FilterTab = "all" | "music" | "collab";
@@ -63,7 +65,7 @@ export function LivePage() {
   }, []);
 
   const filteredItems = items.filter((item) => {
-    if (filter === "music") return item.source === "display" || item.source === "both";
+    if (filter === "music") return isMusicSource(item.source);
     return true;
   });
 
@@ -210,8 +212,8 @@ export function LivePage() {
 }
 
 function SourceBadge({ source }: { source: LiveSessionCard["source"] }) {
-  const Icon = source === "display" ? Monitor : source === "both" ? Radio : Video;
-  const label = source === "display" ? "DAW" : source === "both" ? "DAW+Cam" : "Cam";
+  const Icon = source === "daw" ? Cable : source === "display" ? Monitor : source === "both" ? Radio : Video;
+  const label = source === "daw" ? "DAW" : source === "display" ? "Screen" : source === "both" ? "DAW+Cam" : "Cam";
   return (
     <span className="flex shrink-0 items-center gap-1 rounded bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-mono font-medium uppercase tracking-wider text-cyan-200 border border-white/8">
       <Icon className="h-2.5 w-2.5" /> {label}

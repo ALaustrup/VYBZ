@@ -4,7 +4,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Download, Library, Store, Trash2 } from "lucide-react";
 import { AUDIO_ACCEPT, isAudioFile } from "@/lib/waveform";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -42,9 +42,12 @@ function dropDisplayName(d: Drop): string {
 
 export function PackMakerPage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const fromLive = params.get("from") === "live";
+  const liveTitle = params.get("title");
   const { showToast, userId } = useSession();
   const seeded = getPackMakerSession();
-  const [title, setTitle] = useState(seeded.title);
+  const [title, setTitle] = useState(seeded.title || liveTitle || "");
   const [samples, setSamples] = useState<AssembledSample[]>(() => seeded.samples);
   const [busy, setBusy] = useState(false);
   const [lastZipSha, setLastZipSha] = useState<string | null>(seeded.lastZipSha);
@@ -200,6 +203,11 @@ export function PackMakerPage() {
       subtitle="Add files or drop them here. They stay out of your library."
       testId="pack-maker"
     >
+      {fromLive && (
+        <p className="rounded-xl border border-cyan-400/20 bg-cyan-500/[0.06] px-3 py-2 text-[12px] text-cyan-100/80">
+          Opened from a live session. Drop the recorded stems here — this page does not invent a pack from the stream.
+        </p>
+      )}
       <label className="forge-glass forge-plasma relative block !rounded-2xl p-4">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <span

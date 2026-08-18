@@ -19,6 +19,10 @@ import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
+import { SessionToolDrawer } from "@/features/broadcast/SessionToolDrawer";
+import { getDawBridge, peekDawBridge, releaseDawBridge } from "@/features/broadcast/dawBridgeSession";
+import { CompanionPanel } from "@/features/companion/CompanionPanel";
 import { takeLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { joinLiveSessionSfu, type LiveSfuSession } from "@/lib/livekitSfu";
 import { formatVc, formatVcAddress } from "@/lib/vc";
@@ -91,6 +95,7 @@ export function LiveWatchPage() {
         audioMode: session.audioMode ?? "music",
         localStream: handoff,
         videoEl: videoRef.current,
+        releaseLocalOnDisconnect: session.source !== "daw",
         onAnalyserStream: (stream) => {
           if (!cancelled) setVizStream(stream);
         },
@@ -121,7 +126,18 @@ export function LiveWatchPage() {
       setSfuActive(false);
       setVizStream(null);
     };
-  }, [session?.id, session?.status, session?.sfuProvider, session?.livekitRoom, session?.audioMode, isHost, id]);
+  }, [session?.id, session?.status, session?.sfuProvider, session?.livekitRoom, session?.audioMode, session?.source, isHost, id]);
+
+  useEffect(() => {
+    return () => {
+      releaseDawBridge();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isHost || session?.source !== "daw") return;
+    getDawBridge().sendTelemetry(session.viewerCount, null);
+  }, [isHost, session?.source, session?.viewerCount]);
 
   // HLS fallback when Bunny URL exists and SFU isn't showing video.
   useEffect(() => {
@@ -151,6 +167,7 @@ export function LiveWatchPage() {
   async function end() {
     await sfuRef.current?.disconnect();
     sfuRef.current = null;
+    if (session?.source === "daw") releaseDawBridge();
     await api.endLiveSession(id);
     showToast("Stream ended");
     navigate("/live");
@@ -252,9 +269,11 @@ export function LiveWatchPage() {
                 </span>
               </button>
               <div className="flex items-center gap-1.5">
-                <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-300 border border-white/10">
-                  <Volume2 className="h-3 w-3" /> 48kHz Stereo
-                </span>
+                {session.source === "daw" && peekDawBridge()?.info && (
+                  <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-300 border border-white/10">
+                    <Volume2 className="h-3 w-3" /> {peekDawBridge()!.info!.sampleRate / 1000}kHz Stereo
+                  </span>
+                )}
                 {!ended && (
                   <span className="flex items-center gap-1 rounded-md bg-wild px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-glow">
                     <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" /> Live
@@ -290,9 +309,18 @@ export function LiveWatchPage() {
             </button>
           )}
           {isHost && !ended && (
-            <button type="button" onClick={() => void end()} className="btn btn-danger h-9 flex-1 py-0 text-xs font-semibold">
-              <PhoneOff className="h-3.5 w-3.5 mr-1" /> End Session
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => navigate(`/live/${session.id}/companion`)}
+                className="btn btn-ghost h-9 flex-1 py-0 text-xs"
+              >
+                Companion
+              </button>
+              <button type="button" onClick={() => void end()} className="btn btn-danger h-9 flex-1 py-0 text-xs font-semibold">
+                <PhoneOff className="h-3.5 w-3.5 mr-1" /> End Session
+              </button>
+            </>
           )}
           <button
             type="button"
@@ -415,6 +443,14 @@ export function LiveWatchPage() {
             ))}
             <div ref={endRef} />
           </div>
+
+          {isHost && !ended && session.source === "daw" && (
+            <div className="border-t border-[var(--hairline)] p-3">
+              <DawBridgePanel compact />
+            </div>
+          )}
+          {isHost && !ended && <CompanionPanel sessionId={session.id} />}
+          <SessionToolDrawer sessionId={session.id} sessionTitle={session.title} ended={ended} />
 
           {/* Chat Input */}
           {!ended && (
