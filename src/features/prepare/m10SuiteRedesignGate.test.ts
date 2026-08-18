@@ -82,7 +82,11 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(chromeCss).toContain(".app-bar--ops");
     expect(chromeCss).toContain(".vdock-ops");
     expect(primary).toContain("suite-rail--ops");
-    expect(primary).toContain("Music ops");
+    expect(primary).toContain("RailIdentity");
+    const identity = read("src/shell/RailIdentity.tsx");
+    expect(identity).toContain("suite-rail-ops-head");
+    expect(identity).toContain("rail-identity");
+    expect(identity).toContain("rail-notify-button");
     expect(appRail).toContain("suite-app-rail--ops");
     expect(appBar).toContain("app-bar--ops");
     expect(vdock).toContain("vdock-ops");

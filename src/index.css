@@ -927,9 +927,9 @@
   /* Follows the theme accent instead of hardcoded blue/teal. */
   .vdock-shell-veil {
     background:
-      radial-gradient(120% 90% at 12% 50%, rgb(var(--accent-rgb) / 0.14), transparent 55%),
-      radial-gradient(100% 80% at 88% 40%, rgb(var(--accent-rgb) / 0.08), transparent 50%),
-      linear-gradient(180deg, rgba(2, 4, 10, 0.04) 0%, rgba(2, 4, 10, 0.28) 100%);
+      radial-gradient(120% 90% at 12% 50%, rgb(var(--accent-rgb) / 0.08), transparent 55%),
+      radial-gradient(100% 80% at 88% 40%, rgb(var(--accent-rgb) / 0.05), transparent 50%),
+      linear-gradient(180deg, rgba(2, 4, 10, 0.42) 0%, rgba(2, 4, 10, 0.72) 100%);
   }
 
   .vdock-action {
@@ -989,12 +989,62 @@
 
   .vdock-meta-title {
     color: #fff;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     text-shadow:
-      0 0 18px color-mix(in srgb, var(--vdock-accent, #00C2FF) 45%, transparent),
-      0 1px 10px rgba(0, 0, 0, 0.45);
+      0 1px 12px rgba(0, 0, 0, 0.75),
+      0 0 22px color-mix(in srgb, var(--vdock-accent, #00C2FF) 35%, transparent);
   }
   .vdock-meta-artist {
-    color: color-mix(in srgb, var(--vdock-accent, #00C2FF) 35%, rgba(255, 255, 255, 0.55));
+    margin-top: 0.1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.78);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+  }
+  .vdock-nowplay-mask {
+    overflow: hidden;
+    max-width: 100%;
+  }
+  .vdock-nowplay-line {
+    display: block;
+    white-space: nowrap;
+  }
+  .vdock-nowplay-sheen {
+    background-image: linear-gradient(
+      100deg,
+      #fff 0%,
+      #fff 36%,
+      color-mix(in srgb, var(--vdock-accent, #00C2FF) 85%, #fff) 50%,
+      #fff 64%,
+      #fff 100%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: vdock-nowplay-sheen 8s ease-in-out infinite;
+  }
+  @keyframes vdock-nowplay-sheen {
+    0%, 18% { background-position: 100% 50%; }
+    52%, 100% { background-position: 0% 50%; }
+  }
+  .vdock-nowplay-drift {
+    animation: vdock-nowplay-drift 16s ease-in-out infinite;
+  }
+  @keyframes vdock-nowplay-drift {
+    0%, 22% { transform: translateX(0); }
+    72%, 100% { transform: translateX(calc(-18%)); }
+  }
+  @media (min-width: 640px) {
+    .vdock-meta-title { font-size: 1.2rem; }
+    .vdock-meta-artist { font-size: 0.875rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vdock-nowplay-sheen,
+    .vdock-nowplay-drift { animation: none; }
+    .vdock-nowplay-sheen { color: #fff; background: none; }
   }
   .vdock-meta-rail {
     height: 2px;

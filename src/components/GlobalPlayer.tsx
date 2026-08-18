@@ -282,15 +282,39 @@ export function MusicDockPlayer() {
           type="button"
           onClick={() => p.track && setExpanded(true)}
           disabled={!p.track}
-          className="vdock-meta min-w-0 justify-self-stretch pr-1 text-left disabled:opacity-50"
+          className="vdock-meta min-w-0 justify-self-stretch pr-2 text-left disabled:opacity-50 sm:pr-3"
           aria-label={p.track ? `Now playing: ${p.track.title}` : "No track"}
         >
-          <span className="vdock-meta-title block truncate font-display text-[13px] font-semibold sm:text-[15px]">
-            {p.track?.title ?? "Nothing playing"}
-          </span>
-          <span className="vdock-meta-artist block truncate text-[10px] sm:text-[11px]">
-            {p.track?.artist ?? "Pick a track from Library or Discover"}
-          </span>
+          <motion.span
+            key={p.track?.id ?? "idle"}
+            initial={reduce ? false : { opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.32, ease: [0.2, 0.8, 0.2, 1] }}
+            className="block min-w-0"
+          >
+            <span className="vdock-nowplay-mask">
+              <span
+                className={cx(
+                  "vdock-meta-title vdock-nowplay-line font-display font-semibold",
+                  p.playing && !reduce && "vdock-nowplay-sheen vdock-nowplay-drift",
+                  !(p.playing && !reduce) && "truncate",
+                )}
+              >
+                {p.track?.title ?? "Nothing playing"}
+              </span>
+            </span>
+            <span className="vdock-nowplay-mask">
+              <span
+                className={cx(
+                  "vdock-meta-artist vdock-nowplay-line",
+                  p.playing && !reduce && "vdock-nowplay-drift",
+                  !(p.playing && !reduce) && "truncate",
+                )}
+              >
+                {p.track?.artist ?? "Pick a track from Library or Discover"}
+              </span>
+            </span>
+          </motion.span>
           {p.signal?.disclosure ? (
             // Law 5: when playback is not a catalog master, say so. This wins the
             // line, because an honesty notice outranks a convenience readout.
@@ -327,7 +351,7 @@ export function MusicDockPlayer() {
               ) : null}
             </span>
           ) : null}
-          <span className="vdock-meta-rail mt-1 block max-w-[11rem] overflow-hidden sm:max-w-[16rem]" aria-hidden>
+          <span className="vdock-meta-rail mt-1.5 block max-w-[14rem] overflow-hidden sm:max-w-[22rem]" aria-hidden>
             <span
               ref={metaFillRef}
               className="vdock-meta-fill block h-full origin-left rounded-full"

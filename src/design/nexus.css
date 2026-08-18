@@ -463,9 +463,9 @@
 
 .vdock-forge-veil {
   background:
-    radial-gradient(120% 90% at 12% 50%, rgb(var(--accent-rgb) / 0.16), transparent 55%),
-    radial-gradient(100% 80% at 88% 40%, rgb(var(--accent-rgb) / 0.1), transparent 50%),
-    linear-gradient(180deg, rgba(2, 4, 10, 0.02) 0%, rgba(2, 4, 10, 0.32) 100%);
+    radial-gradient(120% 90% at 12% 50%, rgb(var(--accent-rgb) / 0.1), transparent 55%),
+    radial-gradient(100% 80% at 88% 40%, rgb(var(--accent-rgb) / 0.06), transparent 50%),
+    linear-gradient(180deg, rgba(2, 4, 10, 0.38) 0%, rgba(2, 4, 10, 0.7) 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -76,7 +76,7 @@
 
 /* Stage frame picks up app accent as a hairline energy edge */
 .suite-stage-frame {
-  box-shadow: inset 0 0 0 1px rgb(var(--app-accent-rgb) / 0.06);
+  box-shadow: inset -1px 0 0 0 rgb(var(--app-accent-rgb) / 0.05);
 }
 
 .suite-stage-inner {

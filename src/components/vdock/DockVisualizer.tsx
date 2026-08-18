@@ -206,9 +206,9 @@ export function DockVisualizer({ className }: { className?: string }) {
         mode: "loop",
       });
       const bands = snap.playing ? readBands() : { bass: 0, mid: 0, high: 0, level: 0 };
-      const pulse = 0.22 + bands.level * 0.38;
-      v.style.opacity = String(snap.playing ? 0.28 + pulse : 0.16);
-      v.style.filter = `saturate(${1.05 + bands.mid * 0.35}) brightness(${0.72 + bands.bass * 0.28})`;
+      const pulse = 0.08 + bands.level * 0.12;
+      v.style.opacity = String(snap.playing ? 0.16 + pulse : 0.1);
+      v.style.filter = `saturate(${0.85 + bands.mid * 0.2}) brightness(${0.38 + bands.bass * 0.16})`;
     };
     tick();
     const id = window.setInterval(tick, 180);
@@ -239,9 +239,10 @@ export function DockVisualizer({ className }: { className?: string }) {
         <img
           src={film.poster}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-25"
+          className="absolute inset-0 h-full w-full object-cover opacity-10"
         />
       ) : null}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-950/80 via-ink-950/45 to-ink-950/30" />
       <canvas
         ref={canvasRef}
         aria-hidden
