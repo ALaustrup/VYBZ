@@ -43,14 +43,12 @@ describe("live audio lock", () => {
   });
 
   it("puts Go Live and any-host copy on the live front door", () => {
-    const live = readFileSync(path.join(ROOT, "src/pages/LivePage.tsx"), "utf8");
+    const live = readFileSync(path.join(ROOT, "src/pages/LiveHomePage.tsx"), "utf8");
     expect(live).toContain("Go live");
-    expect(live).toContain("Who's live");
     expect(live).toContain("WhosLivePanel");
-    expect(live).toContain("Listening is free");
-    expect(live).toContain("Stay to earn Airtime");
-    expect(live).toContain("Talk");
     expect(live).toContain("Music");
+    expect(live).toContain("Replay");
+    expect(live).not.toMatch(/Spotify|Twitch|YouTube/);
     expect(live).not.toMatch(/Produce & Stream Live/);
     expect(live).not.toMatch(/Start Live Mix/);
     expect(live).not.toMatch(/Live Mix Radio/);

@@ -25,10 +25,10 @@ describe("social-first shell", () => {
     expect(shell).not.toMatch(/<SuiteAppRailMobile\s*\/>/);
   });
 
-  it("mounts the tools launcher in the app bar", () => {
+  it("keeps the tools launcher in the tree, not in default chrome", () => {
     const bar = read("src/components/shell/ContextualAppBar.tsx");
-    expect(bar).toContain("ToolsLauncherButton");
-    expect(bar).toContain("@/shell/ToolsLauncher");
+    expect(bar).not.toContain("ToolsLauncherButton");
+    expect(existsSync(path.join(ROOT, "src/shell/ToolsLauncher.tsx"))).toBe(true);
   });
 
   it("launcher offers every visible tool except the social home", () => {

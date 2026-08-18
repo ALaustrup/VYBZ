@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Disc3, Plus, Search, Upload } from "lucide-react";
+import { ArrowLeft, Disc3, Search, Upload } from "lucide-react";
 import { BrandMark } from "@/components/Brand";
 import { AccountMenu } from "@/components/shell/AccountMenu";
 import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
@@ -10,9 +10,7 @@ import { useAppBarBridge } from "@/lib/appBarBridge";
 import { usePlayer } from "@/lib/audioBus";
 import { useReduceFx } from "@/lib/display";
 import { isApplePlatform } from "@/lib/platformKeys";
-import { cx } from "@/lib/utils";
 import { openCommandPalette } from "@/shell/commandPaletteStore";
-import { ToolsLauncherButton } from "@/shell/ToolsLauncher";
 import { AtcMeter } from "@/features/airtime/AtcMeter";
 
 /**
@@ -96,7 +94,6 @@ export function ContextualAppBar({
         <div className="flex min-w-0 items-center justify-end gap-1.5 justify-self-end">
           {bridge.actions}
           <AtcMeter />
-          <ToolsLauncherButton />
           <button
             type="button"
             onClick={openCommandPalette}
@@ -107,23 +104,7 @@ export function ContextualAppBar({
           >
             <Search className="h-6 w-6" />
           </button>
-          <div ref={uploadRef} className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                if (!onCompose && !onBulkUpload) return;
-                setUploadOpen((v) => !v);
-              }}
-              aria-label="Upload music"
-              aria-expanded={uploadOpen}
-              aria-haspopup="menu"
-              className={cx(
-                "forge-chip flex h-10 w-10 active:scale-90",
-                uploadOpen && "forge-chip--active",
-              )}
-            >
-              <Plus className="h-6 w-6" strokeWidth={2.25} />
-            </button>
+          <div ref={uploadRef} className="relative hidden" aria-hidden>
             <AnimatePresence>
               {uploadOpen && (
                 <motion.div
