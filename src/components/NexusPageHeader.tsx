@@ -19,10 +19,12 @@ export function NexusPageHeader({ eyebrow, title, subtitle, backTo, titleTestId,
           {backTo.label}
         </Link>
       ) : null}
-      <p className={`nexus-eyebrow ${backTo ? "mt-3" : ""}`}>{eyebrow}</p>
-      <h1 className="nexus-headline mt-2 text-2xl md:text-3xl" data-testid={titleTestId}>
-        {title}
-      </h1>
+      {eyebrow ? <p className={`nexus-eyebrow ${backTo ? "mt-3" : ""}`}>{eyebrow}</p> : null}
+      {title ? (
+        <h1 className="nexus-headline mt-2 text-2xl md:text-3xl" data-testid={titleTestId}>
+          {title}
+        </h1>
+      ) : null}
       {subtitle ? <p className="nexus-subline mt-2 text-sm">{subtitle}</p> : null}
       {children ? <div className="mt-4">{children}</div> : null}
     </header>

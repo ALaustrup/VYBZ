@@ -16,7 +16,6 @@ import {
   Volume2,
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
-import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { TipButton } from "@/components/TipButton";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { useSession } from "@/store/session";
@@ -282,14 +281,17 @@ export function LiveWatchPage() {
   const hasVideo = sfuActive || !!session.playbackHls;
 
   return (
-    <div className="relative flex h-full flex-col lg:flex-row bg-ink-950 overflow-hidden">
-      {/* Main Stage Video & Visualizer Viewport */}
-      <div className="relative flex min-h-0 flex-1 flex-col bg-black">
+    <div
+      data-live-stage
+      className="relative flex h-full min-h-[calc(100dvh-var(--app-bar-h,3.25rem)-var(--dock-reserve,5.25rem))] flex-col overflow-hidden bg-black lg:flex-row"
+    >
+      {/* Main Stage Video Viewport */}
+      <div className="relative flex min-h-[18rem] flex-1 flex-col bg-black sm:min-h-[24rem]">
         <div className={cx("relative min-h-0 flex-1 bg-black flex items-center justify-center overflow-hidden", !ended && hasVideo && "broadcast-bezel")}>
           <video
             ref={videoRef}
             className={cx(
-              "h-full w-full object-contain",
+              "h-full w-full object-cover",
               (!hasVideo || ended) && "pointer-events-none absolute inset-0 opacity-0",
             )}
             playsInline
@@ -297,11 +299,6 @@ export function LiveWatchPage() {
             autoPlay
             muted={isHost}
           />
-          {!ended && vizStream && (
-            <div className="pointer-events-none absolute inset-0 z-[1] mix-blend-screen opacity-70">
-              <LiveVisualizer stream={vizStream} accent="#34f5a0" mode="stage" />
-            </div>
-          )}
           {(!hasVideo || ended) && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center z-10">
               <div className="relative">

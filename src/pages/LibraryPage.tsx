@@ -18,7 +18,6 @@ import { ForgeChip, ToolWorkbench } from "@/components/ToolWorkbench";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
-import { FLAGS } from "@/lib/flags";
 import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
@@ -79,7 +78,6 @@ export function LibraryPage() {
 
   useRegisterAppBar({
     title: "Library",
-    subtitle: "Your files",
   }, []);
 
   const staged = useMemo(
@@ -90,25 +88,9 @@ export function LibraryPage() {
   return (
     <ToolWorkbench
       wide
-      eyebrow="Library"
-      title="Your files"
-      subtitle="Drop audio anywhere to add it."
       testId="library-desk"
       className="library-desk flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
     >
-      {FLAGS.storefront && (
-        <p className="-mt-2 text-[12px] text-white/40">
-          Selling packs?{" "}
-          <button
-            type="button"
-            className="text-[rgb(var(--app-accent-rgb))] underline-offset-2 hover:underline"
-            onClick={() => navigate("/tools/packs")}
-          >
-            Your packs
-          </button>
-        </p>
-      )}
-
       {scans.length > 0 && (
         <section className="forge-glass relative !rounded-2xl p-3" aria-label="Analyzer scans" data-testid="library-scan-strip">
           <span className="forge-glass-edge pointer-events-none" aria-hidden />
@@ -150,9 +132,6 @@ export function LibraryPage() {
         </ForgeChip>
         <ForgeChip active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
           Projects ({posts.length})
-        </ForgeChip>
-        <ForgeChip active={tab === "stages"} onClick={() => setTab("stages")} testId="library-tab-stages">
-          Stages ({staged.length})
         </ForgeChip>
       </div>
 

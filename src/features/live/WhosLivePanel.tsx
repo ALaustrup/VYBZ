@@ -142,11 +142,11 @@ function HostCard({
       onClick={onOpen}
       data-testid="whos-live-host"
       className={cx(
-        "broadcast-bezel group relative overflow-hidden rounded-2xl border border-white/8 bg-ink-900/60 text-left backdrop-blur-md transition hover:border-veil-400/40 hover:scale-[1.01] active:scale-[0.99]",
-        compact ? "w-[15.5rem] shrink-0 snap-start" : "",
+        "broadcast-bezel group relative overflow-hidden rounded-3xl border border-white/10 bg-ink-900/80 text-left shadow-[0_20px_50px_-28px_rgba(0,0,0,0.85)] backdrop-blur-md transition hover:border-cyan-300/35 hover:scale-[1.01] active:scale-[0.99]",
+        compact ? "w-[16.5rem] shrink-0 snap-start" : "",
       )}
     >
-      <div className={cx("relative flex flex-col justify-between p-4", compact ? "min-h-[8.5rem]" : "min-h-[7.5rem]")}>
+      <div className={cx("relative flex flex-col justify-between p-5", compact ? "min-h-[10.5rem]" : "min-h-[13.5rem]")}>
         <LiveTileStage seed={liveSeedFromId(s.hostId)} />
         <div className="relative z-[1] flex items-start gap-3">
           <div className="relative shrink-0">

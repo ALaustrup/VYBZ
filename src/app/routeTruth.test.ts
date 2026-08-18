@@ -134,15 +134,16 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/store");
   });
 
-  it("carries Home, Live and Library in the rail", () => {
+  it("carries Home, Feed, Live and Library in the rail", () => {
     const linked = navItems().map((i) => i.path);
     expect(linked).toContain("/");
+    expect(linked).toContain("/feed");
     expect(linked).toContain("/live");
     expect(linked).toContain("/library");
     for (const hidden of ["/library/mix", "/rooms", "/make", "/make/dashboard", "/store"]) {
       expect(linked, `rail must not advertise parked ${hidden}`).not.toContain(hidden);
     }
-    for (const social of ["/feed", "/discover", "/messages", "/notifications"]) {
+    for (const social of ["/discover", "/messages", "/notifications"]) {
       expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);
     }
     for (const tool of ["/releases", "/tools/correct", "/tools/translate", "/tools/packs"]) {

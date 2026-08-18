@@ -1,4 +1,5 @@
 import {
+  AudioLines,
   BookOpen,
   Home,
   Library,
@@ -27,7 +28,7 @@ export type NavGroup = { id: string; label: string; items: NavItem[] };
 /**
  * The rail is the live-audio platform menu (PRODUCT.md v7).
  *
- * Default chrome is Home, Live, and Library. Living Mix, Rooms, Make pack,
+ * Default chrome is Home, Feed, Live, and Library. Living Mix, Rooms, Make pack,
  * Sales, and Packages stay in the tree and resolve by URL — they are listed
  * in ARCHIVED_NAV_PATHS, not deleted.
  *
@@ -36,9 +37,16 @@ export type NavGroup = { id: string; label: string; items: NavItem[] };
 export function navGroups(): NavGroup[] {
   return [
     {
-      id: "live",
-      label: "Stage",
+      id: "listen",
+      label: "Listen",
       items: [
+        {
+          path: "/feed",
+          label: "Feed",
+          hint: "Newest uploads",
+          icon: AudioLines,
+          productId: "home",
+        },
         {
           path: "/live",
           label: "Live",
@@ -119,7 +127,6 @@ export const ARCHIVED_NAV_PATHS = [
   "/studio",
   "/market",
   "/store",
-  "/feed",
   "/discover",
   "/messages",
   "/notifications",

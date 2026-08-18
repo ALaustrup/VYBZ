@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3, SlidersHorizontal } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
+import { FeedTrackRow } from "@/components/FeedTrackRow";
 import { FeedHero } from "@/components/FeedHero";
 import { EmptyState } from "@/components/EmptyState";
 import * as api from "@/lib/api";
@@ -15,12 +16,12 @@ type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: 
 type Mode = "discovery" | "latest";
 type Layout = "comfortable" | "grid";
 
-/** Drops feed — released work from the network. */
+/** Newest-uploads stream — public drops, latest first. */
 export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId } = useSession();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
-  const [mode, setMode] = useState<Mode>("discovery");
+  const [mode, setMode] = useState<Mode>("latest");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [layout, setLayout] = useState<Layout>(() => {
     try { return (localStorage.getItem("vybz.feedLayout") as Layout) || "comfortable"; } catch { return "comfortable"; }
@@ -114,6 +115,11 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
       )}
 
       <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
+        <div className="mx-auto mb-3 max-w-2xl px-0.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Listen</p>
+          <h1 className="font-display text-xl font-semibold text-white">Newest uploads</h1>
+          <p className="mt-0.5 text-[12px] text-white/45">Tracks, demos and samples the moment they go public.</p>
+        </div>
         <div className="mx-auto max-w-2xl px-0.5">
           <FeedHero />
         </div>
@@ -123,9 +129,9 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
           <EmptyState
             icon={AudioLines}
             title="Nothing here yet"
-            body="Follow people or drop a track. The feed fills from that."
+            body="Tap + to upload. Public drops land here for everyone, and on your profile."
           />
-        ) : (
+        ) : layout === "grid" ? (
           <div className={cx("mx-auto", gridCls)}>
             {drops.map((d, i) => (
               <div key={d.id} style={{ animationDelay: `${Math.min(i, 16) * 45}ms` }} className="reveal">
@@ -134,9 +140,21 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
                   queue={drops}
                   onReact={(r) => react(d, r)}
                   onRate={(s) => rate(d, s)}
-                  onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/profile")}
+                  onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
                 />
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mx-auto flex max-w-2xl flex-col gap-2">
+            {drops.map((d) => (
+              <FeedTrackRow
+                key={d.id}
+                drop={d}
+                queue={drops}
+                onReact={(r) => react(d, r)}
+                onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
+              />
             ))}
           </div>
         )}

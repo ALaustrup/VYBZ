@@ -223,7 +223,6 @@ export function LibraryToolbar({
           <div className="relative z-[1] flex flex-wrap gap-1.5">
             <Toggle on={filters.losslessOnly} onClick={() => patch({ losslessOnly: !filters.losslessOnly })} label="Lossless only" testId="library-filter-lossless" />
             <Toggle on={filters.withAssetOnly} onClick={() => patch({ withAssetOnly: !filters.withAssetOnly })} label="Has downloadable file" testId="library-filter-asset" />
-            <Toggle on={filters.withStageOnly} onClick={() => patch({ withStageOnly: !filters.withStageOnly })} label="Has stage backdrop" testId="library-filter-stage" />
             {active > 0 && (
               <button
                 type="button"

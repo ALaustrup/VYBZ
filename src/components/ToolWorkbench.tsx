@@ -6,8 +6,8 @@ import { NexusPageHeader } from "@/components/NexusPageHeader";
 import { cx } from "@/lib/utils";
 
 type ToolWorkbenchProps = {
-  eyebrow: string;
-  title: string;
+  eyebrow?: string;
+  title?: string;
   subtitle?: string;
   testId: string;
   atmosphere?: ForgeAtmosphereIntensity;
@@ -44,7 +44,9 @@ export function ToolWorkbench({
         <ForgeAtmosphere intensity={atmosphere} wave={wave} />
       </div>
       <div className="relative z-[1] flex min-h-0 flex-1 flex-col gap-6">
-        <NexusPageHeader eyebrow={eyebrow} title={title} subtitle={subtitle} />
+        {eyebrow || title || subtitle ? (
+          <NexusPageHeader eyebrow={eyebrow ?? ""} title={title ?? ""} subtitle={subtitle} />
+        ) : null}
         {children}
       </div>
     </div>
