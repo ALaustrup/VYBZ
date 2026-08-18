@@ -3,11 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Loader2, Sparkles, ScrollText, ShieldCheck, Shield, Bug, AudioLines,
-  ChevronRight, MoreHorizontal, X,
+  ChevronRight, MoreHorizontal, Radio, X,
 } from "lucide-react";
 import { PasskeysCard } from "@/components/PasskeysCard";
 import { requestOpenFeedback } from "@/features/alpha/AlphaWelcomeTour";
 import { ArtistHome } from "@/components/home/ArtistHome";
+import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { ProjectsPanel } from "@/components/projects/ProjectsPanel";
 import { ProfileInbox } from "@/components/profile/ProfileInbox";
 import { DashListenPanel } from "@/components/dashboard/DashListenPanel";
@@ -55,6 +56,7 @@ export function ProfilePage() {
   const [credits, setCredits] = useState<Credit[]>([]);
   const [loading, setLoading] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [goLive, setGoLive] = useState(false);
 
   function setYouSub(next: YouSub) {
     setParams((prev) => {
@@ -77,6 +79,16 @@ export function ProfilePage() {
 
   useRegisterAppBar({
     hideYouChip: true,
+    actions: (
+      <button
+        type="button"
+        onClick={() => setGoLive(true)}
+        data-testid="go-live"
+        className="cta-pill flex h-9 items-center gap-1.5 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-mint))] px-4 text-xs font-semibold text-black shadow-glow"
+      >
+        <Radio className="h-3.5 w-3.5 animate-pulse" /> Go live
+      </button>
+    ),
   }, []);
 
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
@@ -90,6 +102,7 @@ export function ProfilePage() {
       data-testid="profile-stage"
     >
       {tab === "hub" && <ArtistHome />}
+      <GoLiveSheet open={goLive} onClose={() => setGoLive(false)} />
       {tab === "listen" && <DashListenPanel />}
       {tab === "live" && <DashLivePanel />}
       {tab === "wallet" && <WalletPage embedded />}

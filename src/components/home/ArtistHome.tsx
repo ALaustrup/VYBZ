@@ -9,6 +9,7 @@ import {
   Music2,
   Pause,
   Play,
+  Radio,
   ScanLine,
   SlidersHorizontal,
   Sparkles,
@@ -16,6 +17,9 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { AlbumLightbox } from "@/components/home/AlbumLightbox";
+import { HubActivity } from "@/components/home/HubActivity";
+import { WallAlerts } from "@/components/home/WallAlerts";
+import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { ProBadge } from "@/components/ProBadge";
@@ -392,6 +396,7 @@ export function ArtistHome() {
   const [whatNext, setWhatNext] = useState<NextDeskStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [openAlbum, setOpenAlbum] = useState<DropGroup | null>(null);
+  const [goLive, setGoLive] = useState(false);
   const cosmetics = useResolvedCosmetics(profile?.equippedCosmetics);
   const facets = profile?.profile ?? {};
 
@@ -456,7 +461,7 @@ export function ArtistHome() {
         <ForgeAtmosphere intensity="subtle" wave />
       </div>
 
-      <header className="forge-glass forge-plasma relative overflow-hidden !rounded-2xl p-5 sm:p-6">
+      <header className="forge-glass forge-plasma relative overflow-hidden !rounded-2xl p-5 sm:p-6" data-testid="hub-hero">
         <span className="forge-glass-edge pointer-events-none" aria-hidden />
         <div className="relative z-[2] flex flex-wrap items-start gap-4">
           <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
@@ -464,7 +469,7 @@ export function ArtistHome() {
           </CosmeticAvatarShell>
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[rgb(var(--app-accent-rgb)/0.65)]">
-              Your page
+              Your stage
             </p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
@@ -481,31 +486,43 @@ export function ArtistHome() {
             {profile.bio ? (
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">{profile.bio}</p>
             ) : null}
-            <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-white/40">
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setGoLive(true)}
+                data-testid="hub-go-live"
+                className="cta-pill inline-flex h-11 items-center gap-2 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-mint))] px-5 text-sm font-semibold text-black shadow-glow"
+              >
+                <Radio className="h-4 w-4 animate-pulse" /> Go live
+              </button>
+              <Link
+                to="/live"
+                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+              >
+                Who's live
+              </Link>
               <Link
                 to="/library"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[rgb(var(--app-accent-rgb)/0.35)] bg-[rgb(var(--app-accent-rgb)/0.1)] px-2.5 py-1 text-white/80 transition hover:border-[rgb(var(--app-accent-rgb)/0.55)] hover:text-white"
+                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/70 transition hover:border-white/25 hover:text-white"
               >
-                <Music2 className="h-3 w-3" /> Your library
+                <Music2 className="h-3.5 w-3.5" /> Library
               </Link>
               <Link
                 to="/profile/edit"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-white/70 transition hover:border-white/25 hover:text-white"
+                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/70 transition hover:border-white/25 hover:text-white"
               >
-                <Sparkles className="h-3 w-3" /> Customise page
-              </Link>
-              <Link
-                to="/discover"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-black/20 px-2.5 py-1 text-white/70 transition hover:border-white/25 hover:text-white"
-              >
-                Discover
+                <Sparkles className="h-3.5 w-3.5" /> Edit
               </Link>
             </div>
           </div>
         </div>
       </header>
 
+      <WallAlerts />
+
       <WhosLivePanel variant="rail" className="relative z-[1]" />
+
+      <HubActivity />
 
       {loading ? (
         <div className="flex justify-center py-10" data-testid="ops-home-loading">
@@ -611,6 +628,8 @@ export function ArtistHome() {
           }}
         />
       ) : null}
+
+      <GoLiveSheet open={goLive} onClose={() => setGoLive(false)} />
     </div>
   );
 }

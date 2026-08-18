@@ -49,12 +49,12 @@ export const ALPHA_GUIDE_STEPS = [
   {
     id: "suite",
     title: "Who's on, {name}",
-    body: "Live is the front door. Listening is free.",
+    body: "Home is your page. Live is who's on. Listening is free.",
     highlights: [
-      { label: "Live", blurb: "Who's on right now. Go live when you have Airtime." },
+      { label: "Home", blurb: "Your library, stats, and alerts." },
+      { label: "Live", blurb: "Who's on right now." },
       { label: "Library", blurb: "Your files." },
-      { label: "Make pack", blurb: "Build something from a session." },
-      { label: "Scan", blurb: "Drop files. We measure them." },
+      { label: "Go live", blurb: "Open a room from Home or Live." },
     ],
   },
   {

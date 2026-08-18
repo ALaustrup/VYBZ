@@ -101,6 +101,10 @@ describe("M10 suite redesign gate (Wave R0)", () => {
     expect(home).toContain("ops-home-actions");
     expect(home).toContain("playTrack");
     expect(home).toContain("toPlayerTrack");
+    expect(home).toContain("hub-go-live");
+    expect(home).toContain("HubActivity");
+    expect(home).toContain("WallAlerts");
+    expect(home).toContain("GoLiveSheet");
     // No invented engagement / fake readiness copy
     expect(home).not.toMatch(/engagement score|viral|estimated listeners/i);
   });

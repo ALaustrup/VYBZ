@@ -206,7 +206,7 @@ export function App() {
         <PageTransition routeKey={location.pathname}>
           <Routes location={location}>
         <Route path="/" element={<ProfilePage />} />
-        <Route path="/enter" element={<Navigate to="/live" replace />} />
+        <Route path="/enter" element={<Navigate to="/" replace />} />
         <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/activity" element={<Navigate to="/?tab=live" replace />} />

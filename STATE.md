@@ -4,7 +4,19 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`1bfbc43a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of parked ATC: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`07456f78`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this hub: **Not measured**.
+
+## Signed-in Home is the landing — 2026-08-18
+
+Owner asked to hide Living Mix, Make pack, Sales, Rooms, and Packages from public chrome, and to put library / dashboard / profile / stats on one landing with notifications, live alerts, and Go Live.
+
+Hidden from the rail, account menu, and tools launcher. Routes still resolve. Not deleted.
+
+`/` is now the signed-in landing: profile, Go Live, must-ack alerts, Who's live, notifications, measured stats, library. After key / tour / redeem, the app lands on `/`.
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Browser walk of the landing: **Not measured** — no browser tool this session. Not on production until merged.
 
 ## Park Airtime Credits — 2026-08-18
 

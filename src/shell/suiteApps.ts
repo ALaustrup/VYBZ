@@ -76,6 +76,7 @@ export const SUITE_APPS: readonly SuiteAppDef[] = [
     path: "/make",
     icon: Package,
     match: (p) => p === "/make" || p.startsWith("/make/"),
+    visible: CONTEXT_MENU_ONLY,
   },
   {
     id: "analyzer",

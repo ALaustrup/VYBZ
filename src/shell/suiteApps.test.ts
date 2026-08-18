@@ -9,6 +9,7 @@ import {
 const CONTEXT_MENU_DESKS = [
   "analyzer", "metadata", "art-check", "midi-maker", "media-converter",
   "correct", "translate", "pack-maker", "stem-maker", "codex",
+  "pack-pipeline",
 ];
 
 describe("suiteApps", () => {
@@ -18,16 +19,17 @@ describe("suiteApps", () => {
     expect(all).toEqual(expect.arrayContaining(CONTEXT_MENU_DESKS));
   });
 
-  it("offers only Make pack, Library and Settings to browse", () => {
-    // Store is here too, behind its own flag. Everything else is summoned from
-    // a track, because a desk with no track loaded is an empty room.
+  it("offers only Library and Settings to browse", () => {
+    // Make pack left the launcher. Store is behind its own flag. Everything
+    // else is summoned from a track, because a desk with no track loaded is
+    // an empty room.
     const ids = visibleSuiteApps().map((a) => a.id);
     for (const desk of CONTEXT_MENU_DESKS) {
       expect(ids, desk).not.toContain(desk);
     }
     expect(ids).toContain("library");
-    expect(ids).toContain("pack-pipeline");
     expect(ids).toContain("settings");
+    expect(ids).not.toContain("pack-pipeline");
   });
 
   it("selects the pack pipeline for /make", () => {

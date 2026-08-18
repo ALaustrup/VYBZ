@@ -91,7 +91,7 @@ describe("self-serve alpha key", () => {
     expect(claim).not.toMatch(/signInWithPassword/);
     const ui = read("src/features/alpha/AlphaKeyGenerator.tsx");
     expect(ui).toContain("claimAlphaAccess");
-    expect(ui).toContain('navigate("/live"');
+    expect(ui).toContain('navigate("/"');
   });
 
   it("is reachable both before sign-in and at the gate", () => {
