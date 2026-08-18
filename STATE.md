@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`affd7755`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`9c4de24d`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
 
 ## VLink VST3 — 2026-08-18
 
@@ -17,6 +17,8 @@ Web client accepts optional `pluginName` and `transport` messages. Go Live sourc
 Loopback probe against `VLinkNode.exe` on `ws://127.0.0.1:48480/vybz-stream` (same URL as `DEFAULT_DAW_WS_URL`): hello + status + framed PCM + meter + pong + `GET /v1/info` all succeeded. Ping/telemetry from the existing client did not drop the socket.
 
 `npm run lint` pass. `npm run test` pass — **180 files / 906 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Pushed `continue-next` `b190234d`. Merged `--no-ff` to `main` `9c4de24d`. Pushed `origin/main`. Vercel Ready: **Not measured**. Loaded in a DAW: **Not measured**.
 
 ## Home is the owner's library — 2026-08-18
 
