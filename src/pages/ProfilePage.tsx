@@ -97,7 +97,10 @@ export function ProfilePage() {
 
   return (
     <div
-      className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1"
+      className={cx(
+        "min-h-0 flex-1 px-1 pb-[calc(var(--dock-reserve,4.75rem)+1.25rem)] pt-1",
+        tab === "hub" ? "flex flex-col overflow-hidden" : "no-scrollbar overflow-y-auto",
+      )}
       style={accentWashStyle(cosmetics.accent)}
       data-testid="profile-stage"
     >

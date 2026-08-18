@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Info,
   Loader2,
-  Music2,
   Pause,
   Play,
   Radio,
@@ -16,13 +15,10 @@ import {
   Waves,
 } from "lucide-react";
 import { AlbumLightbox } from "@/components/home/AlbumLightbox";
-import { EpisodeCard } from "@/components/home/EpisodeCard";
-import { HomeShelf, HomeShelfRow } from "@/components/home/HomeShelf";
 import { HubActivity } from "@/components/home/HubActivity";
 import { WallAlerts } from "@/components/home/WallAlerts";
-import { FeedTrackRow } from "@/components/FeedTrackRow";
 import { GoLiveSheet } from "@/components/GoLiveSheet";
-import { ForgeAtmosphere } from "@/components/ForgeAtmosphere";
+import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { groupDrops, type DropGroup } from "@/lib/libraryQuery";
 import {
   buildActionItems,
@@ -34,7 +30,6 @@ import {
 import { isPlayableMediaUrl, playTrack, toggle, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { FLAGS } from "@/lib/flags";
-import { supabase } from "@/lib/supabase";
 import * as api from "@/lib/api";
 import { myListenSummary, type ListenSummary } from "@/features/reception/listenApi";
 import { getPrepareOwnerId, getReleaseBundle, listReleases } from "@/features/prepare/service";
@@ -46,18 +41,10 @@ import { useSession } from "@/store/session";
 import { paletteFor, cx } from "@/lib/utils";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import type { StorefrontOrder } from "@/features/storefront/types";
-import type { Drop, Reaction } from "@/types";
+import type { Drop } from "@/types";
 import type { NextDeskStep } from "@/features/prepare/nextDeskFromFindings";
 
-type HomeFilter = "all" | "live" | "uploads" | "library";
-type FeedItem = Drop & { myReaction?: Reaction };
-
-function dayGreeting(now = new Date()): string {
-  const h = now.getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
-}
+const PAGE_SIZE = 100;
 
 const SEVERITY_STYLE: Record<ActionSeverity, { icon: typeof AlertTriangle; tone: string }> = {
   blocking: { icon: AlertTriangle, tone: "text-suite-danger" },
@@ -406,38 +393,44 @@ function ProfileSong({ drop }: { drop: Drop }) {
 }
 
 /**
- * Signed-in Home — Spotify shelves + SoundCloud stream.
+ * Signed-in Home — the owner's library.
  *
- * Greeting and filter chips lead. Live, newest public uploads, and library
- * sit in horizontal shelves. The waveform stream is the SoundCloud row.
- * Studio stays below the fold. Every figure still comes from dashboardModel /
- * listReleases / drops (Law 1). Nothing already built was removed.
+ * Other people are not on this stage. Find them from the People menu.
+ * Live, feed, alerts, and Studio stay in this file and stay reachable;
+ * they are hidden from the default view, not deleted.
  */
 export function ArtistHome() {
   const navigate = useNavigate();
-  const { profile, userId } = useSession();
+  const { profile, userId, refreshProfile } = useSession();
   const [drops, setDrops] = useState<Drop[]>([]);
-  const [feed, setFeed] = useState<FeedItem[]>([]);
   const [releases, setReleases] = useState<ReleaseProject[]>([]);
   const [orders, setOrders] = useState<StorefrontOrder[]>([]);
   const [whatNext, setWhatNext] = useState<NextDeskStep[]>([]);
   const [loading, setLoading] = useState(true);
-  const [feedLoading, setFeedLoading] = useState(true);
   const [openAlbum, setOpenAlbum] = useState<DropGroup | null>(null);
   const [goLive, setGoLive] = useState(false);
-  const [filter, setFilter] = useState<HomeFilter>("all");
 
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     const ownerId = getPrepareOwnerId(userId);
-    const [myDrops, myReleases, myOrders] = await Promise.all([
-      api.dropsBy(userId, 120).catch(() => [] as Drop[]),
+    const [firstPage, total, myReleases, myOrders] = await Promise.all([
+      api.dropsBy(userId, PAGE_SIZE).catch(() => [] as Drop[]),
+      api.countDropsBy(userId).catch(() => 0),
       listReleases(ownerId).catch(() => [] as ReleaseProject[]),
       FLAGS.storefront
         ? api.listMyStorefrontOrders().catch(() => [] as StorefrontOrder[])
         : Promise.resolve([] as StorefrontOrder[]),
     ]);
+    let myDrops = firstPage;
+    if (total > firstPage.length) {
+      for (let offset = firstPage.length; offset < total; offset += PAGE_SIZE) {
+        const page = await api.dropsBy(userId, PAGE_SIZE, offset).catch(() => [] as Drop[]);
+        if (!page.length) break;
+        const seen = new Set(myDrops.map((d) => d.id));
+        myDrops = [...myDrops, ...page.filter((d) => !seen.has(d.id))];
+      }
+    }
     setDrops(myDrops);
     setReleases(myReleases);
     setOrders(myOrders);
@@ -461,35 +454,9 @@ export function ArtistHome() {
     setLoading(false);
   }, [userId]);
 
-  const loadFeed = useCallback(async (silent = false) => {
-    if (!silent) setFeedLoading(true);
-    const next = await api.listDrops(24).catch(() => [] as FeedItem[]);
-    setFeed(next);
-    setFeedLoading(false);
-  }, []);
-
   useEffect(() => {
     void load();
   }, [load]);
-
-  useEffect(() => {
-    void loadFeed();
-  }, [loadFeed]);
-
-  useEffect(() => {
-    const sb = supabase;
-    if (!sb) return;
-    let t: ReturnType<typeof setTimeout> | null = null;
-    const bump = () => {
-      if (t) clearTimeout(t);
-      t = setTimeout(() => void loadFeed(true), 500);
-    };
-    const ch = sb.channel("home:drops").on("postgres_changes", { event: "INSERT", schema: "public", table: "drops" }, bump).subscribe();
-    return () => {
-      if (t) clearTimeout(t);
-      void sb.removeChannel(ch);
-    };
-  }, [loadFeed]);
 
   const albums = useMemo(() => groupDrops(drops, "album"), [drops]);
   const stats = useMemo(() => buildStats(drops, releases), [drops, releases]);
@@ -505,219 +472,63 @@ export function ArtistHome() {
     () => drops.find((d) => d.id === profile?.featuredDropId) ?? null,
     [drops, profile?.featuredDropId],
   );
-  const episodeShelf = useMemo(() => feed.slice(0, 12), [feed]);
-  const streamRows = useMemo(() => feed.slice(0, 8), [feed]);
-  const greetName =
-    profile?.displayName?.trim().split(/\s+/)[0] || profile?.username || "";
-
-  function reactFeed(d: FeedItem, r: Reaction) {
-    const next = d.myReaction === r ? undefined : r;
-    setFeed((list) => list.map((x) => {
-      if (x.id !== d.id) return x;
-      let feels = x.feels;
-      if (x.myReaction === "feel") feels--;
-      if (next === "feel") feels++;
-      return { ...x, feels, myReaction: next };
-    }));
-    if (next) void api.react(d.id, next);
-  }
 
   if (!profile) return null;
 
-  const showLive = filter === "all" || filter === "live";
-  const showUploads = filter === "all" || filter === "uploads";
-  const showLibrary = filter === "all" || filter === "library";
-
-  const chips: Array<{ id: HomeFilter; label: string }> = [
-    { id: "all", label: "All" },
-    { id: "live", label: "Live" },
-    { id: "uploads", label: "Uploads" },
-    { id: "library", label: "Library" },
-  ];
-
   return (
-    <div className="relative space-y-7 pb-6 pt-2 sm:pt-3" data-testid="ops-home">
-      <div className="pointer-events-none absolute inset-x-0 -top-2 h-[22rem] overflow-hidden rounded-[1.5rem]">
-        <ForgeAtmosphere intensity="subtle" wave />
-      </div>
-
-      <header className="relative z-[2]" data-testid="hub-hero">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/40">
-              {dayGreeting()}
-            </p>
-            <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              {greetName || "Home"}
-            </h1>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setGoLive(true)}
-              data-testid="hub-go-live"
-              className="cta-pill inline-flex h-11 items-center gap-2 bg-gradient-to-r from-[rgb(var(--neon-cyan))] to-[rgb(var(--neon-mint))] px-5 text-sm font-semibold text-black shadow-glow"
-            >
-              <Radio className="h-4 w-4 animate-pulse" /> Go live
-            </button>
-            <Link
-              to="/live"
-              className="inline-flex h-11 items-center gap-2 rounded-full border border-white/12 bg-black/25 px-4 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
-            >
-              Who's live
-            </Link>
-          </div>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2" data-testid="home-filter" role="tablist" aria-label="Home shelves">
-          {chips.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={filter === c.id}
-              onClick={() => setFilter(c.id)}
-              className={cx(
-                "h-8 rounded-full px-4 text-[13px] font-semibold transition",
-                filter === c.id
-                  ? "bg-white text-black"
-                  : "bg-white/[0.08] text-white/70 hover:bg-white/[0.14] hover:text-white",
-              )}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </header>
-
-      <WallAlerts />
-
-      {showLive ? <WhosLivePanel variant="shelf" className="relative z-[1]" /> : null}
-
-      {showUploads ? (
-        <>
-          <HomeShelf eyebrow="Listen" title="Newest uploads" to="/feed" toLabel="Show all" testId="home-newest">
-            {feedLoading ? (
-              <div className="flex justify-center py-10">
-                <Loader2 className="h-6 w-6 animate-spin text-white/40" />
-              </div>
-            ) : episodeShelf.length === 0 ? (
-              <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-5 py-8 text-center">
-                <p className="text-sm text-white/55">Nothing public yet</p>
-                <p className="mt-0.5 text-[12px] text-white/35">New uploads land here the moment they go public.</p>
-              </div>
-            ) : (
-              <HomeShelfRow>
-                {episodeShelf.map((d) => (
-                  <EpisodeCard
-                    key={d.id}
-                    drop={d}
-                    queue={episodeShelf}
-                    onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
-                  />
-                ))}
-              </HomeShelfRow>
-            )}
-          </HomeShelf>
-
-          {!feedLoading && streamRows.length > 0 ? (
-            <HomeShelf eyebrow="Stream" title="Latest" to="/feed" toLabel="Open feed" testId="home-stream">
-              <div className="flex flex-col gap-2">
-                {streamRows.map((d) => (
-                  <FeedTrackRow
-                    key={d.id}
-                    drop={d}
-                    queue={streamRows}
-                    onReact={(r) => reactFeed(d, r)}
-                    onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
-                  />
-                ))}
-              </div>
-            </HomeShelf>
-          ) : null}
-        </>
-      ) : null}
-
-      {showLibrary && loading ? (
-        <div className="flex justify-center py-10" data-testid="ops-home-loading">
+    <div className="flex min-h-0 flex-1 flex-col" data-testid="ops-home">
+      {loading ? (
+        <div className="flex justify-center py-16" data-testid="ops-home-loading">
           <Loader2 className="h-6 w-6 animate-spin text-white/40" />
         </div>
-      ) : showLibrary ? (
-        <>
-          {profileSong ? <ProfileSong drop={profileSong} /> : null}
+      ) : (
+        <UploadsLibrary
+          initialDrops={drops}
+          featuredId={profile.featuredDropId}
+          onFeaturedChange={() => {
+            void refreshProfile();
+            void load();
+          }}
+        />
+      )}
 
-          {recentTracks.length > 0 ? (
-            <HomeShelf eyebrow="Jump back in" title="Your recent" to="/library" toLabel="All tracks" testId="ops-home-recent">
-              <HomeShelfRow>
-                {recentTracks.map((d) => (
-                  <EpisodeCard key={d.id} drop={d} queue={recentTracks} />
-                ))}
-              </HomeShelfRow>
-              <ul className="mt-3 space-y-1.5">
-                {recentTracks.slice(0, 4).map((d) => (
-                  <RecentTrackRow key={d.id} drop={d} queue={recentTracks} />
-                ))}
-              </ul>
-            </HomeShelf>
-          ) : null}
-
-          <HomeShelf eyebrow="Library" title="Your library" to="/library" toLabel="Open library" testId="ops-home-catalog">
-            {albums.length === 0 ? (
-              <div className="forge-glass forge-plasma relative flex flex-col items-center gap-3 !rounded-2xl px-6 py-14 text-center">
-                <span className="forge-glass-edge pointer-events-none" aria-hidden />
-                <Music2 className="relative z-[1] h-8 w-8 text-[rgb(var(--app-accent-rgb)/0.75)]" strokeWidth={1.5} />
-                <p className="relative z-[1] font-display text-base text-white/90">Nothing here yet</p>
-                <p className="relative z-[1] max-w-sm text-sm text-white/45">
-                  Upload files or scan them.
-                </p>
-                <Link
-                  to="/releases"
-                  className="relative z-[1] mt-2 rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.1]"
-                >
-                  Scan a track
-                </Link>
-              </div>
-            ) : (
-              <HomeShelfRow>
-                {albums.map((g) => (
-                  <div key={g.key} className="w-[9.75rem] shrink-0 snap-start sm:w-[11.25rem]">
-                    <AlbumTile group={g} onOpen={() => setOpenAlbum(g)} />
-                  </div>
-                ))}
-              </HomeShelfRow>
-            )}
-          </HomeShelf>
-
-          <SocialStats drops={drops} />
-
-          {/* Studio — the production tooling is optional, so it sits below the
-              creator's page rather than framing it. Nothing was removed. */}
-          <section className="relative z-[1] space-y-3 pt-2" data-testid="ops-home-studio">
-            <div className="flex items-end justify-between gap-3 px-0.5">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-                  Optional
-                </p>
-                <h2 className="font-display text-base font-semibold text-white/70">Studio</h2>
-              </div>
-              <Link to="/releases" className="text-[12px] text-white/40 transition hover:text-white/75">
-                <span className="inline-flex items-center gap-1.5">
-                  <ScanLine className="h-3 w-3" /> Scan
-                </span>
-              </Link>
-            </div>
-            <OpsStatStrip stats={stats} onNavigate={navigate} />
-            {whatNext.length > 0 ? (
-              <section className="forge-glass relative !rounded-2xl p-4 sm:p-5" data-testid="ops-home-what-next">
-                <span className="forge-glass-edge pointer-events-none" aria-hidden />
-                <WhatNextDesks steps={whatNext} title="What next" className="relative z-[1]" />
-              </section>
-            ) : null}
-            <OpsActionCentre items={actions} onNavigate={navigate} />
+      {/* Hidden from the default view. Not deleted. */}
+      <div className="hidden" aria-hidden="true">
+        <button type="button" onClick={() => setGoLive(true)} data-testid="hub-go-live">
+          <Radio className="h-4 w-4" /> Go live
+        </button>
+        <WallAlerts />
+        <WhosLivePanel />
+        <HubActivity />
+        {profileSong ? <ProfileSong drop={profileSong} /> : null}
+        {recentTracks.length > 0 ? (
+          <section data-testid="ops-home-recent">
+            <ul>
+              {recentTracks.map((d) => (
+                <RecentTrackRow key={d.id} drop={d} queue={recentTracks} />
+              ))}
+            </ul>
           </section>
-        </>
-      ) : null}
-
-      <HubActivity />
+        ) : null}
+        <section data-testid="ops-home-catalog">
+          {albums.map((g) => (
+            <AlbumTile key={g.key} group={g} onOpen={() => setOpenAlbum(g)} />
+          ))}
+        </section>
+        <SocialStats drops={drops} />
+        <section data-testid="ops-home-studio">
+          <Link to="/releases">
+            <ScanLine className="h-3 w-3" /> Scan
+          </Link>
+          <OpsStatStrip stats={stats} onNavigate={navigate} />
+          {whatNext.length > 0 ? (
+            <section data-testid="ops-home-what-next">
+              <WhatNextDesks steps={whatNext} title="What next" />
+            </section>
+          ) : null}
+          <OpsActionCentre items={actions} onNavigate={navigate} />
+        </section>
+      </div>
 
       {openAlbum ? (
         <AlbumLightbox
