@@ -4,13 +4,15 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`1e5070f2`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the new homepage: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`ce7d96b1`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the new homepage: **Not measured**.
 
 ## Spotify + SoundCloud homepage — 2026-08-18
 
 `/` (ArtistHome) is now a listen home: time-of-day greeting, All / Live / Uploads / Library chips, a wide Who's live shelf, Spotify-style episode cards for newest public uploads, a SoundCloud waveform stream, then your recent, library, notifications, and Studio below the fold. Profile bio / badges left the hero (they stay on the profile tab). Gate markers stay: `ops-home`, `hub-go-live`, `HubActivity`, `WallAlerts`, `WhosLivePanel`, `buildStats`. Not a 3-panel. Nothing deleted.
 
-`npm run lint` pass on the final source. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Homepage gate files re-run after the HubActivity move: pass. Browser walk: **Not measured** — no browser tool in this session. Not on production until this lands on `main`.
+`npm run lint` pass on the final source. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Homepage gate files re-run after the HubActivity move: pass.
+
+Pushed `continue-next` `73fb3c30`. Merged `--no-ff` to `main` `ce7d96b1`. Pushed `origin/main`. Browser walk: **Not measured**. Vercel Ready: **Not measured**.
 
 ## Feed, live stage, and profile polish — 2026-08-18
 
