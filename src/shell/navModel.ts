@@ -1,12 +1,10 @@
 import {
   BookOpen,
-  Disc,
+  Home,
   Library,
-  Package,
   Radio,
   ShieldCheck,
   UserCog,
-  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -29,8 +27,9 @@ export type NavGroup = { id: string; label: string; items: NavItem[] };
 /**
  * The rail is the live-audio platform menu (PRODUCT.md v7).
  *
- * Default experience leads with live rooms, then Living Mix and studio tools.
- * Other surfaces stay reachable by URL and are listed in ARCHIVED_NAV_PATHS.
+ * Default chrome is Home, Live, and Library. Living Mix, Rooms, Make pack,
+ * Sales, and Packages stay in the tree and resolve by URL — they are listed
+ * in ARCHIVED_NAV_PATHS, not deleted.
  *
  * Only destinations that render a working surface may appear.
  */
@@ -38,20 +37,13 @@ export function navGroups(): NavGroup[] {
   return [
     {
       id: "live",
-      label: "Live",
+      label: "Stage",
       items: [
         {
-          path: "/library/mix",
-          label: "Living Mix",
-          hint: "Mix engine",
-          icon: Disc,
-          productId: "home",
-        },
-        {
-          path: "/rooms",
-          label: "Rooms",
-          hint: "Collab sessions",
-          icon: Users,
+          path: "/live",
+          label: "Live",
+          hint: "Who's on right now",
+          icon: Radio,
           productId: "home",
         },
       ],
@@ -66,20 +58,6 @@ export function navGroups(): NavGroup[] {
           hint: "Your files",
           icon: Library,
           productId: "home",
-        },
-        {
-          path: "/make",
-          label: "Make pack",
-          hint: "Sample pack builder",
-          icon: Package,
-          productId: "market",
-        },
-        {
-          path: "/make/dashboard",
-          label: "Sales",
-          hint: "What sold",
-          icon: Radio,
-          productId: "market",
         },
       ],
     },
@@ -98,13 +76,6 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
       label: "Edit profile",
       hint: "Name, avatar, links",
       icon: UserCog,
-      productId: "home",
-    },
-    {
-      path: "/store",
-      label: "Packages",
-      hint: "Buy V¢",
-      icon: Package,
       productId: "home",
     },
     { path: "/codex", label: "Codex", hint: "Docs and legal", icon: BookOpen, productId: "home" },
@@ -132,10 +103,10 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 }
 
 export const HOME_ITEM: NavItem = {
-  path: "/live",
-  label: "Live",
-  hint: "Who's on right now",
-  icon: Radio,
+  path: "/",
+  label: "Home",
+  hint: "Your page",
+  icon: Home,
   productId: "home",
 };
 
@@ -152,5 +123,8 @@ export const ARCHIVED_NAV_PATHS = [
   "/discover",
   "/messages",
   "/notifications",
-  "/",
+  "/library/mix",
+  "/rooms",
+  "/make",
+  "/make/dashboard",
 ] as const;

@@ -43,6 +43,7 @@ const DESK_PAGES = [
 const HIDDEN_DESKS = [
   "analyzer", "metadata", "art-check", "correct", "translate",
   "midi-maker", "media-converter", "pack-maker", "stem-maker", "codex",
+  "pack-pipeline",
 ];
 
 describe("trackTools", () => {
@@ -85,14 +86,14 @@ describe("trackTools", () => {
     }
   });
 
-  it("shows only Library, Make pack, Store and Settings in navigation", () => {
+  it("shows only Library and Settings in navigation", () => {
     const visible = visibleSuiteApps().map((a) => a.id);
     for (const id of HIDDEN_DESKS) {
       expect(visible, id).not.toContain(id);
     }
     expect(visible).toContain("library");
-    expect(visible).toContain("pack-pipeline");
     expect(visible).toContain("settings");
+    expect(visible).not.toContain("pack-pipeline");
   });
 
   it("hid the desks without deleting them", () => {

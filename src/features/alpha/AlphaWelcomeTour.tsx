@@ -82,7 +82,7 @@ export function AlphaWelcomeTour({
     }
     markAlphaWelcomeComplete(userId);
     setOpen(false);
-    navigate("/live", { replace: true });
+    navigate("/", { replace: true });
     requestPulseFeedbackFab();
   }
 

@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Headphones,
   Mic,
   Radio,
-  Sliders,
 } from "lucide-react";
 import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -18,7 +17,6 @@ import type { LiveSessionCard } from "@/types";
 type FilterTab = "all" | "talk" | "music";
 
 export function LivePage() {
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [items, setItems] = useState<LiveSessionCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,13 +133,6 @@ export function LivePage() {
             )}
           >
             <Headphones className="h-3 w-3" /> Music
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/library/mix")}
-            className="ml-auto rounded-lg border border-white/8 bg-white/[0.03] px-3 py-1 text-xs text-white/60 hover:text-white hover:border-white/20 transition flex items-center gap-1"
-          >
-            <Sliders className="h-3 w-3" /> Mix Engine
           </button>
         </div>
       </div>

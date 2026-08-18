@@ -64,7 +64,7 @@ export function AlphaKeyGenerator({
     setCode(res.code);
     onIssued?.(res.code);
     if (res.status === "signed_in") {
-      navigate("/live", { replace: true });
+      navigate("/", { replace: true });
       return;
     }
     setNeedsLogin(true);

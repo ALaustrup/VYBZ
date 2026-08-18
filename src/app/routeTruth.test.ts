@@ -121,7 +121,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
   });
 
   it("never links Studio, Market, AI minutes or Cost Sentinel", () => {
-    // Live-first (PRODUCT.md v7): Live and Rooms are core surfaces.
+    // Live-first (PRODUCT.md v7): Home, Live, and Library are default chrome.
     // Studio and unrouted money surfaces stay out of default nav.
     const linked = [
       ...navItems().map((i) => i.path),
@@ -131,17 +131,17 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/market");
     expect(linked).not.toContain("/settings/credits");
     expect(linked).not.toContain("/settings/costs");
-    expect(linked).toContain("/store");
+    expect(linked).not.toContain("/store");
   });
 
-  it("carries live mix streaming and studio tools in the rail", () => {
+  it("carries Home, Live and Library in the rail", () => {
     const linked = navItems().map((i) => i.path);
+    expect(linked).toContain("/");
     expect(linked).toContain("/live");
-    expect(linked).toContain("/library/mix");
-    expect(linked).toContain("/rooms");
     expect(linked).toContain("/library");
-    expect(linked).toContain("/make");
-    expect(linked).toContain("/make/dashboard");
+    for (const hidden of ["/library/mix", "/rooms", "/make", "/make/dashboard", "/store"]) {
+      expect(linked, `rail must not advertise parked ${hidden}`).not.toContain(hidden);
+    }
     for (const social of ["/feed", "/discover", "/messages", "/notifications"]) {
       expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);
     }
@@ -155,10 +155,11 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(badged).toEqual([]);
   });
 
-  it("offers Packages via Store (V¢ packs), not Settings money surfaces", () => {
-    const pkgs = accountItems("member", false).find((i) => i.label === "Packages");
-    expect(pkgs?.path).toBe("/store");
-    expect(accountItems("member", false).some((i) => i.path === "/profile/edit#packages")).toBe(false);
+  it("keeps Packages off the account menu while the /store route stays", () => {
+    const items = accountItems("member", false);
+    expect(items.find((i) => i.label === "Packages")).toBeUndefined();
+    expect(items.some((i) => i.path === "/store")).toBe(false);
+    expect(items.some((i) => i.path === "/profile/edit#packages")).toBe(false);
   });
 
   it("accepts a redirect but rejects an unrouted path", () => {

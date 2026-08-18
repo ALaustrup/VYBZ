@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { PRODUCT_ACCENT_RGB } from "@/design/tokens";
 import { HOME_ITEM, accountItems, navGroups, type NavGroup, type NavItem } from "@/shell/navModel";
+import { RailIdentity } from "@/shell/RailIdentity";
 import { durationFast, durationNormal } from "@/lib/motion";
 import { cx } from "@/lib/utils";
 import { useInboxThreads } from "@/hooks/useInboxThreads";
@@ -146,16 +147,9 @@ export function PrimaryRail() {
       data-testid="suite-primary-rail"
     >
       <div className="relative z-[2] flex min-h-0 flex-1 flex-col">
-        <div className="suite-rail-ops-head">
-          <p className="suite-rail-ops-eyebrow">VYBZ</p>
-          <p className="suite-rail-ops-title">Music ops</p>
-          <p className="mt-0.5 px-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/30">
-            Live mix
-          </p>
-          {/* "Music ops" is the ops chrome marker asserted by m10SuiteRedesignGate. */}
-          <div className="mt-2 px-0.5">
-            <RailLink item={HOME_ITEM} end />
-          </div>
+        <RailIdentity />
+        <div className="px-1 pb-1 pt-2">
+          <RailLink item={HOME_ITEM} end />
         </div>
         <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-2">
           {groups.map((g, i) => (

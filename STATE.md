@@ -4,7 +4,33 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`1bfbc43a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of parked ATC: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`07456f78`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of rail identity: **Not measured**.
+
+## Rail identity and darker dock — 2026-08-18
+
+Left rail labels (VYBZ / Music ops / Live mix) are gone. The head is avatar, name, handle, and a notifications popover. VDock film is dimmer so transport reads. Stage sits flush to the rail (no centered max-width gap). Now-playing title and artist are larger, with a sheen and drift while playing.
+
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Browser walk: **Not measured**.
+
+## Vizualz in the dock and backdrop — 2026-08-18
+
+Dock visualizer plays the Vizualz catalog as muted loops under the meter. The options panel lists the films plus bars / mirror / wave / pulse. The page backdrop uses a faded Ember Drift loop that follows the pointer and the measured audio bands. Reduce-motion keeps the still. The dry play element is untouched.
+
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Browser walk: **Not measured**. Loops are not committed; production needs the `site-visuals` CDN. Local `npm run dev` reads `public/vdock/visuals`.
+
+## Signed-in Home is the landing — 2026-08-18
+
+Owner asked to hide Living Mix, Make pack, Sales, Rooms, and Packages from public chrome, and to put library / dashboard / profile / stats on one landing with notifications, live alerts, and Go Live.
+
+Hidden from the rail, account menu, and tools launcher. Routes still resolve. Not deleted.
+
+`/` is now the signed-in landing: profile, Go Live, must-ack alerts, Who's live, notifications, measured stats, library. After key / tour / redeem, the app lands on `/`.
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Browser walk of the landing: **Not measured** — no browser tool this session. Not on production until merged.
 
 ## Park Airtime Credits — 2026-08-18
 

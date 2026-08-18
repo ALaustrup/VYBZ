@@ -38,7 +38,7 @@ export function InviteRedeemPage() {
     takePendingInviteKey();
     showToast(res.already ? "Already in." : "You're in.");
     await refreshProfile();
-    navigate("/live", { replace: true });
+    navigate("/", { replace: true });
   }
 
   useEffect(() => {

@@ -114,6 +114,12 @@
 
 @media (min-width: 1024px) {
   .suite-shell.suite-density-premium .suite-rail {
-    padding-inline: var(--density-rail-pad);
+    padding-inline: 0;
+  }
+  .suite-shell.suite-density-premium .suite-stage-inner {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: none;
+    padding-left: 0.65rem;
   }
 }
