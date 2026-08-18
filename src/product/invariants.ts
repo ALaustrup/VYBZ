@@ -198,7 +198,12 @@ export const AIRTIME_CREDITS = {
   dailyFreeDoesNotStack: true,
   consumeDailyFreeFirst: true,
   clientsNeverTrustOwnBalance: true,
+  /** Reception bonus and referral cannot mint until amounts are declared. */
+  refuseUnmeasuredMint: true,
 } as const;
+
+/** Creation types whose mint amount is Not measured. Not a zero grant. */
+export const ATC_UNMEASURED_MINTS = ["reception_bonus", "referral"] as const;
 
 export const ATC_CREATION_TYPES = [
   "daily_grant",

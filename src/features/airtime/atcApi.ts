@@ -22,6 +22,21 @@ function asBalances(r: Record<string, unknown> | null): AtcBalanceResponse {
   };
 }
 
+export async function requestUnmeasuredMint(
+  kind: "reception_bonus" | "referral",
+): Promise<{ ok: false; error: string; amount: string } | null> {
+  if (!supabase) return null;
+  const rpc = kind === "reception_bonus" ? "award_reception_bonus" : "award_referral";
+  const { data, error } = await supabase.rpc(rpc);
+  if (error || !data) return null;
+  const r = data as Record<string, unknown>;
+  return {
+    ok: false,
+    error: typeof r.error === "string" ? r.error : "rates_not_measured",
+    amount: typeof r.amount === "string" ? r.amount : "Not measured",
+  };
+}
+
 export async function fetchAtcBalance(): Promise<AtcBalanceResponse | null> {
   if (!supabase) return null;
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;

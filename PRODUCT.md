@@ -5,7 +5,7 @@
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
 > Version 6 · 2026-08-18 · supersedes Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
-> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (how an artist or producer is shown).
+> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (what we are) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (how an artist or producer is shown) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet).
 
 ---
 
@@ -90,6 +90,7 @@ VYBZ never fabricates play counts, listener engagement, or musical analysis. A f
 - **Hosting burns Airtime Credits (ATC).** 1 ATC = 1 second of publishing. Daily free grant is 7200 ATC (2 hours), overwritten each calendar day in the user's stored timezone. Earned ATC is the only path beyond that grant.
 - **ATC is a closed loop.** Non-purchasable, non-transferable, non-giftable. It cannot become money. Money cannot become ATC. Stripe is not on this path.
 - **ATC is created only by** daily grant, verified listen, reception bonus, referral, new-user bootstrap, or explicit admin adjust. **ATC is destroyed only by** host consumption or explicit admin adjust.
+- **Reception bonus and referral do not mint yet.** Their amounts are **Not measured**. The ledger refuses those mints until amounts are declared policy. This is not a zero award.
 - **Verified attention only.** Credit is awarded in discrete chunks after LiveKit presence plus server-validated playback heartbeats. Clients never invent or trust their own balance.
 - **Live Tipping:** Listeners tip producers in fiat (Stripe) or V¢. Tips are not ATC.
 - **Pack Sales:** Recorded live mixes packaged into sample packs are sold with a 10% fee.

@@ -6,6 +6,27 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## HEAD f9a6b6e5 is green — 2026-08-18
+
+HEAD `f9a6b6e5` is green — lint, tests, and production build passed. SessionToolDrawer Package import is closed.
+
+## ATC Phase 5 lock — reception / referral do not mint — 2026-08-18
+
+Live-mix + ATC + provenance + Stage File vision is already written (`PRODUCT.md` v6, 0004–0007). **Airtime Phase 1 ledger is already applied (0105).** This slice does not rebuild it.
+
+Decision [`0008`](docs/decisions/0008-atc-unmeasured-mints.md). Reception bonus and referral stay as ledger types. Their mint amounts are **Not measured**. Server RPCs return `rates_not_measured` and insert nothing. Daily grant / listen earn / host consume / Stripe / LiveKit / Living Mix unchanged.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Docs / invariants | **IMPLEMENTED BUT NOT DELIVERED** | 0008, `ATC_UNMEASURED_MINTS`, `refuseUnmeasuredMint` |
+| Refuse RPCs | **INFRASTRUCTURE ONLY** | 0109 `award_reception_bonus` / `award_referral` |
+| Bootstrap mint | Not started | Amounts already declared (3600 / 7d). Not this slice |
+| Browser walk | Not measured | No web browser tool this session |
+
+`npm run lint` pass. `npm run test` pass — **175 files / 890 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+**Next:** New-user bootstrap mint (declared 3600 / 7d) if wanted. Reception/referral stay refused until amounts are declared. Deploy + signed-in walk.
+
 ## Session provenance Phase 6 — stored-bytes SHA + C2PA ledger count — 2026-08-18
 
 Host can bind one owned catalog asset to a sealed session. `assets.sha256` is **measured**. The claim that the file is the live mix is **declared**. C2PA is a **ledger event count**; the file C2PA box is **Not measured**. The C2PA worker is not invoked and not replaced.

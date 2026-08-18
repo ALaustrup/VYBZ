@@ -12,6 +12,7 @@ import {
   ATC_CREATION_TYPES,
   ATC_DESTRUCTION_TYPES,
   ATC_POLICY,
+  ATC_UNMEASURED_MINTS,
   CURRENCY,
   GATE_REGISTRY,
   LIVE_MIX_STREAMING,
@@ -39,6 +40,8 @@ describe("airtime credits", () => {
     expect(AIRTIME_CREDITS.serverAuthoritativeLedgerOnly).toBe(true);
     expect(AIRTIME_CREDITS.dailyFreeDoesNotStack).toBe(true);
     expect(AIRTIME_CREDITS.consumeDailyFreeFirst).toBe(true);
+    expect(AIRTIME_CREDITS.refuseUnmeasuredMint).toBe(true);
+    expect(ATC_UNMEASURED_MINTS).toEqual(["reception_bonus", "referral"]);
     expect(LIVE_MIX_STREAMING.hostingRequiresAtc).toBe(true);
     expect(CURRENCY.vcConvertsToAirtime).toBe(false);
     expect(CURRENCY.airtimeConvertsToVc).toBe(false);
@@ -68,6 +71,8 @@ describe("airtime credits", () => {
     expect(product).toContain("Hosting burns Airtime Credits");
     expect(product).not.toMatch(/Going live and hosting sessions is free/);
     expect(product).toContain("Station Airtime stays parked");
+    expect(product).toContain("0008");
+    expect(product).toContain("Reception bonus and referral do not mint yet");
   });
 
   it("keeps the ledger off Stripe and off client writes", () => {
@@ -107,5 +112,21 @@ describe("airtime credits", () => {
     const hook = read("src/features/airtime/useAtcBalance.ts");
     expect(hook).toContain("fetchAtcBalance");
     expect(hook).not.toMatch(/earnedBalance \+|dailyFreeRemaining \+/);
+  });
+
+  it("refuses reception bonus and referral mints instead of inventing rates", () => {
+    const sql = read("supabase/migrations/20260818_0109_atc_unmeasured_mints.sql");
+    expect(sql).toContain("rates_not_measured");
+    expect(sql).toContain("award_reception_bonus");
+    expect(sql).toContain("award_referral");
+    expect(sql).toContain("Not measured");
+    expect(sql).not.toMatch(/insert into public.airtime_ledger/i);
+    expect(sql).not.toMatch(/stripe/i);
+    const mint = read("src/features/airtime/atcMint.ts");
+    expect(mint).toContain("ATC_UNMEASURED_MINTS");
+    expect(mint).toContain("NOT_MEASURED");
+    const api = read("src/features/airtime/atcApi.ts");
+    expect(api).toContain("requestUnmeasuredMint");
+    expect(api).toContain("award_reception_bonus");
   });
 });
