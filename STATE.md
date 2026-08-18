@@ -4,11 +4,11 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**. `main` is **`61d9661a`** (merge of continue-next). This slice is not on `main` until pushed.
+**Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**. `main` HEAD **`8216efcd`** (merge of this slice). Production verify: **Not measured**.
 
 ## Live UI + Stripe tips on stage — 2026-08-18
 
-`main` already holds continue-next via merge **`61d9661a`** (nine files taken `--theirs`; Pack Maker stayed in the tree). This slice is the keep-going work after that push.
+`main` **`8216efcd`** merges continue-next **`07a146ce`**. Prior merge **`61d9661a`** took the nine conflicted files from continue-next (`--theirs` on main). Pack Maker stayed in the tree.
 
 Go Live is the `/live` front door for any host. Stripe `TipButton` / `startTip` is on the watch stage and host profile. V¢ tip stays. No second wallet. No ATC writes. If payouts are off, the Stripe button does not render.
 
