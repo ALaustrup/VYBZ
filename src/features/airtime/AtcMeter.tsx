@@ -23,7 +23,7 @@ export function AtcMeter() {
       <span>{clock}</span>
       {balance && (
         <span className="hidden font-sans text-[10px] text-white/40 sm:inline">
-          daily {formatAtcClock(balance.dailyFreeRemaining)}
+          {formatAtcClock(balance.dailyFreeRemaining)} daily · {formatAtcClock(balance.earnedBalance)} earned
         </span>
       )}
       <span className="sr-only">Airtime remaining</span>
