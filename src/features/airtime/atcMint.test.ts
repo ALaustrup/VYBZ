@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NOT_MEASURED } from "@/product/invariants";
-import { isUnmeasuredMint, mayMint, mintAmountFor } from "./atcMint";
+import { isUnmeasuredMint, mayGrantBootstrap, mayMint, mintAmountFor } from "./atcMint";
 
 describe("ATC mint lock", () => {
   it("refuses reception bonus and referral instead of inventing a rate", () => {
@@ -16,5 +16,24 @@ describe("ATC mint lock", () => {
     expect(mintAmountFor("daily_grant")).toBe(7200);
     expect(mintAmountFor("bootstrap")).toBe(3600);
     expect(mayMint("daily_grant")).toBe(true);
+  });
+
+  it("grants bootstrap only inside the declared 7-day window and only once", () => {
+    const now = Date.parse("2026-08-18T00:00:00Z");
+    expect(mayGrantBootstrap({
+      accountCreatedAt: now - 3 * 24 * 60 * 60 * 1000,
+      now,
+      alreadyGranted: false,
+    })).toBe(true);
+    expect(mayGrantBootstrap({
+      accountCreatedAt: now - 8 * 24 * 60 * 60 * 1000,
+      now,
+      alreadyGranted: false,
+    })).toBe(false);
+    expect(mayGrantBootstrap({
+      accountCreatedAt: now,
+      now,
+      alreadyGranted: true,
+    })).toBe(false);
   });
 });

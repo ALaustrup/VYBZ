@@ -6,6 +6,18 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Slice 1 — new-user bootstrap — 2026-08-18
+
+**0110 applied** to `xixmneooyufbeftdfpcm`. `grant_bootstrap_atc` credits **3600** earned ATC once if the profile is ≤ 7 days old. `get_airtime_balance` calls it after the daily grant. Reception bonus and referral still return `rates_not_measured`. Stripe cannot mint ATC.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Bootstrap mint | **IMPLEMENTED BUT NOT DELIVERED** | 0110 + `mayGrantBootstrap` |
+| Reception / referral | Refused | 0008 / 0109 unchanged |
+| Browser walk | Not measured | Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **176 files / 894 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
 ## Slice 3 — session provenance report — 2026-08-18
 
 Ended host sessions show an in-app verification report and a `.vprov` download. Copy is **Session provenance**, never “Human certified.” Not-AI stays **Not measured**. Full strength still requires measured ATC burn. No new economy rules. SessionToolDrawer was not edited.

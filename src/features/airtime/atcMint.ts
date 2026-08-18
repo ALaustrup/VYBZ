@@ -15,3 +15,14 @@ export function mintAmountFor(type: AtcLedgerType | string): number | typeof NOT
 export function mayMint(type: AtcLedgerType | string): boolean {
   return mintAmountFor(type) !== NOT_MEASURED;
 }
+
+export function mayGrantBootstrap(input: {
+  accountCreatedAt: number;
+  now: number;
+  alreadyGranted: boolean;
+}): boolean {
+  if (input.alreadyGranted) return false;
+  if (!Number.isFinite(input.accountCreatedAt) || !Number.isFinite(input.now)) return false;
+  const windowMs = ATC_POLICY.newUserBootstrapDays * 24 * 60 * 60 * 1000;
+  return input.now - input.accountCreatedAt >= 0 && input.now - input.accountCreatedAt <= windowMs;
+}

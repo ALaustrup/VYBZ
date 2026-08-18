@@ -141,4 +141,15 @@ describe("airtime credits", () => {
     expect(api).toContain("requestUnmeasuredMint");
     expect(api).toContain("award_reception_bonus");
   });
+
+  it("grants bootstrap only at the declared 3600 / 7-day rate", () => {
+    const sql = read("supabase/migrations/20260818_0110_atc_bootstrap.sql");
+    expect(sql).toContain("3600");
+    expect(sql).toContain("interval '7 days'");
+    expect(sql).toContain("'bootstrap'");
+    expect(sql).not.toMatch(/award_reception_bonus|award_referral/);
+    expect(sql).not.toMatch(/stripe/i);
+    expect(ATC_POLICY.newUserStarterAtc).toBe(3600);
+    expect(ATC_POLICY.newUserBootstrapDays).toBe(7);
+  });
 });
