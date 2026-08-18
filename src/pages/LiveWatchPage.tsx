@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   Copy,
+  Download,
   Gift,
   Headphones,
   Loader2,
@@ -21,8 +22,11 @@ import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { useHostBurn, useListenEarn } from "@/features/airtime/AtcLiveHooks";
 import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
+import { downloadVprovPackage, fetchSealedProvenance } from "@/features/provenance/provenanceApi";
 import { noteChatSent } from "@/features/provenance/hostSignals";
+import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
 import { useHostSignals } from "@/features/provenance/useHostSignals";
+import type { SealedProvenance } from "@/features/provenance/buildVprov";
 import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
 import { SessionToolDrawer } from "@/features/broadcast/SessionToolDrawer";
 import { getDawBridge, peekDawBridge, releaseDawBridge } from "@/features/broadcast/dawBridgeSession";
@@ -49,6 +53,8 @@ export function LiveWatchPage() {
   const [sfuActive, setSfuActive] = useState(false);
   const [vizStream, setVizStream] = useState<MediaStream | null>(null);
   const [hostAtcLeft, setHostAtcLeft] = useState<number | null>(null);
+  const [sealed, setSealed] = useState<SealedProvenance | null>(null);
+  const [provBusy, setProvBusy] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const sfuRef = useRef<LiveSfuSession | null>(null);
@@ -160,6 +166,20 @@ export function LiveWatchPage() {
     return () => el.removeEventListener("playing", tryCapture);
   }, [session?.playbackHls, sfuActive]);
 
+  useEffect(() => {
+    if (!session || session.status === "live") {
+      setSealed(null);
+      return;
+    }
+    let alive = true;
+    void fetchSealedProvenance(session.id).then((row) => {
+      if (alive) setSealed(row);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [session?.id, session?.status]);
+
   async function send() {
     if (!text.trim() || sending) return;
     setSending(true);
@@ -267,7 +287,7 @@ export function LiveWatchPage() {
               </p>
               <p className="max-w-xs text-[13px] text-white/45">
                 {ended
-                  ? "This session is over. Recorded stems can be packaged on the store."
+                  ? "This session is over. Session provenance records the live, not whether the music was AI."
                   : isHost
                     ? "LiveKit SFU broadcast is active in lossless stereo music mode."
                     : "Pristine stereo audio streaming directly from the producer's studio."}
@@ -298,6 +318,7 @@ export function LiveWatchPage() {
                 </span>
               </button>
               <div className="flex items-center gap-1.5">
+                {ended && sealed && <SessionProvenanceBadge strength={sealed.strength} compact />}
                 {session.source === "daw" && peekDawBridge()?.info && (
                   <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-300 border border-white/10">
                     <Volume2 className="h-3 w-3" /> {peekDawBridge()!.info!.sampleRate / 1000}kHz Stereo
@@ -340,6 +361,24 @@ export function LiveWatchPage() {
           {isHost && !ended && session.streamKey && (
             <button type="button" onClick={copyIngest} className="btn btn-ghost h-9 flex-1 py-0 text-xs">
               <Copy className="h-3.5 w-3.5 mr-1" /> Copy RTMP
+            </button>
+          )}
+          {ended && isHost && sealed && (
+            <button
+              type="button"
+              disabled={provBusy}
+              onClick={() => {
+                void (async () => {
+                  setProvBusy(true);
+                  const ok = await downloadVprovPackage(session.id);
+                  setProvBusy(false);
+                  showToast(ok ? "Session provenance downloaded" : "No sealed package for this session");
+                })();
+              }}
+              className="btn btn-ghost h-9 flex-1 py-0 text-xs"
+            >
+              {provBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5 mr-1" />}
+              Download .vprov
             </button>
           )}
           {isHost && !ended && (
@@ -484,7 +523,20 @@ export function LiveWatchPage() {
             </div>
           )}
           {isHost && !ended && <CompanionPanel sessionId={session.id} />}
-          <SessionToolDrawer sessionId={session.id} sessionTitle={session.title} ended={ended} />
+          <SessionToolDrawer
+            sessionId={session.id}
+            sessionTitle={session.title}
+            ended={ended}
+            provenanceStrength={sealed?.strength}
+            onDownloadProvenance={isHost && sealed ? () => {
+              void (async () => {
+                setProvBusy(true);
+                const ok = await downloadVprovPackage(session.id);
+                setProvBusy(false);
+                showToast(ok ? "Session provenance downloaded" : "No sealed package for this session");
+              })();
+            } : undefined}
+          />
 
           {/* Chat Input */}
           {!ended && (

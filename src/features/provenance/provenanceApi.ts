@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import type { ProvenanceStrength } from "@/product/invariants";
+import { buildVprovZip, type SealedProvenance } from "./buildVprov";
 import type { DeclaredHostSignals } from "./hostSignals";
 
 const byLive = new Map<string, string>();
@@ -84,4 +86,54 @@ export async function sealProvenanceForLive(liveSessionId: string): Promise<bool
   byLive.delete(liveSessionId);
   if (error || !data) return false;
   return (data as { ok?: boolean }).ok === true;
+}
+
+export async function fetchSealedProvenance(liveSessionId: string): Promise<SealedProvenance | null> {
+  if (!supabase) return null;
+  const { data: row, error } = await supabase
+    .from("provenance_sessions")
+    .select("id, live_session_id, host_id, status, strength, event_count, chain_root, atc_burned, opened_at, sealed_at")
+    .eq("live_session_id", liveSessionId)
+    .eq("status", "sealed")
+    .maybeSingle();
+  if (error || !row) return null;
+  const { data: evs } = await supabase
+    .from("provenance_events")
+    .select("seq, event_type, payload, prev_hash, row_hash, created_at")
+    .eq("session_id", row.id)
+    .order("seq", { ascending: true });
+  return {
+    id: row.id,
+    liveSessionId: row.live_session_id,
+    hostId: row.host_id,
+    status: row.status,
+    strength: (row.strength as ProvenanceStrength | null) ?? null,
+    eventCount: Number(row.event_count ?? 0),
+    chainRoot: row.chain_root ?? null,
+    atcBurned: Number(row.atc_burned ?? 0),
+    openedAt: row.opened_at,
+    sealedAt: row.sealed_at ?? null,
+    events: (evs ?? []).map((e) => ({
+      seq: Number(e.seq),
+      eventType: String(e.event_type),
+      payload: (e.payload ?? {}) as Record<string, unknown>,
+      prevHash: String(e.prev_hash),
+      rowHash: String(e.row_hash),
+      createdAt: String(e.created_at),
+    })),
+  };
+}
+
+export async function downloadVprovPackage(liveSessionId: string): Promise<boolean> {
+  const row = await fetchSealedProvenance(liveSessionId);
+  if (!row) return false;
+  const { bytes } = await buildVprovZip(row);
+  const blob = new Blob([bytes.buffer as ArrayBuffer], { type: "application/zip" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `vybz-session-${liveSessionId.slice(0, 8)}.vprov`;
+  a.click();
+  URL.revokeObjectURL(url);
+  return true;
 }

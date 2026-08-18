@@ -4,7 +4,9 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronDown, Package, Sliders, Wrench } from "lucide-react";
+import { ChevronDown, Download, Package, Sliders, Wrench } from "lucide-react";
+import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
+import type { ProvenanceStrength } from "@/product/invariants";
 import { cx } from "@/lib/utils";
 
 const DESKS = [
@@ -19,9 +21,17 @@ type SessionToolDrawerProps = {
   sessionId: string;
   sessionTitle: string | null;
   ended: boolean;
+  provenanceStrength?: ProvenanceStrength | null;
+  onDownloadProvenance?: () => void;
 };
 
-export function SessionToolDrawer({ sessionId, sessionTitle, ended }: SessionToolDrawerProps) {
+export function SessionToolDrawer({
+  sessionId,
+  sessionTitle,
+  ended,
+  provenanceStrength,
+  onDownloadProvenance,
+}: SessionToolDrawerProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(ended);
 
@@ -54,6 +64,24 @@ export function SessionToolDrawer({ sessionId, sessionTitle, ended }: SessionToo
               <span className="mt-0.5 block text-[10px] text-white/40">{desk.hint}</span>
             </button>
           ))}
+        </div>
+      )}
+
+      {ended && provenanceStrength && (
+        <div className="border-t border-white/5 px-3 py-3 space-y-2">
+          <SessionProvenanceBadge strength={provenanceStrength} />
+          <p className="text-[11px] text-white/40">
+            Records the live session. Does not prove the music was not AI-generated.
+          </p>
+          {onDownloadProvenance && (
+            <button
+              type="button"
+              onClick={onDownloadProvenance}
+              className="btn btn-ghost flex h-9 w-full items-center justify-center gap-1.5 py-0 text-xs"
+            >
+              <Download className="h-3.5 w-3.5" /> Download .vprov
+            </button>
+          )}
         </div>
       )}
 

@@ -84,4 +84,15 @@ describe("human / session provenance", () => {
     expect(watch).toContain("useHostSignals");
     expect(watch).toContain("noteChatSent");
   });
+
+  it("ships a .vprov package that refuses a not-AI claim", () => {
+    const pack = read("src/features/provenance/buildVprov.ts");
+    expect(pack).toContain("vybz.vprov");
+    expect(pack).toContain("notAiClaim");
+    expect(pack).toContain("verify.txt");
+    const watch = read("src/pages/LiveWatchPage.tsx");
+    expect(watch).toContain("SessionProvenanceBadge");
+    expect(watch).toContain("downloadVprovPackage");
+    expect(watch).toContain("Download .vprov");
+  });
 });
