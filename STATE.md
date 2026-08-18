@@ -10,7 +10,9 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 Feed is in the rail and leads with newest public uploads (SoundCloud-style rows). Public compose lands on `/feed` and already writes the same drop the profile reads. + uploads one track; album/batch left the plus menu. Live watch fills the stage and no longer paints a reactive overlay on the video. Profile hero is shorter; uploads lead; roster/affiliates sit under More.
 
-`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Browser walk: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Pushed `continue-next` `2d8be2a5`. Merged `--no-ff` to `main` `5caefea8`. Pushed `origin/main`. Browser walk: **Not measured**.
 
 ## Library copy and settings gear — 2026-08-18
 
