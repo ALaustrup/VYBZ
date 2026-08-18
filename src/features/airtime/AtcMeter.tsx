@@ -21,6 +21,11 @@ export function AtcMeter() {
     >
       <Timer className="h-3.5 w-3.5 shrink-0 text-cyan-200/80" aria-hidden />
       <span>{clock}</span>
+      {balance && (
+        <span className="hidden font-sans text-[10px] text-white/40 sm:inline">
+          daily {formatAtcClock(balance.dailyFreeRemaining)}
+        </span>
+      )}
       <span className="sr-only">Airtime remaining</span>
     </span>
   );

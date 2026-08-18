@@ -20,8 +20,12 @@ import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { AtcHostCard } from "@/features/airtime/AtcHostCard";
 import { useHostBurn, useListenEarn } from "@/features/airtime/AtcLiveHooks";
 import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
+import { fetchAtcBalance } from "@/features/airtime/atcApi";
+import type { AtcBalances } from "@/features/airtime/atcAccounting";
+import { ATC_POLICY } from "@/product/invariants";
 import { downloadVprovPackage, fetchSealedProvenance, recordDeclaredAudioSha } from "@/features/provenance/provenanceApi";
 import { noteChatSent } from "@/features/provenance/hostSignals";
 import { finishDeclaredPcmHash, useDeclaredAudioSha } from "@/features/provenance/useDeclaredAudioSha";
@@ -53,7 +57,7 @@ export function LiveWatchPage() {
   const [goalBusy, setGoalBusy] = useState(false);
   const [sfuActive, setSfuActive] = useState(false);
   const [vizStream, setVizStream] = useState<MediaStream | null>(null);
-  const [hostAtcLeft, setHostAtcLeft] = useState<number | null>(null);
+  const [hostAtc, setHostAtc] = useState<(AtcBalances & { total: number }) | null>(null);
   const [sealed, setSealed] = useState<SealedProvenance | null>(null);
   const [provBusy, setProvBusy] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -90,6 +94,21 @@ export function LiveWatchPage() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs.length]);
+
+  useEffect(() => {
+    if (!isHost || !session || session.status !== "live") return;
+    let alive = true;
+    void fetchAtcBalance().then((b) => {
+      if (alive && b) {
+        setHostAtc({
+          dailyFreeRemaining: b.dailyFreeRemaining,
+          earnedBalance: b.earnedBalance,
+          total: b.total,
+        });
+      }
+    });
+    return () => { alive = false; };
+  }, [isHost, session?.id, session?.status]);
 
   // LiveKit SFU (primary) — host publishes handoff/cam; viewers subscribe.
   useEffect(() => {
@@ -210,8 +229,8 @@ export function LiveWatchPage() {
       dawStreaming: peekDawBridge()?.status === "streaming",
       micTrackLive: !!vizStream?.getAudioTracks().some((t) => t.enabled && t.readyState === "live"),
     }),
-    onBalances: (b) => setHostAtcLeft(b.total),
-    onWarn: (total) => showToast(`Airtime low · ${formatAtcClock(total)} left`),
+    onBalances: (b) => setHostAtc(b),
+    onWarn: (total) => showToast(`Airtime low · ${formatAtcClock(total)} left. The mix will end when this runs out.`),
     onExhausted: () => { void end(); },
   });
 
@@ -328,9 +347,9 @@ export function LiveWatchPage() {
                     <Volume2 className="h-3 w-3" /> {peekDawBridge()!.info!.sampleRate / 1000}kHz Stereo
                   </span>
                 )}
-                {isHost && !ended && hostAtcLeft != null && (
+                {isHost && !ended && hostAtc && (
                   <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-amber-200 border border-white/10">
-                    {formatAtcClock(hostAtcLeft)}
+                    {formatAtcClock(hostAtc.total)}
                   </span>
                 )}
                 {!ended && (
@@ -417,6 +436,15 @@ export function LiveWatchPage() {
           !chatOpen && "hidden lg:flex",
           "max-h-[45%] lg:max-h-full min-h-[14rem]"
         )}>
+          {isHost && !ended && (
+            <div className="border-b border-[var(--hairline)] p-3">
+              <AtcHostCard
+                balance={hostAtc}
+                live
+                warn={!!hostAtc && hostAtc.total <= ATC_POLICY.hostWarningRemainingAtc}
+              />
+            </div>
+          )}
           {/* Tip Goal Section */}
           {!ended && (
             <div className="border-b border-[var(--hairline)] bg-white/[0.02] p-3">

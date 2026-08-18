@@ -6,6 +6,19 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Slice 2 — go-live Airtime gate — 2026-08-18
+
+Host-facing Airtime card on Go Live and the live stage. Daily free and earned are shown separately. Start stays blocked below 300 ATC. Burn starts on go-live. A leftover shorter than 30s is played out, then the session ends — no hard cut. Reception / referral stay refused. Stripe still cannot mint ATC.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Start gate UI | **IMPLEMENTED BUT NOT DELIVERED** | `AtcHostCard` on `GoLiveSheet`. Go disabled when `canStartHost` is false |
+| In-session meter | **IMPLEMENTED BUT NOT DELIVERED** | Host card on `LiveWatchPage` + leftover buffer in `useHostBurn` |
+| Reception / referral | Refused | 0008 / 0109 unchanged |
+| Browser walk | Not measured | No web browser tool this session. Web app not deployed |
+
+`npm run lint` pass. `npm run test` pass — **176 files / 892 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
 ## HEAD f9a6b6e5 is green — 2026-08-18
 
 HEAD `f9a6b6e5` is green — lint, tests, and production build passed. SessionToolDrawer Package import is closed.

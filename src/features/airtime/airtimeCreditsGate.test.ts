@@ -99,6 +99,7 @@ describe("airtime credits", () => {
     const watch = read("src/pages/LiveWatchPage.tsx");
     expect(watch).toContain("useListenEarn");
     expect(watch).toContain("useHostBurn");
+    expect(watch).toContain("AtcHostCard");
   });
 
   it("shows a header meter that never invents a clock", () => {
@@ -112,6 +113,17 @@ describe("airtime credits", () => {
     const hook = read("src/features/airtime/useAtcBalance.ts");
     expect(hook).toContain("fetchAtcBalance");
     expect(hook).not.toMatch(/earnedBalance \+|dailyFreeRemaining \+/);
+    const go = read("src/components/GoLiveSheet.tsx");
+    expect(go).toContain("AtcHostCard");
+    expect(go).toContain("canStartHost");
+    expect(go).toContain("go-live-start");
+    const card = read("src/features/airtime/AtcHostCard.tsx");
+    expect(card).toContain("Daily free");
+    expect(card).toContain("Earned");
+    expect(card).toContain("NOT_MEASURED");
+    const burn = read("src/features/airtime/AtcLiveHooks.ts");
+    expect(burn).toContain("planAfterBurn");
+    expect(burn).toContain("leftoverPlaySeconds");
   });
 
   it("refuses reception bonus and referral mints instead of inventing rates", () => {

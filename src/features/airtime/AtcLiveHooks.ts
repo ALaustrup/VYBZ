@@ -3,6 +3,7 @@ import { ATC_POLICY } from "@/product/invariants";
 import type { AtcBalances } from "./atcAccounting";
 import { recordDeclaredSignals } from "@/features/provenance/provenanceApi";
 import { takeHostSignalSnapshot } from "@/features/provenance/hostSignals";
+import { leftoverPlaySeconds, planAfterBurn } from "./atcHostGate";
 import { consumeHostAirtime, reportListenHeartbeat } from "./atcApi";
 
 const HEARTBEAT_MS = 15_000;
@@ -59,35 +60,70 @@ export function useHostBurn(opts: {
   useEffect(() => {
     if (!opts.enabled) return undefined;
     let cancelled = false;
+    let timer = 0;
 
-    const tick = async () => {
-      const res = await consumeHostAirtime(opts.sessionId, ATC_POLICY.hostBurnChunkSeconds);
-      if (cancelled || !res) return;
+    const signals = () => {
       const extras = signalRef.current?.() ?? { dawStreaming: false, micTrackLive: false };
       const focused = typeof document === "undefined" ? false : document.visibilityState === "visible";
       void recordDeclaredSignals(
         opts.sessionId,
         takeHostSignalSnapshot({ ...extras, focused }),
       ).catch(() => false);
+    };
+
+    const finish = () => {
+      if (!cancelled) opts.onExhausted?.();
+    };
+
+    const playLeftover = async (seconds: number) => {
+      if (seconds >= 1) {
+        const last = await consumeHostAirtime(opts.sessionId, seconds);
+        if (cancelled) return;
+        if (last) {
+          opts.onBalances?.({
+            dailyFreeRemaining: last.dailyFreeRemaining,
+            earnedBalance: last.earnedBalance,
+            total: last.total,
+          });
+        }
+      }
+      timer = window.setTimeout(finish, Math.max(1, seconds) * 1000);
+    };
+
+    const tick = async () => {
+      const res = await consumeHostAirtime(opts.sessionId, ATC_POLICY.hostBurnChunkSeconds);
+      if (cancelled || !res) return;
+      signals();
       opts.onBalances?.({
         dailyFreeRemaining: res.dailyFreeRemaining,
         earnedBalance: res.earnedBalance,
         total: res.total,
       });
-      if (res.error === "insufficient" || (res.ok && res.total <= 0)) {
-        opts.onExhausted?.();
-        return;
-      }
       if (res.ok && res.total <= ATC_POLICY.hostWarningRemainingAtc && !warned.current) {
         warned.current = true;
         opts.onWarn?.(res.total);
       }
+      const plan = planAfterBurn({
+        ok: res.ok,
+        total: res.total,
+        error: res.error,
+      });
+      if (plan === "end") {
+        finish();
+        return;
+      }
+      if (plan === "buffer") {
+        const left = leftoverPlaySeconds(res.total);
+        void playLeftover(left);
+        return;
+      }
+      timer = window.setTimeout(() => { void tick(); }, BURN_MS);
     };
 
-    const id = window.setInterval(() => { void tick(); }, BURN_MS);
+    void tick();
     return () => {
       cancelled = true;
-      window.clearInterval(id);
+      window.clearTimeout(timer);
     };
   }, [opts.enabled, opts.sessionId]);
 }
