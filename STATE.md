@@ -4,7 +4,21 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`62ea2a84`** (PR [#195](https://github.com/ALaustrup/VYBZ/pull/195) merged). Landing SHA last measured: **Build 6bcfb4b**. Production verify of this tip: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`abc63d24`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+
+## alpha-key v2 deployed — 2026-08-18
+
+`npx supabase functions deploy alpha-key --project-ref xixmneooyufbeftdfpcm --no-verify-jwt` succeeded. Dashboard list: **ACTIVE**, **version 2**, updated **2026-08-18 12:41:11 UTC**.
+
+Live smoke against `https://xixmneooyufbeftdfpcm.supabase.co/functions/v1/alpha-key` (anon, no session):
+
+| Call | Measured |
+|---|---|
+| `POST` `{ "email": "nope" }` | **400** `{"error":"invalid_email"}` |
+| `GET` | **405** `{"error":"method_not_allowed"}` |
+| New-address createUser + tokenHash | **Not measured** — would mint a production account |
+
+No new auth user was created. Reception / referral still refused. SessionToolDrawer unchanged.
 
 ## Listen-to-earn discovery — 2026-08-18
 
@@ -38,7 +52,7 @@ Self-serve key now starts the account. The key stays bound to the email. A typo 
 | Login-only `/enter` | **IMPLEMENTED BUT NOT DELIVERED** | `Onboarding` has passkey + password. No signup. "No account? Go back" |
 | Security in tutorial | **IMPLEMENTED BUT NOT DELIVERED** | `ALPHA_GUIDE_STEPS` security after username. `registerPasskey` or `setAccountPassword` required |
 | Land on Who's on | **IMPLEMENTED BUT NOT DELIVERED** | After claim / redeem / tour → `/live` |
-| `alpha-key` edge deploy | Not measured | Function changed in tree. Not deployed this session |
+| `alpha-key` edge deploy | **DEPLOYED** | version 2 ACTIVE · 2026-08-18 12:41:11 UTC. Invalid email 400 measured |
 | Browser walk | Not measured | No web browser tool this session |
 
 `npm run lint` pass. `npm run test` pass — **178 files / 901 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
