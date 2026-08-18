@@ -6,6 +6,20 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## Artist Stage File profile — 2026-08-18
+
+Public `/u/:id` is now the Stage File: cinematic hero, live nights first, measured stats only, Session provenance seal (never “Human certified”). Connect is still a request. Book-a-session opens a DM and says it is not a calendar. Existing `/u/:id` route kept.
+
+**0107 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked -f supabase/migrations/20260818_0107_host_stage_nights.sql`. Verified `list_host_stage_nights(p_host uuid, p_limit integer)`. Security-definer; world/public sessions plus sealed strength / ATC burned only; no event payloads.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Stage File UI | **IMPLEMENTED BUT NOT DELIVERED** | `ArtistStageProfile` + `UserProfilePage` loader. Web app not deployed. |
+| Public nights RPC | **INFRASTRUCTURE ONLY** | 0107 applied. Fallback `live_sessions` select if RPC fails (no seal flags). |
+| Browser walk | Not measured | No web browser tool in this session. |
+
+`npm run lint` pass. `npm run test` pass — **171 files / 870 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
 ## Session provenance Phase 4 — 2026-08-18
 
 Host can download a `.vprov` zip (`manifest.json`, `events.jsonl`, `verify.txt`) from an ended sealed session. Badge copy is **Session provenance · Full|Thin**, never “Human certified.” `notAiClaim` is **Not measured**.
