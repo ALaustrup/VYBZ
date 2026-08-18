@@ -161,6 +161,11 @@ export const ATC_POLICY = {
   firstListenMultiplier: 1.1,
   newUserBootstrapDays: 7,
   newUserStarterAtc: 3600,
+  heartbeatChunkSeconds: 30,
+  hostBurnChunkSeconds: 30,
+  maxConcurrentEarnSessions: 4,
+  stayContinuousSeconds: 1200,
+  discoveryViewerCeiling: 5,
 } as const;
 
 /* ------------------------------------------------------------------------- */

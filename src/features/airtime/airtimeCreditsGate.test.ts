@@ -80,4 +80,19 @@ describe("airtime credits", () => {
     expect(sql).toContain("grant execute on function public.grant_daily_free");
     expect(sql).toContain("revoke all on function public.grant_daily_free(text) from anon");
   });
+
+  it("awards listen credit only from verified heartbeats, not client flags", () => {
+    const sql = read("supabase/migrations/20260817_0105_airtime_credits.sql");
+    expect(sql).toContain("report_listen_heartbeat");
+    expect(sql).toContain("_atc_award_verified");
+    expect(sql).toContain("_atc_quality_for");
+    expect(sql).toContain("revoke all on function public.award_listen_credit");
+    expect(sql).toContain("can_start_live");
+    expect(sql).toContain("if total < 300");
+    const start = read("src/lib/api.ts");
+    expect(start).toContain("canStartLive");
+    const watch = read("src/pages/LiveWatchPage.tsx");
+    expect(watch).toContain("useListenEarn");
+    expect(watch).toContain("useHostBurn");
+  });
 });

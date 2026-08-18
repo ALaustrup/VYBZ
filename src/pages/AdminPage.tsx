@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Bug, Layers, Loader2, Radio, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles, Wifi, Coins, Scale, KeyRound } from "lucide-react";
+import { Bug, Layers, Loader2, Radio, ShieldCheck, SlidersHorizontal, Users, UserPlus, Award, ScrollText, Check, X, Sparkles, Wifi, Coins, Scale, KeyRound, Timer } from "lucide-react";
+import { AirtimeReviewTab } from "@/features/airtime/AirtimeReviewTab";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
@@ -29,7 +30,7 @@ const WEIGHTS: WeightDef[] = [
 
 const WEIGHT_LABELS: Record<string, string> = Object.fromEntries(WEIGHTS.map((w) => [w.key, w.label]));
 
-type Tab = "members" | "staff" | "invites" | "applications" | "disciplines" | "matchmaking" | "flair" | "bugs" | "infra";
+type Tab = "members" | "staff" | "invites" | "applications" | "disciplines" | "matchmaking" | "flair" | "bugs" | "infra" | "airtime";
 
 export function AdminPage() {
   const { profile } = useSession();
@@ -49,6 +50,7 @@ export function AdminPage() {
         <TabBtn on={tab === "flair"} onClick={() => setTab("flair")} icon={<Coins className="h-3.5 w-3.5" />} label="Flair" />
         <TabBtn on={tab === "bugs"} onClick={() => setTab("bugs")} icon={<Bug className="h-3.5 w-3.5" />} label="Bug reports" />
         <TabBtn on={tab === "infra"} onClick={() => setTab("infra")} icon={<Wifi className="h-3.5 w-3.5" />} label="Infra" />
+        <TabBtn on={tab === "airtime"} onClick={() => setTab("airtime")} icon={<Timer className="h-3.5 w-3.5" />} label="Airtime" />
       </div>
       <div className="no-scrollbar flex-1 overflow-y-auto px-4 pb-10 pt-4">
         {tab === "members" && <MembersTab />}
@@ -60,6 +62,7 @@ export function AdminPage() {
         {tab === "flair" && <FlairFairnessTab />}
         {tab === "bugs" && <BugsTab />}
         {tab === "infra" && <InfraTab />}
+        {tab === "airtime" && <AirtimeReviewTab />}
       </div>
     </div>
   );

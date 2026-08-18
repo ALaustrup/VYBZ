@@ -6,6 +6,19 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
 
+## ATC Phase 2–3 + 0105 applied — 2026-08-17
+
+**0105 applied** to `xixmneooyufbeftdfpcm` via `npx supabase db query --linked`. Verified tables: `airtime_balances`, `airtime_ledger`, `listen_credit_events`, `listen_credit_sessions`. Verified RPCs: `grant_daily_free`, `get_airtime_balance`, `consume_airtime`, `report_listen_heartbeat`, `can_start_live`, `atc_abuse_review`, `_atc_award_verified`.
+
+| Piece | State | Evidence |
+|---|---|---|
+| Listen earn | **PARTIALLY IMPLEMENTED** | Viewer heartbeats every 15s. Credit only after 30s focused+playing. Quality from live chat, stay, discovery, first listen — server-side. `award_listen_credit` revoked from authenticated. |
+| Host burn | **PARTIALLY IMPLEMENTED** | `can_start_live` requires 300 ATC. Host consumes 30s ticks. Warn at 60s. Exhaustion ends the session. |
+| Abuse review | **INFRASTRUCTURE ONLY** | Admin Airtime tab lists 24h earn rows. Not production-walked. |
+| Reception bonus / referral / UI meter | Not started | Phase 4–5 |
+
+`npm run lint` pass. `npm run test` pass — **165 files / 853 tests**. Browser walk **Not measured**.
+
 ## ATC spec lock + 0104 applied — 2026-08-17
 
 **0104 applied to production** (`xixmneooyufbeftdfpcm`) via `npx supabase db query --linked -f supabase/migrations/20260817_0104_live_source_daw.sql`. Verified:
@@ -19,9 +32,7 @@ Backfill: **0** existing rows had `source = 'daw'` after apply (no prior `moneti
 
 **ATC Phase 0 (DOCUMENTED ONLY / invariants locked):** `PRODUCT.md` v4. Decision [`0005`](docs/decisions/0005-airtime-credits.md). `AIRTIME_CREDITS` + `ATC_POLICY` + `airtimeCredits` gate. Hosting is no longer described as free. Listening stays free. Station Airtime stays parked and separate. Stripe never mints ATC.
 
-**ATC Phase 1 (INFRASTRUCTURE ONLY, not applied):** migration `0105` (balances, ledger, listen_credit_events, grant/get/consume/award RPCs). Host start is **not** gated. Listen earn is **not** wired to LiveKit. Edge function not deployed.
-
-`npm run lint` pass. `npm run test` pass — **164 files / 847 tests**. Build not re-run (docs + ledger only). `0105` not applied.
+**ATC Phase 1 ledger:** applied with Phase 2–3 (see above).
 
 ## Native `source = 'daw'` — 2026-08-17
 

@@ -19,6 +19,8 @@ import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { VcTipSheet } from "@/components/VcTipSheet";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { useHostBurn, useListenEarn } from "@/features/airtime/AtcLiveHooks";
+import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
 import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
 import { SessionToolDrawer } from "@/features/broadcast/SessionToolDrawer";
 import { getDawBridge, peekDawBridge, releaseDawBridge } from "@/features/broadcast/dawBridgeSession";
@@ -44,6 +46,7 @@ export function LiveWatchPage() {
   const [goalBusy, setGoalBusy] = useState(false);
   const [sfuActive, setSfuActive] = useState(false);
   const [vizStream, setVizStream] = useState<MediaStream | null>(null);
+  const [hostAtcLeft, setHostAtcLeft] = useState<number | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const sfuRef = useRef<LiveSfuSession | null>(null);
@@ -164,6 +167,21 @@ export function LiveWatchPage() {
     else showToast("Couldn't send");
   }
 
+  const playing = sfuActive || !!session?.playbackHls;
+  useListenEarn({
+    sessionId: id,
+    enabled: !!session && !isHost && session.status === "live",
+    playing,
+    onAwarded: (n) => showToast(`+${n} ATC earned`),
+  });
+  useHostBurn({
+    sessionId: id,
+    enabled: !!session && isHost && session.status === "live",
+    onBalances: (b) => setHostAtcLeft(b.total),
+    onWarn: (total) => showToast(`Airtime low · ${formatAtcClock(total)} left`),
+    onExhausted: () => { void end(); },
+  });
+
   async function end() {
     await sfuRef.current?.disconnect();
     sfuRef.current = null;
@@ -272,6 +290,11 @@ export function LiveWatchPage() {
                 {session.source === "daw" && peekDawBridge()?.info && (
                   <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-emerald-300 border border-white/10">
                     <Volume2 className="h-3 w-3" /> {peekDawBridge()!.info!.sampleRate / 1000}kHz Stereo
+                  </span>
+                )}
+                {isHost && !ended && hostAtcLeft != null && (
+                  <span className="hidden sm:flex items-center gap-1 rounded bg-white/[0.08] px-2 py-0.5 text-[10px] font-mono font-medium text-amber-200 border border-white/10">
+                    {formatAtcClock(hostAtcLeft)}
                   </span>
                 )}
                 {!ended && (

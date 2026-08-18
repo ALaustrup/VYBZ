@@ -8,8 +8,11 @@ import { useReduceFx } from "@/lib/display";
 import { setLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { cx } from "@/lib/utils";
+import { canStartLive, fetchAtcBalance, type AtcBalanceResponse } from "@/features/airtime/atcApi";
+import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
 import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
 import { getDawBridge, isDawBridgeRetained, retainDawBridge } from "@/features/broadcast/dawBridgeSession";
+import { ATC_POLICY } from "@/product/invariants";
 import type { LiveAudience, LiveSource } from "@/types";
 
 type WizardStep = "source" | "audience" | "details";
@@ -33,6 +36,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [gates, setGates] = useState<api.InfraGatesStatus | null>(null);
+  const [atc, setAtc] = useState<AtcBalanceResponse | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -52,6 +56,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       return;
     }
     void api.fetchInfraGates().then(setGates);
+    void fetchAtcBalance().then(setAtc);
   }, [open]);
 
   useEffect(() => {
@@ -114,6 +119,16 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
         }
       } else if (!previewing) {
         await startPreview();
+      }
+      const gate = await canStartLive();
+      if (!gate?.ok) {
+        setErr(
+          gate?.error === "insufficient"
+            ? `Need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} of Airtime to go live. Listen to earn more.`
+            : "Couldn't check Airtime.",
+        );
+        setBusy(false);
+        return;
       }
       const session = await api.startLiveSession({
         title: title.trim() || undefined,
@@ -265,6 +280,12 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                     {" · "}
                     {source}
                   </p>
+                  <p className="text-[12px] text-white/50">
+                    Airtime remaining: {atc ? formatAtcClock(atc.total) : "Not measured"}
+                    {atc && atc.total < ATC_POLICY.hostStartMinimumAtc
+                      ? ` · need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} to start`
+                      : ""}
+                  </p>
                   {gates && (
                     <ul className="space-y-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-[11px] text-white/50">
                       <li>
@@ -306,7 +327,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
                 </button>
               )}
               {step === "details" && (
-                <button type="button" onClick={() => void goLive()} disabled={busy} className="btn btn-primary flex-1 py-3.5">
+                <button type="button" onClick={() => void goLive()} disabled={busy || (atc != null && atc.total < ATC_POLICY.hostStartMinimumAtc)} className="btn btn-primary flex-1 py-3.5">
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Radio className="h-4 w-4" /> Go</>}
                 </button>
               )}

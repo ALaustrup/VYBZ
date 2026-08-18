@@ -21,6 +21,7 @@ import type {
   PostFx, PostAudience, PlaybackCustomization, ArtistProfile, ReleaseType,
   SocialScore,
 } from "@/types";
+import { canStartLive } from "@/features/airtime/atcApi";
 import {
   dawIngestPatch,
   isCheckViolation,
@@ -3671,6 +3672,9 @@ export async function startLiveSession(input: {
 }): Promise<LiveSessionDetail | null> {
   const me = await currentUserId();
   if (!me) return null;
+
+  const gate = await canStartLive();
+  if (!gate?.ok) return null;
 
   // End any prior live session for this host (unique index).
   await db().from("live_sessions").update({ status: "ended", ended_at: new Date().toISOString(), stream_key: null })
