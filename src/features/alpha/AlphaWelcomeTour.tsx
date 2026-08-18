@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Sparkles, UserRound } from "lucide-react";
+import { Fingerprint, Loader2, Lock, Sparkles, UserRound } from "lucide-react";
 import {
   ALPHA_GUIDE_STEPS,
   hasCompletedAlphaWelcome,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/alphaWelcome";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
+import { passkeysSupported, registerPasskey } from "@/lib/passkey";
 import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 
@@ -42,6 +44,7 @@ export function AlphaWelcomeTour({
   username: string | null;
 }) {
   const reduce = useReduceFx();
+  const navigate = useNavigate();
   const { refreshProfile, showToast } = useSession();
   const needsUsername = !username?.trim();
   const [open, setOpen] = useState(() => needsUsername || !hasCompletedAlphaWelcome(userId));
@@ -50,11 +53,22 @@ export function AlphaWelcomeTour({
   const [nameDraft, setNameDraft] = useState("");
   const [savingName, setSavingName] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [securityDone, setSecurityDone] = useState(() => !needsUsername);
+  const [securityBusy, setSecurityBusy] = useState<null | "passkey" | "password">(null);
+  const [securityError, setSecurityError] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [pk] = useState(() => passkeysSupported());
 
   useEffect(() => {
     setOpen(needsUsername || !hasCompletedAlphaWelcome(userId));
-    setStep(0);
   }, [userId, needsUsername]);
+
+  useEffect(() => {
+    setStep(0);
+    setSecurityDone(!!username?.trim());
+    // username is sampled at account switch only — claiming a name must not skip security.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   function finish() {
     // Never let the tour close over a missing name.
@@ -62,8 +76,13 @@ export function AlphaWelcomeTour({
       setStep(ALPHA_GUIDE_STEPS.findIndex((s) => s.id === "username"));
       return;
     }
+    if (!securityDone) {
+      setStep(ALPHA_GUIDE_STEPS.findIndex((s) => s.id === "security"));
+      return;
+    }
     markAlphaWelcomeComplete(userId);
     setOpen(false);
+    navigate("/live", { replace: true });
     requestPulseFeedbackFab();
   }
 
@@ -98,14 +117,53 @@ export function AlphaWelcomeTour({
     }
     showToast(`Welcome to VYBZ, ${value}`);
     await refreshProfile();
-    setStep((s) => s + 1);
+    setStep(ALPHA_GUIDE_STEPS.findIndex((s) => s.id === "security"));
+  }
+
+  async function addPasskey() {
+    setSecurityBusy("passkey");
+    setSecurityError(null);
+    try {
+      const { verified } = await registerPasskey();
+      if (!verified) {
+        setSecurityError("Couldn’t add that passkey. Try again or set a password.");
+        return;
+      }
+      setSecurityDone(true);
+      showToast("Passkey added");
+    } catch (e) {
+      const name = (e as { name?: string }).name;
+      if (name !== "NotAllowedError" && name !== "AbortError") {
+        setSecurityError("Couldn’t add that passkey. Try a password.");
+      }
+    } finally {
+      setSecurityBusy(null);
+    }
+  }
+
+  async function savePassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.trim().length < 8) {
+      setSecurityError("Password needs at least 8 characters.");
+      return;
+    }
+    setSecurityBusy("password");
+    setSecurityError(null);
+    const { error } = await api.setAccountPassword(newPassword);
+    setSecurityBusy(null);
+    if (error) {
+      setSecurityError(error);
+      return;
+    }
+    setSecurityDone(true);
+    showToast("Password saved");
   }
 
   const current = ALPHA_GUIDE_STEPS[step]!;
   const isLast = step === ALPHA_GUIDE_STEPS.length - 1;
   const isUsernameStep = "kind" in current && current.kind === "username";
-  // The name step gates the tour; everything after it may be skipped.
-  const blocked = isUsernameStep && needsUsername;
+  const isSecurityStep = "kind" in current && current.kind === "security";
+  const blocked = (isUsernameStep && needsUsername) || (isSecurityStep && !securityDone);
 
   return (
     <AnimatePresence>
@@ -155,7 +213,7 @@ export function AlphaWelcomeTour({
                           if (nameError) setNameError(null);
                         }}
                         placeholder="yourname"
-                        aria-label="Artist or producer name"
+                        aria-label="Your name"
                         autoFocus
                         data-testid="alpha-username-input"
                       />
@@ -182,6 +240,64 @@ export function AlphaWelcomeTour({
                     You are <span className="font-semibold text-white">{username}</span> on VYBZ.
                   </p>
                 )
+              ) : null}
+
+              {isSecurityStep ? (
+                <div className="mt-4 space-y-3" data-testid="alpha-security-step">
+                  {securityDone ? (
+                    <p className="rounded-2xl border border-[rgb(var(--accent-rgb)/0.35)] bg-[rgb(var(--accent-rgb)/0.1)] px-3 py-2.5 text-[13px] text-white/80">
+                      You can get back in with a passkey or password on this email.
+                    </p>
+                  ) : (
+                    <>
+                      {pk ? (
+                        <button
+                          type="button"
+                          onClick={() => void addPasskey()}
+                          disabled={!!securityBusy}
+                          className="forge-cta w-full disabled:opacity-40"
+                          data-testid="alpha-security-passkey"
+                        >
+                          {securityBusy === "passkey"
+                            ? <Loader2 className="h-4 w-4 animate-spin" />
+                            : <><Fingerprint className="h-4 w-4" /> Add a passkey</>}
+                        </button>
+                      ) : (
+                        <p className="text-[12px] text-white/45">This device does not support passkeys. Set a password.</p>
+                      )}
+                      <form onSubmit={savePassword} className="space-y-2">
+                        <label className="forge-field !py-2">
+                          <Lock className="h-4 w-4 shrink-0 text-white/35" aria-hidden />
+                          <input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => {
+                              setNewPassword(e.target.value);
+                              if (securityError) setSecurityError(null);
+                            }}
+                            placeholder="Password (8+ characters)"
+                            autoComplete="new-password"
+                            minLength={8}
+                            data-testid="alpha-security-password"
+                          />
+                        </label>
+                        <button
+                          type="submit"
+                          disabled={securityBusy === "password" || newPassword.trim().length < 8}
+                          className="forge-cta-ghost w-full min-h-[2.5rem] disabled:opacity-40"
+                          data-testid="alpha-security-password-save"
+                        >
+                          {securityBusy === "password"
+                            ? <Loader2 className="h-4 w-4 animate-spin" />
+                            : "Save password"}
+                        </button>
+                      </form>
+                    </>
+                  )}
+                  {securityError ? (
+                    <p className="text-xs font-medium text-wild" role="alert">{securityError}</p>
+                  ) : null}
+                </div>
               ) : null}
 
               {"highlights" in current && current.highlights ? (

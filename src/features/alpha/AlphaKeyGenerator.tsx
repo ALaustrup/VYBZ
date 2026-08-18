@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, Copy, KeyRound, Loader2, Mail } from "lucide-react";
 import {
   alphaKeyErrorMessage,
@@ -6,25 +7,32 @@ import {
   requestAlphaKey,
   type AlphaKeyFailure,
 } from "@/features/alpha/alphaKeyRequest";
+import { claimAlphaAccess } from "@/features/alpha/claimAlphaAccess";
+import { useSession } from "@/store/session";
 
 /**
- * Self-serve alpha key. A visitor enters an email and gets a key bound to it,
- * on screen and by email.
+ * Self-serve alpha key. A visitor enters an email and gets an account bound to
+ * it. New addresses are signed in immediately. Existing addresses are sent to
+ * passkey / password login.
  *
- * The key is shown immediately rather than only mailed, so a delivery failure
- * never costs someone their access. The address is therefore attribution rather
- * than verification, and the copy says so instead of implying a check we do not
- * run.
+ * The address is attribution rather than verification, and the copy says so.
  *
  * Deliberately not a `<form>`: both mount points (the landing invite panel and
- * the invite gate) are already inside one, and nested forms are invalid HTML —
- * the browser drops the inner one, so the submit handler never binds and the
- * click submits the outer form instead. Enter is handled on the input.
+ * the invite gate) are already inside one, and nested forms are invalid HTML.
  */
-export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
+export function AlphaKeyGenerator({
+  compact = false,
+  onIssued,
+}: {
+  compact?: boolean;
+  onIssued?: (code: string) => void;
+}) {
+  const navigate = useNavigate();
+  const { userId } = useSession();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [code, setCode] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [error, setError] = useState<AlphaKeyFailure | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -34,13 +42,32 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
     if (!valid || busy) return;
     setBusy(true);
     setError(null);
-    const res = await requestAlphaKey(email);
+
+    if (userId) {
+      const res = await requestAlphaKey(email);
+      setBusy(false);
+      if (!res.ok) {
+        setError(res.reason);
+        return;
+      }
+      setCode(res.code);
+      onIssued?.(res.code);
+      return;
+    }
+
+    const res = await claimAlphaAccess(email);
     setBusy(false);
     if (!res.ok) {
       setError(res.reason);
       return;
     }
     setCode(res.code);
+    onIssued?.(res.code);
+    if (res.status === "signed_in") {
+      navigate("/live", { replace: true });
+      return;
+    }
+    setNeedsLogin(true);
   }
 
   async function copy() {
@@ -52,6 +79,33 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
     } catch {
       // Clipboard can be blocked; the key stays selectable on screen.
     }
+  }
+
+  if (code && needsLogin) {
+    return (
+      <div
+        className="forge-glass relative w-full rounded-2xl p-4"
+        data-testid="alpha-key-existing"
+      >
+        <span className="forge-glass-edge pointer-events-none" aria-hidden />
+        <div className="relative z-[1]">
+          <p className="text-[13px] leading-relaxed text-white/75">
+            That email already has an account. Sign in with a passkey or password.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/enter")}
+            className="forge-cta mt-3 w-full !min-h-10 !text-sm"
+            data-testid="alpha-key-go-login"
+          >
+            Sign in
+          </button>
+          <p className="mt-3 text-[12px] leading-relaxed text-white/45">
+            A key was also sent to {email}. We do not check the address.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (code) {
@@ -91,9 +145,6 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
             </button>
             <span className="text-[11px] text-white/40">Also sent to {email}</span>
           </div>
-          <p className="mt-3 text-[12px] leading-relaxed text-white/50">
-            Sign in and paste this key. One use. 30 days. Then pick your name.
-          </p>
         </div>
       </div>
     );
@@ -108,7 +159,7 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
     >
       {!compact && (
         <p className="mb-2 text-[12px] leading-relaxed text-white/50">
-          Enter your email. We make a key. We do not check the address — it just ties the key to you.
+          Enter your email. We make a key and start your account. We do not check the address — it just ties the key to you.
         </p>
       )}
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -125,7 +176,6 @@ export function AlphaKeyGenerator({ compact = false }: { compact?: boolean }) {
             }}
             onKeyDown={(e) => {
               if (e.key !== "Enter") return;
-              // Stop the surrounding invite form from submitting instead.
               e.preventDefault();
               void generate();
             }}

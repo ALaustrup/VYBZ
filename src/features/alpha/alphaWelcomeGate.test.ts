@@ -21,12 +21,14 @@ describe("Alpha welcome + feedback gate", () => {
     expect(GATE_REGISTRY).toContain("alphaWelcome");
   });
 
-  it("welcomes first, then claims the artist name, then tours the suite", () => {
-    expect(ALPHA_GUIDE_STEPS.length).toBe(4);
+  it("welcomes first, then claims the name, then locks security, then tours live", () => {
+    expect(ALPHA_GUIDE_STEPS.length).toBe(5);
     expect(ALPHA_GUIDE_STEPS[0]!.title).toMatch(/Welcome to VYBZ/i);
     expect(ALPHA_GUIDE_STEPS[1]!.id).toBe("username");
-    expect(ALPHA_GUIDE_STEPS[2]!.highlights?.length).toBeGreaterThan(2);
-    expect(ALPHA_GUIDE_STEPS[3]!.id).toBe("feedback");
+    expect(ALPHA_GUIDE_STEPS[2]!.id).toBe("security");
+    expect(ALPHA_GUIDE_STEPS[3]!.highlights?.length).toBeGreaterThan(2);
+    expect(ALPHA_GUIDE_STEPS[3]!.title).toMatch(/Who's on/i);
+    expect(ALPHA_GUIDE_STEPS[4]!.id).toBe("feedback");
     expect(alphaWelcomeStorageKey("user-1")).toContain(ALPHA_WELCOME_VERSION);
   });
 
@@ -50,8 +52,11 @@ describe("Alpha welcome + feedback gate", () => {
     const tour = read("src/features/alpha/AlphaWelcomeTour.tsx");
     // Tour opens whenever the name is absent, regardless of local completion flag.
     expect(tour).toContain("needsUsername || !hasCompletedAlphaWelcome(userId)");
-    // Skip and Next are withheld on the name step.
-    expect(tour).toContain("const blocked = isUsernameStep && needsUsername");
+    // Skip and Next are withheld on the name and security steps.
+    expect(tour).toContain("const blocked = (isUsernameStep && needsUsername) || (isSecurityStep && !securityDone)");
+    expect(tour).toContain("alpha-security-step");
+    expect(tour).toContain("setAccountPassword");
+    expect(tour).toContain("registerPasskey");
     expect(tour).toContain("{blocked ? null : (");
     // finish() refuses to close over a missing name.
     expect(tour).toMatch(/if \(needsUsername\) \{[\s\S]*?return;/);

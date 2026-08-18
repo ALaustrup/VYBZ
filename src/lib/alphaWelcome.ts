@@ -22,11 +22,11 @@ export function markAlphaWelcomeComplete(userId: string): void {
 }
 
 /**
- * Tour copy. `{name}` is replaced with the artist name chosen in step 2, or with
+ * Tour copy. `{name}` is replaced with the name chosen in step 2, or with
  * "you" before it is set.
  *
- * Step 2 collects the name and cannot be skipped — it is the first thing a new
- * account does, and every surface refers to that name from then on.
+ * Step 2 collects the name and cannot be skipped. Step 3 is account security
+ * (passkey or password) so a new key-generated account can get back in.
  */
 export const ALPHA_GUIDE_STEPS = [
   {
@@ -38,18 +38,23 @@ export const ALPHA_GUIDE_STEPS = [
     id: "username",
     kind: "username",
     title: "What should we call you?",
-    body: "This name shows on your packs and page.",
+    body: "This name shows on your stage and in the room.",
+  },
+  {
+    id: "security",
+    kind: "security",
+    title: "How you get back in, {name}",
+    body: "Set a passkey or a password now. This email is not checked — a typo means you cannot recover.",
   },
   {
     id: "suite",
-    title: "What's here, {name}",
-    body: "Start with Make pack. Also ready:",
+    title: "Who's on, {name}",
+    body: "Live is the front door. Listening is free.",
     highlights: [
-      { label: "Scan", blurb: "Drop files. We measure them." },
-      { label: "Fix", blurb: "Clean the audio. A/B the change." },
+      { label: "Live", blurb: "Who's on right now. Go live when you have Airtime." },
       { label: "Library", blurb: "Your files." },
-      { label: "Stems", blurb: "Zip stems you already bounced." },
-      { label: "Tools", blurb: "Names, cover, MIDI, convert." },
+      { label: "Make pack", blurb: "Build something from a session." },
+      { label: "Scan", blurb: "Drop files. We measure them." },
     ],
   },
   {

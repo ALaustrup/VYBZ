@@ -110,8 +110,8 @@ export async function registerPasskey(): Promise<{ verified: boolean }> {
   return call<{ verified: boolean }>("register-verify", { response });
 }
 
-/** Exchange a verified passkey ceremony's token_hash for a real session. */
-async function establishSession(tokenHash?: string): Promise<boolean> {
+/** Exchange a hashed magic-link token for a real session. */
+export async function establishSession(tokenHash?: string): Promise<boolean> {
   if (!tokenHash || !supabase) return false;
   // generateLink({ type: "magiclink" }) returns a hashed_token that verifyOtp
   // accepts as either magiclink or email depending on project auth settings.

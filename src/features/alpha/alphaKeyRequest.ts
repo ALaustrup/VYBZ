@@ -1,7 +1,15 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase";
 
+export type AlphaKeyAccount = "created" | "exists" | "create_failed";
+
 export type AlphaKeyResult =
-  | { ok: true; code: string; expiresAt: string | null }
+  | {
+      ok: true;
+      code: string;
+      expiresAt: string | null;
+      account?: AlphaKeyAccount;
+      tokenHash?: string;
+    }
   | { ok: false; reason: AlphaKeyFailure };
 
 export type AlphaKeyFailure =
@@ -49,14 +57,27 @@ export async function requestAlphaKey(email: string): Promise<AlphaKeyResult> {
       body: JSON.stringify({ email: email.trim() }),
     });
     const body = (await res.json().catch(() => null)) as
-      | { ok?: boolean; code?: string; expiresAt?: string | null; error?: string }
+      | {
+          ok?: boolean;
+          code?: string;
+          expiresAt?: string | null;
+          error?: string;
+          account?: AlphaKeyAccount;
+          tokenHash?: string;
+        }
       | null;
 
     if (!res.ok || !body?.ok || !body.code) {
       const reason = (body?.error ?? "issue_failed") as AlphaKeyFailure;
       return { ok: false, reason };
     }
-    return { ok: true, code: body.code, expiresAt: body.expiresAt ?? null };
+    return {
+      ok: true,
+      code: body.code,
+      expiresAt: body.expiresAt ?? null,
+      account: body.account,
+      tokenHash: body.tokenHash,
+    };
   } catch {
     return { ok: false, reason: "issue_failed" };
   }

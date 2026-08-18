@@ -37,6 +37,7 @@ import { myListenSummary, type ListenSummary } from "@/features/reception/listen
 import { getPrepareOwnerId, getReleaseBundle, listReleases } from "@/features/prepare/service";
 import { nextDeskStepsFromFindings } from "@/features/prepare/nextDeskFromFindings";
 import { WhatNextDesks } from "@/features/prepare/WhatNextDesks";
+import { WhosLivePanel } from "@/features/live/WhosLivePanel";
 import type { FindingLike } from "@/features/prepare/analyzerReady";
 import { useSession } from "@/store/session";
 import { paletteFor, cx } from "@/lib/utils";
@@ -503,6 +504,8 @@ export function ArtistHome() {
           </div>
         </div>
       </header>
+
+      <WhosLivePanel variant="rail" className="relative z-[1]" />
 
       {loading ? (
         <div className="flex justify-center py-10" data-testid="ops-home-loading">

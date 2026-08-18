@@ -1,8 +1,9 @@
 // Supabase Edge Function: alpha-key
 //
 // Public POST { email } → issues a one-time alpha key bound to that address,
-// emails it, and returns it so the visitor can paste it straight into the
-// existing invite input.
+// creates a confirmed account when the address is new, redeems the key, and
+// returns a session token hash so the visitor is in with no extra form.
+// Existing accounts get the key only — never an automatic session.
 //
 // The gate this feeds is email-tagged, not invite-only: anyone with an address
 // can obtain a key. Throttling lives in issue_self_alpha_key (per email and per
@@ -63,17 +64,16 @@ async function sendKeyEmail(opts: { to: string; code: string; appUrl: string }):
   const subject = "Your VYBZ alpha key";
   const html = `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;background:#0a0c12;color:#eee;padding:32px">
   <h1 style="font-size:22px;margin:0 0 12px">Welcome to the VYBZ alpha</h1>
-  <p style="opacity:.85;line-height:1.6">Here is your access key. Sign in at VYBZ and paste it when you are asked for an invite key.</p>
+  <p style="opacity:.85;line-height:1.6">Your VYBZ account is tied to this address. Open the app — you should already be in. Then pick your name and set a passkey or password so you can get back in.</p>
   <p style="margin:24px 0;padding:16px;border-radius:12px;background:#131722;font-family:ui-monospace,monospace;font-size:18px;letter-spacing:.06em;color:#22d3ee">${code}</p>
-  <p style="opacity:.7;line-height:1.6;font-size:14px">It works once, expires in 30 days, and is tied to this email address. Requesting another key replaces this one.</p>
-  <p style="opacity:.7;line-height:1.6;font-size:14px">You will pick your artist name right after you sign in — that name is how everyone on VYBZ will see you.</p>
+  <p style="opacity:.7;line-height:1.6;font-size:14px">The key is tied to this email. We do not check that the address works. A typo means you cannot recover this account.</p>
   <p style="opacity:.55;font-size:13px;margin-top:24px"><a href="${esc(app)}" style="color:#22d3ee">vybz.cloud</a></p>
   </body></html>`;
   const text = `Welcome to the VYBZ alpha.
 
 Your access key: ${opts.code}
 
-Sign in at ${app} and paste it when asked for an invite key. It works once, expires in 30 days, and is tied to this email address.`;
+Your account is tied to this email. Open ${app} — pick your name, then set a passkey or password so you can get back in. We do not check the address. A typo means you cannot recover.`;
   await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
@@ -108,7 +108,13 @@ Deno.serve(async (req) => {
     return json({ error: "issue_failed" }, 500);
   }
 
-  const result = data as { ok?: boolean; reason?: string; code?: string; expiresAt?: string } | null;
+  const result = data as {
+    ok?: boolean;
+    reason?: string;
+    code?: string;
+    expiresAt?: string;
+    keyId?: string;
+  } | null;
   if (!result?.ok || !result.code) {
     const reason = result?.reason ?? "issue_failed";
     // Throttling is a client-correctable condition, not a server fault.
@@ -123,5 +129,71 @@ Deno.serve(async (req) => {
     console.error("alpha-key email", e),
   );
 
-  return json({ ok: true, code: result.code, expiresAt: result.expiresAt ?? null });
+  const provisioned = await provisionAccount(email, result.code, result.keyId ?? null);
+  return json({
+    ok: true,
+    code: result.code,
+    expiresAt: result.expiresAt ?? null,
+    account: provisioned.account,
+    tokenHash: provisioned.tokenHash ?? null,
+  });
 });
+
+function randomPassword(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return `Vy${Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")}!`;
+}
+
+function alreadyRegistered(err: { message?: string; status?: number } | null): boolean {
+  if (!err) return false;
+  if (err.status === 422) return true;
+  return /already registered|already been registered|user already exists|email_exists/i.test(
+    err.message ?? "",
+  );
+}
+
+async function redeemForUser(userId: string, keyId: string | null): Promise<void> {
+  if (!keyId) return;
+  const now = new Date().toISOString();
+  const { error: redErr } = await admin.from("invite_redemptions").insert({
+    key_id: keyId,
+    user_id: userId,
+  });
+  if (redErr && !/duplicate|unique/i.test(redErr.message ?? "")) {
+    console.error("alpha-key redeem insert", redErr);
+    return;
+  }
+  await admin.from("invite_keys").update({ redeemed_count: 1 }).eq("id", keyId);
+  await admin.from("profiles").update({ alpha_access_at: now }).eq("id", userId).is("alpha_access_at", null);
+}
+
+async function provisionAccount(
+  email: string,
+  _code: string,
+  keyId: string | null,
+): Promise<{ account: "created" | "exists" | "create_failed"; tokenHash?: string }> {
+  const created = await admin.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    password: randomPassword(),
+  });
+  if (created.error) {
+    if (alreadyRegistered(created.error)) return { account: "exists" };
+    console.error("alpha-key createUser", created.error);
+    return { account: "create_failed" };
+  }
+  const userId = created.data.user?.id;
+  if (!userId) return { account: "create_failed" };
+
+  await admin.from("profiles").upsert({ id: userId }, { onConflict: "id" });
+  await redeemForUser(userId, keyId);
+
+  const link = await admin.auth.admin.generateLink({ type: "magiclink", email });
+  if (link.error) {
+    console.error("alpha-key generateLink", link.error);
+    return { account: "created" };
+  }
+  const tokenHash = link.data.properties?.hashed_token;
+  return { account: "created", tokenHash };
+}
