@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`ffed8df5`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of parked ATC: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`1bfbc43a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of parked ATC: **Not measured**.
 
 ## Park Airtime Credits — 2026-08-18
 
@@ -14,7 +14,7 @@ When off: header clock hidden, go-live skip the 300 ATC gate, host burn and list
 
 `npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
-Production still serves the previous main SHA until this is merged. Browser walk of the parked path: **Not measured** — no browser tool this session.
+Pushed `continue-next` `eaa541a7`. Merged `--no-ff` to `main` `1bfbc43a`. Pushed `origin/main`. Browser walk of the parked path: **Not measured** — no browser tool this session.
 
 ## Revert 3-panel homepage — 2026-08-18
 
