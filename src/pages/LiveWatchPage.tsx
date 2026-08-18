@@ -218,7 +218,7 @@ export function LiveWatchPage() {
   const playing = sfuActive || !!session?.playbackHls;
   useHostSignals(!!session && isHost && session.status === "live");
   useDeclaredAudioSha(!!session && isHost && session.status === "live" && session.source === "daw");
-  useListenEarn({
+  const listenCredited = useListenEarn({
     sessionId: id,
     enabled: !!session && !isHost && session.status === "live",
     playing,
@@ -232,7 +232,7 @@ export function LiveWatchPage() {
       micTrackLive: !!vizStream?.getAudioTracks().some((t) => t.enabled && t.readyState === "live"),
     }),
     onBalances: (b) => setHostAtc(b),
-    onWarn: (total) => showToast(`Airtime low · ${formatAtcClock(total)} left. The mix will end when this runs out.`),
+    onWarn: (total) => showToast(`Airtime low · ${formatAtcClock(total)} left. The session will end when this runs out.`),
     onExhausted: () => { void end(); },
   });
 
@@ -368,6 +368,13 @@ export function LiveWatchPage() {
         <div className="flex items-center gap-2 border-t border-[var(--hairline)] bg-ink-950/90 px-4 py-2.5 backdrop-blur-md">
           {!isHost && !ended && (
             <>
+              <span
+                data-testid="listen-earn-meter"
+                className="hidden sm:flex h-9 shrink-0 items-center rounded-xl border border-white/10 bg-white/[0.04] px-2.5 font-mono text-[11px] text-cyan-100"
+                title="Airtime earned this stay. Listening is free."
+              >
+                +{formatAtcClock(listenCredited)}
+              </span>
               <TipButton
                 userId={session.hostId}
                 username={session.username}

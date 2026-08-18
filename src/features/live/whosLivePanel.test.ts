@@ -17,6 +17,11 @@ describe("Who's live panel", () => {
     expect(panel).toContain("subscribeLiveSessions");
     expect(panel).toContain("whos-live-host");
     expect(panel).toContain("displayName");
+    expect(panel).toContain("listen-earn-hint");
+    expect(panel).toContain("Listening is free");
+    expect(panel).toContain("earn Airtime");
+    expect(read("src/pages/LiveWatchPage.tsx")).toContain("listen-earn-meter");
+    expect(read("src/pages/LiveWatchPage.tsx")).toContain("listenCredited");
     expect(read("src/pages/LivePage.tsx")).toContain("WhosLivePanel");
     expect(read("src/components/home/ArtistHome.tsx")).toContain("WhosLivePanel");
     expect(read("src/components/dashboard/DashLivePanel.tsx")).toContain("WhosLivePanel");
