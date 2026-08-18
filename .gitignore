@@ -37,6 +37,11 @@ public/backdrop/poster.webp
 .agents/
 skills-lock.json
 
+# Native VLink compile output (source stays)
+native/vlink/build/
+*.obj
+*.exp
+
 # AI review live-walk screenshots (paths referenced from run markdown)
 docs/ai-review/runs/assets/
 

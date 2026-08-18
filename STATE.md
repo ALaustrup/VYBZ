@@ -4,7 +4,19 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`f6e3ad5f`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the library-only home: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`affd7755`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## VLink VST3 — 2026-08-18
+
+Owner asked for a VST3 named **VLink** that syncs DAW audio and data as a local API node. Source is `native/vlink`. `build.bat` produced `VLink.vst3` and `VLinkNode.exe` on this machine with MSVC 14.44 (binaries are gitignored). The plug-in is a stereo thru insert. Loopback `127.0.0.1:48480` serves `/vybz-stream` (existing VYBZ PCM + hello/meter/transport) and `/vlink` plus HTTP `/v1/info|transport|meters`.
+
+What is measured: process-buffer audio, peak/RMS, sample-peak dBFS, and ProcessContext transport **when the host sets the valid flags**. Tempo/time-sig omitted when the host does not provide them. VLink does **not** enumerate tracks, clips, or other plug-ins. LUFS on the wire is mean-square → LUFS-like, not BS.1770-4.
+
+Web client accepts optional `pluginName` and `transport` messages. Go Live source tab is labeled VLink. Delivery of a compiled module in a DAW: **NATIVE-PLATFORM ONLY**. Loaded in Ableton/FL/Reaper this session: **Not measured**.
+
+Loopback probe against `VLinkNode.exe` on `ws://127.0.0.1:48480/vybz-stream` (same URL as `DEFAULT_DAW_WS_URL`): hello + status + framed PCM + meter + pong + `GET /v1/info` all succeeded. Ping/telemetry from the existing client did not drop the socket.
+
+`npm run lint` pass. `npm run test` pass — **180 files / 906 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
 ## Home is the owner's library — 2026-08-18
 
@@ -387,7 +399,7 @@ Implemented the next slice of `implementation_plan.md` on `continue-next`. Nothi
 | Piece | Delivery state | Evidence |
 |---|---|---|
 | DAW wire protocol + loopback client (`src/features/broadcast/`) | **PARTIALLY IMPLEMENTED** | 19 unit tests in `pluginProtocol`, `dawBridge`, `liveSource` |
-| Native VST3 / CLAP / AU plug-in | **NATIVE-PLATFORM ONLY** | Not in this repository. Client talks to `ws://127.0.0.1:48480/vybz-stream` |
+| Native VST3 / CLAP / AU plug-in | **NATIVE-PLATFORM ONLY** | VLink source in `native/vlink`. Compiled bundle produced locally; not in git. Client talks to `ws://127.0.0.1:48480/vybz-stream`. Loaded in a DAW: **Not measured**. |
 | Go Live source `daw` | **PARTIALLY IMPLEMENTED** | Client inserts `source = 'daw'`. Additive migration `20260817_0104_live_source_daw.sql` widens the CHECK and backfills `monetization.ingest = 'daw'` rows. **Not applied** to production. Until it is, a check-violation retries as `display` + ingest. |
 | Companion deck `/live/:id/companion` | **PARTIALLY IMPLEMENTED** | Supabase realtime protocol + remote faders. Faders do not change the published mix. |
 | In-session desks + post-live Pack Maker link | **PARTIALLY IMPLEMENTED** | Drawer links existing `/tools/*` routes. Stems are not auto-assembled. |

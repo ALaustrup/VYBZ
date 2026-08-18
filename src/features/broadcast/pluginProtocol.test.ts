@@ -11,11 +11,15 @@ import {
   parseControlMessage,
   parseDawInfo,
 } from "./pluginProtocol";
+import { existsSync } from "node:fs";
+import path from "node:path";
 
 describe("pluginProtocol", () => {
   it("names honest delivery states", () => {
     expect(DAW_PLUGIN_DELIVERY).toBe("NATIVE-PLATFORM ONLY");
     expect(DAW_BRIDGE_DELIVERY).toBe("PARTIALLY IMPLEMENTED");
+    expect(existsSync(path.resolve(__dirname, "../../../native/vlink/src/vlink_factory.cpp"))).toBe(true);
+    expect(existsSync(path.resolve(__dirname, "../../../native/vlink/README.md"))).toBe(true);
   });
 
   it("defines the loopback listen address", () => {
@@ -78,6 +82,24 @@ describe("pluginProtocol", () => {
     });
   });
 
+  it("accepts the exact hello JSON VLink emits", () => {
+    const raw =
+      '{"type":"hello","info":{"dawName":"VLinkNode","pluginFormat":"vst3","pluginName":"VLink","pluginVersion":"0.1.0","sampleRate":48000,"channels":2,"bufferSize":256,"latencyMs":0}}';
+    const msg = parseControlMessage(raw);
+    expect(msg).toMatchObject({
+      type: "hello",
+      info: {
+        dawName: "VLinkNode",
+        pluginFormat: "vst3",
+        pluginName: "VLink",
+        sampleRate: 48000,
+        channels: 2,
+        bufferSize: 256,
+        latencyMs: 0,
+      },
+    });
+  });
+
   it("round-trips a framed stereo PCM block", () => {
     const samples = new Float32Array([0.1, -0.2, 0.3, -0.4]);
     const encoded = encodePcmFrame({ channels: 2, sampleRate: 48000, frameCount: 2, samples });
@@ -87,6 +109,8 @@ describe("pluginProtocol", () => {
     const got = Array.from(decoded?.samples ?? []);
     expect(got).toHaveLength(4);
     [0.1, -0.2, 0.3, -0.4].forEach((n, i) => expect(got[i]).toBeCloseTo(n, 5));
+    const bytes = new Uint8Array(encoded);
+    expect([...bytes.slice(0, 8)]).toEqual([0x56, 0x59, 0x42, 0x5a, 1, 2, 0, 0]);
   });
 
   it("rejects a frame with the wrong magic or a truncated payload", () => {
@@ -101,6 +125,53 @@ describe("pluginProtocol", () => {
   it("accepts legacy headerless stereo PCM only when the byte length is even frames", () => {
     expect(decodeLegacyPcm(new Float32Array([0.1, 0.2]).buffer)).not.toBeNull();
     expect(decodeLegacyPcm(new Float32Array([0.1]).buffer)).toBeNull();
+  });
+
+  it("round-trips VLink hello extras and omits unmeasured transport fields", () => {
+    const hello = parseControlMessage(
+      JSON.stringify({
+        type: "hello",
+        info: {
+          dawName: "Reaper",
+          pluginFormat: "vst3",
+          pluginName: "VLink",
+          pluginVersion: "0.1.0",
+          sampleRate: 48000,
+          channels: 2,
+          bufferSize: 256,
+          latencyMs: 0,
+        },
+      }),
+    );
+    expect(hello).toMatchObject({ type: "hello", info: { pluginName: "VLink", dawName: "Reaper" } });
+    const tr = parseControlMessage(
+      JSON.stringify({
+        type: "transport",
+        transport: {
+          playing: true,
+          recording: false,
+          cycling: false,
+          sampleRate: 48000,
+          tempoBpm: null,
+          timeSigNum: null,
+          timeSigDen: null,
+          projectTimeSamples: 1024,
+        },
+      }),
+    );
+    expect(tr).toEqual({
+      type: "transport",
+      transport: {
+        playing: true,
+        recording: false,
+        cycling: false,
+        sampleRate: 48000,
+        tempoBpm: null,
+        timeSigNum: null,
+        timeSigDen: null,
+        projectTimeSamples: 1024,
+      },
+    });
   });
 
   it("allows null listener counts on telemetry so we never invent them", () => {

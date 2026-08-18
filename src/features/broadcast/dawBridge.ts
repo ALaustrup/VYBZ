@@ -1,5 +1,5 @@
 /**
- * Browser-side client for the VYBZ Broadcast master-bus plug-in.
+ * Browser-side client for the VLink (VYBZ Broadcast) master-bus plug-in.
  *
  * Connects to the plug-in's loopback WebSocket, decodes stereo PCM, and
  * exposes a MediaStream suitable for LiveKit music-mode publish.
@@ -14,6 +14,7 @@ import {
   type DawInfo,
   type DawMeterState,
   type DawProtocolStatus,
+  type DawTransport,
 } from "./pluginProtocol";
 
 export {
@@ -23,12 +24,14 @@ export {
   type DawMeterState,
   type DawPluginFormat,
   type DawProtocolStatus,
+  type DawTransport,
 } from "./pluginProtocol";
 
 export type DawBridgeListener = {
   onStatusChange?: (status: DawProtocolStatus) => void;
   onMeterUpdate?: (meter: DawMeterState) => void;
   onInfo?: (info: DawInfo) => void;
+  onTransport?: (transport: DawTransport) => void;
   /** Decoded stereo PCM bytes. Callers must not treat this as a measured master. */
   onPcmFrame?: (bytes: Uint8Array, sampleRate: number) => void;
 };
@@ -47,6 +50,7 @@ export interface DawBridgeClient {
   readonly status: DawProtocolStatus;
   readonly info: DawInfo | null;
   readonly meter: DawMeterState | null;
+  readonly transport: DawTransport | null;
   connect: (url?: string) => Promise<boolean>;
   disconnect: () => void;
   getMediaStream: () => MediaStream | null;
@@ -66,6 +70,7 @@ export function createDawBridgeClient(options?: {
   let status: DawProtocolStatus = "disconnected";
   let info: DawInfo | null = null;
   let meter: DawMeterState | null = null;
+  let transport: DawTransport | null = null;
   let audioCtx: AudioContextLike | null = null;
   let destNode: MediaStreamAudioDestinationNode | null = null;
   let nextPlayTime = 0;
@@ -159,6 +164,9 @@ export function createDawBridgeClient(options?: {
     } else if (msg.type === "meter") {
       meter = msg.meter;
       listeners.forEach((l) => l.onMeterUpdate?.(msg.meter));
+    } else if (msg.type === "transport") {
+      transport = msg.transport;
+      listeners.forEach((l) => l.onTransport?.(msg.transport));
     } else if (msg.type === "status") {
       setStatus(msg.status);
     } else if (msg.type === "ping") {
@@ -179,6 +187,9 @@ export function createDawBridgeClient(options?: {
     },
     get meter() {
       return meter;
+    },
+    get transport() {
+      return transport;
     },
     getMediaStream() {
       return destNode?.stream ?? null;
@@ -290,6 +301,7 @@ export function createDawBridgeClient(options?: {
       }
       info = null;
       meter = null;
+      transport = null;
       nextPlayTime = 0;
       setStatus("disconnected");
     },
