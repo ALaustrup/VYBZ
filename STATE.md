@@ -4,7 +4,21 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`abc63d24`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`efdf795a`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of this tip: **Not measured**.
+
+## ATC clock shows 3h on a new account — 2026-08-18
+
+Owner saw **3h 0m** after signup. That is the declared sum, not a new grant:
+
+| Bucket | Declared | Clock |
+|---|---|---|
+| Daily free | 7200 ATC | 2h |
+| New-user bootstrap (once, ≤7 days) | 3600 ATC | 1h |
+| Header total | 10800 ATC | 3h |
+
+Display now omits zero units (`3h` not `3h 0m`) and the header split reads daily · earned. Amounts unchanged.
+
+`npm run lint` pass. `npm run test` pass — **179 files / 902 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
 
 ## alpha-key v2 deployed — 2026-08-18
 

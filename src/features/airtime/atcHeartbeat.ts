@@ -28,7 +28,7 @@ export function formatAtcClock(seconds: number | null): string {
   const h = Math.floor(n / 3600);
   const m = Math.floor((n % 3600) / 60);
   const s = n % 60;
-  if (h > 0) return `${h}h ${m}m`;
-  if (m > 0) return `${m}m ${s}s`;
+  if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  if (m > 0) return s > 0 ? `${m}m ${s}s` : `${m}m`;
   return `${s}s`;
 }

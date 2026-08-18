@@ -54,7 +54,7 @@ export function AtcHostCard({
             : "Hosting burns daily free first, then earned. Listening stays free."
           : blocked
             ? `Need ${formatAtcClock(ATC_POLICY.hostStartMinimumAtc)} to go live. Listen to earn more. Listening is free.`
-            : "Hosting burns this clock. Listening is free."}
+            : "Daily free plus earned. New accounts get a one-time 1h starter on top of the 2h daily. Hosting burns this. Listening is free."}
       </p>
     </section>
   );

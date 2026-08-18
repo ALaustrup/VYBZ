@@ -47,7 +47,10 @@ describe("ATC heartbeat", () => {
 
   it("formats a clock or Not measured", () => {
     expect(formatAtcClock(null)).toBe("Not measured");
-    expect(formatAtcClock(7200)).toBe("2h 0m");
+    expect(formatAtcClock(7200)).toBe("2h");
+    expect(formatAtcClock(10800)).toBe("3h");
+    expect(formatAtcClock(3660)).toBe("1h 1m");
     expect(formatAtcClock(65)).toBe("1m 5s");
+    expect(formatAtcClock(60)).toBe("1m");
   });
 });
