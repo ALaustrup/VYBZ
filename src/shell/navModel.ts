@@ -6,6 +6,7 @@ import {
   Radio,
   ShieldCheck,
   UserCog,
+  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -79,6 +80,13 @@ export function navGroups(): NavGroup[] {
  */
 export function accountItems(role: string, isAdmin: boolean): NavItem[] {
   const items: NavItem[] = [
+    {
+      path: "/connect",
+      label: "People",
+      hint: "Find other users",
+      icon: Users,
+      productId: "home",
+    },
     {
       path: "/profile/edit",
       label: "Edit profile",

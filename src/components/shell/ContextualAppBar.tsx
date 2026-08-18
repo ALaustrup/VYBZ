@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Search } from "lucide-react";
 import { BrandMark } from "@/components/Brand";
 import { AccountMenu } from "@/components/shell/AccountMenu";
+import { PeopleMenu } from "@/components/shell/PeopleMenu";
 import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
 import { chromeForPath } from "@/lib/appBarChrome";
 import { useAppBarBridge } from "@/lib/appBarBridge";
@@ -81,6 +82,7 @@ export function ContextualAppBar({
           >
             <Search className="h-6 w-6" />
           </button>
+          <PeopleMenu />
           <button
             type="button"
             onClick={() => onCompose?.()}
