@@ -4,13 +4,15 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-18
 **Branch:** `continue-next`
-**Production:** https://vybz.cloud — `main` **`4015cf60`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the library-only home: **Not measured**.
+**Production:** https://vybz.cloud — `main` **`f6e3ad5f`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of the library-only home: **Not measured**.
 
 ## Home is the owner's library — 2026-08-18
 
 Owner asked to take the failed Spotify/SoundCloud home off the stage. `/` now shows only the signed-in user's library (`UploadsLibrary`, paged to the measured total). Other people are not on Home. Find them from the People menu in the app bar (`searchCreators` → `/u/:id`) or More → People (`/connect`). Live, feed, alerts, Go Live, and Studio stay in the tree and stay reachable; they are hidden from the Home view, not deleted.
 
-`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass. Browser walk: **Not measured**. Not on production until committed and merged.
+`npm run lint` pass. `npm run test` pass — **180 files / 904 tests**. `npm run build` pass. `npm run check:no-fixtures` pass.
+
+Pushed `continue-next` `8b07f84c`. Merged `--no-ff` to `main` `f6e3ad5f`. Pushed `origin/main`. Browser walk: **Not measured**. Vercel Ready: **Not measured**.
 
 ## Spotify + SoundCloud homepage — 2026-08-18
 
