@@ -4,192 +4,112 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 2 · 2026-08-16 · supersedes Version 1 (The Station, 2026-08-15).
-> Decision: [`docs/decisions/0003-pack-suite-marketplace.md`](./docs/decisions/0003-pack-suite-marketplace.md).
+> Version 3 · 2026-08-17 · supersedes Version 2 (Pack Suite, 2026-08-16) and Version 1 (The Station, 2026-08-15).
+> Decision: [`docs/decisions/0004-live-mix-streaming-platform.md`](./docs/decisions/0004-live-mix-streaming-platform.md).
 
 ---
 
 ## 1. The problem
 
-You finish a folder of loops, oneshots, and phrases. It is the work. It is not a product.
+Music production has spent decades isolated in bedrooms, private studios, and silent project files.
 
-The names are a mess. Tempo is in the filename if you are lucky. Kind is a guess. There is no
-ZIP a stranger can unzip and trust. There is no page that takes a card. So the folder sits
-on a drive, or it gets dumped on a marketplace that invents plays and "trending" shelves, or
-you spend a weekend making the pack by hand and never do it again.
+A producer works for hours or weeks on a track or mix. They post a 15-second snippet on social media to beg for algorithmic attention, or wait months for a DSP release that delivers nothing but a flat play count. There is no stage where creators can produce, test, refine, and perform their sound live with a global audience in real time—with pristine, studio-grade audio fidelity and zero friction.
 
-**That is the hole. Not obscurity — a folder of files that never becomes something you can
-sell, honestly.**
+Traditional live streaming platforms compress audio into telephony mud, introduce seconds of latency, lack music production context, and offer no integration with digital audio workstations (DAWs).
+
+**That is the hole: producers have nowhere to create, perform, and mix audio projects live with the world, directly from their studio workflow, in high fidelity and real time.**
 
 ## 2. What VYBZ is
 
-**VYBZ is a sample pack creation suite with a marketplace.**
+**VYBZ is to become the ultimate live mix audio streaming platform, giving producers and artists a place to produce their music, sound and audio projects with listeners around the world in real time live.**
 
-A producer drops a folder, hears the files, gives them honest tags, builds a measured ZIP,
-and can sell it. Every number on a pack is measured. Everything unknown reads
-**Not measured**.
+Core experience pillars:
+- **Real-time collaborative live production / mixing sessions:** Multi-producer stages and interactive rooms where music is shaped live.
+- **Low-latency audio streaming of live mixes:** Studio-quality, full-frequency stereo audio streamed with sub-second latency to global listeners.
+- **Direct DAW Master Channel integration:** Dedicated remote broadcast plug-in (VST3 / CLAP / AU) dropping directly onto the master channel to stream studio output in pristine fidelity.
+- **Listener presence & interaction:** Active audience presence, real-time feedback prompts (Sparks), live tipping (V¢ / Stripe), and identity-verified chat inside the live experience.
+- **Multi-device & Android synchronization:** Seamless companion control, mobile live broadcast rigs, and lockstep device sync.
+- **Persistent continuity & post-stream monetization:** Tools to split stems, measure loudness, package live recordings into verified sample packs, and sell them directly on the marketplace.
 
-Not a radio station. Not a social network. Not DSP distribution. The job is organize, tag,
-preview, package, sell.
+## 3. The Live Mix Platform Architecture
 
-## 3. The suite
+VYBZ replaces static steppers with a live-audio-friendly interface that auto-adapts across all screen sizes and devices.
 
-The default UI is one guided flow. Each stage is an existing desk, not a rewrite.
-The producer can skip a stage; skip does not invent completion.
-
-| Stage | Job | Surface |
+| Surface | Job | Primary Role |
 |---|---|---|
-| **0** | Upload assets | `/make` — same upload queue as ComposeSheet |
-| **1** | Metadata edit / fix | `/tools/metadata` |
-| **2** | Artwork create / check | `/tools/art-check` |
-| **3** | Analyze pack assets | `/releases` |
-| **4** | Show findings + auto-fix | `/tools/correct` |
-| **5** | Pack Maker | `/tools/pack-maker` |
-| **6** | Download / export / publish | `/tools/packs/new` |
-| **7** | Published listing | `/tools/packs` |
-| **8** | Library + sales | `/make/dashboard` |
+| **Live Mix Room** (`/live/:id`) | Interactive live mixing stage with real-time waveform HUD, visualizer, chat, presence, and tip goals | **Core Stage** |
+| **Live Discovery** (`/live`) | Real-time browser of active producer sessions, genre tags, and live listener counts | **Discovery Front Door** |
+| **Studio Collab Rooms** (`/rooms`, `/projects/:id`) | Multi-human collaborative studios with LiveKit audio, split sheets, and versioning | **Co-Production** |
+| **Living Mix Engine** (`/library/mix`) | Intelligent on-demand track sequencing, transition scoring, and energy management | **Automated Mix Core** |
+| **In-Session Tool Drawer** (`/tools/*`) | 9 DSP correction desks, Stem splitter, MIDI extractor, Translation Lab (car/club monitors) | **Studio Toolkit** |
+| **DAW Broadcast Bridge** (`VST3 / CLAP / Desktop`) | Master bus audio capture streamed directly from Ableton, FL Studio, Logic, Reaper | **Master Channel Ingest** |
+| **Marketplace & Storefront** (`/market`, `/pack/:slug`) | Post-session export of live mixes into measured, sellable sample packs | **Monetization** |
+| **Library & Working Set** (`/library`) | Ingest, organize, and summon assets directly into live sessions | **Media Repository** |
 
-The stepper stays on screen for every stage path. Desks keep their own routes.
-ComposeSheet, Library, and the seller dashboard are not deleted.
+## 4. DAW Integration: The VYBZ Broadcast Plug-in
 
-**Two ingest paths, both kept:**
+A core requirement for professional producers is zero-friction audio capture:
+1. **Master Bus Insert:** A lightweight native plug-in (VST3 / CLAP / AU) dropped onto the master channel of any DAW.
+2. **Lossless PCM Capture:** Intercepts 32-bit float stereo audio directly from the DAW audio buffer with zero coloration.
+3. **Ultra-Low Latency Transport:** Hands off audio to the VYBZ LiveKit SFU using uncompressed stereo music constraints (Opus up to 510 kbps, 48 kHz).
+4. **In-DAW Live HUD:** Real-time stream telemetry, active listener count, live chat alerts, and Sparks audience feedback rendered directly inside the DAW plugin UI.
 
-1. **Library** — files become catalog rows you can search and reuse.
-2. **Pack Maker** — files stay in the pack working set and are **never** auto-ingested into
-   the library. Assembling a pack must not dump samples into the public catalog.
+## 5. Multi-Device & Android Synchronization
 
-Pack Maker is a multi-file suite, not a one-track desk. It belongs in the default experience.
+VYBZ treats Android as a first-class production and listening target:
+- **Companion Control Mode:** Android devices function as hardware-like remote controllers for desktop live sessions (faders, mutes, cue triggers, chat).
+- **Mobile Live Ingest:** Artists can broadcast live mix sessions from mobile audio interfaces on location.
+- **Lockstep Sync:** Verified listener playback synchronized across devices with low latency.
 
-## 4. Honesty of tags
+## 6. Subordinated Production Tooling & Post-Stream Monetization
+
+Everything already built in the VYBZ ecosystem serves the live mix experience:
+- **In-Session Desks:** The 9 audio correction tools, stem isolation engine, MIDI generator, and translation monitors are accessible as on-demand side panels during live sessions.
+- **Post-Live Pack Generation:** When a live mixing session ends, the producer can export the recorded audio/stems into a measured sample pack with one click.
+- **Storefront & Marketplace:** Published packs are sold on the marketplace (`/market`) with honest SHA manifests, delivering measured ZIPs via Stripe checkout.
+
+## 7. Honesty of Measurement
 
 Three kinds of label, never mixed:
 
 | Kind | Source | What we may say |
 |---|---|---|
-| **Declared** | Filename, artist-typed fields, pack title and genre | What a person wrote |
-| **Measured** | Duration, peak, RMS, sample rate, channels, content SHA | Computed from the bytes |
-| **Inferred** | Analysis that has no evidence | **Not used.** Local genre/mood inference returns nothing today. |
+| **Declared** | Filename, artist-typed fields, pack/stream title and genre | What a person wrote |
+| **Measured** | Duration, peak, RMS, BS.1770-4 LUFS, sample rate, channels, content SHA | Computed from the bytes |
+| **Inferred** | Analysis that has no evidence | **Not used.** Unknown reads **Not measured**. |
 
-VYBZ never claims to have *detected* a genre, a key mode the name did not state, or a
-musical section we cannot measure. A fabricated BPM wearing a lab coat is still fabricated.
+VYBZ never fabricates play counts, listener engagement, or musical analysis. A fabricated number wearing a lab coat is still fabricated.
 
-## 5. The marketplace
+## 8. Money & Economy
 
-Published packs are listed on **Market** (`/market`) from `storefront_packs_public` only.
-Empty means zero published packs, not a placeholder catalog. Filters never invent rows.
-There are no play counts, no trending shelves, no "guaranteed placement."
-
-A public pack page (`/pack/:slug`) shows title, price, description, and a preview when one
-exists. It never exposes `zip_path`. The ZIP is delivered after payment — today by a signed
-download link mailed to the buyer.
-
-**Selling is optional.** Packaging a ZIP for yourself is a full use of the product. The
-marketplace is the front door for buyers, not a tax on making a pack.
-
-Platform fee is **10%**, tracked on the order. Settlement of the producer is
-`pending_manual` → `settled_off_platform` until automatic payouts are
-production-verified. That is the designed path, not a temporary shame.
-
-Measured 2026-08-16: one live $1.00 purchase completed; the buyer received the ZIP by email.
-Checkout and fulfillment for that order are **DELIVERED AND PRODUCTION-VERIFIED**. A second,
-non-owner customer is **Not measured**.
-
-## 6. Money
-
-**Buyers pay in fiat, through Stripe, on the platform account.** That is how a pack is sold.
-
-**V¢ remains** the purchasable utility credit it already is — cosmetics, tips, storefront
-adjacent spend. It does not buy a listing, a search rank, or the right to upload.
-
-**Airtime** — verified listening time from The Station — stays in the invariants file and
-in the parked Station subsystem. It is not used by the pack suite. Airtime and V¢ still
-never convert, in either direction. Money still cannot buy the right to be heard on any
-future Station surface.
-
-Pack price bounds are $1.00–$5,000.00, as the storefront already enforces.
-
-No economy constant for "what a pack should cost" is invented here. Producers set a price.
-
-## 7. Publishing is always free
-
-Upload anything, any time, at no cost. It lives in your library.
-
-**Only a sale is charged.** A zero balance still lets you ingest, tag, preview, and build a
-ZIP. The marketplace takes a cut of a completed purchase, not of existence.
-
-We do not pay people to upload. Pay-for-upload fills a catalog with generated slop.
-
-## 8. Parked: The Station
-
-Version 1 of this document made one synchronized station the product. That decision is
-superseded. The radio, the line, sparks, reception, and Airtime remain implemented to the
-degree `STATE.md` records. They are not deleted. They are not the front door.
-
-If The Station returns, it returns as a measured decision with its own record, not by
-quietly rewriting this file back.
+- **Live Tipping:** Listeners tip producers during live mix sessions in fiat (via Stripe) or V¢ utility credits.
+- **Pack Sales:** Recorded live mixes packaged into sample packs are sold on the platform with a 10% fee.
+- **Publishing & Streaming:** Going live and hosting sessions is free. The platform charges a cut only on completed sales and tipping transactions.
+- **V¢ Remains Utility:** V¢ is purchasable for tips and cosmetics; it never buys search placement or artificial stream ranking.
 
 ## 9. What we refuse
 
-**No public vanity metrics.** No follower counts, no play counts as social proof, no
-leaderboards of packs. Reception and sales figures go to the person who made the thing.
+- **No public vanity metrics:** No follower counts or fake play counts as social proof.
+- **No purchasable attention:** Money cannot buy live stream ranking, "featured" tags, or fake listens.
+- **No dating, romance, meetup or swipe matching:** Permanently out of scope.
+- **No fabricated measurement:** Everything unmeasured reads **"Not measured"**.
+- **No undisclosed processing on the play path:** Stream and playback paths remain dry and disclosed.
 
-**No purchasable attention.** Money does not buy Market rank, "featured," or a fake listen.
+## 10. Preservation — Hide, Never Delete
 
-**No paying for uploads.** See §7.
+**Nothing already built is deleted.** The sample pack pipeline, marketplace, analyzer, correction desk, translation lab, stem maker, MIDI maker, converter, rooms, live sessions, messages, projects, visualizer studio, sparks, reception, Living Mix, and Vibes Radio stay in the tree, stay reachable, and keep compiling.
 
-**No fabricated measurement.** Unknown reads **"Not measured"**. Approximate is labelled
-approximate. Simulated is labelled simulated. Filename tempo is declared-from-name.
+Surfaces leaving the default experience are **hidden from navigation**, not removed. Routes still resolve. Code still compiles.
 
-**No dating, romance, meetup or swipe matching.** Permanently out of scope.
+## 11. Interface Direction
 
-**No claim that VYBZ delivers to DSPs.** It prepares packs and listings. It does not
-distribute to Beatport, Splice, or Spotify.
+- **Live-First & Audio-Friendly:** The default UI leads with Live Mix sessions, Stage Discovery, Studio Rooms, and Library.
+- **Auto-Adjusting Responsive Layout:** Ergonomically tailored for single-hand mobile (Android), tablet companion mode, desktop studio screens, and multi-monitor setups.
+- **Dark, Sleek, Audio-Reactive:** Modern glassmorphism with high-contrast audio meters and WebGL reactive visual stages.
 
-**No invented inventory.** Market shows published `storefront_packs` rows or an honest empty
-state.
+## 12. Delivery Vocabulary
 
-**No undisclosed processing on the play path.** Playback is dry. Simulations are labelled.
-
-**No Station, radio, or social expansion** while the pack loop is the product. Those
-surfaces stay in the tree. They do not get new work, new nav, or new promises.
-
-## 10. Preservation — hide, never delete
-
-**Nothing already built is deleted.** The analyzer, correction desk, translation lab, stem
-maker, midi maker, converter, storefront, rooms, live, messages, projects, visualizer
-studio, sparks, reception, Living Mix, and Vibes Radio stay in the tree, stay reachable,
-and keep working.
-
-Surfaces leaving the default experience are **hidden from navigation**, not removed. Routes
-still resolve. Code still compiles. History still holds everything.
-
-The Station, sparks-on-station, Airtime earning, and the social home are **parked**. Their
-invariants in `src/product/invariants.ts` still apply *to those surfaces* if they are
-switched on again. They are not the default product.
-
-The new interface becomes the front door. What is behind it is still the house.
-
-## 11. Interface direction
-
-**The default experience is the staged pack pipeline** (`/make`, stages 0–8). The rail
-leads with Make pack, Library, and Sales. Social home, feed, and rooms stay reachable
-and off the default rail.
-
-Desks that operate on one track stay summonable from that track. Routes for parked
-surfaces still resolve.
-
-**Mobile first.** Designed for a phone held in one hand, then adapted upward to desktop.
-
-**Android as a first-class target**, through the existing Capacitor shell and Platform
-Bridge.
-
-**VR is a considered horizon**, not a commitment, and never at the cost of the phone or
-the pack loop.
-
-## 12. Delivery vocabulary
-
-A capability is delivered only when it is implemented, integrated, reachable, discoverable,
-deployed, production-verified, and changes what a user can do.
+A capability is delivered only when it is implemented, integrated, reachable, discoverable, deployed, production-verified, and changes what a user can do.
 
 Permitted states — never "complete":
 
@@ -197,13 +117,8 @@ Permitted states — never "complete":
 `PARTIALLY IMPLEMENTED` · `IMPLEMENTED BUT NOT DELIVERED` · `DEPLOYED BUT UNVERIFIED` ·
 `DELIVERED AND PRODUCTION-VERIFIED`
 
-Production is the truth about the product. The repository is the truth about the code. When
-they disagree about what a user experiences, **production wins and the documents get fixed.**
+## 13. Definition of Success
 
-## 13. Definition of success
+A producer fires up their DAW, inserts the VYBZ Broadcast plug-in onto their master channel, and taps "Go Live". Within seconds, listeners around the world tune in to pristine stereo sound, interact in real-time, send sparks and tips, and experience music being born live. When the session ends, the producer exports the session stems as a measured pack and lists it on the store.
 
-A producer drops a folder they have been sitting on. The same day they have a measured ZIP
-and a page that takes a card. A stranger buys it. The ZIP arrives. The producer can see the
-order and settle it.
-
-They never again finish the work and have only a folder.
+Music production is no longer a silent, lonely island.

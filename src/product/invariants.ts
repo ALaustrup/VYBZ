@@ -88,13 +88,34 @@ export const FROZEN_CONTRACTS = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
+/* Live mix audio streaming platform                                          */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Authoritative direction (PRODUCT.md v3 / decision 0004).
+ * VYBZ is the ultimate live mix audio streaming platform.
+ */
+export const LIVE_MIX_STREAMING = {
+  /** Real-time live mix sessions are the core front-door experience. */
+  liveMixIsPrimary: true,
+  /** Audio streaming uses LiveKit SFU stereo music mode (no telephony filtering). */
+  losslessMusicAudioConstraints: true,
+  /** Master bus audio capture via DAW broadcast plug-in (VST3 / CLAP / AU). */
+  directDawBroadcastSupported: true,
+  /** Android companion mode and mobile live streaming enabled via Platform Bridge. */
+  androidMultiDeviceSync: true,
+  /** Post-live mix export generates measured sample packs for the marketplace. */
+  postSessionPackMonetization: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
 /* The Station economy (parked)                                               */
 /* ------------------------------------------------------------------------- */
 
 /**
- * Parked with PRODUCT.md v2 / decision 0003. Default product is the pack suite.
+ * Parked with decision 0004 / PRODUCT.md v3. Default product is live mix streaming.
  * These values still bind the Station subsystem if it is switched on again.
- * Do not delete them. Do not use Airtime in the pack marketplace.
+ * Do not delete them. Do not use Airtime in the live mix marketplace.
  *
  * Two balances, one wallet, no bridge between them.
  *

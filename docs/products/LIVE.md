@@ -1,47 +1,32 @@
 # VYBZ Live
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **crimson**. LiveKit hard-cap degrade.
+> Product brief — reference only. Product authority is [`PRODUCT.md`](../../PRODUCT.md). Accent: **crimson** (`#e11d48`).
 
 ## Purpose
 
-Performances, sessions, and listening events over LiveKit. Limited free Live;
-degrade honestly when allowance is exhausted.
+The core stage of VYBZ. Low-latency, high-fidelity audio streaming and collaborative live mixing sessions where producers create, perform, and refine music live with listeners worldwide.
 
 ## Customer
 
-Artists going live for fans; audiences joining sessions from Artist / Home /
-discover adjacency.
+- **Producers / Artists:** Going live from their DAW (via the VYBZ Broadcast Master Channel plug-in), browser, or mobile rig to produce, test tracks, DJ, and mix live.
+- **Global Audience:** Listening to pristine, full-bandwidth stereo mixes in real time, interacting via chat, sending Sparks reactions, and tipping the host.
 
-## Jobs
+## Core Capabilities
 
-- Host or join a LiveKit session (`livekit-token` EF)
-- Enforce entitlements and room access
-- Degrade: stop new sessions when hard cap hit; clear user-facing copy
-- Optional recording / VOD only via approved Storage paths — not Bunny origin
+- **Direct DAW Streaming:** Master channel VST3 / CLAP / AU plug-in capturing 32-bit float audio directly to LiveKit SFU in uncompressed music mode.
+- **Multi-Producer Live Sessions:** Co-producing and back-to-back live mixes with sub-second latency and synchronized state.
+- **Interactive Listener Arena:** Real-time presence, WebGL audio-reactive visual stage, Sparks feedback prompts, and V¢ / Stripe live tipping.
+- **Android Sync & Companion Mode:** Using Android devices as companion faders, cue triggers, and mobile broadcast rigs.
+- **In-Session Tool Drawer:** Instant access to 9 DSP correction desks, Stem extraction, MIDI generation, and Car/Club translation monitors.
+- **Post-Session Export:** One-click conversion of recorded live session stems into measured sample packs for sale on the marketplace.
 
-## Data sketch
+## Media Architecture & Constraints
 
-Existing live stream / room tables · access grants · LiveKit session metadata ·
-usage / quota events for Cost Sentinel.
+- **Audio Plane:** LiveKit SFU with `MUSIC_AUDIO_CONSTRAINTS` (stereo, 48 kHz, echo cancellation/auto gain disabled, bitrate up to 510 kbps).
+- **Token Authority:** `livekit-token` Supabase edge function minting signed HMAC-SHA256 JWTs.
+- **Fallback P2P:** WebRTC with STUN/TURN via `ice-servers` edge function.
+- **Cost Behavior:** LiveKit `hard_cap` with transparent graceful degrade when bandwidth allowances are reached. Never silent overage.
 
-## Cost behavior
+## Copy One-Liner
 
-LiveKit = **`hard_cap`**. Free tier limited. When allowance exhausted: **no new
-sessions**; existing policy may wind down gracefully. Never silent overage.
-Estimate/reserve for any paid expansion.
-
-## Copy one-liner
-
-**Show up live. Cap when the meter says stop.**
-
-## Design accent
-
-Crimson (`--accent-live`). High-energy stage, but degrade banners are calm and
-literal — no fake “unlimited live.”
-
-## DoD
-
-- [ ] Host/join via LiveKit token path
-- [ ] Hard-cap degrade with explicit UI
-- [ ] Access-denied / offline / reconnect states
-- [ ] No Bunny reintroduction as media origin
+**Produce, perform, and mix live with the world in real time.**

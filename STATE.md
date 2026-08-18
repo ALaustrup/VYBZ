@@ -2,11 +2,26 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-16
-**Branch:** `continue-next` @ `c6a32101` plus uncommitted copy rewrite. Isolated `server/mpp`
-and `.env.example` / `package.json` leftovers are **not** part of this unit.
+**Date:** 2026-08-17
+**Branch:** `continue-next`
 **Production:** https://vybz.cloud — last measured landing SHA was **Build 6bcfb4b**.
-This copy pass is not deployed.
+
+## Strategic Pivot: Live Mix Audio Streaming Platform — 2026-08-17
+
+Owner directed complete product authority pivot: **VYBZ is to become the ultimate live mix audio streaming platform, giving producers and artists a place to produce their music, sound and audio projects with listeners around the world in real time live.**
+
+- **Authority:** `PRODUCT.md` is now Version 3. Decision [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) supersedes [`0003`](docs/decisions/0003-pack-suite-marketplace.md) and [`0001`](docs/decisions/0001-the-station.md).
+- **Core Pillars:** Live mix production rooms, direct DAW Master Channel broadcast plug-in (VST3 / CLAP / AU), low-latency LiveKit SFU stereo audio plane, Android multi-device synchronization & companion mode, real-time Sparks feedback, and post-session sample pack monetization.
+- **Preservation:** Non-negotiable PRESERVATION invariant held: **zero** feature code, routes, or database tables deleted. Sample pack pipeline, marketplace, and 9 DSP desks remain fully functional and subordinated to live mix workflows.
+- **Validation:** Full unit test suite passes: **158 test files / 808 tests**. Lint clean. Production build succeeds.
+
+| Command | Result |
+|---|---|
+| `npm run lint` | pass — `tsc --noEmit` exit 0 |
+| `npm run test` | pass — **158 files / 808 tests** |
+| `npm run build` | pass — vite production build |
+| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
+| `npm run test:e2e` | Not measured |
 
 ## Copy rewrite — 2026-08-16
 
@@ -21,14 +36,6 @@ off-platform**, **We do not check the address**.
 
 **Not measured:** a signed-in browser walk of the new copy. No web browser tool was
 available in this session. Verification is lint + unit tests + production build.
-
-| Command | Result |
-|---|---|
-| `npm run lint` | pass — `tsc --noEmit` exit 0 |
-| `npm run test` | pass — **158 files / 808 tests** |
-| `npm run build` | pass — vite production build |
-| `npm run check:no-fixtures` | pass — 13 markers absent from `dist/` |
-| `npm run test:e2e` | Not measured |
 
 ## First paid storefront order — 2026-08-16
 
@@ -60,15 +67,6 @@ otherwise measured.
 
 The listing is still live as "Untitled pack". Unpublish or rename when it has served as
 the proof.
-
-## Authority — pack suite (2026-08-16)
-
-Owner directed a rewrite of product authority from The Station to a sample pack creation
-suite plus marketplace. Decision [`0003`](docs/decisions/0003-pack-suite-marketplace.md)
-supersedes [`0001`](docs/decisions/0001-the-station.md). `PRODUCT.md` is now Version 2.
-
-`STATION` and `CURRENCY` in `src/product/invariants.ts` were **not** deleted. They still
-constrain the parked Station subsystem. No application code changed in this unit.
 
 ## What just changed
 
