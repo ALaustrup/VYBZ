@@ -99,7 +99,7 @@ export function ArtistStageProfile({
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto bg-ink-950 text-white" style={accentWashStyle(cosmetics.accent)}>
-      <section className="relative isolate h-[70vh] min-h-[28rem] max-h-[40rem] overflow-hidden lg:h-[56vh] lg:max-h-none">
+      <section className="relative isolate h-[38vh] min-h-[16rem] max-h-[22rem] overflow-hidden sm:h-[42vh]">
         {banner ? (
           <img
             src={banner}
@@ -133,9 +133,11 @@ export function ArtistStageProfile({
                   </span>
                 )}
                 <Flair data={cosmetics.flair} />
-                <ProfessionBadges primary={f.profession} all={f.professions} />
-                <RoleClassBadge roleClass={f.roleClass} />
-                <ProBadge profile={f} />
+                <span className="hidden">
+                  <ProfessionBadges primary={f.profession} all={f.professions} />
+                  <RoleClassBadge roleClass={f.roleClass} />
+                  <ProBadge profile={f} />
+                </span>
               </div>
               <h1 className="mt-1 font-display text-[2.25rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-5xl">
                 {profile.displayName || profile.username || "Host"}
@@ -192,7 +194,7 @@ export function ArtistStageProfile({
             </>
           )}
           {isMe && (
-            <button type="button" onClick={() => navigate("/?tab=you")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
+            <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
               Edit profile
             </button>
           )}
@@ -201,6 +203,23 @@ export function ArtistStageProfile({
 
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-8 lg:grid-cols-12">
         <div className="space-y-12 lg:col-span-7">
+          {drops.length > 0 && (
+            <section>
+              <p className="eyebrow mb-3">Uploads</p>
+              <div className="grid gap-2">
+                {drops.map((d) => (
+                  <TrackCard
+                    key={d.id}
+                    compact
+                    drop={{ ...d, authorUsername: profile.username }}
+                    queue={drops}
+                    onOpenAuthor={isMe ? () => navigate("/") : undefined}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
           {(bio || f.genres?.length) && (
             <section>
               <p className="eyebrow mb-3">Story</p>
@@ -257,23 +276,6 @@ export function ArtistStageProfile({
             )}
           </section>
 
-          {drops.length > 0 && (
-            <section>
-              <p className="eyebrow mb-3">Released</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {drops.map((d) => (
-                  <TrackCard
-                    key={d.id}
-                    compact
-                    drop={{ ...d, authorUsername: profile.username }}
-                    queue={drops}
-                    onOpenAuthor={isMe ? () => navigate("/?tab=you") : undefined}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
           {packs.length > 0 && (
             <section>
               <p className="eyebrow mb-3">Packs</p>
@@ -320,8 +322,13 @@ export function ArtistStageProfile({
             </section>
           )}
 
-          <ArtistRoster userId={id} editable={isMe} drops={drops} />
-          <AffiliateLinks userId={id} editable={isMe} />
+          <details className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-2">
+            <summary className="cursor-pointer text-[12px] text-white/35">More</summary>
+            <div className="mt-3 space-y-6">
+              <ArtistRoster userId={id} editable={isMe} drops={drops} />
+              <AffiliateLinks userId={id} editable={isMe} />
+            </div>
+          </details>
 
           {!isMe && (
             <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">

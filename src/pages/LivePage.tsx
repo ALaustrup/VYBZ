@@ -66,9 +66,12 @@ export function LivePage() {
   const totalListeners = items.reduce((acc, s) => acc + (s.viewerCount || 0), 0);
 
   return (
-    <div className="flex h-full flex-col bg-ink-950/60">
+    <div
+      data-live-stage
+      className="flex h-full min-h-[calc(100dvh-var(--app-bar-h,3.25rem)-var(--dock-reserve,5.25rem))] flex-col bg-ink-950"
+    >
       {/* Hero stage banner */}
-      <div className="border-b border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-transparent px-4 py-4 sm:px-6">
+      <div className="border-b border-white/[0.06] bg-gradient-to-b from-cyan-500/[0.07] to-transparent px-4 py-5 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">

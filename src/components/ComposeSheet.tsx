@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type DragEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { useReduceFx } from "@/lib/display";
@@ -180,6 +181,7 @@ function UploadRow({ item, disabled }: { item: UploadItem; disabled: boolean }) 
 
 export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClose: () => void; onPosted: () => void }) {
   const { showToast, celebrate } = useSession();
+  const navigate = useNavigate();
   const reduce = useReduceFx();
   const items = useUploadQueue();
   const [releaseType, setReleaseType] = useState<ReleaseType>("original");
@@ -262,6 +264,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       // An empty sheet is just in the way. Anything that failed, or is still
       // uploading, is a reason to stay open — nothing left is a reason to go.
       if (getUploadQueue().length === 0) onClose();
+      if (audience === "public") navigate("/feed");
     }
   }
 

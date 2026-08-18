@@ -97,7 +97,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/tools/stems", title: "Stems", keywords: ["stems", "multitrack", "assemble", "stem set"] },
   { path: "/projects", title: "Projects", keywords: ["studio", "rooms", "work"] },
   { path: "/discover", title: "Discover", keywords: ["browse", "explore", "find music"] },
-  { path: "/feed", title: "Feed", keywords: ["activity", "posts"] },
+  { path: "/feed", title: "Feed", keywords: ["activity", "posts", "newest", "uploads", "listen"] },
   { path: "/live", title: "Live", keywords: ["stream", "broadcast"] },
   { path: "/messages", title: "Messages", keywords: ["dm", "inbox", "chat"] },
   { path: "/notifications", title: "Notifications", keywords: ["alerts", "requests", "activity", "unread"] },

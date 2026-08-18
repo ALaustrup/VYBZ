@@ -221,14 +221,25 @@ export function TrackCard({
 
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0">
-          <TrackVisualizer
-            seed={d.seed}
-            accent={accent}
-            active={playing}
-            backdropUrl={stageBackdrop}
-            backdropFit={d.playbackCustomization?.backdropFit}
-            backdropDim={d.playbackCustomization?.backdropDim}
-          />
+          {playing ? (
+            <TrackVisualizer
+              seed={d.seed}
+              accent={accent}
+              active
+              backdropUrl={stageBackdrop}
+              backdropFit={d.playbackCustomization?.backdropFit}
+              backdropDim={d.playbackCustomization?.backdropDim}
+            />
+          ) : (
+            <div
+              className="h-full w-full"
+              style={{
+                background: stageBackdrop
+                  ? `center / cover no-repeat url(${stageBackdrop})`
+                  : `linear-gradient(145deg, ${accent}33, #05070c 62%)`,
+              }}
+            />
+          )}
         </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950/70" />
         {d.lossless && (
