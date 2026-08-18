@@ -131,17 +131,17 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/market");
     expect(linked).not.toContain("/settings/credits");
     expect(linked).not.toContain("/settings/costs");
-    expect(linked).toContain("/store");
+    expect(linked).not.toContain("/store");
   });
 
-  it("carries live mix streaming and studio tools in the rail", () => {
+  it("carries only the live homepage in default nav", () => {
     const linked = navItems().map((i) => i.path);
     expect(linked).toContain("/live");
-    expect(linked).toContain("/library/mix");
-    expect(linked).toContain("/rooms");
-    expect(linked).toContain("/library");
-    expect(linked).toContain("/make");
-    expect(linked).toContain("/make/dashboard");
+    expect(linked).not.toContain("/library/mix");
+    expect(linked).not.toContain("/rooms");
+    expect(linked).not.toContain("/library");
+    expect(linked).not.toContain("/make");
+    expect(linked).not.toContain("/make/dashboard");
     for (const social of ["/feed", "/discover", "/messages", "/notifications"]) {
       expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);
     }
@@ -155,10 +155,10 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(badged).toEqual([]);
   });
 
-  it("offers Packages via Store (V¢ packs), not Settings money surfaces", () => {
-    const pkgs = accountItems("member", false).find((i) => i.label === "Packages");
-    expect(pkgs?.path).toBe("/store");
+  it("hides Packages from default account chrome; Store stays linkable", () => {
+    expect(accountItems("member", false).some((i) => i.path === "/store")).toBe(false);
     expect(accountItems("member", false).some((i) => i.path === "/profile/edit#packages")).toBe(false);
+    expect(isLinkable("/store", { storefront: true })).toBe(true);
   });
 
   it("accepts a redirect but rejects an unrouted path", () => {
