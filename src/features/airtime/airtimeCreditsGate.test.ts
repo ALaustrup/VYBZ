@@ -66,7 +66,7 @@ describe("airtime credits", () => {
 
   it("rewrites PRODUCT so hosting is no longer described as free", () => {
     const product = read("PRODUCT.md");
-    expect(product).toContain("Version 7");
+    expect(product).toContain("Version 8");
     expect(product).toContain("Listening is always free");
     expect(product).toContain("Hosting burns Airtime Credits");
     expect(product).not.toMatch(/Going live and hosting sessions is free/);

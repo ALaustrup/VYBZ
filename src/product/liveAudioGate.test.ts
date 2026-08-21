@@ -17,12 +17,13 @@ describe("live audio lock", () => {
     expect(GATE_REGISTRY).toContain("liveAudio");
   });
 
-  it("locks any-host live audio, not a sample-pack or music-only shop", () => {
-    expect(LIVE_AUDIO.liveAudioIsTheProduct).toBe(true);
+  it("locks any-host live audio as a capability, not a sample-pack or music-only shop", () => {
+    expect(LIVE_AUDIO.liveAudioIsACapability).toBe(true);
     expect(LIVE_AUDIO.hostsAreNotMusicOnly).toBe(true);
     expect(LIVE_AUDIO.talkPodcastAndMusicAreFirstClass).toBe(true);
     expect(LIVE_AUDIO.airtimeIsOnlyHostingClock).toBe(true);
     expect(LIVE_MIX_STREAMING.hostingRequiresAtc).toBe(true);
+    expect(LIVE_MIX_STREAMING.liveMixIsFirstClassSurface).toBe(true);
     expect(ARTIST_STAGE_PROFILE.notArtistOnly).toBe(true);
     expect(PRINCIPLES.moneyFollowsTheSessionNotTheClock).toBe(true);
     expect(PRINCIPLES.viewpointNeutralHosting).toBe(true);
@@ -32,9 +33,8 @@ describe("live audio lock", () => {
 
   it("writes the lock into PRODUCT", () => {
     const product = readFileSync(path.join(ROOT, "PRODUCT.md"), "utf8");
-    expect(product).toContain("Version 7");
+    expect(product).toContain("Version 8");
     expect(product).toContain("0009");
-    expect(product).toContain("real-time live audio platform");
     expect(product).toContain("Not a sample-pack app");
     expect(product).toContain("Not music-only");
     expect(product).toContain("Money follows the session, never the clock");

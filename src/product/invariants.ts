@@ -55,6 +55,8 @@ export const PRINCIPLES = {
   moneyFollowsTheSessionNotTheClock: true,
   /** Hosting is viewpoint-neutral. Illegal content is still refused. */
   viewpointNeutralHosting: true,
+  /** Original creative files stay on the creator's device unless they explicitly publish. */
+  originalsStayLocalByDefault: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -96,16 +98,43 @@ export const FROZEN_CONTRACTS = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
-/* Live mix audio streaming platform                                          */
+/* Creator Operating System (PRODUCT.md v8 / decision 0010)                   */
 /* ------------------------------------------------------------------------- */
 
 /**
- * Authoritative direction (PRODUCT.md v7 / decisions 0004–0009).
- * VYBZ is a real-time live audio platform. Not sample-pack. Not music-only.
+ * Product identity. Live, library, tools, and commerce are layers around this.
+ * Music-specific surfaces are specializations of Creative Work, not the unit.
+ */
+export const CREATOR_OS = {
+  /** VYBZ is the operating environment for digital creators. */
+  creatorOsIsTheProduct: true,
+  /** The fundamental unit is Creative Work, not a song. */
+  workIsTheUnit: true,
+  /** Music, film, games, software, and other disciplines share the same model. */
+  musicIsASpecialization: true,
+  /** Indexing a local file does not publish it. */
+  indexingIsNotPublishing: true,
+  /** Do not claim absolute proof of human authorship. */
+  refusesAbsoluteHumanAuthorshipClaim: true,
+  /** Changing gravity is not a rewrite. Adapt what exists. */
+  noRewriteToPivot: true,
+  /** Prefer $0 incremental recurring cost. */
+  zeroIncrementalRecurringCostPreferred: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Live mix audio streaming — a Creator OS capability                         */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Live rooms, LiveKit, DAW ingest, and session provenance remain first-class
+ * (decisions 0004–0009). They are not the product identity.
  */
 export const LIVE_MIX_STREAMING = {
-  /** Real-time live rooms are the core front-door experience. */
-  liveMixIsPrimary: true,
+  /** Workspace / Library is the product front door. Live is not the identity. */
+  liveMixIsPrimary: false,
+  /** Real-time live rooms remain a first-class Creator OS surface. */
+  liveMixIsFirstClassSurface: true,
   /** Audio streaming uses LiveKit SFU stereo music mode (no telephony filtering). */
   losslessMusicAudioConstraints: true,
   /** Master bus audio capture via DAW broadcast plug-in (VST3 / CLAP / AU). */
@@ -123,8 +152,8 @@ export const LIVE_MIX_STREAMING = {
 } as const;
 
 export const LIVE_AUDIO = {
-  /** Not a sample-pack app. Not music-only. */
-  liveAudioIsTheProduct: true,
+  /** Live audio is a first-class Creator OS capability, not the product identity. */
+  liveAudioIsACapability: true,
   /** Producers, artists, podcasters, talkers, open-mic, vent — same rooms. */
   hostsAreNotMusicOnly: true,
   /** Talk, podcast, and music are first-class on the host profile. */
@@ -265,7 +294,7 @@ export const ATC_POLICY = {
 /* ------------------------------------------------------------------------- */
 
 /**
- * Parked with decision 0004 / PRODUCT.md v3. Default product is live mix streaming.
+ * Parked with decision 0004 / PRODUCT.md v3. Default product is Creator OS.
  * These values still bind the Station subsystem if it is switched on again.
  * Do not delete them. Do not use Airtime in the live mix marketplace.
  *
@@ -392,6 +421,7 @@ export const GATE_REGISTRY = [
   "humanProvenance",
   "artistStageProfile",
   "liveAudio",
+  "creatorOs",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

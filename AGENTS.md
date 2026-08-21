@@ -4,7 +4,7 @@ How to work in this repository. If you cannot follow all of it, do not start.
 
 ## Read first
 
-1. [`PRODUCT.md`](./PRODUCT.md) — the only authority. VYBZ is a real-time live audio platform. Not a sample-pack app. Not music-only.
+1. [`PRODUCT.md`](./PRODUCT.md) — the only authority. VYBZ is the Creator Operating System. Not a sample-pack app. Not music-only.
 2. [`src/product/invariants.ts`](./src/product/invariants.ts) — the rules, in code, enforced by tests
 3. [`STATE.md`](./STATE.md) — where things actually stand right now
 4. [`docs/`](./docs/) — reference material, never authority
@@ -74,7 +74,7 @@ Fixture guard: `npm run check:no-fixtures` against `dist/`. E2E: `npm run test:e
 Fixtures are enabled only by `npm run build:e2e`, which produces a **non-deployable** build.
 
 Merged is not delivered. Reachable is not discoverable. A green run proves the code compiles
-and nothing more. Use the delivery vocabulary in `PRODUCT.md` §12 and never write "complete".
+and nothing more. Use the delivery vocabulary in `PRODUCT.md` §13 and never write "complete".
 
 ## Ask before
 

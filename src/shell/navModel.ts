@@ -27,7 +27,7 @@ export type NavItem = {
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * The rail is the live-audio platform menu (PRODUCT.md v7).
+ * The rail is the Creator OS menu (PRODUCT.md v8).
  *
  * Default chrome is Home, Feed, Live, and Library. Living Mix, Rooms, Make pack,
  * Sales, and Packages stay in the tree and resolve by URL — they are listed

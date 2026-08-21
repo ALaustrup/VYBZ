@@ -32,7 +32,7 @@ describe("artist stage profile", () => {
 
   it("writes the Stage File into PRODUCT", () => {
     const product = read("PRODUCT.md");
-    expect(product).toContain("Version 7");
+    expect(product).toContain("Version 8");
     expect(product).toContain("0007");
     expect(product).toContain("Stage File");
     expect(product).toContain("Connect is a request");

@@ -121,7 +121,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
   });
 
   it("never links Studio, Market, AI minutes or Cost Sentinel", () => {
-    // Live-first (PRODUCT.md v7): Home, Live, and Library are default chrome.
+    // Creator OS (PRODUCT.md v8): Home, Feed, Live, and Library are default chrome.
     // Studio and unrouted money surfaces stay out of default nav.
     const linked = [
       ...navItems().map((i) => i.path),

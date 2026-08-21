@@ -1,9 +1,9 @@
 # VYBZ
 
 > **Find Yours.**  
-> **Go live. Talk, play, or mix. Listening is free.**
+> **Organize the work. Keep the originals. Go live while creating.**
 
-VYBZ is a **real-time live audio platform**. Not a sample-pack app. Not music-only. Hosts are anyone with something to say or play. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
+VYBZ is the **Creator Operating System**. Not a sample-pack app. Not music-only. The fundamental unit is Creative Work. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 
 **One account · one cloud · three clients + DAW plug-in:**
 - **VYBZ Web:** Interactive live stage, rooms, and visualizers.
@@ -22,14 +22,14 @@ VYBZ is a **real-time live audio platform**. Not a sample-pack app. Not music-on
 
 | Module | Role |
 |--------|------|
-| **Live Mix Rooms** | Real-time live production sessions, stage visualizer, presence, and chat |
+| **Workspace + Library** | Private operating environment. Authorized works and assets |
+| **Creator Profile / Stage File** | Public `/u/:id` — living portfolio. Talk, podcast, music, and other disciplines |
+| **Live Creation** | Real-time rooms, stage visualizer, presence, and chat |
 | **DAW Broadcast Plug-in** | Stream master-bus audio directly from your DAW to LiveKit SFU in stereo HD |
 | **Android Sync & Companion** | Hardware-style remote session control and mobile live mixing |
-| **Living Mix Engine** | Intelligent track sequencing, transitions, and energy curve management |
-| **Studio Tool Drawer** | 9 DSP correction desks, Stem splitter, MIDI maker, and Car/Club acoustic preview |
-| **Marketplace & Pack Maker** | Export recorded live mixes as measured sample packs with SHA manifests and sell via Stripe |
-| **Library** | Organize, search, and summon catalog files directly into live sessions |
-| **Host Stage File** | Public `/u/:id` — talk, podcast, and music. Live nights first |
+| **Living Mix Engine** | Catalog sequencer. Still in the tree |
+| **Studio Tool Drawer** | DSP correction desks, Stem splitter, MIDI maker, and Car/Club acoustic preview |
+| **Marketplace & Pack Maker** | Post-session products with SHA manifests; sell via Stripe |
 
 ## What's shipped today (foundation)
 
@@ -42,7 +42,7 @@ VYBZ is a **real-time live audio platform**. Not a sample-pack app. Not music-on
 - Forensic watermark embed/detect Edge Functions
 - Universal Platform Bridge across Web, Android (Capacitor), and Desktop (Tauri)
 
-Delivery state for each of these is recorded in [`STATE.md`](./STATE.md). Code merging is not delivery — see [`PRODUCT.md`](./PRODUCT.md) §12.
+Delivery state for each of these is recorded in [`STATE.md`](./STATE.md). Code merging is not delivery — see [`PRODUCT.md`](./PRODUCT.md) §13.
 
 ## Local development
 
@@ -61,11 +61,11 @@ Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
 
 | Doc | Purpose |
 |-----|---------|
-| [`PRODUCT.md`](./PRODUCT.md) | Product authority (live audio for any host) |
+| [`PRODUCT.md`](./PRODUCT.md) | Product authority (Creator Operating System) |
 | [`src/product/invariants.ts`](./src/product/invariants.ts) | The rules, in code |
 | [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
 | [`STATE.md`](./STATE.md) | Current checkpoint |
-| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0009) |
+| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0010) |
 | [`docs/architecture.md`](./docs/architecture.md) | Platform overview |
 | [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |

@@ -2,9 +2,19 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-18
-**Branch:** `continue-next`
+**Date:** 2026-08-21
+**Branch:** `feat/creator-os-phase-1-authority`
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Creator OS Phase 1 — product authority — 2026-08-21
+
+Owner authorized the Creator OS pivot. Phase 0 was forensic (no product rewrite). This commit is Phase 1 only: one current product definition.
+
+`PRODUCT.md` is Version 8. VYBZ is the Creator Operating System. Creative Work is the unit. Live, ATC, Stage File, tools, and market remain capabilities. Decision [`0010`](docs/decisions/0010-creator-os.md) records that. `CREATOR_OS` in `src/product/invariants.ts` is the identity lock. `LIVE_AUDIO.liveAudioIsACapability` replaces `liveAudioIsTheProduct`. Gate `creatorOs` is registered. The 2026-08-11 song/release brief is marked superseded.
+
+No schema. No vendors. No shell chrome change beyond a `navModel` comment. Unrelated mobile swipe/chrome WIP was stashed as `wip-mobile-chrome-swipe` and is not in this commit.
+
+`npm run lint` pass. `npm run test` pass — **181 files / 909 tests**. `npm run build` pass. Browser walk: **Not measured**. Vercel Ready: **Not measured**.
 
 ## VLink VST3 — 2026-08-18
 

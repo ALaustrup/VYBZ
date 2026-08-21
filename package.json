@@ -8,7 +8,7 @@
     "codename": "Suite Genesis"
   },
   "type": "module",
-  "description": "VYBZ — release operating system for independent music. Find Yours. Everything between finished and released.",
+    "description": "VYBZ — the Creator Operating System. Organize work, keep originals local, go live while creating, and connect with other creators.",
   "engines": {
     "node": ">=20"
   },
