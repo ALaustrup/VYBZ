@@ -63,7 +63,7 @@ export interface PinDef {
 }
 
 export const PIN_CATALOG: PinDef[] = [
-  { id: "feed", label: "Home", to: "/", icon: Home, end: true },
+  { id: "feed", label: "Workspace", to: "/", icon: Home, end: true },
   { id: "drops", label: "Listen", to: "/?tab=listen", icon: AudioLines },
   { id: "connect", label: "Collaborate", to: "/connect", icon: Users },
   { id: "collabs", label: "You", to: "/?tab=you", icon: FolderGit2 },

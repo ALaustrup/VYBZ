@@ -41,8 +41,8 @@ type SurfaceRule = {
 };
 
 const LABELS: SurfaceRule[] = [
-  { test: (p) => p === "/" || p === "/start" || p.startsWith("/releases"), id: "home", label: "Home", product: "home", mode: "professional" },
-  { test: (p) => p.startsWith("/feed"), id: "feed", label: "Drops", mode: "audience" },
+  { test: (p) => p === "/" || p === "/start" || p.startsWith("/releases"), id: "home", label: "Workspace", product: "home", mode: "professional" },
+  { test: (p) => p.startsWith("/feed"), id: "feed", label: "Network", mode: "audience" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover", mode: "audience" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Gigs", mode: "audience" },
   { test: (p) => p.startsWith("/connect"), id: "network", label: "Network", mode: "audience" },
@@ -96,7 +96,7 @@ export type AppMode = "network" | "home" | "studio" | "you";
 
 export const MODE_LABEL: Record<AppMode, string> = {
   network: "Network",
-  home: "Home",
+  home: "Workspace",
   studio: "Studio",
   you: "You",
 };

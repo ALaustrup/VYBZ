@@ -209,7 +209,7 @@ function StatStrip({
   reduce: boolean;
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
-    { label: "Tracks", value: stats.tracks, to: "/library" },
+    { label: "Works", value: stats.tracks, to: "/library" },
     { label: "Scan", value: stats.releases, to: "/releases" },
     { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
     {

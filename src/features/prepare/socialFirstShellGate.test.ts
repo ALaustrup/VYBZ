@@ -1,7 +1,7 @@
 /**
  * Social-first shell gate.
  *
- * VYBZ leads with the social surfaces for music, sound and audio creators. The
+ * VYBZ leads with Workspace, Library, Live, and Network. The
  * production tools are additive: they live behind one launcher menu instead of
  * owning permanent shell chrome. Nothing is deleted — SuiteAppRail stays in the
  * tree, imported by nothing, so the redesign is reversible (AGENTS Preservation).

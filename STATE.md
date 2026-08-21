@@ -6,6 +6,12 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `feat/creator-os-phase-1-authority`
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
 
+## Creator OS Phase 2 — shell chrome — 2026-08-21
+
+Visible pivot on existing VYBZ chrome. Default rail is Workspace (`/`), Library, Network (`/feed`), Live. Group labels are Work and Network. App bar, command palette, welcome tour, and Library/Network copy follow. Frozen `MobileNav` stub stays unmounted. No schema. No vendors. Parked swipe/chrome WIP remains in stash `park/mobile-chrome-swipe-phase2`.
+
+`npm run lint` pass. `npm run test` pass — **181 files / 910 tests**. `npm run build` pass. Browser walk: **Not measured**. Vercel Ready: **Not measured**.
+
 ## Creator OS Phase 1 — product authority — 2026-08-21
 
 Owner authorized the Creator OS pivot. Phase 0 was forensic (no product rewrite). This commit is Phase 1 only: one current product definition.

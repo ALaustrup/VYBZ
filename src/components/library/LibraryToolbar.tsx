@@ -58,8 +58,8 @@ export function LibraryToolbar({
           <input
             value={filters.q}
             onChange={(e) => patch({ q: e.target.value })}
-            placeholder="Search title, album, artist…"
-            aria-label="Search your library"
+            placeholder="Search title, collection, creator…"
+            aria-label="Search your works"
             data-testid="library-search"
           />
           {filters.q && (

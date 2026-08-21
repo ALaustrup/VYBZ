@@ -16,7 +16,7 @@ type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: 
 type Mode = "discovery" | "latest";
 type Layout = "comfortable" | "grid";
 
-/** Newest-uploads stream — public drops, latest first. */
+/** Network stream — public works, latest first. */
 export function FeedPage({ onCompose }: { onCompose: () => void }) {
   const { userId } = useSession();
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   useRegisterAppBar({
     actions: (
       <div className="flex items-center gap-0.5">
-        <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Feed options" aria-expanded={filtersOpen}
+        <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Network options" aria-expanded={filtersOpen}
           className={cx("forge-chip h-9 w-9", filtersOpen && "forge-chip--active")}>
           <SlidersHorizontal className="h-4 w-4" />
         </button>
@@ -116,9 +116,9 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
       <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
         <div className="mx-auto mb-4 max-w-2xl px-0.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Stream</p>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">Newest uploads</h1>
-          <p className="mt-1 text-[13px] text-white/45">Tracks, demos and samples the moment they go public.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Network</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">New work</h1>
+          <p className="mt-1 text-[13px] text-white/45">Public works the moment they are shared.</p>
         </div>
         <div className="mx-auto max-w-2xl px-0.5">
           <FeedHero />
@@ -129,7 +129,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
           <EmptyState
             icon={AudioLines}
             title="Nothing here yet"
-            body="Tap + to upload. Public drops land here for everyone, and on your profile."
+            body="Public work lands here for everyone, and on the creator's profile."
           />
         ) : layout === "grid" ? (
           <div className={cx("mx-auto", gridCls)}>

@@ -10,7 +10,7 @@ export type SuiteRoute = {
 
 /** Canonical Suite Genesis routes. */
 export const SUITE_ROUTES: readonly SuiteRoute[] = [
-  { path: "/", productId: "home", title: "Home", nav: true },
+  { path: "/", productId: "home", title: "Workspace", nav: true },
   { path: "/start", productId: "home", title: "Start" },
   { path: "/releases", productId: "prepare", title: "Finalize", nav: true },
   { path: "/release/:id", productId: "prepare", title: "Release" },

@@ -225,7 +225,7 @@ export function buildTrackActions(
       },
       {
         id: "open-artist",
-        label: isOwner ? "Your page" : "Artist",
+        label: isOwner ? "Workspace" : "Creator",
         icon: UserRound,
         disabledReason: drop.authorId ? undefined : NO_ARTIST,
         onSelect: handlers.openArtist,

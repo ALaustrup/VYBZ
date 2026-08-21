@@ -48,13 +48,13 @@ export const ALPHA_GUIDE_STEPS = [
   },
   {
     id: "suite",
-    title: "Who's on, {name}",
-    body: "Home is your page. Live is who's on. Listening is free.",
+    title: "Your workspace, {name}",
+    body: "Workspace is where your work lives. Library holds it. Live is creation in real time. Network is other creators.",
     highlights: [
-      { label: "Home", blurb: "Your library, stats, and alerts." },
-      { label: "Live", blurb: "Who's on right now." },
-      { label: "Library", blurb: "Your files." },
-      { label: "Go live", blurb: "Open a room from Home or Live." },
+      { label: "Workspace", blurb: "Your work, here." },
+      { label: "Library", blurb: "Your works and assets." },
+      { label: "Live", blurb: "Who is creating right now." },
+      { label: "Network", blurb: "Public work from other creators." },
     ],
   },
   {

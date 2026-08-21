@@ -28,7 +28,7 @@ type Tab = "tracks" | "mixes" | "projects" | "stages";
 const PAGE_SIZE = 100;
 
 /**
- * Media Library — tracks, project posts, stage backdrops, plus Analyzer scan strip.
+ * Library — works, project posts, stage backdrops, plus Analyzer scan strip.
  * Counts come from measured drops / posts / listReleases only (Law 1).
  */
 export function LibraryPage() {
@@ -125,7 +125,7 @@ export function LibraryPage() {
       <div className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid="library-tabs" role="tablist" aria-label="Library sections">
         <ForgeChip active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
           {/* While paging, show progress rather than a total that is still growing. */}
-          Tracks ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
+          Works ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
         </ForgeChip>
         <ForgeChip active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
           Mixes

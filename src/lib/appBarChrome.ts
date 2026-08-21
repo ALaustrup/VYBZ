@@ -16,10 +16,10 @@ export interface ChromeDef {
 }
 
 export function chromeForPath(pathname: string): ChromeDef {
-  if (pathname === "/") return { title: "Home" };
-  if (pathname.startsWith("/feed")) return { title: "Feed" };
+  if (pathname === "/") return { title: "Workspace" };
+  if (pathname.startsWith("/feed")) return { title: "Network" };
   if (pathname.startsWith("/discover")) return { title: "Discover" };
-  if (pathname.startsWith("/connect")) return { title: "Collaborate" };
+  if (pathname.startsWith("/connect")) return { title: "Creators" };
   if (pathname.startsWith("/opportunities")) return { title: "Roles" };
   if (pathname.startsWith("/projects/") && pathname !== "/projects") {
     return { title: "Repo", showBack: true, backTo: "/" };

@@ -21,13 +21,13 @@ describe("Alpha welcome + feedback gate", () => {
     expect(GATE_REGISTRY).toContain("alphaWelcome");
   });
 
-  it("welcomes first, then claims the name, then locks security, then tours live", () => {
+  it("welcomes first, then claims the name, then locks security, then tours the workspace", () => {
     expect(ALPHA_GUIDE_STEPS.length).toBe(5);
     expect(ALPHA_GUIDE_STEPS[0]!.title).toMatch(/Welcome to VYBZ/i);
     expect(ALPHA_GUIDE_STEPS[1]!.id).toBe("username");
     expect(ALPHA_GUIDE_STEPS[2]!.id).toBe("security");
     expect(ALPHA_GUIDE_STEPS[3]!.highlights?.length).toBeGreaterThan(2);
-    expect(ALPHA_GUIDE_STEPS[3]!.title).toMatch(/Who's on/i);
+    expect(ALPHA_GUIDE_STEPS[3]!.title).toMatch(/workspace/i);
     expect(ALPHA_GUIDE_STEPS[4]!.id).toBe("feedback");
     expect(alphaWelcomeStorageKey("user-1")).toContain(ALPHA_WELCOME_VERSION);
   });

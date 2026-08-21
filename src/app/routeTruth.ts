@@ -80,10 +80,10 @@ export function isPlaceholderPath(path: string, flags?: { storefront: boolean })
  * same dishonesty as offering a placeholder.
  */
 export const WORKING_DESTINATIONS: readonly Destination[] = [
-  { path: "/", title: "Home", keywords: ["profile", "dashboard", "start"] },
+  { path: "/", title: "Workspace", keywords: ["home", "profile", "dashboard", "start", "work"] },
   { path: "/make", title: "Make pack", keywords: ["upload", "pipeline", "sample pack", "flow"] },
   { path: "/make/dashboard", title: "Sales", keywords: ["orders", "sales", "dashboard"] },
-  { path: "/library", title: "Library", keywords: ["tracks", "media", "files", "catalog"] },
+  { path: "/library", title: "Library", keywords: ["works", "tracks", "media", "files", "catalog", "assets"] },
   { path: "/library/mix", title: "Mix", keywords: ["mix", "catalog", "session", "living"] },
   { path: "/releases", title: "Scan", keywords: ["prepare", "projects", "scan", "finalize", "analyze", "analyser"] },
   { path: "/releases/new", title: "New scan", keywords: ["upload", "scan", "readiness", "analyse", "analyze"] },
@@ -97,7 +97,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/tools/stems", title: "Stems", keywords: ["stems", "multitrack", "assemble", "stem set"] },
   { path: "/projects", title: "Projects", keywords: ["studio", "rooms", "work"] },
   { path: "/discover", title: "Discover", keywords: ["browse", "explore", "find music"] },
-  { path: "/feed", title: "Feed", keywords: ["activity", "posts", "newest", "uploads", "listen"] },
+  { path: "/feed", title: "Network", keywords: ["feed", "activity", "posts", "newest", "uploads", "creators"] },
   { path: "/live", title: "Live", keywords: ["stream", "broadcast"] },
   { path: "/messages", title: "Messages", keywords: ["dm", "inbox", "chat"] },
   { path: "/notifications", title: "Notifications", keywords: ["alerts", "requests", "activity", "unread"] },

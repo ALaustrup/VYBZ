@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { HOME_ITEM, navGroups, navItems } from "@/shell/navModel";
 import {
   CREATOR_OS,
   GATE_REGISTRY,
@@ -44,5 +45,17 @@ describe("creator operating system lock", () => {
     expect(product).toContain("Indexing is not publishing");
     expect(product).not.toMatch(/VYBZ is a real-time live audio platform/);
     expect(product).not.toContain("liveAudioIsTheProduct");
+  });
+
+  it("orients default chrome as Workspace, Library, Live, and Network", () => {
+    expect(HOME_ITEM.label).toBe("Workspace");
+    expect(HOME_ITEM.path).toBe("/");
+    const items = navItems();
+    expect(items.find((i) => i.path === "/library")?.label).toBe("Library");
+    expect(items.find((i) => i.path === "/library")?.hint).toBe("Your works");
+    expect(items.find((i) => i.path === "/live")?.label).toBe("Live");
+    expect(items.find((i) => i.path === "/feed")?.label).toBe("Network");
+    expect(navGroups().map((g) => g.id)).toEqual(["work", "network"]);
+    expect(items.map((i) => i.path)).toEqual(["/", "/library", "/feed", "/live"]);
   });
 });
