@@ -51,16 +51,15 @@ describe("creator operating system lock", () => {
     expect(product).not.toContain("liveAudioIsTheProduct");
   });
 
-  it("orients default chrome as Me, Library, Live, and Network", () => {
+  it("orients default chrome as quiet — Me is home, kingdoms are not rail items", () => {
     expect(HOME_ITEM.label).toBe("Me");
     expect(HOME_ITEM.path).toBe("/");
     const items = navItems();
-    expect(items.find((i) => i.path === "/library")?.label).toBe("Library");
-    expect(items.find((i) => i.path === "/library")?.hint).toBe("Your works");
-    expect(items.find((i) => i.path === "/live")?.label).toBe("Live");
-    expect(items.find((i) => i.path === "/feed")?.label).toBe("Network");
-    expect(navGroups().map((g) => g.id)).toEqual(["work", "network"]);
-    expect(items.map((i) => i.path)).toEqual(["/", "/library", "/feed", "/live"]);
+    expect(items.map((i) => i.path)).toEqual(["/"]);
+    expect(navGroups()).toEqual([]);
+    expect(items.map((i) => i.path)).not.toContain("/library");
+    expect(items.map((i) => i.path)).not.toContain("/feed");
+    expect(items.map((i) => i.path)).not.toContain("/live");
     expect(items.map((i) => i.path)).not.toContain("/devices");
     expect(items.map((i) => i.path)).not.toContain("/workspace");
   });

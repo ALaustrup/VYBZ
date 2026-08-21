@@ -219,9 +219,22 @@ export function ArtistStageProfile({
             </>
           )}
           {isMe && (
-            <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
-              Edit profile
-            </button>
+            <>
+              <button type="button" onClick={() => navigate("/library")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
+                Library
+              </button>
+              <button type="button" onClick={() => navigate("/workspace")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
+                Workspace
+              </button>
+              {!liveNow ? (
+                <button type="button" onClick={() => navigate("/live")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
+                  <Radio className="h-3.5 w-3.5" /> Go live
+                </button>
+              ) : null}
+              <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
+                Edit profile
+              </button>
+            </>
           )}
         </div>
       </div>

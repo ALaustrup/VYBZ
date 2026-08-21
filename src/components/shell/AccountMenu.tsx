@@ -2,19 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { LogOut, Settings, UserRound } from "lucide-react";
+import { Avatar } from "@/components/Avatar";
 import { useSession } from "@/store/session";
 import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 
 /**
- * Account menu — who you are, and how to leave.
- *
- * `ProfileMenu` and `OrbMenu` both carry a sign-out, but neither is mounted, so
- * the signed-in app had no way out at all. This is the small, always-present
- * version: identity, settings, sign out.
+ * Me — home when you are elsewhere; account when you are already home.
+ * Sign-out lives here because ProfileMenu and OrbMenu are unmounted.
  */
 export function AccountMenu() {
-  const { profile, email, signOut } = useSession();
+  const { profile, email, signOut, userId } = useSession();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const reduce = useReduceFx();
@@ -42,19 +40,32 @@ export function AccountMenu() {
   }, [open]);
 
   const name = profile?.username?.trim() || null;
+  const display = profile?.displayName?.trim() || name;
+  const onHome = pathname === "/" || (!!userId && pathname === `/u/${userId}`);
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Settings"
+        onClick={() => {
+          if (onHome) setOpen((v) => !v);
+          else navigate("/");
+        }}
+        aria-label="Me"
         aria-expanded={open}
         aria-haspopup="menu"
         data-testid="account-menu-button"
-        className={cx("forge-chip flex h-10 w-10 active:scale-90", open && "forge-chip--active")}
+        data-tip="Me"
+        className={cx(
+          "forge-chip flex h-10 w-10 overflow-hidden active:scale-90",
+          open && "forge-chip--active",
+        )}
       >
-        <Settings className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+        {profile ? (
+          <Avatar url={profile.avatarUrl} name={display} id={profile.id} size="sm" className="h-8 w-8" />
+        ) : (
+          <UserRound className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+        )}
       </button>
 
       <AnimatePresence>

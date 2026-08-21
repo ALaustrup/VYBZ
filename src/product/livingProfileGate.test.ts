@@ -37,6 +37,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.quieterInterfaceAsPowerGrows).toBe(true);
     expect(LIVING_PROFILE.noGenericDashboard).toBe(true);
     expect(LIVING_PROFILE.loggedInHomeIsMyVybz).toBe(true);
+    expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);
@@ -59,7 +60,9 @@ describe("living profile constitution", () => {
     expect(product).toContain("Refine before replacing");
     expect(product).toContain("ARE YOU A CREATOR?");
     expect(product).toContain("Logged-in home is My VYBZ");
+    expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
     expect(product).not.toContain("Logged-in home remains Workspace until Phase 1");
+    expect(product).not.toContain("Default chrome is Me, Library, Network, and Live");
     expect(product).not.toContain("creative operating environment with a social layer built into it");
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
   });
@@ -74,6 +77,28 @@ describe("living profile constitution", () => {
     expect(app).toContain('path="/u/:id" element={<UserProfilePage />}');
     expect(read("src/pages/UserProfilePage.tsx")).toContain("export function MyVybzHome");
     expect(read("src/pages/ProfilePage.tsx")).toContain("export function ProfilePage");
+  });
+
+  it("collapses permanent navigation into quiet chrome", () => {
+    const shell = read("src/shell/SuiteShell.tsx");
+    const bar = read("src/components/shell/ContextualAppBar.tsx");
+    const stage = read("src/features/profile/ArtistStageProfile.tsx");
+    expect(shell).not.toMatch(/<PrimaryRail\s*\/>/);
+    expect(shell).toContain("PrimaryRail stays in the tree");
+    expect(bar).toContain("openCommandPalette");
+    expect(bar).toContain("Search VYBZ");
+    expect(bar).not.toContain("<PeopleMenu />");
+    expect(bar).toContain("<ChatIndicator />");
+    expect(bar).toContain("<AlertsMenu />");
+    expect(bar).toContain("<AccountMenu />");
+    expect(bar).toContain('aria-label="Add"');
+    expect(bar).toContain('aria-label="VYBZ"');
+    expect(read("src/components/shell/PeopleMenu.tsx")).toContain("export function PeopleMenu");
+    expect(read("src/components/shell/PeopleMenu.tsx")).toContain("openCommandPalette");
+    expect(read("src/components/shell/AccountMenu.tsx")).toContain('aria-label="Me"');
+    expect(stage).toContain('navigate("/library")');
+    expect(stage).toContain('navigate("/workspace")');
+    expect(stage).toContain("Go live");
   });
 
   it("orients agents at the Living Profile identity", () => {

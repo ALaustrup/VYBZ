@@ -1,10 +1,10 @@
 /**
  * Social-first shell gate.
  *
- * VYBZ leads with Me, Library, Live, and Network. The
- * production tools are additive: they live behind one launcher menu instead of
- * owning permanent shell chrome. Nothing is deleted — SuiteAppRail stays in the
- * tree, imported by nothing, so the redesign is reversible (AGENTS Preservation).
+ * VYBZ leads with quiet chrome: VYBZ, Search, +, Chat, Alerts, Me.
+ * Tools live behind one launcher. Kingdoms stay reachable by URL.
+ * Nothing is deleted — SuiteAppRail and PrimaryRail stay in the tree,
+ * imported by nothing (AGENTS Preservation).
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -23,6 +23,7 @@ describe("social-first shell", () => {
     const shell = read("src/shell/SuiteShell.tsx");
     expect(shell).not.toMatch(/<SuiteAppRail\s*\/>/);
     expect(shell).not.toMatch(/<SuiteAppRailMobile\s*\/>/);
+    expect(shell).not.toMatch(/<PrimaryRail\s*\/>/);
   });
 
   it("mounts the tools launcher in the app bar", () => {
@@ -45,9 +46,13 @@ describe("social-first shell", () => {
 
   it("preserves the previous rail in the tree rather than deleting it", () => {
     expect(existsSync(path.join(ROOT, "src/shell/SuiteAppRail.tsx"))).toBe(true);
+    expect(existsSync(path.join(ROOT, "src/shell/PrimaryRail.tsx"))).toBe(true);
     // Frozen code must not be imported by the shell (a prose mention is fine).
     expect(read("src/shell/SuiteShell.tsx")).not.toMatch(
       /^import\s[^\n]*SuiteAppRail/m,
+    );
+    expect(read("src/shell/SuiteShell.tsx")).not.toMatch(
+      /^import\s[^\n]*PrimaryRail/m,
     );
   });
 });

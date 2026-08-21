@@ -59,9 +59,12 @@ describe("live audio lock", () => {
     expect(live).not.toMatch(/Start Live Mix/);
     expect(live).not.toMatch(/Live Mix Radio/);
     const nav = readFileSync(path.join(ROOT, "src/shell/navModel.ts"), "utf8");
-    expect(nav).toMatch(/path: "\/live"/);
-    expect(nav).toMatch(/label: "Live"/);
+    expect(nav).toContain('"/live"');
     expect(nav).not.toMatch(/label: "Live Mix"/);
+    const app = readFileSync(path.join(ROOT, "src/App.tsx"), "utf8");
+    expect(app).toContain('path="/live"');
+    const stage = readFileSync(path.join(ROOT, "src/features/profile/ArtistStageProfile.tsx"), "utf8");
+    expect(stage).toContain("Go live");
     const go = readFileSync(path.join(ROOT, "src/components/GoLiveSheet.tsx"), "utf8");
     expect(go).toContain("Talk");
     expect(go).toContain("Podcast");

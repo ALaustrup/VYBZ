@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Plus, Search } from "lucide-react";
 import { BrandMark } from "@/components/Brand";
 import { AccountMenu } from "@/components/shell/AccountMenu";
-import { PeopleMenu } from "@/components/shell/PeopleMenu";
+import { AlertsMenu } from "@/components/shell/AlertsMenu";
+import { ChatIndicator } from "@/components/shell/ChatIndicator";
 import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
 import { chromeForPath } from "@/lib/appBarChrome";
 import { useAppBarBridge } from "@/lib/appBarBridge";
@@ -14,9 +15,11 @@ import { ToolsLauncherButton } from "@/shell/ToolsLauncher";
 import { AtcMeter } from "@/features/airtime/AtcMeter";
 
 /**
- * Soft frosted top bar — VYBZ wordmark (audio-reactive) · centered brand mark · search/upload.
- * Track titles belong on VDock / Now Playing rail, never here.
- * Suite rail apps do not show a history back next to the wordmark.
+ * Quiet chrome — VYBZ · Search · + · Chat · Alerts · Me.
+ * PeopleMenu stays in the tree, imported by nothing; Search opens the palette
+ * (people, places, tools). Audio-reactive wordmark stays available on
+ * AppBarWordmark; the signed-in bar keeps it still by default.
+ * Track titles belong on VDock, never here.
  */
 export function ContextualAppBar({
   onCompose,
@@ -61,7 +64,7 @@ export function ContextualAppBar({
         <button
           type="button"
           onClick={() => navigate("/")}
-          aria-label="VYBZ workspace"
+          aria-label="VYBZ"
           className="relative z-[1] flex h-12 w-12 items-center justify-center justify-self-center overflow-visible bg-transparent p-0 active:scale-95"
           data-testid="suite-app-bar-mark"
         >
@@ -70,27 +73,31 @@ export function ContextualAppBar({
 
         <div className="flex min-w-0 items-center justify-end gap-1.5 justify-self-end">
           {bridge.actions}
-          <AtcMeter />
-          <ToolsLauncherButton />
           <button
             type="button"
             onClick={openCommandPalette}
             aria-label="Search VYBZ"
             aria-keyshortcuts={isApplePlatform() ? "Meta+K" : "Control+K"}
+            data-testid="search-button"
             data-tip="Search"
-            className="forge-chip hidden h-10 w-10 sm:flex"
+            className="forge-chip flex h-10 w-10 active:scale-90"
           >
-            <Search className="h-6 w-6" />
+            <Search className="h-5 w-5" strokeWidth={1.75} />
           </button>
-          <PeopleMenu />
           <button
             type="button"
             onClick={() => onCompose?.()}
-            aria-label="Upload a track"
+            aria-label="Add"
+            data-testid="compose-button"
+            data-tip="Add"
             className="forge-chip flex h-10 w-10 active:scale-90"
           >
             <Plus className="h-6 w-6" strokeWidth={2.25} />
           </button>
+          <ChatIndicator />
+          <AlertsMenu />
+          <ToolsLauncherButton />
+          <AtcMeter />
           <AccountMenu />
         </div>
       </div>

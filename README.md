@@ -23,7 +23,7 @@ VYBZ is a **living social identity** that becomes a **creative operating system*
 | Module | Role |
 |--------|------|
 | **My VYBZ / Stage File** | Logged-in home (`/`) and public `/u/:id` — same living profile |
-| **Workspace + Library** | Private operating environment at `/workspace` (hidden from default chrome) and authorized works |
+| **Workspace + Library** | Private operating environment at `/workspace` and authorized works at `/library` — both hidden from default chrome |
 | **Live Creation** | Real-time rooms, stage visualizer, presence, and chat |
 | **DAW Broadcast Plug-in** | Stream master-bus audio directly from your DAW to LiveKit SFU in stereo HD |
 | **Android Sync & Companion** | Hardware-style remote session control and mobile live mixing |

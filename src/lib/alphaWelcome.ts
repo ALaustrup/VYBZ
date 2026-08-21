@@ -49,12 +49,13 @@ export const ALPHA_GUIDE_STEPS = [
   {
     id: "suite",
     title: "Your VYBZ, {name}",
-    body: "Me is your home. Library holds work. Live is creation in real time. Network is other people.",
+    body: "Me is home. Search finds people and places. Chat and Alerts stay small until something needs you.",
     highlights: [
-      { label: "Me", blurb: "Your VYBZ." },
-      { label: "Library", blurb: "Your works and assets." },
-      { label: "Live", blurb: "Who is creating right now." },
-      { label: "Network", blurb: "People and public work." },
+      { label: "Me", blurb: "Your VYBZ. You are home." },
+      { label: "Search", blurb: "People, then places and tools." },
+      { label: "+", blurb: "Add work." },
+      { label: "Chat", blurb: "Messages." },
+      { label: "Alerts", blurb: "What happened." },
     ],
   },
   {
