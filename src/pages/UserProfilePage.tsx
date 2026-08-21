@@ -32,7 +32,7 @@ export function UserProfilePage() {
   const [projectLinks, setProjectLinks] = useState<ProjectLink[]>([]);
   const [sessionLinks, setSessionLinks] = useState<WorkSessionLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState<"follow" | "msg" | "book" | null>(null);
+  const [busy, setBusy] = useState<"connect" | "msg" | "book" | null>(null);
   const [requested, setRequested] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -99,9 +99,9 @@ export function UserProfilePage() {
 
   const profile = p;
 
-  async function follow() {
+  async function connect() {
     if (busy) return;
-    setBusy("follow");
+    setBusy("connect");
     const ok = await api.connect(id);
     setBusy(null);
     if (!ok) {
@@ -149,7 +149,7 @@ export function UserProfilePage() {
       isMe={userId === id}
       requested={requested}
       busy={busy}
-      onConnect={() => void follow()}
+      onConnect={() => void connect()}
       onMessage={() => void message()}
       onBook={() => void book()}
     />

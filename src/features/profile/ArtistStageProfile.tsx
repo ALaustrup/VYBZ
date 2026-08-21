@@ -31,6 +31,7 @@ import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
 import type { PublicProfile } from "@/lib/api";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
+import { FollowButton } from "@/features/network/FollowButton";
 import type { StageNight } from "./stageNights";
 import { collectStageWorks } from "./workKind";
 import { WorkCard } from "./WorkCard";
@@ -69,7 +70,7 @@ export function ArtistStageProfile({
   cosmetics: ResolvedCosmetics;
   isMe: boolean;
   requested: boolean;
-  busy: "follow" | "msg" | "book" | null;
+  busy: "connect" | "msg" | "book" | null;
   onConnect: () => void;
   onMessage: () => void;
   onBook: () => void;
@@ -203,9 +204,10 @@ export function ArtistStageProfile({
           {!isMe && (
             <>
               <button type="button" disabled={!!busy || requested} onClick={onConnect} data-testid="profile-connect" className="btn btn-ghost h-10 flex-1 py-0 text-xs disabled:opacity-40 sm:flex-none sm:px-4">
-                {busy === "follow" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                {busy === "connect" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
                 {requested ? "Request sent" : "Connect"}
               </button>
+              <FollowButton creatorId={id} />
               <button type="button" disabled={!!busy} onClick={onMessage} className="btn btn-ghost h-10 flex-1 py-0 text-xs sm:flex-none sm:px-4">
                 {busy === "msg" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageCircle className="h-3.5 w-3.5" />}
                 Message

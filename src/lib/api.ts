@@ -2245,6 +2245,24 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
 }
+
+/** Public works from specific creators. Used by the Network Following stream. */
+export async function listDropsFromAuthors(
+  authorIds: string[],
+  limit = 50,
+): Promise<(Drop & { myReaction?: Reaction; myRating?: number })[]> {
+  if (!authorIds.length) return [];
+  const myId = await currentUserId();
+  const { data } = await db()
+    .from("drops")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
+    .in("author_id", authorIds.slice(0, 80))
+    .eq("audience", "public")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return assembleDrops(data ?? [], myId);
+}
+
 /** Exact number of drops an author owns — lets the library state a true total. */
 export async function countDropsBy(authorId: string): Promise<number> {
   const { count, error } = await db().from("drops")

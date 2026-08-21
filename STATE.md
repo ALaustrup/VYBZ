@@ -4,12 +4,20 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-21
 **Branch:** `feat/creator-os-phase-1-authority`
-**HEAD:** `9500c84e` (Phase 5). Phase 6 Creation Provenance MVP is uncommitted on this branch.
+**HEAD:** `00192a4b` (Phase 6). Phase 7 Social Creator Network is uncommitted on this branch.
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Creator OS Phase 7 — Social Creator Network — 2026-08-21
+
+Reuse VYB (work reaction), Connect (request), Live discovery (`WhosLivePanel`), DMs, and Hub activity. Added unidirectional **Follow** (`creator_follows` on project `xixmneooyufbeftdfpcm`) with no public count. Network (`/feed`) now composes live, People/Messages links, Following stream, and activity. Connect is no longer labeled as follow. `drops.audience = followers` still means accepted connections — that visibility rule was not rewritten.
+
+Owner confirmed Following works (2026-08-21). Public follower counts: still unpublished.
+
+`npm run lint` pass. `npm run test` pass — **187 files / 937 tests**. `npm run build` pass.
 
 ## Creator OS Phase 6 — Creation Provenance MVP — 2026-08-21
 
-Reuse sealed `provenance_sessions` / `.vprov`. No second ledger. Additive RPCs `associate_session_work` and `creation_session_links` applied on project `xixmneooyufbeftdfpcm`. A creator associates a stored Work (and optionally a Project) with a **sealed** live. SHA remains measured from `assets.sha256`; the Work/Project link is declared. Copy is locked to: **This file is associated with verified VYBZ creation sessions.** Never Human certified. Never a not-AI proof.
+Reuse sealed `provenance_sessions` / `.vprov`. No second ledger. Additive RPCs `associate_session_work` and `creation_session_links` applied on project `xixmneooyufbeftdfpcm`. A creator associates a stored Work (and optionally a Project) with a **sealed** live. SHA remains measured from `assets.sha256`; the Work/Project link is declared. Copy is locked to: **This file is associated with verified VYBZ creation sessions.** Never Human certified. Never a not-AI proof. Committed `00192a4b`.
 
 Surfaces: Library **Validate Humanity** on an owned drop; Live **Session provenance** history of sealed nights; Stage File work cards show the claim when a public link exists.
 

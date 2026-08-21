@@ -58,6 +58,8 @@ The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, mus
 
 Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Creator identity, viewer access, public chat, the Stage File, and `live_sessions` logging stay.
 
+The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
+
 ## 4. Local-first originals
 
 The VYBZ cloud is the authentication, identity, social, metadata, discovery, permissions, signaling, and provenance plane.

@@ -244,6 +244,21 @@ export const ARTIST_STAGE_PROFILE = {
   extensibleWorkRenderer: true,
 } as const;
 
+/**
+ * Social layer around creation (directive Phase 7). Reuse existing primitives.
+ * Follow is not Connect. VYB is not a ranking score.
+ */
+export const CREATOR_NETWORK = {
+  vybIsWorkAcknowledgment: true,
+  followIsUnidirectional: true,
+  followIsNotConnect: true,
+  noPublicFollowerCounts: true,
+  liveDiscoveryReusesWhosLive: true,
+  messagingReusesDirectMessages: true,
+  activityReusesNotifications: true,
+  networkCentersOnCreativeWork: true,
+} as const;
+
 /* ------------------------------------------------------------------------- */
 /* Airtime Credits (ATC) — live hosting commons                               */
 /* ------------------------------------------------------------------------- */
@@ -441,6 +456,7 @@ export const GATE_REGISTRY = [
   "liveAudio",
   "creatorOs",
   "assetNode",
+  "creatorNetwork",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];
