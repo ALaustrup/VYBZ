@@ -20,6 +20,8 @@ export interface SelectedFolder {
   id: string;
   name: string;
   localPath?: string;
+  /** Web File System Access handle. Never serialized off-device. */
+  directoryHandle?: unknown;
 }
 
 export interface ExportedFile {

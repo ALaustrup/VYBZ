@@ -57,5 +57,6 @@ describe("creator operating system lock", () => {
     expect(items.find((i) => i.path === "/feed")?.label).toBe("Network");
     expect(navGroups().map((g) => g.id)).toEqual(["work", "network"]);
     expect(items.map((i) => i.path)).toEqual(["/", "/library", "/feed", "/live"]);
+    expect(items.map((i) => i.path)).not.toContain("/devices");
   });
 });

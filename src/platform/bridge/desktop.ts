@@ -33,7 +33,8 @@ export function createDesktopBridge(): PlatformBridge {
         return web.files.selectArtwork();
       },
       async selectFolder() {
-        throw unsupported("selectFolder (Tauri command pending Phase 2.D)");
+        if (web.files.selectFolder) return web.files.selectFolder();
+        throw unsupported("selectFolder");
       },
       async saveExport(file: ExportedFile) {
         const saved = await tryTauriSave(file);

@@ -25,6 +25,10 @@ export function createAndroidBridge(): PlatformBridge {
       async selectArtwork() {
         return web.files.selectArtwork();
       },
+      async selectFolder() {
+        if (web.files.selectFolder) return web.files.selectFolder();
+        throw unsupported("selectFolder");
+      },
       async saveExport(file: ExportedFile) {
         return web.files.saveExport(file);
       },

@@ -15,14 +15,16 @@ import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { MixesLibrary } from "@/features/livingMix/MixesLibrary";
 import { EmptyState } from "@/components/EmptyState";
 import { ForgeChip, ToolWorkbench } from "@/components/ToolWorkbench";
+import { LocalAssetsLibrary } from "@/components/library/LocalAssetsLibrary";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
 import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
+import { listAssets } from "@/features/assetNode/store";
 
-type Tab = "tracks" | "mixes" | "projects" | "stages";
+type Tab = "tracks" | "device" | "mixes" | "projects" | "stages";
 
 /** Tracks stream in a page at a time so the first screen is fast and nothing is capped. */
 const PAGE_SIZE = 100;
@@ -41,21 +43,24 @@ export function LibraryPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [trackTotal, setTrackTotal] = useState(0);
+  const [localCount, setLocalCount] = useState(0);
 
   const load = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     const ownerId = getPrepareOwnerId(userId);
-    const [firstPage, total, p, releases] = await Promise.all([
+    const [firstPage, total, p, releases, local] = await Promise.all([
       api.dropsBy(userId, PAGE_SIZE),
       api.countDropsBy(userId),
       api.myProjectPosts(200),
       listReleases(ownerId).catch(() => [] as ReleaseProject[]),
+      listAssets().catch(() => []),
     ]);
     setDrops(firstPage);
     setTrackTotal(total);
     setPosts(p);
     setScans(releases.slice(0, 6));
+    setLocalCount(local.length);
     setLoading(false);
 
     // The first page renders immediately; the rest streams in so a large library
@@ -127,6 +132,9 @@ export function LibraryPage() {
           {/* While paging, show progress rather than a total that is still growing. */}
           Works ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
         </ForgeChip>
+        <ForgeChip active={tab === "device"} onClick={() => setTab("device")} testId="library-tab-device">
+          This device ({localCount})
+        </ForgeChip>
         <ForgeChip active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
           Mixes
         </ForgeChip>
@@ -145,6 +153,10 @@ export function LibraryPage() {
           featuredId={profile?.featuredDropId}
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
         />
+      ) : tab === "device" ? (
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
+          <LocalAssetsLibrary onChanged={() => { void listAssets().then((a) => setLocalCount(a.length)); }} />
+        </div>
       ) : tab === "mixes" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
           <MixesLibrary />

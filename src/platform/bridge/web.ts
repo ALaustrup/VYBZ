@@ -4,9 +4,10 @@ import type {
   NetworkState,
   PersistedSession,
   SelectedFile,
+  SelectedFolder,
 } from "@/contracts";
 import { capabilitiesFor } from "@/platform/bridge/capabilities";
-import { cancelled, normalizeUnknown, PlatformError } from "@/platform/bridge/errors";
+import { cancelled, normalizeUnknown, PlatformError, unsupported } from "@/platform/bridge/errors";
 import type { PlatformBridge } from "@/platform/bridge/types";
 import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
 import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
@@ -92,6 +93,29 @@ export function createWebBridge(): PlatformBridge {
         try {
           return await pickFiles("image/png,image/jpeg,image/webp,image/gif", true);
         } catch (err) {
+          throw normalizeUnknown(err);
+        }
+      },
+      async selectFolder(): Promise<SelectedFolder | null> {
+        const picker = (
+          window as Window & {
+            showDirectoryPicker?: (opts?: { mode?: "read" | "readwrite" }) => Promise<FileSystemDirectoryHandle>;
+          }
+        ).showDirectoryPicker;
+        if (typeof picker !== "function") {
+          throw unsupported("selectFolder");
+        }
+        try {
+          const handle = await picker.call(window, { mode: "read" });
+          return {
+            id: newId(),
+            name: handle.name,
+            directoryHandle: handle,
+          };
+        } catch (err) {
+          if (err instanceof DOMException && (err.name === "AbortError" || err.name === "NotAllowedError")) {
+            throw cancelled("folder selection");
+          }
           throw normalizeUnknown(err);
         }
       },

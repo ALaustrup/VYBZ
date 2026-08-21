@@ -102,14 +102,14 @@ function normalizeRel(parts: string[]): string {
   return parts.map((p) => p.replace(/\\/g, "/")).filter(Boolean).join("/");
 }
 
-function shouldSkipDir(name: string): boolean {
+export function shouldSkipDir(name: string): boolean {
   const n = name.toLowerCase();
   if (SKIP_DIR_NAMES.has(n)) return true;
   if (n.startsWith("backup")) return true;
   return false;
 }
 
-function shouldSkipFile(name: string): boolean {
+export function shouldSkipFile(name: string): boolean {
   const lower = name.toLowerCase();
   if (lower === "desktop.ini" || lower === "thumbs.db" || lower.startsWith(".~")) return true;
   const ext = lower.includes(".") ? lower.slice(lower.lastIndexOf(".") + 1) : "";

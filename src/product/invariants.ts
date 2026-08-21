@@ -422,6 +422,7 @@ export const GATE_REGISTRY = [
   "artistStageProfile",
   "liveAudio",
   "creatorOs",
+  "assetNode",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

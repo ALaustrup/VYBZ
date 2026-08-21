@@ -6,11 +6,19 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `feat/creator-os-phase-1-authority`
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
 
+## Creator OS Phase 3 — local Asset Node — 2026-08-21
+
+Library gained **This device**. A creator can authorize a folder through the Platform Bridge (`showDirectoryPicker` on web; desktop/mobile fall back to that instead of throwing). VYBZ stores names, sizes, and paths in IndexedDB on this machine. Bytes stay on disk. Indexing is not publishing. Availability is **Local only** (or **Device offline** if the handle is gone). Unindex does not delete files. No Devices nav. No cloud tables. No new vendors. No production migration — cloud metadata (`creator_nodes` / `indexed_assets`) stays unapplied until the owner authorizes it.
+
+Gate `assetNode` is registered. Folder pick in Chromium: **Not measured**. Native Tauri folder dialog: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **183 files / 919 tests**. `npm run build` pass.
+
 ## Creator OS Phase 2 — shell chrome — 2026-08-21
 
 Visible pivot on existing VYBZ chrome. Default rail is Workspace (`/`), Library, Network (`/feed`), Live. Group labels are Work and Network. App bar, command palette, welcome tour, and Library/Network copy follow. Frozen `MobileNav` stub stays unmounted. No schema. No vendors. Parked swipe/chrome WIP remains in stash `park/mobile-chrome-swipe-phase2`.
 
-`npm run lint` pass. `npm run test` pass — **181 files / 910 tests**. `npm run build` pass. Browser walk: **Not measured**. Vercel Ready: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **181 files / 910 tests**. `npm run build` pass. Browser walk on `http://localhost:5173` (signed-in, 2026-08-21): rail **Workspace / Library / Network / Live**; `/` heading **Your work** with eyebrow Workspace; `/library` chip **Works (1)** and search “Search title, collection, creator…”; `/feed` heading **New work** with Network options; `/live` heading **Who's live** and “Creators on stage right now.” Vercel Ready: **Not measured**.
 
 ## Creator OS Phase 1 — product authority — 2026-08-21
 
