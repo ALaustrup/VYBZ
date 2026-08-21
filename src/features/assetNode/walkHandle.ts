@@ -3,25 +3,85 @@ import type { WalkFile } from "@/features/assetNode/types";
 
 type DirHandle = FileSystemDirectoryHandle & {
   entries?: () => AsyncIterableIterator<[string, FileSystemHandle]>;
+  values?: () => AsyncIterableIterator<FileSystemHandle>;
   queryPermission?: (opts?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
   requestPermission?: (opts?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
 };
 
+export const GET_FILE_TIMEOUT_MS = 4000;
+export const WALK_BUDGET_MS = 20_000;
+export const PERMISSION_TIMEOUT_MS = 2500;
+
+export type WalkOptions = {
+  getFileTimeoutMs?: number;
+  budgetMs?: number;
+  onProgress?: (count: number) => void;
+};
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(label)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
+
+async function* iterateDirectory(
+  dir: FileSystemDirectoryHandle,
+): AsyncGenerator<[string, FileSystemHandle]> {
+  const d = dir as DirHandle;
+  if (typeof d.entries === "function") {
+    for await (const pair of d.entries()) yield pair;
+    return;
+  }
+  if (typeof d.values === "function") {
+    for await (const handle of d.values()) yield [handle.name, handle];
+    return;
+  }
+  const asyncIter = (d as unknown as AsyncIterable<unknown>)[Symbol.asyncIterator];
+  if (typeof asyncIter === "function") {
+    for await (const item of d as unknown as AsyncIterable<unknown>) {
+      if (Array.isArray(item) && item.length >= 2) {
+        yield item as [string, FileSystemHandle];
+        continue;
+      }
+      if (item && typeof item === "object" && "name" in item) {
+        const handle = item as FileSystemHandle;
+        yield [handle.name, handle];
+      }
+    }
+    return;
+  }
+  throw new Error("directory is not listable");
+}
+
 export async function ensureDirectoryPermission(handle: FileSystemDirectoryHandle): Promise<boolean> {
   const h = handle as DirHandle;
   try {
-    if (h.queryPermission) {
-      const state = await h.queryPermission({ mode: "read" });
-      if (state === "granted") return true;
-      if (state === "denied") return false;
-    }
-    if (h.requestPermission) {
-      const next = await h.requestPermission({ mode: "read" });
-      return next === "granted";
-    }
-    return true;
+    const probe = (async () => {
+      if (h.queryPermission) {
+        const state = await h.queryPermission({ mode: "read" });
+        if (state === "granted") return true;
+        if (state === "denied") return false;
+      }
+      if (h.requestPermission) {
+        const next = await h.requestPermission({ mode: "read" });
+        return next === "granted";
+      }
+      return true;
+    })();
+    // A handle just returned by the picker is already authorized. Do not hang on queryPermission.
+    return await withTimeout(probe, PERMISSION_TIMEOUT_MS, "permission timeout");
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -31,22 +91,35 @@ export async function ensureDirectoryPermission(handle: FileSystemDirectoryHandl
  */
 export async function walkAuthorizedFolder(
   root: FileSystemDirectoryHandle,
+  options: WalkOptions = {},
 ): Promise<{ files: WalkFile[]; skipped: number; truncated: boolean }> {
   const files: WalkFile[] = [];
   let skipped = 0;
   let truncated = false;
+  const getFileTimeoutMs = options.getFileTimeoutMs ?? GET_FILE_TIMEOUT_MS;
+  const budgetMs = options.budgetMs ?? WALK_BUDGET_MS;
+  const started = Date.now();
 
   async function walk(dir: FileSystemDirectoryHandle, prefix: string[], depth: number) {
     if (truncated) return;
+    if (Date.now() - started > budgetMs) {
+      truncated = true;
+      return;
+    }
     if (depth > MAX_INDEX_DEPTH) {
       skipped += 1;
       return;
     }
-    const iter = (dir as DirHandle).entries?.();
-    if (!iter) return;
-    for await (const [name, handle] of iter) {
+    for await (const [name, handle] of iterateDirectory(dir)) {
       if (truncated) return;
-      if (handle.kind === "directory") {
+      if (Date.now() - started > budgetMs) {
+        truncated = true;
+        return;
+      }
+      const isDir =
+        handle.kind === "directory" ||
+        (handle.kind !== "file" && typeof (handle as FileSystemDirectoryHandle).getDirectoryHandle === "function");
+      if (isDir) {
         if (!shouldIndexDir(name)) {
           skipped += 1;
           continue;
@@ -62,14 +135,26 @@ export async function walkAuthorizedFolder(
         truncated = true;
         return;
       }
-      const file = await (handle as FileSystemFileHandle).getFile();
-      files.push({
-        relativePath: [...prefix, name].join("/"),
-        name,
-        sizeBytes: file.size,
-        mime: mimeFromName(name, file.type),
-        lastModified: file.lastModified,
-      });
+      try {
+        const file = await withTimeout(
+          (handle as FileSystemFileHandle).getFile(),
+          getFileTimeoutMs,
+          "getFile timeout",
+        );
+        files.push({
+          relativePath: [...prefix, name].join("/"),
+          name,
+          sizeBytes: file.size,
+          mime: mimeFromName(name, file.type),
+          lastModified: file.lastModified,
+        });
+        options.onProgress?.(files.length);
+        if (files.length % 25 === 0) {
+          await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        }
+      } catch {
+        skipped += 1;
+      }
     }
   }
 

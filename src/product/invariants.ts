@@ -114,6 +114,8 @@ export const CREATOR_OS = {
   musicIsASpecialization: true,
   /** Indexing a local file does not publish it. */
   indexingIsNotPublishing: true,
+  /** Do not promise persistent mobile hosting when the OS will not allow it. */
+  mobileDoesNotClaimPersistentHosting: true,
   /** Do not claim absolute proof of human authorship. */
   refusesAbsoluteHumanAuthorshipClaim: true,
   /** Changing gravity is not a rewrite. Adapt what exists. */

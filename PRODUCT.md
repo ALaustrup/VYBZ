@@ -66,7 +66,7 @@ The VYBZ cloud is the authentication, identity, social, metadata, discovery, per
 
 Original creative files stay on the creator's device by default. Indexing is not publishing. Sharing is explicit. Public exposure is explicit.
 
-Availability must be honest: Available, Device Offline, Local Only, Shared, Private. Locally hosted files are not globally available after the hosting computer is turned off.
+Availability must be honest: **Available now**, **While this app is open**, **On another device**, **Unavailable here**, **Public**, **Private**. Cloud metadata is names and sizes only. A phone is not a background file host. Locally hosted files are not globally available after that device is off or the app is closed.
 
 The Asset Node exposes **authorized assets**, not a creator's filesystem.
 

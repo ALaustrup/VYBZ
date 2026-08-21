@@ -12,6 +12,8 @@ type Catalog = {
 };
 
 const memory: Catalog = { nodes: [], assets: [], handles: new Map() };
+/** Session File blobs. Never written to IndexedDB — they die with the JS heap. */
+const sessionBlobs = new Map<string, Map<string, Blob>>();
 
 function hasIndexedDb(): boolean {
   return typeof indexedDB !== "undefined";
@@ -65,6 +67,23 @@ export async function listAssets(): Promise<IndexedAssetRecord[]> {
   return rows;
 }
 
+export async function rememberSessionBlobs(nodeId: string, files: { relativePath: string; blob?: Blob }[]): Promise<void> {
+  const map = new Map<string, Blob>();
+  for (const file of files) {
+    if (file.blob) map.set(file.relativePath.replace(/\\/g, "/"), file.blob);
+  }
+  sessionBlobs.set(nodeId, map);
+}
+
+export function sessionBlob(nodeId: string, relativePath: string): Blob | null {
+  return sessionBlobs.get(nodeId)?.get(relativePath.replace(/\\/g, "/")) ?? null;
+}
+
+export function hasSessionBlobs(nodeId: string): boolean {
+  const map = sessionBlobs.get(nodeId);
+  return Boolean(map && map.size > 0);
+}
+
 export async function rememberNodeHandle(nodeId: string, handle: FileSystemDirectoryHandle): Promise<void> {
   memory.handles.set(nodeId, handle);
   if (!hasIndexedDb()) return;
@@ -112,26 +131,33 @@ export async function saveIndex(
     return;
   }
   const db = await openDb();
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction([NODES, ASSETS], "readwrite");
-    const nodeRow = handle ? { ...node, directoryHandle: handle } : node;
-    tx.objectStore(NODES).put(nodeRow);
-    const assetStore = tx.objectStore(ASSETS);
-    const index = assetStore.index("nodeId");
-    const existing = index.getAllKeys(node.id);
-    existing.onsuccess = () => {
-      for (const key of existing.result as IDBValidKey[]) assetStore.delete(key);
-      for (const asset of assets) assetStore.put(asset);
-    };
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
+  const persist = (nodeRow: unknown) =>
+    new Promise<void>((resolve, reject) => {
+      const tx = db.transaction([NODES, ASSETS], "readwrite");
+      tx.objectStore(NODES).put(nodeRow);
+      const assetStore = tx.objectStore(ASSETS);
+      const index = assetStore.index("nodeId");
+      const existing = index.getAllKeys(node.id);
+      existing.onsuccess = () => {
+        for (const key of existing.result as IDBValidKey[]) assetStore.delete(key);
+        for (const asset of assets) assetStore.put(asset);
+      };
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  try {
+    await persist(handle ? { ...node, directoryHandle: handle } : node);
+  } catch {
+    // Handle may not clone into IndexedDB. Keep it in memory for this session.
+    await persist(node);
+  }
   db.close();
 }
 
 /** Unindex only. Does not delete files on disk. */
 export async function removeNode(nodeId: string): Promise<void> {
   memory.handles.delete(nodeId);
+  sessionBlobs.delete(nodeId);
   if (!hasIndexedDb()) {
     memory.nodes = memory.nodes.filter((n) => n.id !== nodeId);
     memory.assets = memory.assets.filter((a) => a.nodeId !== nodeId);
@@ -189,4 +215,5 @@ export function resetMemoryCatalog(): void {
   memory.nodes = [];
   memory.assets = [];
   memory.handles.clear();
+  sessionBlobs.clear();
 }

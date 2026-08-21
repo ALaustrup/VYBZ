@@ -21,6 +21,7 @@ describe("local asset node", () => {
 
   it("locks indexing as not publishing and originals as local-first", () => {
     expect(CREATOR_OS.indexingIsNotPublishing).toBe(true);
+    expect(CREATOR_OS.mobileDoesNotClaimPersistentHosting).toBe(true);
     expect(PRINCIPLES.originalsStayLocalByDefault).toBe(true);
   });
 
@@ -38,8 +39,11 @@ describe("local asset node", () => {
     const page = read("src/pages/LibraryPage.tsx");
     const cloud = read("src/features/assetNode/cloudSync.ts");
     const mig = read("supabase/migrations/20260821_0111_creator_asset_nodes.sql");
+    const sessionMig = read("supabase/migrations/20260821_0114_asset_availability_session.sql");
 
     expect(web).toContain("showDirectoryPicker");
+    expect(web).toContain("pickFiles");
+    expect(web).toContain("File picks live only while the app is open");
     expect(desktop).not.toContain("Tauri command pending Phase 2.D");
     expect(desktop).toContain("web.files.selectFolder");
     expect(page).toContain("library-tab-device");
@@ -56,6 +60,7 @@ describe("local asset node", () => {
     }
     expect(walk).not.toContain(".arrayBuffer(");
     expect(walk).not.toContain("sha256");
+    expect(walk).toContain("directory is not listable");
     expect(index).toContain("Does not upload, hash, or copy bytes");
     expect(cloud).toContain("creator_nodes");
     expect(cloud).toContain("indexed_assets");
@@ -67,6 +72,16 @@ describe("local asset node", () => {
     expect(mig).not.toMatch(/\burl text\b/);
     expect(mig).not.toContain("local_path");
     expect(mig).toContain("Indexing is not publishing");
+    expect(sessionMig).toContain("session-only");
+    expect(sessionMig).toContain("unavailable");
+    expect(sessionMig).not.toMatch(/\burl text\b/);
+    expect(sessionMig).not.toContain("local_path");
+    expect(ui).toContain("availability-legend");
+    expect(ui).toContain("session-only");
+    expect(ui).toContain("Not a background host");
+    expect(store).toContain("Never written to IndexedDB");
+    expect(read("PRODUCT.md")).toContain("While this app is open");
+    expect(read("PRODUCT.md")).toContain("A phone is not a background file host");
     expect(read("supabase/migrations/20260709_0001_vybz_v1.sql")).toContain("url text not null");
   });
 });

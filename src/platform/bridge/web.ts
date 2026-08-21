@@ -7,7 +7,7 @@ import type {
   SelectedFolder,
 } from "@/contracts";
 import { capabilitiesFor } from "@/platform/bridge/capabilities";
-import { cancelled, normalizeUnknown, PlatformError, unsupported } from "@/platform/bridge/errors";
+import { cancelled, normalizeUnknown, PlatformError } from "@/platform/bridge/errors";
 import type { PlatformBridge } from "@/platform/bridge/types";
 import { isFeatureKillSwitched } from "@/platform/costs/edgeFlags";
 import { portableAnalyzeWav } from "@/features/processing/portableAnalyze";
@@ -102,20 +102,30 @@ export function createWebBridge(): PlatformBridge {
             showDirectoryPicker?: (opts?: { mode?: "read" | "readwrite" }) => Promise<FileSystemDirectoryHandle>;
           }
         ).showDirectoryPicker;
-        if (typeof picker !== "function") {
-          throw unsupported("selectFolder");
-        }
-        try {
-          const handle = await picker.call(window, { mode: "read" });
-          return {
-            id: newId(),
-            name: handle.name,
-            directoryHandle: handle,
-          };
-        } catch (err) {
-          if (err instanceof DOMException && (err.name === "AbortError" || err.name === "NotAllowedError")) {
-            throw cancelled("folder selection");
+        if (typeof picker === "function") {
+          try {
+            const handle = await picker.call(window, { mode: "read" });
+            return {
+              id: newId(),
+              name: handle.name,
+              directoryHandle: handle,
+            };
+          } catch (err) {
+            if (err instanceof DOMException && (err.name === "AbortError" || err.name === "NotAllowedError")) {
+              throw cancelled("folder selection");
+            }
+            throw normalizeUnknown(err);
           }
+        }
+        // Mobile / Safari: no persistent directory handle. File picks live only while the app is open.
+        try {
+          const files = await pickFiles(
+            "audio/*,image/*,video/*,.wav,.flac,.aiff,.aif,.mp3,.m4a,.ogg,.png,.jpg,.jpeg,.webp,.gif,.mp4,.mov,.webm,.pdf",
+            true,
+          );
+          if (!files.length) return null;
+          return { id: newId(), name: "This device", files };
+        } catch (err) {
           throw normalizeUnknown(err);
         }
       },

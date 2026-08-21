@@ -7,7 +7,7 @@ import { useSession } from "@/store/session";
 import { playTrack } from "@/lib/audioBus";
 import { formatBytes } from "@/lib/repoSync";
 import { cx } from "@/lib/utils";
-import { AVAILABILITY_LABEL } from "@/features/assetNode/types";
+import { AVAILABILITY_LABEL, MOBILE_AVAILABILITY_LEGEND } from "@/features/assetNode/types";
 import { buildLocalIndex, isAudioAsset } from "@/features/assetNode/indexFolder";
 import { listVisibleCatalog } from "@/features/assetNode/catalog";
 import {
@@ -18,8 +18,10 @@ import {
 import {
   markNodeAvailability,
   nodeHandle,
+  rememberSessionBlobs,
   removeNode,
   saveIndex,
+  sessionBlob,
 } from "@/features/assetNode/store";
 import { ensureDirectoryPermission, fileAtRelativePath, walkAuthorizedFolder } from "@/features/assetNode/walkHandle";
 import type { CreatorNodeRecord, IndexedAssetRecord } from "@/features/assetNode/types";
@@ -35,6 +37,7 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
   const [assets, setAssets] = useState<IndexedAssetRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     const merged = await listVisibleCatalog();
@@ -53,49 +56,87 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
       return;
     }
     setBusy(true);
+    setStatus("Waiting for folder…");
     try {
       const folder = await platform.files.selectFolder();
-      if (!folder) return;
+      if (!folder) {
+        showToast("No folder selected.");
+        return;
+      }
       const handle = folder.directoryHandle as FileSystemDirectoryHandle | undefined;
-      if (!handle) {
-        showToast("This browser cannot keep a local folder index. Use Chrome, Edge, or the desktop app.");
-        return;
-      }
-      const allowed = await ensureDirectoryPermission(handle);
-      if (!allowed) {
-        showToast("Folder access was not granted.");
-        return;
-      }
-      const walked = await walkAuthorizedFolder(handle);
-      const { node, assets: next } = buildLocalIndex(folder.name, walked.files);
-      node.kind = platform.kind;
-      await saveIndex(node, next, handle);
-      let cloudOk = true;
-      if (userId) {
-        try {
-          await pushIndexToCloud(userId, node, next, platform.kind);
-        } catch {
-          cloudOk = false;
+      const picked = folder.files ?? [];
+      if (handle) {
+        setStatus("Indexing…");
+        const allowed = await ensureDirectoryPermission(handle);
+        if (!allowed) {
+          showToast("Folder access was not granted.");
+          return;
         }
+        const walked = await walkAuthorizedFolder(handle, {
+          onProgress: (count) => setStatus(`Indexing… ${count} files`),
+        });
+        if (walked.files.length === 0) {
+          await refresh();
+          showToast(
+            walked.skipped > 0
+              ? "Nothing cataloged. Backups, freeze, and processed caches are skipped."
+              : "That folder had no files VYBZ can catalog.",
+          );
+          return;
+        }
+        const { node, assets: next } = buildLocalIndex(folder.name, walked.files);
+        node.kind = platform.kind;
+        setStatus("Saving index…");
+        await saveIndex(node, next, handle);
+        await refresh();
+        onChanged?.();
+        const extra = walked.truncated ? " Index stopped at the file cap." : "";
+        showToast(`${next.length} files indexed as available now.${extra} Not published.`);
+        if (userId) {
+          void pushIndexToCloud(userId, node, next, platform.kind).catch(() => {
+            showToast("Indexed on this device. Cloud catalog did not update.");
+          });
+        }
+        return;
       }
+      if (!picked.length) {
+        showToast("No files were selected.");
+        return;
+      }
+      const walked = picked.map((file) => ({
+        relativePath: file.name,
+        name: file.name,
+        sizeBytes: file.sizeBytes,
+        mime: file.mimeType,
+        lastModified: file.lastModified ?? Date.now(),
+      }));
+      const { node, assets: next } = buildLocalIndex(folder.name, walked, Date.now(), () => crypto.randomUUID(), "session-only");
+      node.kind = platform.kind;
+      setStatus("Saving index…");
+      await saveIndex(node, next);
+      await rememberSessionBlobs(
+        node.id,
+        picked.map((file) => ({ relativePath: file.name, blob: file.blob })),
+      );
       await refresh();
       onChanged?.();
-      const extra = walked.truncated ? " Index stopped at the file cap." : "";
-      showToast(
-        cloudOk
-          ? `${next.length} files indexed as local only.${extra} Not published.`
-          : "Indexed on this device. Cloud catalog did not update.",
-      );
+      showToast(`${next.length} files indexed while this app is open. Not a background host. Not published.`);
+      if (userId) {
+        void pushIndexToCloud(userId, node, next, platform.kind).catch(() => {
+          showToast("Indexed for this session. Cloud catalog did not update.");
+        });
+      }
     } catch (err) {
       if (err instanceof PlatformError && (err.code === "cancelled" || err.code === "unsupported")) {
         if (err.code === "unsupported") {
-          showToast("This browser cannot index a folder. Use Chrome, Edge, or the desktop app.");
+          showToast("This surface cannot index local files.");
         }
         return;
       }
       showToast("Could not index that folder.");
     } finally {
       setBusy(false);
+      setStatus(null);
     }
   }
 
@@ -117,12 +158,28 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
   }
 
   async function play(asset: IndexedAssetRecord) {
+    const live = sessionBlob(asset.nodeId, asset.relativePath);
+    if (live) {
+      const url = URL.createObjectURL(live);
+      playTrack({
+        id: asset.id,
+        url,
+        title: asset.name,
+        artist: "This device",
+      });
+      return;
+    }
     const handle = await nodeHandle(asset.nodeId);
     if (!handle) {
-      await markNodeAvailability(asset.nodeId, "device-offline");
-      void patchCloudAvailability(asset.nodeId, "device-offline").catch(() => undefined);
+      const next = asset.availability === "session-only" ? "unavailable" : "device-offline";
+      await markNodeAvailability(asset.nodeId, next);
+      void patchCloudAvailability(asset.nodeId, next).catch(() => undefined);
       await refresh();
-      showToast("That folder is not available on this device right now.");
+      showToast(
+        next === "unavailable"
+          ? "Those files were only available while the app was open. Index them again."
+          : "That folder is not available on this device right now.",
+      );
       return;
     }
     const allowed = await ensureDirectoryPermission(handle);
@@ -159,11 +216,15 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
     );
   }
 
+  const phone = platform.kind === "android" || platform.kind === "ios";
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3" data-testid="library-local-node">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-[12px] text-white/45">
-          Indexed on this computer. Not published. Originals stay here.
+          {phone
+            ? "Indexed on this phone. Files stay available while this app is open. Not a background host. Not published."
+            : "Indexed on this device. Not published. Originals stay here."}
         </p>
         <button
           type="button"
@@ -173,18 +234,34 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
           data-testid="library-index-folder"
         >
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FolderPlus className="h-3.5 w-3.5" />}
-          Index a folder
+          {phone ? "Index files" : "Index a folder"}
         </button>
       </div>
+      {status ? (
+        <p className="text-[12px] text-white/55" data-testid="library-index-status">
+          {status}
+        </p>
+      ) : null}
+
+      <ul className="grid gap-1.5 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5 text-[11px] text-white/45" data-testid="availability-legend">
+        {MOBILE_AVAILABILITY_LEGEND.map((row) => (
+          <li key={row.id}>
+            <span className="font-semibold uppercase tracking-wider text-white/55">{AVAILABILITY_LABEL[row.id]}</span>
+            {" — "}
+            {row.meaning}
+          </li>
+        ))}
+      </ul>
 
       {assets.length === 0 ? (
         <EmptyState
           icon={HardDrive}
           title="Nothing indexed on this device"
-          body="Choose a folder you control. VYBZ catalogs names and sizes only. Indexing is not publishing."
+          body="Choose a folder you control, or files on a phone. VYBZ catalogs names and sizes. Indexing is not publishing. Published works stay in Works."
           action={
-            <button type="button" onClick={() => void indexFolder()} className="forge-chip gap-1.5 px-3">
-              <FolderPlus className="h-3.5 w-3.5" /> Index a folder
+            <button type="button" onClick={() => void indexFolder()} disabled={busy} className="forge-chip gap-1.5 px-3">
+              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FolderPlus className="h-3.5 w-3.5" />}
+              {busy ? status ?? "Indexing…" : phone ? "Index files" : "Index a folder"}
             </button>
           }
         />
@@ -220,7 +297,7 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
                         {AVAILABILITY_LABEL[asset.availability]}
                       </span>
                       <span className="shrink-0 text-[11px] text-white/40">{formatBytes(asset.sizeBytes)}</span>
-                      {asset.availability === "local-only" && isAudioAsset(asset.mime, asset.name) ? (
+                      { (asset.availability === "local-only" || asset.availability === "session-only") && isAudioAsset(asset.mime, asset.name) ? (
                         <button
                           type="button"
                           onClick={() => void play(asset)}

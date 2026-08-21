@@ -23,6 +23,7 @@ describe("creator operating system lock", () => {
     expect(CREATOR_OS.workIsTheUnit).toBe(true);
     expect(CREATOR_OS.musicIsASpecialization).toBe(true);
     expect(CREATOR_OS.indexingIsNotPublishing).toBe(true);
+    expect(CREATOR_OS.mobileDoesNotClaimPersistentHosting).toBe(true);
     expect(CREATOR_OS.refusesAbsoluteHumanAuthorshipClaim).toBe(true);
     expect(CREATOR_OS.noRewriteToPivot).toBe(true);
     expect(CREATOR_OS.zeroIncrementalRecurringCostPreferred).toBe(true);

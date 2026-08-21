@@ -45,8 +45,12 @@ export function isAudioAsset(mime: string, name: string): boolean {
   return AUDIO_EXT.has(extOf(name));
 }
 
+/** Ableton caches that stall a metadata walk (Freeze, Processed). Backup is already skipped. */
+const INDEX_SKIP_DIRS = new Set(["freeze", "frozen", "crashes", "crash", "processed"]);
+
 export function shouldIndexDir(name: string): boolean {
-  return !shouldSkipDir(name);
+  if (shouldSkipDir(name)) return false;
+  return !INDEX_SKIP_DIRS.has(name.toLowerCase());
 }
 
 export function shouldIndexFile(name: string): boolean {
@@ -62,6 +66,7 @@ export function buildLocalIndex(
   files: WalkFile[],
   now = Date.now(),
   newId: () => string = () => crypto.randomUUID(),
+  availability: IndexedAssetRecord["availability"] = "local-only",
 ): { node: CreatorNodeRecord; assets: IndexedAssetRecord[] } {
   const kept = files.slice(0, MAX_INDEXED_FILES);
   const nodeId = newId();
@@ -73,7 +78,7 @@ export function buildLocalIndex(
     mime: mimeFromName(file.name, file.mime),
     sizeBytes: file.sizeBytes,
     lastModified: file.lastModified,
-    availability: "local-only",
+    availability,
   }));
   const node: CreatorNodeRecord = {
     id: nodeId,
@@ -81,7 +86,7 @@ export function buildLocalIndex(
     indexedAt: now,
     fileCount: assets.length,
     totalBytes: assets.reduce((n, a) => n + a.sizeBytes, 0),
-    availability: "local-only",
+    availability,
   };
   return { node, assets };
 }

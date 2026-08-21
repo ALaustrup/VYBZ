@@ -7,7 +7,7 @@ import {
   shouldIndexDir,
   shouldIndexFile,
 } from "@/features/assetNode/indexFolder";
-import { mergeCatalog } from "@/features/assetNode/catalog";
+import { mergeCatalog, settleThisDeviceAvailability } from "@/features/assetNode/catalog";
 import { cloudRowsHaveNoBytes } from "@/features/assetNode/cloudSync";
 import { AVAILABILITY_LABEL } from "@/features/assetNode/types";
 import { listAssets, listNodes, removeNode, resetMemoryCatalog, saveIndex } from "@/features/assetNode/store";
@@ -46,6 +46,8 @@ describe("local asset node index", () => {
     expect(assets).toHaveLength(MAX_INDEXED_FILES);
     expect(node.fileCount).toBe(MAX_INDEXED_FILES);
     expect(shouldIndexDir("Backup")).toBe(false);
+    expect(shouldIndexDir("Freeze")).toBe(false);
+    expect(shouldIndexDir("Processed")).toBe(false);
     expect(shouldIndexDir("Stems")).toBe(true);
     expect(shouldIndexFile("Thumbs.db")).toBe(false);
     expect(shouldIndexFile("master.wav")).toBe(true);
@@ -72,8 +74,10 @@ describe("local asset node index", () => {
   });
 
   it("labels availability honestly", () => {
-    expect(AVAILABILITY_LABEL["local-only"]).toBe("Local only");
-    expect(AVAILABILITY_LABEL["device-offline"]).toBe("Device offline");
+    expect(AVAILABILITY_LABEL["local-only"]).toBe("Available now");
+    expect(AVAILABILITY_LABEL["session-only"]).toBe("While this app is open");
+    expect(AVAILABILITY_LABEL["device-offline"]).toBe("On another device");
+    expect(AVAILABILITY_LABEL.unavailable).toBe("Unavailable here");
   });
 
   it("marks cloud-only nodes device-offline on this machine", () => {
@@ -95,6 +99,20 @@ describe("local asset node index", () => {
     expect(merged.nodes.find((n) => n.id === "here")?.availability).toBe("local-only");
     expect(merged.nodes.find((n) => n.id === "away")?.availability).toBe("device-offline");
     expect(merged.assets.find((a) => a.nodeId === "away")?.availability).toBe("device-offline");
+  });
+
+  it("indexes file picks as session-only and settles them to unavailable without live bytes", () => {
+    const { node, assets } = buildLocalIndex(
+      "This device",
+      [{ relativePath: "take.wav", name: "take.wav", sizeBytes: 8, mime: "audio/wav", lastModified: 1 }],
+      1,
+      () => "sid",
+      "session-only",
+    );
+    expect(node.availability).toBe("session-only");
+    expect(assets[0]?.availability).toBe("session-only");
+    expect(settleThisDeviceAvailability(node, true).availability).toBe("session-only");
+    expect(settleThisDeviceAvailability(node, false).availability).toBe("unavailable");
   });
 
   it("refuses cloud rows that would carry a url or local path", () => {
