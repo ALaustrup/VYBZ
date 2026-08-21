@@ -1,4 +1,5 @@
 import { MAX_INDEX_DEPTH, MAX_INDEXED_FILES, mimeFromName, shouldIndexDir, shouldIndexFile } from "@/features/assetNode/indexFolder";
+import { safeRelativePath } from "@/features/assetNode/safePath";
 import type { WalkFile } from "@/features/assetNode/types";
 
 type DirHandle = FileSystemDirectoryHandle & {
@@ -133,12 +134,17 @@ export async function walkAuthorizedFolder(
         skipped += 1;
         continue;
       }
+      const relativePath = safeRelativePath([...prefix, name].join("/"));
+      if (!relativePath) {
+        skipped += 1;
+        continue;
+      }
       if (files.length >= MAX_INDEXED_FILES) {
         truncated = true;
         return;
       }
       files.push({
-        relativePath: [...prefix, name].join("/"),
+        relativePath,
         name,
         sizeBytes: 0,
         mime: mimeFromName(name),
@@ -159,7 +165,9 @@ export async function fileAtRelativePath(
   root: FileSystemDirectoryHandle,
   relativePath: string,
 ): Promise<File | null> {
-  const parts = relativePath.split("/").filter(Boolean);
+  const safe = safeRelativePath(relativePath);
+  if (!safe) return null;
+  const parts = safe.split("/").filter(Boolean);
   if (!parts.length) return null;
   let dir = root;
   for (let i = 0; i < parts.length - 1; i++) {

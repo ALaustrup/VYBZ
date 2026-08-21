@@ -4,8 +4,16 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-21
 **Branch:** `feat/creator-os-phase-1-authority`
-**HEAD:** Phase 8 `6e979ad3` plus name-only index follow-up on this branch.
+**HEAD:** `467686c5` (Phase 8 name-only index). Phase 9 hardening first slice is uncommitted.
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Creator OS Phase 9 — Hardening (first slice) — 2026-08-21
+
+Not a completed audit of the directive list (WebRTC, chat abuse, media parsing: **Not measured**). First slice confines Asset Node paths (`safeRelativePath`, `fileAtRelativePath` refuses `..`), reuses existing CSP in `vercel.json`, keeps Follow without a public count, and keeps provenance as association. Additive CHECK `indexed_assets_relative_path_confined` applied on `xixmneooyufbeftdfpcm`.
+
+Ableton Index a folder: still **unverified** in the browser.
+
+`npm run lint` pass. `npm run test` pass — **190 files / 948 tests**. `npm run build`: **Not measured**.
 
 ## Creator OS Phase 8 — Mobile Asset Participation — 2026-08-21
 

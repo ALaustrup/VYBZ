@@ -68,7 +68,7 @@ Original creative files stay on the creator's device by default. Indexing is not
 
 Availability must be honest: **Available now**, **While this app is open**, **On another device**, **Unavailable here**, **Public**, **Private**. Cloud metadata is names and sizes only. A phone is not a background file host. Locally hosted files are not globally available after that device is off or the app is closed.
 
-The Asset Node exposes **authorized assets**, not a creator's filesystem.
+The Asset Node exposes **authorized assets**, not a creator's filesystem. Relative paths must stay inside the authorized folder. Cloud metadata still has no file bytes. Transport reuses the existing Content-Security-Policy. This is the start of hardening, not a completed security audit.
 
 ## 5. Airtime is the only hosting clock
 

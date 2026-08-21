@@ -1,4 +1,5 @@
 import { shouldSkipDir, shouldSkipFile } from "@/lib/repoSync";
+import { safeRelativePath } from "@/features/assetNode/safePath";
 import type { CreatorNodeRecord, IndexedAssetRecord, WalkFile } from "@/features/assetNode/types";
 
 /** Hard cap so indexing a huge tree stays a catalog, not a hang. */
@@ -49,11 +50,13 @@ export function isAudioAsset(mime: string, name: string): boolean {
 const INDEX_SKIP_DIRS = new Set(["freeze", "frozen", "crashes", "crash", "processed"]);
 
 export function shouldIndexDir(name: string): boolean {
+  if (name === "." || name === ".." || name === "~") return false;
   if (shouldSkipDir(name)) return false;
   return !INDEX_SKIP_DIRS.has(name.toLowerCase());
 }
 
 export function shouldIndexFile(name: string): boolean {
+  if (name === "." || name === ".." || name === "~") return false;
   return !shouldSkipFile(name);
 }
 
@@ -68,18 +71,23 @@ export function buildLocalIndex(
   newId: () => string = () => crypto.randomUUID(),
   availability: IndexedAssetRecord["availability"] = "local-only",
 ): { node: CreatorNodeRecord; assets: IndexedAssetRecord[] } {
-  const kept = files.slice(0, MAX_INDEXED_FILES);
   const nodeId = newId();
-  const assets: IndexedAssetRecord[] = kept.map((file) => ({
-    id: newId(),
-    nodeId,
-    relativePath: file.relativePath.replace(/\\/g, "/"),
-    name: file.name,
-    mime: mimeFromName(file.name, file.mime),
-    sizeBytes: file.sizeBytes,
-    lastModified: file.lastModified,
-    availability,
-  }));
+  const kept = files.slice(0, MAX_INDEXED_FILES).flatMap((file) => {
+    const relativePath = safeRelativePath(file.relativePath);
+    const name = safeRelativePath(file.name)?.split("/").pop();
+    if (!relativePath || !name) return [];
+    return [{
+      id: newId(),
+      nodeId,
+      relativePath,
+      name,
+      mime: mimeFromName(name, file.mime),
+      sizeBytes: file.sizeBytes,
+      lastModified: file.lastModified,
+      availability,
+    }];
+  });
+  const assets: IndexedAssetRecord[] = kept;
   const node: CreatorNodeRecord = {
     id: nodeId,
     name: folderName,

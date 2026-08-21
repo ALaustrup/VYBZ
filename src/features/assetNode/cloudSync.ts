@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { CreatorNodeRecord, IndexedAssetRecord } from "@/features/assetNode/types";
+import { isSafeRelativePath } from "@/features/assetNode/safePath";
 
 const CHUNK = 200;
 
@@ -69,8 +70,12 @@ export async function pushIndexToCloud(
   const sb = supabase;
   if (!sb) return;
   const nodeRow = nodeToRow(ownerId, node, kind);
-  if (!cloudRowsHaveNoBytes([nodeRow, ...assets.map((a) => assetToRow(ownerId, a))])) {
+  const rows = [nodeRow, ...assets.map((a) => assetToRow(ownerId, a))];
+  if (!cloudRowsHaveNoBytes(rows)) {
     throw new Error("refusing to sync paths or urls");
+  }
+  if (assets.some((a) => !isSafeRelativePath(a.relativePath))) {
+    throw new Error("refusing to sync a path that leaves the authorized folder");
   }
   const { error: nodeErr } = await sb.from("creator_nodes").upsert(nodeRow);
   if (nodeErr) throw nodeErr;

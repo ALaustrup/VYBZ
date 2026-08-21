@@ -124,6 +124,19 @@ export const CREATOR_OS = {
   zeroIncrementalRecurringCostPreferred: true,
 } as const;
 
+/**
+ * Phase 9 first slice — confine new Creator OS surfaces.
+ * Not a claim that the directive audit list is finished.
+ */
+export const CREATOR_OS_HARDENING = {
+  assetPathsStayInsideAuthorizedFolder: true,
+  cloudMetadataHasNoFileBytes: true,
+  transportReusesExistingCsp: true,
+  followHasNoPublicCount: true,
+  provenanceIsAssociationNotAuthorship: true,
+  hardeningIsNotACompletedAudit: true,
+} as const;
+
 /* ------------------------------------------------------------------------- */
 /* Live mix audio streaming — a Creator OS capability                         */
 /* ------------------------------------------------------------------------- */
@@ -459,6 +472,7 @@ export const GATE_REGISTRY = [
   "creatorOs",
   "assetNode",
   "creatorNetwork",
+  "creatorOsHarden",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];
