@@ -1,10 +1,10 @@
 import {
   Activity,
   BookOpen,
-  Home,
   Library,
   Radio,
   ShieldCheck,
+  User,
   UserCog,
   Users,
   Wrench,
@@ -27,11 +27,10 @@ export type NavItem = {
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * The rail is the Creator OS menu (PRODUCT.md v8).
- *
- * Default chrome is Workspace, Library, Live, and Network. Living Mix, Rooms,
- * Make pack, Sales, and Packages stay in the tree and resolve by URL — they
- * are listed in ARCHIVED_NAV_PATHS, not deleted.
+ * Default chrome is Me, Library, Live, and Network (PRODUCT.md v9 Phase 1).
+ * Workspace lives at `/workspace` and is archived from nav, not deleted.
+ * Living Mix, Rooms, Make pack, Sales, and Packages stay in the tree and
+ * resolve by URL — they are listed in ARCHIVED_NAV_PATHS, not deleted.
  *
  * Only destinations that render a working surface may appear.
  */
@@ -120,10 +119,10 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 
 export const HOME_ITEM: NavItem = {
   path: "/",
-  label: "Workspace",
-  hint: "Your work",
-  icon: Home,
-  productId: "home",
+  label: "Me",
+  hint: "Your VYBZ",
+  icon: User,
+  productId: "artist",
 };
 
 export function navItems(): NavItem[] {
@@ -132,6 +131,7 @@ export function navItems(): NavItem[] {
 
 /** Paths archived from nav but still linkable by URL (freeze-not-delete). */
 export const ARCHIVED_NAV_PATHS = [
+  "/workspace",
   "/studio",
   "/market",
   "/store",

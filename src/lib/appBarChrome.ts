@@ -16,7 +16,8 @@ export interface ChromeDef {
 }
 
 export function chromeForPath(pathname: string): ChromeDef {
-  if (pathname === "/") return { title: "Workspace" };
+  if (pathname === "/") return { title: "Me" };
+  if (pathname.startsWith("/workspace")) return { title: "Workspace" };
   if (pathname.startsWith("/feed")) return { title: "Network" };
   if (pathname.startsWith("/discover")) return { title: "Discover" };
   if (pathname.startsWith("/connect")) return { title: "Creators" };
@@ -25,7 +26,7 @@ export function chromeForPath(pathname: string): ChromeDef {
     return { title: "Repo", showBack: true, backTo: "/" };
   }
   if (pathname.startsWith("/projects")) return { title: "Studio", showBack: true, backTo: "/" };
-  if (pathname.startsWith("/social")) return { title: "Social", showBack: true, backTo: "/?tab=live" };
+  if (pathname.startsWith("/social")) return { title: "Social", showBack: true, backTo: "/workspace?tab=live" };
   if (pathname.startsWith("/live/") && pathname !== "/live") {
     return { title: "Live", showBack: true, backTo: "/live" };
   }

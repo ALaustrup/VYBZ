@@ -51,8 +51,8 @@ describe("creator operating system lock", () => {
     expect(product).not.toContain("liveAudioIsTheProduct");
   });
 
-  it("keeps transitional chrome as Workspace, Library, Live, and Network until Phase 1", () => {
-    expect(HOME_ITEM.label).toBe("Workspace");
+  it("orients default chrome as Me, Library, Live, and Network", () => {
+    expect(HOME_ITEM.label).toBe("Me");
     expect(HOME_ITEM.path).toBe("/");
     const items = navItems();
     expect(items.find((i) => i.path === "/library")?.label).toBe("Library");
@@ -62,5 +62,6 @@ describe("creator operating system lock", () => {
     expect(navGroups().map((g) => g.id)).toEqual(["work", "network"]);
     expect(items.map((i) => i.path)).toEqual(["/", "/library", "/feed", "/live"]);
     expect(items.map((i) => i.path)).not.toContain("/devices");
+    expect(items.map((i) => i.path)).not.toContain("/workspace");
   });
 });

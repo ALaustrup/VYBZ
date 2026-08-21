@@ -9,8 +9,8 @@ import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
 
 /**
- * Discover other creators from a menu — not on the workspace stage.
- * Workspace stays the owner's library. /connect and /u/:id stay the destinations.
+ * Discover other people from a menu — not on the owner's VYBZ.
+ * `/connect` and `/u/:id` stay the destinations.
  */
 export function PeopleMenu() {
   const navigate = useNavigate();

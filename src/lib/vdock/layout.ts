@@ -63,21 +63,21 @@ export interface PinDef {
 }
 
 export const PIN_CATALOG: PinDef[] = [
-  { id: "feed", label: "Workspace", to: "/", icon: Home, end: true },
-  { id: "drops", label: "Listen", to: "/?tab=listen", icon: AudioLines },
+  { id: "feed", label: "Me", to: "/", icon: Home, end: true },
+  { id: "drops", label: "Listen", to: "/workspace?tab=listen", icon: AudioLines },
   { id: "connect", label: "Collaborate", to: "/connect", icon: Users },
-  { id: "collabs", label: "You", to: "/?tab=you", icon: FolderGit2 },
-  { id: "social", label: "Live", to: "/?tab=live", icon: Users },
-  { id: "live", label: "Live", to: "/?tab=live", icon: Radio },
-  { id: "messages", label: "You", to: "/?tab=you", icon: MessageSquare },
-  { id: "profile", label: "You", to: "/?tab=you", icon: Users },
-  { id: "activity", label: "Live feed", to: "/?tab=live", icon: Bell, badgeUnread: true },
-  { id: "discover", label: "Listen", to: "/?tab=listen", icon: Search },
-  { id: "opportunities", label: "You", to: "/?tab=you", icon: FolderGit2 },
+  { id: "collabs", label: "You", to: "/workspace?tab=you", icon: FolderGit2 },
+  { id: "social", label: "Live", to: "/workspace?tab=live", icon: Users },
+  { id: "live", label: "Live", to: "/live", icon: Radio },
+  { id: "messages", label: "You", to: "/workspace?tab=you", icon: MessageSquare },
+  { id: "profile", label: "You", to: "/workspace?tab=you", icon: Users },
+  { id: "activity", label: "Live feed", to: "/workspace?tab=live", icon: Bell, badgeUnread: true },
+  { id: "discover", label: "Listen", to: "/workspace?tab=listen", icon: Search },
+  { id: "opportunities", label: "You", to: "/workspace?tab=you", icon: FolderGit2 },
   { id: "store", label: "Packages", to: "/store", icon: Store },
   { id: "codex", label: "Codex", to: "/codex", icon: ScrollText },
-  { id: "rooms", label: "You", to: "/?tab=you", icon: Hash },
-  { id: "library", label: "You", to: "/?tab=you", icon: Images },
+  { id: "rooms", label: "You", to: "/workspace?tab=you", icon: Hash },
+  { id: "library", label: "You", to: "/workspace?tab=you", icon: Images },
   { id: "mod", label: "Moderate", to: "/mod", icon: Shield, staff: "mod" },
   { id: "admin", label: "Admin", to: "/admin", icon: ShieldCheck, staff: "admin" },
 ];
@@ -312,7 +312,10 @@ export function pinIsActive(pin: PinDef, pathname: string, search = ""): boolean
   if (pin.end) return pathname === pathOnly;
   if (pin.id === "activity") {
     const tab = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search).get("tab");
-    return pathname.startsWith("/profile") && (tab === "live" || tab == null || tab === "");
+    return pathname.startsWith("/workspace") && (tab === "live" || tab == null || tab === "");
+  }
+  if (pathOnly === "/workspace") {
+    return pathname.startsWith("/workspace");
   }
   if (pathOnly === "/profile") {
     return pathname.startsWith("/profile") || pathname.startsWith("/u/") || pathname.startsWith("/artist/");

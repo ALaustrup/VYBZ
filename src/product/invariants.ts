@@ -136,6 +136,8 @@ export const LIVING_PROFILE = {
   quieterInterfaceAsPowerGrows: true,
   /** Do not ship a grid of stat cards as the product. */
   noGenericDashboard: true,
+  /** Signed-in `/` is the owner's VYBZ. Workspace stays at `/workspace`. */
+  loggedInHomeIsMyVybz: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

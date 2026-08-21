@@ -6,21 +6,19 @@ import { formatVcAddress } from "@/lib/vc";
 import { cx } from "@/lib/utils";
 
 /**
- * You controls — avatar + unread activity bell → dashboard tabs (no hub hops).
+ * You controls — avatar goes home (My VYBZ). Unread bell opens alerts.
  */
 export function YouChip() {
   const { profile, unread } = useSession();
-  const { pathname, search } = useLocation();
-  const onHome = pathname === "/" || pathname === "";
-  const tab = new URLSearchParams(search).get("tab");
-  const onYou = onHome && (tab === "you" || !tab || tab === "match");
+  const { pathname } = useLocation();
+  const onMe = pathname === "/" || pathname.startsWith("/u/");
 
   return (
     <div className="flex items-center gap-1.5">
-      {unread > 0 && !(onHome && tab === "live") && (
+      {unread > 0 && pathname !== "/notifications" && (
         <NavLink
-          to="/?tab=live"
-          aria-label="Live alerts"
+          to="/notifications"
+          aria-label="Alerts"
           className="relative flex h-9 w-9 items-center justify-center rounded-full glass active:scale-90 bell-alert"
         >
           <Bell className="h-4 w-4 text-paper-900/70" />
@@ -30,11 +28,11 @@ export function YouChip() {
         </NavLink>
       )}
       <NavLink
-        to="/?tab=you"
-        aria-label={formatVcAddress(profile?.username) || "You"}
+        to="/"
+        aria-label={formatVcAddress(profile?.username) || "Me"}
         className={cx(
           "flex items-center rounded-full p-1 glass active:scale-95",
-          onYou && "ring-1 ring-veil-400/45",
+          onMe && "ring-1 ring-veil-400/45",
         )}
       >
         <Avatar

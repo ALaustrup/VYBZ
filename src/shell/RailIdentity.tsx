@@ -54,7 +54,7 @@ export function RailIdentity() {
           type="button"
           onClick={() => navigate("/")}
           className="shrink-0 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-white/25"
-          aria-label="Workspace"
+          aria-label="My VYBZ"
         >
           <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
             <Avatar url={profile?.avatarUrl} name={name} id={profile?.id} size="sm" square />

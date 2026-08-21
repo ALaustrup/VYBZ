@@ -230,7 +230,7 @@ async function runQuickAction(
       navigate("/store");
       return;
     case "unreadStack":
-      navigate("/profile?tab=live");
+      navigate("/workspace?tab=live");
       return;
     case "matchRadar":
       navigate("/connect");

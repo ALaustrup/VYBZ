@@ -227,7 +227,7 @@ export function buildTrackActions(
       },
       {
         id: "open-artist",
-        label: isOwner ? "Workspace" : "Creator",
+        label: isOwner ? "My VYBZ" : "Creator",
         icon: UserRound,
         disabledReason: drop.authorId ? undefined : NO_ARTIST,
         onSelect: handlers.openArtist,

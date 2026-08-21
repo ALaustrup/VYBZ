@@ -3,9 +3,19 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-21
-**Branch:** `main`
-**HEAD:** `aacf7d73` (PR [#197](https://github.com/ALaustrup/VYBZ/pull/197), Living Profile Phase 0).
-**Production:** https://vybz.cloud — `main` **`aacf7d73`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `feat/living-profile-phase-1`
+**HEAD:** uncommitted until this unit lands (see Phase 1 below).
+**Production:** https://vybz.cloud — `main` **`17273986`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+
+## Living Profile Phase 1 — Home is My VYBZ — 2026-08-21
+
+Logged-in `/` renders the existing Stage File (`MyVybzHome` → `UserProfilePage` / `ArtistStageProfile`) for the signed-in person. Public `/u/:id` is the same object. Workspace (`ProfilePage` / `ArtistHome`) moved to `/workspace` and is hidden from default chrome — not deleted. Frozen `MobileNav` stays unmounted. No Devices nav.
+
+Rail home is **Me**. Library, Network, and Live stay. `LIVING_PROFILE.loggedInHomeIsMyVybz` is true. Owner vs visitor dual-mode polish is later (Phase 3). Browser walk of signed-in `/`: **Not measured**.
+
+The Living Profile master plan is saved in `VYBZ Creator OS Executive Pivot Directive.md` (replaces the prior Creator OS pivot text on this branch).
+
+`npm run lint` pass. `npm run test` pass — **191 files / 953 tests**. `npm run build` pass.
 
 ## Living Profile Phase 0 — Constitution lock — 2026-08-21
 

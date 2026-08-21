@@ -38,7 +38,7 @@ import type { Drop, Credit } from "@/types";
 type DashTab = "hub" | "listen" | "live" | "you" | "wallet";
 type YouSub = "music" | "live" | "lists";
 
-/** Primary logged-in surface — Creator OS Workspace. */
+/** Workspace — hidden from default chrome. Still at `/workspace`. */
 export function ProfilePage() {
   const { profile, userId, refreshProfile } = useSession();
   const navigate = useNavigate();

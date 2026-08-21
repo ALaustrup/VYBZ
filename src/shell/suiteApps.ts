@@ -65,10 +65,10 @@ const CONTEXT_MENU_ONLY = () => false;
 export const SUITE_APPS: readonly SuiteAppDef[] = [
   {
     id: "home",
-    label: "Workspace",
+    label: "Me",
     path: "/",
     icon: Home,
-    match: (p) => p === "/" || p.startsWith("/u/") || p.startsWith("/profile"),
+    match: (p) => p === "/" || p.startsWith("/u/"),
   },
   {
     id: "pack-pipeline",
