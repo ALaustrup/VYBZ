@@ -127,7 +127,7 @@ export function FeedHero() {
         <>
           <p className="mb-2.5 mt-1 text-[12px] text-white/40">Add genres and roles on your profile — collab suggestions appear here.</p>
           <button type="button" onClick={() => navigate("/profile/edit")} className="flex items-center gap-2 text-[13px] font-medium text-white/70 hover:text-white">
-            <Target className="h-3.5 w-3.5 shrink-0 text-veil-300" /> Edit music profile <ArrowRight className="h-3.5 w-3.5" />
+            <Target className="h-3.5 w-3.5 shrink-0 text-veil-300" /> Edit profile <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </>
       )}

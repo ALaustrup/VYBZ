@@ -4,47 +4,75 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 7 · 2026-08-18 · supersedes Version 6 (Stage File + ATC meter, 2026-08-18), Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
-> Decisions: [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (live rooms) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (public profile) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet) · [`0009`](docs/decisions/0009-live-audio-for-any-host.md) (who may host).
+> Version 8 · 2026-08-21 · supersedes Version 7 (live audio as product identity, 2026-08-18), Version 6 (Stage File + ATC meter, 2026-08-18), Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
+> Also supersedes the 2026-08-11 song/release Creative OS brief: music is a specialization, not the unit.
+> Decisions: [`0010`](docs/decisions/0010-creator-os.md) (Creator OS identity) · [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (live rooms) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (public profile) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet) · [`0009`](docs/decisions/0009-live-audio-for-any-host.md) (who may host — live remains any-host, not the product identity).
 
 ---
 
 ## 1. The problem
 
-People who need to be heard — a producer finishing a mix, a podcaster cutting an episode, someone who has to talk it out — have no honest live room. Social apps compress audio into telephony mud, rank by purchase and outrage, and treat speech as a vibe to be filtered. Music tools stay silent and private. Sample-pack shops sell files, not presence.
+Creators have no single environment in which to organize their work, keep original files under their control, show the process of making, publish selectively, and connect with other people who make things.
 
-**That is the hole: there is no real-time live audio stage where anyone with something to say or play can host, listeners can stay for free, and hosting time is earned by giving attention.**
+Social apps treat creation as content. Storage apps treat files as objects with no identity. Music tools assume every creator is finishing a song. Live apps assume the product is the stream.
+
+**That is the hole: there is no operating environment for digital creators — private workspace, public identity, and a network — where the original work stays the creator's.**
+
+Live rooms remain a real-time stage inside that environment. They are not the definition of the product.
 
 ## 2. What VYBZ is
 
-**VYBZ is a real-time live audio platform.** Not a sample-pack app. Not music-only.
+**VYBZ is the Creator Operating System.** Not a sample-pack app. Not music-only. Not another social network that happens to host files.
 
-Hosts are anyone with something to say or play: producers, artists, podcasters, talkers, open-mic, people who need to vent. Same rooms. Same Airtime Credits. Same session provenance. Same go-live gate.
+The fundamental unit is **Creative Work**. A Work may contain one or many assets. A song is a specialization. So is an image, a film, a game build, a plugin, a sample pack, a preset, or a document.
 
-Core experience pillars:
-- **Live rooms** (`/live`, `/live/:id`): one person hosts, listeners hear it in real time.
-- **Airtime Credits (ATC):** the only hosting clock. Listening is always free. Remaining ATC is shown as a measured clock; unknown reads **Not measured**.
-- **Session provenance:** a host-downloadable proof that a verified human ran a real-time VYBZ session. It does not prove the music was not AI-generated. An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. C2PA ledger events are counted; the file C2PA box is **Not measured**.
-- **Host Stage File** (`/u/:id`): public host profile. Talk, podcast, and music are first-class. Live nights lead. Connect is a request. Booking is a message, not a calendar.
-- **DAW Master Channel ingest** (VST3 / CLAP / AU) when the host is mixing from a studio.
-- **Companion + Android:** remote control and mobile ingest through the Platform Bridge.
-- **Post-session products:** replay, episode, stems, transcript, measured packs — money on the session, never on the clock.
+VYBZ should feel like a **creative operating environment with a social layer**, not a social app with a library bolted on.
+
+The loop:
+
+**Create → Organize → Version → Preview → Validate → Share → Showcase → Connect**
+
+Social functionality exists around creation. Creation does not exist merely to generate social content.
+
+Creators are anyone whose work can be represented digitally: musicians, producers, visual artists, filmmakers, game developers, writers, designers, and categories that do not fit a traditional store.
 
 ## 3. Surfaces
 
 | Surface | Job | Primary Role |
 |---|---|---|
-| **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter | **Core Stage** |
-| **Live discovery** (`/live`) | Who is on, right now | **Front door** |
-| **Host Stage File** (`/u/:id`) | Public host identity. Talk, podcast, music | **Public identity** |
+| **Workspace** (`/`) | The creator's private operating environment | **Front door** |
+| **Library** (`/library`) | Authorized works and assets, local and published | **Catalog** |
+| **Creator Profile** (`/u/:id`) | Living portfolio. Host Stage File. Not artist-only | **Public identity** |
+| **Network** (`/feed`, `/connect`, `/live`) | Other creators, activity, who is live | **Social layer** |
+| **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter | **Live Creation** |
+| **Devices** | Desktop / mobile Asset Nodes and availability | **Local originals** |
 | **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
-| **Living Mix** (`/library/mix`) | Catalog sequencer. Not a public live | **On-demand mix** |
 | **In-session desks** (`/tools/*`) | Existing DSP / stem / MIDI / translation desks | **Toolkit** |
 | **DAW bridge** | Master-bus ingest when the host is in a DAW | **Studio ingest** |
 | **Marketplace** (`/market`, `/pack/:slug`) | Post-session products, not the hosting clock | **Session money** |
-| **Library** (`/library`) | Files you already have | **Media** |
+| **Living Mix** (`/library/mix`) | Catalog sequencer. Not a public live | **On-demand mix** |
 
-## 4. Airtime is the only hosting clock
+Do not add navigation for functionality that does not exist.
+
+The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, music, and other disciplines share it. Connect is a request. Booking is a message, not a calendar. Works render through an extensible set of kinds — audio, image, video, file, project, and link — so the profile is a living portfolio, not an audio list.
+
+Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Creator identity, viewer access, public chat, the Stage File, and `live_sessions` logging stay.
+
+The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
+
+## 4. Local-first originals
+
+The VYBZ cloud is the authentication, identity, social, metadata, discovery, permissions, signaling, and provenance plane.
+
+Original creative files stay on the creator's device by default. Indexing is not publishing. Sharing is explicit. Public exposure is explicit.
+
+Availability must be honest: **Available now**, **While this app is open**, **On another device**, **Unavailable here**, **Public**, **Private**. Cloud metadata is names and sizes only. A phone is not a background file host. Locally hosted files are not globally available after that device is off or the app is closed.
+
+The Asset Node exposes **authorized assets**, not a creator's filesystem. Relative paths must stay inside the authorized folder. Cloud metadata still has no file bytes. Transport reuses the existing Content-Security-Policy. This is the start of hardening, not a completed security audit.
+
+## 5. Airtime is the only hosting clock
+
+Live hosting still burns Airtime Credits when that subsystem is on. It does not define the Creator OS.
 
 - **1 ATC = 1 second of hosting.**
 - **Daily free grant = 7200 ATC.** It does not stack. Overwritten each calendar day in the stored timezone.
@@ -59,11 +87,12 @@ Core experience pillars:
 - The go-live gate requires the declared start minimum (300 ATC). The host sees daily free and earned before start. A leftover shorter than a burn chunk is played out — no hard cut.
 - **Station Airtime stays parked.** The Station's prompt-answer Airtime (`CURRENCY` / `STATION`) is a different, parked subsystem. Do not mix the two ledgers.
 
-## 5. Money follows the session, never the clock
+## 6. Money follows the session, never the clock
 
 Allowed:
 - Tips (fiat / V¢) during a live
 - Creator subscriptions
+- Paid Works and digital asset sales (later)
 - Post-session products: replay, episode, stems, transcript, measured packs
 - Premium tools
 
@@ -76,22 +105,26 @@ Forbidden:
 
 V¢ remains purchasable utility for tips and cosmetics. It never buys search placement, stream ranking, or ATC.
 
-## 6. Session provenance
+Monetization must not block the first Creator OS release.
 
-A sealed public live may emit a downloadable package (`.vprov`) and an in-app verification report.
+## 7. Session provenance
+
+A sealed public live may emit a downloadable package (`.vprov`) and an in-app verification report. It is a host-downloadable proof that a verified human ran a real-time VYBZ session. It does not prove the music was not AI-generated.
 
 - Binds to `live_sessions`, never Living Mix, never 1:1 `liveSession.ts` calls.
 - **Full** strength only when that live consumed ATC. Otherwise **thin**.
 - Copy is **Session provenance**, never “Human certified.”
 - **No “not AI” proof.** Presence, ATC, and a hash cannot measure that.
+- An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. C2PA ledger events are counted; the file C2PA box is **Not measured**.
+- “Validate Humanity” associates a file with verified VYBZ creation sessions. It does not claim omniscient knowledge of work outside the observable system. The MVP sentence is: “This file is associated with verified VYBZ creation sessions.” It must not say VYBZ mathematically proves no AI was involved.
 
-## 7. Speech
+## 8. Speech
 
 Hosting is **viewpoint-neutral**. We do not kill a live because the take is unpopular.
 
 We still do not host illegal content (CSAM, true threats, and the rest of that legal floor). That is law, not a vibe filter.
 
-## 8. Honesty of Measurement
+## 9. Honesty of Measurement
 
 Three kinds of label, never mixed:
 
@@ -101,7 +134,7 @@ Three kinds of label, never mixed:
 | **Measured** | Duration, peak, RMS, BS.1770-4 LUFS, sample rate, channels, content SHA, ATC burned | Computed from the bytes or the ledger |
 | **Inferred** | Analysis that has no evidence | **Not used.** Unknown reads **Not measured**. |
 
-## 9. What we refuse
+## 10. What we refuse
 
 - **No public vanity metrics:** No follower counts or fake play counts as social proof.
 - **No purchasable attention:** Money cannot buy live ranking, "featured" tags, fake listens, or ATC.
@@ -110,21 +143,25 @@ Three kinds of label, never mixed:
 - **No “not AI” proof.**
 - **No undisclosed processing on the play path.**
 - **No killing a live for an unpopular take.** Illegal content is still refused.
+- **No rewrite** to change product gravity. Adapt what exists.
+- **No silent publication** of local files.
+- **No new recurring vendor** when an existing system or a local/self-hosted path will do.
 
-## 10. Preservation — Hide, Never Delete
+## 11. Preservation — Hide, Never Delete
 
 **Nothing already built is deleted.** The sample pack pipeline, marketplace, analyzer, correction desk, translation lab, stem maker, MIDI maker, converter, rooms, live sessions, messages, projects, visualizer studio, sparks, reception, Living Mix, and Vibes Radio stay in the tree, stay reachable, and keep compiling.
 
 Surfaces leaving the default experience are **hidden from navigation**, not removed. Routes still resolve. Code still compiles.
 
-## 11. Interface Direction
+## 12. Interface Direction
 
-- **Live-first:** default UI leads with live rooms, host profiles, and Library.
-- **Host profiles are not artist-only.** Talk, podcast, and music share `/u/:id`.
+- **Workspace-first:** default UI leads with the creator's work. Live, profile, and network surround it.
+- **Evolve the existing VYBZ theme.** No wholesale redesign. No generic dashboard template. Premium means hierarchy, spacing, type, and motion on the current DNA.
+- **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
-- **Dark, audio-first.**
+- **Dark, restrained, workstation-grade.**
 
-## 12. Delivery Vocabulary
+## 13. Delivery Vocabulary
 
 A capability is delivered only when it is implemented, integrated, reachable, discoverable, deployed, production-verified, and changes what a user can do.
 
@@ -134,8 +171,10 @@ Permitted states — never "complete":
 `PARTIALLY IMPLEMENTED` · `IMPLEMENTED BUT NOT DELIVERED` · `DEPLOYED BUT UNVERIFIED` ·
 `DELIVERED AND PRODUCTION-VERIFIED`
 
-## 13. Definition of Success
+## 14. Definition of Success
 
-A host taps Go Live. Listeners hear them — mix, talk, episode, or vent — in real time. Hosting burns Airtime. Listening stays free. When the session ends, the host can download a session-provenance package and, if they want, sell something that came from that night.
+A creator signs in, enters their Workspace, registers creative files from a device they control, sees them in Library without giving up the originals, organizes a Work, chooses what becomes public on their Creator Profile, and can VYB or Follow another creator.
 
-Nobody had to buy the right to be heard. Nobody had to buy the right to listen.
+If they go live while creating, the session can later be associated with the Work as session provenance.
+
+Nobody had to buy the right to be heard. Nobody had to buy the right to listen. Nobody had to upload their entire catalog to be organized.

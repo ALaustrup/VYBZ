@@ -143,7 +143,7 @@ export function PrimaryRail() {
   return (
     <aside
       className="suite-rail suite-rail--ops forge-glass !rounded-none !border-y-0 !border-l-0"
-      aria-label="Suite navigation"
+      aria-label="Creator OS"
       data-testid="suite-primary-rail"
     >
       <div className="relative z-[2] flex min-h-0 flex-1 flex-col">

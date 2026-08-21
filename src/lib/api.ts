@@ -24,11 +24,12 @@ import type {
 import { canStartLive } from "@/features/airtime/atcApi";
 import { openProvenanceForLive, sealProvenanceForLive } from "@/features/provenance/provenanceApi";
 import {
-  dawIngestPatch,
+  audioModeForSource,
   isCheckViolation,
   legacyDawFallback,
   persistableLiveSource,
   resolveLiveSource,
+  sourceIngestPatch,
 } from "@/features/broadcast/liveSource";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
@@ -2244,6 +2245,24 @@ export async function listDrops(limit = 40): Promise<(Drop & { myReaction?: Reac
     .order("created_at", { ascending: false }).limit(limit);
   return assembleDrops(data ?? [], myId);
 }
+
+/** Public works from specific creators. Used by the Network Following stream. */
+export async function listDropsFromAuthors(
+  authorIds: string[],
+  limit = 50,
+): Promise<(Drop & { myReaction?: Reaction; myRating?: number })[]> {
+  if (!authorIds.length) return [];
+  const myId = await currentUserId();
+  const { data } = await db()
+    .from("drops")
+    .select("id,author_id,title,body,seed,feels,wilds,created_at,asset_id,plays,fx,audience,playback_customization,credited_artist,artist_id,album,release_type")
+    .in("author_id", authorIds.slice(0, 80))
+    .eq("audience", "public")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return assembleDrops(data ?? [], myId);
+}
+
 /** Exact number of drops an author owns — lets the library state a true total. */
 export async function countDropsBy(authorId: string): Promise<number> {
   const { count, error } = await db().from("drops")
@@ -3709,6 +3728,7 @@ export async function startLiveSession(input: {
   } catch { /* Bunny optional — presence + chat still work */ }
 
   const visibility = input.visibility === "circle" ? "circle" : "world";
+  const audioMode = audioModeForSource(input.source);
 
   const baseRow = {
     host_id: me,
@@ -3720,7 +3740,7 @@ export async function startLiveSession(input: {
     stream_key: bunny.streamKey ?? null,
     quality_tier: "ultra",
     visibility,
-    audio_mode: "music",
+    audio_mode: audioMode,
     sfu_provider: "livekit",
   };
 
@@ -3728,7 +3748,7 @@ export async function startLiveSession(input: {
     ...baseRow,
     source: persistableLiveSource(input.source),
     input_mode: persistableLiveSource(input.source),
-    monetization: dawIngestPatch(input.source),
+    monetization: sourceIngestPatch(input.source),
   }).select("*").single();
 
   if (error && input.source === "daw" && isCheckViolation(error)) {
@@ -3748,7 +3768,7 @@ export async function startLiveSession(input: {
       p_session: data.id,
       p_provider: "livekit",
       p_room: `vybz-live-${data.id}`,
-      p_audio_mode: "music",
+      p_audio_mode: audioMode,
     });
   } catch { /* SFU optional until secrets exist */ }
 

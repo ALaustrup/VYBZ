@@ -83,8 +83,8 @@ export function UploadsLibrary({
     return (
       <EmptyState
         icon={AudioLines}
-        title="No drops yet"
-        body="Share your first sound from the feed — it'll live here for you to manage."
+        title="Nothing in your library yet"
+        body="Published work lives here for you to manage. Originals stay yours until you share them."
       />
     );
   }

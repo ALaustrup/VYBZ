@@ -65,7 +65,7 @@ const CONTEXT_MENU_ONLY = () => false;
 export const SUITE_APPS: readonly SuiteAppDef[] = [
   {
     id: "home",
-    label: "Home",
+    label: "Workspace",
     path: "/",
     icon: Home,
     match: (p) => p === "/" || p.startsWith("/u/") || p.startsWith("/profile"),

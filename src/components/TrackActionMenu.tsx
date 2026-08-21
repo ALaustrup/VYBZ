@@ -12,6 +12,7 @@ import { useSession } from "@/store/session";
 import { useOnline } from "@/lib/useOnline";
 import * as api from "@/lib/api";
 import type { Drop, Reaction } from "@/types";
+import { ValidateHumanitySheet } from "@/features/provenance/ValidateHumanitySheet";
 
 type TrackLike = Drop & { myReaction?: Reaction; myRating?: number };
 
@@ -56,6 +57,7 @@ export function TrackActionMenu({
   const [renameValue, setRenameValue] = useState("");
   const [busy, setBusy] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [humanityOpen, setHumanityOpen] = useState(false);
 
   const isOwner = Boolean(userId && drop.authorId === userId);
   const isCurrent = player.track?.id === drop.id;
@@ -117,6 +119,7 @@ export function TrackActionMenu({
           },
           feature: () => void runFeature(),
           report: () => setReportOpen(true),
+          validateHumanity: () => setHumanityOpen(true),
           requestDelete: () => setStage("confirm-delete"),
           openInTool: (next) => {
             setTool(next);
@@ -231,7 +234,7 @@ export function TrackActionMenu({
     return (
       <>
         <ContextMenu
-          open={!reportOpen}
+          open={!reportOpen && !humanityOpen}
           anchor={anchor}
           groups={groups}
           title={drop.title?.trim() || "Untitled"}
@@ -240,6 +243,18 @@ export function TrackActionMenu({
           returnFocusTo={returnFocusTo}
         />
         {report}
+        {userId && (
+          <ValidateHumanitySheet
+            open={humanityOpen}
+            onClose={() => {
+              setHumanityOpen(false);
+              reset();
+            }}
+            hostId={userId}
+            assetId={drop.assetId ?? null}
+            title={drop.title?.trim() || "Untitled"}
+          />
+        )}
       </>
     );
   }

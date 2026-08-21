@@ -135,7 +135,7 @@ function OpsStatStrip({
   onNavigate: (to: string) => void;
 }) {
   const cells: Array<{ label: string; value: number; to: string; tone?: string }> = [
-    { label: "Tracks", value: stats.tracks, to: "/library" },
+    { label: "Works", value: stats.tracks, to: "/library" },
     { label: "Scan", value: stats.releases, to: "/releases" },
     { label: "Ready", value: stats.releasesReady, to: "/releases", tone: "text-suite-success" },
     {
@@ -393,10 +393,10 @@ function ProfileSong({ drop }: { drop: Drop }) {
 }
 
 /**
- * Signed-in Home — the owner's library.
+ * Signed-in Workspace — the owner's library.
  *
- * Other people are not on this stage. Find them from the People menu.
- * Live, feed, alerts, and Studio stay in this file and stay reachable;
+ * Other creators are not on this stage. Find them from the People menu.
+ * Live, network, alerts, and Studio stay in this file and stay reachable;
  * they are hidden from the default view, not deleted.
  */
 export function ArtistHome() {
@@ -482,6 +482,11 @@ export function ArtistHome() {
           <Loader2 className="h-6 w-6 animate-spin text-white/40" />
         </div>
       ) : (
+        <>
+        <header className="mb-3 px-0.5">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Workspace</p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-white">Your work</h1>
+        </header>
         <UploadsLibrary
           initialDrops={drops}
           featuredId={profile.featuredDropId}
@@ -490,6 +495,7 @@ export function ArtistHome() {
             void load();
           }}
         />
+        </>
       )}
 
       {/* Hidden from the default view. Not deleted. */}

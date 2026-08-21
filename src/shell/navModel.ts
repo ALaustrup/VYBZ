@@ -1,5 +1,5 @@
 import {
-  AudioLines,
+  Activity,
   BookOpen,
   Home,
   Library,
@@ -27,45 +27,45 @@ export type NavItem = {
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * The rail is the live-audio platform menu (PRODUCT.md v7).
+ * The rail is the Creator OS menu (PRODUCT.md v8).
  *
- * Default chrome is Home, Feed, Live, and Library. Living Mix, Rooms, Make pack,
- * Sales, and Packages stay in the tree and resolve by URL — they are listed
- * in ARCHIVED_NAV_PATHS, not deleted.
+ * Default chrome is Workspace, Library, Live, and Network. Living Mix, Rooms,
+ * Make pack, Sales, and Packages stay in the tree and resolve by URL — they
+ * are listed in ARCHIVED_NAV_PATHS, not deleted.
  *
  * Only destinations that render a working surface may appear.
  */
 export function navGroups(): NavGroup[] {
   return [
     {
-      id: "listen",
-      label: "Listen",
+      id: "work",
+      label: "Work",
       items: [
         {
-          path: "/feed",
-          label: "Feed",
-          hint: "Newest uploads",
-          icon: AudioLines,
-          productId: "home",
-        },
-        {
-          path: "/live",
-          label: "Live",
-          hint: "Who's on right now",
-          icon: Radio,
+          path: "/library",
+          label: "Library",
+          hint: "Your works",
+          icon: Library,
           productId: "home",
         },
       ],
     },
     {
-      id: "studio",
-      label: "Studio",
+      id: "network",
+      label: "Network",
       items: [
         {
-          path: "/library",
-          label: "Library",
-          hint: "Your files",
-          icon: Library,
+          path: "/feed",
+          label: "Network",
+          hint: "Creators and new work",
+          icon: Activity,
+          productId: "home",
+        },
+        {
+          path: "/live",
+          label: "Live",
+          hint: "Who is creating right now",
+          icon: Radio,
           productId: "home",
         },
       ],
@@ -83,7 +83,7 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
     {
       path: "/connect",
       label: "People",
-      hint: "Find other users",
+      hint: "Find creators",
       icon: Users,
       productId: "home",
     },
@@ -120,8 +120,8 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 
 export const HOME_ITEM: NavItem = {
   path: "/",
-  label: "Home",
-  hint: "Your page",
+  label: "Workspace",
+  hint: "Your work",
   icon: Home,
   productId: "home",
 };

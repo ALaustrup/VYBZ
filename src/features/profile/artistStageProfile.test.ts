@@ -27,12 +27,14 @@ describe("artist stage profile", () => {
     expect(ARTIST_STAGE_PROFILE.sessionSealNotHumanCertified).toBe(true);
     expect(ARTIST_STAGE_PROFILE.routeStaysResolvable).toBe(true);
     expect(ARTIST_STAGE_PROFILE.notArtistOnly).toBe(true);
+    expect(ARTIST_STAGE_PROFILE.moreThanAudio).toBe(true);
+    expect(ARTIST_STAGE_PROFILE.extensibleWorkRenderer).toBe(true);
     expect(LIVE_MIX_STREAMING.publicStageFile).toBe(true);
   });
 
   it("writes the Stage File into PRODUCT", () => {
     const product = read("PRODUCT.md");
-    expect(product).toContain("Version 7");
+    expect(product).toContain("Version 8");
     expect(product).toContain("0007");
     expect(product).toContain("Stage File");
     expect(product).toContain("Connect is a request");
@@ -42,8 +44,13 @@ describe("artist stage profile", () => {
     const page = read("src/pages/UserProfilePage.tsx");
     expect(page).toContain("ArtistStageProfile");
     expect(page).toContain("listHostStageNights");
+    expect(page).toContain("listProfileProjects");
+    expect(page).toContain('roleLabel || "Creator"');
     const ui = read("src/features/profile/ArtistStageProfile.tsx");
     expect(ui).toContain("On the stage");
+    expect(ui).toContain("Works");
+    expect(ui).toContain("WorkCard");
+    expect(ui).toContain("collectStageWorks");
     expect(ui).toContain("SessionProvenanceBadge");
     expect(ui).toContain("Book a session");
     expect(ui).toContain("this is not a calendar");
@@ -53,5 +60,21 @@ describe("artist stage profile", () => {
     expect(ui).toContain("TipButton");
     expect(ui).not.toMatch(/Followers|Human certified|AI-free/i);
     expect(ui).not.toMatch(/No live mixes yet|Join live mix/);
+    const kinds = read("src/features/profile/workKind.ts");
+    expect(kinds).toContain('"audio"');
+    expect(kinds).toContain('"image"');
+    expect(kinds).toContain('"video"');
+    expect(kinds).toContain('"file"');
+    expect(kinds).toContain('"project"');
+    expect(kinds).toContain('"link"');
+    const card = read("src/features/profile/WorkCard.tsx");
+    expect(card).toContain("WORK_RENDERERS");
+    expect(card).toContain('kind === "audio"');
+    expect(card).toContain('kind === "image"');
+    expect(card).toContain('kind === "video"');
+    expect(card).toContain('kind === "file"');
+    expect(card).toContain('kind === "project"');
+    expect(card).toContain('kind === "link"');
+    expect(card).toContain("TrackCard");
   });
 });

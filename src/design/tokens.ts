@@ -60,7 +60,7 @@ export const PRODUCT_ACCENT_RGB: Record<SuiteProductId, string> = {
 };
 
 export const PRODUCT_LABEL: Record<SuiteProductId, string> = {
-  home: "Home",
+  home: "Workspace",
   studio: "Studio",
   prepare: "Prepare",
   credits: "Credits",

@@ -61,7 +61,7 @@ export function ContextualAppBar({
         <button
           type="button"
           onClick={() => navigate("/")}
-          aria-label="VYBZ home"
+          aria-label="VYBZ workspace"
           className="relative z-[1] flex h-12 w-12 items-center justify-center justify-self-center overflow-visible bg-transparent p-0 active:scale-95"
           data-testid="suite-app-bar-mark"
         >

@@ -38,7 +38,7 @@ import type { Drop, Credit } from "@/types";
 type DashTab = "hub" | "listen" | "live" | "you" | "wallet";
 type YouSub = "music" | "live" | "lists";
 
-/** Primary logged-in surface — minimal hub. */
+/** Primary logged-in surface — Creator OS Workspace. */
 export function ProfilePage() {
   const { profile, userId, refreshProfile } = useSession();
   const navigate = useNavigate();

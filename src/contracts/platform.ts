@@ -20,6 +20,10 @@ export interface SelectedFolder {
   id: string;
   name: string;
   localPath?: string;
+  /** Web File System Access handle. Never serialized off-device. */
+  directoryHandle?: unknown;
+  /** File picks when the OS cannot grant a persistent folder handle (typical on mobile). */
+  files?: SelectedFile[];
 }
 
 export interface ExportedFile {

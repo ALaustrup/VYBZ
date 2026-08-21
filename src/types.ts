@@ -486,7 +486,7 @@ export interface RoomPresence {
 }
 
 /** Public creator live session (Bunny Stream + identity chat). */
-export type LiveSource = "camera" | "display" | "both" | "daw";
+export type LiveSource = "camera" | "display" | "both" | "daw" | "audio";
 /** Circle = accepted connections; World = public listing. */
 export type LiveAudience = "world" | "circle";
 

@@ -9,8 +9,8 @@ import { cx } from "@/lib/utils";
 import type { CreatorSearchResult } from "@/types";
 
 /**
- * Discover other users from a menu — not on the home stage.
- * Home stays the owner's library. /connect and /u/:id stay the destinations.
+ * Discover other creators from a menu — not on the workspace stage.
+ * Workspace stays the owner's library. /connect and /u/:id stay the destinations.
  */
 export function PeopleMenu() {
   const navigate = useNavigate();
@@ -77,7 +77,7 @@ export function PeopleMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="Find people"
+        aria-label="Find creators"
         aria-expanded={open}
         aria-haspopup="menu"
         data-testid="people-menu-button"
@@ -91,7 +91,7 @@ export function PeopleMenu() {
         {open && (
           <motion.div
             role="menu"
-            aria-label="Find people"
+            aria-label="Find creators"
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
@@ -106,7 +106,7 @@ export function PeopleMenu() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search people…"
-                aria-label="Search people"
+                aria-label="Search creators"
               />
             </label>
 

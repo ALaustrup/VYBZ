@@ -55,6 +55,8 @@ export const PRINCIPLES = {
   moneyFollowsTheSessionNotTheClock: true,
   /** Hosting is viewpoint-neutral. Illegal content is still refused. */
   viewpointNeutralHosting: true,
+  /** Original creative files stay on the creator's device unless they explicitly publish. */
+  originalsStayLocalByDefault: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -96,16 +98,58 @@ export const FROZEN_CONTRACTS = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
-/* Live mix audio streaming platform                                          */
+/* Creator Operating System (PRODUCT.md v8 / decision 0010)                   */
 /* ------------------------------------------------------------------------- */
 
 /**
- * Authoritative direction (PRODUCT.md v7 / decisions 0004–0009).
- * VYBZ is a real-time live audio platform. Not sample-pack. Not music-only.
+ * Product identity. Live, library, tools, and commerce are layers around this.
+ * Music-specific surfaces are specializations of Creative Work, not the unit.
+ */
+export const CREATOR_OS = {
+  /** VYBZ is the operating environment for digital creators. */
+  creatorOsIsTheProduct: true,
+  /** The fundamental unit is Creative Work, not a song. */
+  workIsTheUnit: true,
+  /** Music, film, games, software, and other disciplines share the same model. */
+  musicIsASpecialization: true,
+  /** Indexing a local file does not publish it. */
+  indexingIsNotPublishing: true,
+  /** Do not promise persistent mobile hosting when the OS will not allow it. */
+  mobileDoesNotClaimPersistentHosting: true,
+  /** Do not claim absolute proof of human authorship. */
+  refusesAbsoluteHumanAuthorshipClaim: true,
+  /** Changing gravity is not a rewrite. Adapt what exists. */
+  noRewriteToPivot: true,
+  /** Prefer $0 incremental recurring cost. */
+  zeroIncrementalRecurringCostPreferred: true,
+} as const;
+
+/**
+ * Phase 9 first slice — confine new Creator OS surfaces.
+ * Not a claim that the directive audit list is finished.
+ */
+export const CREATOR_OS_HARDENING = {
+  assetPathsStayInsideAuthorizedFolder: true,
+  cloudMetadataHasNoFileBytes: true,
+  transportReusesExistingCsp: true,
+  followHasNoPublicCount: true,
+  provenanceIsAssociationNotAuthorship: true,
+  hardeningIsNotACompletedAudit: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Live mix audio streaming — a Creator OS capability                         */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * Live rooms, LiveKit, DAW ingest, and session provenance remain first-class
+ * (decisions 0004–0009). They are not the product identity.
  */
 export const LIVE_MIX_STREAMING = {
-  /** Real-time live rooms are the core front-door experience. */
-  liveMixIsPrimary: true,
+  /** Workspace / Library is the product front door. Live is not the identity. */
+  liveMixIsPrimary: false,
+  /** Real-time live rooms remain a first-class Creator OS surface. */
+  liveMixIsFirstClassSurface: true,
   /** Audio streaming uses LiveKit SFU stereo music mode (no telephony filtering). */
   losslessMusicAudioConstraints: true,
   /** Master bus audio capture via DAW broadcast plug-in (VST3 / CLAP / AU). */
@@ -123,14 +167,18 @@ export const LIVE_MIX_STREAMING = {
 } as const;
 
 export const LIVE_AUDIO = {
-  /** Not a sample-pack app. Not music-only. */
-  liveAudioIsTheProduct: true,
+  /** Live audio is a first-class Creator OS capability, not the product identity. */
+  liveAudioIsACapability: true,
   /** Producers, artists, podcasters, talkers, open-mic, vent — same rooms. */
   hostsAreNotMusicOnly: true,
   /** Talk, podcast, and music are first-class on the host profile. */
   talkPodcastAndMusicAreFirstClass: true,
   /** ATC is the only hosting clock. */
   airtimeIsOnlyHostingClock: true,
+  /** Go Live leads with screen/window capture, then audio. */
+  screenWindowIsFirstHostPath: true,
+  /** Audio-only reuses LiveKit; it does not fork a second stack. */
+  audioOnlyReusesLivekit: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -163,7 +211,17 @@ export const HUMAN_PROVENANCE = {
   assetToSessionLinkIsDeclared: true,
   /** C2PA on the file is not inferred from a missing ledger row. */
   c2paOnFileIsNotInferred: true,
+  /** Validate Humanity is an association with sealed sessions, not authorship proof. */
+  validateHumanityIsAssociationNotAuthorship: true,
+  /** Hosts can read their sealed session history. */
+  exposesProvenanceHistory: true,
+  /** A Work or Project may be declared as associated with a sealed live. */
+  associatesSessionWithWork: true,
 } as const;
+
+/** Exact MVP sentence. Never upgraded to a not-AI or Human-certified claim. */
+export const WORK_SESSION_CLAIM =
+  "This file is associated with verified VYBZ creation sessions." as const;
 
 export const PROVENANCE_STRENGTHS = ["thin", "full"] as const;
 export type ProvenanceStrength = (typeof PROVENANCE_STRENGTHS)[number];
@@ -195,6 +253,25 @@ export const ARTIST_STAGE_PROFILE = {
   routeStaysResolvable: true,
   /** Talk, podcast, and music share this profile. It is not artist-only. */
   notArtistOnly: true,
+  /** Stage File works are not audio-only. */
+  moreThanAudio: true,
+  /** New media kinds register a renderer; they do not fork the profile. */
+  extensibleWorkRenderer: true,
+} as const;
+
+/**
+ * Social layer around creation (directive Phase 7). Reuse existing primitives.
+ * Follow is not Connect. VYB is not a ranking score.
+ */
+export const CREATOR_NETWORK = {
+  vybIsWorkAcknowledgment: true,
+  followIsUnidirectional: true,
+  followIsNotConnect: true,
+  noPublicFollowerCounts: true,
+  liveDiscoveryReusesWhosLive: true,
+  messagingReusesDirectMessages: true,
+  activityReusesNotifications: true,
+  networkCentersOnCreativeWork: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -265,7 +342,7 @@ export const ATC_POLICY = {
 /* ------------------------------------------------------------------------- */
 
 /**
- * Parked with decision 0004 / PRODUCT.md v3. Default product is live mix streaming.
+ * Parked with decision 0004 / PRODUCT.md v3. Default product is Creator OS.
  * These values still bind the Station subsystem if it is switched on again.
  * Do not delete them. Do not use Airtime in the live mix marketplace.
  *
@@ -392,6 +469,10 @@ export const GATE_REGISTRY = [
   "humanProvenance",
   "artistStageProfile",
   "liveAudio",
+  "creatorOs",
+  "assetNode",
+  "creatorNetwork",
+  "creatorOsHarden",
 ] as const;
 
 export type GateId = (typeof GATE_REGISTRY)[number];

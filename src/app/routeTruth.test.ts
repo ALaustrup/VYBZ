@@ -121,7 +121,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
   });
 
   it("never links Studio, Market, AI minutes or Cost Sentinel", () => {
-    // Live-first (PRODUCT.md v7): Home, Live, and Library are default chrome.
+    // Creator OS (PRODUCT.md v8): Workspace, Library, Live, and Network are default chrome.
     // Studio and unrouted money surfaces stay out of default nav.
     const linked = [
       ...navItems().map((i) => i.path),
@@ -134,7 +134,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/store");
   });
 
-  it("carries Home, Feed, Live and Library in the rail", () => {
+  it("carries Workspace, Network, Live and Library in the rail", () => {
     const linked = navItems().map((i) => i.path);
     expect(linked).toContain("/");
     expect(linked).toContain("/feed");

@@ -10,11 +10,13 @@ import { openFreeDm } from "@/lib/freeConnect";
 import { useMessagePopout } from "@/lib/messagePopout";
 import { FLAGS } from "@/lib/flags";
 import { ArtistStageProfile } from "@/features/profile/ArtistStageProfile";
+import { listCreationSessionLinks } from "@/features/provenance/provenanceApi";
+import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import { listHostStageNights, type StageNight } from "@/features/profile/stageNights";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
-import type { Drop, CreatorStats, Credit } from "@/types";
+import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
 
-/** Public artist stage — live nights first, catalog and credits still here. */
+/** Public Stage File — live nights first, then works of any kind. */
 export function UserProfilePage() {
   const { id = "" } = useParams();
   const { userId, showToast } = useSession();
@@ -25,8 +27,12 @@ export function UserProfilePage() {
   const [credits, setCredits] = useState<Credit[]>([]);
   const [nights, setNights] = useState<StageNight[]>([]);
   const [packs, setPacks] = useState<StorefrontPackPublic[]>([]);
+  const [projects, setProjects] = useState<ProfileProject[]>([]);
+  const [posts, setPosts] = useState<ProjectPost[]>([]);
+  const [projectLinks, setProjectLinks] = useState<ProjectLink[]>([]);
+  const [sessionLinks, setSessionLinks] = useState<WorkSessionLink[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState<"follow" | "msg" | "book" | null>(null);
+  const [busy, setBusy] = useState<"connect" | "msg" | "book" | null>(null);
   const [requested, setRequested] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -41,7 +47,12 @@ export function UserProfilePage() {
       FLAGS.storefront
         ? api.listPublishedStorefrontPacks(48).then((all) => all.filter((x) => x.user_id === id)).catch(() => [])
         : Promise.resolve([] as StorefrontPackPublic[]),
-    ]).then(([prof, d, s, c, nightsList, packList]) => {
+      api.listProfileProjects(id).catch(() => [] as ProfileProject[]),
+      listCreationSessionLinks(id).catch(() => [] as WorkSessionLink[]),
+    ]).then(async ([prof, d, s, c, nightsList, packList, projectList, linkList]) => {
+      const details = await Promise.all(
+        projectList.slice(0, 8).map((project) => api.getProjectDetail(project.id).catch(() => null)),
+      );
       if (!alive) return;
       setP(prof);
       setDrops(d);
@@ -49,6 +60,10 @@ export function UserProfilePage() {
       setCredits(c);
       setNights(nightsList);
       setPacks(packList);
+      setProjects(projectList);
+      setPosts(details.flatMap((detail) => detail?.posts ?? []));
+      setProjectLinks(details.flatMap((detail) => detail?.links ?? []));
+      setSessionLinks(linkList);
       setLoading(false);
     }).catch(() => {
       if (alive) setLoading(false);
@@ -69,8 +84,8 @@ export function UserProfilePage() {
   const addr = formatVcAddress(p?.username);
   const liveNow = nights.some((n) => n.status === "live");
   useRegisterAppBar({
-    title: addr || "Artist",
-    subtitle: liveNow ? "Live now" : (p?.profile?.roleLabel || "Music"),
+    title: addr || "Creator",
+    subtitle: liveNow ? "Live now" : (p?.profile?.roleLabel || "Creator"),
   }, [addr, p?.profile?.roleLabel, liveNow]);
 
   const cosmetics = useResolvedCosmetics(p?.equippedCosmetics);
@@ -84,9 +99,9 @@ export function UserProfilePage() {
 
   const profile = p;
 
-  async function follow() {
+  async function connect() {
     if (busy) return;
-    setBusy("follow");
+    setBusy("connect");
     const ok = await api.connect(id);
     setBusy(null);
     if (!ok) {
@@ -94,7 +109,7 @@ export function UserProfilePage() {
       return;
     }
     setRequested(true);
-    showToast(`Request sent to ${addr || profile.username || "artist"}`);
+    showToast(`Request sent to ${addr || profile.username || "creator"}`);
   }
 
   async function message() {
@@ -126,11 +141,15 @@ export function UserProfilePage() {
       credits={credits}
       nights={nights}
       packs={packs}
+      projects={projects}
+      posts={posts}
+      projectLinks={projectLinks}
+      sessionLinks={sessionLinks}
       cosmetics={cosmetics}
       isMe={userId === id}
       requested={requested}
       busy={busy}
-      onConnect={() => void follow()}
+      onConnect={() => void connect()}
       onMessage={() => void message()}
       onBook={() => void book()}
     />

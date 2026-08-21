@@ -2,9 +2,99 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-18
-**Branch:** `continue-next`
+**Date:** 2026-08-21
+**Branch:** `feat/creator-os-phase-1-authority`
+**HEAD:** `467686c5` (Phase 8 name-only index). Phase 9 hardening first slice is uncommitted.
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Creator OS Phase 9 — Hardening (first slice) — 2026-08-21
+
+Not a completed audit of the directive list (WebRTC, chat abuse, media parsing: **Not measured**). First slice confines Asset Node paths (`safeRelativePath`, `fileAtRelativePath` refuses `..`), reuses existing CSP in `vercel.json`, keeps Follow without a public count, and keeps provenance as association. Additive CHECK `indexed_assets_relative_path_confined` applied on `xixmneooyufbeftdfpcm`.
+
+Ableton Index a folder: still **unverified** in the browser.
+
+`npm run lint` pass. `npm run test` pass — **190 files / 948 tests**. `npm run build`: **Not measured**.
+
+## Creator OS Phase 8 — Mobile Asset Participation — 2026-08-21
+
+Reuse the existing Asset Node. No Devices nav. No Capacitor document-picker plugin. When `showDirectoryPicker` exists, indexing stays a persisted folder (**Available now**). When it does not (typical phone / Safari), the Platform Bridge falls back to a file pick labeled **While this app is open**. Those blobs stay in the JS heap — they are not written to IndexedDB and are not a background host. After reload they settle to **Unavailable here**. Other-device cloud rows stay **On another device** (names and sizes only). Public media stays in Works. CHECK on `creator_nodes` / `indexed_assets` extended with `session-only` and `unavailable` on project `xixmneooyufbeftdfpcm`.
+
+Library **This device** shows the six-state legend. Owner confirmed **Index a folder** on an Ableton Live 12 project: picker returns, catalog does not appear (2026-08-21). Follow-up: catalog walk is **name-only** (no `getFile` during index) and **This device** stays mounted while Library loads. Browser re-walk: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **188 files / 941 tests**. `npm run build` after name-only walk: **Not measured**.
+
+## Creator OS Phase 7 — Social Creator Network — 2026-08-21
+
+Reuse VYB (work reaction), Connect (request), Live discovery (`WhosLivePanel`), DMs, and Hub activity. Added unidirectional **Follow** (`creator_follows` on project `xixmneooyufbeftdfpcm`) with no public count. Network (`/feed`) now composes live, People/Messages links, Following stream, and activity. Connect is no longer labeled as follow. `drops.audience = followers` still means accepted connections — that visibility rule was not rewritten.
+
+Owner confirmed Following works (2026-08-21). Public follower counts: still unpublished. Committed `5f21b62c`.
+
+`npm run lint` pass. `npm run test` pass — **187 files / 937 tests**. `npm run build` pass.
+
+## Creator OS Phase 6 — Creation Provenance MVP — 2026-08-21
+
+Reuse sealed `provenance_sessions` / `.vprov`. No second ledger. Additive RPCs `associate_session_work` and `creation_session_links` applied on project `xixmneooyufbeftdfpcm`. A creator associates a stored Work (and optionally a Project) with a **sealed** live. SHA remains measured from `assets.sha256`; the Work/Project link is declared. Copy is locked to: **This file is associated with verified VYBZ creation sessions.** Never Human certified. Never a not-AI proof. Committed `00192a4b`.
+
+Surfaces: Library **Validate Humanity** on an owned drop; Live **Session provenance** history of sealed nights; Stage File work cards show the claim when a public link exists.
+
+Browser walk of Validate Humanity bind: **Not measured**. Public work-card claim on a live profile: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **185 files / 932 tests**. `npm run build` pass.
+
+## Creator OS Phase 5 — Live Creation — 2026-08-21
+
+Reuse LiveKit. No new SFU. No schema. Go Live now leads with **Screen** (window/display), then **Audio** (mic, persisted as `camera` + `ingest:audio` so the existing CHECK holds), then Camera / Both / VLink. Display publishes as LiveKit screen share. Audio-only uses speech mode and the existing `LiveVisualizer` on the watch stage. Identity, World/Circle, chat, Stage File, ATC, and `live_sessions` stay. Committed `9500c84e`.
+
+Browser walk on `http://localhost:5173/live` (signed-in, 2026-08-21): Go Live heading **Go live**; source tabs **Screen → Audio → Camera → Both → VLink**. Screen/window picker: **Not measured**. Audio-only live as a signed-in host: **Not measured**. Viewer subscribe: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **184 files / 928 tests**. `npm run build` pass.
+
+## Creator OS Phase 4 — Creator Profile 2.0 — 2026-08-21
+
+`/u/:id` Stage File now leads with live nights, then **Works** via `collectStageWorks` + `WorkCard` renderers for audio, image, video, file, project, and link. Existing TrackCard, project posts, profile projects, and `musicUrl` feed the registry. App bar default is Creator, not Music/Artist. `ARTIST_STAGE_PROFILE.moreThanAudio` and `extensibleWorkRenderer` are locked. No new tables. No Devices nav. Frozen `MobileNav` stays unmounted.
+
+Browser walk on `http://localhost:5173/u/9e45224c-f5f0-4af1-960c-8f9b178a4933` (signed-in, 2026-08-21): heading **Andrew**; eyebrows **On the stage**, **Works**, **Packs**, **Measured**; one work with `data-kind="audio"`. Image/video/file/project/link cards on this account: **not present in the measured catalog** (renderers exist; this profile currently has audio).
+
+`npm run lint` pass. `npm run test` pass — **184 files / 924 tests**. `npm run build` pass.
+
+## Creator OS Phase 3b E2E — signed-in metadata upsert — 2026-08-21
+
+Measured on `http://localhost:5173` as signed-in Andrew (`9e45224c-…`). Used the SPA session JWT + anon key against `creator_nodes` / `indexed_assets` (same RLS path the Library client uses). Probe node `vybz-e2e-probe` (`9d352157-…`): POST node **201**, POST asset **201**. RLS GET returned `name=vybz-e2e-probe`, `availability=local-only`, `file_count=1`, `total_bytes=12`, asset `probe.txt` / `text/plain` / 12 bytes. Payload had **no `url`**, **no `local_path`**. Library **This device** then showed `vybz-e2e-probe` / **DEVICE OFFLINE** / `probe.txt`. Signed-in DELETE asset **200**, node **200**; remaining GET `[]`. `storage.objects` in `audio-assets` created in the prior 15 minutes: **0**. Probe rows were removed after the walk.
+
+Folder pick in Chromium: **Not measured**. Native Tauri folder dialog: **Not measured**. The Index-a-folder button was not the write path for this measurement.
+
+## Creator OS Phase 3b — cloud metadata plane — 2026-08-21
+
+Owner authorized cloud tables. Applied additive migration `creator_asset_nodes` on project `xixmneooyufbeftdfpcm` (vybz). Tables `creator_nodes` and `indexed_assets` exist with owner-only RLS. No `url` column. No `local_path`. `assets.url` remains NOT NULL. Library **This device** now upserts metadata after a local index and shows nodes from other devices as **Device offline**. Bytes are not uploaded.
+
+Folder pick in Chromium: **Not measured**. End-to-end cloud upsert as a signed-in user: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **183 files / 921 tests**. `npm run build` pass.
+
+## Creator OS Phase 3 — local Asset Node — 2026-08-21
+
+
+Library gained **This device**. A creator can authorize a folder through the Platform Bridge (`showDirectoryPicker` on web; desktop/mobile fall back to that instead of throwing). VYBZ stores names, sizes, and paths in IndexedDB on this machine. Bytes stay on disk. Indexing is not publishing. Availability is **Local only** (or **Device offline** if the handle is gone). Unindex does not delete files. No Devices nav. No cloud tables. No new vendors. No production migration — cloud metadata (`creator_nodes` / `indexed_assets`) stays unapplied until the owner authorizes it.
+
+Gate `assetNode` is registered. Folder pick in Chromium: **Not measured**. Native Tauri folder dialog: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **183 files / 919 tests**. `npm run build` pass.
+
+## Creator OS Phase 2 — shell chrome — 2026-08-21
+
+Visible pivot on existing VYBZ chrome. Default rail is Workspace (`/`), Library, Network (`/feed`), Live. Group labels are Work and Network. App bar, command palette, welcome tour, and Library/Network copy follow. Frozen `MobileNav` stub stays unmounted. No schema. No vendors. Parked swipe/chrome WIP remains in stash `park/mobile-chrome-swipe-phase2`.
+
+`npm run lint` pass. `npm run test` pass — **181 files / 910 tests**. `npm run build` pass. Browser walk on `http://localhost:5173` (signed-in, 2026-08-21): rail **Workspace / Library / Network / Live**; `/` heading **Your work** with eyebrow Workspace; `/library` chip **Works (1)** and search “Search title, collection, creator…”; `/feed` heading **New work** with Network options; `/live` heading **Who's live** and “Creators on stage right now.” Vercel Ready: **Not measured**.
+
+## Creator OS Phase 1 — product authority — 2026-08-21
+
+Owner authorized the Creator OS pivot. Phase 0 was forensic (no product rewrite). This commit is Phase 1 only: one current product definition.
+
+`PRODUCT.md` is Version 8. VYBZ is the Creator Operating System. Creative Work is the unit. Live, ATC, Stage File, tools, and market remain capabilities. Decision [`0010`](docs/decisions/0010-creator-os.md) records that. `CREATOR_OS` in `src/product/invariants.ts` is the identity lock. `LIVE_AUDIO.liveAudioIsACapability` replaces `liveAudioIsTheProduct`. Gate `creatorOs` is registered. The 2026-08-11 song/release brief is marked superseded.
+
+No schema. No vendors. No shell chrome change beyond a `navModel` comment. Unrelated mobile swipe/chrome WIP was stashed as `wip-mobile-chrome-swipe` and is not in this commit.
+
+`npm run lint` pass. `npm run test` pass — **181 files / 909 tests**. `npm run build` pass. Browser walk: **Not measured**. Vercel Ready: **Not measured**.
 
 ## VLink VST3 — 2026-08-18
 
