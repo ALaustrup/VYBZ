@@ -25,7 +25,8 @@ describe("Who's live panel", () => {
     expect(read("src/pages/LivePage.tsx")).toContain("WhosLivePanel");
     expect(read("src/pages/LivePage.tsx")).toContain("data-live-stage");
     expect(read("src/pages/LiveWatchPage.tsx")).toContain("data-live-stage");
-    expect(read("src/pages/LiveWatchPage.tsx")).not.toMatch(/<LiveVisualizer/);
+    expect(read("src/pages/LiveWatchPage.tsx")).toContain("LiveVisualizer");
+    expect(read("src/pages/LiveWatchPage.tsx")).toContain("audioOnly");
     expect(read("src/components/home/ArtistHome.tsx")).toContain("WhosLivePanel");
     expect(read("src/components/dashboard/DashLivePanel.tsx")).toContain("WhosLivePanel");
   });

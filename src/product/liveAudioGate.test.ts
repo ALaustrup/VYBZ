@@ -22,6 +22,8 @@ describe("live audio lock", () => {
     expect(LIVE_AUDIO.hostsAreNotMusicOnly).toBe(true);
     expect(LIVE_AUDIO.talkPodcastAndMusicAreFirstClass).toBe(true);
     expect(LIVE_AUDIO.airtimeIsOnlyHostingClock).toBe(true);
+    expect(LIVE_AUDIO.screenWindowIsFirstHostPath).toBe(true);
+    expect(LIVE_AUDIO.audioOnlyReusesLivekit).toBe(true);
     expect(LIVE_MIX_STREAMING.hostingRequiresAtc).toBe(true);
     expect(LIVE_MIX_STREAMING.liveMixIsFirstClassSurface).toBe(true);
     expect(ARTIST_STAGE_PROFILE.notArtistOnly).toBe(true);
@@ -40,6 +42,8 @@ describe("live audio lock", () => {
     expect(product).toContain("Money follows the session, never the clock");
     expect(product).toContain("viewpoint-neutral");
     expect(product).toContain("Ticketed events stay out of this lock");
+    expect(product).toContain("LiveKit");
+    expect(product).toContain("screen/window");
   });
 
   it("puts Go Live and any-host copy on the live front door", () => {
@@ -62,10 +66,17 @@ describe("live audio lock", () => {
     expect(go).toContain("Talk");
     expect(go).toContain("Podcast");
     expect(go).toContain("Vent");
+    expect(go).toContain("HOST_SOURCE_TABS");
+    expect(go).toContain("DEFAULT_HOST_SOURCE");
+    expect(go).toContain("getDisplayMedia");
+    expect(go).toContain('source === "audio"');
     expect(go).not.toMatch(/TURN ready|Bunny Stream ready/);
     const watch = readFileSync(path.join(ROOT, "src/pages/LiveWatchPage.tsx"), "utf8");
     expect(watch).toContain("TipButton");
     expect(watch).toContain("Back to Live");
+    expect(watch).toContain("joinLiveSessionSfu");
+    expect(watch).toContain("LiveVisualizer");
+    expect(watch).toContain("hostSource: session.source");
     expect(watch).not.toMatch(/Back to Live Mix|Connecting to live mix|producer's studio/);
     const profile = readFileSync(path.join(ROOT, "src/features/profile/ArtistStageProfile.tsx"), "utf8");
     expect(profile).toContain("TipButton");

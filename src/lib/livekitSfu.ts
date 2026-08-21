@@ -6,6 +6,8 @@
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabase } from "@/lib/supabase";
 import type { VoiceSlotSnapshot } from "@/lib/voiceSlots";
 import { EMPTY_VOICE_SLOTS, VoiceSlotManager } from "@/lib/voiceSlots";
+import { livekitPublishSourceKind, type LivekitPublishKind } from "@/features/broadcast/liveSource";
+import type { LiveSource } from "@/types";
 
 export type LivekitTokenResponse = {
   configured: boolean;
@@ -69,6 +71,16 @@ export function mintRoomVoiceToken(roomId: string, canPublish = true) {
   return invokeLivekitToken({ purpose: "voice", roomId, canPublish });
 }
 
+function toLkPublishSource(
+  lk: typeof import("livekit-client"),
+  kind: LivekitPublishKind,
+): import("livekit-client").Track.Source {
+  if (kind === "screen_share") return lk.Track.Source.ScreenShare;
+  if (kind === "screen_share_audio") return lk.Track.Source.ScreenShareAudio;
+  if (kind === "microphone") return lk.Track.Source.Microphone;
+  return lk.Track.Source.Camera;
+}
+
 /**
  * Dynamic import of livekit-client so the main bundle stays light until Go Live / voice.
  * Returns null if the package is not installed or LiveKit is unconfigured.
@@ -115,6 +127,8 @@ export async function joinLiveSessionSfu(opts: {
   audioMode?: "music" | "speech";
   /** Host preview handoff; otherwise host will capture via LiveKit defaults. */
   localStream?: MediaStream | null;
+  /** Public live_sessions.source — screen share vs camera vs audio-only. */
+  hostSource?: LiveSource;
   videoEl?: HTMLVideoElement | null;
   /** MediaStream for LiveVisualizer (cloned audio/video tracks — do not stop). */
   onAnalyserStream?: (stream: MediaStream | null) => void;
@@ -190,10 +204,7 @@ export async function joinLiveSessionSfu(opts: {
       if (opts.localStream) {
         for (const mediaTrack of opts.localStream.getTracks()) {
           await room.localParticipant.publishTrack(mediaTrack, {
-            source:
-              mediaTrack.kind === "video"
-                ? lk.Track.Source.Camera
-                : lk.Track.Source.Microphone,
+            source: toLkPublishSource(lk, livekitPublishSourceKind(mediaTrack.kind, opts.hostSource)),
           });
           vizTracks.set(mediaTrack.id, mediaTrack);
         }
@@ -203,6 +214,25 @@ export async function joinLiveSessionSfu(opts: {
           opts.videoEl.muted = true;
           void opts.videoEl.play().catch(() => {});
         }
+      } else if (opts.hostSource === "audio") {
+        await room.localParticipant.setMicrophoneEnabled(true);
+        const mic = room.localParticipant.getTrackPublication(lk.Track.Source.Microphone);
+        if (mic?.track?.mediaStreamTrack) vizTracks.set(mic.track.mediaStreamTrack.id, mic.track.mediaStreamTrack);
+        publishViz();
+      } else if (opts.hostSource === "display" || opts.hostSource === "both") {
+        await room.localParticipant.setScreenShareEnabled(true);
+        await room.localParticipant.setMicrophoneEnabled(true);
+        const screen = room.localParticipant.getTrackPublication(lk.Track.Source.ScreenShare);
+        const mic = room.localParticipant.getTrackPublication(lk.Track.Source.Microphone);
+        if (opts.videoEl && screen?.track) {
+          screen.track.attach(opts.videoEl);
+          opts.videoEl.muted = true;
+        }
+        if (screen?.track?.mediaStreamTrack) vizTracks.set(screen.track.mediaStreamTrack.id, screen.track.mediaStreamTrack);
+        if (mic?.track?.mediaStreamTrack) vizTracks.set(mic.track.mediaStreamTrack.id, mic.track.mediaStreamTrack);
+        publishViz();
+      } else if (opts.hostSource === "daw") {
+        // VLink audio is published from the retained DAW stream, not camera.
       } else {
         await room.localParticipant.setCameraEnabled(true);
         await room.localParticipant.setMicrophoneEnabled(true);

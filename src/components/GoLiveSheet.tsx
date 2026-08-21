@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Cable, Camera, Globe2, Loader2, Monitor, Radio, Users, X } from "lucide-react";
+import { Cable, Camera, Globe2, Loader2, Mic, Monitor, Radio, Users, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -15,6 +15,9 @@ import { formatAtcClock } from "@/features/airtime/atcHeartbeat";
 import { canStartHost } from "@/features/airtime/atcAccounting";
 import { DawBridgePanel } from "@/features/broadcast/DawBridgePanel";
 import { getDawBridge, isDawBridgeRetained, retainDawBridge } from "@/features/broadcast/dawBridgeSession";
+import { DEFAULT_HOST_SOURCE, HOST_SOURCE_TABS } from "@/features/broadcast/liveSource";
+import { LiveVisualizer } from "@/components/LiveVisualizer";
+import { SPEECH_AUDIO_CONSTRAINTS } from "@/lib/livekitSfu";
 import { ATC_POLICY } from "@/product/invariants";
 import type { LiveAudience, LiveSource } from "@/types";
 
@@ -40,7 +43,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
   const streamRef = useRef<MediaStream | null>(null);
   const handedOff = useRef(false);
   const [step, setStep] = useState<WizardStep>("source");
-  const [source, setSource] = useState<LiveSource>("camera");
+  const [source, setSource] = useState<LiveSource>(DEFAULT_HOST_SOURCE);
   const [audience, setAudience] = useState<LiveAudience>("world");
   const [title, setTitle] = useState("");
   const [intent, setIntent] = useState("");
@@ -59,7 +62,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       handedOff.current = false;
       setTitle("");
       setIntent("");
-      setSource("camera");
+      setSource(DEFAULT_HOST_SOURCE);
       setAudience("world");
       setStep("source");
       setErr(null);
@@ -93,8 +96,10 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
       let stream: MediaStream;
       if (source === "display") {
         stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      } else if (source === "audio") {
+        stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: SPEECH_AUDIO_CONSTRAINTS });
       } else if (source === "both") {
-        const cam = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const cam = await navigator.mediaDevices.getUserMedia({ video: true, audio: SPEECH_AUDIO_CONSTRAINTS });
         const desk = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
         const tracks = [
           ...desk.getVideoTracks(),
@@ -103,7 +108,7 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
         cam.getVideoTracks().forEach((t) => t.stop());
         stream = new MediaStream(tracks);
       } else {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: SPEECH_AUDIO_CONSTRAINTS });
       }
       streamRef.current = stream;
       setPreviewing(true);
@@ -212,28 +217,29 @@ export function GoLiveSheet({ open, onClose }: { open: boolean; onClose: () => v
               {step === "source" && (
                 <>
                   <div className="relative aspect-video overflow-hidden rounded-2xl border border-[var(--hairline)] bg-ink-950/60">
-                    <video ref={videoRef} muted playsInline className={cx("h-full w-full object-cover", !previewing && "hidden")} />
+                    <video ref={videoRef} muted playsInline className={cx("h-full w-full object-cover", (!previewing || source === "audio") && "hidden")} />
+                    {source === "audio" && previewing && streamRef.current && (
+                      <LiveVisualizer stream={streamRef.current} mode="stage" className="h-full w-full" />
+                    )}
                     {!previewing && (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/30">
                         <Radio className="h-8 w-8" />
-                        <p className="text-xs">Preview</p>
+                        <p className="text-xs">{source === "audio" ? "Mic preview" : "Preview"}</p>
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-4 border-b border-[var(--hairline)]">
-                    {([
-                      { id: "camera" as const, label: "Camera", icon: Camera },
-                      { id: "display" as const, label: "Display", icon: Monitor },
-                      { id: "both" as const, label: "Both", icon: Radio },
-                      { id: "daw" as const, label: "VLink", icon: Cable },
-                    ]).map(({ id, label, icon: Icon }) => (
-                      <button key={id} type="button" onClick={() => { setSource(id); stopPreview(); }}
-                        className={cx("relative flex items-center gap-1.5 pb-2.5 text-[13px] font-medium transition",
+                  <div className="flex gap-4 overflow-x-auto border-b border-[var(--hairline)]">
+                    {HOST_SOURCE_TABS.map(({ id, label }) => {
+                      const Icon = id === "display" ? Monitor : id === "audio" ? Mic : id === "camera" ? Camera : id === "daw" ? Cable : Radio;
+                      return (
+                      <button key={id} type="button" data-testid={`live-source-${id}`} onClick={() => { setSource(id); stopPreview(); }}
+                        className={cx("relative flex shrink-0 items-center gap-1.5 pb-2.5 text-[13px] font-medium transition",
                           source === id ? "text-white" : "text-white/40 hover:text-white/70")}>
                         <Icon className="h-3.5 w-3.5" /> {label}
                         {source === id && <span className="absolute inset-x-0 bottom-0 h-px bg-[rgb(var(--neon-cyan)/0.7)]" />}
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                   {source === "daw" ? (
                     <DawBridgePanel

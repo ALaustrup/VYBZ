@@ -39,6 +39,7 @@ import { getDawBridge, peekDawBridge, releaseDawBridge } from "@/features/broadc
 import { CompanionPanel } from "@/features/companion/CompanionPanel";
 import { takeLivePreviewHandoff } from "@/lib/livePreviewHandoff";
 import { joinLiveSessionSfu, type LiveSfuSession } from "@/lib/livekitSfu";
+import { LiveVisualizer } from "@/components/LiveVisualizer";
 import { FLAGS } from "@/lib/flags";
 import { formatVc, formatVcAddress } from "@/lib/vc";
 import { cx } from "@/lib/utils";
@@ -127,6 +128,7 @@ export function LiveWatchPage() {
         canPublish: isHost,
         audioMode: session.audioMode ?? "music",
         localStream: handoff,
+        hostSource: session.source,
         videoEl: videoRef.current,
         releaseLocalOnDisconnect: session.source !== "daw",
         onAnalyserStream: (stream) => {
@@ -278,7 +280,10 @@ export function LiveWatchPage() {
   }
 
   const ended = session.status !== "live";
-  const hasVideo = sfuActive || !!session.playbackHls;
+  const hasVideoTrack = !!vizStream?.getVideoTracks().some((t) => t.readyState === "live");
+  const hasHls = !!session.playbackHls && !sfuActive;
+  const hasVideo = hasVideoTrack || hasHls;
+  const audioOnly = !ended && !hasVideo && !!vizStream?.getAudioTracks().some((t) => t.readyState === "live");
 
   return (
     <div
@@ -299,7 +304,10 @@ export function LiveWatchPage() {
             autoPlay
             muted={isHost}
           />
-          {(!hasVideo || ended) && (
+          {audioOnly && (
+            <LiveVisualizer stream={vizStream} mode="stage" className="absolute inset-0 h-full w-full" />
+          )}
+          {(!hasVideo || ended) && !audioOnly && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center z-10">
               <div className="relative">
                 <div className="absolute -inset-4 rounded-full bg-cyan-500/20 blur-xl animate-pulse" />

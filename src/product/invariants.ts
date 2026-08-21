@@ -160,6 +160,10 @@ export const LIVE_AUDIO = {
   talkPodcastAndMusicAreFirstClass: true,
   /** ATC is the only hosting clock. */
   airtimeIsOnlyHostingClock: true,
+  /** Go Live leads with screen/window capture, then audio. */
+  screenWindowIsFirstHostPath: true,
+  /** Audio-only reuses LiveKit; it does not fork a second stack. */
+  audioOnlyReusesLivekit: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

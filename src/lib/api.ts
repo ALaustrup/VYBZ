@@ -24,11 +24,12 @@ import type {
 import { canStartLive } from "@/features/airtime/atcApi";
 import { openProvenanceForLive, sealProvenanceForLive } from "@/features/provenance/provenanceApi";
 import {
-  dawIngestPatch,
+  audioModeForSource,
   isCheckViolation,
   legacyDawFallback,
   persistableLiveSource,
   resolveLiveSource,
+  sourceIngestPatch,
 } from "@/features/broadcast/liveSource";
 import { buildPlaybackCustomization, parsePlaybackCustomization } from "@/lib/playbackCustomization";
 import { analyzeRepoPack, type RepoDawHint } from "@/lib/repoSync";
@@ -3709,6 +3710,7 @@ export async function startLiveSession(input: {
   } catch { /* Bunny optional — presence + chat still work */ }
 
   const visibility = input.visibility === "circle" ? "circle" : "world";
+  const audioMode = audioModeForSource(input.source);
 
   const baseRow = {
     host_id: me,
@@ -3720,7 +3722,7 @@ export async function startLiveSession(input: {
     stream_key: bunny.streamKey ?? null,
     quality_tier: "ultra",
     visibility,
-    audio_mode: "music",
+    audio_mode: audioMode,
     sfu_provider: "livekit",
   };
 
@@ -3728,7 +3730,7 @@ export async function startLiveSession(input: {
     ...baseRow,
     source: persistableLiveSource(input.source),
     input_mode: persistableLiveSource(input.source),
-    monetization: dawIngestPatch(input.source),
+    monetization: sourceIngestPatch(input.source),
   }).select("*").single();
 
   if (error && input.source === "daw" && isCheckViolation(error)) {
@@ -3748,7 +3750,7 @@ export async function startLiveSession(input: {
       p_session: data.id,
       p_provider: "livekit",
       p_room: `vybz-live-${data.id}`,
-      p_audio_mode: "music",
+      p_audio_mode: audioMode,
     });
   } catch { /* SFU optional until secrets exist */ }
 
