@@ -22,7 +22,7 @@ import * as api from "@/lib/api";
 import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
-import { listAssets } from "@/features/assetNode/store";
+import { listVisibleCatalog } from "@/features/assetNode/catalog";
 
 type Tab = "tracks" | "device" | "mixes" | "projects" | "stages";
 
@@ -49,18 +49,18 @@ export function LibraryPage() {
     if (!userId) return;
     setLoading(true);
     const ownerId = getPrepareOwnerId(userId);
-    const [firstPage, total, p, releases, local] = await Promise.all([
+    const [firstPage, total, p, releases, catalog] = await Promise.all([
       api.dropsBy(userId, PAGE_SIZE),
       api.countDropsBy(userId),
       api.myProjectPosts(200),
       listReleases(ownerId).catch(() => [] as ReleaseProject[]),
-      listAssets().catch(() => []),
+      listVisibleCatalog().catch(() => ({ nodes: [], assets: [] })),
     ]);
     setDrops(firstPage);
     setTrackTotal(total);
     setPosts(p);
     setScans(releases.slice(0, 6));
-    setLocalCount(local.length);
+    setLocalCount(catalog.assets.length);
     setLoading(false);
 
     // The first page renders immediately; the rest streams in so a large library
@@ -155,7 +155,7 @@ export function LibraryPage() {
         />
       ) : tab === "device" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
-          <LocalAssetsLibrary onChanged={() => { void listAssets().then((a) => setLocalCount(a.length)); }} />
+          <LocalAssetsLibrary onChanged={() => { void listVisibleCatalog().then((c) => setLocalCount(c.assets.length)); }} />
         </div>
       ) : tab === "mixes" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">

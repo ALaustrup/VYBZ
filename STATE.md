@@ -6,7 +6,16 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Branch:** `feat/creator-os-phase-1-authority`
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
 
+## Creator OS Phase 3b — cloud metadata plane — 2026-08-21
+
+Owner authorized cloud tables. Applied additive migration `creator_asset_nodes` on project `xixmneooyufbeftdfpcm` (vybz). Tables `creator_nodes` and `indexed_assets` exist with owner-only RLS. No `url` column. No `local_path`. `assets.url` remains NOT NULL. Library **This device** now upserts metadata after a local index and shows nodes from other devices as **Device offline**. Bytes are not uploaded.
+
+Folder pick in Chromium: **Not measured**. End-to-end cloud upsert as a signed-in user: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **183 files / 921 tests**. `npm run build` pass.
+
 ## Creator OS Phase 3 — local Asset Node — 2026-08-21
+
 
 Library gained **This device**. A creator can authorize a folder through the Platform Bridge (`showDirectoryPicker` on web; desktop/mobile fall back to that instead of throwing). VYBZ stores names, sizes, and paths in IndexedDB on this machine. Bytes stay on disk. Indexing is not publishing. Availability is **Local only** (or **Device offline** if the handle is gone). Unindex does not delete files. No Devices nav. No cloud tables. No new vendors. No production migration — cloud metadata (`creator_nodes` / `indexed_assets`) stays unapplied until the owner authorizes it.
 

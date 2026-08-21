@@ -1,7 +1,6 @@
 /**
  * Local Asset Node gate — originals stay on the creator's device.
- * Indexing is not publishing. No Devices nav until a real node exists.
- * Cloud metadata tables stay unapplied until the owner authorizes a migration.
+ * Indexing is not publishing. No Devices nav. Cloud metadata is owner-only.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -37,6 +36,8 @@ describe("local asset node", () => {
     const web = read("src/platform/bridge/web.ts");
     const desktop = read("src/platform/bridge/desktop.ts");
     const page = read("src/pages/LibraryPage.tsx");
+    const cloud = read("src/features/assetNode/cloudSync.ts");
+    const mig = read("supabase/migrations/20260821_0111_creator_asset_nodes.sql");
 
     expect(web).toContain("showDirectoryPicker");
     expect(desktop).not.toContain("Tauri command pending Phase 2.D");
@@ -49,12 +50,23 @@ describe("local asset node", () => {
 
     for (const src of [walk, index, store, ui]) {
       expect(src).not.toContain("@/lib/api");
-      expect(src).not.toContain("supabase");
+      expect(src).not.toContain("from \"@/lib/supabase\"");
       expect(src).not.toContain("audio-assets");
       expect(src).not.toMatch(/storage\.from\(/);
     }
     expect(walk).not.toContain(".arrayBuffer(");
     expect(walk).not.toContain("sha256");
     expect(index).toContain("Does not upload, hash, or copy bytes");
+    expect(cloud).toContain("creator_nodes");
+    expect(cloud).toContain("indexed_assets");
+    expect(cloud).toContain("Never uploads file bytes");
+    expect(cloud).not.toMatch(/storage\.from\(/);
+    expect(cloud).not.toContain(".upload(");
+    expect(mig).toContain("create table if not exists public.creator_nodes");
+    expect(mig).toContain("create table if not exists public.indexed_assets");
+    expect(mig).not.toMatch(/\burl text\b/);
+    expect(mig).not.toContain("local_path");
+    expect(mig).toContain("Indexing is not publishing");
+    expect(read("supabase/migrations/20260709_0001_vybz_v1.sql")).toContain("url text not null");
   });
 });

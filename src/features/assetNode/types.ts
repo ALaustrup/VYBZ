@@ -21,6 +21,7 @@ export type CreatorNodeRecord = {
   fileCount: number;
   totalBytes: number;
   availability: AssetAvailability;
+  kind?: "web" | "desktop" | "android" | "ios";
 };
 
 export type IndexedAssetRecord = {

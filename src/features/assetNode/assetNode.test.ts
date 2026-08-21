@@ -7,6 +7,8 @@ import {
   shouldIndexDir,
   shouldIndexFile,
 } from "@/features/assetNode/indexFolder";
+import { mergeCatalog } from "@/features/assetNode/catalog";
+import { cloudRowsHaveNoBytes } from "@/features/assetNode/cloudSync";
 import { AVAILABILITY_LABEL } from "@/features/assetNode/types";
 import { listAssets, listNodes, removeNode, resetMemoryCatalog, saveIndex } from "@/features/assetNode/store";
 
@@ -72,5 +74,32 @@ describe("local asset node index", () => {
   it("labels availability honestly", () => {
     expect(AVAILABILITY_LABEL["local-only"]).toBe("Local only");
     expect(AVAILABILITY_LABEL["device-offline"]).toBe("Device offline");
+  });
+
+  it("marks cloud-only nodes device-offline on this machine", () => {
+    const local = {
+      nodes: [{ id: "here", name: "Desk", indexedAt: 1, fileCount: 1, totalBytes: 4, availability: "local-only" as const }],
+      assets: [{ id: "a", nodeId: "here", relativePath: "a.wav", name: "a.wav", mime: "audio/wav", sizeBytes: 4, lastModified: 1, availability: "local-only" as const }],
+    };
+    const cloud = {
+      nodes: [
+        local.nodes[0]!,
+        { id: "away", name: "Laptop", indexedAt: 2, fileCount: 1, totalBytes: 8, availability: "local-only" as const },
+      ],
+      assets: [
+        local.assets[0]!,
+        { id: "b", nodeId: "away", relativePath: "b.wav", name: "b.wav", mime: "audio/wav", sizeBytes: 8, lastModified: 2, availability: "local-only" as const },
+      ],
+    };
+    const merged = mergeCatalog(local, cloud);
+    expect(merged.nodes.find((n) => n.id === "here")?.availability).toBe("local-only");
+    expect(merged.nodes.find((n) => n.id === "away")?.availability).toBe("device-offline");
+    expect(merged.assets.find((a) => a.nodeId === "away")?.availability).toBe("device-offline");
+  });
+
+  it("refuses cloud rows that would carry a url or local path", () => {
+    expect(cloudRowsHaveNoBytes([{ id: "1", name: "take.wav", size_bytes: 12 }])).toBe(true);
+    expect(cloudRowsHaveNoBytes([{ id: "1", url: "https://cdn.example/a.wav" }])).toBe(false);
+    expect(cloudRowsHaveNoBytes([{ local_path: "/Users/me/song.wav" }])).toBe(false);
   });
 });

@@ -9,9 +9,13 @@ import { formatBytes } from "@/lib/repoSync";
 import { cx } from "@/lib/utils";
 import { AVAILABILITY_LABEL } from "@/features/assetNode/types";
 import { buildLocalIndex, isAudioAsset } from "@/features/assetNode/indexFolder";
+import { listVisibleCatalog } from "@/features/assetNode/catalog";
 import {
-  listAssets,
-  listNodes,
+  deleteIndexFromCloud,
+  patchCloudAvailability,
+  pushIndexToCloud,
+} from "@/features/assetNode/cloudSync";
+import {
   markNodeAvailability,
   nodeHandle,
   removeNode,
@@ -26,16 +30,16 @@ import type { CreatorNodeRecord, IndexedAssetRecord } from "@/features/assetNode
  */
 export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
   const platform = usePlatform();
-  const { showToast } = useSession();
+  const { userId, showToast } = useSession();
   const [nodes, setNodes] = useState<CreatorNodeRecord[]>([]);
   const [assets, setAssets] = useState<IndexedAssetRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
   const refresh = useCallback(async () => {
-    const [n, a] = await Promise.all([listNodes(), listAssets()]);
-    setNodes(n);
-    setAssets(a);
+    const merged = await listVisibleCatalog();
+    setNodes(merged.nodes);
+    setAssets(merged.assets);
     setLoading(false);
   }, []);
 
@@ -64,11 +68,24 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
       }
       const walked = await walkAuthorizedFolder(handle);
       const { node, assets: next } = buildLocalIndex(folder.name, walked.files);
+      node.kind = platform.kind;
       await saveIndex(node, next, handle);
+      let cloudOk = true;
+      if (userId) {
+        try {
+          await pushIndexToCloud(userId, node, next, platform.kind);
+        } catch {
+          cloudOk = false;
+        }
+      }
       await refresh();
       onChanged?.();
       const extra = walked.truncated ? " Index stopped at the file cap." : "";
-      showToast(`${next.length} files indexed as local only.${extra} Not published.`);
+      showToast(
+        cloudOk
+          ? `${next.length} files indexed as local only.${extra} Not published.`
+          : "Indexed on this device. Cloud catalog did not update.",
+      );
     } catch (err) {
       if (err instanceof PlatformError && (err.code === "cancelled" || err.code === "unsupported")) {
         if (err.code === "unsupported") {
@@ -84,15 +101,26 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
 
   async function forget(nodeId: string) {
     await removeNode(nodeId);
+    let cloudOk = true;
+    try {
+      await deleteIndexFromCloud(nodeId);
+    } catch {
+      cloudOk = false;
+    }
     await refresh();
     onChanged?.();
-    showToast("Removed from this device index. Files on disk were not deleted.");
+    showToast(
+      cloudOk
+        ? "Removed from this device index. Files on disk were not deleted."
+        : "Removed locally. Cloud catalog did not update.",
+    );
   }
 
   async function play(asset: IndexedAssetRecord) {
     const handle = await nodeHandle(asset.nodeId);
     if (!handle) {
       await markNodeAvailability(asset.nodeId, "device-offline");
+      void patchCloudAvailability(asset.nodeId, "device-offline").catch(() => undefined);
       await refresh();
       showToast("That folder is not available on this device right now.");
       return;
@@ -100,6 +128,7 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
     const allowed = await ensureDirectoryPermission(handle);
     if (!allowed) {
       await markNodeAvailability(asset.nodeId, "device-offline");
+      void patchCloudAvailability(asset.nodeId, "device-offline").catch(() => undefined);
       await refresh();
       showToast("Folder access is off. Index it again to restore.");
       return;
@@ -191,7 +220,7 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
                         {AVAILABILITY_LABEL[asset.availability]}
                       </span>
                       <span className="shrink-0 text-[11px] text-white/40">{formatBytes(asset.sizeBytes)}</span>
-                      {isAudioAsset(asset.mime, asset.name) ? (
+                      {asset.availability === "local-only" && isAudioAsset(asset.mime, asset.name) ? (
                         <button
                           type="button"
                           onClick={() => void play(asset)}
