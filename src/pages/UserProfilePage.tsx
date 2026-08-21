@@ -10,6 +10,8 @@ import { openFreeDm } from "@/lib/freeConnect";
 import { useMessagePopout } from "@/lib/messagePopout";
 import { FLAGS } from "@/lib/flags";
 import { ArtistStageProfile } from "@/features/profile/ArtistStageProfile";
+import { listCreationSessionLinks } from "@/features/provenance/provenanceApi";
+import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import { listHostStageNights, type StageNight } from "@/features/profile/stageNights";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
 import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
@@ -28,6 +30,7 @@ export function UserProfilePage() {
   const [projects, setProjects] = useState<ProfileProject[]>([]);
   const [posts, setPosts] = useState<ProjectPost[]>([]);
   const [projectLinks, setProjectLinks] = useState<ProjectLink[]>([]);
+  const [sessionLinks, setSessionLinks] = useState<WorkSessionLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<"follow" | "msg" | "book" | null>(null);
   const [requested, setRequested] = useState(false);
@@ -45,7 +48,8 @@ export function UserProfilePage() {
         ? api.listPublishedStorefrontPacks(48).then((all) => all.filter((x) => x.user_id === id)).catch(() => [])
         : Promise.resolve([] as StorefrontPackPublic[]),
       api.listProfileProjects(id).catch(() => [] as ProfileProject[]),
-    ]).then(async ([prof, d, s, c, nightsList, packList, projectList]) => {
+      listCreationSessionLinks(id).catch(() => [] as WorkSessionLink[]),
+    ]).then(async ([prof, d, s, c, nightsList, packList, projectList, linkList]) => {
       const details = await Promise.all(
         projectList.slice(0, 8).map((project) => api.getProjectDetail(project.id).catch(() => null)),
       );
@@ -59,6 +63,7 @@ export function UserProfilePage() {
       setProjects(projectList);
       setPosts(details.flatMap((detail) => detail?.posts ?? []));
       setProjectLinks(details.flatMap((detail) => detail?.links ?? []));
+      setSessionLinks(linkList);
       setLoading(false);
     }).catch(() => {
       if (alive) setLoading(false);
@@ -139,6 +144,7 @@ export function UserProfilePage() {
       projects={projects}
       posts={posts}
       projectLinks={projectLinks}
+      sessionLinks={sessionLinks}
       cosmetics={cosmetics}
       isMe={userId === id}
       requested={requested}

@@ -4,6 +4,8 @@ import { Download, ExternalLink, Folder } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import type { Drop } from "@/types";
 import { type StageWork, type WorkKind } from "./workKind";
+import { linksForAsset, linksForProject, type WorkSessionLink } from "@/features/provenance/workAttestation";
+import { WorkSessionMark } from "@/features/provenance/WorkSessionMark";
 
 export const WORK_RENDERERS: Record<WorkKind, true> = {
   audio: true,
@@ -14,27 +16,41 @@ export const WORK_RENDERERS: Record<WorkKind, true> = {
   link: true,
 };
 
-function shell(kind: WorkKind, children: ReactNode) {
+function shell(kind: WorkKind, children: ReactNode, mark?: ReactNode) {
   return (
     <article data-testid="stage-work" data-kind={kind} className="min-w-0">
       {children}
+      {mark}
     </article>
   );
+}
+
+function markFor(work: StageWork, sessionLinks: WorkSessionLink[] | undefined) {
+  if (!sessionLinks?.length) return null;
+  const links =
+    work.kind === "project"
+      ? linksForProject(sessionLinks, work.project?.id)
+      : linksForAsset(sessionLinks, work.drop?.assetId);
+  return <WorkSessionMark links={links} />;
 }
 
 function AudioWork({
   work,
   queue,
   onOpenAuthor,
+  sessionLinks,
 }: {
   work: StageWork;
   queue: Drop[];
   onOpenAuthor?: () => void;
+  sessionLinks?: WorkSessionLink[];
 }) {
+  const mark = markFor(work, sessionLinks);
   if (work.drop) {
     return shell(
       "audio",
       <TrackCard compact drop={{ ...work.drop }} queue={queue} onOpenAuthor={onOpenAuthor} />,
+      mark,
     );
   }
   if (!work.mediaUrl) return null;
@@ -44,6 +60,7 @@ function AudioWork({
       <p className="truncate text-sm font-semibold">{work.title}</p>
       <audio className="mt-2 w-full" controls preload="none" src={work.mediaUrl} />
     </div>,
+    mark,
   );
 }
 
@@ -51,15 +68,25 @@ export function WorkCard({
   work,
   audioQueue,
   onOpenAuthor,
+  sessionLinks,
 }: {
   work: StageWork;
   audioQueue: Drop[];
   onOpenAuthor?: () => void;
+  sessionLinks?: WorkSessionLink[];
 }) {
   const navigate = useNavigate();
+  const mark = markFor(work, sessionLinks);
 
   if (work.kind === "audio") {
-    return <AudioWork work={work} queue={audioQueue} onOpenAuthor={onOpenAuthor} />;
+    return (
+      <AudioWork
+        work={work}
+        queue={audioQueue}
+        onOpenAuthor={onOpenAuthor}
+        sessionLinks={sessionLinks}
+      />
+    );
   }
 
   if (work.kind === "image" && work.mediaUrl) {
@@ -69,6 +96,7 @@ export function WorkCard({
         <img src={work.mediaUrl} alt="" className="aspect-square w-full object-cover" />
         <figcaption className="truncate px-3 py-2 text-sm font-semibold">{work.title}</figcaption>
       </figure>,
+      mark,
     );
   }
 
@@ -79,6 +107,7 @@ export function WorkCard({
         <video className="aspect-video w-full bg-black" controls preload="metadata" src={work.mediaUrl} />
         <p className="truncate px-3 py-2 text-sm font-semibold">{work.title}</p>
       </div>,
+      mark,
     );
   }
 
@@ -99,6 +128,7 @@ export function WorkCard({
           <p className="truncate font-semibold">{work.title}</p>
         </div>
       ),
+      mark,
     );
   }
 
@@ -122,6 +152,7 @@ export function WorkCard({
           <p className="text-[11px] text-white/40">{work.project?.kind || "Project"}</p>
         </div>
       </button>,
+      mark,
     );
   }
 
@@ -140,6 +171,7 @@ export function WorkCard({
           <span className="block truncate text-[11px] text-white/40">{work.href}</span>
         </span>
       </a>,
+      mark,
     );
   }
 

@@ -4,12 +4,22 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-21
 **Branch:** `feat/creator-os-phase-1-authority`
-**HEAD:** `14e9dfd1` (Phase 4). Phase 5 Live Creation is uncommitted on this branch.
+**HEAD:** `9500c84e` (Phase 5). Phase 6 Creation Provenance MVP is uncommitted on this branch.
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Creator OS Phase 6 — Creation Provenance MVP — 2026-08-21
+
+Reuse sealed `provenance_sessions` / `.vprov`. No second ledger. Additive RPCs `associate_session_work` and `creation_session_links` applied on project `xixmneooyufbeftdfpcm`. A creator associates a stored Work (and optionally a Project) with a **sealed** live. SHA remains measured from `assets.sha256`; the Work/Project link is declared. Copy is locked to: **This file is associated with verified VYBZ creation sessions.** Never Human certified. Never a not-AI proof.
+
+Surfaces: Library **Validate Humanity** on an owned drop; Live **Session provenance** history of sealed nights; Stage File work cards show the claim when a public link exists.
+
+Browser walk of Validate Humanity bind: **Not measured**. Public work-card claim on a live profile: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **185 files / 932 tests**. `npm run build` pass.
 
 ## Creator OS Phase 5 — Live Creation — 2026-08-21
 
-Reuse LiveKit. No new SFU. No schema. Go Live now leads with **Screen** (window/display), then **Audio** (mic, persisted as `camera` + `ingest:audio` so the existing CHECK holds), then Camera / Both / VLink. Display publishes as LiveKit screen share. Audio-only uses speech mode and the existing `LiveVisualizer` on the watch stage. Identity, World/Circle, chat, Stage File, ATC, and `live_sessions` stay.
+Reuse LiveKit. No new SFU. No schema. Go Live now leads with **Screen** (window/display), then **Audio** (mic, persisted as `camera` + `ingest:audio` so the existing CHECK holds), then Camera / Both / VLink. Display publishes as LiveKit screen share. Audio-only uses speech mode and the existing `LiveVisualizer` on the watch stage. Identity, World/Circle, chat, Stage File, ATC, and `live_sessions` stay. Committed `9500c84e`.
 
 Browser walk on `http://localhost:5173/live` (signed-in, 2026-08-21): Go Live heading **Go live**; source tabs **Screen → Audio → Camera → Both → VLink**. Screen/window picker: **Not measured**. Audio-only live as a signed-in host: **Not measured**. Viewer subscribe: **Not measured**.
 

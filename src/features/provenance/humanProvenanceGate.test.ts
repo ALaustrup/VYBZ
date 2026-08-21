@@ -140,4 +140,32 @@ describe("human / session provenance", () => {
     expect(report).toContain("Does not prove the music was not AI-generated");
     expect(report).not.toMatch(/Human certified/i);
   });
+
+  it("associates a sealed session with a Work using defensible Validate Humanity copy", () => {
+    expect(HUMAN_PROVENANCE.validateHumanityIsAssociationNotAuthorship).toBe(true);
+    expect(HUMAN_PROVENANCE.exposesProvenanceHistory).toBe(true);
+    expect(HUMAN_PROVENANCE.associatesSessionWithWork).toBe(true);
+    const product = read("PRODUCT.md");
+    expect(product).toContain("This file is associated with verified VYBZ creation sessions.");
+    expect(product).toContain("must not say VYBZ mathematically proves no AI was involved");
+    const sql = read("supabase/migrations/20260821_0112_work_session_provenance.sql");
+    expect(sql).toContain("associate_session_work");
+    expect(sql).toContain("creation_session_links");
+    expect(sql).toContain("work_link");
+    expect(sql).toContain("'declared'");
+    expect(sql).not.toMatch(/stripe/i);
+    const api = read("src/features/provenance/provenanceApi.ts");
+    expect(api).toContain("associateSessionWork");
+    expect(api).toContain("listCreationSessionLinks");
+    const sheet = read("src/features/provenance/ValidateHumanitySheet.tsx");
+    expect(sheet).toContain("Validate Humanity");
+    expect(sheet).toContain("WORK_SESSION_CLAIM");
+    expect(sheet).not.toMatch(/Human certified/i);
+    expect(read("src/lib/trackActions.ts")).toContain("validate-humanity");
+    expect(read("src/pages/LivePage.tsx")).toContain("ProvenanceHistory");
+    expect(read("src/features/profile/WorkCard.tsx")).toContain("WorkSessionMark");
+    const copy = read("src/features/provenance/workAttestation.ts");
+    expect(copy).toContain("WORK_SESSION_CLAIM");
+    expect(copy).toContain("Does not prove the work was not AI-generated");
+  });
 });

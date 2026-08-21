@@ -8,15 +8,18 @@ import {
 import { GoLiveSheet } from "@/components/GoLiveSheet";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import * as api from "@/lib/api";
+import { useSession } from "@/store/session";
 import { FLAGS } from "@/lib/flags";
 import { cx } from "@/lib/utils";
 import { isMusicSource } from "@/features/broadcast/liveSource";
 import { WhosLivePanel } from "@/features/live/WhosLivePanel";
+import { ProvenanceHistory } from "@/features/provenance/ProvenanceHistory";
 import type { LiveSessionCard } from "@/types";
 
 type FilterTab = "all" | "talk" | "music";
 
 export function LivePage() {
+  const { userId } = useSession();
   const [params, setParams] = useSearchParams();
   const [items, setItems] = useState<LiveSessionCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,6 +159,7 @@ export function LivePage() {
             </button>
           }
         />
+        {userId && <ProvenanceHistory hostId={userId} />}
       </div>
 
       <GoLiveSheet open={goLive} onClose={() => setGoLive(false)} />

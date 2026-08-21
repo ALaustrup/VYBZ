@@ -15,6 +15,7 @@ import {
   Play,
   Radio,
   RefreshCw,
+  ShieldCheck,
   SlidersHorizontal,
   Star,
   Tags,
@@ -107,6 +108,7 @@ export type TrackActionHandlers = {
   rename: () => void;
   feature: () => void;
   report: () => void;
+  validateHumanity: () => void;
   requestDelete: () => void;
   /** Fetch this track's master into the working set, then open the desk. */
   openInTool: (tool: TrackToolDef) => void;
@@ -259,6 +261,14 @@ export function buildTrackActions(
     label: "Manage",
     actions: isOwner
       ? [
+          {
+            id: "validate-humanity",
+            label: "Validate Humanity",
+            icon: ShieldCheck,
+            keepOpen: true,
+            disabledReason: !hasAsset ? NO_ASSET : !online ? OFFLINE : undefined,
+            onSelect: handlers.validateHumanity,
+          },
           {
             id: "rename",
             label: "Rename",

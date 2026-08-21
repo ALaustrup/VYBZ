@@ -196,7 +196,17 @@ export const HUMAN_PROVENANCE = {
   assetToSessionLinkIsDeclared: true,
   /** C2PA on the file is not inferred from a missing ledger row. */
   c2paOnFileIsNotInferred: true,
+  /** Validate Humanity is an association with sealed sessions, not authorship proof. */
+  validateHumanityIsAssociationNotAuthorship: true,
+  /** Hosts can read their sealed session history. */
+  exposesProvenanceHistory: true,
+  /** A Work or Project may be declared as associated with a sealed live. */
+  associatesSessionWithWork: true,
 } as const;
+
+/** Exact MVP sentence. Never upgraded to a not-AI or Human-certified claim. */
+export const WORK_SESSION_CLAIM =
+  "This file is associated with verified VYBZ creation sessions." as const;
 
 export const PROVENANCE_STRENGTHS = ["thin", "full"] as const;
 export type ProvenanceStrength = (typeof PROVENANCE_STRENGTHS)[number];

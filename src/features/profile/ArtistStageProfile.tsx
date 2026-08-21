@@ -27,6 +27,7 @@ import { accentWashStyle, CosmeticAvatarShell, Flair, type ResolvedCosmetics } f
 import { formatVcAddress } from "@/lib/vc";
 import { cx, timeAgo } from "@/lib/utils";
 import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
+import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
 import type { PublicProfile } from "@/lib/api";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
@@ -45,6 +46,7 @@ export function ArtistStageProfile({
   projects,
   posts,
   projectLinks,
+  sessionLinks,
   cosmetics,
   isMe,
   requested,
@@ -63,6 +65,7 @@ export function ArtistStageProfile({
   projects: ProfileProject[];
   posts: ProjectPost[];
   projectLinks: ProjectLink[];
+  sessionLinks: WorkSessionLink[];
   cosmetics: ResolvedCosmetics;
   isMe: boolean;
   requested: boolean;
@@ -272,6 +275,7 @@ export function ArtistStageProfile({
                     <WorkCard
                       work={work}
                       audioQueue={drops.map((d) => ({ ...d, authorUsername: profile.username }))}
+                      sessionLinks={sessionLinks}
                       onOpenAuthor={isMe ? () => navigate("/") : undefined}
                     />
                   </div>

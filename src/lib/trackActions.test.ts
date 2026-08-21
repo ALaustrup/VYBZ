@@ -64,6 +64,7 @@ function handlers(): TrackActionHandlers {
     rename: vi.fn(),
     feature: vi.fn(),
     report: vi.fn(),
+    validateHumanity: vi.fn(),
     requestDelete: vi.fn(),
     openInTool: vi.fn(),
   };
@@ -82,6 +83,7 @@ describe("buildTrackActions — ownership", () => {
     const got = ids(buildTrackActions(ctx({ isOwner: true }), handlers()));
     expect(got).toContain("rename");
     expect(got).toContain("feature");
+    expect(got).toContain("validate-humanity");
     expect(got).toContain("delete");
   });
 
@@ -89,6 +91,7 @@ describe("buildTrackActions — ownership", () => {
     const got = ids(buildTrackActions(ctx({ isOwner: false, viewerId: "user-b" }), handlers()));
     expect(got).not.toContain("rename");
     expect(got).not.toContain("feature");
+    expect(got).not.toContain("validate-humanity");
     expect(got).not.toContain("delete");
   });
 
@@ -109,6 +112,7 @@ describe("buildTrackActions — availability reasons", () => {
   it("disables download with a reason when no asset is attached", () => {
     const groups = buildTrackActions(ctx({ hasAsset: false }), handlers());
     expect(find(groups, "download")?.disabledReason).toMatch(/file to download/i);
+    expect(find(groups, "validate-humanity")?.disabledReason).toMatch(/file to download/i);
   });
 
   it("disables network actions when offline and leaves local playback enabled", () => {

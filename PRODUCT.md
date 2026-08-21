@@ -114,7 +114,7 @@ A sealed public live may emit a downloadable package (`.vprov`) and an in-app ve
 - Copy is **Session provenance**, never “Human certified.”
 - **No “not AI” proof.** Presence, ATC, and a hash cannot measure that.
 - An audio SHA is measured only from stored bytes; a client DAW digest is declared; missing reads **Not measured**. C2PA ledger events are counted; the file C2PA box is **Not measured**.
-- “Validate Humanity” associates a file with verified VYBZ creation sessions. It does not claim omniscient knowledge of work outside the observable system.
+- “Validate Humanity” associates a file with verified VYBZ creation sessions. It does not claim omniscient knowledge of work outside the observable system. The MVP sentence is: “This file is associated with verified VYBZ creation sessions.” It must not say VYBZ mathematically proves no AI was involved.
 
 ## 8. Speech
 

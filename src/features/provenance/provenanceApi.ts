@@ -3,6 +3,7 @@ import type { ProvenanceStrength } from "@/product/invariants";
 import { bindStoredAsset, isSha256Hex, type StoredAudioBind } from "./audioBind";
 import { buildVprovZip, type SealedProvenance } from "./buildVprov";
 import type { DeclaredHostSignals } from "./hostSignals";
+import type { WorkSessionLink } from "./workAttestation";
 
 const byLive = new Map<string, string>();
 
@@ -198,6 +199,75 @@ export async function bindSessionStoredAudio(
     assetId: r.audio_asset_id,
     c2paLedgerEvents: r.c2pa_ledger_events,
   });
+}
+
+function asWorkLink(r: Record<string, unknown>): WorkSessionLink | null {
+  const liveSessionId = typeof r.liveSessionId === "string" ? r.liveSessionId : null;
+  if (!liveSessionId) return null;
+  const strength = r.strength === "full" || r.strength === "thin" ? r.strength : null;
+  return {
+    liveSessionId,
+    assetId: typeof r.assetId === "string" && r.assetId.length > 0 ? r.assetId : null,
+    projectId: typeof r.projectId === "string" && r.projectId.length > 0 ? r.projectId : null,
+    strength,
+    sealedAt: typeof r.sealedAt === "string" ? r.sealedAt : null,
+    atcBurned: Number(r.atcBurned ?? 0),
+  };
+}
+
+function linksFromManifestRows(
+  rows: Array<{ live_session_id: string; strength: string | null; sealed_at: string | null; atc_burned: number | null; manifest: unknown }>,
+): WorkSessionLink[] {
+  return rows.flatMap((row) => {
+    const m = (row.manifest ?? {}) as Record<string, unknown>;
+    const link = asWorkLink({
+      liveSessionId: row.live_session_id,
+      assetId: m.audio_asset_id,
+      projectId: m.profile_project_id,
+      strength: row.strength,
+      sealedAt: row.sealed_at,
+      atcBurned: row.atc_burned,
+    });
+    return link ? [link] : [];
+  });
+}
+
+export async function listCreationSessionLinks(hostId: string): Promise<WorkSessionLink[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase.rpc("creation_session_links", { p_host: hostId });
+  if (!error && Array.isArray(data)) {
+    return data.flatMap((row) => {
+      const link = asWorkLink((row ?? {}) as Record<string, unknown>);
+      return link ? [link] : [];
+    });
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (auth.user?.id !== hostId) return [];
+  const { data: rows } = await supabase
+    .from("provenance_sessions")
+    .select("live_session_id, strength, sealed_at, atc_burned, manifest")
+    .eq("host_id", hostId)
+    .eq("status", "sealed")
+    .order("sealed_at", { ascending: false });
+  return linksFromManifestRows(rows ?? []);
+}
+
+export async function associateSessionWork(
+  liveSessionId: string,
+  input: { assetId?: string | null; projectId?: string | null },
+): Promise<boolean> {
+  if (!supabase) return false;
+  const { data, error } = await supabase.rpc("associate_session_work", {
+    p_live: liveSessionId,
+    p_asset: input.assetId ?? null,
+    p_project: input.projectId ?? null,
+  });
+  if (!error && data && (data as { ok?: boolean }).ok === true) return true;
+  if (input.assetId) {
+    const bound = await bindSessionStoredAudio(liveSessionId, input.assetId);
+    return Boolean(bound?.hex);
+  }
+  return false;
 }
 
 export async function downloadVprovPackage(liveSessionId: string): Promise<boolean> {
