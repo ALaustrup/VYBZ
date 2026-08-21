@@ -41,7 +41,8 @@ type SurfaceRule = {
 };
 
 const LABELS: SurfaceRule[] = [
-  { test: (p) => p === "/" || p === "/start" || p.startsWith("/releases"), id: "home", label: "Workspace", product: "home", mode: "professional" },
+  { test: (p) => p === "/", id: "you", label: "Me", product: "artist", mode: "audience" },
+  { test: (p) => p === "/workspace" || p === "/start" || p.startsWith("/releases"), id: "home", label: "Workspace", product: "home", mode: "professional" },
   { test: (p) => p.startsWith("/feed"), id: "feed", label: "Network", mode: "audience" },
   { test: (p) => p.startsWith("/discover"), id: "discover", label: "Discover", mode: "audience" },
   { test: (p) => p.startsWith("/opportunities"), id: "opportunities", label: "Gigs", mode: "audience" },
@@ -103,9 +104,9 @@ export const MODE_LABEL: Record<AppMode, string> = {
 
 export const MODE_HOME: Record<AppMode, string> = {
   network: "/connect",
-  home: "/",
+  home: "/workspace",
   studio: "/projects",
-  you: "/profile",
+  you: "/",
 };
 
 export function modeForPath(pathname: string): AppMode {
@@ -115,6 +116,9 @@ export function modeForPath(pathname: string): AppMode {
     pathname.startsWith("/discover")
   ) {
     return "network";
+  }
+  if (pathname.startsWith("/workspace") || pathname === "/start" || pathname.startsWith("/releases")) {
+    return "home";
   }
   if (
     pathname.startsWith("/projects") ||
@@ -132,6 +136,7 @@ export function modeForPath(pathname: string): AppMode {
     return "studio";
   }
   if (
+    pathname === "/" ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/library") ||
     pathname.startsWith("/u/") ||

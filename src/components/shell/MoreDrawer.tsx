@@ -115,7 +115,7 @@ export function MoreDrawer({ open, onClose }: { open: boolean; onClose: () => vo
               </div>
               <button
                 type="button"
-                onClick={() => go("/?tab=wallet")}
+                onClick={() => go("/workspace?tab=wallet")}
                 className="mat-surface mt-3 flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-left transition active:scale-[0.99]"
                 aria-label={`Vc balance ${formatVc(vc)}. Open wallet.`}
               >

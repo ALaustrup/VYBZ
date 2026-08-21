@@ -105,7 +105,7 @@ export function AccountMenu() {
               <span className="forge-chip flex h-8 w-8 text-white/70">
                 <UserRound className="h-4 w-4" />
               </span>
-              Workspace
+              My VYBZ
             </button>
 
             <button

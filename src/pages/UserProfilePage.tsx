@@ -16,9 +16,17 @@ import { listHostStageNights, type StageNight } from "@/features/profile/stageNi
 import type { StorefrontPackPublic } from "@/features/storefront/types";
 import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
 
+/** Signed-in home — the owner's VYBZ, same Stage File as `/u/:id`. */
+export function MyVybzHome() {
+  const { userId } = useSession();
+  if (!userId) return null;
+  return <UserProfilePage id={userId} />;
+}
+
 /** Public Stage File — live nights first, then works of any kind. */
-export function UserProfilePage() {
-  const { id = "" } = useParams();
+export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
+  const { id: paramId = "" } = useParams();
+  const id = idProp || paramId;
   const { userId, showToast } = useSession();
   const { openThread } = useMessagePopout();
   const [p, setP] = useState<api.PublicProfile | null>(null);
@@ -37,6 +45,10 @@ export function UserProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
     let alive = true;
     Promise.all([
       api.getPublicProfile(id),

@@ -80,7 +80,8 @@ export function isPlaceholderPath(path: string, flags?: { storefront: boolean })
  * same dishonesty as offering a placeholder.
  */
 export const WORKING_DESTINATIONS: readonly Destination[] = [
-  { path: "/", title: "Workspace", keywords: ["home", "profile", "dashboard", "start", "work"] },
+  { path: "/", title: "My VYBZ", keywords: ["home", "profile", "me", "identity", "start"] },
+  { path: "/workspace", title: "Workspace", keywords: ["dashboard", "work", "hub"] },
   { path: "/make", title: "Make pack", keywords: ["upload", "pipeline", "sample pack", "flow"] },
   { path: "/make/dashboard", title: "Sales", keywords: ["orders", "sales", "dashboard"] },
   { path: "/library", title: "Library", keywords: ["works", "tracks", "media", "files", "catalog", "assets"] },
@@ -133,7 +134,7 @@ export function availableDestinations(flags: { storefront: boolean }): Destinati
  */
 export const REDIRECTS: readonly { from: string; to: string; flag?: "storefront" }[] = [
   { from: "/studio", to: "/projects" },
-  { from: "/activity", to: "/" },
+  { from: "/activity", to: "/workspace" },
   { from: "/profile", to: "/" },
 ] as const;
 

@@ -99,7 +99,7 @@ export function TrackActionMenu({
           rate: () => onRate?.(),
           openArtist: () => {
             if (!drop.authorId) return;
-            if (isOwner) navigate("/?tab=you");
+            if (isOwner) navigate("/");
             else navigate(`/u/${drop.authorId}`);
           },
           openTrack: () => navigate(`/track/${drop.id}`),

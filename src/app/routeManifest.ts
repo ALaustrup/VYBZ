@@ -10,7 +10,8 @@ export type SuiteRoute = {
 
 /** Canonical Suite Genesis routes. */
 export const SUITE_ROUTES: readonly SuiteRoute[] = [
-  { path: "/", productId: "home", title: "Workspace", nav: true },
+  { path: "/", productId: "artist", title: "My VYBZ", nav: true },
+  { path: "/workspace", productId: "home", title: "Workspace" },
   { path: "/start", productId: "home", title: "Start" },
   { path: "/releases", productId: "prepare", title: "Finalize", nav: true },
   { path: "/release/:id", productId: "prepare", title: "Release" },
@@ -59,7 +60,7 @@ export const LEGACY_REDIRECTS: readonly { from: string; to: string }[] = [
   { from: "/projects/:id", to: "/studio/:id" },
   { from: "/tools/packs", to: "/market" },
   { from: "/wallet", to: "/wallet" },
-  { from: "/activity", to: "/?tab=live" },
+  { from: "/activity", to: "/workspace?tab=live" },
 ] as const;
 
 function matchPattern(pattern: string, pathname: string): boolean {

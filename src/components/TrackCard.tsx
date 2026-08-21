@@ -94,7 +94,7 @@ export function TrackCard({
       return;
     }
     if (!d.authorId) return;
-    if (userId && d.authorId === userId) navigate("/?tab=you");
+    if (userId && d.authorId === userId) navigate("/");
     else navigate(`/u/${d.authorId}`);
   }
 

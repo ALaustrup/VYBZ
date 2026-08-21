@@ -48,13 +48,13 @@ export const ALPHA_GUIDE_STEPS = [
   },
   {
     id: "suite",
-    title: "Your workspace, {name}",
-    body: "Workspace is where your work lives. Library holds it. Live is creation in real time. Network is other creators.",
+    title: "Your VYBZ, {name}",
+    body: "Me is your home. Library holds work. Live is creation in real time. Network is other people.",
     highlights: [
-      { label: "Workspace", blurb: "Your work, here." },
+      { label: "Me", blurb: "Your VYBZ." },
       { label: "Library", blurb: "Your works and assets." },
       { label: "Live", blurb: "Who is creating right now." },
-      { label: "Network", blurb: "Public work from other creators." },
+      { label: "Network", blurb: "People and public work." },
     ],
   },
   {

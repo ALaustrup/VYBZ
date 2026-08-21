@@ -33,7 +33,7 @@ import { ConnectPage } from "@/pages/ConnectPage";
 import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { ProfileEditPage } from "@/pages/ProfileEditPage";
-import { UserProfilePage } from "@/pages/UserProfilePage";
+import { MyVybzHome, UserProfilePage } from "@/pages/UserProfilePage";
 import { ProjectPage } from "@/pages/ProjectPage";
 import { MessagesPage } from "@/pages/MessagesPage";
 import { NotificationsPage } from "@/pages/NotificationsPage";
@@ -205,11 +205,12 @@ export function App() {
       <AnimatePresence mode="wait" initial={false}>
         <PageTransition routeKey={location.pathname}>
           <Routes location={location}>
-        <Route path="/" element={<ProfilePage />} />
+        <Route path="/" element={<MyVybzHome />} />
+        <Route path="/workspace" element={<ProfilePage />} />
         <Route path="/enter" element={<Navigate to="/" replace />} />
         <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/activity" element={<Navigate to="/?tab=live" replace />} />
+        <Route path="/activity" element={<Navigate to="/workspace?tab=live" replace />} />
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
         <Route path="/projects" element={<ProjectsPage onBulkUpload={() => setComposeOpen(true)} />} />
@@ -387,7 +388,7 @@ function PublicDocShell() {
   );
 }
 
-/** Map legacy /profile?tab=â€¦ onto the dashboard home. */
+/** Map legacy /profile?tab=… onto the archived Workspace. */
 function LegacyProfileRedirect() {
   const [params] = useSearchParams();
   const tab = params.get("tab");
@@ -397,5 +398,5 @@ function LegacyProfileRedirect() {
     : tab === "live" || tab === "you" || tab === "listen" || tab === "wallet" || tab === "hub" || tab === "connect"
       ? tab
       : "hub";
-  return <Navigate to={`/?tab=${mapped}`} replace />;
+  return <Navigate to={`/workspace?tab=${mapped}`} replace />;
 }

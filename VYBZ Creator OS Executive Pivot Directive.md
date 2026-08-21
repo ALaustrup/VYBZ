@@ -1,1723 +1,1163 @@
-# VYBZ CREATOR OS
-## Executive Product Pivot, Architecture Directive, and Phased Implementation Order
+VYBZ MASTER PLAN
+The Living Profile Operating System
+Product thesis
+VYBZ is a living social identity that becomes a creative operating system when you create.
 
-### STATUS: EXECUTIVE AUTHORIZATION
-### PRODUCT: VYBZ
-### NEW PRIMARY IDENTITY: THE CREATOR OPERATING SYSTEM
-### PRIORITY: MAXIMUM
-### DEVELOPMENT MODE: RAPID, PRESERVATION-FIRST, COST-CONSTRAINED
-### PRIMARY OBJECTIVE: SHIP THE SMALLEST REAL VERSION OF THIS VISION AS QUICKLY AS POSSIBLE WITHOUT DESTROYING THE SUBSTANTIAL WORK ALREADY COMPLETED
+That sentence resolves almost everything.
 
----
+A person does not enter VYBZ and choose between Dashboard, Creator Studio, Library, Profile, Social, Workspace, Live, Store, Tools, and twenty other doors.
 
-# 0. EXECUTIVE ORDER
+They enter themselves.
 
-Greetings.
+Their VYBZ is their home.
 
-This directive formally authorizes a major product refocus of VYBZ.
+Their profile is simultaneously:
 
-You are to perform a comprehensive analysis of the repository, existing documentation, application architecture, frontend, backend, database, desktop client, mobile client, infrastructure, routes, feature flags, services, schemas, APIs, utilities, creator-facing tools, social functionality, streaming functionality, upload systems, media systems, and all other relevant project assets in order to determine the most efficient path toward the product defined below.
+To its owner: a private dashboard, control center, library gateway, communication center, publishing surface, customization canvas, project manager, live studio, storefront manager, and overview of everything they have created.
 
-Do not treat this as a request for brainstorming.
+To everybody else: a living social profile, portfolio, gallery, catalog, interactive showcase, livestream venue, social presence, and doorway into that person's creative universe.
 
-Treat this as an **engineering and product execution directive**.
+Same identity.
 
-VYBZ has undergone multiple changes in direction. That history is acknowledged rather than ignored. Approximately **$7,000 has already been invested attempting to make this project viable**, meaning development from this point forward must aggressively favor:
+Same underlying data.
 
-1. reuse over replacement;
-2. extension over reinvention;
-3. local-first architecture over expensive infrastructure;
-4. existing services over new vendors;
-5. incremental migrations over rewrites;
-6. reversible changes over destructive changes;
-7. measurable functionality over conceptual complexity;
-8. shipping useful product surfaces over endless architectural preparation.
+Same surface.
 
-The repository contains substantial existing work.
+Different permissions and perspective.
 
-Assume nothing is useless until you have inspected it.
+That is the architecture.
 
-At the same time, do not preserve a bad architecture merely because it exists.
+PART I. THE VYBZ CONSTITUTION
+These are the invariants that should be checked against every design decision, Cursor/Grok/agent plan, route change, feature, component, and migration.
 
-The objective is to **extract maximum value from everything already built while changing the center of gravity of the entire product.**
+1. ONE IDENTITY
+A person has one VYBZ identity.
 
----
+They are not required to declare themselves:
 
-# 1. THE NEW PRODUCT DEFINITION
+musician
 
-VYBZ is to become:
+producer
 
-> **The operating system for creators.**
+artist
 
-Not merely musicians.
+developer
 
-Not merely producers.
+gamer
 
-Not merely visual artists.
+streamer
 
-Not merely developers.
+photographer
 
-Not merely livestreamers.
+fan
 
-VYBZ should eventually support essentially any human whose creative work can be represented digitally.
+creator
 
-Examples include:
+consumer
 
-- musicians;
-- music producers;
-- sound designers;
-- recording artists;
-- DJs;
-- visual artists;
-- illustrators;
-- photographers;
-- filmmakers;
-- animators;
-- 3D artists;
-- game designers;
-- game developers;
-- software developers;
-- writers;
-- designers;
-- digital sculptors;
-- video editors;
-- VFX artists;
-- modders;
-- creators of sample packs;
-- creators of presets;
-- creators of plugins;
-- creators of digital assets;
-- mixed-media creators;
-- emerging creator categories that do not fit neatly into traditional platforms.
+Those can exist as optional descriptors, interests, disciplines, searchable metadata, or self-expression.
 
-The architecture must therefore stop assuming that the fundamental unit of VYBZ is a song.
+They are never identity prisons.
 
-The fundamental unit is:
+Someone can join VYBZ just to follow people, comment, chat, discover things, watch streams, build collections, and participate socially.
 
-> **Creative Work.**
+If six months later they upload a photograph or build a game, nothing about their account needs to transform into some separate “Creator Account.”
 
-A Creative Work may contain one or many digital assets.
+They were already a VYBZ user.
 
-A Creative Work may be:
+Creation simply gives their VYBZ more things to express.
 
-- private;
-- local;
-- shared privately;
-- publicly showcased;
-- streamed while being created;
-- versioned;
-- collaboratively referenced;
-- published;
-- sold later;
-- validated through creator provenance;
-- included in collections;
-- attached to projects;
-- displayed through a Creator Profile.
+2. ONE PROFILE
+There is no philosophical separation between:
 
-This abstraction is critical.
+Profile and Dashboard.
 
-Build the system around creators, projects, works, assets, versions, sessions, provenance, and relationships.
+They are two perspectives on the same living object.
 
-Music-specific functionality should become a specialization of this larger system rather than the foundation upon which every creator must conform.
+OWNER LOOKING AT THEIR VYBZ
+        ↓
+DASHBOARD / CONTROL MODE
 
----
+OTHER PERSON LOOKING AT THAT VYBZ
+        ↓
+PROFILE / EXPERIENCE MODE
+This should become one of the most important architectural laws in the product.
 
-# 2. CORE PRODUCT PHILOSOPHY
+3. ONE LIBRARY
+Every creative object ultimately originates from the person's Library.
 
-VYBZ should provide something modern creator platforms have largely failed to provide:
+Upload it once.
 
-> **One environment where a creator can organize their work, control their files, demonstrate their process, build their identity, communicate with other creators, share selectively, publish selectively, and maintain ownership of the underlying creative material.**
+Register it once.
 
-VYBZ should feel less like another social network and more like a **creative operating environment with a social layer built into it.**
+Organize it once.
 
-This distinction is fundamental.
+Then decide where it appears.
 
-The application should prioritize:
+A photograph might appear in three galleries.
 
-**Create → Organize → Version → Preview → Validate → Share → Showcase → Connect**
+A track might appear inside an album, a game soundtrack, a livestream replay, and a featured profile section.
 
-Social functionality exists around creation.
+A 3D object might belong to a game project and also appear individually in a portfolio.
 
-Creation does not exist merely to generate social content.
+Do not duplicate the underlying asset just because it appears in multiple places.
 
----
+The existing plan already moved VYBZ toward generalized Projects, Works, Assets, Versions, Collections, Live Sessions, and publications rather than treating every object as a song. 
 
-# 3. NON-NEGOTIABLE PRESERVATION RULE
 
-## DO NOT DELETE EXISTING FUNCTIONALITY SIMPLY BECAUSE IT DOES NOT CURRENTLY FIT THE NEW DEFAULT EXPERIENCE.
+That foundation remains correct.
 
-We have invested too much time and money into the existing application to destroy potentially useful work during another pivot.
+4. PROFILE IS THE PRODUCT
+The profile cannot be relegated to /profile while some generic dashboard becomes the “real app.”
 
-Instead, classify existing functionality using the following states:
+The profile is the real app.
 
-### KEEP
-Directly useful to Creator OS.
+Everything else should emerge from it.
 
-### ADAPT
-Useful technology or functionality requiring reframing.
+5. COMMUNITY FIRST
+VYBZ is social even for someone who never publishes a creative work.
 
-### INTEGRATE
-Existing capability that should become part of another Creator OS surface.
+Messaging, following, comments, VYBs, collections, discovery, livestream participation, sharing, and interaction are first-class capabilities.
 
-### HIDE
-Functional but not currently relevant to the default product experience.
+The prior directive already established simple social primitives such as Profiles, Follow, VYB, Live, chat, private communication, shares, collections, and activity, while explicitly rejecting engagement farming and manipulative notification systems. 
 
-### ARCHIVE
-Code that should remain available but should not participate in active product execution.
 
-### DEPRECATE
-Functionality proven obsolete or incompatible.
+Keep that philosophy.
 
-### REMOVE
-Allowed only when the code is objectively dangerous, irreparably broken, security-sensitive, duplicated after migration, or demonstrably unnecessary.
+6. CREATIVE WORK IS UNIVERSAL
+The unit is not a song.
 
-Removal must never be the default response.
+It is Creative Work. 
 
-When functionality is removed from the visible application, prefer:
 
-- route isolation;
-- feature flags;
-- configuration flags;
-- archived modules;
-- documented deprecation;
-- reversible commits.
+VYBZ must eventually understand:
 
-The repository must not be bulldozed because product direction changed.
+audio, music, albums, sample packs, presets, photography, illustrations, animation, video, films, writing, PDFs, 3D objects, scenes, games, applications, websites, source projects, plugins, mods, downloadable assets, mixed media, livestream sessions, interactive media, and creative forms we haven't named yet.
 
-Human beings have apparently already tried that strategy enough times.
+7. TOOLS SERVE WORK. WORK DOES NOT SERVE TOOLS.
+Pack Maker is not a kingdom.
 
----
+Correct is not a kingdom.
 
-# 4. VISUAL DESIGN AUTHORITY
+Art Check is not a kingdom.
 
-The **existing VYBZ interface theme is now the visual foundation of the Creator OS.**
+Stem Maker is not a kingdom.
 
-Do not perform another wholesale visual redesign.
+The Store is not a kingdom.
 
-Do not replace the design system simply because a new product direction exists.
+They are capabilities.
 
-Do not introduce an unrelated SaaS aesthetic.
+A Work opens the appropriate tools when required.
 
-Do not convert the application into a generic dashboard template.
+This single rule should annihilate an enormous amount of UI clutter.
 
-Instead:
+8. REFINE BEFORE REPLACING
+Approximately $7,000 had already been invested when the prior directive was written. It explicitly established reuse over replacement, extension over reinvention, incremental migration, reversible changes, and existing infrastructure before new services. 
 
-> **Evolve the existing VYBZ design language into a sophisticated desktop-oriented Creator OS.**
 
-You are explicitly authorized to:
+That rule survives untouched.
 
-- expand the existing design system;
-- create new components;
-- refine existing components;
-- improve spacing;
-- improve hierarchy;
-- improve typography;
-- improve responsiveness;
-- add motion;
-- add contextual menus;
-- add windowing concepts;
-- add panes;
-- add inspectors;
-- add docks;
-- add workspaces;
-- add adaptive layouts;
-- add creator-specific visual modes;
-- introduce new tokens where genuinely necessary;
-- improve accessibility;
-- reorganize existing interface components.
+No more bulldozing VYBZ every time its product definition becomes clearer.
 
-However, all additions must feel genetically related to the current VYBZ interface.
+9. CUSTOMIZATION WITHOUT CHAOS
+Profiles should be deeply expressive.
 
-The goal is evolution, not replacement.
+But VYBZ should provide structured freedom, not arbitrary code execution.
 
----
+Users manipulate:
 
-# 5. THE CREATOR OS EXPERIENCE
+modules
 
-The desktop and large-screen experience should become the richest implementation of VYBZ.
+layouts
 
-Think in terms of a modern creative workstation rather than a website.
+sizing
 
-The VYBZ environment should gradually support concepts such as:
+typography
 
-- creator workspace;
-- project navigator;
-- library;
-- asset browser;
-- collections;
-- activity;
-- notifications;
-- profile;
-- live state;
-- communication;
-- tools;
-- previews;
-- file inspector;
-- metadata inspector;
-- version history;
-- sharing controls;
-- provenance information;
-- publishing controls.
+backgrounds
 
-Do not copy an existing operating system literally.
+media
 
-Do not build fake draggable windows simply for visual novelty.
+motion
 
-Use workstation concepts only where they improve usability.
+spacing
 
-The experience should remain fast, understandable, and visually restrained.
+orientation
 
----
+section behavior
 
-# 6. CREATOR PROFILE: THE LIVING PORTFOLIO
+themes
 
-The Creator Profile becomes one of VYBZ's defining surfaces.
+featured content
 
-It should not merely be a biography page.
+interactive elements
 
-It becomes the creator's **living digital portfolio and presence layer.**
+rather than injecting unrestricted JavaScript or raw application-breaking CSS.
 
-A profile should eventually be capable of presenting:
+10. PRIVATE BY DEFAULT, PUBLIC BY INTENT
+A file entering VYBZ does not automatically become content.
 
-- identity;
-- avatar;
-- banner;
-- description;
-- creator disciplines;
-- featured projects;
-- creative works;
-- collections;
-- releases;
-- images;
-- audio;
-- video;
-- games;
-- software;
-- downloadable works;
-- external references;
-- current activity;
-- livestream state;
-- previous creative sessions;
-- VYBs;
-- followers;
-- followed creators;
-- provenance badges;
-- validation records;
-- creator timeline.
+The previous architecture explicitly made original creative assets private by default, with explicit sharing and publishing, scoped authorization, revocable access, and separation between authorized assets and arbitrary filesystem access. 
 
-Profiles should be **dynamic**.
 
-Different creators should be capable of emphasizing different media without requiring entirely different products.
+Keep that absolute distinction.
 
-A musician's profile might foreground a player.
+11. SOCIAL SIGNALS SHOULD INFORM, NOT MANIPULATE
+Notifications tell people something actually happened.
 
-A visual artist's might foreground a gallery.
+They do not manufacture urgency to increase session length.
 
-A game developer's might foreground builds, screenshots, repositories, videos, or playable media.
+12. THE INTERFACE MUST GET QUIETER AS VYBZ GETS MORE POWERFUL
+This is critical.
 
-A filmmaker's might foreground video.
+More capability must not equal more permanent navigation.
 
-A developer's might foreground projects, builds, releases, documentation, and demonstrations.
+VYBZ should become enormously powerful while appearing increasingly simple.
 
-Build a modular profile composition model instead of hardcoding a music profile and pretending everyone else is a musician with strange file extensions.
+PART II. THE CORE INTERACTION MODEL
+There should effectively be two render states of one profile.
 
----
+OWNER MODE
+When I open my VYBZ, I see my profile exactly as the world sees its structure, but with private intelligence layered over it.
 
-# 7. THE UNIVERSAL CREATIVE ASSET MODEL
+I can see:
 
-Before expanding functionality, establish or adapt a generalized conceptual model.
+unpublished projects
 
-Prefer extending the existing schema when practical.
+drafts
 
-Do not initiate a database rewrite merely to produce aesthetically pleasing entity names.
+private works
 
-Conceptually VYBZ should understand:
+editing controls
 
-## Creator
-The account or identity controlling creative work.
+visibility settings
 
-## Workspace
-The creator's private operating environment.
+notifications
 
-## Project
-A logical creative undertaking.
+messages
 
-Examples:
+comments awaiting attention
 
-- album;
-- game;
-- illustration series;
-- application;
-- film;
-- sample pack;
-- plugin;
-- photography collection.
+profile analytics where legitimate
 
-## Work
-A creator-facing item representing something meaningful.
+upload controls
 
-## Asset
-An actual file or locally referenced digital object.
+project status
 
-## Version
-A revision of a Work or Asset.
+local/device availability
 
-## Collection
-A creator-defined grouping.
+publishing state
 
-## Live Session
-A recorded creation or broadcast session.
+storefront management
 
-## Provenance Record
-Evidence linking creative activity to Works, Assets, and Sessions.
+customization controls
 
-## Publication
-A publicly exposed representation of a Work.
+But these controls should appear contextually.
 
-## Share
-Authorization granting another user or the public access.
+Not twenty permanent panels.
 
-Do not force this exact schema if the current database already expresses these concepts efficiently.
+Hover something.
 
-The objective is semantic capability, not schema churn.
+Select something.
 
----
+Long-press something.
 
-# 8. LOCAL-FIRST AND USER-HOSTED STORAGE
+Enter Edit Mode.
 
-One of the central architectural goals of this pivot is to dramatically reduce centralized file-storage cost.
+Open its inspector.
 
-The user's original creative files should, whenever practical, remain under the creator's control.
+The power emerges when needed.
 
-VYBZ should move toward a:
+PART III. VISITOR MODE
+Someone visiting another person's VYBZ should not feel like they're looking at somebody else's dashboard.
 
-> **local-first, user-hosted, peer-assisted creative asset architecture.**
+They enter a digital world belonging to that person.
 
-The VYBZ cloud should primarily function as the:
+It might open with:
 
-- authentication plane;
-- identity plane;
-- social plane;
-- metadata plane;
-- discovery plane;
-- permissions plane;
-- coordination plane;
-- signaling plane;
-- provenance registry;
-- lightweight control plane.
+a cinematic banner
 
-The creator's desktop or mobile device can function as an:
+a live broadcast
 
-> **Asset Node**
+a photograph
 
-The Asset Node may expose creator-authorized material to VYBZ without requiring every original file to be permanently stored on centralized VYBZ infrastructure.
+a looping 3D environment
 
----
+an album
 
-# 9. DO NOT IMPLEMENT "P2P" AS A BUZZWORD
+an animation
 
-Before selecting a networking architecture, analyze:
+a playable game
 
-- browser restrictions;
-- NAT traversal;
-- WebRTC;
-- device availability;
-- mobile background restrictions;
-- desktop availability;
-- offline behavior;
-- local networking;
-- encrypted transport;
-- relay requirements;
-- TURN bandwidth costs;
-- remote access;
-- permissions;
-- caching;
-- file integrity;
-- revoked shares;
-- discoverability;
-- device identity;
-- attack surfaces.
+a portfolio grid
 
-The MVP does **not** require a perfect global decentralized storage network.
+a written introduction
 
-Do not waste months building one.
+a project currently being built
 
-The first implementation may be a hybrid.
+Below or beyond it is whatever that user chooses to expose.
 
-Example conceptual architecture:
+One person's VYBZ could feel like a photography exhibition.
 
-**VYBZ Cloud Control Plane**
+Another like Bandcamp crossed with a recording studio.
 
-↕
+Another like an indie game developer's living devlog.
 
-**Authenticated Creator Account**
+Another like an interactive art installation.
 
-↕
+Another could simply contain their avatar, posts, friends, collections, and chats because they aren't interested in publishing creative work at all.
 
-**Desktop / Mobile Asset Node**
+That is allowed.
 
-↕
+PART IV. THE DIGITAL TWIN
+This is where I would formally introduce the term we arrived at earlier:
 
-**Local Creator Files**
+A user's VYBZ is their digital twin inside the network.
 
-Remote VYBZ clients should receive authorized access only when an Asset Node is available or when the creator has explicitly enabled some future caching/storage mechanism.
+Not an AI impersonator.
 
-The interface must honestly communicate availability.
+Not some creepy simulated personality.
 
-Examples:
+A living digital representation of their presence, relationships, creations, activity, taste, and public expression.
 
-- Available
-- Device Offline
-- Local Only
-- Shared
-- Private
-- Syncing
-- Remote Access Unavailable
+It changes as they change.
 
-Do not pretend locally hosted files magically remain globally available after the hosting computer is turned off.
+They go live, their VYBZ becomes live.
 
----
+They publish a game, it appears.
 
-# 10. PRIVACY AND FILE CONTROL
+They release an album, the catalog changes.
 
-This architecture should produce a genuine user benefit, not merely save VYBZ money.
+They feature a project, their front page changes.
 
-Creator files are extremely sensitive.
+They change their visual identity, their world changes.
 
-Therefore:
+They receive a message, their communication icon illuminates.
 
-- private files are private by default;
-- sharing is explicit;
-- public exposure is explicit;
-- local assets must not silently become public;
-- access should use scoped authorization;
-- sharing links should be revocable;
-- device identity should be authenticated;
-- file hashes should be recorded where useful;
-- transport should be encrypted;
-- secrets must never be embedded in the client;
-- indexing should reveal the minimum information necessary;
-- metadata exposure must respect visibility;
-- remote users must never be allowed to browse arbitrary creator filesystem paths.
+They get comments on a release, the appropriate object indicates activity.
 
-The Asset Node exposes **authorized assets**, not a creator's filesystem.
+The profile should feel alive even when the owner isn't actively editing it.
 
-That distinction is absolute.
+PART V. THE PROFILE CANVAS
+Profiles should use a modular composition system.
 
----
+Think of it less as “widgets on a dashboard” and more as creative spatial publishing.
 
-# 11. DESKTOP APPLICATION
+A profile can contain modules such as:
 
-The desktop application should ultimately become the strongest VYBZ client.
+Module	Example
+Live Stage	Active livestream
+Featured Work	Hero project
+Projects	Albums, games, films, apps
+Catalog	Releases and collections
+Audio	Tracks, mixes, sound design
+Gallery	Images and visual artwork
+Video	Films, animation, clips
+3D	Interactive models or scenes
+Games	Playable builds or demos
+Software	Apps, tools, repositories, demos
+Writing	Stories, articles, documents
+Collections	Curated works
+Downloads	Publicly available assets
+Store	Products or digital works
+Timeline	Activity / development history
+Live Archive	Previous streams or sessions
+Social	Posts, comments, VYBs
+About	Identity and description
+The earlier plan already required a modular profile rather than forcing every discipline through a music-oriented template. 
 
-Its responsibilities may include:
 
-- local asset indexing;
-- folder registration;
-- filesystem watching;
-- hashing;
-- metadata extraction;
-- thumbnail generation;
-- waveform generation;
-- preview generation;
-- local playback;
-- local search;
-- project management;
-- asset organization;
-- version tracking;
-- secure remote access;
-- broadcast capture;
-- provenance collection;
-- controlled sharing;
-- creator tools;
-- synchronization with the VYBZ control plane.
+Now we take that idea all the way.
 
-Do not duplicate web functionality unnecessarily.
+PART VI. PROFILE ORIENTATION
+Your horizontal idea is especially important.
 
-Use a shared application model and shared components wherever the existing architecture allows it.
+Creators should eventually be able to choose different composition behaviors.
 
-Desktop-specific functionality should primarily exist where native operating-system access provides a genuine advantage.
+Vertical
+Traditional downward storytelling.
 
----
+Horizontal
+Portfolio moves laterally through scenes, projects, collections, eras, or galleries.
 
-# 12. MOBILE APPLICATION
+Hybrid
+Some areas scroll vertically, others horizontally.
 
-Mobile must not become an abandoned companion application.
+Gallery / Spatial
+Grid or canvas-oriented exploration.
 
-The mobile client should ultimately allow creators to:
+Cinematic
+Large media panels with minimal UI.
 
-- manage their account;
-- view their workspace;
-- browse their catalog;
-- organize assets;
-- preview works;
-- publish;
-- update profiles;
-- communicate;
-- VYB creators;
-- follow creators;
-- watch streams;
-- perform audio broadcasts;
-- selectively register compatible files from device storage;
-- act as a limited Asset Node where the operating system permits it.
+The creator controls the presentation.
 
-However:
+VYBZ controls accessibility and responsive adaptation.
 
-Do not falsely promise persistent mobile hosting when Android or iOS background execution policies prevent it.
+On smaller screens, a layout may need intelligent reflow instead of literally preserving an unusable 9,000-pixel horizontal composition.
 
-Design around platform reality.
+PART VII. LIVE BECOMES A PROFILE STATE
+This part should be made fundamental.
 
-Desktop, mobile, and web should share the same creator identity and metadata state while having platform-specific capabilities.
+The previous plan already proposed transforming the profile banner during broadcasts, including screen, audio, camera, and audio-reactive presentations. 
 
----
 
-# 13. WEB OS
+Your clarification makes it much stronger.
 
-`vybz.cloud` becomes the universal browser-accessible VYBZ environment.
+THE PROFILE BANNER IS THE LIVE STAGE
+When someone goes live:
 
-Its purpose is not to contain every original creator file.
+their banner region transforms into the stream.
 
-Its purpose is to provide universal access to the creator's VYBZ environment.
+No navigation to a separate disconnected “Live page” should be necessary.
 
-The web application should be capable of showing:
+When a viewer scrolls through the person's portfolio, the stream remains anchored to the profile.
 
-- creator identity;
-- projects;
-- works;
-- metadata;
-- collections;
-- availability;
-- public content;
-- authorized private content;
-- social relationships;
-- live status;
-- provenance;
-- communication;
-- creator tools that function safely in-browser.
+It may gracefully compress into a smaller persistent stage as the viewer moves deeper into the page.
 
-When a linked Asset Node is online, additional content may become available.
+For horizontal profiles, it remains structurally attached to the leading/header region while using a persistent player treatment where appropriate.
 
-This relationship should eventually feel nearly seamless.
+The viewer can therefore:
 
----
+watch the creator while simultaneously exploring what the creator has made.
 
-# 14. LIVE CREATION
+That is excellent interaction design.
 
-VYBZ should evolve livestreaming around **the act of creation itself.**
+Their stream and their body of work finally exist in the same universe.
 
-Creators should eventually be able to broadcast:
+The earlier Live plan already calls for watching, listening, VYB, following, public chat, private communication, project inspection, and profile access through shared communication infrastructure. 
 
-### SCREEN / WINDOW
-A selected desktop window, application, display, or compatible capture source.
 
-### AUDIO + SCREEN
-Creation process plus creator audio.
+Now it all happens inside the creator's VYBZ.
 
-### AUDIO ONLY
-Creator audio without a visual feed.
+PART VIII. COMMUNICATION WITHOUT UI POLLUTION
+There should not be permanent giant Messages and Notifications destinations screaming from navigation.
 
-### CAMERA
-Where appropriate.
+Use a small global presence layer.
 
-When no visual broadcast is present, the Creator Profile banner may transform into an audio-reactive live environment using:
+For example:
 
-- waveform visualization;
-- spectrum visualization;
-- reactive artwork;
-- creator-selected visual themes;
-- procedural motion.
+VYBZ        Search             +        ◉ Chat   ◉ Alerts   Avatar
+Normally quiet.
 
-Do not turn this into decorative nonsense at the expense of performance.
+Then:
 
-Audio-reactive visuals should be GPU-conscious and degrade gracefully.
+Chat ●
+when a message arrives.
 
----
+Or:
 
-# 15. LIVE COMMUNICATION
+Alerts ● 3
+when three meaningful events exist.
 
-During broadcasts, viewers should eventually be able to:
+Notifications can include:
 
-- watch;
-- listen;
-- VYB;
-- follow;
-- participate in public chat;
-- privately message where allowed;
-- view the creator profile;
-- inspect the Work or Project associated with the session.
+new message
 
-Reuse existing communication infrastructure wherever practical.
+new comment
 
-Do not build separate chat systems for every product surface.
+reply
 
----
+VYB
 
-# 16. "VYB"
+follow
 
-For the initial social interaction model:
+collaboration activity
 
-**VYB** becomes the lightweight positive creator interaction.
+project invitation
 
-It can conceptually represent:
+live invitation
 
-- appreciation;
-- support;
-- resonance;
-- acknowledgment.
+purchase/order activity where applicable
 
-Avoid immediately introducing complicated engagement scoring.
+sharing events
 
-A user should also be capable of following another creator.
+relevant system/device state
 
-Tipping may be implemented later.
+Clicking the alert should take the owner directly to the affected object.
 
-Do not make payments a blocker for the Creator OS pivot.
+Not merely to a giant notification warehouse.
 
----
+If somebody commented on a painting, take me to the painting and reveal the conversation.
 
-# 17. VALIDATE HUMANITY
+That makes notifications spatially meaningful.
 
-This is a major long-term differentiator and must be engineered carefully.
+PART IX. SOCIAL VYBZ
+VYBZ should support people who create, people who mostly observe, and people who move between both behaviors.
 
-A creator participating in VYBZ Live should accumulate **creation provenance evidence**.
+This means there should be no forced Creator onboarding.
 
-Potential evidence may include:
+Basic onboarding becomes closer to:
 
-- authenticated creator identity;
-- Live Session ID;
-- session start;
-- session end;
-- device identity;
-- capture source metadata;
-- timestamps;
-- creator actions;
-- relevant generated file hashes;
-- project associations;
-- Work associations;
-- asset hashes;
-- version hashes;
-- signed VYBZ records;
-- session-to-file relationships.
+Create identity
+↓
+Choose @name
+↓
+Choose avatar / appearance if desired
+↓
+Enter VYBZ
+That's it.
 
-A creator should eventually be capable of selecting an eligible final file and choosing:
+Then the platform teaches itself through use.
 
-> **Validate Humanity**
+Follow someone.
 
-VYBZ then attempts to associate the final asset with evidence collected during relevant creative sessions.
+Watch something.
 
-However:
+Message someone.
 
-## DO NOT CLAIM ABSOLUTE PROOF OF HUMAN AUTHORSHIP UNLESS THE EVIDENCE ACTUALLY SUPPORTS THAT CLAIM.
+Upload something.
 
-The technically defensible initial concept should be closer to:
+Customize something.
 
-> **Human Creation Provenance**
+Build a collection.
 
-or
+Go live.
 
-> **VYBZ Humanity Attestation**
+Make a project.
 
-The system certifies that VYBZ possesses evidence associating the creator, identified creation sessions, and a submitted asset.
+Nothing asks:
 
-It does not claim omniscient knowledge of everything that happened outside the observable system.
+“ARE YOU A CREATOR?”
 
-This distinction is essential.
+Because the question itself is unnecessarily restrictive.
 
----
+PART X. DISCOVERY
+Discovery stays global because you need a way to encounter new people.
 
-# 18. PROVENANCE EMBEDDING
+But the destination of discovery is usually a person or Creative Work, not another sprawling content silo.
 
-Where technically appropriate, VYBZ may embed provenance information directly inside supported files.
+Discovery can surface:
 
-Never corrupt the original file.
+People → Projects → Works → Live → Collections
 
-Preferred approach:
+And each one leads naturally back into someone's VYBZ.
 
-1. hash original;
-2. preserve original;
-3. generate provenance record;
-4. sign provenance record;
-5. associate record with Work and creator;
-6. optionally embed standardized metadata into a copy;
-7. verify resulting file;
-8. expose independently verifiable provenance metadata.
+This creates an extraordinarily simple graph:
 
-Research and prefer legitimate metadata/provenance standards when available instead of inventing proprietary formats unnecessarily.
+DISCOVER
+   ↓
+WORK
+   ↓
+PERSON
+   ↓
+THEIR VYBZ
+   ↓
+MORE WORK / LIVE / CHAT / FOLLOW / VYB
+The profile becomes the gravitational center of the network.
 
-The provenance system itself should remain media-agnostic wherever possible.
+PART XI. THE UNIVERSAL LIBRARY
+The Library remains enormously important.
 
----
+But it should be mostly an owner capability, not the entire visual identity of VYBZ.
 
-# 19. SOCIAL NETWORKING
-
-VYBZ should become a network **between creators**, not another attention-maximization machine.
-
-Initial social primitives should remain simple:
-
-- Creator Profiles
-- Follow
-- VYB
-- Live
-- Public chat
-- Private communication
-- Shares
-- Collections
-- Activity
-
-Do not introduce:
-
-- engagement farming;
-- arbitrary ranking metrics;
-- fake trends;
-- manipulative notifications;
-- algorithmic addiction loops;
-- meaningless gamification.
-
-Discovery should initially favor explicit creator metadata, relationships, categories, and real activity.
-
----
-
-# 20. MONETIZATION
-
-Monetization must not block the first Creator OS release.
-
-Capabilities that may be introduced later include:
-
-- tipping;
-- creator subscriptions;
-- paid Works;
-- digital asset sales;
-- marketplace functionality;
-- premium creator tools;
-- storage upgrades;
-- hosted availability;
-- provenance services;
-- professional portfolio features.
-
-Reuse any existing commerce infrastructure that can safely support those capabilities.
-
-Do not rebuild payment infrastructure merely to conform to this pivot.
-
----
-
-# 21. COST LAW
-
-Every implementation decision must account for VYBZ's severe budget limitation.
-
-### DEFAULT FINANCIAL RULE:
-
-> **$0 incremental recurring cost is preferred.**
-
-When choosing between architectures, rank them using:
-
-1. existing infrastructure;
-2. existing project dependencies;
-3. open-source/self-hosted solution;
-4. free-tier service;
-5. extremely inexpensive managed service;
-6. paid infrastructure only where genuinely necessary.
-
-For every proposed new external service, provide:
-
-- purpose;
-- necessity;
-- existing alternative;
-- self-hosted alternative;
-- free-tier limits;
-- expected cost at low usage;
-- expected cost if usage grows;
-- migration risk.
-
-Do not introduce vendors merely because implementation documentation is convenient.
-
-Centralized hosting of every user's original creative catalog is specifically **not** the preferred architecture.
-
----
-
-# 22. DEVELOPMENT AUTHORIZATION
-
-You are explicitly authorized to make reasonable engineering changes necessary to implement this direction, including:
-
-- repository inspection;
-- branch creation;
-- documentation;
-- refactoring;
-- component creation;
-- route changes;
-- schema additions;
-- migrations;
-- API changes;
-- type changes;
-- new tests;
-- removal of obsolete imports;
-- feature flags;
-- module isolation;
-- dependency additions;
-- architectural adapters;
-- native bridges;
-- synchronization systems;
-- local agents;
-- build configuration changes;
-- interface improvements.
-
-Do not repeatedly stop development to request approval for ordinary reversible engineering decisions.
-
-Use professional judgment.
-
-Document major decisions.
-
-Proceed.
-
-However, executive authorization to build this project is **not blanket authorization to create uncontrolled financial liabilities or irreversible destruction.**
-
-Pause before:
-
-- purchasing services;
-- provisioning substantial paid infrastructure;
-- deleting production data;
-- exposing secrets;
-- rotating credentials without necessity;
-- performing an irreversible production migration;
-- changing domain ownership;
-- entering external legal agreements.
-
-For these cases, present the blocker and cheapest safe resolution.
-
----
-
-# 23. NO REWRITE LAW
-
-A total rewrite is prohibited unless repository analysis produces overwhelming technical evidence that continuation is impossible.
-
-"Cleaner architecture" is not sufficient justification.
-
-"Would be easier" is not sufficient justification.
-
-"This technology is newer" is not sufficient justification.
-
-Every rewrite proposal must answer:
-
-> Why can the existing implementation not be adapted?
-
-If adaptation is practical, adapt it.
-
----
-
-# 24. PHASED EXECUTION MODEL
-
-Development must proceed through controlled phases.
-
-Every phase must contain:
-
-### OBJECTIVE
-What this phase accomplishes.
-
-### EXISTING SYSTEMS REUSED
-What existing VYBZ functionality is being preserved.
-
-### CHANGES
-Specific implementation work.
-
-### FILES / SYSTEMS AFFECTED
-Concrete code areas.
-
-### ACCEPTANCE CRITERIA
-Observable definition of complete.
-
-### TESTS
-How completion is verified.
-
-### COST IMPACT
-Expected new recurring cost.
-
-### RISKS
-Known failure modes.
-
-### ROLLBACK
-How the phase can be reversed.
-
-Do not create enormous unreviewable changesets.
-
-Prefer small, coherent commits.
-
----
-
-# 25. PHASE 0: FORENSIC CODEBASE AUDIT
-
-## NO PRODUCT REWRITE DURING THIS PHASE.
-
-First determine reality.
-
-Inspect:
-
-- repository status;
-- branches;
-- packages;
-- application boundaries;
-- web;
-- desktop;
-- mobile;
-- backend;
-- APIs;
-- auth;
-- database;
-- storage;
-- realtime;
-- streaming;
-- upload pipeline;
-- local filesystem capabilities;
-- media pipeline;
-- Library;
-- creator profiles;
-- social functionality;
-- messaging;
-- live functionality;
-- payments;
-- marketplace;
-- tool surfaces;
-- design system;
-- routing;
-- state management;
-- tests;
-- build system;
-- deployment;
-- documentation;
-- migrations;
-- feature flags;
-- abandoned implementations;
-- hidden functionality.
-
-Produce:
-
-## A. CURRENT REALITY MAP
-
-What actually exists.
-
-Not what outdated documentation says exists.
-
-## B. REUSE MATRIX
-
-| Existing Capability | Status | Creator OS Role | Action |
-|---|---|---|---|
-| Feature | Working/Partial/Broken | Future purpose | Keep/Adapt/Integrate/Hide/Archive |
-
-## C. ARCHITECTURE MAP
-
-Show how the existing major systems connect.
-
-## D. DATA MODEL MAP
-
-Identify existing concepts that can represent:
-
-- creator;
-- project;
-- work;
-- asset;
-- collection;
-- session;
-- provenance;
-- publication.
-
-## E. DESIGN SYSTEM MAP
-
-Identify the existing interface primitives that become Creator OS foundations.
-
-## F. TECHNICAL DEBT BLOCKERS
-
-Only list debt that materially prevents the pivot.
-
-Do not produce a generalized complaint document about imperfect code.
-
-## G. COST MAP
-
-Identify services currently capable of generating recurring cost.
-
-## H. MINIMUM PIVOT PATH
-
-Determine the smallest number of changes capable of making the application unmistakably become the beginnings of the Creator OS.
-
----
-
-# 26. PHASE 1: PRODUCT AUTHORITY AND INFORMATION ARCHITECTURE
-
-Once Phase 0 establishes reality:
-
-Create or update the authoritative product documentation.
-
-There must be **one clear current product definition**.
-
-Outdated product decisions must be explicitly superseded rather than silently contradicted.
-
-Define the new primary application hierarchy.
+The Library contains the person's universe of Creative Work.
 
 Conceptually:
 
-```text
-VYBZ
-├── Workspace
-│   ├── Projects
-│   ├── Library
-│   ├── Collections
-│   ├── Activity
-│   └── Tools
-│
-├── Creator Profile
-│   ├── Works
-│   ├── Collections
-│   ├── Live
-│   ├── About
-│   └── Provenance
-│
-├── Network
-│   ├── Following
-│   ├── Discover
-│   ├── Live
-│   └── Messages
-│
-└── Devices
-    ├── Desktop Node
-    ├── Mobile Node
-    └── Availability
-```
+IDENTITY
+   │
+   ├── Projects
+   │     ├── Works
+   │     │    ├── Assets
+   │     │    └── Versions
+   │     └── Sessions
+   │
+   ├── Collections
+   ├── Publications
+   └── Profile Composition
+A Work can be:
 
-Adapt this to the actual codebase.
+Private → Draft → Shared → Public
 
-Do not create navigation for functionality that does not exist merely to make screenshots appear complete.
+without producing copies.
 
----
+Publishing something simply makes an authorized representation visible through the profile.
 
-# 27. PHASE 2: CREATOR OS SHELL
+That is much cleaner than having one “creator dashboard database,” another profile content system, another store catalog, another sample pack system, and another feed model.
 
-Transform the existing application shell into the new Creator OS orientation.
+PART XII. CREATIVE TOOLS
+This is how we finally reconcile the Sample Pack Suite pivot.
 
-This should be the first visible product pivot.
+Keep it.
 
-Primary objectives:
+Do not make it the product.
 
-- Creator OS terminology;
-- creator-centric navigation;
-- workspace;
-- generalized Library;
-- Creator Profile;
-- device awareness;
-- existing design system retained;
-- existing useful tools exposed contextually.
+For example:
 
-At the completion of this phase, a person opening VYBZ should understand:
+Sample Pack Project
+     ↓
+Open
+     ↓
+Organize samples
+     ↓
+Pack Maker
+     ↓
+Art Check
+     ↓
+Metadata
+     ↓
+Package
+     ↓
+Publish
+     ↓
+Appears on VYBZ profile
+     ↓
+Optional Store module
+The same principle applies everywhere.
 
-> "This is where my creative work lives."
+A musician gets music tools.
+
+A photographer gets image tools.
+
+A developer gets project/build-oriented tools.
+
+A game designer gets executable/interactive media controls.
+
+The interface adapts to the Work instead of forcing every tool into global navigation.
+
+This alone could cut perceived complexity dramatically.
+
+PART XIII. CONTENT RENDERER ARCHITECTURE
+Do not hardcode every future medium into the profile component.
+
+Build a renderer contract.
+
+Something conceptually like:
+
+CreativeWork
+       ↓
+Work Type / MIME / Presentation
+       ↓
+Renderer Registry
+       ↓
+AudioRenderer
+ImageRenderer
+VideoRenderer
+ThreeDRenderer
+GameRenderer
+SoftwareRenderer
+DocumentRenderer
+DownloadRenderer
+CollectionRenderer
+UnknownRenderer
+New media types can then be introduced without rebuilding profiles.
+
+The original Profile 2.0 directive already called for precisely this kind of extensible renderer architecture. 
+
+
+PART XIV. GAMES AND INTERACTIVE MEDIA
+Games should be treated as first-class Creative Work.
+
+A creator could expose:
+
+Game card → screenshots → trailer → dev history → downloadable build → web-playable build → comments → related livestreams
+
+Safe browser-compatible builds could run in a sandboxed player.
+
+Native downloads remain downloads.
+
+The profile does not pretend everything can execute inside the browser.
+
+PART XV. 3D AND IMMERSIVE WORK
+3D models can eventually have their own renderer.
+
+Rotate.
+
+Zoom.
+
+Inspect.
+
+Animate.
+
+Fullscreen.
+
+Place inside a profile scene.
+
+Creators could eventually use 3D artwork to build parts of their VYBZ environment itself.
+
+That opens some fascinating doors without requiring VYBZ to become a full metaverse science project.
+
+PART XVI. PROFILE CUSTOMIZATION
+There should be two levels.
+
+QUICK CUSTOMIZATION
+Simple enough for anyone:
+
+theme, banner, avatar, typography, spacing, featured sections, module order, background, accent, motion level.
+
+CREATIVE MODE
+For people who want to build something unusual:
+
+grid composition, responsive section sizing, horizontal sequences, layered media, transitions, 3D scenes, interactive modules, audio-reactive elements, custom module arrangements.
+
+But underneath both is the same safe composition system.
+
+No need to make every user into a frontend engineer.
+
+PART XVII. OWNER EDITING
+The owner should be able to manipulate the profile in place.
 
 Not:
 
-> "This is another music social app."
+Profile → Settings → Creator Settings → Appearance → Modules → Edit Module → Save → Return.
 
-And not:
+Instead:
 
-> "This is a generic cloud storage service."
+MY VYBZ
 
----
+[ Edit ]
 
-# 28. PHASE 3: UNIVERSAL LIBRARY + LOCAL ASSET NODE MVP
+     ↓
 
-This is one of the most important technical phases.
+Select Gallery
+     ↓
 
-Create the smallest real implementation proving that:
+Move / Resize / Hide / Configure
+Add a Work through:
 
-1. a creator can register files/folders from their computer;
-2. VYBZ can index them safely;
-3. VYBZ can represent them as creative assets;
-4. VYBZ Cloud understands their metadata;
-5. original content remains local;
-6. the creator can browse that catalog through the VYBZ environment;
-7. availability is accurately represented;
-8. selected assets can be explicitly shared.
++ Add
+Then:
 
-Start with desktop if that produces the strongest result using the existing codebase.
+Upload | Library | Project | Collection | Live | Text | Embed
 
-Do not attempt global decentralized storage before proving the basic architecture.
+Editing should feel closer to arranging your space than filling out administrative forms.
 
----
+PART XVIII. NO MORE GENERIC DASHBOARD
+This deserves a hard rule:
 
-# 29. PHASE 4: CREATOR PROFILE 2.0
+VYBZ MUST NOT BECOME A GRID OF STAT CARDS AND SIDEBARS.
 
-Convert Creator Profile into the living portfolio.
+The previous directive already explicitly prohibited transforming VYBZ into a generic SaaS dashboard and required evolution of the existing VYBZ visual language instead. 
 
-Implement the minimum modular model necessary to support multiple creative disciplines.
 
-At minimum, prove profiles can represent more than audio.
+Take that much further.
 
-Example media:
+The user interface is currently telling the user:
 
-- audio;
-- image;
-- video;
-- arbitrary downloadable file;
-- project card;
-- external/demo link where appropriate.
+“Here are all the systems VYBZ contains.”
 
-Do not attempt every imaginable asset renderer.
+The new interface should say:
 
-Build an extensible renderer architecture.
+“Here you are.”
 
----
+That is a very different product.
 
-# 30. PHASE 5: LIVE CREATION
+PART XIX. ADULT / MATURE CREATIVE EXPRESSION
+The prior broader vision also allowed creators wide latitude in what creative work they use their presence to showcase, including mature work.
 
-Adapt existing streaming/live functionality wherever possible.
+Architecturally that should mean media-neutral support, not a special adult-oriented version of VYBZ.
 
-The first useful Live MVP should support the strongest path that existing architecture can deliver cheaply.
+Where mature material is legally supported, it should use appropriate:
 
-Priority:
+labeling
 
-1. screen/window broadcast;
-2. audio;
-3. creator identity;
-4. viewer access;
-5. public chat;
-6. profile integration;
-7. session logging.
+age controls
 
-Audio-only mode should activate the Creator Profile reactive visual presentation when practical.
+consent safeguards
 
----
+visibility settings
 
-# 31. PHASE 6: CREATION PROVENANCE MVP
+moderation
 
-Once Live Session infrastructure exists:
+jurisdiction/provider compliance
 
-Create session records.
+without assigning a permanent identity label to the person publishing it.
 
-Capture trustworthy events.
+Creative freedom should be broad. Safety and legal obligations still exist.
 
-Associate sessions with Projects and Works.
+PART XX. LOCAL-FIRST ARCHITECTURE REMAINS
+None of this invalidates the local-first strategy.
 
-Hash relevant assets.
+The previous architecture deliberately positioned VYBZ Cloud as identity, metadata, social, discovery, permissions, signaling, and coordination, while creator devices could expose explicitly authorized assets through Asset Nodes. 
 
-Create signed provenance records.
 
-Expose provenance history.
+That's actually an excellent match for the Living Profile idea.
 
-Then implement the first iteration of:
+The Profile knows:
 
-> **Validate Humanity**
+This work exists.
+This is its metadata.
+This is its thumbnail.
+This is its owner.
+This is its visibility.
+This is where it belongs.
+This is whether its original asset is currently accessible.
+The underlying 18 GB project folder doesn't necessarily need to live on VYBZ servers.
 
-Use defensible language.
+PART XXI. WEB, DESKTOP, MOBILE
+The same VYBZ identity follows the person everywhere.
 
-The MVP can say:
+The previous plan already required shared identity and metadata across desktop, mobile, and web rather than treating mobile as an abandoned accessory. 
 
-> "This file is associated with verified VYBZ creation sessions."
 
-It must not say:
+Web
+Best universal visitor experience.
 
-> "VYBZ mathematically proves no AI was involved."
+Full social functionality.
 
-Those are not equivalent statements.
+Profile customization.
 
----
+Publishing.
 
-# 32. PHASE 7: SOCIAL CREATOR NETWORK
+Browser-safe creative tools.
 
-Integrate:
+Desktop
+The most powerful owner mode.
 
-- VYB;
-- Follow;
-- Live discovery;
-- messaging;
-- creator activity.
+Deep Library.
 
-Reuse existing systems.
+Folder registration.
 
-Do not rebuild social infrastructure already present.
+Asset Node.
 
-Keep the network centered around creators and creative work.
+Bulk organization.
 
----
+Native tools.
 
-# 33. PHASE 8: MOBILE ASSET PARTICIPATION
+Large catalogs.
 
-Extend the Asset Node concept to compatible mobile capabilities.
+Broadcast capture.
 
-The mobile implementation should distinguish between:
+Project workflows.
 
-- files available now;
-- files available only while application is active;
-- files stored on another linked device;
-- cloud metadata;
-- public media;
-- unavailable local content.
+Mobile
+Still a real VYBZ client.
 
-The application must communicate this state clearly.
+Social network.
 
----
+Messages.
 
-# 34. PHASE 9: HARDENING
+Comments.
 
-Only after the fundamental loop works, invest heavily in optimization.
+Notifications.
 
-Audit:
+Profile customization.
 
-- permissions;
-- local agent security;
-- remote access;
-- authentication;
-- session integrity;
-- database policies;
-- transport encryption;
-- device revocation;
-- malicious files;
-- path traversal;
-- metadata exposure;
-- XSS;
-- CSRF;
-- content security;
-- media parsing;
-- WebRTC abuse;
-- rate limiting;
-- chat abuse;
-- stream abuse;
-- provenance tampering.
+Catalog management.
 
----
+Uploads.
 
-# 35. THE FIRST REAL CREATOR OS LOOP
+Publishing.
 
-Every engineering decision should move toward this experience:
+Streaming.
 
-```text
-CREATE ACCOUNT
+Selective device assets.
 
-        ↓
+All three operate upon the same VYBZ, not three disconnected applications.
 
-OPEN VYBZ
+PART XXII. WHAT HAPPENS TO THE EXISTING FEATURES
+This is where preservation becomes extremely useful.
 
-        ↓
+Existing concept	New role
+Profile	Becomes application root
+Dashboard/Home	Integrated into Owner Profile
+Library	Private owner layer
+Projects	Profile-backed Creative Work containers
+Feed	Adapt into activity/discovery
+Discover	Global people/work discovery
+Rooms	Integrate where communication requires it
+Live	Profile Live State
+Messages	Global icon + contextual drawers
+Notifications	Global event indicator + deep links
+VDock	Persistent media capability
+Pack Maker	Contextual Creative Work tool
+Correct	Contextual audio tool
+Art Check	Contextual publishing tool
+Convert	Contextual asset tool
+Stem Maker	Contextual music tool
+MIDI Maker	Contextual music tool
+Storefront	Profile Store module
+Market	Optional global commerce discovery
+Sample packs	One Creative Work specialization
+Provenance	Work-level trust layer
+Collections	Both private organization and public curation
+Nothing gets torched just because it stops living in the navbar.
 
-CONNECT CREATOR DEVICE
+The previous preservation directive specifically established KEEP, ADAPT, INTEGRATE, HIDE, ARCHIVE, DEPRECATE, and REMOVE as distinct states, with removal as the exception rather than the default. 
 
-        ↓
 
-REGISTER CREATIVE FOLDER
+PART XXIII. THE NEW NAVIGATION LAW
+The persistent global application chrome should become tiny.
 
-        ↓
+Something close to:
 
-VYBZ INDEXES AUTHORIZED CONTENT
+VYBZ     Search                       +    Chat    Alerts    Me
+Potentially Discover can emerge from Search rather than consuming another permanent button.
 
-        ↓
+Everything else is contextual.
 
-ORGANIZE INTO PROJECTS / WORKS
+When the user hits Me, they are home.
 
-        ↓
+Not “account settings.”
 
-VIEW THROUGH CREATOR WORKSPACE
+Not a profile preview.
 
-        ↓
+Home.
 
-SELECT WHAT BECOMES PUBLIC
+PART XXIV. THE NEW PRIMARY PRODUCT LOOP
+The previous plan's loop ended by showcasing Creative Work on a profile and sharing it through the network. 
 
-        ↓
 
-SHOWCASE ON CREATOR PROFILE
+The revised loop is cleaner:
 
-        ↓
+JOIN VYBZ
+       ↓
+YOUR VYBZ EXISTS
+       ↓
+FOLLOW / WATCH / TALK / EXPLORE
+       ↓
+ADD SOMETHING WHEN YOU WANT
+       ↓
+IT ENTERS YOUR LIBRARY
+       ↓
+ORGANIZE IT INTO WORK / PROJECT / COLLECTION
+       ↓
+USE CONTEXTUAL TOOLS
+       ↓
+KEEP PRIVATE / SHARE / PUBLISH
+       ↓
+IT BECOMES PART OF YOUR VYBZ
+       ↓
+PEOPLE EXPERIENCE IT
+       ↓
+COMMENTS / VYBs / MESSAGES / FOLLOWS / LIVE
+       ↓
+YOUR VYBZ CONTINUES EVOLVING
+Notice something important.
 
-GO LIVE WHILE CREATING
+There is no point where somebody has to “switch into Creator Mode.”
 
-        ↓
+PART XXV. REVISED IMPLEMENTATION ORDER
+PHASE 0: LOCK THE CONSTITUTION
+Put the invariants above into the project documentation.
 
-CREATION SESSION IS RECORDED
+Every agent should read them before making architectural recommendations.
 
-        ↓
+Especially:
 
-FINALIZE WORK
+One Identity. One Library. Profile Is Product. Community First. Refine Before Replace.
 
-        ↓
+PHASE 1: PROFILE BECOMES HOME
+This is the single most important visible change.
 
-VALIDATE HUMANITY / CREATE PROVENANCE
+Logged-in home resolves into the user's VYBZ.
 
-        ↓
+Existing profile data is reused.
 
-SHARE WITH THE CREATOR NETWORK
-```
+Do not wait for the ultimate modular profile engine before doing this.
 
-That is the product loop.
+Make the architectural relationship true first.
 
-Protect it from feature bloat.
+PHASE 2: REMOVE NAVIGATION NOISE
+Collapse permanent navigation.
 
----
+Move tools into contextual menus.
 
-# 36. PERFORMANCE RULES
+Move Library/project administration into owner controls.
 
-Creator software must feel immediate.
+Move messaging and notifications into lightweight global indicators.
 
-Prioritize:
+This is where the application should suddenly feel much simpler.
 
-- lazy loading;
-- virtualization;
-- incremental indexing;
-- background workers;
-- native file APIs where appropriate;
-- streaming rather than unnecessary full-file loads;
-- cached metadata;
-- thumbnails rather than original images where possible;
-- waveform caching;
-- cancellation;
-- resumability;
-- batching;
-- bounded memory consumption.
+PHASE 3: OWNER / VISITOR DUAL MODE
+One profile renderer.
 
-Do not allow a creator with 50,000 assets to destroy the application merely because testing happened with twelve MP3s.
+Two permission contexts.
 
-Design for large catalogs even if the initial MVP tests smaller ones.
+Owner sees management capabilities.
 
----
+Visitor sees experience.
 
-# 37. DEPENDENCY RULE
+Add:
 
-Before adding a dependency, determine:
+View as Visitor
 
-1. whether the repository already solves the problem;
-2. whether native platform capability solves it;
-3. whether a small implementation is safer;
-4. whether the dependency is maintained;
-5. its license;
-6. its bundle impact;
-7. its security history;
-8. whether it introduces a paid service.
+so the owner can instantly see their public VYBZ.
 
-Avoid dependency accumulation.
+PHASE 4: UNIVERSAL PROFILE MODULE SYSTEM
+Create the reusable module renderer.
 
----
+Start with what existing VYBZ already supports well:
 
-# 38. TESTING LAW
+audio, images, video, project cards, text, collections, downloads.
 
-Every pivot phase must preserve existing functioning behavior unless explicitly superseded.
+Then expand.
 
-Minimum validation includes where applicable:
+PHASE 5: LIBRARY → PROFILE PIPELINE
+A user selects an existing Work.
 
-```text
-lint
-typecheck
-unit tests
-integration tests
-build
-desktop build
-mobile build
-critical E2E paths
-```
+Add to Profile
+Choose section.
 
-Add focused tests for new architectural boundaries.
+Done.
 
-Especially test:
+No duplicate upload.
 
-- permissions;
-- asset visibility;
-- local/remote state;
-- creator isolation;
-- sharing;
-- device disconnection;
-- deleted local files;
-- renamed files;
-- offline operation;
-- revoked access;
-- large directories.
+No second catalog.
 
----
+PHASE 6: PROFILE CUSTOMIZATION
+Introduce modular arrangement.
 
-# 39. GIT DISCIPLINE
+Then orientation.
 
-Before modifying code:
+Then deeper visual customization.
 
-```text
-git status
-git branch --show-current
-git log --oneline -n 10
-```
+Do not start by building Adobe After Effects inside the profile editor.
 
-Never assume repository state.
+PHASE 7: COMMUNICATION EVENT LAYER
+Unify:
 
-Use coherent commits.
+messages, comments, follows, VYBs, collaboration events, live events.
 
-Avoid mixing unrelated cleanup into product commits.
+One notification architecture.
 
-Each phase should leave the repository in a working state.
+One communication architecture.
 
-Record migration requirements.
+The previous plan explicitly warned against building separate chat systems for individual product surfaces. 
 
-Never hide failures by weakening tests.
 
-Never force green builds using meaningless mocks.
+PHASE 8: LIVE PROFILE STATE
+Integrate the existing live systems directly into the profile banner.
 
----
+Persistent/minimizable stream while browsing creator content.
 
-# 40. IMPLEMENTATION DECISION HIERARCHY
+Public chat tied to the live session.
 
-When faced with competing solutions, choose using this order:
+Audio-reactive fallback.
 
-### 1. Does existing VYBZ functionality already solve most of this?
+PHASE 9: ADVANCED CREATIVE RENDERERS
+Add:
 
-Reuse it.
+3D, games, interactive demos, richer software/project representations, documents, additional media.
 
-### 2. Can existing functionality be generalized?
+Each renderer plugs into the same Creative Work model.
 
-Adapt it.
+PHASE 10: CREATOR TOOLS IN CONTEXT
+Migrate the existing tool suite away from permanent app navigation.
 
-### 3. Can a small adapter connect existing systems?
+Expose tools based upon selected Work.
 
-Integrate them.
+That is where Pack Maker finally finds its proper home.
 
-### 4. Can the feature be deferred without breaking the Creator OS loop?
+PHASE 11: LOCAL-FIRST / ASSET NODE EXPANSION
+Then continue the ambitious local-device catalog vision.
 
-Defer it.
+The interface will finally have a comprehensible place to expose it.
 
-### 5. Is genuinely new functionality required?
+PHASE 12: COMMERCE + PROFESSIONAL CAPABILITIES
+Store modules.
 
-Build the smallest extensible implementation.
+Digital sales.
 
-This hierarchy should prevent another expensive cycle of replacing systems we already paid to build.
+Tips when appropriate.
 
----
+Subscriptions if warranted.
 
-# 41. DO NOT OVERENGINEER THE FIRST RELEASE
+Professional portfolio functionality.
 
-The Creator OS does not require all long-term features before becoming valuable.
+Reuse the existing commerce infrastructure instead of rebuilding it, consistent with the earlier plan. 
 
-The first convincing release does **not** require:
 
-- global decentralized storage;
-- perfect peer-to-peer connectivity;
-- cryptocurrency;
-- blockchain;
-- tipping;
-- creator subscriptions;
-- a complete marketplace;
-- AI recommendations;
-- complex ranking;
-- advanced collaboration;
-- universal file preview;
-- every creator discipline;
-- perfect provenance;
-- massive infrastructure.
+PHASE 13: PROVENANCE
+Creation sessions, hashes, attestation, project relationships, validation.
 
-It requires a believable foundational loop.
+Keep the careful language already established rather than claiming impossible absolute proof. 
 
-Focus relentlessly on that.
 
----
+PART XXVI. THE FIRST RELEASE WE SHOULD ACTUALLY TARGET
+We absolutely do not need everything above before VYBZ becomes this product.
 
-# 42. INITIAL SHIPPABLE TARGET
+The first convincing version only needs to prove five things:
 
-The fastest meaningful Creator OS milestone should approximately prove:
+A.
+My VYBZ is my homepage.
 
-### A creator can:
+B.
+It looks like a portfolio to you and a dashboard to me.
 
-1. sign into VYBZ;
-2. enter their Workspace;
-3. connect/register creative files from a desktop device;
-4. see those files inside the VYBZ Library;
-5. organize files into at least a basic Project or Work;
-6. maintain original files locally;
-7. selectively expose a Work;
-8. see it appear on their Creator Profile;
-9. view another Creator Profile;
-10. VYB or Follow that creator.
+C.
+I can add several different forms of Creative Work to it.
 
-If existing Live functionality can safely be integrated into this first milestone, include it.
+D.
+People can socially interact with me and my work.
 
-If doing so materially delays the foundational asset architecture, Live becomes the immediately following milestone.
+E.
+The interface stays extremely quiet until I ask it to do something.
 
----
+If those five things work beautifully, the product identity is established.
 
-# 43. CURSOR OPERATING BEHAVIOR
+Then games, 3D, advanced horizontal environments, local Asset Nodes, provenance, stores, sample-pack tooling, and everything else have somewhere coherent to grow.
 
-From this point forward:
+THE FINAL VYBZ PRODUCT MODEL
+I would put this diagram directly into the master documentation:
 
-## DO
+                         VYBZ NETWORK
+                              │
+                ┌─────────────┴─────────────┐
+                │                           │
+             DISCOVERY                 RELATIONSHIPS
+                │                    Follow / VYB / Chat
+                │                           │
+                └─────────────┬─────────────┘
+                              │
+                         USER IDENTITY
+                              │
+                         THEIR VYBZ
+                  ┌───────────┴───────────┐
+                  │                       │
+             OWNER VIEW              VISITOR VIEW
+                  │                       │
+             Dashboard                 Profile
+             Controls                  Portfolio
+             Library                   Gallery
+             Messages                  Catalog
+             Alerts                    Live
+             Editing                   Projects
+             Publishing                Social
+                  │                       │
+                  └───────────┬───────────┘
+                              │
+                         CREATIVE WORK
+                              │
+       ┌────────────┬─────────┼────────┬────────────┐
+       │            │         │        │            │
+     Audio        Visual     Video     Game      Software
+       │            │         │        │            │
+       └────────────┴─────────┼────────┴────────────┘
+                              │
+                         PROJECTS
+                              │
+                           ASSETS
+                              │
+                          VERSIONS
+                              │
+                     CREATOR-SELECTED
+                         PUBLICATION
+And beneath it:
 
-- inspect before editing;
-- verify assumptions;
-- favor existing code;
-- make decisions;
-- proceed autonomously on reversible work;
-- keep changes small;
-- document important architecture;
-- maintain current theme;
-- generalize music-specific concepts carefully;
-- preserve useful functionality;
-- aggressively control cost;
-- surface actual blockers;
-- implement working vertical slices;
-- use measurable acceptance criteria.
+Everything begins with the person. Everything creative belongs to the person. Everything social leads back to people. Tools exist to manipulate their work. The profile is where those systems become one experience.
 
-## DO NOT
+This supersedes one crucial part of the former plan
+The earlier wording said VYBZ should feel like “a creative operating environment with a social layer built into it.” 
 
-- start another redesign;
-- rewrite the application;
-- delete large sections impulsively;
-- create speculative infrastructure;
-- invent functionality and claim it exists;
-- obscure broken functionality;
-- add vendors casually;
-- centralize original user files without justification;
-- build "P2P" theater;
-- make unverifiable claims about human authorship;
-- stop repeatedly for trivial approval;
-- spend days polishing documentation while the core experience remains unusable;
-- generate giant architectural systems before validating their smallest useful form.
 
----
+I would modify that.
 
-# 44. REQUIRED FIRST RESPONSE
+The stronger model is:
 
-Your first response to this executive directive must **not begin coding immediately.**
+VYBZ is a social identity environment whose living profile becomes a creative operating system for anyone who creates.
 
-Perform Phase 0.
+That distinction matters because it prevents us from accidentally building another gigantic creator workstation where the social profile becomes a submenu.
 
-Then return an implementation brief using exactly this structure:
+The human is the root object.
+Their VYBZ is the interface.
+Their Library supplies it.
+Their Creative Work gives it substance.
+Their relationships make it social.
+Live makes it present.
+Customization makes it theirs.
 
-# VYBZ CREATOR OS PIVOT ANALYSIS
+That, I think, is finally the coherent version of VYBZ we've been circling around.
 
-## 1. Repository Reality
-What currently exists.
+Their VYB is their home.  *
 
-## 2. Existing Architecture
-Web, desktop, mobile, backend, data, realtime, storage, streaming.
-
-## 3. Reusable Systems
-What can directly support Creator OS.
-
-## 4. Systems Requiring Adaptation
-What needs reframing or generalization.
-
-## 5. Systems to Hide or Archive
-Nothing deleted.
-
-## 6. Current Design System
-What becomes the permanent visual foundation.
-
-## 7. Universal Creator Data Model
-How the existing schema can support Creators, Projects, Works, Assets, Versions, Sessions, and Provenance.
-
-## 8. Local-First Architecture
-The cheapest technically credible implementation using the systems we already possess.
-
-## 9. Live Architecture
-How existing streaming functionality can become Live Creation.
-
-## 10. Humanity Validation Architecture
-The smallest defensible provenance implementation.
-
-## 11. Security Analysis
-Especially local asset hosting and remote sharing.
-
-## 12. Cost Analysis
-Current services plus any proposed additions.
-
-## 13. Minimum Creator OS Vertical Slice
-The smallest amount of engineering necessary to make this pivot real.
-
-## 14. Phased Execution Plan
-Ordered phases with acceptance criteria.
-
-## 15. Exact First Changes
-Specific files/modules/routes/components.
-
-## 16. Risk Register
-Only material risks.
-
-## 17. Recommended First Commit
-One safe, reversible, high-leverage starting point.
-
----
-
-# 45. AFTER THE AUDIT
-
-After Phase 0, do not return with vague conceptual recommendations.
-
-Translate findings into concrete implementation instructions.
-
-For each implementation phase specify:
-
-```text
-PHASE
-OBJECTIVE
-WHY NOW
-EXISTING CODE REUSED
-FILES TO MODIFY
-FILES TO CREATE
-SCHEMA IMPACT
-API IMPACT
-DESKTOP IMPACT
-WEB IMPACT
-MOBILE IMPACT
-SECURITY IMPACT
-COST IMPACT
-TEST PLAN
-ACCEPTANCE CRITERIA
-ROLLBACK
-```
-
-Then execute the highest-confidence reversible work in sequence.
-
-Do not attempt five phases simultaneously.
-
-Finish vertical slices.
-
-Verify them.
-
-Continue.
-
----
-
-# 46. SUCCESS CONDITION
-
-The pivot succeeds when VYBZ stops feeling like a collection of experiments and begins feeling like a single coherent product:
-
-> A private creative workspace connected to a public creator identity and a network of other creators.
-
-The creator should retain control of their original work.
-
-Their desktop and mobile devices should gradually become extensions of their VYBZ environment.
-
-Their Creator Profile should become a living representation of what they make.
-
-Their Live sessions should demonstrate the process behind the work.
-
-Their provenance records should connect process to outcome.
-
-Their social network should connect them to people who create rather than merely consume.
-
-The resulting system should feel like something that should have existed years ago.
-
----
-
-# 47. FINAL DIRECTIVE
-
-The era of uncontrolled pivots ends here.
-
-Do not interpret this instruction as permission to throw away the past.
-
-Interpret it as an instruction to finally give the existing technology a larger, coherent purpose.
-
-The substantial foundation already inside this repository is an advantage.
-
-Find it.
-
-Map it.
-
-Preserve it.
-
-Generalize it.
-
-Connect it.
-
-Then build upward from it.
-
-**VYBZ is no longer being developed as a collection of music features.**
-
-**VYBZ is being developed as the operating environment for digital creators.**
-
-The immediate mission is not to construct the entire future.
-
-The immediate mission is to identify and implement the **shortest technically credible path from the VYBZ that exists today to the first unmistakably real version of the VYBZ Creator OS.**
-
-Proceed accordingly.

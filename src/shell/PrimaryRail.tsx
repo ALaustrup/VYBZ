@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { PRODUCT_ACCENT_RGB } from "@/design/tokens";
@@ -33,7 +33,17 @@ function RailBadge({ count }: { count: number }) {
   );
 }
 
-function RailLink({ item, end, badgeCount = 0 }: { item: NavItem; end?: boolean; badgeCount?: number }) {
+function RailLink({
+  item,
+  end,
+  badgeCount = 0,
+  forceActive,
+}: {
+  item: NavItem;
+  end?: boolean;
+  badgeCount?: number;
+  forceActive?: boolean;
+}) {
   const accent = PRODUCT_ACCENT_RGB[item.productId];
   const reduce = useReducedMotion();
   const Icon = item.icon;
@@ -42,31 +52,35 @@ function RailLink({ item, end, badgeCount = 0 }: { item: NavItem; end?: boolean;
       to={item.path}
       end={end}
       title={item.hint}
-      className={({ isActive }) =>
-        cx(
+      className={({ isActive }) => {
+        const on = forceActive ?? isActive;
+        return cx(
           "group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition",
           "motion-reduce:transition-none",
-          isActive
+          on
             ? "bg-white/[0.08] text-white"
             : "text-white/50 hover:bg-white/[0.04] hover:text-white/85",
-        )
-      }
+        );
+      }}
     >
-      {({ isActive }) => (
+      {({ isActive }) => {
+        const on = forceActive ?? isActive;
+        return (
         <>
           <motion.span
             className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full"
             style={{ background: `rgb(${accent})` }}
             aria-hidden
             initial={false}
-            animate={{ opacity: isActive ? 1 : 0, scaleY: isActive ? 1 : 0.5 }}
+            animate={{ opacity: on ? 1 : 0, scaleY: on ? 1 : 0.5 }}
             transition={reduce ? { duration: 0.01 } : { duration: durationFast, ease: "easeOut" }}
           />
           <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
           <span className="truncate">{item.label}</span>
           <RailBadge count={badgeCount} />
         </>
-      )}
+        );
+      }}
     </NavLink>
   );
 }
@@ -135,21 +149,24 @@ function RailGroup({
  * Left suite rail — driven exclusively by `navModel` (never `suiteNavRoutes`).
  */
 export function PrimaryRail() {
-  const { profile } = useSession();
+  const { profile, userId } = useSession();
+  const location = useLocation();
   const account = accountItems(profile?.platformRole ?? "member", !!profile?.isAdmin);
   const groups = navGroups();
   const badges = useNavBadgeCounts();
+  const homeActive =
+    location.pathname === "/" || (!!userId && location.pathname === `/u/${userId}`);
 
   return (
     <aside
       className="suite-rail suite-rail--ops forge-glass !rounded-none !border-y-0 !border-l-0"
-      aria-label="Creator OS"
+      aria-label="VYBZ"
       data-testid="suite-primary-rail"
     >
       <div className="relative z-[2] flex min-h-0 flex-1 flex-col">
         <RailIdentity />
         <div className="px-1 pb-1 pt-2">
-          <RailLink item={HOME_ITEM} end />
+          <RailLink item={HOME_ITEM} end forceActive={homeActive} />
         </div>
         <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-2">
           {groups.map((g, i) => (

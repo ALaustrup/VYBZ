@@ -63,8 +63,8 @@ These laws are checked against every design decision, route change, feature, and
 
 | Surface | Job | Primary Role |
 |---|---|---|
-| **My VYBZ** (`/u/:id`, owner and visitor) | Living profile. Owner dashboard and visitor experience are one object | **The product** |
-| **Workspace** (`/`) | Private operating environment. **Logged-in home remains Workspace until Phase 1** | **Transitional front door** |
+| **My VYBZ** (`/` owner home, `/u/:id` the same object) | Living profile. Owner dashboard and visitor experience are one Stage File | **The product. Logged-in home is My VYBZ** |
+| **Workspace** (`/workspace`) | Private operating environment. Hidden from default chrome | **Archived from nav** |
 | **Library** (`/library`) | Authorized works and assets, local and published. Owner layer | **Catalog** |
 | **Network** (`/feed`, `/connect`, `/live`) | People, activity, who is live | **Discovery and relationships** |
 | **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: profile banner state | **Live Creation** |
@@ -192,8 +192,8 @@ Permitted states — never "complete":
 
 ## 14. Interface Direction
 
-- **Profile is the product.** Default chrome still leads Workspace, Library, Network, and Live until Phase 1–2 move home and quiet the rail. Do not treat that transitional chrome as the destination architecture.
-- **Quieter as power grows.** Target persistent chrome is close to VYBZ, Search, +, Chat, Alerts, Me.
+- **Logged-in home is My VYBZ.** `/` renders the same Stage File as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome.
+- **Default chrome** is Me, Library, Network, and Live. Phase 2 quiets it further toward VYBZ, Search, +, Chat, Alerts, Me.
 - **Evolve the existing VYBZ theme.** No wholesale redesign. No generic dashboard template. Premium means hierarchy, spacing, type, and motion on the current DNA.
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
@@ -209,7 +209,7 @@ The first convincing Living Profile release proves five things:
 **D.** People can socially interact with me and my work.  
 **E.** The interface stays extremely quiet until I ask it to do something.
 
-Until Phase 1, a signed-in person still enters Workspace. That is transitional. It is not the product identity.
+A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Owner vs visitor dual-mode polish is later than this lock.
 
 A person may register creative files from a device they control, see them in Library without giving up the originals, organize a Work, choose what becomes public on their VYBZ, and can VYB or Follow another person.
 
