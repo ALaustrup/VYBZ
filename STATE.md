@@ -3,9 +3,9 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-21
-**Branch:** `feat/living-profile-phase-0`
-**HEAD:** constitution lock on `feat/living-profile-phase-0` (not yet on `main` until this PR merges).
-**Production:** https://vybz.cloud — `main` **`060af4f8`** (PR [#196](https://github.com/ALaustrup/VYBZ/pull/196), Creator OS through Phase 9 first slice). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+**Branch:** `main`
+**HEAD:** `aacf7d73` (PR [#197](https://github.com/ALaustrup/VYBZ/pull/197), Living Profile Phase 0).
+**Production:** https://vybz.cloud — `main` **`aacf7d73`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
 
 ## Living Profile Phase 0 — Constitution lock — 2026-08-21
 
