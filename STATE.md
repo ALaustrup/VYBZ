@@ -4,7 +4,22 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-21
 **Branch:** `feat/creator-os-phase-1-authority`
+**HEAD at last Phase 3b commit:** `c42c3863`. Phase 4 profile work is uncommitted on this branch.
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Creator OS Phase 3b E2E — signed-in metadata upsert — 2026-08-21
+
+Measured on `http://localhost:5173` as signed-in Andrew (`9e45224c-…`). Used the SPA session JWT + anon key against `creator_nodes` / `indexed_assets` (same RLS path the Library client uses). Probe node `vybz-e2e-probe` (`9d352157-…`): POST node **201**, POST asset **201**. RLS GET returned `name=vybz-e2e-probe`, `availability=local-only`, `file_count=1`, `total_bytes=12`, asset `probe.txt` / `text/plain` / 12 bytes. Payload had **no `url`**, **no `local_path`**. Library **This device** then showed `vybz-e2e-probe` / **DEVICE OFFLINE** / `probe.txt`. Signed-in DELETE asset **200**, node **200**; remaining GET `[]`. `storage.objects` in `audio-assets` created in the prior 15 minutes: **0**. Probe rows were removed after the walk.
+
+Folder pick in Chromium: **Not measured**. Native Tauri folder dialog: **Not measured**. The Index-a-folder button was not the write path for this measurement.
+
+## Creator OS Phase 4 — Creator Profile 2.0 — 2026-08-21
+
+`/u/:id` Stage File now leads with live nights, then **Works** via `collectStageWorks` + `WorkCard` renderers for audio, image, video, file, project, and link. Existing TrackCard, project posts, profile projects, and `musicUrl` feed the registry. App bar default is Creator, not Music/Artist. `ARTIST_STAGE_PROFILE.moreThanAudio` and `extensibleWorkRenderer` are locked. No new tables. No Devices nav. Frozen `MobileNav` stays unmounted.
+
+Browser walk on `http://localhost:5173/u/9e45224c-f5f0-4af1-960c-8f9b178a4933` (signed-in, 2026-08-21): heading **Andrew**; eyebrows **On the stage**, **Works**, **Packs**, **Measured**; one work with `data-kind="audio"`. Image/video/file/project/link cards on this account: **not present in the measured catalog** (renderers exist; this profile currently has audio).
+
+`npm run lint` pass. `npm run test` pass — **184 files / 924 tests**. `npm run build` pass.
 
 ## Creator OS Phase 3b — cloud metadata plane — 2026-08-21
 

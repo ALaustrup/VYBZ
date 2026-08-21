@@ -39,7 +39,7 @@ export const SUITE_ROUTES: readonly SuiteRoute[] = [
   { path: "/discover", productId: "home", title: "Discover", nav: true },
   { path: "/live", productId: "live", title: "Live", nav: true },
   { path: "/live/:id", productId: "live", title: "Live session" },
-  { path: "/u/:id", productId: "artist", title: "Artist" },
+  { path: "/u/:id", productId: "artist", title: "Creator" },
   {
     path: "/market",
     productId: "market",

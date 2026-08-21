@@ -54,7 +54,7 @@ Creators are anyone whose work can be represented digitally: musicians, producer
 
 Do not add navigation for functionality that does not exist.
 
-The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, music, and other disciplines share it. Connect is a request. Booking is a message, not a calendar.
+The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, music, and other disciplines share it. Connect is a request. Booking is a message, not a calendar. Works render through an extensible set of kinds — audio, image, video, file, project, and link — so the profile is a living portfolio, not an audio list.
 
 ## 4. Local-first originals
 

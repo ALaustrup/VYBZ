@@ -12,7 +12,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
-import { TrackCard, toPlayerTrack } from "@/components/TrackCard";
+import { toPlayerTrack } from "@/components/TrackCard";
 import { playTrack } from "@/lib/audioBus";
 import { ProfessionBadges } from "@/components/ProfessionBadges";
 import { RoleClassBadge } from "@/components/RoleClassBadge";
@@ -27,10 +27,12 @@ import { accentWashStyle, CosmeticAvatarShell, Flair, type ResolvedCosmetics } f
 import { formatVcAddress } from "@/lib/vc";
 import { cx, timeAgo } from "@/lib/utils";
 import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
-import type { Credit, CreatorStats, Drop } from "@/types";
+import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
 import type { PublicProfile } from "@/lib/api";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
 import type { StageNight } from "./stageNights";
+import { collectStageWorks } from "./workKind";
+import { WorkCard } from "./WorkCard";
 
 export function ArtistStageProfile({
   id,
@@ -40,6 +42,9 @@ export function ArtistStageProfile({
   credits,
   nights,
   packs,
+  projects,
+  posts,
+  projectLinks,
   cosmetics,
   isMe,
   requested,
@@ -55,6 +60,9 @@ export function ArtistStageProfile({
   credits: Credit[];
   nights: StageNight[];
   packs: StorefrontPackPublic[];
+  projects: ProfileProject[];
+  posts: ProjectPost[];
+  projectLinks: ProjectLink[];
   cosmetics: ResolvedCosmetics;
   isMe: boolean;
   requested: boolean;
@@ -76,18 +84,30 @@ export function ArtistStageProfile({
   const bio = (profile.bio || "").trim();
   const longBio = bio.length > 220;
 
+  const works = useMemo(
+    () =>
+      collectStageWorks({
+        drops,
+        projects,
+        posts,
+        projectLinks,
+        demoUrl: profile.musicUrl,
+      }),
+    [drops, projects, posts, projectLinks, profile.musicUrl],
+  );
+
   const measuredCells = useMemo(() => {
     const cells: { label: string; value: string }[] = [];
     const sealed = nights.filter((n) => n.sealed).length;
     if (sealed > 0) cells.push({ label: "Sealed nights", value: String(sealed) });
-    if (stats && stats.drops > 0) cells.push({ label: "Tracks", value: String(stats.drops) });
+    if (works.length > 0) cells.push({ label: "Works", value: String(works.length) });
     if (stats && stats.ratings > 0) {
       cells.push({ label: "Rated", value: `${stats.avgRating.toFixed(1)} · ${stats.ratings}` });
     }
     if (stats && stats.connections > 0) cells.push({ label: "Connections", value: String(stats.connections) });
     if (packs.length > 0) cells.push({ label: "Packs", value: String(packs.length) });
     return cells;
-  }, [nights, stats, packs.length]);
+  }, [nights, stats, packs.length, works.length]);
 
   function playAll() {
     if (!playable.length) return;
@@ -203,42 +223,6 @@ export function ArtistStageProfile({
 
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-8 lg:grid-cols-12">
         <div className="space-y-12 lg:col-span-7">
-          {drops.length > 0 && (
-            <section>
-              <p className="eyebrow mb-3">Uploads</p>
-              <div className="grid gap-2">
-                {drops.map((d) => (
-                  <TrackCard
-                    key={d.id}
-                    compact
-                    drop={{ ...d, authorUsername: profile.username }}
-                    queue={drops}
-                    onOpenAuthor={isMe ? () => navigate("/") : undefined}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {(bio || f.genres?.length) && (
-            <section>
-              <p className="eyebrow mb-3">Story</p>
-              {bio && (
-                <p className="max-w-xl text-[15px] leading-relaxed text-white/70">
-                  {longBio && !storyOpen ? `${bio.slice(0, 220).trim()}…` : bio}
-                </p>
-              )}
-              {longBio && (
-                <button type="button" onClick={() => setStoryOpen((v) => !v)} className="mt-2 text-[12px] text-cyan-200/80">
-                  {storyOpen ? "Show less" : "Read the story"}
-                </button>
-              )}
-              {f.genres?.length ? (
-                <p className="mt-3 text-[13px] text-white/45">{f.genres.join(" · ")}</p>
-              ) : null}
-            </section>
-          )}
-
           <section>
             <p className="eyebrow mb-3">On the stage</p>
             {nights.length === 0 ? (
@@ -275,6 +259,45 @@ export function ArtistStageProfile({
               </div>
             )}
           </section>
+
+          {works.length > 0 && (
+            <section>
+              <p className="eyebrow mb-3">Works</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {works.map((work) => (
+                  <div
+                    key={work.id}
+                    className={work.kind === "audio" || work.kind === "video" ? "sm:col-span-2" : undefined}
+                  >
+                    <WorkCard
+                      work={work}
+                      audioQueue={drops.map((d) => ({ ...d, authorUsername: profile.username }))}
+                      onOpenAuthor={isMe ? () => navigate("/") : undefined}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {(bio || f.genres?.length) && (
+            <section>
+              <p className="eyebrow mb-3">Story</p>
+              {bio && (
+                <p className="max-w-xl text-[15px] leading-relaxed text-white/70">
+                  {longBio && !storyOpen ? `${bio.slice(0, 220).trim()}…` : bio}
+                </p>
+              )}
+              {longBio && (
+                <button type="button" onClick={() => setStoryOpen((v) => !v)} className="mt-2 text-[12px] text-cyan-200/80">
+                  {storyOpen ? "Show less" : "Read the story"}
+                </button>
+              )}
+              {f.genres?.length ? (
+                <p className="mt-3 text-[13px] text-white/45">{f.genres.join(" · ")}</p>
+              ) : null}
+            </section>
+          )}
 
           {packs.length > 0 && (
             <section>

@@ -224,6 +224,10 @@ export const ARTIST_STAGE_PROFILE = {
   routeStaysResolvable: true,
   /** Talk, podcast, and music share this profile. It is not artist-only. */
   notArtistOnly: true,
+  /** Stage File works are not audio-only. */
+  moreThanAudio: true,
+  /** New media kinds register a renderer; they do not fork the profile. */
+  extensibleWorkRenderer: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
