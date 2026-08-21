@@ -1,9 +1,9 @@
 # VYBZ
 
 > **Find Yours.**  
-> **Organize the work. Keep the originals. Go live while creating.**
+> **Enter yourself. Keep the originals. Create when you want.**
 
-VYBZ is the **Creator Operating System**. Not a sample-pack app. Not music-only. The fundamental unit is Creative Work. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
+VYBZ is a **living social identity** that becomes a **creative operating system** when you create. Not a sample-pack app. Not music-only. The human is the root object. Creative Work is the unit of creation. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 
 **One account · one cloud · three clients + DAW plug-in:**
 - **VYBZ Web:** Interactive live stage, rooms, and visualizers.
@@ -11,7 +11,7 @@ VYBZ is the **Creator Operating System**. Not a sample-pack app. Not music-only.
 - **VYBZ Mobile:** (Capacitor, Android-first) for companion remote mixing and mobile live streaming.
 - **VYBZ Broadcast Plug-in:** (VST3 / CLAP / AU) directly on the master channel of Ableton, FL Studio, Logic, Reaper.
 
-**VYBZ has no anonymity.** Every account is a durable creator identity. No ads. No connection paywalls. Messaging free forever.
+**VYBZ has no anonymity.** Every account is a durable identity. No ads. No connection paywalls. Messaging free forever.
 
 > **One authority:** [`PRODUCT.md`](./PRODUCT.md) — what we are building and what we refuse to build.  
 > Enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).  
@@ -22,8 +22,8 @@ VYBZ is the **Creator Operating System**. Not a sample-pack app. Not music-only.
 
 | Module | Role |
 |--------|------|
-| **Workspace + Library** | Private operating environment. Authorized works and assets |
-| **Creator Profile / Stage File** | Public `/u/:id` — living portfolio. Talk, podcast, music, and other disciplines |
+| **My VYBZ / Stage File** | Living profile — owner dashboard and visitor experience are one object |
+| **Workspace + Library** | Private operating environment and authorized works. Transitional chrome until home is the profile |
 | **Live Creation** | Real-time rooms, stage visualizer, presence, and chat |
 | **DAW Broadcast Plug-in** | Stream master-bus audio directly from your DAW to LiveKit SFU in stereo HD |
 | **Android Sync & Companion** | Hardware-style remote session control and mobile live mixing |
@@ -61,11 +61,11 @@ Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
 
 | Doc | Purpose |
 |-----|---------|
-| [`PRODUCT.md`](./PRODUCT.md) | Product authority (Creator Operating System) |
+| [`PRODUCT.md`](./PRODUCT.md) | Product authority (Living Profile) |
 | [`src/product/invariants.ts`](./src/product/invariants.ts) | The rules, in code |
 | [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
 | [`STATE.md`](./STATE.md) | Current checkpoint |
-| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0010) |
+| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0011) |
 | [`docs/architecture.md`](./docs/architecture.md) | Platform overview |
 | [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
 | [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |

@@ -1,6 +1,6 @@
 # Creative OS — Song Workspace architecture brief
 
-> **SUPERSEDED 2026-08-21.** Authority is [`PRODUCT.md`](../../PRODUCT.md) Version 8 and decision [`0010`](../decisions/0010-creator-os.md). Music is a specialization of Creative Work, not the unit. This brief remains as history. Do not implement from it.
+> **SUPERSEDED 2026-08-21.** Authority is [`PRODUCT.md`](../../PRODUCT.md) Version 9 and decision [`0011`](../decisions/0011-living-profile.md). Music is a specialization of Creative Work, not the unit. This brief remains as history. Do not implement from it.
 
 > Previously authorised (owner confirmed **2026-08-11**). Implementation proceeds
 > under `AGENTS.md` Creative OS track. Related: `IDEAS_BACKLOG.md` §8.4–§8.5.

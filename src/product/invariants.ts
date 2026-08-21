@@ -98,16 +98,59 @@ export const FROZEN_CONTRACTS = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
-/* Creator Operating System (PRODUCT.md v8 / decision 0010)                   */
+/* Living Profile (PRODUCT.md v9 / decision 0011)                             */
 /* ------------------------------------------------------------------------- */
 
 /**
- * Product identity. Live, library, tools, and commerce are layers around this.
+ * Product identity. The human is the root object. Their VYBZ is the interface.
+ * Creator OS, live, library, tools, and commerce emerge from that profile.
+ */
+export const LIVING_PROFILE = {
+  /** One VYBZ identity. Discipline labels are optional, never prisons. */
+  oneIdentity: true,
+  /** No separate Creator Account. Creation is optional. */
+  noForcedCreatorOnboarding: true,
+  /** Joining does not require publishing Creative Work. */
+  creationIsOptional: true,
+  /** Owner control and visitor experience are one object, two permissions. */
+  oneProfileTwoPerspectives: true,
+  /** Upload once. Appear in many places without duplicating the asset. */
+  oneLibrary: true,
+  /** The profile is the product. Nothing else is the real app. */
+  profileIsTheProduct: true,
+  /** Social primitives are first-class with zero published work. */
+  communityFirst: true,
+  /** The unit of creation is Creative Work, not a song. */
+  creativeWorkIsUniversal: true,
+  /** Tools open from Work. They are not kingdoms. */
+  toolsServeWork: true,
+  /** Reuse, extend, hide. Do not bulldoze when the definition gets clearer. */
+  refineBeforeReplace: true,
+  /** Structured customization. No JS/CSS injection. */
+  customizationWithoutScriptInjection: true,
+  /** A file entering VYBZ is not automatically content. */
+  privateByDefaultPublicByIntent: true,
+  /** Notifications report events. They do not manufacture urgency. */
+  socialSignalsInformNotManipulate: true,
+  /** More capability must not mean more permanent navigation. */
+  quieterInterfaceAsPowerGrows: true,
+  /** Do not ship a grid of stat cards as the product. */
+  noGenericDashboard: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
+/* Creator Operating System (decision 0010 — now a capability of the profile) */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * What the living profile becomes when the person creates.
  * Music-specific surfaces are specializations of Creative Work, not the unit.
  */
 export const CREATOR_OS = {
-  /** VYBZ is the operating environment for digital creators. */
-  creatorOsIsTheProduct: true,
+  /** Superseded by LIVING_PROFILE.profileIsTheProduct (decision 0011). */
+  creatorOsIsTheProduct: false,
+  /** Creator OS is the living profile under creation, not a separate product. */
+  livingProfileBecomesCreatorOs: true,
   /** The fundamental unit is Creative Work, not a song. */
   workIsTheUnit: true,
   /** Music, film, games, software, and other disciplines share the same model. */
@@ -146,7 +189,7 @@ export const CREATOR_OS_HARDENING = {
  * (decisions 0004–0009). They are not the product identity.
  */
 export const LIVE_MIX_STREAMING = {
-  /** Workspace / Library is the product front door. Live is not the identity. */
+  /** Live is not the product identity. Profile is. */
   liveMixIsPrimary: false,
   /** Real-time live rooms remain a first-class Creator OS surface. */
   liveMixIsFirstClassSurface: true,
@@ -470,6 +513,7 @@ export const GATE_REGISTRY = [
   "artistStageProfile",
   "liveAudio",
   "creatorOs",
+  "livingProfile",
   "assetNode",
   "creatorNetwork",
   "creatorOsHarden",

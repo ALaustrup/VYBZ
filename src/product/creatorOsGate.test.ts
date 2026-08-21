@@ -8,6 +8,7 @@ import {
   HUMAN_PROVENANCE,
   LIVE_AUDIO,
   LIVE_MIX_STREAMING,
+  LIVING_PROFILE,
   PRINCIPLES,
 } from "@/product/invariants";
 
@@ -18,8 +19,10 @@ describe("creator operating system lock", () => {
     expect(GATE_REGISTRY).toContain("creatorOs");
   });
 
-  it("locks Creator OS as the product identity, with live as a capability", () => {
-    expect(CREATOR_OS.creatorOsIsTheProduct).toBe(true);
+  it("locks Creator OS as what the living profile becomes, with live as a capability", () => {
+    expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
+    expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
+    expect(LIVING_PROFILE.profileIsTheProduct).toBe(true);
     expect(CREATOR_OS.workIsTheUnit).toBe(true);
     expect(CREATOR_OS.musicIsASpecialization).toBe(true);
     expect(CREATOR_OS.indexingIsNotPublishing).toBe(true);
@@ -35,7 +38,7 @@ describe("creator operating system lock", () => {
     expect(HUMAN_PROVENANCE.refusesNotAiClaim).toBe(true);
   });
 
-  it("writes the identity into PRODUCT", () => {
+  it("writes Creator OS as a capability into PRODUCT", () => {
     const product = readFileSync(path.join(ROOT, "PRODUCT.md"), "utf8");
     expect(product).toContain("Version 8");
     expect(product).toContain("0010");
@@ -48,7 +51,7 @@ describe("creator operating system lock", () => {
     expect(product).not.toContain("liveAudioIsTheProduct");
   });
 
-  it("orients default chrome as Workspace, Library, Live, and Network", () => {
+  it("keeps transitional chrome as Workspace, Library, Live, and Network until Phase 1", () => {
     expect(HOME_ITEM.label).toBe("Workspace");
     expect(HOME_ITEM.path).toBe("/");
     const items = navItems();

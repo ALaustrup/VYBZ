@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-21
-**Branch:** `feat/creator-os-phase-1-authority`
-**HEAD:** `467686c5` (Phase 8 name-only index). Phase 9 hardening first slice is uncommitted.
-**Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+**Branch:** `feat/living-profile-phase-0`
+**HEAD:** constitution lock on `feat/living-profile-phase-0` (not yet on `main` until this PR merges).
+**Production:** https://vybz.cloud — `main` **`060af4f8`** (PR [#196](https://github.com/ALaustrup/VYBZ/pull/196), Creator OS through Phase 9 first slice). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
+
+## Living Profile Phase 0 — Constitution lock — 2026-08-21
+
+Identity lock only. Chrome is unchanged: signed-in home is still Workspace (`/`). Frozen `MobileNav` stays unmounted. No Devices nav.
+
+`PRODUCT.md` is Version 9. Thesis: VYBZ is a living social identity that becomes a creative operating system when you create. Decision [`0011`](docs/decisions/0011-living-profile.md) records that. `LIVING_PROFILE` in `src/product/invariants.ts` is the identity lock. `CREATOR_OS.creatorOsIsTheProduct` is false. `CREATOR_OS.livingProfileBecomesCreatorOs` is true. Gate `livingProfile` is registered.
+
+Locked especially: One Identity, One Library, Profile Is The Product, Community First, Refine Before Replace. Also: no forced creator onboarding, one profile / two perspectives, tools serve Work, private by default, quieter chrome as power grows.
+
+Creator OS work already on `main` (`060af4f8`) stays: Asset Node, Follow without a public count, provenance as association, Stage File work kinds, Go Live screen-then-audio. Not deleted.
+
+`npm run lint` pass. `npm run test` pass — **191 files / 953 tests**. `npm run build` pass.
 
 ## Creator OS Phase 9 — Hardening (first slice) — 2026-08-21
 
