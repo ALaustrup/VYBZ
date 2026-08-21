@@ -8,12 +8,10 @@ type DirHandle = FileSystemDirectoryHandle & {
   requestPermission?: (opts?: { mode?: "read" | "readwrite" }) => Promise<PermissionState>;
 };
 
-export const GET_FILE_TIMEOUT_MS = 4000;
 export const WALK_BUDGET_MS = 20_000;
 export const PERMISSION_TIMEOUT_MS = 2500;
 
 export type WalkOptions = {
-  getFileTimeoutMs?: number;
   budgetMs?: number;
   onProgress?: (count: number) => void;
 };
@@ -39,8 +37,12 @@ async function* iterateDirectory(
 ): AsyncGenerator<[string, FileSystemHandle]> {
   const d = dir as DirHandle;
   if (typeof d.entries === "function") {
-    for await (const pair of d.entries()) yield pair;
-    return;
+    try {
+      for await (const pair of d.entries()) yield pair;
+      return;
+    } catch {
+      /* Some shells expose entries() but throw when iterating. Fall through. */
+    }
   }
   if (typeof d.values === "function") {
     for await (const handle of d.values()) yield [handle.name, handle];
@@ -86,7 +88,8 @@ export async function ensureDirectoryPermission(handle: FileSystemDirectoryHandl
 }
 
 /**
- * Metadata-only walk. Reads File.size / type / lastModified, never file contents.
+ * Name-only walk. Does not call getFile, so OneDrive placeholders and open Ableton
+ * files cannot stall the catalog. Size is filled later on play. Never file contents.
  * Originals stay on disk.
  */
 export async function walkAuthorizedFolder(
@@ -96,7 +99,6 @@ export async function walkAuthorizedFolder(
   const files: WalkFile[] = [];
   let skipped = 0;
   let truncated = false;
-  const getFileTimeoutMs = options.getFileTimeoutMs ?? GET_FILE_TIMEOUT_MS;
   const budgetMs = options.budgetMs ?? WALK_BUDGET_MS;
   const started = Date.now();
 
@@ -135,25 +137,16 @@ export async function walkAuthorizedFolder(
         truncated = true;
         return;
       }
-      try {
-        const file = await withTimeout(
-          (handle as FileSystemFileHandle).getFile(),
-          getFileTimeoutMs,
-          "getFile timeout",
-        );
-        files.push({
-          relativePath: [...prefix, name].join("/"),
-          name,
-          sizeBytes: file.size,
-          mime: mimeFromName(name, file.type),
-          lastModified: file.lastModified,
-        });
-        options.onProgress?.(files.length);
-        if (files.length % 25 === 0) {
-          await new Promise<void>((resolve) => setTimeout(resolve, 0));
-        }
-      } catch {
-        skipped += 1;
+      files.push({
+        relativePath: [...prefix, name].join("/"),
+        name,
+        sizeBytes: 0,
+        mime: mimeFromName(name),
+        lastModified: 0,
+      });
+      options.onProgress?.(files.length);
+      if (files.length % 50 === 0) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
       }
     }
   }

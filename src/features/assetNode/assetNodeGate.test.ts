@@ -60,7 +60,9 @@ describe("local asset node", () => {
     }
     expect(walk).not.toContain(".arrayBuffer(");
     expect(walk).not.toContain("sha256");
+    expect(walk).toContain("Name-only walk");
     expect(walk).toContain("directory is not listable");
+    expect(page).toContain("tab === \"device\"");
     expect(index).toContain("Does not upload, hash, or copy bytes");
     expect(cloud).toContain("creator_nodes");
     expect(cloud).toContain("indexed_assets");

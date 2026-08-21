@@ -36,14 +36,23 @@ function dirHandle(
 }
 
 describe("walkAuthorizedFolder", () => {
-  it("catalogs files through entries() without reading bytes", async () => {
+  it("catalogs names without calling getFile", async () => {
+    let reads = 0;
+    const hung = fileHandle("online-only.wav", true);
+    const original = hung.getFile.bind(hung);
+    hung.getFile = async () => {
+      reads += 1;
+      return original();
+    };
     const root = dirHandle("Song Project", [
       fileHandle("Song.als"),
-      fileHandle("kick.wav"),
+      hung,
       dirHandle("Backup", [fileHandle("Song [2026].als")]),
     ]);
     const walked = await walkAuthorizedFolder(root);
-    expect(walked.files.map((f) => f.name).sort()).toEqual(["Song.als", "kick.wav"]);
+    expect(reads).toBe(0);
+    expect(walked.files.map((f) => f.name).sort()).toEqual(["Song.als", "online-only.wav"]);
+    expect(walked.files.every((f) => f.sizeBytes === 0)).toBe(true);
     expect(walked.skipped).toBeGreaterThan(0);
   });
 
@@ -52,12 +61,6 @@ describe("walkAuthorizedFolder", () => {
     const walked = await walkAuthorizedFolder(root);
     expect(walked.files).toHaveLength(1);
     expect(walked.files[0]?.name).toBe("take.m4a");
-  });
-
-  it("skips files whose getFile hangs past the timeout", async () => {
-    const root = dirHandle("Cloud", [fileHandle("online-only.wav", true), fileHandle("local.wav")]);
-    const walked = await walkAuthorizedFolder(root, { getFileTimeoutMs: 30, budgetMs: 500 });
-    expect(walked.files.map((f) => f.name)).toEqual(["local.wav"]);
   });
 
   it("throws when the directory cannot be listed", async () => {

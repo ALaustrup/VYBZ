@@ -143,7 +143,11 @@ export function LibraryPage() {
         </ForgeChip>
       </div>
 
-      {loading ? (
+      {tab === "device" ? (
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
+          <LocalAssetsLibrary onChanged={() => { void listVisibleCatalog().then((c) => setLocalCount(c.assets.length)); }} />
+        </div>
+      ) : loading ? (
         <div className="flex justify-center py-16">
           <Loader2 className="h-5 w-5 animate-spin text-[rgb(var(--app-accent-rgb))]" />
         </div>
@@ -153,10 +157,6 @@ export function LibraryPage() {
           featuredId={profile?.featuredDropId}
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
         />
-      ) : tab === "device" ? (
-        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
-          <LocalAssetsLibrary onChanged={() => { void listVisibleCatalog().then((c) => setLocalCount(c.assets.length)); }} />
-        </div>
       ) : tab === "mixes" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
           <MixesLibrary />

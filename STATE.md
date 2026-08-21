@@ -4,16 +4,16 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-21
 **Branch:** `feat/creator-os-phase-1-authority`
-**HEAD:** `5f21b62c` (Phase 7). Phase 8 is uncommitted on this branch.
+**HEAD:** Phase 8 `6e979ad3` plus name-only index follow-up on this branch.
 **Production:** https://vybz.cloud — `main` **`82d61df6`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**.
 
 ## Creator OS Phase 8 — Mobile Asset Participation — 2026-08-21
 
 Reuse the existing Asset Node. No Devices nav. No Capacitor document-picker plugin. When `showDirectoryPicker` exists, indexing stays a persisted folder (**Available now**). When it does not (typical phone / Safari), the Platform Bridge falls back to a file pick labeled **While this app is open**. Those blobs stay in the JS heap — they are not written to IndexedDB and are not a background host. After reload they settle to **Unavailable here**. Other-device cloud rows stay **On another device** (names and sizes only). Public media stays in Works. CHECK on `creator_nodes` / `indexed_assets` extended with `session-only` and `unavailable` on project `xixmneooyufbeftdfpcm`.
 
-Library **This device** shows the six-state legend. Owner confirmed the legend path: **Not measured**. Owner confirmed **Index a folder** on an Ableton Live 12 project: picker returns, catalog does not appear (2026-08-21). Walk was changed to skip Freeze/Processed, time-box `getFile`, and not block on cloud — still **unverified** in the browser.
+Library **This device** shows the six-state legend. Owner confirmed **Index a folder** on an Ableton Live 12 project: picker returns, catalog does not appear (2026-08-21). Follow-up: catalog walk is **name-only** (no `getFile` during index) and **This device** stays mounted while Library loads. Browser re-walk: **Not measured**.
 
-`npm run lint` pass. `npm run test` pass — **188 files / 942 tests**. `npm run build` pass (pre-hang-fix). Hang-fix lint/test rerun: lint pass, test **188 / 942**. Build after hang-fix: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **188 files / 941 tests**. `npm run build` after name-only walk: **Not measured**.
 
 ## Creator OS Phase 7 — Social Creator Network — 2026-08-21
 

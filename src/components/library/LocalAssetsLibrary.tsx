@@ -296,7 +296,9 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
                       <span className="shrink-0 text-[10px] uppercase tracking-wider text-white/35">
                         {AVAILABILITY_LABEL[asset.availability]}
                       </span>
-                      <span className="shrink-0 text-[11px] text-white/40">{formatBytes(asset.sizeBytes)}</span>
+                      <span className="shrink-0 text-[11px] text-white/40">
+                        {asset.sizeBytes > 0 ? formatBytes(asset.sizeBytes) : "—"}
+                      </span>
                       { (asset.availability === "local-only" || asset.availability === "session-only") && isAudioAsset(asset.mime, asset.name) ? (
                         <button
                           type="button"
