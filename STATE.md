@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-22
 **Branch:** `feat/living-profile-phase-3`
-**HEAD:** uncommitted until this unit lands (see Phase 3 below).
+**HEAD:** `9a26e408`
 **Production:** https://vybz.cloud — `main` **`51d5aa85`** (PR 200, Living Profile Phase 2). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
 
 ## Living Profile Phase 3 — Owner / visitor dual mode — 2026-08-22
