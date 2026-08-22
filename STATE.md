@@ -3,9 +3,9 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-22
-**Branch:** `feat/living-profile-phase-5`
-**HEAD:** `566f8548`
-**Production:** https://vybz.cloud — `main` **`b8da377f`** (PR 203, Phase 4 STATE). Phase 4 code merge: **`3dbfc4f3`** (PR 202). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `main`
+**HEAD:** `f9f47e94`
+**Production:** https://vybz.cloud — `main` **`f9f47e94`** (PR 204, Phase 5). Prior: PR 203 Phase 4 STATE `b8da377f`; Phase 4 code `3dbfc4f3` (PR 202). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
 
 ## Living Profile Phase 5 — Library → profile — 2026-08-22
 
@@ -13,7 +13,9 @@ Select existing Library work. **Place on your VYBZ.** Choose Works or Featured. 
 
 Library views: grid, list, table, and **shelves** (horizontal rows per group). View / sort / group are remembered per person. After composing, Library can filter **On my VYBZ** / **Not on VYBZ**. Profile layout editing is later (Phase 6).
 
-`LIVING_PROFILE.libraryToProfilePipeline` is true. Signed-in browser walk of Place on VYBZ: **Not measured**.
+`LIVING_PROFILE.libraryToProfilePipeline` is true. Signed-in browser walk of Place on VYBZ: **Not measured**. Merged to `main` as PR 204 (`f9f47e94`).
+
+`npm run lint` pass. `npm run test` pass — **194 files / 976 tests**. `npm run build` pass.
 
 `npm run lint` pass. `npm run test` pass — **194 files / 976 tests**. `npm run build` pass.
 
