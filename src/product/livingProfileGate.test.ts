@@ -40,6 +40,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
     expect(LIVING_PROFILE.profileModuleRegistry).toBe(true);
+    expect(LIVING_PROFILE.libraryToProfilePipeline).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);
@@ -67,6 +68,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("View as Visitor");
     expect(product).toContain("module registry");
     expect(product).toContain("text, and collection");
+    expect(product).toContain("Place on your VYBZ");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
     expect(product).not.toContain("creative operating environment with a social layer built into it");
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
@@ -134,6 +136,14 @@ describe("living profile constitution", () => {
     expect(stage).toContain("WorkCard");
     expect(stage).toContain("collectStageWorks");
     expect(stage).toContain("playlists:");
+  });
+
+  it("places Library work on the Stage File without a second catalog", () => {
+    expect(read("src/features/profile/stageComposition.ts")).toContain("placeDrops");
+    expect(read("src/features/profile/PlaceOnVybzSheet.tsx")).toContain("Place on your VYBZ");
+    expect(read("src/pages/UserProfilePage.tsx")).toContain("applyDropComposition");
+    expect(read("src/lib/libraryQuery.ts")).toContain('"shelves"');
+    expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "shelves"');
   });
 
   it("orients agents at the Living Profile identity", () => {

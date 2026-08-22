@@ -68,6 +68,14 @@ export interface ProfileDetails {
     trackCount: number;
     connectedAt: number;
   }>;
+  /**
+   * Living Profile Phase 5 — which Library drops appear on the Stage File.
+   * Ids only. Never a second copy of the asset.
+   */
+  stageComposition?: {
+    selected: boolean;
+    placements: Array<{ dropId: string; section: "works" | "featured"; sort: number }>;
+  };
 }
 
 export interface Profile {

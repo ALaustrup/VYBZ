@@ -24,6 +24,8 @@ export function LibraryRow({
   selected,
   onSelect,
   isFeatured,
+  onStage = false,
+  snapshotDropIds,
   onChanged,
 }: {
   drop: Drop;
@@ -31,7 +33,9 @@ export function LibraryRow({
   selected: boolean;
   onSelect: (e: React.MouseEvent) => void;
   isFeatured: boolean;
-  onChanged: (c: { kind: "deleted" | "renamed" | "featured"; dropId: string; title?: string }) => void;
+  onStage?: boolean;
+  snapshotDropIds?: string[];
+  onChanged: (c: { kind: "deleted" | "renamed" | "featured" | "placed"; dropId: string; title?: string }) => void;
 }) {
   const player = usePlayer();
   const { showToast } = useSession();
@@ -64,6 +68,8 @@ export function LibraryRow({
         onChanged={onChanged}
         onPlay={togglePlay}
         isFeatured={isFeatured}
+        onStage={onStage}
+        snapshotDropIds={snapshotDropIds}
       />
     ) : null;
 

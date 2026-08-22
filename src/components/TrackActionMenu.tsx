@@ -13,6 +13,7 @@ import { useOnline } from "@/lib/useOnline";
 import * as api from "@/lib/api";
 import type { Drop, Reaction } from "@/types";
 import { ValidateHumanitySheet } from "@/features/provenance/ValidateHumanitySheet";
+import { PlaceOnVybzSheet } from "@/features/profile/PlaceOnVybzSheet";
 
 type TrackLike = Drop & { myReaction?: Reaction; myRating?: number };
 
@@ -23,11 +24,13 @@ export type TrackActionMenuProps = {
   onClose: () => void;
   returnFocusTo?: HTMLElement | null;
   /** Called after a destructive or mutating action so the list can refresh. */
-  onChanged?: (change: { kind: "deleted" | "renamed" | "featured"; dropId: string; title?: string }) => void;
+  onChanged?: (change: { kind: "deleted" | "renamed" | "featured" | "placed"; dropId: string; title?: string }) => void;
   onPlay?: () => void;
   onReact?: (r: Reaction) => void;
   onRate?: () => void;
   isFeatured?: boolean;
+  onStage?: boolean;
+  snapshotDropIds?: string[];
 };
 
 /**
@@ -45,12 +48,14 @@ export function TrackActionMenu({
   onReact,
   onRate,
   isFeatured = false,
+  onStage = false,
+  snapshotDropIds,
 }: TrackActionMenuProps) {
   const navigate = useNavigate();
   const player = usePlayer();
   const online = useOnline();
-  const { userId, showToast } = useSession();
-  const [stage, setStage] = useState<"menu" | "confirm-delete" | "rename" | "details" | "tool">(
+  const { userId, profile, showToast } = useSession();
+  const [stage, setStage] = useState<"menu" | "confirm-delete" | "rename" | "details" | "tool" | "place">(
     "menu"
   );
   const [tool, setTool] = useState<TrackToolDef | null>(null);
@@ -82,6 +87,7 @@ export function TrackActionMenu({
           hasAsset: Boolean(drop.assetId),
           online,
           isFeatured,
+          onStage,
           hasVybbed: drop.myReaction === "feel",
         },
         {
@@ -117,7 +123,7 @@ export function TrackActionMenu({
             setRenameValue(drop.title ?? "");
             setStage("rename");
           },
-          feature: () => void runFeature(),
+          placeOnVybz: () => setStage("place"),
           report: () => setReportOpen(true),
           validateHumanity: () => setHumanityOpen(true),
           requestDelete: () => setStage("confirm-delete"),
@@ -128,7 +134,7 @@ export function TrackActionMenu({
         }
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [drop, userId, isOwner, isCurrent, player.playing, online, isFeatured]
+    [drop, userId, isOwner, isCurrent, player.playing, online, isFeatured, onStage]
   );
 
   async function runDownload() {
@@ -147,16 +153,6 @@ export function TrackActionMenu({
     a.remove();
     if (res.revoke) setTimeout(() => URL.revokeObjectURL(res.url), 10_000);
     showToast(res.watermarked ? "Downloaded — watermarked for attribution" : "Downloaded");
-  }
-
-  async function runFeature() {
-    const ok = await api.setFeaturedDrop(drop.id);
-    if (ok) {
-      showToast("Featured on your profile");
-      onChanged?.({ kind: "featured", dropId: drop.id });
-    } else {
-      showToast("Could not feature that track");
-    }
   }
 
   async function runAddToVibesRadio() {
@@ -256,6 +252,19 @@ export function TrackActionMenu({
           />
         )}
       </>
+    );
+  }
+
+  if (stage === "place") {
+    return (
+      <PlaceOnVybzSheet
+        open
+        drops={[drop]}
+        snapshotDropIds={snapshotDropIds ?? []}
+        profile={profile}
+        onClose={reset}
+        onChanged={() => onChanged?.({ kind: "placed", dropId: drop.id })}
+      />
     );
   }
 

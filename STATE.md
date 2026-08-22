@@ -3,13 +3,23 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-22
-**Branch:** `main`
-**HEAD:** `3dbfc4f3`
-**Production:** https://vybz.cloud — `main` **`3dbfc4f3`** (PR 202, Living Profile Phase 4). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `feat/living-profile-phase-5`
+**HEAD:** pending commit on this branch
+**Production:** https://vybz.cloud — `main` **`b8da377f`** (PR 203, Phase 4 STATE). Phase 4 code merge: **`3dbfc4f3`** (PR 202). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+
+## Living Profile Phase 5 — Library → profile — 2026-08-22
+
+Select existing Library work. **Place on your VYBZ.** Choose Works or Featured. Done. Ids only — no second catalog, no duplicate upload. Until the owner composes, the Stage File still shows catalog drops so existing public work does not vanish. After the first place or hide, new uploads stay off the Stage File until placed.
+
+Library views: grid, list, table, and **shelves** (horizontal rows per group). View / sort / group are remembered per person. After composing, Library can filter **On my VYBZ** / **Not on VYBZ**. Profile layout editing is later (Phase 6).
+
+`LIVING_PROFILE.libraryToProfilePipeline` is true. Signed-in browser walk of Place on VYBZ: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **194 files / 976 tests**. `npm run build` pass.
 
 ## Living Profile Phase 4 — Profile module registry — 2026-08-22
 
-Stage File works go through `MODULE_RENDERERS` (kind → renderer). Audio, image, video, file (download), project, and link stay. Text covers notes and writing (`drop.body` without audio; project posts of kind `text`). Collection covers albums with two or more tracks (members are not also listed as singles) and connected playlists already stored on the profile. Unknown kinds fall back to `UnknownWork`. 3D and games are not registered. Library → profile picker is later (Phase 5).
+Stage File works go through `MODULE_RENDERERS` (kind → renderer). Audio, image, video, file (download), project, and link stay. Text covers notes and writing (`drop.body` without audio; project posts of kind `text`). Collection covers albums with two or more tracks (members are not also listed as singles) and connected playlists already stored on the profile. Unknown kinds fall back to `UnknownWork`. 3D and games are not registered. Library → profile is Phase 5.
 
 `LIVING_PROFILE.profileModuleRegistry` is true. Signed-in browser walk of text/collection cards: **Not measured**. Merged to `main` as PR 202 (`3dbfc4f3`).
 

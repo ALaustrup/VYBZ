@@ -1,4 +1,4 @@
-import { LayoutGrid, Rows3, Search, SlidersHorizontal, Table2, X } from "lucide-react";
+import { GalleryHorizontal, LayoutGrid, Rows3, Search, SlidersHorizontal, Table2, X } from "lucide-react";
 import {
   EMPTY_FILTERS,
   GROUP_LABEL,
@@ -16,6 +16,7 @@ const VIEWS: Array<{ id: LibraryView; label: string; icon: typeof LayoutGrid }> 
   { id: "grid", label: "Grid", icon: LayoutGrid },
   { id: "list", label: "List", icon: Rows3 },
   { id: "table", label: "Table", icon: Table2 },
+  { id: "shelves", label: "Shelves", icon: GalleryHorizontal },
 ];
 
 export function LibraryToolbar({
@@ -32,6 +33,7 @@ export function LibraryToolbar({
   total,
   filtersOpen,
   onFiltersOpen,
+  composed = false,
 }: {
   filters: LibraryFilters;
   onFilters: (next: LibraryFilters) => void;
@@ -46,6 +48,7 @@ export function LibraryToolbar({
   total: number;
   filtersOpen: boolean;
   onFiltersOpen: (open: boolean) => void;
+  composed?: boolean;
 }) {
   const active = activeFilterCount(filters);
   const patch = (p: Partial<LibraryFilters>) => onFilters({ ...filters, ...p });
@@ -138,7 +141,7 @@ export function LibraryToolbar({
         </label>
 
         <span className="ml-auto font-mono text-[11px] text-white/35" data-testid="library-count">
-          {matched === total ? `${total} tracks` : `${matched} of ${total}`}
+          {matched === total ? `${total} in library` : `${matched} of ${total}`}
         </span>
       </div>
 
@@ -223,6 +226,12 @@ export function LibraryToolbar({
           <div className="relative z-[1] flex flex-wrap gap-1.5">
             <Toggle on={filters.losslessOnly} onClick={() => patch({ losslessOnly: !filters.losslessOnly })} label="Lossless only" testId="library-filter-lossless" />
             <Toggle on={filters.withAssetOnly} onClick={() => patch({ withAssetOnly: !filters.withAssetOnly })} label="Has downloadable file" testId="library-filter-asset" />
+            {composed && (
+              <>
+                <Toggle on={filters.onStage === "on"} onClick={() => patch({ onStage: filters.onStage === "on" ? "any" : "on" })} label="On my VYBZ" testId="library-filter-on-stage" />
+                <Toggle on={filters.onStage === "off"} onClick={() => patch({ onStage: filters.onStage === "off" ? "any" : "off" })} label="Not on VYBZ" testId="library-filter-off-stage" />
+              </>
+            )}
             {active > 0 && (
               <button
                 type="button"

@@ -144,6 +144,8 @@ export const LIVING_PROFILE = {
   ownerVisitorDualMode: true,
   /** Stage File works go through a kind → renderer registry. Unknown kinds do not crash. */
   profileModuleRegistry: true,
+  /** Library places existing work on the Stage File. No second catalog. No duplicate upload. */
+  libraryToProfilePipeline: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

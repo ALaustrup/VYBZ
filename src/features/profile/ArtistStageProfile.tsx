@@ -319,9 +319,18 @@ export function ArtistStageProfile({
           </section>
 
           {ownerUi && nights.length === 0 && works.length === 0 ? (
-            <p className="text-sm text-white/45" data-testid="profile-owner-empty">
-              This is your VYBZ. Add work from Library when you want.
-            </p>
+            <div className="space-y-3" data-testid="profile-owner-empty">
+              <p className="text-sm text-white/45">
+                This is your VYBZ. Place work from Library when you want — it stays one file.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/library")}
+                className="btn btn-ghost h-10 px-4 py-0 text-xs"
+              >
+                Open Library
+              </button>
+            </div>
           ) : null}
 
           {works.length > 0 && (

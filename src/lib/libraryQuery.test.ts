@@ -88,6 +88,13 @@ describe("filterDrops", () => {
     expect(ids(filterDrops(CATALOG, f({ withStageOnly: true }), NOW))).toEqual(["c"]);
   });
 
+  it("filters composed Stage File membership when ids are known", () => {
+    const on = new Set(["a", "c"]);
+    expect(ids(filterDrops(CATALOG, f({ onStage: "on" }), NOW, on)).sort()).toEqual(["a", "c"]);
+    expect(ids(filterDrops(CATALOG, f({ onStage: "off" }), NOW, on)).sort()).toEqual(["b", "e"]);
+    expect(ids(filterDrops(CATALOG, f({ onStage: "on" }), NOW, null))).toEqual(ids(CATALOG));
+  });
+
   it("combines filters conjunctively", () => {
     const got = filterDrops(CATALOG, f({ losslessOnly: true, duration: "over-6m" }), NOW);
     expect(ids(got)).toEqual(["c"]);

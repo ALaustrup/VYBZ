@@ -196,6 +196,7 @@ Permitted states — never "complete":
 - **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted.
 - **One Stage File, two perspectives.** Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity.
 - **Works go through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash the Stage File. 3D and games are later.
+- **Library places work on your VYBZ.** Select a file you already have. Place on your VYBZ. Choose Works or Featured. Done. No second upload. No second catalog. New files stay private until placed. Library can be viewed as grid, list, table, or shelves, and that arrangement is remembered.
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
 - **Dark, restrained, workstation-grade** — without presenting as a SaaS control panel.
