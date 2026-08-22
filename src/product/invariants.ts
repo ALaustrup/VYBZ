@@ -142,6 +142,8 @@ export const LIVING_PROFILE = {
   defaultChromeIsQuiet: true,
   /** One Stage File. Owner controls vs visitor experience. View as Visitor is the check. */
   ownerVisitorDualMode: true,
+  /** Stage File works go through a kind → renderer registry. Unknown kinds do not crash. */
+  profileModuleRegistry: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

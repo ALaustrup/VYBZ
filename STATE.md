@@ -3,15 +3,23 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-22
-**Branch:** `feat/living-profile-phase-3`
-**HEAD:** `9a26e408`
-**Production:** https://vybz.cloud — `main` **`51d5aa85`** (PR 200, Living Profile Phase 2). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `feat/living-profile-phase-4`
+**HEAD:** `2afaf89c`
+**Production:** https://vybz.cloud — `main` **`43cd9d8f`** (PR 201, Living Profile Phase 3). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+
+## Living Profile Phase 4 — Profile module registry — 2026-08-22
+
+Stage File works go through `MODULE_RENDERERS` (kind → renderer). Audio, image, video, file (download), project, and link stay. Text covers notes and writing (`drop.body` without audio; project posts of kind `text`). Collection covers albums with two or more tracks (members are not also listed as singles) and connected playlists already stored on the profile. Unknown kinds fall back to `UnknownWork`. 3D and games are not registered. Library → profile picker is later (Phase 5).
+
+`LIVING_PROFILE.profileModuleRegistry` is true. Signed-in browser walk of text/collection cards: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **192 files / 964 tests**. `npm run build` pass.
 
 ## Living Profile Phase 3 — Owner / visitor dual mode — 2026-08-22
 
-One Stage File. Two permission contexts. Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview (`?view=visitor`) never runs Connect, Follow, Message, or Tip on your own identity. Frozen `MobileNav` stays unmounted. No Devices nav.
+Merged to `main` as PR 201 (`43cd9d8f`). One Stage File. Two permission contexts. Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview (`?view=visitor`) never runs Connect, Follow, Message, or Tip on your own identity. Frozen `MobileNav` stays unmounted. No Devices nav.
 
-`LIVING_PROFILE.ownerVisitorDualMode` is true. Modular profile engine is later (Phase 4). Signed-in browser walk of View as Visitor: **Not measured**.
+`LIVING_PROFILE.ownerVisitorDualMode` is true. Signed-in browser walk of View as Visitor: **Not measured**.
 
 `npm run lint` pass. `npm run test` pass — **192 files / 959 tests**. `npm run build` pass.
 

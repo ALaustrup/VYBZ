@@ -39,6 +39,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.loggedInHomeIsMyVybz).toBe(true);
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
+    expect(LIVING_PROFILE.profileModuleRegistry).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);
@@ -64,6 +65,8 @@ describe("living profile constitution", () => {
     expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
     expect(product).not.toContain("Logged-in home remains Workspace until Phase 1");
     expect(product).toContain("View as Visitor");
+    expect(product).toContain("module registry");
+    expect(product).toContain("text, and collection");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
     expect(product).not.toContain("creative operating environment with a social layer built into it");
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
@@ -117,6 +120,20 @@ describe("living profile constitution", () => {
     expect(stage).toContain("showVisitorSocial");
     expect(perspective).toContain("profilePerspective");
     expect(perspective).toContain("never on your own VYBZ");
+  });
+
+  it("routes Stage File works through the module registry", () => {
+    const kinds = read("src/features/profile/workKind.ts");
+    const card = read("src/features/profile/WorkCard.tsx");
+    const stage = read("src/features/profile/ArtistStageProfile.tsx");
+    expect(kinds).toContain('"text"');
+    expect(kinds).toContain('"collection"');
+    expect(card).toContain("MODULE_RENDERERS");
+    expect(card).toContain("rendererFor");
+    expect(card).toContain("UnknownWork");
+    expect(stage).toContain("WorkCard");
+    expect(stage).toContain("collectStageWorks");
+    expect(stage).toContain("playlists:");
   });
 
   it("orients agents at the Living Profile identity", () => {

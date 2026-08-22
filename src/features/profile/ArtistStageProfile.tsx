@@ -109,9 +109,10 @@ export function ArtistStageProfile({
         projects,
         posts,
         projectLinks,
+        playlists: f.connectedPlaylists,
         demoUrl: profile.musicUrl,
       }),
-    [drops, projects, posts, projectLinks, profile.musicUrl],
+    [drops, projects, posts, projectLinks, f.connectedPlaylists, profile.musicUrl],
   );
 
   const measuredCells = useMemo(() => {
@@ -330,7 +331,11 @@ export function ArtistStageProfile({
                 {works.map((work) => (
                   <div
                     key={work.id}
-                    className={work.kind === "audio" || work.kind === "video" ? "sm:col-span-2" : undefined}
+                    className={
+                      work.kind === "audio" || work.kind === "video" || work.kind === "collection"
+                        ? "sm:col-span-2"
+                        : undefined
+                    }
                   >
                     <WorkCard
                       work={work}

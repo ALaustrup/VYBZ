@@ -43,3 +43,7 @@ Permanent navigation is collapsed. Default chrome is **VYBZ · Search · + · Ch
 ## Phase 3 — Owner / visitor dual mode (2026-08-22)
 
 One Stage File. Two permission contexts. Owner sees management controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ without Connect/Follow/Tip on their own identity.
+
+## Phase 4 — Profile module registry (2026-08-22)
+
+Creative Work on the Stage File goes through a kind → renderer registry (`MODULE_RENDERERS`). Audio, image, video, file (download), project, and link stay. Text (notes / writing) and collection (albums with two or more tracks, connected playlists) register as first-release kinds. Unknown kinds fall back; they do not crash the profile. 3D and games stay out (Phase 9). Library → profile picker is later (Phase 5).
