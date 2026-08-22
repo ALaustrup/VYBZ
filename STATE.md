@@ -3,15 +3,15 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-22
-**Branch:** `feat/living-profile-phase-4`
-**HEAD:** `2afaf89c`
-**Production:** https://vybz.cloud — `main` **`43cd9d8f`** (PR 201, Living Profile Phase 3). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `main`
+**HEAD:** `3dbfc4f3`
+**Production:** https://vybz.cloud — `main` **`3dbfc4f3`** (PR 202, Living Profile Phase 4). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
 
 ## Living Profile Phase 4 — Profile module registry — 2026-08-22
 
 Stage File works go through `MODULE_RENDERERS` (kind → renderer). Audio, image, video, file (download), project, and link stay. Text covers notes and writing (`drop.body` without audio; project posts of kind `text`). Collection covers albums with two or more tracks (members are not also listed as singles) and connected playlists already stored on the profile. Unknown kinds fall back to `UnknownWork`. 3D and games are not registered. Library → profile picker is later (Phase 5).
 
-`LIVING_PROFILE.profileModuleRegistry` is true. Signed-in browser walk of text/collection cards: **Not measured**.
+`LIVING_PROFILE.profileModuleRegistry` is true. Signed-in browser walk of text/collection cards: **Not measured**. Merged to `main` as PR 202 (`3dbfc4f3`).
 
 `npm run lint` pass. `npm run test` pass — **192 files / 964 tests**. `npm run build` pass.
 
