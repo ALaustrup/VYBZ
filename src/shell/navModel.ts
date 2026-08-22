@@ -1,12 +1,6 @@
 import {
-  Activity,
-  BookOpen,
-  Library,
-  Radio,
   ShieldCheck,
   User,
-  UserCog,
-  Users,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -27,49 +21,15 @@ export type NavItem = {
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
 /**
- * Default chrome is Me, Library, Live, and Network (PRODUCT.md v9 Phase 1).
- * Workspace lives at `/workspace` and is archived from nav, not deleted.
- * Living Mix, Rooms, Make pack, Sales, and Packages stay in the tree and
- * resolve by URL — they are listed in ARCHIVED_NAV_PATHS, not deleted.
+ * Default chrome is quiet (PRODUCT.md v9 Phase 2): VYBZ · Search · + · Chat ·
+ * Alerts · Me. Kingdoms (Library, Network, Live, Workspace) stay in the tree
+ * and resolve by URL — they are listed in ARCHIVED_NAV_PATHS, not deleted.
  *
- * Only destinations that render a working surface may appear.
+ * The left rail is unmounted. HOME_ITEM still names Me so tests and the
+ * command palette know where home is.
  */
 export function navGroups(): NavGroup[] {
-  return [
-    {
-      id: "work",
-      label: "Work",
-      items: [
-        {
-          path: "/library",
-          label: "Library",
-          hint: "Your works",
-          icon: Library,
-          productId: "home",
-        },
-      ],
-    },
-    {
-      id: "network",
-      label: "Network",
-      items: [
-        {
-          path: "/feed",
-          label: "Network",
-          hint: "Creators and new work",
-          icon: Activity,
-          productId: "home",
-        },
-        {
-          path: "/live",
-          label: "Live",
-          hint: "Who is creating right now",
-          icon: Radio,
-          productId: "home",
-        },
-      ],
-    },
-  ];
+  return [];
 }
 
 /**
@@ -78,23 +38,7 @@ export function navGroups(): NavGroup[] {
  * here instead.
  */
 export function accountItems(role: string, isAdmin: boolean): NavItem[] {
-  const items: NavItem[] = [
-    {
-      path: "/connect",
-      label: "People",
-      hint: "Find creators",
-      icon: Users,
-      productId: "home",
-    },
-    {
-      path: "/profile/edit",
-      label: "Edit profile",
-      hint: "Name, avatar, links",
-      icon: UserCog,
-      productId: "home",
-    },
-    { path: "/codex", label: "Codex", hint: "Docs and legal", icon: BookOpen, productId: "home" },
-  ];
+  const items: NavItem[] = [];
   const mod = isAdmin || role === "admin" || role === "moderator";
   if (mod) {
     items.push({
@@ -132,6 +76,11 @@ export function navItems(): NavItem[] {
 /** Paths archived from nav but still linkable by URL (freeze-not-delete). */
 export const ARCHIVED_NAV_PATHS = [
   "/workspace",
+  "/library",
+  "/feed",
+  "/live",
+  "/connect",
+  "/codex",
   "/studio",
   "/market",
   "/store",

@@ -3,17 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-21
-**Branch:** `feat/living-profile-phase-1`
-**HEAD:** uncommitted until this unit lands (see Phase 1 below).
-**Production:** https://vybz.cloud — `main` **`17273986`**. Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `feat/living-profile-phase-2`
+**HEAD:** `f1a63f56`
+**Production:** https://vybz.cloud — `main` **`3860e474`** (PR 199, Living Profile Phase 1). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+
+## Living Profile Phase 2 — Quiet chrome — 2026-08-21
+
+Permanent navigation collapsed. `PrimaryRail` stays in the tree, imported by nothing. Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. Library, Network, Live, and Workspace stay reachable by URL and from owner controls on the Stage File. Frozen `MobileNav` stays unmounted. No Devices nav.
+
+`LIVING_PROFILE.defaultChromeIsQuiet` is true. Owner vs visitor dual-mode polish is later (Phase 3). Signed-in browser walk of the quiet chrome: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **191 files / 954 tests**. `npm run build` pass.
 
 ## Living Profile Phase 1 — Home is My VYBZ — 2026-08-21
 
-Logged-in `/` renders the existing Stage File (`MyVybzHome` → `UserProfilePage` / `ArtistStageProfile`) for the signed-in person. Public `/u/:id` is the same object. Workspace (`ProfilePage` / `ArtistHome`) moved to `/workspace` and is hidden from default chrome — not deleted. Frozen `MobileNav` stays unmounted. No Devices nav.
-
-Rail home is **Me**. Library, Network, and Live stay. `LIVING_PROFILE.loggedInHomeIsMyVybz` is true. Owner vs visitor dual-mode polish is later (Phase 3). Browser walk of signed-in `/`: **Not measured**.
-
-The Living Profile master plan is saved in `VYBZ Creator OS Executive Pivot Directive.md` (replaces the prior Creator OS pivot text on this branch).
+Merged to `main` as PR 199 (`3860e474`). Logged-in `/` renders the existing Stage File. Workspace at `/workspace`. `LIVING_PROFILE.loggedInHomeIsMyVybz` is true. Browser walk of signed-in `/`: **Not measured**.
 
 `npm run lint` pass. `npm run test` pass — **191 files / 953 tests**. `npm run build` pass.
 

@@ -6,7 +6,6 @@ import { SongWorkspaceBanner } from "@/features/workspace/SongWorkspaceBanner";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
-import { PrimaryRail } from "@/shell/PrimaryRail";
 import { SuiteStage, useActiveSuiteAppId } from "@/shell/SuiteStage";
 import { shellModeClass } from "@/shell/shellMode";
 import { PackPipelineBar } from "@/features/packPipeline/PackPipelineBar";
@@ -44,13 +43,14 @@ export function SuiteShell({
       data-suite-app={suiteAppId ?? "home"}
       data-testid="suite-shell"
     >
-      <PrimaryRail />
+      {/* PrimaryRail stays in the tree, imported by nothing. Default chrome
+          is the quiet app bar: VYBZ, Search, +, Chat, Alerts, Me. */}
       <div className="suite-shell-main">
         {appBar ?? (
           <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
         )}
-        {/* Tools moved behind the app-bar launcher so the shell leads with the
-            social surfaces. SuiteAppRail stays in the tree, imported by nothing. */}
+        {/* Tools stay behind the launcher. SuiteAppRail and PrimaryRail stay
+            in the tree, imported by nothing. */}
         {showCommandBar ? <CommandBar /> : null}
         {isPackPipelinePath(pathname) ? <PackPipelineBar /> : null}
         <SongWorkspaceBanner />

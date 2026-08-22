@@ -31,3 +31,11 @@ Logged-in chrome may still lead Workspace until a later phase moves home. That t
 - `LIVING_PROFILE` in `src/product/invariants.ts` is the identity lock. `CREATOR_OS.creatorOsIsTheProduct` is false. `CREATOR_OS.livingProfileBecomesCreatorOs` is true.
 - Gate `livingProfile` is registered.
 - Version 8 / decision 0010 remain history: Creative Work is still the unit of creation; local-first, Follow-without-count, and provenance-as-association stay.
+
+## Phase 1 — Home is My VYBZ (2026-08-21)
+
+Logged-in `/` is the owner's Stage File. Workspace remains at `/workspace`, hidden from default chrome.
+
+## Phase 2 — Quiet chrome (2026-08-21)
+
+Permanent navigation is collapsed. Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. `PrimaryRail` stays in the tree, imported by nothing. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted. No Devices nav.

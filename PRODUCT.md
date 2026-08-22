@@ -65,8 +65,8 @@ These laws are checked against every design decision, route change, feature, and
 |---|---|---|
 | **My VYBZ** (`/` owner home, `/u/:id` the same object) | Living profile. Owner dashboard and visitor experience are one Stage File | **The product. Logged-in home is My VYBZ** |
 | **Workspace** (`/workspace`) | Private operating environment. Hidden from default chrome | **Archived from nav** |
-| **Library** (`/library`) | Authorized works and assets, local and published. Owner layer | **Catalog** |
-| **Network** (`/feed`, `/connect`, `/live`) | People, activity, who is live | **Discovery and relationships** |
+| **Library** (`/library`) | Authorized works and assets, local and published. Owner layer, hidden from default chrome | **Catalog** |
+| **Network** (`/feed`, `/connect`, `/live`) | People, activity, who is live. Reachable from Search, not a permanent kingdom | **Discovery and relationships** |
 | **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: profile banner state | **Live Creation** |
 | **Devices** | Desktop / mobile Asset Nodes and availability | **Local originals** |
 | **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
@@ -79,11 +79,11 @@ Do not add navigation for functionality that does not exist.
 
 The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, music, and other disciplines share it. Connect is a request. Booking is a message, not a calendar. Works render through an extensible set of kinds — audio, image, video, file, project, and link — so the profile is a living portfolio, not an audio list.
 
-Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Creator identity, viewer access, public chat, the Stage File, and `live_sessions` logging stay. Live should become a **profile banner state**, not a disconnected destination. That chrome change is later than this lock.
+Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Creator identity, viewer access, public chat, the Stage File, and `live_sessions` logging stay. Live should become a **profile banner state**, not a disconnected destination. That remaining chrome change is later than this lock. `/live` stays reachable; it is not a permanent nav item.
 
 The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
 
-Target chrome (Phase 2, not this lock): **VYBZ · Search · + · Chat · Alerts · Me**. When the person hits Me, they are home.
+Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
 
 ## 5. Local-first originals
 
@@ -193,7 +193,7 @@ Permitted states — never "complete":
 ## 14. Interface Direction
 
 - **Logged-in home is My VYBZ.** `/` renders the same Stage File as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome.
-- **Default chrome** is Me, Library, Network, and Live. Phase 2 quiets it further toward VYBZ, Search, +, Chat, Alerts, Me.
+- **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted.
 - **Evolve the existing VYBZ theme.** No wholesale redesign. No generic dashboard template. Premium means hierarchy, spacing, type, and motion on the current DNA.
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
@@ -209,7 +209,7 @@ The first convincing Living Profile release proves five things:
 **D.** People can socially interact with me and my work.  
 **E.** The interface stays extremely quiet until I ask it to do something.
 
-A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Owner vs visitor dual-mode polish is later than this lock.
+A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Default chrome is quiet. Owner vs visitor dual-mode polish is later than this lock.
 
 A person may register creative files from a device they control, see them in Library without giving up the originals, organize a Work, choose what becomes public on their VYBZ, and can VYB or Follow another person.
 

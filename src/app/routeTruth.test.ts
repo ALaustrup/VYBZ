@@ -121,8 +121,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
   });
 
   it("never links Studio, Market, AI minutes or Cost Sentinel", () => {
-    // Living Profile Phase 1: Me, Library, Live, and Network are default chrome.
-    // Studio and unrouted money surfaces stay out of default nav.
+    // Living Profile Phase 2: rail model is Me only. Kingdoms stay reachable by URL.
     const linked = [
       ...navItems().map((i) => i.path),
       ...accountItems("admin", true).map((i) => i.path.split("#")[0]),
@@ -134,14 +133,11 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/store");
   });
 
-  it("carries Me, Network, Live and Library in the rail", () => {
+  it("carries only Me in the rail model", () => {
     const linked = navItems().map((i) => i.path);
-    expect(linked).toContain("/");
-    expect(linked).toContain("/feed");
-    expect(linked).toContain("/live");
-    expect(linked).toContain("/library");
-    for (const hidden of ["/library/mix", "/rooms", "/make", "/make/dashboard", "/store"]) {
-      expect(linked, `rail must not advertise parked ${hidden}`).not.toContain(hidden);
+    expect(linked).toEqual(["/"]);
+    for (const hidden of ["/library", "/feed", "/live", "/library/mix", "/rooms", "/make", "/make/dashboard", "/store"]) {
+      expect(linked, `rail must not advertise ${hidden}`).not.toContain(hidden);
     }
     for (const social of ["/discover", "/messages", "/notifications"]) {
       expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);

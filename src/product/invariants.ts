@@ -138,6 +138,8 @@ export const LIVING_PROFILE = {
   noGenericDashboard: true,
   /** Signed-in `/` is the owner's VYBZ. Workspace stays at `/workspace`. */
   loggedInHomeIsMyVybz: true,
+  /** Permanent kingdoms are hidden. Default chrome is VYBZ · Search · + · Chat · Alerts · Me. */
+  defaultChromeIsQuiet: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Search, Users } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import * as api from "@/lib/api";
 import { useReduceFx } from "@/lib/display";
 import { PROFESSION_LABEL } from "@/lib/profileFields";
+import { isApplePlatform } from "@/lib/platformKeys";
 import { cx } from "@/lib/utils";
+import { openCommandPalette } from "@/shell/commandPaletteStore";
 import type { CreatorSearchResult } from "@/types";
 
 /**
- * Discover other people from a menu — not on the owner's VYBZ.
+ * Search. People first (community). Places and tools via the command palette.
  * `/connect` and `/u/:id` stay the destinations.
  */
 export function PeopleMenu() {
@@ -77,21 +79,22 @@ export function PeopleMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="Find creators"
+        aria-label="Search"
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-keyshortcuts={isApplePlatform() ? "Meta+K" : "Control+K"}
         data-testid="people-menu-button"
-        data-tip="People"
+        data-tip="Search"
         className={cx("forge-chip flex h-10 w-10 active:scale-90", open && "forge-chip--active")}
       >
-        <Users className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+        <Search className="h-5 w-5" strokeWidth={1.75} aria-hidden />
       </button>
 
       <AnimatePresence>
         {open && (
           <motion.div
             role="menu"
-            aria-label="Find creators"
+            aria-label="Search"
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
@@ -150,6 +153,20 @@ export function PeopleMenu() {
                 </ul>
               )}
             </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                openCommandPalette();
+              }}
+              className="mt-1 flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[12px] text-white/55 transition hover:bg-white/10 hover:text-white/85"
+            >
+              <span>Places and tools</span>
+              <span className="font-mono text-[10px] text-white/35">
+                {isApplePlatform() ? "⌘K" : "Ctrl+K"}
+              </span>
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
