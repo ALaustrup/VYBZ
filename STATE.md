@@ -2,16 +2,22 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-21
-**Branch:** `feat/living-profile-phase-2`
-**HEAD:** `f1a63f56`
-**Production:** https://vybz.cloud — `main` **`3860e474`** (PR 199, Living Profile Phase 1). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Date:** 2026-08-22
+**Branch:** `feat/living-profile-phase-3`
+**HEAD:** `9a26e408`
+**Production:** https://vybz.cloud — `main` **`51d5aa85`** (PR 200, Living Profile Phase 2). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
 
-## Living Profile Phase 2 — Quiet chrome — 2026-08-21
+## Living Profile Phase 3 — Owner / visitor dual mode — 2026-08-22
 
-Permanent navigation collapsed. `PrimaryRail` stays in the tree, imported by nothing. Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. Library, Network, Live, and Workspace stay reachable by URL and from owner controls on the Stage File. Frozen `MobileNav` stays unmounted. No Devices nav.
+One Stage File. Two permission contexts. Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview (`?view=visitor`) never runs Connect, Follow, Message, or Tip on your own identity. Frozen `MobileNav` stays unmounted. No Devices nav.
 
-`LIVING_PROFILE.defaultChromeIsQuiet` is true. Owner vs visitor dual-mode polish is later (Phase 3). Signed-in browser walk of the quiet chrome: **Not measured**.
+`LIVING_PROFILE.ownerVisitorDualMode` is true. Modular profile engine is later (Phase 4). Signed-in browser walk of View as Visitor: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **192 files / 959 tests**. `npm run build` pass.
+
+## Living Profile Phase 2 — Quiet chrome — 2026-08-22
+
+Merged to `main` as PR 200 (`51d5aa85`). Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. `PrimaryRail` stays in the tree. Signed-in browser walk: **Not measured**.
 
 `npm run lint` pass. `npm run test` pass — **191 files / 954 tests**. `npm run build` pass.
 
