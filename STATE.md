@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-22
 **Branch:** `feat/living-profile-phase-4`
-**HEAD:** unpushed on this branch (SHA in the commit that follows this checkpoint)
+**HEAD:** `2afaf89c`
 **Production:** https://vybz.cloud — `main` **`43cd9d8f`** (PR 201, Living Profile Phase 3). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
 
 ## Living Profile Phase 4 — Profile module registry — 2026-08-22
