@@ -1,8 +1,29 @@
 import type { Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
 
-/** Minimum living-portfolio kinds. Renderers live in WorkCard — add here first. */
-export const WORK_KINDS = ["audio", "image", "video", "file", "project", "link"] as const;
+/**
+ * Living-portfolio kinds. Renderers register in WorkCard.MODULE_RENDERERS —
+ * add a kind here first, then a renderer. Unknown kinds fall back; they do not
+ * fork the Stage File. 3D and games are later (Phase 9).
+ */
+export const WORK_KINDS = [
+  "audio",
+  "image",
+  "video",
+  "file",
+  "project",
+  "link",
+  "text",
+  "collection",
+] as const;
 export type WorkKind = (typeof WORK_KINDS)[number];
+
+export type ConnectedPlaylist = {
+  id: string;
+  provider: string;
+  externalUrl: string;
+  title: string;
+  trackCount: number;
+};
 
 export type StageWork = {
   id: string;
@@ -10,22 +31,54 @@ export type StageWork = {
   title: string;
   href?: string;
   mediaUrl?: string;
+  body?: string;
+  items?: StageWork[];
+  /** Measured member count when items are inlined or a stored playlist count exists. */
+  itemCount?: number;
+  collectionLabel?: string;
   drop?: Drop;
   project?: ProfileProject;
 };
 
+export function isWorkKind(value: string): value is WorkKind {
+  return (WORK_KINDS as readonly string[]).includes(value);
+}
+
 export function classifyUrl(url: string, declared?: string | null): WorkKind {
   const k = (declared ?? "").toLowerCase();
-  if ((WORK_KINDS as readonly string[]).includes(k)) return k as WorkKind;
+  if (isWorkKind(k)) return k;
   const u = url.toLowerCase();
   if (/\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u)) return "image";
   if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)) return "video";
   if (/\.(mp3|wav|flac|aac|ogg|m4a)(\?|$)/i.test(u)) return "audio";
+  if (/\.(zip|pdf|epub|gz|tgz)(\?|$)/i.test(u)) return "file";
   if (/^https?:\/\//i.test(u)) return "link";
   return "file";
 }
 
+function dropToAudioWork(drop: Drop): StageWork {
+  return {
+    id: `drop:${drop.id}`,
+    kind: "audio",
+    title: drop.title || "Untitled",
+    mediaUrl: drop.audioUrl,
+    drop,
+  };
+}
+
+function albumKey(drop: Drop): string {
+  return drop.album?.trim().toLowerCase() ?? "";
+}
+
 function postToWork(post: ProjectPost): StageWork | null {
+  if (post.kind === "text" && (post.body || post.title)) {
+    return {
+      id: `post:${post.id}`,
+      kind: "text",
+      title: post.title || "Note",
+      body: post.body ?? undefined,
+    };
+  }
   if (post.kind === "image" && post.mediaUrl) {
     return { id: `post:${post.id}`, kind: "image", title: post.title || "Image", mediaUrl: post.mediaUrl };
   }
@@ -56,6 +109,7 @@ export function collectStageWorks(input: {
   projects?: ProfileProject[];
   posts?: ProjectPost[];
   projectLinks?: ProjectLink[];
+  playlists?: ConnectedPlaylist[];
   demoUrl?: string | null;
 }): StageWork[] {
   const out: StageWork[] = [];
@@ -74,6 +128,19 @@ export function collectStageWorks(input: {
       href: `/p/${project.id}`,
       mediaUrl: project.coverUrl ?? undefined,
       project,
+    });
+  }
+
+  for (const playlist of input.playlists ?? []) {
+    const title = playlist.title?.trim();
+    if (!title) continue;
+    add({
+      id: `playlist:${playlist.id}`,
+      kind: "collection",
+      title,
+      href: playlist.externalUrl,
+      collectionLabel: playlist.provider || "Playlist",
+      itemCount: playlist.trackCount > 0 ? playlist.trackCount : undefined,
     });
   }
 
@@ -99,20 +166,40 @@ export function collectStageWorks(input: {
     }
   }
 
-  for (const drop of input.drops ?? []) {
+  const drops = input.drops ?? [];
+  const albumCounts = new Map<string, number>();
+  for (const drop of drops) {
+    if (!drop.audioUrl) continue;
+    const key = albumKey(drop);
+    if (key) albumCounts.set(key, (albumCounts.get(key) ?? 0) + 1);
+  }
+  const emittedAlbums = new Set<string>();
+
+  for (const drop of drops) {
     if (drop.audioUrl) {
-      add({
-        id: `drop:${drop.id}`,
-        kind: "audio",
-        title: drop.title || "Untitled",
-        mediaUrl: drop.audioUrl,
-        drop,
-      });
+      const key = albumKey(drop);
+      if (key && (albumCounts.get(key) ?? 0) >= 2) {
+        if (!emittedAlbums.has(key)) {
+          emittedAlbums.add(key);
+          const members = drops.filter((d) => d.audioUrl && albumKey(d) === key).map(dropToAudioWork);
+          add({
+            id: `album:${key}`,
+            kind: "collection",
+            title: drop.album!.trim(),
+            collectionLabel: "Album",
+            items: members,
+            itemCount: members.length,
+          });
+        }
+        continue;
+      }
+      add(dropToAudioWork(drop));
     } else if (drop.body) {
       add({
         id: `drop:${drop.id}`,
-        kind: "file",
+        kind: "text",
         title: drop.title || "Note",
+        body: drop.body,
       });
     }
   }
