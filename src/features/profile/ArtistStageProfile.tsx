@@ -33,6 +33,11 @@ import type { PublicProfile } from "@/lib/api";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
 import { FollowButton } from "@/features/network/FollowButton";
 import type { StageNight } from "./stageNights";
+import {
+  profilePerspective,
+  showOwnerControls,
+  showVisitorSocial,
+} from "./perspective";
 import { collectStageWorks } from "./workKind";
 import { WorkCard } from "./WorkCard";
 
@@ -50,11 +55,14 @@ export function ArtistStageProfile({
   sessionLinks,
   cosmetics,
   isMe,
+  previewAsVisitor = false,
   requested,
   busy,
   onConnect,
   onMessage,
   onBook,
+  onViewAsVisitor,
+  onExitVisitorPreview,
 }: {
   id: string;
   profile: PublicProfile;
@@ -69,11 +77,14 @@ export function ArtistStageProfile({
   sessionLinks: WorkSessionLink[];
   cosmetics: ResolvedCosmetics;
   isMe: boolean;
+  previewAsVisitor?: boolean;
   requested: boolean;
   busy: "connect" | "msg" | "book" | null;
   onConnect: () => void;
   onMessage: () => void;
   onBook: () => void;
+  onViewAsVisitor?: () => void;
+  onExitVisitorPreview?: () => void;
 }) {
   const navigate = useNavigate();
   const [tipOpen, setTipOpen] = useState(false);
@@ -87,6 +98,9 @@ export function ArtistStageProfile({
   const banner = profile.avatarUrl;
   const bio = (profile.bio || "").trim();
   const longBio = bio.length > 220;
+  const perspective = profilePerspective({ isOwner: isMe, asVisitor: previewAsVisitor });
+  const ownerUi = showOwnerControls(perspective);
+  const visitorSocial = showVisitorSocial(isMe);
 
   const works = useMemo(
     () =>
@@ -176,7 +190,7 @@ export function ArtistStageProfile({
                 )}
               </div>
             </div>
-            {!isMe && (
+            {visitorSocial && (
               <button
                 type="button"
                 onClick={() => setReportOpen(true)}
@@ -190,6 +204,23 @@ export function ArtistStageProfile({
         </div>
       </section>
 
+      {previewAsVisitor ? (
+        <div
+          className="flex items-center justify-between gap-3 border-b border-cyan-200/15 bg-cyan-950/40 px-4 py-2 sm:px-8"
+          data-testid="profile-visitor-preview"
+        >
+          <p className="text-[12px] text-cyan-100/80">Viewing as a visitor</p>
+          <button
+            type="button"
+            onClick={onExitVisitorPreview}
+            data-testid="profile-exit-visitor-preview"
+            className="text-[12px] font-medium text-cyan-100 hover:text-white"
+          >
+            Back to owner
+          </button>
+        </div>
+      ) : null}
+
       <div className="sticky top-0 z-20 border-b border-white/8 bg-ink-950/80 px-4 py-2.5 backdrop-blur-xl sm:px-8">
         <div className="flex flex-wrap gap-2">
           {liveNow ? (
@@ -201,7 +232,7 @@ export function ArtistStageProfile({
               Listen · {playable.length}
             </button>
           ) : null}
-          {!isMe && (
+          {visitorSocial && (
             <>
               <button type="button" disabled={!!busy || requested} onClick={onConnect} data-testid="profile-connect" className="btn btn-ghost h-10 flex-1 py-0 text-xs disabled:opacity-40 sm:flex-none sm:px-4">
                 {busy === "connect" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
@@ -218,7 +249,7 @@ export function ArtistStageProfile({
               </button>
             </>
           )}
-          {isMe && (
+          {ownerUi && (
             <>
               <button type="button" onClick={() => navigate("/library")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
                 Library
@@ -234,6 +265,14 @@ export function ArtistStageProfile({
               <button type="button" onClick={() => navigate("/profile/edit")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
                 Edit profile
               </button>
+              <button
+                type="button"
+                onClick={onViewAsVisitor}
+                data-testid="profile-view-as-visitor"
+                className="btn btn-ghost h-10 px-4 py-0 text-xs"
+              >
+                View as visitor
+              </button>
             </>
           )}
         </div>
@@ -242,7 +281,7 @@ export function ArtistStageProfile({
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-8 lg:grid-cols-12">
         <div className="space-y-12 lg:col-span-7">
           <section>
-            <p className="eyebrow mb-3">On the stage</p>
+            <p className="eyebrow mb-3">{ownerUi ? "Your stage" : "On the stage"}</p>
             {nights.length === 0 ? (
               <p className="text-sm text-white/40">No live nights yet.</p>
             ) : (
@@ -278,6 +317,12 @@ export function ArtistStageProfile({
             )}
           </section>
 
+          {ownerUi && nights.length === 0 && works.length === 0 ? (
+            <p className="text-sm text-white/45" data-testid="profile-owner-empty">
+              This is your VYBZ. Add work from Library when you want.
+            </p>
+          ) : null}
+
           {works.length > 0 && (
             <section>
               <p className="eyebrow mb-3">Works</p>
@@ -291,7 +336,7 @@ export function ArtistStageProfile({
                       work={work}
                       audioQueue={drops.map((d) => ({ ...d, authorUsername: profile.username }))}
                       sessionLinks={sessionLinks}
-                      onOpenAuthor={isMe ? () => navigate("/") : undefined}
+                      onOpenAuthor={ownerUi ? () => navigate("/") : undefined}
                     />
                   </div>
                 ))}
@@ -358,21 +403,21 @@ export function ArtistStageProfile({
             </section>
           )}
 
-          {(credits.length > 0 || isMe) && (
+          {(credits.length > 0 || ownerUi) && (
             <section>
-              <Discography credits={credits} isOwner={isMe} />
+              <Discography credits={credits} isOwner={ownerUi} />
             </section>
           )}
 
           <details className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-2">
             <summary className="cursor-pointer text-[12px] text-white/35">More</summary>
             <div className="mt-3 space-y-6">
-              <ArtistRoster userId={id} editable={isMe} drops={drops} />
-              <AffiliateLinks userId={id} editable={isMe} />
+              <ArtistRoster userId={id} editable={ownerUi} drops={drops} />
+              <AffiliateLinks userId={id} editable={ownerUi} />
             </div>
           </details>
 
-          {!isMe && (
+          {visitorSocial && (
             <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
               <p className="eyebrow mb-2">Book a session</p>
               <p className="mb-3 text-[13px] text-white/45">

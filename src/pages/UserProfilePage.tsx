@@ -10,6 +10,7 @@ import { openFreeDm } from "@/lib/freeConnect";
 import { useMessagePopout } from "@/lib/messagePopout";
 import { FLAGS } from "@/lib/flags";
 import { ArtistStageProfile } from "@/features/profile/ArtistStageProfile";
+import { isVisitorPreview } from "@/features/profile/perspective";
 import { listCreationSessionLinks } from "@/features/provenance/provenanceApi";
 import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import { listHostStageNights, type StageNight } from "@/features/profile/stageNights";
@@ -95,6 +96,16 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
 
   const addr = formatVcAddress(p?.username);
   const liveNow = nights.some((n) => n.status === "live");
+  const isOwner = !!userId && userId === id;
+  const previewAsVisitor = isOwner && isVisitorPreview(searchParams.get("view"));
+
+  function setVisitorPreview(on: boolean) {
+    const next = new URLSearchParams(searchParams);
+    if (on) next.set("view", "visitor");
+    else next.delete("view");
+    setSearchParams(next, { replace: true });
+  }
+
   useRegisterAppBar({
     title: addr || "Creator",
     subtitle: liveNow ? "Live now" : (p?.profile?.roleLabel || "Creator"),
@@ -158,12 +169,15 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
       projectLinks={projectLinks}
       sessionLinks={sessionLinks}
       cosmetics={cosmetics}
-      isMe={userId === id}
+      isMe={isOwner}
+      previewAsVisitor={previewAsVisitor}
       requested={requested}
       busy={busy}
       onConnect={() => void connect()}
       onMessage={() => void message()}
       onBook={() => void book()}
+      onViewAsVisitor={() => setVisitorPreview(true)}
+      onExitVisitorPreview={() => setVisitorPreview(false)}
     />
   );
 }

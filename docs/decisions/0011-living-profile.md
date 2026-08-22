@@ -39,3 +39,7 @@ Logged-in `/` is the owner's Stage File. Workspace remains at `/workspace`, hidd
 ## Phase 2 — Quiet chrome (2026-08-21)
 
 Permanent navigation is collapsed. Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. `PrimaryRail` stays in the tree, imported by nothing. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted. No Devices nav.
+
+## Phase 3 — Owner / visitor dual mode (2026-08-22)
+
+One Stage File. Two permission contexts. Owner sees management controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ without Connect/Follow/Tip on their own identity.

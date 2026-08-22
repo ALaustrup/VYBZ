@@ -38,6 +38,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.noGenericDashboard).toBe(true);
     expect(LIVING_PROFILE.loggedInHomeIsMyVybz).toBe(true);
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
+    expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);
@@ -62,7 +63,8 @@ describe("living profile constitution", () => {
     expect(product).toContain("Logged-in home is My VYBZ");
     expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
     expect(product).not.toContain("Logged-in home remains Workspace until Phase 1");
-    expect(product).not.toContain("Default chrome is Me, Library, Network, and Live");
+    expect(product).toContain("View as Visitor");
+    expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
     expect(product).not.toContain("creative operating environment with a social layer built into it");
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
   });
@@ -99,6 +101,22 @@ describe("living profile constitution", () => {
     expect(stage).toContain('navigate("/library")');
     expect(stage).toContain('navigate("/workspace")');
     expect(stage).toContain("Go live");
+  });
+
+  it("keeps one Stage File with owner controls, visitor experience, and View as Visitor", () => {
+    const page = read("src/pages/UserProfilePage.tsx");
+    const stage = read("src/features/profile/ArtistStageProfile.tsx");
+    const perspective = read("src/features/profile/perspective.ts");
+    expect(page).toContain("previewAsVisitor");
+    expect(page).toContain("isVisitorPreview");
+    expect(page).toContain("setVisitorPreview");
+    expect(stage).toContain("profile-view-as-visitor");
+    expect(stage).toContain("profile-visitor-preview");
+    expect(stage).toContain("View as visitor");
+    expect(stage).toContain("showOwnerControls");
+    expect(stage).toContain("showVisitorSocial");
+    expect(perspective).toContain("profilePerspective");
+    expect(perspective).toContain("never on your own VYBZ");
   });
 
   it("orients agents at the Living Profile identity", () => {

@@ -140,6 +140,8 @@ export const LIVING_PROFILE = {
   loggedInHomeIsMyVybz: true,
   /** Permanent kingdoms are hidden. Default chrome is VYBZ · Search · + · Chat · Alerts · Me. */
   defaultChromeIsQuiet: true,
+  /** One Stage File. Owner controls vs visitor experience. View as Visitor is the check. */
+  ownerVisitorDualMode: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

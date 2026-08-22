@@ -194,7 +194,7 @@ Permitted states — never "complete":
 
 - **Logged-in home is My VYBZ.** `/` renders the same Stage File as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome.
 - **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted.
-- **Evolve the existing VYBZ theme.** No wholesale redesign. No generic dashboard template. Premium means hierarchy, spacing, type, and motion on the current DNA.
+- **One Stage File, two perspectives.** Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity.
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
 - **Dark, restrained, workstation-grade** — without presenting as a SaaS control panel.
@@ -209,7 +209,7 @@ The first convincing Living Profile release proves five things:
 **D.** People can socially interact with me and my work.  
 **E.** The interface stays extremely quiet until I ask it to do something.
 
-A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Default chrome is quiet. Owner vs visitor dual-mode polish is later than this lock.
+A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Default chrome is quiet. Owner and visitor share one Stage File. Owner sees controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ.
 
 A person may register creative files from a device they control, see them in Library without giving up the originals, organize a Work, choose what becomes public on their VYBZ, and can VYB or Follow another person.
 
