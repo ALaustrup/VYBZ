@@ -1,10 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Check, Play, SearchX, Star } from "lucide-react";
+import { AudioLines, Check, Play, SearchX, Sparkles, Star } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LibraryToolbar } from "@/components/library/LibraryToolbar";
 import { BatchActionBar } from "@/components/library/BatchActionBar";
 import { LibraryRow } from "@/components/library/LibraryRow";
+import { LibraryShelfTile } from "@/components/library/LibraryShelfTile";
+import { PlaceOnVybzSheet } from "@/features/profile/PlaceOnVybzSheet";
+import {
+  isComposed,
+  isOnStage,
+  parseStageComposition,
+  placedDropIds,
+} from "@/features/profile/stageComposition";
+import {
+  loadLibraryArrangement,
+  saveLibraryArrangement,
+} from "@/features/library/libraryArrangement";
 import {
   EMPTY_FILTERS,
   availableFacets,
@@ -16,12 +28,19 @@ import {
 } from "@/lib/libraryQuery";
 import { useSelection } from "@/lib/useSelection";
 import { useVirtualRows } from "@/lib/useVirtualRows";
+import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import type { Drop } from "@/types";
 
 const ROW_HEIGHT = { list: 64, table: 44 } as const;
 /** Grid rows are two-up on >=sm; height covers the compact card plus its stats strip. */
 const GRID_ROW_HEIGHT = 292;
+
+type LibraryChange = {
+  kind: "deleted" | "renamed" | "featured" | "placed";
+  dropId: string;
+  title?: string;
+};
 
 export function UploadsLibrary({
   initialDrops,
@@ -32,31 +51,45 @@ export function UploadsLibrary({
   featuredId?: string | null;
   onFeaturedChange?: () => void;
 }) {
+  const { userId, profile } = useSession();
   const [drops, setDrops] = useState<Drop[]>(initialDrops);
   useEffect(() => {
     setDrops(initialDrops);
   }, [initialDrops]);
 
+  const saved = useMemo(() => loadLibraryArrangement(userId), [userId]);
   const [filters, setFilters] = useState<LibraryFilters>({ ...EMPTY_FILTERS });
-  const [sort, setSort] = useState<LibrarySort>("newest");
-  const [group, setGroup] = useState<LibraryGroup>("none");
-  const [view, setView] = useState<LibraryView>("grid");
+  const [sort, setSort] = useState<LibrarySort>(saved.sort);
+  const [group, setGroup] = useState<LibraryGroup>(saved.group);
+  const [view, setView] = useState<LibraryView>(saved.view);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [placing, setPlacing] = useState<Drop[] | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    saveLibraryArrangement(userId, { view, sort, group });
+  }, [userId, view, sort, group]);
+
+  const composition = parseStageComposition(profile?.profile);
+  const composed = isComposed(composition);
+  const onStageKey = composed
+    ? [...placedDropIds(composition), featuredId ?? ""].filter(Boolean).sort().join(",")
+    : "";
+  const onStageIds = useMemo(() => {
+    if (!composed) return null;
+    return new Set(onStageKey.split(",").filter(Boolean));
+  }, [composed, onStageKey]);
 
   const facets = useMemo(() => availableFacets(drops), [drops]);
   const { total, matched, groups } = useMemo(
-    () => queryLibrary(drops, filters, sort, group),
-    [drops, filters, sort, group]
+    () => queryLibrary(drops, filters, sort, group, undefined, onStageIds),
+    [drops, filters, sort, group, onStageIds],
   );
 
+  const snapshotDropIds = useMemo(() => drops.map((d) => d.id), [drops]);
   const selection = useSelection(useMemo(() => matched.map((d) => d.id), [matched]));
 
-  function applyChange(change: {
-    kind: "deleted" | "renamed" | "featured";
-    dropId: string;
-    title?: string;
-  }) {
+  function applyChange(change: LibraryChange) {
     if (change.kind === "deleted") {
       setDrops((l) => l.filter((x) => x.id !== change.dropId));
       selection.remove([change.dropId]);
@@ -65,7 +98,7 @@ export function UploadsLibrary({
     }
     if (change.kind === "renamed") {
       setDrops((l) =>
-        l.map((x) => (x.id === change.dropId ? { ...x, title: change.title?.trim() || null } : x))
+        l.map((x) => (x.id === change.dropId ? { ...x, title: change.title?.trim() || null } : x)),
       );
       return;
     }
@@ -105,6 +138,7 @@ export function UploadsLibrary({
         total={total}
         filtersOpen={filtersOpen}
         onFiltersOpen={setFiltersOpen}
+        composed={composed}
       />
 
       {matched.length > 0 && (
@@ -157,9 +191,12 @@ export function UploadsLibrary({
                 view={view}
                 scrollRef={scrollRef}
                 featuredId={featuredId}
+                compositionOnStage={(id) => composed && isOnStage(composition, id, featuredId)}
+                snapshotDropIds={snapshotDropIds}
                 selection={selection}
                 onChanged={applyChange}
-                virtualize={groups.length === 1}
+                onPlace={(items) => setPlacing(items)}
+                virtualize={groups.length === 1 && view !== "shelves"}
               />
             </section>
           ))}
@@ -171,6 +208,19 @@ export function UploadsLibrary({
         selectedIds={selection.visibleSelected}
         onClear={selection.clear}
         onDeleted={removeMany}
+        onPlace={(items) => setPlacing(items)}
+      />
+
+      <PlaceOnVybzSheet
+        open={!!placing?.length}
+        drops={placing ?? []}
+        snapshotDropIds={snapshotDropIds}
+        profile={profile}
+        onClose={() => setPlacing(null)}
+        onChanged={() => {
+          onFeaturedChange?.();
+          setPlacing(null);
+        }}
       />
     </div>
   );
@@ -183,18 +233,44 @@ function GroupBody({
   view,
   scrollRef,
   featuredId,
+  compositionOnStage,
+  snapshotDropIds,
   selection,
   onChanged,
+  onPlace,
   virtualize,
 }: {
   drops: Drop[];
   view: LibraryView;
   scrollRef: React.RefObject<HTMLDivElement>;
   featuredId?: string | null;
+  compositionOnStage: (id: string) => boolean;
+  snapshotDropIds: string[];
   selection: SelectionApi;
-  onChanged: (c: { kind: "deleted" | "renamed" | "featured"; dropId: string; title?: string }) => void;
+  onChanged: (c: LibraryChange) => void;
+  onPlace: (drops: Drop[]) => void;
   virtualize: boolean;
 }) {
+  if (view === "shelves") {
+    return (
+      <ul className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2">
+        {drops.map((d) => (
+          <LibraryShelfTile
+            key={d.id}
+            drop={d}
+            selected={selection.isSelected(d.id)}
+            onSelect={(e) => (e.shiftKey ? selection.extendTo(d.id) : selection.toggle(d.id))}
+            isFeatured={d.id === featuredId}
+            onStage={compositionOnStage(d.id)}
+            onChanged={onChanged}
+            onPlace={() => onPlace([d])}
+            snapshotDropIds={snapshotDropIds}
+          />
+        ))}
+      </ul>
+    );
+  }
+
   const perRow = view === "grid" ? 2 : 1;
   const rowHeight = view === "grid" ? GRID_ROW_HEIGHT : ROW_HEIGHT[view];
   const rowCount = Math.ceil(drops.length / perRow);
@@ -228,6 +304,8 @@ function GroupBody({
               selected={selection.isSelected(d.id)}
               onSelect={(e) => (e.shiftKey ? selection.extendTo(d.id) : selection.toggle(d.id))}
               isFeatured={d.id === featuredId}
+              onStage={compositionOnStage(d.id)}
+              snapshotDropIds={snapshotDropIds}
               onChanged={onChanged}
             />
           ))}
@@ -250,6 +328,8 @@ function GroupBody({
               selected={selection.isSelected(d.id)}
               onSelect={(e) => (e.shiftKey ? selection.extendTo(d.id) : selection.toggle(d.id))}
               isFeatured={d.id === featuredId}
+              onStage={compositionOnStage(d.id)}
+              snapshotDropIds={snapshotDropIds}
               onChanged={onChanged}
             />
           ))}
@@ -282,10 +362,12 @@ function GroupBody({
                 queue={drops}
                 compact
                 isFeatured={d.id === featuredId}
+                onStage={compositionOnStage(d.id)}
+                snapshotDropIds={snapshotDropIds}
                 onChanged={onChanged}
               />
             </div>
-            <Stats d={d} isFeatured={d.id === featuredId} />
+            <Stats d={d} isFeatured={d.id === featuredId} onStage={compositionOnStage(d.id)} />
           </div>
         ))}
       </div>
@@ -326,7 +408,7 @@ export function SelectBox({
   );
 }
 
-function Stats({ d, isFeatured }: { d: Drop; isFeatured: boolean }) {
+function Stats({ d, isFeatured, onStage }: { d: Drop; isFeatured: boolean; onStage: boolean }) {
   return (
     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
       <span className="mr-auto flex items-center gap-3 text-[11px] text-white/45">
@@ -345,6 +427,11 @@ function Stats({ d, isFeatured }: { d: Drop; isFeatured: boolean }) {
       {isFeatured && (
         <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-0.5 text-[11px] font-semibold text-amber-300">
           <Star className="h-3 w-3" fill="currentColor" /> Featured
+        </span>
+      )}
+      {onStage && !isFeatured && (
+        <span className="flex items-center gap-1 rounded-full bg-cyan-400/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-200/80">
+          <Sparkles className="h-3 w-3" /> On VYBZ
         </span>
       )}
     </div>

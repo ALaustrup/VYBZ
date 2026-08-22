@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Download, ListPlus, Sparkles, Trash2, X } from "lucide-react";
+import { Download, ListPlus, Sparkles, StretchHorizontal, Trash2, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { runBatch, describeOutcome, type BatchProgress } from "@/lib/batchRunner";
@@ -22,12 +22,14 @@ export function BatchActionBar({
   selectedIds,
   onClear,
   onDeleted,
+  onPlace,
 }: {
   /** All currently visible drops, used to resolve selected ids to records. */
   drops: Drop[];
   selectedIds: string[];
   onClear: () => void;
   onDeleted: (ids: string[]) => void;
+  onPlace?: (drops: Drop[]) => void;
 }) {
   const { showToast } = useSession();
   const navigate = useNavigate();
@@ -148,6 +150,15 @@ export function BatchActionBar({
                 </>
               ) : (
                 <>
+                  <BatchBtn
+                    icon={StretchHorizontal}
+                    label="Place on VYBZ"
+                    onClick={() => {
+                      onPlace?.(selected);
+                      onClear();
+                    }}
+                    testId="batch-place-on-vybz"
+                  />
                   <BatchBtn
                     icon={Sparkles}
                     label="Living Mix"

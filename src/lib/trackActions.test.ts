@@ -43,6 +43,7 @@ function ctx(over: Partial<TrackActionContext> = {}): TrackActionContext {
     hasAsset: true,
     online: true,
     isFeatured: false,
+    onStage: false,
     hasVybbed: false,
     ...over,
   };
@@ -62,7 +63,7 @@ function handlers(): TrackActionHandlers {
     copyArtistLink: vi.fn(),
     download: vi.fn(),
     rename: vi.fn(),
-    feature: vi.fn(),
+    placeOnVybz: vi.fn(),
     report: vi.fn(),
     validateHumanity: vi.fn(),
     requestDelete: vi.fn(),
@@ -79,10 +80,10 @@ function find(groups: ReturnType<typeof buildTrackActions>, id: string) {
 }
 
 describe("buildTrackActions — ownership", () => {
-  it("offers rename, feature and delete to the owner", () => {
+  it("offers rename, place on VYBZ and delete to the owner", () => {
     const got = ids(buildTrackActions(ctx({ isOwner: true }), handlers()));
     expect(got).toContain("rename");
-    expect(got).toContain("feature");
+    expect(got).toContain("place-on-vybz");
     expect(got).toContain("validate-humanity");
     expect(got).toContain("delete");
   });
@@ -90,7 +91,7 @@ describe("buildTrackActions — ownership", () => {
   it("hides owner actions from other viewers", () => {
     const got = ids(buildTrackActions(ctx({ isOwner: false, viewerId: "user-b" }), handlers()));
     expect(got).not.toContain("rename");
-    expect(got).not.toContain("feature");
+    expect(got).not.toContain("place-on-vybz");
     expect(got).not.toContain("validate-humanity");
     expect(got).not.toContain("delete");
   });
@@ -129,10 +130,12 @@ describe("buildTrackActions — availability reasons", () => {
     expect(find(groups, "copy-artist-link")?.disabledReason).toBeTruthy();
   });
 
-  it("marks an already-featured track as such instead of offering it again", () => {
-    const groups = buildTrackActions(ctx({ isFeatured: true }), handlers());
-    const feature = find(groups, "feature");
-    expect(feature?.disabledReason).toMatch(/already/i);
+  it("still offers place on VYBZ when the work is already on the Stage File", () => {
+    const groups = buildTrackActions(ctx({ isFeatured: true, onStage: true }), handlers());
+    const place = find(groups, "place-on-vybz");
+    expect(place?.disabledReason).toBeUndefined();
+    expect(place?.label).toMatch(/featured/i);
+    expect(place?.keepOpen).toBe(true);
   });
 
   it("every disabled action carries a human-readable reason", () => {
@@ -172,7 +175,7 @@ describe("buildTrackActions — targeting", () => {
   it("keeps the surface open for actions that swap to another panel", () => {
     const owner = buildTrackActions(ctx(), handlers());
     // These replace the menu with a dialog, so closing first would discard the stage change.
-    for (const id of ["file-details", "rename", "delete"]) {
+    for (const id of ["file-details", "rename", "delete", "place-on-vybz"]) {
       expect(find(owner, id)?.keepOpen).toBe(true);
     }
     // Report opens a dialog for non-owners and must behave the same way.

@@ -8,7 +8,7 @@ import type { Drop } from "@/types";
  * storefront status, sales — are deliberately absent rather than shown and broken.
  */
 
-export type LibraryView = "grid" | "list" | "table";
+export type LibraryView = "grid" | "list" | "table" | "shelves";
 
 export type LibrarySort =
   | "newest"
@@ -42,6 +42,8 @@ export type LibraryFilters = {
   withStageOnly: boolean;
   /** Only drops that have a downloadable asset row. */
   withAssetOnly: boolean;
+  /** Composed Stage File only. Ignored until the owner has placed work. */
+  onStage: "any" | "on" | "off";
 };
 
 export const EMPTY_FILTERS: LibraryFilters = {
@@ -56,6 +58,7 @@ export const EMPTY_FILTERS: LibraryFilters = {
   uploaded: "any",
   withStageOnly: false,
   withAssetOnly: false,
+  onStage: "any",
 };
 
 export const SORT_LABEL: Record<LibrarySort, string> = {
@@ -91,6 +94,7 @@ export function activeFilterCount(f: LibraryFilters): number {
   if (f.uploaded !== "any") n++;
   if (f.withStageOnly) n++;
   if (f.withAssetOnly) n++;
+  if (f.onStage !== "any") n++;
   return n;
 }
 
@@ -131,7 +135,8 @@ function matchesUploaded(d: Drop, bucket: UploadedBucket, now: number): boolean 
 export function filterDrops(
   drops: Drop[],
   filters: LibraryFilters,
-  now: number = Date.now()
+  now: number = Date.now(),
+  onStageIds?: Set<string> | null,
 ): Drop[] {
   const needle = filters.q.trim().toLowerCase();
   return drops.filter((d) => {
@@ -146,6 +151,11 @@ export function filterDrops(
     if (!matchesUploaded(d, filters.uploaded, now)) return false;
     if (filters.withStageOnly && !d.playbackCustomization?.backdropUrl) return false;
     if (filters.withAssetOnly && !d.assetId) return false;
+    if (filters.onStage !== "any" && onStageIds) {
+      const on = onStageIds.has(d.id);
+      if (filters.onStage === "on" && !on) return false;
+      if (filters.onStage === "off" && on) return false;
+    }
     return true;
   });
 }
@@ -239,8 +249,9 @@ export function queryLibrary(
   filters: LibraryFilters,
   sort: LibrarySort,
   group: LibraryGroup,
-  now?: number
+  now?: number,
+  onStageIds?: Set<string> | null,
 ): { total: number; matched: Drop[]; groups: DropGroup[] } {
-  const matched = sortDrops(filterDrops(drops, filters, now), sort);
+  const matched = sortDrops(filterDrops(drops, filters, now, onStageIds), sort);
   return { total: drops.length, matched, groups: groupDrops(matched, group) };
 }

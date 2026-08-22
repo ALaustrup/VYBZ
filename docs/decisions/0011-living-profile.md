@@ -47,3 +47,7 @@ One Stage File. Two permission contexts. Owner sees management controls. Visitor
 ## Phase 4 — Profile module registry (2026-08-22)
 
 Creative Work on the Stage File goes through a kind → renderer registry (`MODULE_RENDERERS`). Audio, image, video, file (download), project, and link stay. Text (notes / writing) and collection (albums with two or more tracks, connected playlists) register as first-release kinds. Unknown kinds fall back; they do not crash the profile. 3D and games stay out (Phase 9). Library → profile picker is later (Phase 5).
+
+## Phase 5 — Library → profile (2026-08-22)
+
+A person selects existing Library work, **Place on your VYBZ**, chooses Works or Featured, and is done. Ids only — the asset is not copied. Until they compose, the Stage File still shows catalog drops so existing public work does not vanish. After the first place or hide, new uploads stay off the Stage File until placed. Library views: grid, list, table, and shelves. Arrangement (view / sort / group) is remembered per person. Profile layout editing is later (Phase 6).

@@ -17,6 +17,7 @@ import {
   RefreshCw,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
   Star,
   Tags,
   Trash2,
@@ -89,6 +90,8 @@ export type TrackActionContext = {
   online: boolean;
   /** True when this drop headlines the owner's profile. */
   isFeatured: boolean;
+  /** True when this drop is placed on the Stage File (or uncomposed legacy). */
+  onStage: boolean;
   /** Viewer has already reacted with a Vyb. */
   hasVybbed: boolean;
 };
@@ -106,7 +109,7 @@ export type TrackActionHandlers = {
   copyArtistLink: () => void;
   download: () => void;
   rename: () => void;
-  feature: () => void;
+  placeOnVybz: () => void;
   report: () => void;
   validateHumanity: () => void;
   requestDelete: () => void;
@@ -132,7 +135,7 @@ export function buildTrackActions(
   ctx: TrackActionContext,
   handlers: TrackActionHandlers
 ): MenuGroup[] {
-  const { drop, isOwner, isPlayable, hasAsset, online, isCurrent, isPlaying, isFeatured, hasVybbed } =
+  const { drop, isOwner, isPlayable, hasAsset, online, isCurrent, isPlaying, isFeatured, onStage, hasVybbed } =
     ctx;
 
   const playback: MenuGroup = {
@@ -278,15 +281,12 @@ export function buildTrackActions(
             onSelect: handlers.rename,
           },
           {
-            id: "feature",
-            label: isFeatured ? "On your page" : "Pin to your page",
-            icon: Star,
-            disabledReason: isFeatured
-              ? "Already pinned."
-              : online
-                ? undefined
-                : OFFLINE,
-            onSelect: handlers.feature,
+            id: "place-on-vybz",
+            label: isFeatured ? "Featured on your VYBZ" : onStage ? "On your VYBZ" : "Place on your VYBZ",
+            icon: Sparkles,
+            keepOpen: true,
+            disabledReason: online ? undefined : OFFLINE,
+            onSelect: handlers.placeOnVybz,
           },
         ]
       : [],

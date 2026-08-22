@@ -49,8 +49,10 @@ interface TrackCardProps {
   className?: string;
   /** Owner-manager surfaces pass this so the menu can offer feature/rename/delete state. */
   isFeatured?: boolean;
+  onStage?: boolean;
+  snapshotDropIds?: string[];
   /** Fired after a mutating menu action so the parent list can refresh. */
-  onChanged?: (change: { kind: "deleted" | "renamed" | "featured"; dropId: string; title?: string }) => void;
+  onChanged?: (change: { kind: "deleted" | "renamed" | "featured" | "placed"; dropId: string; title?: string }) => void;
   /** Hide the contextual action affordance (e.g. inside a read-only embed). */
   disableActions?: boolean;
 }
@@ -65,6 +67,8 @@ export function TrackCard({
   onOpenAuthor,
   className,
   isFeatured = false,
+  onStage = false,
+  snapshotDropIds,
   onChanged,
   disableActions = false,
 }: TrackCardProps) {
@@ -216,6 +220,8 @@ export function TrackCard({
           onReact={onReact}
           onRate={() => onRate?.(5)}
           isFeatured={isFeatured}
+          onStage={onStage}
+          snapshotDropIds={snapshotDropIds}
         />
       )}
 

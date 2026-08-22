@@ -11,6 +11,7 @@ import { useMessagePopout } from "@/lib/messagePopout";
 import { FLAGS } from "@/lib/flags";
 import { ArtistStageProfile } from "@/features/profile/ArtistStageProfile";
 import { isVisitorPreview } from "@/features/profile/perspective";
+import { applyDropComposition, parseStageComposition } from "@/features/profile/stageComposition";
 import { listCreationSessionLinks } from "@/features/provenance/provenanceApi";
 import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import { listHostStageNights, type StageNight } from "@/features/profile/stageNights";
@@ -68,7 +69,13 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
       );
       if (!alive) return;
       setP(prof);
-      setDrops(d);
+      const composition = parseStageComposition(prof?.profile);
+      let catalog = d;
+      if (composition.selected && composition.placements.length > catalog.length) {
+        catalog = await api.dropsBy(id, 200);
+      }
+      if (!alive) return;
+      setDrops(applyDropComposition(catalog, composition, null));
       setStats(s);
       setCredits(c);
       setNights(nightsList);
