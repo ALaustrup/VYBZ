@@ -2,18 +2,25 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-22
-**Branch:** `feat/living-profile-phase-6`
-**HEAD:** `b3a7f016` (branch not merged)
-**Production:** https://vybz.cloud — `main` **`79ce3edd`** (PR 205 STATE; Phase 5 code PR 204 `f9f47e94`). Landing stamp measured 2026-08-22: **Build 79ce3ed**. Vercel production `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun` READY, alias `vybz.cloud`. Production SPA walk of VLink: **Not measured**.
+**Date:** 2026-08-23
+**Branch:** `docs/living-profile-phase-6-walk`
+**HEAD:** unmerged docs walk record (this branch only)
+**Production:** https://vybz.cloud — `main` **`3d22afe4`** (PR 206). Vercel **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. PR 207 (set-password) stays open and is not this PR.
 
-## Living Profile Phase 6 — Modular arrangement — 2026-08-22
+## Living Profile Phase 6 — Modular arrangement — 2026-08-23
 
 Narrow first slice. Owner **Arrange** of modules that already exist on the Stage File. Order stored on `profiles.profile` jsonb as `stageModuleOrder`. Featured is its own module when a work is placed or pinned there. Empty modules omit; Arrange still shows them. Identity banner, sticky chrome, and Book a session stay fixed. No theme engine, no CSS/JS injection, no cinematic canvas.
 
-`LIVING_PROFILE.profileModularArrangement` is true. Not merged. Production walk of Arrange: **Not measured**.
+`LIVING_PROFILE.profileModularArrangement` is true. Merged to `main` as PR 206 (`3d22afe4`; feature `b3a7f016`). Phase 6 is **accepted**. No rollback.
 
-`npm run lint` pass. `npm run test` pass — **195 files / 983 tests**. `npm run build` pass. `npm run check:no-fixtures` against `dist/` — 13 markers absent.
+Signed-in walk 2026-08-23 as **~Love** on https://vybz.cloud. Refreshed before Arrange. Did not Hide, Place, or unpin. No account, DNS, or schema changes. Original visible order restored after each test: Featured (`locked in new 2`) → Works (`locked in next 1`) → Measured → Credits → More.
+
+- **Keyboard:** Arrange present. Empty Stage / Story / Packs appear only in Arrange. **Move Featured down** swapped Featured under Works. Persist disabled Done while saving, then re-enabled. Hard refresh kept `works`, `featured`, `measured`, `credits`, `links`. Featured still held `locked in new 2`; Works still held `locked in next 1`.
+- **Visitor preview** (`?view=visitor`): same occupied order (empty Credits omitted). Viewing as a visitor / Back to owner. No Arrange / Library / Edit profile. Identity banner and Listen · 2 stayed outside the module list. Desktop and 390×844: identity above Listen, Works first. Same tracks in the same modules.
+- **Pointer drag:** passed on production. Drag Works handle onto the Featured module (`dataTransfer` `vybz-stage-module:works`). Order became Works → Featured. Refresh persisted. Visitor preview matched. Featured still held `locked in new 2`; Works still held `locked in next 1`. Drag Featured onto Works restored Featured → Works. Refresh confirmed `featured`, `works`, `measured`, `credits`, `links`. First work card: `locked in new 2`.
+- **Book a session** from a genuine separate visitor session: **Not measured** — follow-up, not passed. Owner visitor-preview does not show it (`visitorSocial` is false on your own identity). ~Love was not modified.
+
+Pre-merge validation (not re-run for this docs record): `npm run lint` pass. `npm run test` pass — **195 files / 983 tests**. `npm run build` pass. `npm run check:no-fixtures` against `dist/` — 13 markers absent.
 
 ## Living Profile Phase 5 — Library → profile — 2026-08-22
 
