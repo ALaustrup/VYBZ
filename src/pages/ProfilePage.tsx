@@ -6,6 +6,7 @@ import {
   ChevronRight, MoreHorizontal, Radio, X,
 } from "lucide-react";
 import { PasskeysCard } from "@/components/PasskeysCard";
+import { PasswordCard } from "@/components/PasswordCard";
 import { requestOpenFeedback } from "@/features/alpha/AlphaWelcomeTour";
 import { ArtistHome } from "@/components/home/ArtistHome";
 import { GoLiveSheet } from "@/components/GoLiveSheet";
@@ -241,6 +242,7 @@ export function ProfilePage() {
                   </label>
                 )}
                 <PasskeysCard />
+                <PasswordCard />
                 <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
                   <LinkRow icon={Sparkles} title="Looks" body="Accent, flair, frame, backdrop" onClick={() => { setSettingsOpen(false); navigate("/store"); }} />
                   <LinkRow icon={ScrollText} title="Docs & legal" body="Terms, privacy, contracts" onClick={() => { setSettingsOpen(false); navigate("/codex"); }} />
