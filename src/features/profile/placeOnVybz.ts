@@ -7,12 +7,22 @@ import {
   type ProfileSection,
   type StageComposition,
 } from "./stageComposition";
+import { parseStageModuleOrder } from "./stageLayout";
 
 export async function persistStageComposition(
   details: ProfileDetails,
   next: StageComposition,
 ): Promise<{ error?: string }> {
   return api.updateMyProfile({ profile: { ...details, stageComposition: next } });
+}
+
+export async function persistStageModuleOrder(
+  details: ProfileDetails,
+  order: string[],
+): Promise<{ error?: string }> {
+  return api.updateMyProfile({
+    profile: { ...details, stageModuleOrder: parseStageModuleOrder(order) },
+  });
 }
 
 export async function placeOnVybz(input: {

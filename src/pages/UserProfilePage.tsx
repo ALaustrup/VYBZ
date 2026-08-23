@@ -29,7 +29,7 @@ export function MyVybzHome() {
 export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
   const { id: paramId = "" } = useParams();
   const id = idProp || paramId;
-  const { userId, showToast } = useSession();
+  const { userId, showToast, profile: me } = useSession();
   const { openThread } = useMessagePopout();
   const [p, setP] = useState<api.PublicProfile | null>(null);
   const [drops, setDrops] = useState<Drop[]>([]);
@@ -75,7 +75,7 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
         catalog = await api.dropsBy(id, 200);
       }
       if (!alive) return;
-      setDrops(applyDropComposition(catalog, composition, null));
+      setDrops(applyDropComposition(catalog, composition, userId === id ? (me?.featuredDropId ?? null) : null));
       setStats(s);
       setCredits(c);
       setNights(nightsList);
@@ -89,7 +89,7 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
       if (alive) setLoading(false);
     });
     return () => { alive = false; };
-  }, [id]);
+  }, [id, userId, me?.featuredDropId]);
 
   useEffect(() => {
     const t = searchParams.get("tip");
@@ -178,6 +178,7 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
       cosmetics={cosmetics}
       isMe={isOwner}
       previewAsVisitor={previewAsVisitor}
+      featuredDropId={userId === id ? (me?.featuredDropId ?? null) : null}
       requested={requested}
       busy={busy}
       onConnect={() => void connect()}

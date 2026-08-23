@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -32,14 +32,27 @@ import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPo
 import type { PublicProfile } from "@/lib/api";
 import type { StorefrontPackPublic } from "@/features/storefront/types";
 import { FollowButton } from "@/features/network/FollowButton";
+import { useSession } from "@/store/session";
 import type { StageNight } from "./stageNights";
 import {
   profilePerspective,
   showOwnerControls,
   showVisitorSocial,
 } from "./perspective";
-import { collectStageWorks } from "./workKind";
+import { collectStageWorks, type StageWork } from "./workKind";
 import { WorkCard } from "./WorkCard";
+import { parseStageComposition } from "./stageComposition";
+import {
+  dropStageModule,
+  moveStageModule,
+  parseStageModuleOrder,
+  partitionStageWorks,
+  visibleStageModules,
+  type StageModuleId,
+  type StageModuleOccupancy,
+} from "./stageLayout";
+import { persistStageModuleOrder } from "./placeOnVybz";
+import { StageModuleFrame } from "./StageModuleFrame";
 
 export function ArtistStageProfile({
   id,
@@ -56,6 +69,7 @@ export function ArtistStageProfile({
   cosmetics,
   isMe,
   previewAsVisitor = false,
+  featuredDropId = null,
   requested,
   busy,
   onConnect,
@@ -78,6 +92,7 @@ export function ArtistStageProfile({
   cosmetics: ResolvedCosmetics;
   isMe: boolean;
   previewAsVisitor?: boolean;
+  featuredDropId?: string | null;
   requested: boolean;
   busy: "connect" | "msg" | "book" | null;
   onConnect: () => void;
@@ -87,9 +102,12 @@ export function ArtistStageProfile({
   onExitVisitorPreview?: () => void;
 }) {
   const navigate = useNavigate();
+  const { profile: me, refreshProfile, showToast } = useSession();
   const [tipOpen, setTipOpen] = useState(false);
   const [storyOpen, setStoryOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [arranging, setArranging] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
   const f = profile.profile ?? {};
   const addr = formatVcAddress(profile.username);
   const playable = drops.filter((d) => d.audioUrl);
@@ -101,6 +119,17 @@ export function ArtistStageProfile({
   const perspective = profilePerspective({ isOwner: isMe, asVisitor: previewAsVisitor });
   const ownerUi = showOwnerControls(perspective);
   const visitorSocial = showVisitorSocial(isMe);
+  const composition = useMemo(() => parseStageComposition(profile.profile), [profile.profile]);
+  const storedOrder = f.stageModuleOrder;
+  const [order, setOrder] = useState(() => parseStageModuleOrder(storedOrder));
+
+  useEffect(() => {
+    setOrder(parseStageModuleOrder(storedOrder));
+  }, [storedOrder]);
+
+  useEffect(() => {
+    if (previewAsVisitor) setArranging(false);
+  }, [previewAsVisitor]);
 
   const works = useMemo(
     () =>
@@ -113,6 +142,11 @@ export function ArtistStageProfile({
         demoUrl: profile.musicUrl,
       }),
     [drops, projects, posts, projectLinks, f.connectedPlaylists, profile.musicUrl],
+  );
+
+  const { featured: featuredWorks, rest: restWorks } = useMemo(
+    () => partitionStageWorks(works, composition, featuredDropId),
+    [works, composition, featuredDropId],
   );
 
   const measuredCells = useMemo(() => {
@@ -128,6 +162,37 @@ export function ArtistStageProfile({
     return cells;
   }, [nights, stats, packs.length, works.length]);
 
+  const occupied: StageModuleOccupancy = {
+    stage: nights.length > 0,
+    featured: featuredWorks.length > 0,
+    works: restWorks.length > 0,
+    story: Boolean(bio || f.genres?.length),
+    packs: packs.length > 0,
+    measured: measuredCells.length > 0,
+    credits: credits.length > 0 || ownerUi,
+    links: true,
+  };
+  const layoutMode = arranging && ownerUi;
+  const shown = visibleStageModules(order, occupied, layoutMode);
+
+  const commitOrder = useCallback(
+    async (next: StageModuleId[]) => {
+      const normalized = parseStageModuleOrder(next);
+      setOrder(normalized);
+      if (!isMe || !me) return;
+      setSavingOrder(true);
+      const saved = await persistStageModuleOrder(me.profile ?? {}, normalized);
+      setSavingOrder(false);
+      if (saved.error) {
+        showToast("Couldn't save arrangement");
+        setOrder(parseStageModuleOrder(storedOrder));
+        return;
+      }
+      await refreshProfile();
+    },
+    [isMe, me, refreshProfile, showToast, storedOrder],
+  );
+
   function playAll() {
     if (!playable.length) return;
     playTrack(
@@ -135,6 +200,27 @@ export function ArtistStageProfile({
       playable.map((d) => toPlayerTrack({ ...d, authorUsername: profile.username })),
     );
   }
+
+  function frame(id: StageModuleId, inner: ReactNode) {
+    const index = order.indexOf(id);
+    return (
+      <StageModuleFrame
+        key={id}
+        id={id}
+        arranging={layoutMode}
+        empty={!occupied[id]}
+        canMoveUp={index > 0 && !savingOrder}
+        canMoveDown={index >= 0 && index < order.length - 1 && !savingOrder}
+        onMoveUp={() => void commitOrder(moveStageModule(order, id, -1))}
+        onMoveDown={() => void commitOrder(moveStageModule(order, id, 1))}
+        onDropOn={(fromId) => void commitOrder(dropStageModule(order, fromId, id))}
+      >
+        {inner}
+      </StageModuleFrame>
+    );
+  }
+
+  const workOpenAuthor = ownerUi ? () => navigate("/") : undefined;
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto bg-ink-950 text-white" style={accentWashStyle(cosmetics.accent)}>
@@ -268,6 +354,16 @@ export function ArtistStageProfile({
               </button>
               <button
                 type="button"
+                aria-pressed={arranging}
+                disabled={savingOrder}
+                onClick={() => setArranging((v) => !v)}
+                data-testid="profile-arrange-modules"
+                className="btn btn-ghost h-10 px-4 py-0 text-xs"
+              >
+                {arranging ? "Done" : "Arrange"}
+              </button>
+              <button
+                type="button"
                 onClick={onViewAsVisitor}
                 data-testid="profile-view-as-visitor"
                 className="btn btn-ghost h-10 px-4 py-0 text-xs"
@@ -279,172 +375,221 @@ export function ArtistStageProfile({
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-8 lg:grid-cols-12">
-        <div className="space-y-12 lg:col-span-7">
-          <section>
-            <p className="eyebrow mb-3">{ownerUi ? "Your stage" : "On the stage"}</p>
-            {nights.length === 0 ? (
-              <p className="text-sm text-white/40">No live nights yet.</p>
-            ) : (
-              <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
-                {nights.map((n) => (
-                  <button
-                    key={n.id}
-                    type="button"
-                    onClick={() => navigate(`/live/${n.id}`)}
-                    className="w-[78vw] max-w-sm shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] text-left transition hover:border-white/20 sm:w-80"
-                  >
-                    <div className="relative aspect-video bg-gradient-to-br from-white/[0.06] to-black">
-                      {banner && (
-                        <img src={banner} alt="" className="h-full w-full object-cover opacity-60" />
-                      )}
-                      {n.status === "live" && (
-                        <span className="absolute left-2 top-2 rounded-full bg-wild px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
-                          Live
-                        </span>
-                      )}
-                    </div>
-                    <div className="space-y-1.5 p-3">
-                      <p className="truncate font-display text-sm font-semibold">{n.title || n.intent || "Live"}</p>
-                      <p className="font-mono text-[11px] text-white/40">
-                        {timeAgo(n.startedAt)}
-                        {n.viewerCount > 0 ? ` · ${n.viewerCount} watching` : ""}
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-10 sm:px-8 lg:grid-flow-dense lg:grid-cols-12">
+        {ownerUi && nights.length === 0 && featuredWorks.length === 0 && restWorks.length === 0 && !arranging ? (
+          <div className="space-y-3 lg:col-span-12" data-testid="profile-owner-empty">
+            <p className="text-sm text-white/45">
+              This is your VYBZ. Place work from Library when you want — it stays one file.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate("/library")}
+              className="btn btn-ghost h-10 px-4 py-0 text-xs"
+            >
+              Open Library
+            </button>
+          </div>
+        ) : null}
+
+        {shown.map((moduleId) => {
+          if (moduleId === "stage") {
+            return frame(
+              "stage",
+              <>
+                <p className="eyebrow mb-3">{ownerUi ? "Your stage" : "On the stage"}</p>
+                {nights.length === 0 ? (
+                  <p className="text-sm text-white/40">No live nights yet.</p>
+                ) : (
+                  <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+                    {nights.map((n) => (
+                      <button
+                        key={n.id}
+                        type="button"
+                        onClick={() => navigate(`/live/${n.id}`)}
+                        className="w-[78vw] max-w-sm shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] text-left transition hover:border-white/20 sm:w-80"
+                      >
+                        <div className="relative aspect-video bg-gradient-to-br from-white/[0.06] to-black">
+                          {banner && (
+                            <img src={banner} alt="" className="h-full w-full object-cover opacity-60" />
+                          )}
+                          {n.status === "live" && (
+                            <span className="absolute left-2 top-2 rounded-full bg-wild px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+                              Live
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-1.5 p-3">
+                          <p className="truncate font-display text-sm font-semibold">{n.title || n.intent || "Live"}</p>
+                          <p className="font-mono text-[11px] text-white/40">
+                            {timeAgo(n.startedAt)}
+                            {n.viewerCount > 0 ? ` · ${n.viewerCount} watching` : ""}
+                          </p>
+                          {n.sealed && n.strength && <SessionProvenanceBadge strength={n.strength} compact />}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>,
+            );
+          }
+
+          if (moduleId === "featured") {
+            return frame(
+              "featured",
+              <>
+                <p className="eyebrow mb-3">Featured</p>
+                {featuredWorks.length > 0 ? (
+                  <WorkGrid
+                    works={featuredWorks}
+                    drops={drops}
+                    username={profile.username}
+                    sessionLinks={sessionLinks}
+                    onOpenAuthor={workOpenAuthor}
+                  />
+                ) : (
+                  <p className="text-sm text-white/40">Place a work from Library as Featured.</p>
+                )}
+              </>,
+            );
+          }
+
+          if (moduleId === "works") {
+            return frame(
+              "works",
+              <>
+                <p className="eyebrow mb-3">Works</p>
+                {restWorks.length > 0 ? (
+                  <WorkGrid
+                    works={restWorks}
+                    drops={drops}
+                    username={profile.username}
+                    sessionLinks={sessionLinks}
+                    onOpenAuthor={workOpenAuthor}
+                  />
+                ) : (
+                  <p className="text-sm text-white/40">No works on this module yet.</p>
+                )}
+              </>,
+            );
+          }
+
+          if (moduleId === "story") {
+            return frame(
+              "story",
+              <>
+                <p className="eyebrow mb-3">Story</p>
+                {bio || f.genres?.length ? (
+                  <>
+                    {bio && (
+                      <p className="max-w-xl text-[15px] leading-relaxed text-white/70">
+                        {longBio && !storyOpen ? `${bio.slice(0, 220).trim()}…` : bio}
                       </p>
-                      {n.sealed && n.strength && <SessionProvenanceBadge strength={n.strength} compact />}
+                    )}
+                    {longBio && (
+                      <button type="button" onClick={() => setStoryOpen((v) => !v)} className="mt-2 text-[12px] text-cyan-200/80">
+                        {storyOpen ? "Show less" : "Read the story"}
+                      </button>
+                    )}
+                    {f.genres?.length ? (
+                      <p className="mt-3 text-[13px] text-white/45">{f.genres.join(" · ")}</p>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="text-sm text-white/40">No story yet.</p>
+                )}
+              </>,
+            );
+          }
+
+          if (moduleId === "packs") {
+            return frame(
+              "packs",
+              <>
+                <p className="eyebrow mb-3">Packs</p>
+                {packs.length > 0 ? (
+                  <div className="grid gap-2">
+                    {packs.map((pack) => (
+                      <button
+                        key={pack.id}
+                        type="button"
+                        onClick={() => navigate(`/pack/${pack.slug}`)}
+                        className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-left hover:border-white/20"
+                      >
+                        <p className="text-sm font-semibold">{pack.title}</p>
+                        <p className="text-[11px] text-white/40">{pack.genre || "Pack"}</p>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-white/40">No packs yet.</p>
+                )}
+              </>,
+            );
+          }
+
+          if (moduleId === "measured") {
+            return frame(
+              "measured",
+              <>
+                <p className="eyebrow mb-3">Measured</p>
+                {measuredCells.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      {measuredCells.map((c) => (
+                        <div key={c.label} className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3">
+                          <p className="font-mono text-lg text-cyan-100">{c.value}</p>
+                          <p className="text-[10px] uppercase tracking-wider text-white/35">{c.label}</p>
+                        </div>
+                      ))}
                     </div>
-                  </button>
-                ))}
+                    {stats && stats.reputation >= 0.5 && (
+                      <p className="mt-2 flex items-center gap-1 text-[12px] text-white/50">
+                        <Star className="h-3 w-3" /> Proven on ratings we actually have
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-white/40">Nothing measured yet.</p>
+                )}
+              </>,
+            );
+          }
+
+          if (moduleId === "credits") {
+            return frame(
+              "credits",
+              <Discography credits={credits} isOwner={ownerUi} />,
+            );
+          }
+
+          return frame(
+            "links",
+            <details className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-2">
+              <summary className="cursor-pointer text-[12px] text-white/35">More</summary>
+              <div className="mt-3 space-y-6">
+                <ArtistRoster userId={id} editable={ownerUi} drops={drops} />
+                <AffiliateLinks userId={id} editable={ownerUi} />
               </div>
-            )}
-          </section>
-
-          {ownerUi && nights.length === 0 && works.length === 0 ? (
-            <div className="space-y-3" data-testid="profile-owner-empty">
-              <p className="text-sm text-white/45">
-                This is your VYBZ. Place work from Library when you want — it stays one file.
-              </p>
-              <button
-                type="button"
-                onClick={() => navigate("/library")}
-                className="btn btn-ghost h-10 px-4 py-0 text-xs"
-              >
-                Open Library
-              </button>
-            </div>
-          ) : null}
-
-          {works.length > 0 && (
-            <section>
-              <p className="eyebrow mb-3">Works</p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {works.map((work) => (
-                  <div
-                    key={work.id}
-                    className={
-                      work.kind === "audio" || work.kind === "video" || work.kind === "collection"
-                        ? "sm:col-span-2"
-                        : undefined
-                    }
-                  >
-                    <WorkCard
-                      work={work}
-                      audioQueue={drops.map((d) => ({ ...d, authorUsername: profile.username }))}
-                      sessionLinks={sessionLinks}
-                      onOpenAuthor={ownerUi ? () => navigate("/") : undefined}
-                    />
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {(bio || f.genres?.length) && (
-            <section>
-              <p className="eyebrow mb-3">Story</p>
-              {bio && (
-                <p className="max-w-xl text-[15px] leading-relaxed text-white/70">
-                  {longBio && !storyOpen ? `${bio.slice(0, 220).trim()}…` : bio}
-                </p>
-              )}
-              {longBio && (
-                <button type="button" onClick={() => setStoryOpen((v) => !v)} className="mt-2 text-[12px] text-cyan-200/80">
-                  {storyOpen ? "Show less" : "Read the story"}
-                </button>
-              )}
-              {f.genres?.length ? (
-                <p className="mt-3 text-[13px] text-white/45">{f.genres.join(" · ")}</p>
-              ) : null}
-            </section>
-          )}
-
-          {packs.length > 0 && (
-            <section>
-              <p className="eyebrow mb-3">Packs</p>
-              <div className="grid gap-2">
-                {packs.map((pack) => (
-                  <button
-                    key={pack.id}
-                    type="button"
-                    onClick={() => navigate(`/pack/${pack.slug}`)}
-                    className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-left hover:border-white/20"
-                  >
-                    <p className="text-sm font-semibold">{pack.title}</p>
-                    <p className="text-[11px] text-white/40">{pack.genre || "Pack"}</p>
-                  </button>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-
-        <aside className="space-y-8 lg:col-span-5">
-          {measuredCells.length > 0 && (
-            <section>
-              <p className="eyebrow mb-3">Measured</p>
-              <div className="grid grid-cols-2 gap-2">
-                {measuredCells.map((c) => (
-                  <div key={c.label} className="rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-3">
-                    <p className="font-mono text-lg text-cyan-100">{c.value}</p>
-                    <p className="text-[10px] uppercase tracking-wider text-white/35">{c.label}</p>
-                  </div>
-                ))}
-              </div>
-              {stats && stats.reputation >= 0.5 && (
-                <p className="mt-2 flex items-center gap-1 text-[12px] text-white/50">
-                  <Star className="h-3 w-3" /> Proven on ratings we actually have
-                </p>
-              )}
-            </section>
-          )}
-
-          {(credits.length > 0 || ownerUi) && (
-            <section>
-              <Discography credits={credits} isOwner={ownerUi} />
-            </section>
-          )}
-
-          <details className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-2">
-            <summary className="cursor-pointer text-[12px] text-white/35">More</summary>
-            <div className="mt-3 space-y-6">
-              <ArtistRoster userId={id} editable={ownerUi} drops={drops} />
-              <AffiliateLinks userId={id} editable={ownerUi} />
-            </div>
-          </details>
-
-          {visitorSocial && (
-            <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <p className="eyebrow mb-2">Book a session</p>
-              <p className="mb-3 text-[13px] text-white/45">
-                Opens a message. Tell them when you want to work — this is not a calendar.
-              </p>
-              <button type="button" disabled={!!busy} onClick={onBook} className="btn btn-primary h-10 w-full py-0 text-xs">
-                {busy === "book" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calendar className="h-3.5 w-3.5" />}
-                Message to book
-              </button>
-            </section>
-          )}
-        </aside>
+            </details>,
+          );
+        })}
       </div>
+
+      {visitorSocial && (
+        <div className="mx-auto max-w-6xl px-4 pb-10 sm:px-8 lg:grid lg:grid-cols-12">
+          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 lg:col-span-5 lg:col-start-8">
+            <p className="eyebrow mb-2">Book a session</p>
+            <p className="mb-3 text-[13px] text-white/45">
+              Opens a message. Tell them when you want to work — this is not a calendar.
+            </p>
+            <button type="button" disabled={!!busy} onClick={onBook} className="btn btn-primary h-10 w-full py-0 text-xs">
+              {busy === "book" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calendar className="h-3.5 w-3.5" />}
+              Message to book
+            </button>
+          </section>
+        </div>
+      )}
 
       <style>{`
         @keyframes stage-drift {
@@ -481,6 +626,42 @@ export function ArtistStageProfile({
         displayName={profile.displayName}
         hostId={id}
       />
+    </div>
+  );
+}
+
+function WorkGrid({
+  works,
+  drops,
+  username,
+  sessionLinks,
+  onOpenAuthor,
+}: {
+  works: StageWork[];
+  drops: Drop[];
+  username: string | null;
+  sessionLinks: WorkSessionLink[];
+  onOpenAuthor?: () => void;
+}) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-2">
+      {works.map((work) => (
+        <div
+          key={work.id}
+          className={
+            work.kind === "audio" || work.kind === "video" || work.kind === "collection"
+              ? "sm:col-span-2"
+              : undefined
+          }
+        >
+          <WorkCard
+            work={work}
+            audioQueue={drops.map((d) => ({ ...d, authorUsername: username }))}
+            sessionLinks={sessionLinks}
+            onOpenAuthor={onOpenAuthor}
+          />
+        </div>
+      ))}
     </div>
   );
 }
