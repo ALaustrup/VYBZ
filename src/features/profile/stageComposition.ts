@@ -1,6 +1,6 @@
 import type { Drop, ProfileDetails } from "@/types";
 
-/** Honest Stage File destinations for a Library work. Layout editing is later (Phase 6). */
+/** Honest Stage File destinations for a Library work. Module order is Phase 6. */
 export const PROFILE_SECTIONS = ["works", "featured"] as const;
 export type ProfileSection = (typeof PROFILE_SECTIONS)[number];
 
@@ -138,9 +138,18 @@ export function applyDropComposition(
   if (featuredDropId) allowed.add(featuredDropId);
   const rank = new Map(composition.placements.map((p) => [p.dropId, p.sort]));
   if (featuredDropId && !rank.has(featuredDropId)) rank.set(featuredDropId, -1);
+  const featured = new Set(
+    composition.placements.filter((p) => p.section === "featured").map((p) => p.dropId),
+  );
+  if (featuredDropId) featured.add(featuredDropId);
   return drops
     .filter((d) => allowed.has(d.id))
-    .sort((a, b) => (rank.get(a.id) ?? 9999) - (rank.get(b.id) ?? 9999) || a.id.localeCompare(b.id));
+    .sort((a, b) => {
+      const fa = featured.has(a.id) ? 0 : 1;
+      const fb = featured.has(b.id) ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      return (rank.get(a.id) ?? 9999) - (rank.get(b.id) ?? 9999) || a.id.localeCompare(b.id);
+    });
 }
 
 function uniqueIds(ids: string[]): string[] {

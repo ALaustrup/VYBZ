@@ -54,6 +54,13 @@ describe("stage composition", () => {
     expect(shown.map((d) => d.id)).toEqual(["z", "a", "b"]);
   });
 
+  it("ranks Featured placements first even without the pin column", () => {
+    const works = placeDrops({ selected: true, placements: [] }, ["a", "b"], "works");
+    const featured = placeDrops(works, ["b"], "featured");
+    const shown = applyDropComposition([drop("a"), drop("b")], featured, null);
+    expect(shown.map((d) => d.id)).toEqual(["b", "a"]);
+  });
+
   it("moves an existing placement to featured without a second row", () => {
     const works = placeDrops({ selected: true, placements: [] }, ["a"], "works");
     const featured = placeDrops(works, ["a"], "featured");

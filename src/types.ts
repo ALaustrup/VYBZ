@@ -76,6 +76,11 @@ export interface ProfileDetails {
     selected: boolean;
     placements: Array<{ dropId: string; section: "works" | "featured"; sort: number }>;
   };
+  /**
+   * Living Profile Phase 6 — owner order of existing Stage File modules.
+   * Known ids only. Unknown values are ignored.
+   */
+  stageModuleOrder?: string[];
 }
 
 export interface Profile {

@@ -3,21 +3,37 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-22
-**Branch:** `main`
-**HEAD:** `f9f47e94`
-**Production:** https://vybz.cloud — `main` **`f9f47e94`** (PR 204, Phase 5). Prior: PR 203 Phase 4 STATE `b8da377f`; Phase 4 code `3dbfc4f3` (PR 202). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Branch:** `feat/living-profile-phase-6`
+**HEAD:** `79ce3edd` (branch not merged; Phase 6 commits not yet made)
+**Production:** https://vybz.cloud — `main` **`79ce3edd`** (PR 205 STATE; Phase 5 code PR 204 `f9f47e94`). Landing stamp measured 2026-08-22: **Build 79ce3ed**. Vercel production `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun` READY, alias `vybz.cloud`. Production SPA walk of VLink: **Not measured**.
+
+## Living Profile Phase 6 — Modular arrangement — 2026-08-22
+
+Narrow first slice. Owner **Arrange** of modules that already exist on the Stage File. Order stored on `profiles.profile` jsonb as `stageModuleOrder`. Featured is its own module when a work is placed or pinned there. Empty modules omit; Arrange still shows them. Identity banner, sticky chrome, and Book a session stay fixed. No theme engine, no CSS/JS injection, no cinematic canvas.
+
+`LIVING_PROFILE.profileModularArrangement` is true. Not merged. Production walk of Arrange: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **195 files / 983 tests**. `npm run build` pass. `npm run check:no-fixtures` against `dist/` — 13 markers absent.
 
 ## Living Profile Phase 5 — Library → profile — 2026-08-22
 
 Select existing Library work. **Place on your VYBZ.** Choose Works or Featured. Done. Ids only — no second catalog, no duplicate upload. Until the owner composes, the Stage File still shows catalog drops so existing public work does not vanish. After the first place or hide, new uploads stay off the Stage File until placed.
 
-Library views: grid, list, table, and **shelves** (horizontal rows per group). View / sort / group are remembered per person. After composing, Library can filter **On my VYBZ** / **Not on VYBZ**. Profile layout editing is later (Phase 6).
+Library views: grid, list, table, and **shelves** (horizontal rows per group). View / sort / group are remembered per person. After composing, Library can filter **On my VYBZ** / **Not on VYBZ**.
 
-`LIVING_PROFILE.libraryToProfilePipeline` is true. Signed-in browser walk of Place on VYBZ: **Not measured**. Merged to `main` as PR 204 (`f9f47e94`).
+`LIVING_PROFILE.libraryToProfilePipeline` is true. Merged to `main` as PR 204 (`f9f47e94`).
 
-`npm run lint` pass. `npm run test` pass — **194 files / 976 tests**. `npm run build` pass.
+Signed-in walk 2026-08-22 as **~Love** on https://vybz.cloud (Build **79ce3ed**):
 
-`npm run lint` pass. `npm run test` pass — **194 files / 976 tests**. `npm run build` pass.
+- Empty owner Stage File showed “Place work from Library when you want — it stays one file” plus **Open Library**. Empty Library (**Works (0)**) had no grid/list/table/shelves toolbar.
+- **View as visitor** (`?view=visitor`) hid owner chrome; banner “Viewing as a visitor” / **Back to owner**; no Connect / Follow / Message / Tip on this identity.
+- After two WAV uploads (`locked in next 1`, `locked in new 2`): Library **Works (2)**, **2 in library**. Views grid → list → table → shelves. Sort **Title A–Z**, group **Format**. Reload persisted `{view:"shelves", sort:"title-asc", group:"format"}`.
+- Place `locked in next 1` on **Works** (starts composing; both current files snapshotted). Tiles **On VYBZ / Arrange**. Still **2 in library** (no copy). Arrange `locked in new 2` → **Featured** → Update. Filter **Not on VYBZ** showed zero tiles; **On my VYBZ** showed both.
+- Visitor preview after compose: both works visible under **Works**; owner controls gone. Featured did **not** lead and had **no separate Featured section** — order was `locked in next 1` then `locked in new 2`. That ranking bug is the Phase 6 Stage File split.
+- Post-compose new upload stays off Stage File: **Not measured** (file input cannot be automated in this browser).
+
+`npm run lint` pass. `npm run test` pass — **194 files / 976 tests**. `npm run build` pass. (Phase 5 merge evidence; not re-run as Phase 6 proof.)
+
 
 ## Living Profile Phase 4 — Profile module registry — 2026-08-22
 

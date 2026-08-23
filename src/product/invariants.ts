@@ -146,6 +146,8 @@ export const LIVING_PROFILE = {
   profileModuleRegistry: true,
   /** Library places existing work on the Stage File. No second catalog. No duplicate upload. */
   libraryToProfilePipeline: true,
+  /** Owner rearranges existing Stage File modules. No theme engine. No CSS/JS injection. */
+  profileModularArrangement: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

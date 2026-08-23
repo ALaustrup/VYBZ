@@ -41,6 +41,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
     expect(LIVING_PROFILE.profileModuleRegistry).toBe(true);
     expect(LIVING_PROFILE.libraryToProfilePipeline).toBe(true);
+    expect(LIVING_PROFILE.profileModularArrangement).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);
@@ -69,6 +70,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("module registry");
     expect(product).toContain("text, and collection");
     expect(product).toContain("Place on your VYBZ");
+    expect(product).toContain("Arrange");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
     expect(product).not.toContain("creative operating environment with a social layer built into it");
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
@@ -144,6 +146,16 @@ describe("living profile constitution", () => {
     expect(read("src/pages/UserProfilePage.tsx")).toContain("applyDropComposition");
     expect(read("src/lib/libraryQuery.ts")).toContain('"shelves"');
     expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "shelves"');
+  });
+
+  it("lets the owner rearrange existing Stage File modules", () => {
+    expect(read("src/features/profile/stageLayout.ts")).toContain("STAGE_MODULE_IDS");
+    expect(read("src/features/profile/stageLayout.ts")).toContain("parseStageModuleOrder");
+    expect(read("src/features/profile/placeOnVybz.ts")).toContain("persistStageModuleOrder");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("profile-arrange-modules");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("Arrange");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("Featured");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).not.toMatch(/dangerouslySetInnerHTML|contenteditable/i);
   });
 
   it("orients agents at the Living Profile identity", () => {
