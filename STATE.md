@@ -2,10 +2,18 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-22
-**Branch:** `main`
-**HEAD:** `f9f47e94`
-**Production:** https://vybz.cloud — `main` **`f9f47e94`** (PR 204, Phase 5). Prior: PR 203 Phase 4 STATE `b8da377f`; Phase 4 code `3dbfc4f3` (PR 202). Landing SHA last measured: **Build 6bcfb4b**. Production SPA walk of VLink: **Not measured**. Deploy of this SHA: **Not measured**.
+**Date:** 2026-08-23
+**Branch:** `feat/profile-set-password`
+**HEAD:** (pending commit)
+**Production:** https://vybz.cloud — `main` **`79ce3edd`**. Phase 6 PR 206 is **not** merged.
+
+## Signed-in password from profile — 2026-08-23
+
+Owner can set or update a password from Profile → Settings while already signed in (passkey). Uses existing `setAccountPassword`. No reset mail. No admin user update. Lets the same account sign in on preview hosts where the vybz.cloud passkey cannot run.
+
+Not merged. Browser walk: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **195 files / 977 tests**. `npm run build` pass.
 
 ## Living Profile Phase 5 — Library → profile — 2026-08-22
 
