@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-23
 **Branch:** `feat/profile-set-password`
-**HEAD:** (pending commit)
+**HEAD:** `6eaba419` (branch not merged)
 **Production:** https://vybz.cloud — `main` **`79ce3edd`**. Phase 6 PR 206 is **not** merged.
 
 ## Signed-in password from profile — 2026-08-23
