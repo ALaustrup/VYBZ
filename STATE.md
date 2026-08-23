@@ -4,7 +4,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-22
 **Branch:** `feat/living-profile-phase-6`
-**HEAD:** `79ce3edd` (branch not merged; Phase 6 commits not yet made)
+**HEAD:** `b3a7f016` (branch not merged)
 **Production:** https://vybz.cloud — `main` **`79ce3edd`** (PR 205 STATE; Phase 5 code PR 204 `f9f47e94`). Landing stamp measured 2026-08-22: **Build 79ce3ed**. Vercel production `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun` READY, alias `vybz.cloud`. Production SPA walk of VLink: **Not measured**.
 
 ## Living Profile Phase 6 — Modular arrangement — 2026-08-22
