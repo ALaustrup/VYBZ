@@ -26,9 +26,11 @@ const optionId = (id: string) => `command-palette-option-${id.replace(/[^a-z0-9]
  */
 export function CommandPalette({
   onCompose,
+  onGenerate,
   onBulkUpload,
 }: {
   onCompose?: () => void;
+  onGenerate?: () => void;
   onBulkUpload?: () => void;
 }) {
   const open = useCommandPaletteOpen();
@@ -53,6 +55,7 @@ export function CommandPalette({
         queueLength: player.queueLength,
         queueIndex: player.queueIndex,
         canCompose: !!onCompose,
+        canGenerate: !!onGenerate,
         canBulkUpload: !!onBulkUpload,
       }),
     [
@@ -62,6 +65,7 @@ export function CommandPalette({
       player.queueLength,
       player.queueIndex,
       onCompose,
+      onGenerate,
       onBulkUpload,
     ],
   );
@@ -110,6 +114,9 @@ export function CommandPalette({
           case "create:drop":
             onCompose?.();
             break;
+          case "create:generate":
+            onGenerate?.();
+            break;
           case "create:batch":
             onBulkUpload?.();
             break;
@@ -119,7 +126,7 @@ export function CommandPalette({
       }
       dismiss();
     },
-    [navigate, onCompose, onBulkUpload, dismiss],
+    [navigate, onCompose, onGenerate, onBulkUpload, dismiss],
   );
 
   // Ctrl/Cmd+K anywhere. Registered whether or not the palette is open, so the

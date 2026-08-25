@@ -3,6 +3,8 @@ import type {
   ArtworkInput,
   DeviceInformation,
   ExportedFile,
+  GenerateAudioRequest,
+  GenerateAudioResult,
   JobReference,
   NetworkState,
   PersistedSession,
@@ -42,6 +44,7 @@ export interface PlatformBridge {
     analyzeAudio(input: AudioInput): Promise<JobReference>;
     analyzeArtwork(input: ArtworkInput): Promise<JobReference>;
     cancelJob(jobId: string): Promise<void>;
+    generateAudio(input: GenerateAudioRequest): Promise<GenerateAudioResult>;
   };
 
   /** M9 — playback capabilities (dry HTML audio; no native DSP on play path). */

@@ -10,6 +10,7 @@ export const CAPABILITY_REGISTRY: Record<PlatformKind, ProcessingCapabilities> =
     remoteJobs: true,
     maxLocalFileBytes: 200 * 1024 * 1024,
     offlineDrafts: true,
+    localGenerate: true,
   },
   desktop: {
     portableAudioInspect: true,
@@ -19,6 +20,7 @@ export const CAPABILITY_REGISTRY: Record<PlatformKind, ProcessingCapabilities> =
     remoteJobs: true,
     maxLocalFileBytes: 4 * 1024 * 1024 * 1024,
     offlineDrafts: true,
+    localGenerate: true,
   },
   android: {
     portableAudioInspect: true,
@@ -28,6 +30,7 @@ export const CAPABILITY_REGISTRY: Record<PlatformKind, ProcessingCapabilities> =
     remoteJobs: true,
     maxLocalFileBytes: 500 * 1024 * 1024,
     offlineDrafts: true,
+    localGenerate: false,
   },
   ios: {
     portableAudioInspect: true,
@@ -37,6 +40,7 @@ export const CAPABILITY_REGISTRY: Record<PlatformKind, ProcessingCapabilities> =
     remoteJobs: true,
     maxLocalFileBytes: 500 * 1024 * 1024,
     offlineDrafts: true,
+    localGenerate: false,
   },
 };
 

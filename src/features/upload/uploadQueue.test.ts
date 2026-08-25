@@ -193,4 +193,12 @@ describe("buildDropInput", () => {
     const input = buildDropInput(typed, { audience: "public", releaseType: "original" });
     expect(input.bpm).toBe(128);
   });
+
+  it("carries a declared body through for generated-work disclosure", () => {
+    const input = buildDropInput(item({ path: "p", body: "Generated with Stable Audio 3 (small-music)." }), {
+      audience: "public",
+      releaseType: "original",
+    });
+    expect(input.body).toContain("Generated with Stable Audio 3");
+  });
 });

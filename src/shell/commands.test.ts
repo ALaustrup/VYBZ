@@ -17,6 +17,7 @@ function ctx(over: Partial<CommandContext> = {}): CommandContext {
     queueLength: 3,
     queueIndex: 0,
     canCompose: true,
+    canGenerate: true,
     canBulkUpload: true,
     ...over,
   };
@@ -71,9 +72,19 @@ describe("command registry", () => {
     expect(end.find((c) => c.id === "player:prev")?.unavailableReason).toBeUndefined();
   });
 
+  it("offers generate as a create action, not a destination", () => {
+    const gen = buildCommands(ctx()).find((c) => c.id === "create:generate");
+    expect(gen?.title).toBe("Generate audio");
+    expect(gen?.to).toBeUndefined();
+    expect(gen?.unavailableReason).toBeUndefined();
+  });
+
   it("disables creation when the screen provides no handler", () => {
-    const cmds = buildCommands(ctx({ canCompose: false, canBulkUpload: false }));
+    const cmds = buildCommands(ctx({ canCompose: false, canGenerate: false, canBulkUpload: false }));
     expect(cmds.find((c) => c.id === "create:drop")?.unavailableReason).toBe(
+      "Not available on this screen",
+    );
+    expect(cmds.find((c) => c.id === "create:generate")?.unavailableReason).toBe(
       "Not available on this screen",
     );
     expect(cmds.find((c) => c.id === "create:batch")?.unavailableReason).toBe(

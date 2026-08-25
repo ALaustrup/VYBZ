@@ -12,18 +12,20 @@ export function AppChrome({
   stage,
   dock,
   onCompose,
+  onGenerate,
   onBulkUpload,
 }: {
   stage: ReactNode;
   /** Always-visible bottom chrome (V-Dock). */
   dock: ReactNode;
   onCompose?: () => void;
+  onGenerate?: () => void;
   onBulkUpload?: () => void;
 }) {
   return (
     <div className="app-shell">
       <div className="app-shell-main">
-        <ContextualAppBar onCompose={onCompose} onBulkUpload={onBulkUpload} />
+        <ContextualAppBar onCompose={onCompose} onGenerate={onGenerate} onBulkUpload={onBulkUpload} />
         <main className="app-stage">
           <div className="app-stage-inner">{stage}</div>
         </main>

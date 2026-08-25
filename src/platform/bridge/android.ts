@@ -70,6 +70,9 @@ export function createAndroidBridge(): PlatformBridge {
       async cancelJob(jobId: string) {
         return web.processing.cancelJob(jobId);
       },
+      async generateAudio() {
+        throw unsupported("generateAudio");
+      },
     },
 
     playback: {

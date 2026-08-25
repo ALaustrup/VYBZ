@@ -65,7 +65,8 @@
     "ios:sync": "npm run build && cap sync ios",
     "ios:open": "cap open ios",
     "ios:build": "npm run build:ios",
-    "sync:ios": "npm run ios:sync"
+    "sync:ios": "npm run ios:sync",
+    "generate:worker": "node scripts/stable-audio-worker.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",

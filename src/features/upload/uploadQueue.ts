@@ -84,6 +84,8 @@ export interface UploadItem {
   /** Fields that came from the file itself, so the row can say so. */
   autoFilled: readonly EditableMetaField[];
   meta: UploadMeta;
+  /** Declared caption. Used for generated-work disclosure. */
+  body?: string;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -350,6 +352,7 @@ export function buildDropInput(
   const bpm = Number(item.meta.bpm);
   return {
     title: item.meta.title.trim() || undefined,
+    body: item.body?.trim() || undefined,
     seed: item.seed,
     assetKind: "track",
     audioUrl: item.path ?? undefined,
@@ -556,6 +559,10 @@ export function retryUpload(id: string) {
 
 export function editUploadMeta(id: string, field: EditableMetaField, value: string) {
   patch(id, (item) => editMeta(item, field, value));
+}
+
+export function annotateUploadBody(id: string, body: string) {
+  patch(id, { body });
 }
 
 export function markUploadReleased(id: string, dropId: string) {
