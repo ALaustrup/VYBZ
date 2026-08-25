@@ -8,8 +8,18 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-25
 **Branch:** `docs/living-profile-phase-6-walk`
-**HEAD:** this commit (docs rewrite on this branch). Production identity is unchanged by this file.
-**Production:** https://vybz.cloud — `main` **`3d22afe4`** (PR 206). Vercel **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. PR 207 (set-password) stays open and is not this work.
+**HEAD:** this commit (Book a session walk on this branch). Production identity is unchanged by this file.
+**Production:** https://vybz.cloud — `main` **`3d22afe4`** (PR 206). Vercel **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+
+## Book a session — genuine visitor walk — 2026-08-25
+
+Signed in as **~Love** on https://vybz.cloud. Did not use owner visitor-preview as the booking path. ~Love was not modified. No new DM body was sent.
+
+- **Their VYBZ:** `/u/9e45224c-f5f0-4af1-960c-8f9b178a4933` (~Andrew). Visitor chrome: Connect, Follow, Message, Tip Vc. **Book a session** present with “Opens a message. Tell them when you want to work — this is not a calendar.” No Arrange / Library / Edit / View as visitor.
+- **Message to book** opened the existing DM popout (`@Andrew`, composer “Message…”, “Reply free — text, voice, cam, video”). Thread already had prior messages. Composer stayed empty. Close left the thread as it was.
+- **Own visitor preview** (`/u/98b3ce34-a66d-4057-b380-d96f77bbc723?view=visitor`): “Viewing as a visitor” / Back to owner. **Book a session** absent. Connect / Follow / Message / Tip absent. Featured (`locked in new 2`) and Works (`locked in next 1`) unchanged.
+
+Toast copy (“Tell them when you want to book…”) flashed too quickly to capture. The open-DM path is the feature; that path passed.
 
 ## Documentation rewrite — vision alignment — 2026-08-25
 
