@@ -109,6 +109,21 @@ export function AccountMenu() {
               role="menuitem"
               onClick={() => {
                 setOpen(false);
+                if (userId) navigate(`/u/${userId}`);
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:bg-white/10"
+            >
+              <span className="forge-chip flex h-8 w-8 text-white/70">
+                <UserRound className="h-4 w-4" />
+              </span>
+              Open public VYBZ
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
                 navigate("/");
               }}
               className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:bg-white/10"

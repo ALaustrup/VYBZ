@@ -55,6 +55,7 @@ import {
 } from "./stageLayout";
 import { persistStageHiddenModules, persistStageModuleOrder } from "./placeOnVybz";
 import { StageModuleFrame } from "./StageModuleFrame";
+import { ProfileOwnerPulse } from "./ProfileOwnerPulse";
 
 export function ArtistStageProfile({
   id,
@@ -336,6 +337,8 @@ export function ArtistStageProfile({
           </button>
         </div>
       ) : null}
+
+      {ownerUi && !previewAsVisitor ? <ProfileOwnerPulse liveNow={liveNow} /> : null}
 
       <div className="sticky top-0 z-20 border-b border-white/8 bg-ink-950/80 px-4 py-2.5 backdrop-blur-xl sm:px-8">
         <div className="flex flex-wrap gap-2">
