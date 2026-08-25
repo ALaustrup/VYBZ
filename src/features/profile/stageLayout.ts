@@ -92,13 +92,35 @@ export function dropStageModule(
 
 export type StageModuleOccupancy = Record<StageModuleId, boolean>;
 
+/** Known ids only. Unlike order, missing modules stay visible — they are not hidden by default. */
+export function parseStageHiddenModules(raw: unknown): StageModuleId[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<StageModuleId>();
+  const out: StageModuleId[] = [];
+  for (const value of raw) {
+    if (typeof value !== "string" || !isStageModuleId(value) || seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
+export function toggleHiddenModule(
+  hidden: StageModuleId[],
+  id: StageModuleId,
+): StageModuleId[] {
+  return hidden.includes(id) ? hidden.filter((item) => item !== id) : [...hidden, id];
+}
+
 export function visibleStageModules(
   order: StageModuleId[],
   occupied: StageModuleOccupancy,
   arranging: boolean,
+  hidden: Iterable<StageModuleId> = [],
 ): StageModuleId[] {
   if (arranging) return order;
-  return order.filter((id) => occupied[id]);
+  const hide = hidden instanceof Set ? hidden : new Set(hidden);
+  return order.filter((id) => occupied[id] && !hide.has(id));
 }
 
 function collectDropIds(work: StageWork): string[] {

@@ -54,4 +54,8 @@ A person selects existing Library work, **Place on your VYBZ**, chooses Works or
 
 ## Phase 6 — Modular arrangement (2026-08-22)
 
-The owner can **Arrange** modules that already exist on the Stage File (stage, featured, works, story, packs, measured, credits, more). Order is stored on the same profile jsonb. Empty modules omit; Arrange still shows them so they can be moved. Identity banner, sticky chrome, and Book a session stay out of the layout toy. Featured is its own module when a work is pinned or placed there. No theme engine, no CSS/JS injection, no cinematic canvas.
+The owner can **Arrange** modules that already exist on the Stage File (stage, featured, works, story, packs, measured, credits, more). Order is stored on the same profile jsonb. Empty modules omit; Arrange still shows them so they can be moved. Identity banner, sticky chrome, and Book a session stay out of the layout toy. Featured is its own module when a work is pinned or placed there. No theme engine, no CSS/JS injection, no cinematic canvas. Phase 6 is **frozen**.
+
+## Phase 7 — Hide existing sections (2026-08-25)
+
+The owner can **Hide** a section that already exists on the Stage File. Public and visitor-preview omit it even when it has content. Arrange still lists it with **Show**. Stored on the same profile jsonb as `stageHiddenModules`. Identity banner, sticky chrome, and Book a session stay fixed. No rename, no invent, no theme engine, no CSS/JS injection.

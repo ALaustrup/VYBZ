@@ -45,13 +45,15 @@ import { parseStageComposition } from "./stageComposition";
 import {
   dropStageModule,
   moveStageModule,
+  parseStageHiddenModules,
   parseStageModuleOrder,
   partitionStageWorks,
+  toggleHiddenModule,
   visibleStageModules,
   type StageModuleId,
   type StageModuleOccupancy,
 } from "./stageLayout";
-import { persistStageModuleOrder } from "./placeOnVybz";
+import { persistStageHiddenModules, persistStageModuleOrder } from "./placeOnVybz";
 import { StageModuleFrame } from "./StageModuleFrame";
 
 export function ArtistStageProfile({
@@ -121,11 +123,17 @@ export function ArtistStageProfile({
   const visitorSocial = showVisitorSocial(isMe);
   const composition = useMemo(() => parseStageComposition(profile.profile), [profile.profile]);
   const storedOrder = f.stageModuleOrder;
+  const storedHidden = f.stageHiddenModules;
   const [order, setOrder] = useState(() => parseStageModuleOrder(storedOrder));
+  const [hidden, setHidden] = useState(() => parseStageHiddenModules(storedHidden));
 
   useEffect(() => {
     setOrder(parseStageModuleOrder(storedOrder));
   }, [storedOrder]);
+
+  useEffect(() => {
+    setHidden(parseStageHiddenModules(storedHidden));
+  }, [storedHidden]);
 
   useEffect(() => {
     if (previewAsVisitor) setArranging(false);
@@ -173,7 +181,7 @@ export function ArtistStageProfile({
     links: true,
   };
   const layoutMode = arranging && ownerUi;
-  const shown = visibleStageModules(order, occupied, layoutMode);
+  const shown = visibleStageModules(order, occupied, layoutMode, hidden);
 
   const commitOrder = useCallback(
     async (next: StageModuleId[]) => {
@@ -191,6 +199,24 @@ export function ArtistStageProfile({
       await refreshProfile();
     },
     [isMe, me, refreshProfile, showToast, storedOrder],
+  );
+
+  const commitHidden = useCallback(
+    async (next: StageModuleId[]) => {
+      const normalized = parseStageHiddenModules(next);
+      setHidden(normalized);
+      if (!isMe || !me) return;
+      setSavingOrder(true);
+      const saved = await persistStageHiddenModules(me.profile ?? {}, normalized);
+      setSavingOrder(false);
+      if (saved.error) {
+        showToast("Couldn't save hidden sections");
+        setHidden(parseStageHiddenModules(storedHidden));
+        return;
+      }
+      await refreshProfile();
+    },
+    [isMe, me, refreshProfile, showToast, storedHidden],
   );
 
   function playAll() {
@@ -211,9 +237,12 @@ export function ArtistStageProfile({
         empty={!occupied[id]}
         canMoveUp={index > 0 && !savingOrder}
         canMoveDown={index >= 0 && index < order.length - 1 && !savingOrder}
+        hidden={hidden.includes(id)}
+        hideDisabled={savingOrder}
         onMoveUp={() => void commitOrder(moveStageModule(order, id, -1))}
         onMoveDown={() => void commitOrder(moveStageModule(order, id, 1))}
         onDropOn={(fromId) => void commitOrder(dropStageModule(order, fromId, id))}
+        onToggleHidden={() => void commitHidden(toggleHiddenModule(hidden, id))}
       >
         {inner}
       </StageModuleFrame>

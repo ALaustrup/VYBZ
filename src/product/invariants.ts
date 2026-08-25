@@ -148,6 +148,8 @@ export const LIVING_PROFILE = {
   libraryToProfilePipeline: true,
   /** Owner rearranges existing Stage File modules. No theme engine. No CSS/JS injection. */
   profileModularArrangement: true,
+  /** Owner hides existing sections from the public VYBZ. Arrange still shows them. No rename, invent, or theme. */
+  profileSectionHide: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

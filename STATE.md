@@ -2,10 +2,25 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-23
-**Branch:** `docs/living-profile-phase-6-walk`
-**HEAD:** unmerged docs walk record (this branch only)
-**Production:** https://vybz.cloud — `main` **`3d22afe4`** (PR 206). Vercel **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. PR 207 (set-password) stays open and is not this PR.
+**Date:** 2026-08-25
+**Branch:** `feat/living-profile-phase-7`
+**HEAD:** this branch (Phase 7 not merged).
+**Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+
+## Living Profile Phase 7 — Hide existing sections — 2026-08-25
+
+Narrow first slice after Arrange. Owner **Hide** / **Show** of modules that already exist. Hidden sections omit on the public VYBZ and in visitor preview even when they have content. Arrange still lists them. Stored on `profiles.profile` jsonb as `stageHiddenModules`. Identity banner, sticky chrome, and Book a session stay fixed. No rename, no invent, no theme engine, no CSS/JS injection.
+
+`LIVING_PROFILE.profileSectionHide` is true. Not merged. Production walk of Hide: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **195 files / 986 tests**. `npm run build` pass.
+
+## Book a session — genuine visitor walk — 2026-08-25
+
+Signed in as **~Love** on https://vybz.cloud. Did not use owner visitor-preview as the booking path. ~Love was not modified. No new DM body was sent.
+
+- **Their VYBZ:** `/u/9e45224c-f5f0-4af1-960c-8f9b178a4933` (~Andrew). Visitor chrome: Connect, Follow, Message, Tip Vc. **Book a session** present. **Message to book** opened the existing DM popout. Composer stayed empty.
+- **Own visitor preview:** **Book a session** absent. Connect / Follow / Message / Tip absent. Featured and Works unchanged.
 
 ## Living Profile Phase 6 — Modular arrangement — 2026-08-23
 

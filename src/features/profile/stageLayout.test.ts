@@ -4,8 +4,10 @@ import {
   DEFAULT_STAGE_MODULE_ORDER,
   dropStageModule,
   moveStageModule,
+  parseStageHiddenModules,
   parseStageModuleOrder,
   partitionStageWorks,
+  toggleHiddenModule,
   visibleStageModules,
 } from "./stageLayout";
 
@@ -68,6 +70,32 @@ describe("stage layout", () => {
     };
     expect(visibleStageModules(order, occupied, false)).toEqual(["works", "measured"]);
     expect(visibleStageModules(order, occupied, true)).toEqual(order);
+  });
+
+  it("omits owner-hidden modules unless the owner is arranging", () => {
+    const order = parseStageModuleOrder(["works", "measured", "links"]);
+    const occupied = {
+      stage: false,
+      featured: false,
+      works: true,
+      story: false,
+      packs: false,
+      measured: true,
+      credits: false,
+      links: true,
+    };
+    expect(visibleStageModules(order, occupied, false, ["works"])).toEqual(["measured", "links"]);
+    expect(visibleStageModules(order, occupied, true, ["works"])).toEqual(order);
+  });
+
+  it("parses hidden ids without inventing the rest", () => {
+    expect(parseStageHiddenModules(["works", "nope", "works", "measured"])).toEqual([
+      "works",
+      "measured",
+    ]);
+    expect(parseStageHiddenModules(undefined)).toEqual([]);
+    expect(toggleHiddenModule(["works"], "works")).toEqual([]);
+    expect(toggleHiddenModule([], "packs")).toEqual(["packs"]);
   });
 
   it("splits featured placements out of Works", () => {
