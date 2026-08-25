@@ -1,12 +1,14 @@
 # ADR-029 — AI Mastering & Metadata AI (Phase 15)
 
+> **NOT PRODUCT IDENTITY.** Suite-era engineering ADR. Mastering is a capability, not the product. Read [`PRODUCT.md`](../../PRODUCT.md).
+
 **Status:** Accepted  
 **Date:** 2026-07-30  
 **Branch:** `phase15-remote-ai`
 
 ## Context
 
-Suite Genesis needs remote-capable mastering and metadata suggestions without
+The Suite-era plan needed remote-capable mastering and metadata suggestions without
 reopening paid minute billing (Phase 16). Portable FFT already caps at 10 MB;
 larger masters need a remote engine path that still respects Cost Sentinel.
 

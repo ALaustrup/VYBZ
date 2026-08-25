@@ -1,6 +1,8 @@
 # 0009 — Live audio for any host
 
-**Date:** 2026-08-18 · **Status:** Accepted · **Decided by:** owner
+> **SUPERSEDED AS PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). VYBZ is a social network, not “a real-time live audio platform.” Any-host live, ATC, and viewpoint-neutral hosting still apply as **capabilities**.
+
+**Date:** 2026-08-18 · **Status:** Accepted as history · **Decided by:** owner
 
 Decision records are append-only. This record does not edit [`0004`](./0004-live-mix-streaming-platform.md)–[`0008`](./0008-atc-unmeasured-mints.md). It does not reopen Airtime Phase 1, reception/referral mints, or SessionToolDrawer.
 

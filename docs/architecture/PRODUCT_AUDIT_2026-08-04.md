@@ -1,5 +1,7 @@
 # VYBZ Current-State Product Audit
 
+> **HISTORICAL SNAPSHOT — NOT PRODUCT IDENTITY.** Dated 2026-08-04 (Suite initiative). VYBZ is a social network. Read [`PRODUCT.md`](../../PRODUCT.md). Do not sequence Suite visual work from this file.
+
 **Date:** 2026-08-04
 **Baseline:** branch `feat/m2-purge-dating-and-nonaudio` @ `8972eaa6` (production `main` @ `c79948b6` plus the dating removal in PR #52)
 **Purpose:** Deliverable 1 of the premium suite initiative — establish exactly what exists before any visual work begins.

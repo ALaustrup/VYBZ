@@ -2,10 +2,20 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-23
+**How to read this file:** Newest checkpoint first. Older sections are evidence of what shipped *then*. If an older section says VYBZ is Creator OS, Live Mix, Pack Suite, The Station, or a release operating system, that sentence is history — not current identity.
+
+**Product (do not infer from older sections below):** VYBZ is a social network. Home is My VYBZ. A VYBZ is a person’s living place. Creation is optional. Living Mix, Pack Maker, Workspace-as-home, studio desks, and the DAW plug-in are preserved in the tree — not current direction. Authority: [`PRODUCT.md`](./PRODUCT.md).
+
+**Date:** 2026-08-25
 **Branch:** `docs/living-profile-phase-6-walk`
-**HEAD:** unmerged docs walk record (this branch only)
-**Production:** https://vybz.cloud — `main` **`3d22afe4`** (PR 206). Vercel **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. PR 207 (set-password) stays open and is not this PR.
+**HEAD:** this commit (docs rewrite on this branch). Production identity is unchanged by this file.
+**Production:** https://vybz.cloud — `main` **`3d22afe4`** (PR 206). Vercel **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. PR 207 (set-password) stays open and is not this work.
+
+## Documentation rewrite — vision alignment — 2026-08-25
+
+Docs pass so agents do not treat Suite / Live Mix / Pack Maker / Creator OS / Workspace-as-home as the product. `PRODUCT.md` Version 9 stays the only authority. Root `implementation_plan.md` and the Creator OS executive pivot are stubs; originals live under `docs/archive/`. Decision `0001`–`0010` carry superseded-identity banners. Suite briefs and copy/brand pages say NOT AUTHORITY.
+
+Validation of this rewrite (this unit of work only): `npx vitest run` on `livingProfileGate`, `creatorOsGate`, `liveAudioGate`, `airtimeCreditsGate`, `creatorNetworkGate`, `humanProvenanceGate` — **6 files / 41 tests passed** (re-run 2026-08-25). Full `npm run lint` / `npm run test` / `npm run build` — **not run** for this rewrite.
 
 ## Living Profile Phase 6 — Modular arrangement — 2026-08-23
 

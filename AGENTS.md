@@ -4,7 +4,7 @@ How to work in this repository. If you cannot follow all of it, do not start.
 
 ## Read first
 
-1. [`PRODUCT.md`](./PRODUCT.md) — the only authority. VYBZ is a living social identity that becomes a creative operating system when you create. Not a sample-pack app. Not music-only.
+1. [`PRODUCT.md`](./PRODUCT.md) — the only authority. VYBZ is a **living social identity that becomes a creative operating system when you create.** In public language: a social network. Everyone gets My VYBZ and can express themselves however they want. Creation is optional. Not a sample-pack app. Not music-only. Not Workspace, Living Mix, Pack Maker, or a DAW. Those may exist in the tree; they are not the product.
 2. [`src/product/invariants.ts`](./src/product/invariants.ts) — the rules, in code, enforced by tests
 3. [`STATE.md`](./STATE.md) — where things actually stand right now
 4. [`docs/`](./docs/) — reference material, never authority

@@ -1,48 +1,49 @@
 # VYBZ
 
-> **Find Yours.**  
-> **Enter yourself. Keep the originals. Create when you want.**
+> **Find Yours.**
+> A living place. A social network. Express yourself however you want.
 
-VYBZ is a **living social identity** that becomes a **creative operating system** when you create. Not a sample-pack app. Not music-only. The human is the root object. Creative Work is the unit of creation. Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
+**VYBZ is a premium social network.** Every person gets **My VYBZ** — their living place. They can follow, talk, watch, collect, go live, and create when they want. Creation is optional. Belonging is not. Music is one way to show up, not the product.
 
-**One account · one cloud · three clients + DAW plug-in:**
-- **VYBZ Web:** Interactive live stage, rooms, and visualizers.
-- **VYBZ Desktop:** (Tauri 2, Windows & macOS) with DAW folder watcher and studio audio routing.
-- **VYBZ Mobile:** (Capacitor, Android-first) for companion remote mixing and mobile live streaming.
-- **VYBZ Broadcast Plug-in:** (VST3 / CLAP / AU) directly on the master channel of Ableton, FL Studio, Logic, Reaper.
+Owner: **Astra Matrix, Inc.** Canonical domain: **`vybz.cloud`**.
 
-**VYBZ has no anonymity.** Every account is a durable identity. No ads. No connection paywalls. Messaging free forever.
+**One account. Accountable identity, not mandatory public legal identity. No ads. No connection paywalls. Messaging free forever.**
 
-> **One authority:** [`PRODUCT.md`](./PRODUCT.md) — what we are building and what we refuse to build.  
-> Enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).  
-> [`AGENTS.md`](./AGENTS.md) is how to work here · [`STATE.md`](./STATE.md) is where things stand · [`docs/decisions/`](./docs/decisions/) records why.  
-> Everything else under `docs/` is reference, and `docs/archive/` is never authoritative.
+> **One authority:** [`PRODUCT.md`](./PRODUCT.md) — what we are building and what we refuse to build.
+> Enforceable rules: [`src/product/invariants.ts`](./src/product/invariants.ts).
+> How to work: [`AGENTS.md`](./AGENTS.md) · Where things stand: [`STATE.md`](./STATE.md).
+> [`docs/`](./docs/) is reference. [`docs/archive/`](./docs/archive/) is never authoritative.
+> Root files named `implementation_plan.md` or “Creator OS Executive Pivot” are **history**, not the product.
 
-## What VYBZ is
+## What we are building
 
-| Module | Role |
+| Surface | Job |
 |--------|------|
-| **My VYBZ / Stage File** | Logged-in home (`/`) and public `/u/:id` — same living profile |
-| **Workspace + Library** | Private operating environment at `/workspace` and authorized works at `/library` — both hidden from default chrome |
-| **Live Creation** | Real-time rooms, stage visualizer, presence, and chat |
-| **DAW Broadcast Plug-in** | Stream master-bus audio directly from your DAW to LiveKit SFU in stereo HD |
-| **Android Sync & Companion** | Hardware-style remote session control and mobile live mixing |
-| **Living Mix Engine** | Catalog sequencer. Still in the tree |
-| **Studio Tool Drawer** | DSP correction desks, Stem splitter, MIDI maker, and Car/Club acoustic preview |
-| **Marketplace & Pack Maker** | Post-session products with SHA manifests; sell via Stripe |
+| **My VYBZ** | Home. Your living place (`/`). |
+| **Their VYBZ** | Someone else’s place (`/u/:id`). Same object, visitor experience. |
+| **Explore** | Target door into other people’s VYBZ. Search lives inside it. **Not shipped as the chrome door yet.** |
+| **Library** | Your Creative Work, private until you add it to My VYBZ. Hidden from default chrome. |
+| **Live Room** | Real-time presence. A capability, not the product. |
+| **VDock** | User-facing product name. **Shipped:** media dock. **Target:** persistent personalized control layer. |
 
-## What's shipped today (foundation)
+No public content section is required. A person with no published work still has a complete social identity.
 
-- LiveKit SFU stereo music mode token generation (`livekit-token` edge function)
-- Living Mix intelligent mix planner (`/library/mix`)
-- Live Watch page with WebGL stage visualizer, presence, and V¢ tipping (`/live/:id`)
-- Passkey-first auth, creator profiles, VDock dry playback monitor
-- 9 DSP audio correction desks, stem separation, and MIDI transcription
-- Sample Pack Storefront with verified Stripe checkout and signed ZIP delivery
-- Forensic watermark embed/detect Edge Functions
-- Universal Platform Bridge across Web, Android (Capacitor), and Desktop (Tauri)
+## What we are not building (as the product)
 
-Delivery state for each of these is recorded in [`STATE.md`](./STATE.md). Code merging is not delivery — see [`PRODUCT.md`](./PRODUCT.md) §13.
+These still exist in the repository. Routes may resolve. **Do not treat them as current direction:**
+
+- Living Mix (`/library/mix`)
+- Pack Maker, marketplace, sample-pack pipeline
+- Workspace as home (`/workspace` is archived from nav)
+- Studio tool drawer / DSP desks as kingdoms
+- DAW broadcast plug-in as the identity of VYBZ
+- Suite product grid (Prepare, Market, Artist storefront, CoverLab, …)
+
+Hide, never delete. Hidden from default chrome ≠ the social product.
+
+## Shipped default chrome
+
+**VYBZ · Search · + · Chat · Alerts · Me.** Target door is **Explore** (Search inside it). Cmd/Ctrl+K is the command palette.
 
 ## Local development
 
@@ -55,22 +56,19 @@ npm run test
 npm run build
 ```
 
-Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).
+Node 20+. Missing Supabase env → app hard-stops.
 
 ## Documentation map
 
 | Doc | Purpose |
 |-----|---------|
-| [`PRODUCT.md`](./PRODUCT.md) | Product authority (Living Profile) |
-| [`src/product/invariants.ts`](./src/product/invariants.ts) | The rules, in code |
-| [`AGENTS.md`](./AGENTS.md) | Agent / ops pickup contract |
-| [`STATE.md`](./STATE.md) | Current checkpoint |
-| [`docs/decisions/`](./docs/decisions/) | Decision records (0001–0011) |
-| [`docs/architecture.md`](./docs/architecture.md) | Platform overview |
-| [`SECURITY.md`](./SECURITY.md) | Threat model and controls |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | Branch / PR / policy |
-| [`docs/`](./docs/) | Architecture, products, design, ops, engineering |
-| [`docs/archive/`](./docs/archive/) | Historical only — never authoritative |
+| [`PRODUCT.md`](./PRODUCT.md) | **Only product authority** |
+| [`src/product/invariants.ts`](./src/product/invariants.ts) | Rules in code |
+| [`AGENTS.md`](./AGENTS.md) | How to work here |
+| [`STATE.md`](./STATE.md) | Checkpoint (evidence, not vision) |
+| [`docs/decisions/`](./docs/decisions/) | Why a decision was made (history) |
+| [`docs/`](./docs/) | Engineering/ops reference — never product law |
+| [`docs/archive/`](./docs/archive/) | Historical only |
 
 ## Security reporting
 

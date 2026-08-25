@@ -12,6 +12,5 @@ read as committed work.
 | `SENTINEL.md` | Secure prerelease rooms. Only the watermark edge functions exist; `/sentinel` renders a placeholder. |
 | `COVERLAB.md` | Artwork readiness and repair. Only `visual-generate` exists; `/coverlab` renders a placeholder. Artwork DPI is never actually parsed. |
 
-Relay's honest framing — *"no fake direct-DSP claims"* — survives as Law 7 and §11 of
-[`VYBZ_MASTERPLAN.md`](../../../VYBZ_MASTERPLAN.md). External distribution is now an
-explicitly gated milestone (M13/M14) rather than a brief.
+Relay's honest framing — *"no fake direct-DSP claims"* — still holds as a refusal.
+External DSP distribution is not the product. Read [`../../../PRODUCT.md`](../../../PRODUCT.md).

@@ -1,5 +1,7 @@
 # VLink
 
+> **Not the product.** VYBZ is a social network. This plug-in is DAW ingest — a preserved capability. Read [`PRODUCT.md`](../../PRODUCT.md).
+
 VST3 insert that is VYBZ’s DAW-side access node. Sit it on the master (or the bus you want heard). It passes audio through, and on loopback it serves the audio, the host transport the DAW actually gives us, and a small JSON API.
 
 This is the plug-in PRODUCT.md calls **DAW Master Channel ingest**. Older copy said “VYBZ Broadcast”. Same port, same stream path.

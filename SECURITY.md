@@ -1,11 +1,11 @@
 # SECURITY.md
 
-> Suite security doctrine (Beta-1A). Product boundaries: [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md).
+> Security doctrine. Product identity is [`PRODUCT.md`](./PRODUCT.md) — a social network, not Suite Genesis. `VYBZ_MASTERPLAN.md` is not current law.
 > Archived Music Hub–era notes: [`docs/archive/pre-suite-2026/SECURITY.md`](./docs/archive/pre-suite-2026/SECURITY.md).
 
 ## Principles
 
-1. **Identity-first** — no anonymity; durable creator accounts (email + passkeys).
+1. **Identity-first** — accountable identity (email + passkeys). Not mandatory public legal identity. Not a separate Creator Account.
 2. **Least privilege** — RLS on every user table; definer RPCs for privileged writes.
 3. **One Supabase project** — never share service_role with the client; never commit secrets.
 4. **Storage-only media origin** — private masters in `audio-assets` / repo blobs; public CDN only for approved public assets (`site-visuals`, `media-public`, storefront previews).
@@ -19,7 +19,7 @@ Native packaging does not secure secrets. Privileged actions stay behind RLS,
 protected RPCs, Edge Functions, trusted workers, and verified billing webhooks.
 No client may ship `service_role`, Stripe secrets, Resend keys, AI provider keys,
 or signing secrets. Platform Bridge must use allowlisted native commands only
-(no arbitrary shell / unrestricted FS). See Master Blueprint §16–17.
+(no arbitrary shell / unrestricted FS). See [`AGENTS.md`](./AGENTS.md) and the Platform Bridge in `src/platform/`.
 
 ## Threat model (summary)
 

@@ -1,6 +1,8 @@
 # 0004 — Live Mix Audio Streaming Platform
 
-**Date:** 2026-08-17 · **Status:** Accepted · **Decided by:** owner
+> **SUPERSEDED AS PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). VYBZ is a social network. Live rooms and Living Mix are capabilities, not the product. Do not implement a DAW plug-in or mix-engine identity from this file.
+
+**Date:** 2026-08-17 · **Status:** Accepted as history · **Decided by:** owner
 
 Decision records are append-only. This record supersedes [`0003-pack-suite-marketplace.md`](./0003-pack-suite-marketplace.md) and [`0001-the-station.md`](./0001-the-station.md). It does not edit those files' bodies.
 

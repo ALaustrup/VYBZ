@@ -1,6 +1,8 @@
 # ADR Index
 
-Architecture Decision Records for Suite Genesis.
+> **NOT PRODUCT IDENTITY.** These are engineering ADRs (stack, media origin, LiveKit, native shells). Suite Genesis is a historical release-era name. The product is a social network. Read [`PRODUCT.md`](../../PRODUCT.md). Product-identity decisions live in [`../decisions/`](../decisions/) — current lock is [`0011`](../decisions/0011-living-profile.md).
+
+Architecture Decision Records for platform engineering.
 
 | ID | Title | Status |
 |----|-------|--------|

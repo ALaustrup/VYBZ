@@ -1,5 +1,7 @@
 # 0002 — The watermark is forensic, not access control
 
+> **NOT PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). The forensic-not-access-control rule still applies. VYBZ is a social network, not The Station and not a pack suite.
+
 **Date:** 2026-08-15 · **Status:** Accepted
 
 ## Context

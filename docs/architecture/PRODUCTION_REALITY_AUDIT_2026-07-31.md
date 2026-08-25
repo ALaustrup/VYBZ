@@ -1,8 +1,6 @@
 # Production Deployment and User-Experience Reality Audit
 
-> **Evidence baseline for Master Blueprint v2.** Strictly read-only audit conducted
-> 2026-07-31 → 2026-08-01 UTC against live production. No code was changed.
-> Authority: [`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md) §0, §2, §21, §22, §23.
+> **HISTORICAL AUDIT — NOT PRODUCT IDENTITY.** Dated 2026-07-31. `VYBZ_MASTERPLAN.md` is not current law. Read [`PRODUCT.md`](../../PRODUCT.md). Evidence baseline only. No code was changed in the original audit.
 
 ## Why this audit happened
 
@@ -244,7 +242,7 @@ Confidence:           HIGH on deployment identity, bundle contents, routing, gat
 
 ## 10. Corrections mandated
 
-Tracked as Track D in [`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md) §23.
+Tracked as Track D in the (now archived) masterplan. Historical list only.
 
 | # | Correction |
 |--:|---|

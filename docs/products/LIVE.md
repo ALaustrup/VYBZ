@@ -1,6 +1,6 @@
 # VYBZ Live
 
-> Product brief — reference only. Product authority is [`PRODUCT.md`](../../PRODUCT.md). Accent: **crimson** (`#e11d48`).
+> **NOT AUTHORITY.** Live Room is a capability inside the social network, not the product. See [`PRODUCT.md`](../../PRODUCT.md). Accent: **crimson** (`#e11d48`).
 
 ## Purpose
 

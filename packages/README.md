@@ -1,4 +1,6 @@
-# packages/ — future workspace home (Stage B+)
+# packages/
+
+> Engineering layout. Not a Suite “workspace home” product. Read [`PRODUCT.md`](../PRODUCT.md).
 
 Phase 1.5 **does not move** application source into `packages/`.
 

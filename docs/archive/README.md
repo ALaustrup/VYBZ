@@ -1,23 +1,21 @@
-> **HISTORICAL ONLY — NOT AUTHORITATIVE — DO NOT USE FOR CURRENT IMPLEMENTATION OR SEQUENCING.**
+> **HISTORICAL ONLY — NOT AUTHORITATIVE — DO NOT USE TO DECIDE WHAT VYBZ IS.**
 
 # docs/archive
 
-Everything below is a historical record. **Nothing here is authoritative**, and no agent may
-use it to decide what to build or in what order. Every file carries the banner above.
+VYBZ is a **social network**. Home is **My VYBZ**. Creation is optional.
 
-| Folder / files | What it preserves | Archived |
-|---|---|---|
-| [`suite-phases-2026/`](./suite-phases-2026/) | Exit gates and inventories for the retired Phase 1–19 sequence, plus the staged workspace plan | 2026-08-01 |
-| [`agent-roles-2026/`](./agent-roles-2026/) | Ten competing agent-persona documents, superseded by the root `AGENTS.md` | 2026-08-01 |
-| [`product-briefs-2026/`](./product-briefs-2026/) | Briefs for Relay, Sentinel and CoverLab — surfaces that were never built | 2026-08-01 |
-| [`pre-suite-2026/`](./pre-suite-2026/) | Music Hub–era root doctrine frozen at Suite Genesis Phase 0 | earlier |
-| `UNIFIED_SOCIAL_LIVE_PHASE*.md` | Earlier Social Live phase notes; unique LiveKit and Vc room-renewal operational detail | earlier |
+Everything below is a historical record (Suite phases, pack suite, Live Mix platform, agent-persona docs, old briefs). **Nothing here is the product.** Code those files describe may still exist — hide, never delete — and must not be treated as current direction.
 
-## The five active authorities
+**One authority:** [`../../PRODUCT.md`](../../PRODUCT.md).
 
-[`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md) · [`AGENTS.md`](../../AGENTS.md) ·
-[`ARCHITECTURE.md`](../../ARCHITECTURE.md) · [`STATUS.md`](../../STATUS.md) ·
-[`IDEAS_BACKLOG.md`](../../IDEAS_BACKLOG.md)
+There are no “five active authorities” at the repo root. `VYBZ_MASTERPLAN.md`, `STATUS.md`, and `IDEAS_BACKLOG.md` are not current law (STATUS was replaced by `STATE.md`; the masterplan is archived). Individual files below may still say they were superseded by those five names — that boilerplate is itself historical.
 
-If an archived document disagrees with one of those five, the authority is correct and the
-archived document is simply old.
+| Folder / files | What it preserves |
+|---|---|
+| [`suite-phases-2026/`](./suite-phases-2026/) | Retired Phase 1–19 suite sequence |
+| [`agent-roles-2026/`](./agent-roles-2026/) | Old agent-persona docs |
+| [`product-briefs-2026/`](./product-briefs-2026/) | Relay, Sentinel, CoverLab briefs |
+| [`pre-suite-2026/`](./pre-suite-2026/) | Music Hub–era doctrine |
+| `UNIFIED_SOCIAL_LIVE_PHASE*.md` | Earlier Social Live notes |
+| [`implementation_plan.md`](./implementation_plan.md) | Old Live Mix / sample-pack implementation plan |
+| [`VYBZ-Creator-OS-Executive-Pivot-Directive.md`](./VYBZ-Creator-OS-Executive-Pivot-Directive.md) | Old Creator OS pivot brief |

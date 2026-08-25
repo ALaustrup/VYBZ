@@ -1,8 +1,8 @@
 # VYBZ brand assets
 
 Official VYBZ marks for the web app, PWA, social previews, and native wrappers.
-Product: **release operating system for independent music** — Find Yours.
-Promise: **Everything between finished and released.** Domain: [vybz.cloud](https://vybz.cloud).
+Product: **a premium social network** — Find Yours. Everyone gets My VYBZ.
+Promise: Express yourself however you want. Creation is optional. Domain: [vybz.cloud](https://vybz.cloud).
 
 ## Files in this folder
 

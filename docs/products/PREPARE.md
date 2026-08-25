@@ -1,6 +1,6 @@
 # VYBZ Prepare
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **ice cyan**. Phase 2 MVP target.
+> **NOT AUTHORITY.** Prepare is not the product. See [`PRODUCT.md`](../../PRODUCT.md). Suite-era brief. Do not build from this file.
 
 ## Purpose
 

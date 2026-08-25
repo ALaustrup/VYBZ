@@ -1,6 +1,8 @@
 # Product Identities
 
-> Accent and tone per Suite product. Wayfinding only — not a rainbow chrome.
+> **NOT AUTHORITY.** Suite product grid (Studio, Prepare, Market, CoverLab, …) is not current VYBZ direction. The product is a social network. See [`PRODUCT.md`](../../PRODUCT.md).
+
+> Accent and tone leftover from Suite. Wayfinding only — not a rainbow chrome.
 
 ## Matrix
 

@@ -1,6 +1,8 @@
 # 0005 — Airtime Credits (ATC)
 
-**Date:** 2026-08-17 · **Status:** Accepted · **Decided by:** owner
+> **NOT PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). ATC remains the hosting clock for live. “Live mix remains the product” below is historical — live is a capability.
+
+**Date:** 2026-08-17 · **Status:** Accepted (capability) · **Decided by:** owner
 
 Decision records are append-only. This record does not edit [`0004`](./0004-live-mix-streaming-platform.md). Live mix remains the product. This record replaces the sentence in PRODUCT.md v3 that said hosting is free.
 

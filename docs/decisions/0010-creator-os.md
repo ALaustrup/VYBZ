@@ -1,10 +1,12 @@
 # 0010 — Creator Operating System
 
-**Date:** 2026-08-21 · **Status:** Accepted · **Decided by:** owner
+> **SUPERSEDED AS PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md) Version 9 and [`0011`](./0011-living-profile.md). VYBZ is a social network. Creator OS is what the living profile **becomes when you create** — not a separate app and not the public product. The archived executive brief is [`../archive/VYBZ-Creator-OS-Executive-Pivot-Directive.md`](../archive/VYBZ-Creator-OS-Executive-Pivot-Directive.md). Do not implement from it.
+
+**Date:** 2026-08-21 · **Status:** Accepted as history · **Decided by:** owner
 
 Decision records are append-only. This record does not edit [`0004`](./0004-live-mix-streaming-platform.md)–[`0009`](./0009-live-audio-for-any-host.md). Live rooms, any-host go-live, ATC as the hosting clock, session provenance, and the Stage File remain in force as **capabilities**. They are no longer the product identity.
 
-Executive source: [`VYBZ Creator OS Executive Pivot Directive.md`](../../VYBZ%20Creator%20OS%20Executive%20Pivot%20Directive.md).
+Executive source (archived, not authority): [`../archive/VYBZ-Creator-OS-Executive-Pivot-Directive.md`](../archive/VYBZ-Creator-OS-Executive-Pivot-Directive.md).
 
 ## Context
 

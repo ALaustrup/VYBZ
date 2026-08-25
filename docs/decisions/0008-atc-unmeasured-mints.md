@@ -1,6 +1,8 @@
 # 0008 — ATC reception bonus and referral rates are Not measured
 
-**Date:** 2026-08-18 · **Status:** Accepted · **Decided by:** owner
+> **NOT PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). The Not-measured mint rule still applies.
+
+**Date:** 2026-08-18 · **Status:** Accepted (capability) · **Decided by:** owner
 
 Decision records are append-only. This record does not edit [`0005`](./0005-airtime-credits.md). It does not rebuild the ATC ledger (0105). It does not change Stripe, LiveKit, Living Mix, or daily-grant / listen-earn / host-consume formulas.
 

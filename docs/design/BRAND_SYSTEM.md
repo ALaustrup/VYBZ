@@ -1,26 +1,24 @@
 # Brand System
 
-> Suite Genesis brand authority for UI and product copy.
+> **NOT AUTHORITY for product identity.** Read [`PRODUCT.md`](../../PRODUCT.md). Tokens and type still apply. Suite Genesis positioning does not.
 
 ## Positioning
 
-VYBZ is the **release operating system for independent music**.
+VYBZ is a **premium social network**. A VYBZ is a person’s living place.
 
 | Signal | Line |
 |--------|------|
 | Tagline | **Find Yours.** |
-| Promise | Everything between finished and released. |
-| Eyebrow | The release operating system for independent music. |
-| Pricing | Start free. Pay only when a release needs paid infrastructure. |
+| Promise | Express yourself however you want. |
+| Eyebrow | A living place. A social network. |
+| Pricing | No ads. No connection paywalls. Messaging free forever. |
 
 ## Dual register
 
-1. **Precision platform** — professional Suite tools (Prepare, Credits, Studio,
-   MasterReady, CoverLab, Sentinel, Relay): denser, flatter, measurable.
-2. **Expressive artist** — Artist page, Live stage, Market product faces: atmosphere
-   allowed; the artist’s work is the expression.
+1. **The place** — My VYBZ / their VYBZ: atmospheric, quiet, identity-first.
+2. **Tools when asked** — Library, Live Room, desks: denser only when the person opened them.
 
-**Principle:** The platform provides precision. The artist provides expression.
+**Principle:** The human is the root object. Tools serve work. Creation is optional.
 
 ## Brand test
 
@@ -39,5 +37,5 @@ on landing — not only nav chrome.
 
 ## Authority
 
-Conflicts → [`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md) §7. Tokens:
+Conflicts → [`PRODUCT.md`](../../PRODUCT.md). Tokens:
 [`DESIGN_TOKENS.md`](./DESIGN_TOKENS.md). Copy: [`COPY_SYSTEM.md`](./COPY_SYSTEM.md).

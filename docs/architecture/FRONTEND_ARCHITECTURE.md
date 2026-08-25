@@ -1,6 +1,8 @@
 # Frontend Architecture
 
-## Today (Phase 1)
+> **NOT PRODUCT IDENTITY.** Signed-in home is **My VYBZ**. SuiteShell is the existing chrome wrapper — not a Suite product grid. Read [`PRODUCT.md`](../../PRODUCT.md).
+
+## Today (Living Profile)
 
 - Vite + React 18 + React Router; routes in `src/App.tsx` plus `src/app/suitePlaceholderRoutes.tsx`.
 - Auth/shell gates before chrome; **SuiteShell** wraps signed-in stage + VDock.

@@ -1,6 +1,8 @@
 # VDock
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **shared brand cyan**. Persistent player.
+> **NOT AUTHORITY.** VDock is a user-facing VYBZ product name. **Shipped:** media dock. **Target:** persistent personalized control layer (see `PRODUCT.md`). This Suite-era brief describes the player only. Do not treat it as the full product.
+
+> Reference only. Accent: **shared brand cyan**.
 
 ## Purpose
 

@@ -1,6 +1,6 @@
 # VYBZ Home
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **cyan**.
+> **NOT AUTHORITY.** Home is **My VYBZ**, not a Suite command center. See [`PRODUCT.md`](../../PRODUCT.md). This brief is Suite-era history.
 
 ## Purpose
 

@@ -4,7 +4,7 @@
 > Machine-enforceable rules live in [`src/product/invariants.ts`](./src/product/invariants.ts).
 > Where this document and that file disagree, the file wins and this document gets fixed.
 >
-> Version 9 · 2026-08-21 · supersedes Version 8 (Creator OS as product identity, 2026-08-21), Version 7 (live audio as product identity, 2026-08-18), Version 6 (Stage File + ATC meter, 2026-08-18), Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
+> Version 9 · 2026-08-21 · place/vocabulary amendment 2026-08-23 · supersedes Version 8 (Creator OS as product identity, 2026-08-21), Version 7 (live audio as product identity, 2026-08-18), Version 6 (Stage File + ATC meter, 2026-08-18), Version 5 (session provenance, 2026-08-17), Version 4 (ATC, 2026-08-17), Version 3 (Live Mix Platform), Version 2 (Pack Suite) and Version 1 (The Station).
 > Also supersedes the 2026-08-11 song/release Creative OS brief: music is a specialization, not the unit.
 > Decisions: [`0011`](docs/decisions/0011-living-profile.md) (Living Profile identity) · [`0010`](docs/decisions/0010-creator-os.md) (Creator OS as what the living profile becomes) · [`0004`](docs/decisions/0004-live-mix-streaming-platform.md) (live rooms) · [`0005`](docs/decisions/0005-airtime-credits.md) (how hosting is gated) · [`0006`](docs/decisions/0006-session-provenance.md) (what a live session can prove) · [`0007`](docs/decisions/0007-artist-stage-file.md) (public profile) · [`0008`](docs/decisions/0008-atc-unmeasured-mints.md) (reception / referral do not mint yet) · [`0009`](docs/decisions/0009-live-audio-for-any-host.md) (who may host — live remains any-host, not the product identity).
 
@@ -12,25 +12,29 @@
 
 ## 1. The problem
 
-A person should not enter VYBZ and choose between Dashboard, Creator Studio, Library, Profile, Social, Workspace, Live, Store, Tools, and twenty other doors.
+People do not have a premium social network that is also a living place they own — where they can express themselves however they want, find each other, and stay because the place is alive.
 
-Social apps treat creation as content. Storage apps treat files as objects with no identity. Music tools assume every creator is finishing a song. Live apps assume the product is the stream. Creator workstations bury the human under systems.
+They should not land in VYBZ and choose between Dashboard, Creator Studio, Library, Profile, Social, Workspace, Live, Store, Tools, and twenty other doors.
+
+Social apps treat creation as disposable content. Storage apps treat files as objects with no identity. Music tools assume every person is finishing a song. Live apps assume the product is the stream. Creator workstations bury the human under systems. Old VYBZ documents still sell those kingdoms. **They are not the product.**
 
 **That is the hole: there is no social identity whose living profile becomes a creative operating system when the person creates — private library, public presence, and a network — where original work stays theirs.**
 
-Live rooms remain a real-time stage inside that identity. They are not the definition of the product. The Creator Operating System is what the living profile becomes. It is not a separate app.
+Live rooms remain a real-time capability inside that identity. They are not the definition of the product. The Creator Operating System is what the living profile becomes when someone creates. It is not a separate app. Living Mix, Pack Maker, Workspace, studio desks, and the DAW plug-in stay in the tree (hide, never delete). They are not what we are building VYBZ to be.
 
 ## 2. What VYBZ is
 
+**VYBZ is the social network.** A premium, next-generation social experience. Everyone gets a living place — **My VYBZ** — and can express themselves however they want: music, image, film, writing, live, conversation, collecting, or nothing public at all. Creation is optional. Belonging is not.
+
 **VYBZ is a living social identity that becomes a creative operating system when you create.**
 
-Not a sample-pack app. Not music-only. Not a creator workstation where the profile is a submenu. Not another social network that happens to host files.
+Not a sample-pack app. Not music-only. Not a creator workstation where the profile is a submenu. Not another social network that happens to host files. Not a DAW. Not a pack store. Not a mix engine.
 
 This supersedes Version 8's sentence that VYBZ should feel like a **creative operating environment with a social layer**. The stronger model:
 
 **VYBZ is a social identity environment whose living profile becomes a creative operating system for anyone who creates.**
 
-The human is the root object. Their VYBZ is the interface. Their Library supplies it. Their Creative Work gives it substance. Their relationships make it social. Live makes it present. Customization makes it theirs.
+The human is the root object. **A VYBZ is a person’s living place.** My VYBZ is home. Their VYBZ is someone else’s place. You enter their VYBZ — you do not “enter people.” The Library supplies it. Creative Work gives it substance when they create. Relationships make it social. A Live Room makes it present. Customization makes it theirs. No public content section is universally required.
 
 The fundamental unit of creation is **Creative Work**. A Work may contain one or many assets. A song is a specialization. So is an image, a film, a game build, a plugin, a sample pack, a preset, or a document.
 
@@ -46,28 +50,32 @@ There is no point where somebody has to switch into Creator Mode.
 
 These laws are checked against every design decision, route change, feature, and migration.
 
-1. **One Identity.** One VYBZ identity. Discipline labels are optional metadata, never identity prisons. No forced creator onboarding.
-2. **One Profile.** Profile and Dashboard are two perspectives on the same living object. Owner = control mode. Visitor = experience mode. Same identity, same data, same surface, different permissions.
+1. **One Identity.** One VYBZ identity. Discipline labels are optional metadata, never identity prisons. No forced creator onboarding. Durable identity means **accountable identity**, not mandatory public legal identity.
+2. **One Profile.** My VYBZ and their VYBZ are two perspectives on the same living place. Owner = control mode. Visitor = experience mode. Same identity, same data, same surface, different permissions.
 3. **One Library.** Upload once, register once, organize once, then decide where it appears. Do not duplicate the underlying asset because it shows in multiple places.
-4. **Profile Is The Product.** The profile cannot be relegated to `/profile` while a generic dashboard becomes the real app. Everything else emerges from it.
-5. **Community First.** Messaging, following, comments, VYBs, collections, discovery, livestream participation, sharing, and interaction are first-class with zero published work.
-6. **Creative Work is universal.** The unit is not a song.
+4. **Profile Is The Product.** The living place cannot be relegated to `/profile` while a generic dashboard becomes the real app. Everything else emerges from it.
+5. **Community First.** Messaging, following, comments, VYBs, collections, Explore, livestream participation, sharing, and interaction are first-class with zero published work.
+6. **Creative Work is universal.** The canonical creation unit is Creative Work, not a song. That unit does not require a visible section called Works.
 7. **Tools serve Work.** Pack Maker, Correct, Art Check, Stem Maker, and the Store are capabilities, not kingdoms.
 8. **Refine before replacing.** Reuse over replacement. Extension over reinvention. Hide, never delete. No rewrite to change gravity.
-9. **Customization without chaos.** Structured modules, layout, type, media, motion — not unrestricted JavaScript or application-breaking CSS.
+9. **Customization without chaos.** Optional **sections** (named regions), layout, type, media, motion — not unrestricted JavaScript or application-breaking CSS. Atmosphere comes from space, light, motion, sound, and presence — not insider terminology.
 10. **Private by default, public by intent.** A file entering VYBZ does not automatically become content. Indexing is not publishing.
 11. **Social signals inform, not manipulate.** Notifications report what happened. They do not manufacture urgency.
 12. **The interface gets quieter as VYBZ gets more powerful.** More capability must not equal more permanent navigation.
+13. **No required public content section.** The identity anchor may stay so a visitor knows whose VYBZ they entered. Every section beneath it is optional. Empty sections do not appear publicly. A person with no public creative sections still has a complete social identity. **Add / hide / rename / invent sections is target behavior — not shipped.**
+14. **Explore is the door.** Explore opens other people’s VYBZ. Search lives inside Explore. Rank cannot be bought. People — not tracks — are the discovery unit. **Explore as the chrome door is target behavior — not shipped.**
+15. **VDock is the persistent personalized control layer.** It is a user-facing VYBZ product name. Casual copy may say “your dock.” Media playback is one compact VDock capability and must not dominate when nothing is playing. **Launcher, pins, and a receding player are target behavior. Today’s VDock is still the shipped media dock.**
 
 ## 4. Surfaces
 
 | Surface | Job | Primary Role |
 |---|---|---|
-| **My VYBZ** (`/` owner home, `/u/:id` the same object) | Living profile. Owner dashboard and visitor experience are one Stage File | **The product. Logged-in home is My VYBZ** |
+| **My VYBZ** (`/` owner home, `/u/:id` the same object) | A person’s living place. Owner and visitor are two perspectives on one VYBZ | **The product. Logged-in home is My VYBZ** |
 | **Workspace** (`/workspace`) | Private operating environment. Hidden from default chrome | **Archived from nav** |
 | **Library** (`/library`) | Authorized works and assets, local and published. Owner layer, hidden from default chrome | **Catalog** |
-| **Network** (`/feed`, `/connect`, `/live`) | People, activity, who is live. Reachable from Search, not a permanent kingdom | **Discovery and relationships** |
-| **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: profile banner state | **Live Creation** |
+| **Explore** (target door; Search lives inside it) | Other people’s VYBZ. People, not tracks. Not a permanent kingdom | **Discovery** |
+| **Network** (`/feed`, `/connect`, `/live`) | People, activity, who is live. Still in the tree; not the public door | **Relationships** |
+| **Live Room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: identity-anchor state | **Live Creation** |
 | **Devices** | Desktop / mobile Asset Nodes and availability | **Local originals** |
 | **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
 | **In-session desks** (`/tools/*`) | Existing DSP / stem / MIDI / translation desks | **Toolkit** |
@@ -77,13 +85,13 @@ These laws are checked against every design decision, route change, feature, and
 
 Do not add navigation for functionality that does not exist.
 
-The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, music, and other disciplines share it. Connect is a request. Booking is a message, not a calendar. Works render through a module registry — audio, image, video, file (download), project, link, text, and collection — so a new kind registers a renderer instead of forking the profile. 3D and games are later.
+`/u/:id` is **their VYBZ**. Talk, podcast, music, image, writing, and other disciplines share it. Connect is a request. Booking is a message, not a calendar. Creative Work renders through a kind → renderer registry — audio, image, video, file (download), project, link, text, and collection — so a new kind registers a renderer instead of forking the place. 3D and games are later. Internal engineering names (Stage File, modules) are not public vocabulary.
 
-Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Creator identity, viewer access, public chat, the Stage File, and `live_sessions` logging stay. Live should become a **profile banner state**, not a disconnected destination. That remaining chrome change is later than this lock. `/live` stays reachable; it is not a permanent nav item.
+Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Identity, viewer access, public chat, their VYBZ, and `live_sessions` logging stay. Live should become an **identity-anchor state**, not a disconnected destination. That remaining chrome change is later than this lock. `/live` stays reachable; it is not a permanent nav item.
 
-The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
+The Network reuses VYB on works, live presence, direct messages, and activity. **Follow** is a unidirectional subscribe so public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
 
-Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
+**Shipped default chrome** is **VYBZ · Search · + · Chat · Alerts · Me**. Target door: **Explore**, with Search inside it. When the person hits Me, they are home. Library, Live, Network, and Workspace stay in the tree.
 
 ## 5. Local-first originals
 
@@ -192,13 +200,15 @@ Permitted states — never "complete":
 
 ## 14. Interface Direction
 
-- **Logged-in home is My VYBZ.** `/` renders the same Stage File as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome.
-- **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted.
-- **One Stage File, two perspectives.** Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity.
-- **Works go through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash the Stage File. 3D and games are later.
-- **Library places work on your VYBZ.** Select a file you already have. Place on your VYBZ. Choose Works or Featured. Done. No second upload. No second catalog. New files stay private until placed. Library can be viewed as grid, list, table, or shelves, and that arrangement is remembered.
-- **The owner can Arrange existing Stage File modules.** Order is remembered on the profile. Empty modules omit. Identity chrome stays fixed. No theme engine. No custom CSS or JS.
-- **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
+- **Logged-in home is My VYBZ.** `/` renders the same living place as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome.
+- **Shipped chrome** is VYBZ, Search, +, Chat, Alerts, and Me. **Target:** Explore is the door into other people’s VYBZ; Search lives inside Explore. Cmd/Ctrl+K stays the command palette. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted.
+- **One place, two perspectives.** Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity.
+- **Creative Work goes through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash their VYBZ. 3D and games are later.
+- **Library places work on your VYBZ.** Select a file you already have. **Shipped copy:** Place on your VYBZ. Choose Works or Featured. **Target copy:** Add to My VYBZ; Highlights / Creations are suggested titles, not required sections. Done. No second upload. No second catalog. New files stay private until placed. Library can be viewed as grid, list, table, or shelves, and that arrangement is remembered.
+- **Shipped: the owner can Arrange existing Stage File modules.** Order is remembered. Empty modules omit. Identity chrome stays fixed. No theme engine. No custom CSS or JS. Phase 6 behavior is frozen; internal ids stay. **Target:** Customize optional sections (add, hide, reorder, rename). Not shipped.
+- **A VYBZ is not artist-only.** Talk, podcast, music, image, writing, video, and software share `/u/:id`. Starting layouts are suggestions, not identity prisons.
+- **VDock** is a user-facing product name (casual: “your dock”). **Shipped:** media dock. **Target:** persistent personalized control layer; media is one compact capability. Not shipped as that layer.
+- **Controls use plain language.** Atmosphere comes from the experience.
 - **Auto-adjusting** across phone, companion, and desktop studio.
 - **Dark, restrained, workstation-grade** — without presenting as a SaaS control panel.
 
@@ -207,12 +217,12 @@ Permitted states — never "complete":
 The first convincing Living Profile release proves five things:
 
 **A.** My VYBZ is my homepage.  
-**B.** It looks like a portfolio to you and a dashboard to me.  
+**B.** Their VYBZ is a place you can enter; mine is a place I can control. No public content section is required.  
 **C.** I can add several different forms of Creative Work to it.  
 **D.** People can socially interact with me and my work.  
 **E.** The interface stays extremely quiet until I ask it to do something.
 
-A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Default chrome is quiet. Owner and visitor share one Stage File. Owner sees controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ.
+A signed-in person enters their VYBZ at `/`. Workspace at `/workspace` is still in the tree. Default chrome is quiet. Owner and visitor share one living place. Owner sees controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ.
 
 A person may register creative files from a device they control, see them in Library without giving up the originals, organize a Work, choose what becomes public on their VYBZ, and can VYB or Follow another person.
 

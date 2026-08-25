@@ -1,6 +1,6 @@
 # Typography
 
-> Type system for Suite Genesis. Avoid default Inter / Roboto / Arial stacks.
+> Type system. Suite Genesis is a historical era name, not the product. Avoid default Inter / Roboto / Arial stacks.
 
 ## Families (shipped)
 
