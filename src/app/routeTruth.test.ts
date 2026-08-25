@@ -133,14 +133,14 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
     expect(linked).not.toContain("/store");
   });
 
-  it("carries only Me in the rail model", () => {
+  it("carries truthful primary rail destinations only", () => {
     const linked = navItems().map((i) => i.path);
-    expect(linked).toEqual(["/"]);
-    for (const hidden of ["/library", "/feed", "/live", "/library/mix", "/rooms", "/make", "/make/dashboard", "/store"]) {
+    expect(linked).toEqual(["/", "/messages", "/live", "/library"]);
+    for (const hidden of ["/feed", "/library/mix", "/rooms", "/make", "/make/dashboard", "/store", "/workspace"]) {
       expect(linked, `rail must not advertise ${hidden}`).not.toContain(hidden);
     }
-    for (const social of ["/discover", "/messages", "/notifications"]) {
-      expect(linked, `rail must not advertise parked ${social}`).not.toContain(social);
+    for (const omitted of ["/discover", "/notifications", "/settings"]) {
+      expect(linked, `rail must not advertise placeholder or deferred ${omitted}`).not.toContain(omitted);
     }
     for (const tool of ["/releases", "/tools/correct", "/tools/translate", "/tools/packs"]) {
       expect(linked, `${tool} is a pipeline stage, not a rail item`).not.toContain(tool);
@@ -149,7 +149,7 @@ describe("Masterplan M3 exit gate — every visible navigation item leads somewh
 
   it("badges only counters the rail can actually measure", () => {
     const badged = navItems().filter((i) => i.badge);
-    expect(badged).toEqual([]);
+    expect(badged.map((i) => i.badge)).toEqual(["messages"]);
   });
 
   it("keeps Packages off the account menu while the /store route stays", () => {

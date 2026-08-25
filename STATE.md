@@ -3,9 +3,31 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-25
-**Branch:** `feat/living-profile-phase-7`
-**HEAD:** this branch (Phase 7 not merged).
+**Branch:** `feat/stable-audio-generate` (includes unmerged Phase 7 at `6ecfced3`)
+**HEAD:** this branch (Generate slice not merged).
 **Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+
+## Phase 2 — Living Profile owner pulse — 2026-08-25
+
+First reversible slice: `/` stays `MyVybzHome` → `UserProfilePage` → `ArtistStageProfile`. Owner-only `ProfileOwnerPulse` surfaces unread messages, alerts, and live state as ambient chips (no dashboard panel). Identity menu adds **Open public VYBZ** → `/u/:id` alongside **My VYBZ** → `/`. `LIVING_PROFILE.everyExperienceHasAnEquivalent` and `profileOwnerAmbientAttention` locked. Gate `livingProfilePhase2` registered.
+
+`npm run lint` pass. `npm run test` pass — **200 files / 1007 tests**. `npm run build` pass. Production walk: **Not measured**.
+
+## Phase 1a — Shell scaffold and token alignment — 2026-08-25
+
+Desktop mounts one adapted `PrimaryRail` (Me, Messages, Live, Library — truthful routes only). Narrow viewports collapse the rail into `ShellNavDrawer` (hamburger in app bar; Esc + tab focus trap). `ContextualAppBar` unchanged in role. `VDockSocialStrip` adds compact social shortcuts above the existing `MusicDockPlayer` — one dock, one AudioBus graph. `/` content and owner/visitor Stage File behavior unchanged. D2 target direction documented in `PRODUCT.md` §14 (Phase 2 route move not shipped). `LIVING_PROFILE.desktopPrimaryRail` and `mobileNavDrawer` locked.
+
+Screenshots captured via non-deployable e2e shell fixture (`/__e2e__/shell` at 1280 / 768 / 390 px). Signed-in production walk: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **199 files / 1003 tests**. `npm run build` pass. Not committed. Not pushed.
+
+## Generate — local Stable Audio 3 first slice — 2026-08-25
+
+License accepted. First slice only: local `small-music` worker → WAV → existing `uploadQueue`. One Generate action on **+**. Not a chrome kingdom. Not auto-placed on My VYBZ. Labeled generated. Powered by Stability AI. No session provenance. No Stability API. Large is refused.
+
+`GENERATE_AUDIO` is locked. Gate `generateAudio` is registered. Worker is `npm run generate:worker` (loopback `127.0.0.1:48481`). Clone stays sibling (`Documents/stable-audio-3`); not vendored. First real generate needs `uv sync` in that clone and a Hugging Face download — **not run**. Worker-down UI: **Not measured** in a signed-in production walk. Local generate of a WAV: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **198 files / 1001 tests**. `npm run build` pass. `npm run check:no-fixtures` against `dist/` — 13 markers absent. Signed-in + → Generate walk: **Not measured**.
 
 ## Living Profile Phase 7 — Hide existing sections — 2026-08-25
 

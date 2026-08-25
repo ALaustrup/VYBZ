@@ -192,13 +192,15 @@ Permitted states — never "complete":
 
 ## 14. Interface Direction
 
-- **Logged-in home is My VYBZ.** `/` renders the same Stage File as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome.
-- **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. Library, Network, Live, and Workspace stay reachable by URL and from owner controls. Frozen `MobileNav` stays unmounted.
+- **Logged-in home is My VYBZ.** `/` renders the same Stage File as `/u/:id` for the signed-in person. Workspace remains at `/workspace`, hidden from default chrome. **Target (Phase 2):** `/` becomes the signed-in people-first social landing; public identity stays at `/u/:id`; owner opens their public VYBZ from identity controls — not a competing Home vs My VYBZ pair. The final label for that landing is still unresolved; do not freeze it in Phase 1a.
+- **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. **Desktop** adds one frosted PrimaryRail (Me, Messages, Live, Library — truthful routes only). **Mobile and tablet** collapse the rail into an accessible drawer; no permanently expanded rail on narrow screens. Library, Network, Live, and Workspace also stay reachable by URL and from owner controls. Frozen `MobileNav` and `SuiteAppRail` stay unmounted.
 - **One Stage File, two perspectives.** Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity.
 - **Works go through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash the Stage File. 3D and games are later.
 - **Library places work on your VYBZ.** Select a file you already have. Place on your VYBZ. Choose Works or Featured. Done. No second upload. No second catalog. New files stay private until placed. Library can be viewed as grid, list, table, or shelves, and that arrangement is remembered.
 - **The owner can Arrange existing Stage File modules.** Order is remembered on the profile. Empty modules omit. Identity chrome stays fixed. No theme engine. No custom CSS or JS.
 - **The owner can hide existing sections** from the public VYBZ. Hidden sections stay available in Arrange. Add, rename, and invent sections are later. No theme engine.
+- **Generate is a tool, not a surface.** + → Generate makes a private Library file through the local Stable Audio 3 worker. It is labeled generated. Powered by Stability AI. It is not placed on My VYBZ until you Place.
+- **Phase 2 — living Profile home.** `/` remains the owner's Stage File (not a separate Social Home page). Owner perspective adds ambient attention indicators (messages, alerts, live) without dashboard panels. Public identity stays at `/u/:id`; **Open public VYBZ** lives in the identity menu alongside home. Every essential experience must have an equivalent — semantic structure first; Echo later.
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
 - **Dark, restrained, workstation-grade** — without presenting as a SaaS control panel.
