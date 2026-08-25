@@ -1,5 +1,7 @@
 # VYBZ release versioning
 
+> **NOT PRODUCT IDENTITY.** Suite Genesis / Beta-1A are **release-era labels**. The product is a social network. Read [`PRODUCT.md`](./PRODUCT.md). Do not treat this file as a license to build a release operating system.
+
 Canonical product labels use the **Beta-NL[.P]** scheme. Tooling keeps a parallel
 [SemVer](https://semver.org/) in `package.json`.
 
@@ -9,7 +11,7 @@ Canonical product labels use the **Beta-NL[.P]** scheme. Tooling keeps a paralle
 |-----|--------|
 | **Alpha** | Development before tag `Beta-0A`. Historical only. |
 | **Beta 0** | Music Hub launch wedge (tip + live + catalog) through `Beta-0B.x`. Archived doctrine: `docs/archive/pre-suite-2026/`. |
-| **Beta 1 — Suite Genesis** | Release operating system. Starts at planned **`Beta-1A`**. Codename: **Suite Genesis**. |
+| **Beta 1 — Suite Genesis** | Historical release-era name (planned **`Beta-1A`**). **Not** the product identity. |
 
 ## Current plan (important)
 
@@ -19,7 +21,7 @@ Canonical product labels use the **Beta-NL[.P]** scheme. Tooling keeps a paralle
 | Planned SemVer | **1.1.0** |
 | Codename | Suite Genesis |
 | Git tag | **Do not create** until Suite shell, shared cost kernel, and first Prepare readiness scan pass production gates |
-| Working branch | `suite-genesis` |
+| Working branch | Descriptive `feat/…` / `docs/…` off `main`. `suite-genesis` is not current. |
 
 `package.json` may already show `1.1.0` / `Beta-1A` as **in-progress metadata** during doctrine and foundation work. That is not a shipped release.
 

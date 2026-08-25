@@ -1,8 +1,8 @@
 # Releases
 
-> Versioning companion: [`../../VERSIONING.md`](../../VERSIONING.md).
+> Versioning companion: [`../../VERSIONING.md`](../../VERSIONING.md). Not product identity — read [`PRODUCT.md`](../../PRODUCT.md).
 
-## Beta-1A (Suite Genesis)
+## Beta-1A (historical release-era label)
 
 **Untagged** until production gates pass:
 

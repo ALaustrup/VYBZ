@@ -1,6 +1,8 @@
 # 0007 — Artist / producer Stage File
 
-**Date:** 2026-08-18 · **Status:** Accepted · **Decided by:** owner
+> **SUPERSEDED AS PUBLIC VOCABULARY.** Read [`PRODUCT.md`](../../PRODUCT.md). `/u/:id` is **their VYBZ**, not an artist storefront. “Stage File” is an internal engineering name. Live nights do not have to lead. The place is not artist-only.
+
+**Date:** 2026-08-18 · **Status:** Accepted as history · **Decided by:** owner
 
 Decision records are append-only. This record does not edit [`0004`](./0004-live-mix-streaming-platform.md), [`0005`](./0005-airtime-credits.md), or [`0006`](./0006-session-provenance.md).
 

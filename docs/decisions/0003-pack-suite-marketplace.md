@@ -1,6 +1,8 @@
 # 0003 — Pack suite and marketplace
 
-**Date:** 2026-08-16 · **Status:** Accepted · **Decided by:** owner
+> **SUPERSEDED AS PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). VYBZ is a social network, not a sample-pack suite. Pack Maker and Market stay in the tree (hide, never delete). Do not implement from this file as the product.
+
+**Date:** 2026-08-16 · **Status:** Accepted as history · **Decided by:** owner
 
 Decision records are append-only. This record supersedes [`0001-the-station.md`](./0001-the-station.md).
 It does not edit that file's body.

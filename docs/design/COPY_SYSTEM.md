@@ -1,43 +1,46 @@
 # Copy System
 
-> Approved vocabulary for Suite Genesis. Avoid social-hub-only language.
+> **NOT AUTHORITY.** Vocabulary follows [`PRODUCT.md`](../../PRODUCT.md). This page used to lock Suite Genesis / “release operating system” language. That is not VYBZ. Do not write “social-hub-only” as something to avoid — **the product is a social network.**
 
-## Platform lines (locked)
+## Platform lines
 
 - Tagline: **Find Yours.**
-- Promise: **Everything between finished and released.**
-- Eyebrow: The release operating system for independent music.
-- Primary CTA: Start a release · Secondary: Run a free readiness scan
-- Pricing: Start free. Pay only when a release needs paid infrastructure.
+- What it is: **A premium social network.** Everyone gets **My VYBZ**.
+- Promise: Express yourself however you want. Creation is optional. Belonging is not.
+- Do not use: “The release operating system for independent music.” “Everything between finished and released.” “Start a release.” Those are Suite-era.
 
-## Product one-liners
+## User-facing (target)
 
-| Product | Line |
-|---------|------|
-| Home | Your music, moving forward. |
-| Studio | Version your music without flattening the process. |
-| Prepare | Know what is ready. Fix what is not. |
-| Credits | Every name accounted for. Every split confirmed. |
-| MasterReady | Masters that are ready — measured, not guessed. |
-| CoverLab | Cover art that clears the gate. |
-| Sentinel | Share before release — with control you can revoke. |
-| Relay | Deliver the package. Know where it stands. |
-| Artist | Your work, presented. Find Yours. |
-| VDock | Always listening. Never in the way. |
-| Live | Show up live. Cap when the meter says stop. |
-| Market | Sell the pack. Expand the market later. |
+| Say | Do not say (public) |
+|-----|---------------------|
+| My VYBZ / their VYBZ | Stage File, profile-as-submenu, “enter people” |
+| Sections | Modules |
+| Customize | Arrange (shipped label until a copy slice) |
+| Highlights | Featured (shipped label until a copy slice) |
+| Creations | Works as a required title |
+| About | Story as a required title |
+| Add to My VYBZ | Place on VYBZ (shipped label until a copy slice) |
+| Live Room | Live Mix as the product |
+| Explore | Search as a separate kingdom; Discover as this door |
+| your dock / VDock | “the player” as the whole product |
+
+Shipped chrome still says **Search**, **Arrange**, **Featured**, **Place on your VYBZ**. Target copy is later. Do not pretend it already shipped.
+
+## Internal only
+
+Stage File · `stageModuleOrder` · module registry · `featuredDropId` · Creative Work (canonical unit)
 
 ## Prefer / avoid
 
 | Prefer | Avoid |
 |--------|-------|
-| Release, readiness, package, deliver | “Social music hub” as the whole product |
-| Credit Passport, secure room, Engine | Fake “direct to Spotify” without Relay truth |
-| Evidentiary watermark | Infallible / unbreakable security claims |
-| Estimate → approve → reserve | Surprise AI bills; unlimited Live |
-| Tips / support (Vc) | Ads; pay-to-win ranking; anonymity |
+| Living place, their VYBZ, belong | Creator Mode, ARE YOU A CREATOR?, Suite Home |
+| Optional creation, optional sections | Required Works / catalog-as-identity |
+| Explore other people’s VYBZ | Charts, streaks, feed-farm, buyable rank |
+| VDock as a quiet control layer | VDock as a DAW mixer or Suite command bar |
+| Honest capability language | Fake DSP, infallible watermark, unlimited Live |
+| Accountable identity | Mandatory public legal identity |
 
 ## Voice
 
-Direct, calm, professional. AI may suggest — never invent contributors or approve
-rights. Security and cost copy must be literal.
+Quiet. Premium. Place-first. The interface says “here you are,” not “here are all the systems VYBZ contains.”

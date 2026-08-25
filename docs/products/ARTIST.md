@@ -1,6 +1,8 @@
 # VYBZ Artist
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **brand cyan**. Public `/u/:id`.
+> **NOT AUTHORITY.** VYBZ is a social network (My VYBZ / their VYBZ), not an artist storefront product. See [`PRODUCT.md`](../../PRODUCT.md). This Suite-era brief is historical. Code may still exist. Do not build from this file.
+
+> Reference only. Accent: **brand cyan**. Public `/u/:id`.
 
 ## Purpose
 

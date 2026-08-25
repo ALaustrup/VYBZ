@@ -1,6 +1,6 @@
-# Production Hardening — Suite Genesis
+# Production Hardening
 
-> Living checklist for Beta-1A readiness. Companion: [`INFRA_GATES.md`](./INFRA_GATES.md),
+> Living checklist for production readiness. Suite Genesis / Beta-1A are release-era labels, not product identity. Companion: [`INFRA_GATES.md`](./INFRA_GATES.md),
 > [`SECURITY.md`](../SECURITY.md). Host: https://vybz.cloud · Supabase: `xixmneooyufbeftdfpcm`.
 
 ## Security invariants

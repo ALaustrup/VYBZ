@@ -1,5 +1,7 @@
 # Design tokens
 
+> **Engineering contract, not product identity.** Accents for retired Suite products may still exist in CSS. The product is a social network. Read [`PRODUCT.md`](../../PRODUCT.md).
+
 **Status:** active contract. Enforced by `src/design/tokens.test.ts`, which fails the
 build rather than relying on convention.
 

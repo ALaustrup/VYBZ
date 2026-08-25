@@ -1,7 +1,7 @@
 # Platform Bridge
 
 > Typed capability boundary between shared VYBZ application code and
-> platform-specific shells. Authority: [`VYBZ_MASTERPLAN.md`](../../VYBZ_MASTERPLAN.md) §8.
+> platform-specific shells. Not product identity. Domain code still must not import `@tauri-apps/*` or `@capacitor/*`. See [`AGENTS.md`](../../AGENTS.md) and [`PRODUCT.md`](../../PRODUCT.md).
 
 ## Principle
 

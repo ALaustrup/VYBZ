@@ -1,6 +1,6 @@
 # VYBZ Studio
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **orange**. Preserve Music Repos + Engine.
+> **NOT AUTHORITY.** Studio is not the product. See [`PRODUCT.md`](../../PRODUCT.md). Suite-era brief. Code may still exist. Do not build from this file.
 
 ## Purpose
 

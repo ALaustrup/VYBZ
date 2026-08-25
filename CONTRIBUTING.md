@@ -7,12 +7,11 @@ not a support channel.
 
 ```text
 main                    ← production
-  ← suite-genesis       ← Suite Genesis integration (Phase 0+)
-      ← phase/01-…      ← phase branches
-      ← feature/…       ← single-issue features
+  ← feat/…              ← product work
+  ← docs/…              ← documentation
 ```
 
-- Prefer draft PRs into `suite-genesis` (then `main`) after Suite Genesis begins.
+- Open PRs into `main`. Do not treat Suite Genesis, pack-suite phases, Living Mix, or Creator OS as current direction.
 - Do not commit secrets, large media masters, or `service_role` keys.
 - Do not amend shared history or force-push `main`.
 
@@ -32,7 +31,7 @@ main                    ← production
 
 ## Documentation
 
-- One authority: [`PRODUCT.md`](./PRODUCT.md). Enforceable rules: `src/product/invariants.ts`.
+- One authority: [`PRODUCT.md`](./PRODUCT.md). VYBZ is a social network (My VYBZ). Enforceable rules: `src/product/invariants.ts`.
 - How to work here: [`AGENTS.md`](./AGENTS.md). Current state: [`STATE.md`](./STATE.md).
 - Everything under `docs/` is reference, not law.
 - Archive under `docs/archive/` is never authoritative.
@@ -66,5 +65,5 @@ main                    ← production
 ## Commit conventions
 
 - Imperative mood; focus on why.
-- Do not mention “Suite Genesis” in every commit — only when doctrine or phase boundary changes.
+- Do not mention “Suite Genesis” unless the change is actually about that historical era.
 - Never skip hooks unless the owner explicitly requests it.

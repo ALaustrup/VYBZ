@@ -1,11 +1,11 @@
 # Development
 
-> Suite engineering entry. Stack: Vite 6 · React 18 · TypeScript 5.6 strict · Tailwind 3 · npm · Node 20+.
+> Engineering entry. Product identity is [`PRODUCT.md`](../../PRODUCT.md) — a social network, not Suite Genesis. Stack: Vite 6 · React 18 · TypeScript 5.6 strict · Tailwind 3 · npm · Node 20+.
 
 ## Setup
 
-1. Clone `ALaustrup/VYBZ`; work on `suite-genesis` for Suite Genesis.
-2. Copy `.env.example` → `.env.local` with `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`.
+1. Clone `ALaustrup/VYBZ`. Work on a descriptive branch (`feat/…`, `fix/…`, `docs/…`). `main` is production. There is no current `suite-genesis` working branch.
+2. Copy `.env.example` → `.env` with `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`.
 3. `npm install` · `npm run dev` → http://localhost:5173
 4. Never put `service_role` / Stripe / fal / Groq in `VITE_*`.
 
@@ -21,7 +21,7 @@
 ## Layout
 
 - Root SPA only — no `apps/` monorepo.
-- Preserve Music Repos, VDock, flags, storefront, watermark paths (see `AGENTS.md`).
+- Hide, never delete. VDock, flags, storefront, and watermark paths stay in the tree (see `AGENTS.md`). They are not the product.
 - Media gitignored — serve from Storage CDN.
 - Local heavy compute: `tools/vybz-bridge` (VYBZ Engine).
 

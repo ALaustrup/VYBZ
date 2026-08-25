@@ -1,6 +1,6 @@
 # Motion
 
-> Motion laws for Suite Genesis. Presence and hierarchy — not noise.
+> Motion laws. Presence and hierarchy — not noise. Suite Genesis is a historical era name, not the product.
 
 ## Laws
 

@@ -1,4 +1,6 @@
-# 0011 — Living Profile Operating System
+# 0011 — Living Profile
+
+> **Current identity record.** Authority is still [`PRODUCT.md`](../../PRODUCT.md). VYBZ is a **social network**. A VYBZ is a person’s living place. This file records why the identity changed and which Living Profile phases shipped. It is not a license to build Creator OS, Live Mix, Pack Suite, Workspace-as-home, or a DAW as the product.
 
 **Date:** 2026-08-21 · **Status:** Accepted · **Decided by:** owner
 
@@ -10,20 +12,22 @@ Executive source: owner Living Profile master plan (the constitution in [`PRODUC
 
 Version 8 named VYBZ the Creator Operating System and said it should feel like a creative operating environment with a social layer. That still made the workstation the root and the profile a surface around it.
 
-The owner superseded that identity: the human is the root object. Their VYBZ is the interface. Library supplies it. Creative Work gives it substance. Relationships make it social.
+The owner superseded that identity: the human is the root object. Their VYBZ is the interface. Library supplies it. Creative Work gives it substance when they create. Relationships make it social. Creation is optional.
 
 ## Decision
 
 **VYBZ is a living social identity that becomes a creative operating system when you create.**
 
-- **One Identity.** No forced creator onboarding. No separate Creator Account.
-- **One Profile.** Owner dashboard and visitor experience are two perspectives on the same object.
+In public language: **VYBZ is the social network.** Everyone gets My VYBZ. They can express themselves however they want. No public content section is required.
+
+- **One Identity.** No forced creator onboarding. No separate Creator Account. Durable identity means accountable identity, not mandatory public legal identity.
+- **One Profile.** Owner control and visitor experience are two perspectives on the same living place.
 - **One Library.** Do not duplicate assets because they appear in multiple places.
-- **Profile Is The Product.** Everything else emerges from it.
-- **Community First.** Follow, VYB, comments, chat, collections, discovery, and live participation are first-class with zero published work.
+- **Profile Is The Product.** Everything else emerges from it. Home is My VYBZ.
+- **Community First.** Follow, VYB, comments, chat, collections, Explore, and live participation are first-class with zero published work.
 - **Refine before replacing.** Hide, never delete. No rewrite to pivot.
 
-Logged-in chrome may still lead Workspace until a later phase moves home. That transitional rail is not the identity.
+Logged-in home **is** My VYBZ (Phase 1 shipped). Workspace remains at `/workspace`, hidden from default chrome.
 
 ## Consequences
 
@@ -54,4 +58,15 @@ A person selects existing Library work, **Place on your VYBZ**, chooses Works or
 
 ## Phase 6 — Modular arrangement (2026-08-22)
 
-The owner can **Arrange** modules that already exist on the Stage File (stage, featured, works, story, packs, measured, credits, more). Order is stored on the same profile jsonb. Empty modules omit; Arrange still shows them so they can be moved. Identity banner, sticky chrome, and Book a session stay out of the layout toy. Featured is its own module when a work is pinned or placed there. No theme engine, no CSS/JS injection, no cinematic canvas.
+The owner can **Arrange** modules that already exist on the Stage File (stage, featured, works, story, packs, measured, credits, more). Order is stored on the same profile jsonb. Empty modules omit; Arrange still shows them so they can be moved. Identity banner, sticky chrome, and Book a session stay out of the layout toy. Featured is its own module when a work is pinned or placed there. No theme engine, no CSS/JS injection, no cinematic canvas. Phase 6 is **frozen**.
+
+## 2026-08-23 — Place and vocabulary (amendment)
+
+Public language, not a reopen of Phase 6 behavior:
+
+- A VYBZ is a living place. You enter **their VYBZ**. You do not “enter people.”
+- **Sections** (user-facing) vs **modules** (internal). **Customize** is the target word for Arrange. **Highlights** / **Creations** / **About** are suggested titles, not required sections.
+- **Add to My VYBZ** is the target for shipped “Place on your VYBZ.”
+- **Explore** is the target chrome door. Search lives inside Explore. **Not shipped.**
+- **VDock** is a user-facing product name. Shipped = media dock. Target = persistent personalized control layer.
+- Add / hide / rename / invent sections is **target, not shipped.**

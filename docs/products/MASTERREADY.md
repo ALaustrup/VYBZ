@@ -1,6 +1,6 @@
 # VYBZ MasterReady
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **amber / green**. Three compute tiers.
+> **NOT AUTHORITY.** MasterReady is not the product. See [`PRODUCT.md`](../../PRODUCT.md). Suite-era brief. Do not build from this file.
 
 ## Purpose
 

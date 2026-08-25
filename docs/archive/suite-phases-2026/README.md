@@ -4,7 +4,7 @@
 
 Exit gates and inventories from the retired Phase 1 – Phase 19 sequence, plus the staged
 workspace-extraction plan. Archived 2026-08-01 when phase numbering was retired in favour
-of the M0–M14 milestone system in [`VYBZ_MASTERPLAN.md`](../../../VYBZ_MASTERPLAN.md) §9.
+of a later milestone system. `VYBZ_MASTERPLAN.md` is archived and is not current law.
 
 **These documents describe what was built, not what to build.** Several of them describe
 work as "complete" that a user could never reach; see

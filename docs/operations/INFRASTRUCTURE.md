@@ -1,6 +1,6 @@
 # Infrastructure
 
-> Suite Genesis ops authority for hosts and backends. Target: **$0 new fixed monthly
+> Ops reference for hosts and backends. Not product identity. Target: **$0 new fixed monthly
 > platform subscriptions** (domain, Stripe fees, existing OVH excluded).
 
 | Layer | Current | Planned | Mode |

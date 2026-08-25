@@ -1,6 +1,8 @@
 # 0006 — Session provenance
 
-**Date:** 2026-08-17 · **Status:** Accepted · **Decided by:** owner
+> **NOT PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). Provenance rules still apply. VYBZ is a social network, not a live-mix product.
+
+**Date:** 2026-08-17 · **Status:** Accepted (capability) · **Decided by:** owner
 
 Decision records are append-only. This record does not edit [`0002`](./0002-watermark-is-forensic-not-access-control.md), [`0004`](./0004-live-mix-streaming-platform.md), or [`0005`](./0005-airtime-credits.md).
 

@@ -5,10 +5,11 @@
   "vybz": {
     "release": "Beta-1A",
     "era": "beta",
-    "codename": "Suite Genesis"
+    "codename": "Suite Genesis",
+    "note": "Suite Genesis is a historical release-era name. The product is a social network. See PRODUCT.md."
   },
   "type": "module",
-    "description": "VYBZ — the Creator Operating System. Organize work, keep originals local, go live while creating, and connect with other creators.",
+  "description": "VYBZ — a premium social network. My VYBZ is home. Creation is optional. Living Mix, Pack Maker, and Workspace are preserved capabilities, not the product.",
   "engines": {
     "node": ">=20"
   },

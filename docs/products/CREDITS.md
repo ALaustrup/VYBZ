@@ -1,6 +1,6 @@
 # VYBZ Credits
 
-> Product brief — reference only. Not authoritative; see `VYBZ_MASTERPLAN.md`. Accent: **indigo**. Credit Passport.
+> **NOT AUTHORITY.** Credit Passport is not the product. See [`PRODUCT.md`](../../PRODUCT.md). Suite-era brief. Do not build from this file.
 
 ## Purpose
 

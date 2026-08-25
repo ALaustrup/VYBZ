@@ -1,5 +1,7 @@
 # 0001 — The Station
 
+> **SUPERSEDED AS PRODUCT IDENTITY.** Read [`PRODUCT.md`](../../PRODUCT.md). VYBZ is a social network, not The Station. This record is history. Do not implement radio-as-product from this file.
+
 **Date:** 2026-08-15 · **Status:** Superseded by [`0003-pack-suite-marketplace.md`](./0003-pack-suite-marketplace.md) on 2026-08-16 · **Decided by:** owner
 
 Decision records are append-only. If this is superseded, write a new record and mark this one

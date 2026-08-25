@@ -1,10 +1,12 @@
 # Changelog
 
+> **HISTORICAL LOG — NOT PRODUCT AUTHORITY.** Older entries name VYBZ a release OS, pack suite, or Live Mix platform. Those sentences are history. Current identity: [`PRODUCT.md`](./PRODUCT.md). Delivery vocabulary: PRODUCT §13. `VYBZ_MASTERPLAN.md` is not current law.
+
 All notable platform releases are documented here. Product labels follow
 [`VERSIONING.md`](./VERSIONING.md).
 
 > **From 2026-07-31 onward, every entry must declare a delivery state** from
-> [`VYBZ_MASTERPLAN.md`](./VYBZ_MASTERPLAN.md) §12. "Merged" is not "delivered".
+> [`PRODUCT.md`](./PRODUCT.md) §13. "Merged" is not "delivered".
 
 ## [Unreleased] – M1 Doctrine refoundation (2026-08-01)
 

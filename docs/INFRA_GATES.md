@@ -1,6 +1,6 @@
-# Infra Gates — Suite Genesis
+# Infra Gates
 
-> Explicit production blockers for Beta-1A. Companion: [`PRODUCTION_HARDENING.md`](./PRODUCTION_HARDENING.md).
+> Production blockers. Suite Genesis / Beta-1A are release-era labels, not product identity. Companion: [`PRODUCTION_HARDENING.md`](./PRODUCTION_HARDENING.md).
 > **No Bunny Stream / Bunny CDN gates** — media origin is Supabase Storage; live is LiveKit.
 
 Degrade gracefully when a gate is unset; do not fake-ship.
