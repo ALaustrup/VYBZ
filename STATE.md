@@ -4,7 +4,8 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-25
 **Branch:** `feat/stable-audio-generate`
-**HEAD:** local (checkpoint commits + Phase 2B live presence — not pushed)
+**HEAD:** `fbff32c6` on `feat/stable-audio-generate` — pushed
+**PR:** https://github.com/ALaustrup/VYBZ/pull/210 (open, not merged)
 **Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
 
 ## Phase 2B — Live profile presence — 2026-08-25
@@ -13,7 +14,7 @@ When a host is live, the Profile banner becomes the primary live-presence surfac
 
 Production walk: **Not measured**.
 
-`npm run lint` pass. `npm run test` pass — **201 files / 1014 tests**. `npm run build` pass. Not pushed.
+`npm run lint` pass. `npm run test` pass — **201 files / 1014 tests**. `npm run build` pass. Pushed; PR **#210** open. Production walk: **Not measured**.
 
 ## Checkpoint commits — 2026-08-25
 
