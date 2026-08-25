@@ -3,13 +3,34 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-25
-**Branch:** `feat/stable-audio-generate` (includes unmerged Phase 7 at `6ecfced3`)
-**HEAD:** this branch (Generate slice not merged).
+**Branch:** `feat/stable-audio-generate`
+**HEAD:** local (checkpoint commits + Phase 2B live presence — not pushed)
 **Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+
+## Phase 2B — Live profile presence — 2026-08-25
+
+When a host is live, the Profile banner becomes the primary live-presence surface: inline SFU/HLS playback via `useProfileLivePlayback` (same graph as `LiveWatchPage`, no MusicDock route). Scrolling past the banner shows a restrained sticky “Return to live” bar; playback stays on the single banner video element. Owner sees **Manage live** → `/live/:id`; visitors get **Chat** → full session page. Live chip removed from `ProfileOwnerPulse` (banner is primary). `/live` network discovery unchanged. `LIVING_PROFILE.liveIsProfilePresence` locked. Gate `livingProfilePhase2b` registered.
+
+Production walk: **Not measured**.
+
+`npm run lint` pass. `npm run test` pass — **201 files / 1014 tests**. `npm run build` pass. Not pushed.
+
+## Checkpoint commits — 2026-08-25
+
+Separated uncommitted work on `feat/stable-audio-generate` (Phase 7 Hide already at `6ecfced3` — not duplicated):
+
+| Commit | Intent |
+|--------|--------|
+| `c49c5f64` | `feat(shell): add primary rail, mobile drawer, and VDock social strip` |
+| `5e823e83` | `feat(generate): add local Stable Audio generation intake` |
+| `0aaf8265` | `feat(profile): add living profile owner attention pulse` |
+| `5cb8cbba` | `chore(product): register living profile invariants and gate tests` |
+
+Full validation after checkpoint: `npm run lint` pass. `npm run test` pass — **200 files / 1007 tests**. `npm run build` pass.
 
 ## Phase 2 — Living Profile owner pulse — 2026-08-25
 
-First reversible slice: `/` stays `MyVybzHome` → `UserProfilePage` → `ArtistStageProfile`. Owner-only `ProfileOwnerPulse` surfaces unread messages, alerts, and live state as ambient chips (no dashboard panel). Identity menu adds **Open public VYBZ** → `/u/:id` alongside **My VYBZ** → `/`. `LIVING_PROFILE.everyExperienceHasAnEquivalent` and `profileOwnerAmbientAttention` locked. Gate `livingProfilePhase2` registered.
+First reversible slice: `/` stays `MyVybzHome` → `UserProfilePage` → `ArtistStageProfile`. Owner-only `ProfileOwnerPulse` surfaces unread messages and alerts as ambient chips (no dashboard panel; live moved to Phase 2B banner). Identity menu adds **Open public VYBZ** → `/u/:id` alongside **My VYBZ** → `/`. `LIVING_PROFILE.everyExperienceHasAnEquivalent` and `profileOwnerAmbientAttention` locked. Gate `livingProfilePhase2` registered.
 
 `npm run lint` pass. `npm run test` pass — **200 files / 1007 tests**. `npm run build` pass. Production walk: **Not measured**.
 

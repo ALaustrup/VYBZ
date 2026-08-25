@@ -47,6 +47,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.profileSectionHide).toBe(true);
     expect(LIVING_PROFILE.everyExperienceHasAnEquivalent).toBe(true);
     expect(LIVING_PROFILE.profileOwnerAmbientAttention).toBe(true);
+    expect(LIVING_PROFILE.liveIsProfilePresence).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);

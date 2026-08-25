@@ -158,6 +158,8 @@ export const LIVING_PROFILE = {
   everyExperienceHasAnEquivalent: true,
   /** Owner home surfaces attention through ambient indicators, not dashboard panels. */
   profileOwnerAmbientAttention: true,
+  /** Live belongs to the Profile banner. `/live` remains network discovery. */
+  liveIsProfilePresence: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -560,6 +562,7 @@ export const GATE_REGISTRY = [
   "creatorOs",
   "livingProfile",
   "livingProfilePhase2",
+  "livingProfilePhase2b",
   "generateAudio",
   "assetNode",
   "creatorNetwork",
