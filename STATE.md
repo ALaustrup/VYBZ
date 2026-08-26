@@ -4,8 +4,8 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-25
 **Branch:** `feat/stable-audio-generate`
-**HEAD:** `c4ebf52a` on `feat/stable-audio-generate` — pushed
-**PR:** https://github.com/ALaustrup/VYBZ/pull/210 (open, not merged; **not deployed**)
+**HEAD:** `ea85015e` on `feat/stable-audio-generate` — pushed
+**PR:** https://github.com/ALaustrup/VYBZ/pull/210 (open, not merged; **not deployed** to `main`)
 **Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
 
 ## PR #210 review pass — 2026-08-25
@@ -20,17 +20,17 @@ Final in-scope review fixes before production smoke test:
 | Generate button disabled until worker probe succeeds | `GenerateSheet.tsx` |
 | VDock **Me** highlights on `/u/:userId` like PrimaryRail | `VDockSocialStrip.tsx` |
 
-Gate tests updated. `npm run lint` pass. `npm run test` pass — **201 files / 1015 tests**. `npm run build` pass.
+Gate tests updated. `npm run lint` pass. `npm run test` pass — **201 files / 1015 tests**. `npm run build` pass. Pushed at `c4ebf52a`.
 
-**Production smoke test:** **Not measured** — checklist below. Waiting for signed-in walk on preview or post-merge deploy.
+**Production smoke test (2026-08-25):** Owner signed-in walk — **all checklist items pass** (Hide, shell, Generate intake UI, owner pulse, live profile presence). Evidence: owner confirmation in session; deploy SHA on production `main` unchanged (`75426388`).
 
 ## Phase 2B — Live profile presence — 2026-08-25
 
 When a host is live, the Profile banner becomes the primary live-presence surface: inline SFU/HLS playback via `useProfileLivePlayback` (same graph as `LiveWatchPage`, no MusicDock route). Scrolling past the banner shows a restrained sticky “Return to live” bar; playback stays on the single banner video element. Owner sees **Manage live** → `/live/:id`; visitors get **Chat** → full session page. Live chip removed from `ProfileOwnerPulse` (banner is primary). `/live` network discovery unchanged. `LIVING_PROFILE.liveIsProfilePresence` locked. Gate `livingProfilePhase2b` registered.
 
-Production walk: **Not measured**.
+Production walk: **Pass** — owner smoke test 2026-08-25 (all checklist items).
 
-`npm run lint` pass. `npm run test` pass — **201 files / 1014 tests**. `npm run build` pass. Pushed; PR **#210** open. Production walk: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **201 files / 1014 tests**. `npm run build` pass. Pushed; PR **#210** open.
 
 ## Checkpoint commits — 2026-08-25
 
@@ -49,13 +49,13 @@ Full validation after checkpoint: `npm run lint` pass. `npm run test` pass — *
 
 First reversible slice: `/` stays `MyVybzHome` → `UserProfilePage` → `ArtistStageProfile`. Owner-only `ProfileOwnerPulse` surfaces unread messages and alerts as ambient chips (no dashboard panel; live moved to Phase 2B banner). Identity menu adds **Open public VYBZ** → `/u/:id` alongside **My VYBZ** → `/`. `LIVING_PROFILE.everyExperienceHasAnEquivalent` and `profileOwnerAmbientAttention` locked. Gate `livingProfilePhase2` registered.
 
-`npm run lint` pass. `npm run test` pass — **200 files / 1007 tests**. `npm run build` pass. Production walk: **Not measured**.
+`npm run lint` pass. `npm run test` pass — **200 files / 1007 tests**. `npm run build` pass. Production walk: **Pass** (included in PR #210 smoke test).
 
 ## Phase 1a — Shell scaffold and token alignment — 2026-08-25
 
 Desktop mounts one adapted `PrimaryRail` (Me, Messages, Live, Library — truthful routes only). Narrow viewports collapse the rail into `ShellNavDrawer` (hamburger in app bar; Esc + tab focus trap). `ContextualAppBar` unchanged in role. `VDockSocialStrip` adds compact social shortcuts above the existing `MusicDockPlayer` — one dock, one AudioBus graph. `/` content and owner/visitor Stage File behavior unchanged. D2 target direction documented in `PRODUCT.md` §14 (Phase 2 route move not shipped). `LIVING_PROFILE.desktopPrimaryRail` and `mobileNavDrawer` locked.
 
-Screenshots captured via non-deployable e2e shell fixture (`/__e2e__/shell` at 1280 / 768 / 390 px). Signed-in production walk: **Not measured**.
+Screenshots captured via non-deployable e2e shell fixture (`/__e2e__/shell` at 1280 / 768 / 390 px). Signed-in production smoke walk: **Pass** (2026-08-25, owner confirmation — see PR #210 review pass section).
 
 `npm run lint` pass. `npm run test` pass — **199 files / 1003 tests**. `npm run build` pass. Not committed. Not pushed.
 
@@ -71,7 +71,7 @@ License accepted. First slice only: local `small-music` worker → WAV → exist
 
 Narrow first slice after Arrange. Owner **Hide** / **Show** of modules that already exist. Hidden sections omit on the public VYBZ and in visitor preview even when they have content. Arrange still lists them. Stored on `profiles.profile` jsonb as `stageHiddenModules`. Identity banner, sticky chrome, and Book a session stay fixed. No rename, no invent, no theme engine, no CSS/JS injection.
 
-`LIVING_PROFILE.profileSectionHide` is true. Not merged. Production walk of Hide: **Not measured**.
+`LIVING_PROFILE.profileSectionHide` is true. Production walk of Hide: **Pass** (PR #210 smoke test).
 
 `npm run lint` pass. `npm run test` pass — **195 files / 986 tests**. `npm run build` pass.
 
