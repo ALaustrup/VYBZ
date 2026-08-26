@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, useEffect, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, MessageCircle, Radio, Settings2 } from "lucide-react";
 import { LiveVisualizer } from "@/components/LiveVisualizer";
@@ -25,10 +25,11 @@ export const ProfileLiveStage = forwardRef<
     avatarUrl: string | null | undefined;
     cosmetics: ResolvedCosmetics;
     isOwner: boolean;
+    onSessionEnded?: () => void;
     children?: ReactNode;
   }
 >(function ProfileLiveStage(
-  { night, hostId, displayName, username, avatarUrl, cosmetics, isOwner, children },
+  { night, hostId, displayName, username, avatarUrl, cosmetics, isOwner, onSessionEnded, children },
   ref,
 ) {
   const name = displayName || username || "Host";
@@ -40,12 +41,17 @@ export const ProfileLiveStage = forwardRef<
     hasVideo,
     audioOnly,
     playing,
+    ended,
     streamKind,
   } = useProfileLivePlayback({
     sessionId: night.id,
     isHost: isOwner,
     enabled: night.status === "live",
   });
+
+  useEffect(() => {
+    if (!loading && ended) onSessionEnded?.();
+  }, [loading, ended, onSessionEnded]);
 
   const liveLabel = isOwner ? "Your VYBZ is live" : `${name} is live`;
   const mediaLabel = streamStatusLabel(streamKind);
@@ -104,7 +110,11 @@ export const ProfileLiveStage = forwardRef<
             <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" aria-hidden />
             Live now
           </span>
-          {playing ? (
+          {streamKind === "ended" ? (
+            <span className="rounded-full border border-white/15 bg-black/40 px-2.5 py-1 text-[11px] text-white/75 backdrop-blur-md">
+              Live session ended
+            </span>
+          ) : playing ? (
             <span className="rounded-full border border-white/15 bg-black/40 px-2.5 py-1 text-[11px] text-white/75 backdrop-blur-md">
               {mediaLabel}
             </span>

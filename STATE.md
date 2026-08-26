@@ -4,9 +4,25 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Date:** 2026-08-25
 **Branch:** `feat/stable-audio-generate`
-**HEAD:** `fbff32c6` on `feat/stable-audio-generate` — pushed
-**PR:** https://github.com/ALaustrup/VYBZ/pull/210 (open, not merged)
+**HEAD:** `596f36c8` → review fixes pending push on `feat/stable-audio-generate`
+**PR:** https://github.com/ALaustrup/VYBZ/pull/210 (open, not merged; **not deployed**)
 **Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+
+## PR #210 review pass — 2026-08-25
+
+Final in-scope review fixes before production smoke test:
+
+| Fix | File(s) |
+|-----|---------|
+| Profile live embed subscribe-only unless GoLive handoff exists (no duplicate camera/mic publish) | `useProfileLivePlayback.ts` |
+| Fall back to static banner when session ends (`onSessionEnded` / `liveBannerDismissed`) | `ProfileLiveStage.tsx`, `ArtistStageProfile.tsx` |
+| Viewer bump only decrements when increment succeeded | `useProfileLivePlayback.ts` |
+| Generate button disabled until worker probe succeeds | `GenerateSheet.tsx` |
+| VDock **Me** highlights on `/u/:userId` like PrimaryRail | `VDockSocialStrip.tsx` |
+
+Gate tests updated. `npm run lint` pass. `npm run test` pass — **201 files / 1015 tests**. `npm run build` pass.
+
+**Production smoke test:** **Not measured** — checklist below. Waiting for signed-in walk on preview or post-merge deploy.
 
 ## Phase 2B — Live profile presence — 2026-08-25
 

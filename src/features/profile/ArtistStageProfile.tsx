@@ -115,10 +115,12 @@ export function ArtistStageProfile({
   const [savingOrder, setSavingOrder] = useState(false);
   const liveStageRef = useRef<HTMLElement>(null);
   const [liveSticky, setLiveSticky] = useState(false);
+  const [liveBannerDismissed, setLiveBannerDismissed] = useState(false);
   const f = profile.profile ?? {};
   const addr = formatVcAddress(profile.username);
   const playable = drops.filter((d) => d.audioUrl);
   const liveNow = nights.find((n) => n.status === "live") ?? null;
+  const showLiveBanner = !!liveNow && !liveBannerDismissed;
   const sealedFull = nights.filter((n) => n.sealed && n.strength === "full").length;
   const banner = profile.avatarUrl;
   const bio = (profile.bio || "").trim();
@@ -145,8 +147,12 @@ export function ArtistStageProfile({
   }, [previewAsVisitor]);
 
   useEffect(() => {
+    setLiveBannerDismissed(false);
+  }, [liveNow?.id]);
+
+  useEffect(() => {
     const el = liveStageRef.current;
-    if (!liveNow || !el) {
+    if (!showLiveBanner || !el) {
       setLiveSticky(false);
       return;
     }
@@ -156,7 +162,7 @@ export function ArtistStageProfile({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [liveNow?.id]);
+  }, [showLiveBanner, liveNow?.id]);
 
   const scrollToLiveStage = useCallback(() => {
     liveStageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -276,7 +282,7 @@ export function ArtistStageProfile({
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto bg-ink-950 text-white" style={accentWashStyle(cosmetics.accent)}>
-      {liveNow ? (
+      {showLiveBanner ? (
         <ProfileLiveStage
           ref={liveStageRef}
           night={liveNow}
@@ -286,6 +292,7 @@ export function ArtistStageProfile({
           avatarUrl={profile.avatarUrl}
           cosmetics={cosmetics}
           isOwner={ownerUi && !previewAsVisitor}
+          onSessionEnded={() => setLiveBannerDismissed(true)}
         >
           {visitorSocial ? (
             <button
@@ -374,7 +381,7 @@ export function ArtistStageProfile({
       {ownerUi && !previewAsVisitor ? <ProfileOwnerPulse /> : null}
 
       <ProfileLiveStickyBar
-        visible={!!liveNow && liveSticky}
+        visible={showLiveBanner && liveSticky}
         displayName={profile.displayName || profile.username || "Host"}
         isOwner={ownerUi && !previewAsVisitor}
         onReturn={scrollToLiveStage}
@@ -382,7 +389,7 @@ export function ArtistStageProfile({
 
       <div className="sticky top-0 z-20 border-b border-white/8 bg-ink-950/80 px-4 py-2.5 backdrop-blur-xl sm:px-8">
         <div className="flex flex-wrap gap-2">
-          {liveNow ? (
+          {showLiveBanner ? (
             liveSticky ? (
               <button
                 type="button"
@@ -435,7 +442,7 @@ export function ArtistStageProfile({
               <button type="button" onClick={() => navigate("/workspace")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
                 Workspace
               </button>
-              {!liveNow ? (
+              {!showLiveBanner ? (
                 <button type="button" onClick={() => navigate("/live")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
                   <Radio className="h-3.5 w-3.5" /> Go live
                 </button>

@@ -44,6 +44,7 @@ describe("generate audio", () => {
     expect(sheet).not.toMatch(/placeOnVybz/);
     expect(sheet).toContain("Powered by Stability AI");
     expect(sheet).toContain("generationDisclosure");
+    expect(sheet).toContain("available !== true");
   });
 
   it("keeps + as Add, with Generate as a menu action", () => {

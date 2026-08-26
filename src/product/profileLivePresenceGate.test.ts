@@ -26,7 +26,8 @@ describe("profile live presence (Phase 2B)", () => {
     expect(stage).not.toContain("absolute inset-0 z-[1]");
     expect(liveStage).toContain('id="profile-live-stage"');
     expect(liveStage).toContain("useProfileLivePlayback");
-    expect(hook).toContain("joinLiveSessionSfu");
+    expect(hook).toContain("canPublish");
+    expect(hook).toContain("takeLivePreviewHandoff");
     expect(hook).not.toContain("MusicDockPlayer");
     expect(hook).not.toContain("playTrack");
   });
@@ -59,7 +60,8 @@ describe("profile live presence (Phase 2B)", () => {
     expect(stage).toContain("profile-visitor-preview");
     expect(stage).toContain("profile-arrange-modules");
     expect(stage).toContain("commitHidden");
-    expect(stage).toMatch(/liveNow \? \(\s*\n?\s*<ProfileLiveStage/);
+    expect(stage).toContain("onSessionEnded");
+    expect(stage).toContain("liveBannerDismissed");
     expect(stage).toContain("h-[38vh]");
   });
 

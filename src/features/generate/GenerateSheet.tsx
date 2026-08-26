@@ -155,7 +155,7 @@ export function GenerateSheet({
             <button
               type="button"
               data-testid="generate-run"
-              disabled={busy || !prompt.trim() || localOk === false}
+              disabled={busy || !prompt.trim() || localOk !== true || available !== true}
               onClick={() => void generate()}
               className="btn btn-primary flex h-11 w-full items-center justify-center gap-2 text-sm disabled:opacity-40"
             >

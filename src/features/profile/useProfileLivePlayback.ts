@@ -22,23 +22,28 @@ export function useProfileLivePlayback(opts: {
   const [vizStream, setVizStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const sfuRef = useRef<LiveSfuSession | null>(null);
+  const bumpedRef = useRef(false);
 
   useEffect(() => {
     if (!enabled || !sessionId) {
       setLoading(false);
       return;
     }
+    bumpedRef.current = false;
     let alive = true;
     (async () => {
       const s = await api.getLiveSession(sessionId);
       if (!alive) return;
       setSession(s);
       setLoading(false);
-      if (s?.status === "live") void api.bumpLiveViewers(sessionId, 1);
+      if (s?.status === "live") {
+        void api.bumpLiveViewers(sessionId, 1);
+        bumpedRef.current = true;
+      }
     })();
     return () => {
       alive = false;
-      void api.bumpLiveViewers(sessionId, -1);
+      if (bumpedRef.current) void api.bumpLiveViewers(sessionId, -1);
     };
   }, [sessionId, enabled]);
 
@@ -49,11 +54,13 @@ export function useProfileLivePlayback(opts: {
 
     let cancelled = false;
     const handoff = isHost ? takeLivePreviewHandoff() : null;
+    // Profile embed subscribes by default. Publish only when a GoLive handoff exists.
+    const canPublish = isHost && !!handoff;
 
     (async () => {
       const sfu = await joinLiveSessionSfu({
         sessionId,
-        canPublish: isHost,
+        canPublish,
         audioMode: session.audioMode ?? "music",
         localStream: handoff,
         hostSource: session.source,
