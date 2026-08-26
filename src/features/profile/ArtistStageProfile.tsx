@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -25,7 +25,7 @@ import { VcTipSheet } from "@/components/VcTipSheet";
 import { Avatar } from "@/components/Avatar";
 import { accentWashStyle, CosmeticAvatarShell, Flair, type ResolvedCosmetics } from "@/lib/cosmetics";
 import { formatVcAddress } from "@/lib/vc";
-import { cx, timeAgo } from "@/lib/utils";
+import { timeAgo } from "@/lib/utils";
 import { SessionProvenanceBadge } from "@/features/provenance/SessionProvenanceBadge";
 import type { WorkSessionLink } from "@/features/provenance/workAttestation";
 import type { Credit, CreatorStats, Drop, ProfileProject, ProjectLink, ProjectPost } from "@/types";
@@ -45,14 +45,19 @@ import { parseStageComposition } from "./stageComposition";
 import {
   dropStageModule,
   moveStageModule,
+  parseStageHiddenModules,
   parseStageModuleOrder,
   partitionStageWorks,
+  toggleHiddenModule,
   visibleStageModules,
   type StageModuleId,
   type StageModuleOccupancy,
 } from "./stageLayout";
-import { persistStageModuleOrder } from "./placeOnVybz";
+import { persistStageHiddenModules, persistStageModuleOrder } from "./placeOnVybz";
 import { StageModuleFrame } from "./StageModuleFrame";
+import { ProfileOwnerPulse } from "./ProfileOwnerPulse";
+import { ProfileLiveStage } from "./ProfileLiveStage";
+import { ProfileLiveStickyBar } from "./ProfileLiveStickyBar";
 
 export function ArtistStageProfile({
   id,
@@ -108,10 +113,14 @@ export function ArtistStageProfile({
   const [reportOpen, setReportOpen] = useState(false);
   const [arranging, setArranging] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
+  const liveStageRef = useRef<HTMLElement>(null);
+  const [liveSticky, setLiveSticky] = useState(false);
+  const [liveBannerDismissed, setLiveBannerDismissed] = useState(false);
   const f = profile.profile ?? {};
   const addr = formatVcAddress(profile.username);
   const playable = drops.filter((d) => d.audioUrl);
   const liveNow = nights.find((n) => n.status === "live") ?? null;
+  const showLiveBanner = !!liveNow && !liveBannerDismissed;
   const sealedFull = nights.filter((n) => n.sealed && n.strength === "full").length;
   const banner = profile.avatarUrl;
   const bio = (profile.bio || "").trim();
@@ -121,15 +130,43 @@ export function ArtistStageProfile({
   const visitorSocial = showVisitorSocial(isMe);
   const composition = useMemo(() => parseStageComposition(profile.profile), [profile.profile]);
   const storedOrder = f.stageModuleOrder;
+  const storedHidden = f.stageHiddenModules;
   const [order, setOrder] = useState(() => parseStageModuleOrder(storedOrder));
+  const [hidden, setHidden] = useState(() => parseStageHiddenModules(storedHidden));
 
   useEffect(() => {
     setOrder(parseStageModuleOrder(storedOrder));
   }, [storedOrder]);
 
   useEffect(() => {
+    setHidden(parseStageHiddenModules(storedHidden));
+  }, [storedHidden]);
+
+  useEffect(() => {
     if (previewAsVisitor) setArranging(false);
   }, [previewAsVisitor]);
+
+  useEffect(() => {
+    setLiveBannerDismissed(false);
+  }, [liveNow?.id]);
+
+  useEffect(() => {
+    const el = liveStageRef.current;
+    if (!showLiveBanner || !el) {
+      setLiveSticky(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setLiveSticky(!entry.isIntersecting),
+      { threshold: 0.12, rootMargin: "-3.5rem 0px 0px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [showLiveBanner, liveNow?.id]);
+
+  const scrollToLiveStage = useCallback(() => {
+    liveStageRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const works = useMemo(
     () =>
@@ -173,7 +210,7 @@ export function ArtistStageProfile({
     links: true,
   };
   const layoutMode = arranging && ownerUi;
-  const shown = visibleStageModules(order, occupied, layoutMode);
+  const shown = visibleStageModules(order, occupied, layoutMode, hidden);
 
   const commitOrder = useCallback(
     async (next: StageModuleId[]) => {
@@ -191,6 +228,24 @@ export function ArtistStageProfile({
       await refreshProfile();
     },
     [isMe, me, refreshProfile, showToast, storedOrder],
+  );
+
+  const commitHidden = useCallback(
+    async (next: StageModuleId[]) => {
+      const normalized = parseStageHiddenModules(next);
+      setHidden(normalized);
+      if (!isMe || !me) return;
+      setSavingOrder(true);
+      const saved = await persistStageHiddenModules(me.profile ?? {}, normalized);
+      setSavingOrder(false);
+      if (saved.error) {
+        showToast("Couldn't save hidden sections");
+        setHidden(parseStageHiddenModules(storedHidden));
+        return;
+      }
+      await refreshProfile();
+    },
+    [isMe, me, refreshProfile, showToast, storedHidden],
   );
 
   function playAll() {
@@ -211,9 +266,12 @@ export function ArtistStageProfile({
         empty={!occupied[id]}
         canMoveUp={index > 0 && !savingOrder}
         canMoveDown={index >= 0 && index < order.length - 1 && !savingOrder}
+        hidden={hidden.includes(id)}
+        hideDisabled={savingOrder}
         onMoveUp={() => void commitOrder(moveStageModule(order, id, -1))}
         onMoveDown={() => void commitOrder(moveStageModule(order, id, 1))}
         onDropOn={(fromId) => void commitOrder(dropStageModule(order, fromId, id))}
+        onToggleHidden={() => void commitHidden(toggleHiddenModule(hidden, id))}
       >
         {inner}
       </StageModuleFrame>
@@ -224,72 +282,84 @@ export function ArtistStageProfile({
 
   return (
     <div className="no-scrollbar h-full overflow-y-auto bg-ink-950 text-white" style={accentWashStyle(cosmetics.accent)}>
-      <section className="relative isolate h-[38vh] min-h-[16rem] max-h-[22rem] overflow-hidden sm:h-[42vh]">
-        {banner ? (
-          <img
-            src={banner}
-            alt=""
-            className="stage-drift absolute inset-0 h-full w-full object-cover opacity-55"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-950 via-ink-950 to-black" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/55 to-black/20" />
-        {liveNow && (
-          <button
-            type="button"
-            onClick={() => navigate(`/live/${liveNow.id}`)}
-            className="absolute inset-0 z-[1]"
-            aria-label="Join live"
-          />
-        )}
-        <div className="relative z-[2] flex h-full flex-col justify-end px-4 pb-6 sm:px-8">
-          <div className="flex items-end gap-4">
-            <span className={cx("relative shrink-0", liveNow && "stage-live-ring")}>
-              <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
-                <Avatar url={profile.avatarUrl} name={profile.username} id={id} size="xl" square />
-              </CosmeticAvatarShell>
-            </span>
-            <div className="min-w-0 flex-1 pb-0.5">
-              <div className="flex flex-wrap items-center gap-2">
-                {liveNow && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-wild px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                    <Radio className="h-3 w-3" /> Live
+      {showLiveBanner ? (
+        <ProfileLiveStage
+          ref={liveStageRef}
+          night={liveNow}
+          hostId={id}
+          displayName={profile.displayName || profile.username || "Host"}
+          username={profile.username}
+          avatarUrl={profile.avatarUrl}
+          cosmetics={cosmetics}
+          isOwner={ownerUi && !previewAsVisitor}
+          onSessionEnded={() => setLiveBannerDismissed(true)}
+        >
+          {visitorSocial ? (
+            <button
+              type="button"
+              onClick={() => setReportOpen(true)}
+              aria-label="Report user"
+              className="pointer-events-auto mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70"
+            >
+              <Flag className="h-4 w-4" />
+            </button>
+          ) : null}
+        </ProfileLiveStage>
+      ) : (
+        <section className="relative isolate h-[38vh] min-h-[16rem] max-h-[22rem] overflow-hidden sm:h-[42vh]">
+          {banner ? (
+            <img
+              src={banner}
+              alt=""
+              className="stage-drift absolute inset-0 h-full w-full object-cover opacity-55"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-950 via-ink-950 to-black" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/55 to-black/20" />
+          <div className="relative z-[2] flex h-full flex-col justify-end px-4 pb-6 sm:px-8">
+            <div className="flex items-end gap-4">
+              <span className="relative shrink-0">
+                <CosmeticAvatarShell accent={cosmetics.accent} frame={cosmetics.frame}>
+                  <Avatar url={profile.avatarUrl} name={profile.username} id={id} size="xl" square />
+                </CosmeticAvatarShell>
+              </span>
+              <div className="min-w-0 flex-1 pb-0.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Flair data={cosmetics.flair} />
+                  <span className="hidden">
+                    <ProfessionBadges primary={f.profession} all={f.professions} />
+                    <RoleClassBadge roleClass={f.roleClass} />
+                    <ProBadge profile={f} />
                   </span>
-                )}
-                <Flair data={cosmetics.flair} />
-                <span className="hidden">
-                  <ProfessionBadges primary={f.profession} all={f.professions} />
-                  <RoleClassBadge roleClass={f.roleClass} />
-                  <ProBadge profile={f} />
-                </span>
+                </div>
+                <h1 className="mt-1 font-display text-[2.25rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-5xl">
+                  {profile.displayName || profile.username || "Host"}
+                </h1>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {addr && <p className="font-mono text-[13px] text-cyan-200/90">{addr}</p>}
+                  {sealedFull > 0 && <SessionProvenanceBadge strength="full" />}
+                  {profile.location && (
+                    <span className="flex items-center gap-1 text-[12px] text-white/40">
+                      <MapPin className="h-3 w-3" /> {profile.location}
+                    </span>
+                  )}
+                </div>
               </div>
-              <h1 className="mt-1 font-display text-[2.25rem] font-semibold leading-[0.95] tracking-tight text-white sm:text-5xl">
-                {profile.displayName || profile.username || "Host"}
-              </h1>
-              <div className="mt-2 flex flex-wrap items-center gap-2">
-                {addr && <p className="font-mono text-[13px] text-cyan-200/90">{addr}</p>}
-                {sealedFull > 0 && <SessionProvenanceBadge strength="full" />}
-                {profile.location && (
-                  <span className="flex items-center gap-1 text-[12px] text-white/40">
-                    <MapPin className="h-3 w-3" /> {profile.location}
-                  </span>
-                )}
-              </div>
+              {visitorSocial && (
+                <button
+                  type="button"
+                  onClick={() => setReportOpen(true)}
+                  aria-label="Report user"
+                  className="mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70"
+                >
+                  <Flag className="h-4 w-4" />
+                </button>
+              )}
             </div>
-            {visitorSocial && (
-              <button
-                type="button"
-                onClick={() => setReportOpen(true)}
-                aria-label="Report user"
-                className="mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full glass text-white/40 hover:text-white/70"
-              >
-                <Flag className="h-4 w-4" />
-              </button>
-            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {previewAsVisitor ? (
         <div
@@ -308,12 +378,40 @@ export function ArtistStageProfile({
         </div>
       ) : null}
 
+      {ownerUi && !previewAsVisitor ? <ProfileOwnerPulse /> : null}
+
+      <ProfileLiveStickyBar
+        visible={showLiveBanner && liveSticky}
+        displayName={profile.displayName || profile.username || "Host"}
+        isOwner={ownerUi && !previewAsVisitor}
+        onReturn={scrollToLiveStage}
+      />
+
       <div className="sticky top-0 z-20 border-b border-white/8 bg-ink-950/80 px-4 py-2.5 backdrop-blur-xl sm:px-8">
         <div className="flex flex-wrap gap-2">
-          {liveNow ? (
-            <button type="button" onClick={() => navigate(`/live/${liveNow.id}`)} className="btn btn-primary h-10 flex-1 py-0 text-xs sm:flex-none sm:px-5">
-              <Radio className="h-3.5 w-3.5" /> Join live
-            </button>
+          {showLiveBanner ? (
+            liveSticky ? (
+              <button
+                type="button"
+                onClick={scrollToLiveStage}
+                className="btn btn-primary h-10 flex-1 py-0 text-xs sm:flex-none sm:px-5"
+                aria-label={
+                  ownerUi && !previewAsVisitor
+                    ? "Return to your live stream"
+                    : `Return to ${profile.displayName || profile.username || "creator"}'s live stream`
+                }
+              >
+                <Radio className="h-3.5 w-3.5" /> Return to live
+              </button>
+            ) : (
+              <span
+                role="status"
+                className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl border border-wild/30 bg-wild/10 px-4 text-xs font-medium text-white sm:flex-none"
+              >
+                <Radio className="h-3.5 w-3.5" aria-hidden />
+                {ownerUi && !previewAsVisitor ? "Live now" : "Live session playing"}
+              </span>
+            )
           ) : playable.length > 0 ? (
             <button type="button" onClick={playAll} className="btn btn-primary h-10 flex-1 py-0 text-xs sm:flex-none sm:px-5">
               Listen · {playable.length}
@@ -344,7 +442,7 @@ export function ArtistStageProfile({
               <button type="button" onClick={() => navigate("/workspace")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
                 Workspace
               </button>
-              {!liveNow ? (
+              {!showLiveBanner ? (
                 <button type="button" onClick={() => navigate("/live")} className="btn btn-ghost h-10 px-4 py-0 text-xs">
                   <Radio className="h-3.5 w-3.5" /> Go live
                 </button>

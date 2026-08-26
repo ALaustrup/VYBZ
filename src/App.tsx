@@ -8,6 +8,7 @@ import { PageTransition } from "@/components/PageTransition";
 import { LandingPage } from "@/pages/LandingPage";
 import { Onboarding } from "@/components/Onboarding";
 import { ComposeSheet } from "@/components/ComposeSheet";
+import { GenerateSheet } from "@/features/generate/GenerateSheet";
 import { LibraryDropHost } from "@/components/LibraryDropHost";
 import { GrainOverlay } from "@/components/GrainOverlay";
 import { ReactiveFrame } from "@/components/ReactiveFrame";
@@ -98,6 +99,7 @@ export function App() {
   const { ready, userId, email, profile, backendEnabled } = useSession();
   const [feedKey, setFeedKey] = useState(0);
   const [composeOpen, setComposeOpen] = useState(false);
+  const [generateOpen, setGenerateOpen] = useState(false);
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const surface = surfaceForPath(location.pathname);
@@ -282,19 +284,25 @@ export function App() {
           stage={routes}
           surfaceMode={surface.mode ?? "audience"}
           onCompose={() => setComposeOpen(true)}
+          onGenerate={() => setGenerateOpen(true)}
           onBulkUpload={() => setComposeOpen(true)}
           dock={(
             <ErrorBoundary>
               {/* Hide dock under upload sheets so Release / originality CTAs stay tappable */}
-              <div className={cx(composeOpen && "invisible pointer-events-none")}>
+              <div className={cx((composeOpen || generateOpen) && "invisible pointer-events-none")}>
                 <VDock onCompose={() => setComposeOpen(true)} />
               </div>
             </ErrorBoundary>
           )}
         />
         <ComposeSheet open={composeOpen} onClose={() => setComposeOpen(false)} onPosted={() => setFeedKey((k) => k + 1)} />
+        <GenerateSheet
+          open={generateOpen}
+          onClose={() => setGenerateOpen(false)}
+          onQueued={() => setComposeOpen(true)}
+        />
         <LibraryDropHost
-          enabled={!composeOpen}
+          enabled={!composeOpen && !generateOpen}
           onIngested={() => setFeedKey((k) => k + 1)}
         />
         <VibesRadioHost audience="member" yieldToUser />

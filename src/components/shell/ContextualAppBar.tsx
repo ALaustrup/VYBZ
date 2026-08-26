@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Search } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, Menu, Plus, Search } from "lucide-react";
 import { BrandMark } from "@/components/Brand";
 import { AccountMenu } from "@/components/shell/AccountMenu";
 import { AlertsMenu } from "@/components/shell/AlertsMenu";
@@ -9,10 +10,12 @@ import { AppBarWordmark } from "@/components/shell/AppBarWordmark";
 import { chromeForPath } from "@/lib/appBarChrome";
 import { useAppBarBridge } from "@/lib/appBarBridge";
 import { usePlayer } from "@/lib/audioBus";
+import { useReduceFx } from "@/lib/display";
 import { isApplePlatform } from "@/lib/platformKeys";
 import { openCommandPalette } from "@/shell/commandPaletteStore";
 import { ToolsLauncherButton } from "@/shell/ToolsLauncher";
 import { AtcMeter } from "@/features/airtime/AtcMeter";
+import { openShellNavDrawer } from "@/shell/shellNavDrawerStore";
 
 /**
  * Quiet chrome — VYBZ · Search · + · Chat · Alerts · Me.
@@ -23,9 +26,11 @@ import { AtcMeter } from "@/features/airtime/AtcMeter";
  */
 export function ContextualAppBar({
   onCompose,
+  onGenerate,
   onBulkUpload: _onBulkUpload,
 }: {
   onCompose?: () => void;
+  onGenerate?: () => void;
   onBulkUpload?: () => void;
 }) {
   const { pathname } = useLocation();
@@ -33,7 +38,30 @@ export function ContextualAppBar({
   const chrome = chromeForPath(pathname);
   const bridge = useAppBarBridge();
   const player = usePlayer();
+  const reduce = useReduceFx();
   const showBack = chrome.showBack || !!chrome.backTo;
+  const [addOpen, setAddOpen] = useState(false);
+  const addRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setAddOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!addOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!addRef.current?.contains(e.target as Node)) setAddOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAddOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [addOpen]);
 
   useEffect(() => {
     document.title = player.track ? `${player.track.title} · VYBZ` : "VYBZ";
@@ -48,6 +76,15 @@ export function ContextualAppBar({
     <header className="app-bar app-bar--nexus app-bar--ops shrink-0" data-testid="suite-app-bar">
       <div className="app-bar-inner relative grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <div className="flex min-w-0 items-center gap-1.5 justify-self-start">
+          <button
+            type="button"
+            onClick={openShellNavDrawer}
+            aria-label="Open navigation"
+            data-testid="shell-nav-menu"
+            className="forge-chip flex h-10 w-10 lg:hidden active:scale-90"
+          >
+            <Menu className="h-5 w-5" strokeWidth={1.75} />
+          </button>
           {bridge.leading ?? (showBack ? (
             <button
               type="button"
@@ -84,16 +121,63 @@ export function ContextualAppBar({
           >
             <Search className="h-5 w-5" strokeWidth={1.75} />
           </button>
-          <button
-            type="button"
-            onClick={() => onCompose?.()}
-            aria-label="Add"
-            data-testid="compose-button"
-            data-tip="Add"
-            className="forge-chip flex h-10 w-10 active:scale-90"
-          >
-            <Plus className="h-6 w-6" strokeWidth={2.25} />
-          </button>
+          <div ref={addRef} className="relative">
+            <button
+              type="button"
+              onClick={() => {
+                if (onGenerate) setAddOpen((v) => !v);
+                else onCompose?.();
+              }}
+              aria-label="Add"
+              aria-expanded={onGenerate ? addOpen : undefined}
+              aria-haspopup={onGenerate ? "menu" : undefined}
+              data-testid="compose-button"
+              data-tip="Add"
+              className="forge-chip flex h-10 w-10 active:scale-90"
+            >
+              <Plus className="h-6 w-6" strokeWidth={2.25} />
+            </button>
+            <AnimatePresence>
+              {addOpen && onGenerate ? (
+                <motion.div
+                  role="menu"
+                  aria-label="Add"
+                  data-testid="add-menu"
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                  className="forge-glass absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-40 overflow-hidden p-1.5"
+                >
+                  <span className="forge-glass-edge pointer-events-none" aria-hidden />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-testid="add-upload"
+                    onClick={() => {
+                      setAddOpen(false);
+                      onCompose?.();
+                    }}
+                    className="relative z-[1] flex h-10 w-full items-center rounded-xl px-3 text-left text-[13px] text-white/85 transition hover:bg-white/[0.06]"
+                  >
+                    Upload
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-testid="add-generate"
+                    onClick={() => {
+                      setAddOpen(false);
+                      onGenerate();
+                    }}
+                    className="relative z-[1] flex h-10 w-full items-center rounded-xl px-3 text-left text-[13px] text-white/85 transition hover:bg-white/[0.06]"
+                  >
+                    Generate
+                  </button>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
           <ChatIndicator />
           <AlertsMenu />
           <ToolsLauncherButton />

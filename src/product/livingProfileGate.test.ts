@@ -38,10 +38,16 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.noGenericDashboard).toBe(true);
     expect(LIVING_PROFILE.loggedInHomeIsMyVybz).toBe(true);
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
+    expect(LIVING_PROFILE.desktopPrimaryRail).toBe(true);
+    expect(LIVING_PROFILE.mobileNavDrawer).toBe(true);
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
     expect(LIVING_PROFILE.profileModuleRegistry).toBe(true);
     expect(LIVING_PROFILE.libraryToProfilePipeline).toBe(true);
     expect(LIVING_PROFILE.profileModularArrangement).toBe(true);
+    expect(LIVING_PROFILE.profileSectionHide).toBe(true);
+    expect(LIVING_PROFILE.everyExperienceHasAnEquivalent).toBe(true);
+    expect(LIVING_PROFILE.profileOwnerAmbientAttention).toBe(true);
+    expect(LIVING_PROFILE.liveIsProfilePresence).toBe(true);
     expect(CREATOR_OS.creatorOsIsTheProduct).toBe(false);
     expect(CREATOR_OS.livingProfileBecomesCreatorOs).toBe(true);
     expect(PRINCIPLES.hideNeverDelete).toBe(true);
@@ -71,6 +77,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("text, and collection");
     expect(product).toContain("Place on your VYBZ");
     expect(product).toContain("Arrange");
+    expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
     expect(product).not.toContain("creative operating environment with a social layer built into it");
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
@@ -88,13 +95,15 @@ describe("living profile constitution", () => {
     expect(read("src/pages/ProfilePage.tsx")).toContain("export function ProfilePage");
   });
 
-  it("collapses permanent navigation into quiet chrome", () => {
+  it("mounts desktop PrimaryRail and mobile nav drawer without duplicating kingdom chrome", () => {
     const shell = read("src/shell/SuiteShell.tsx");
     const bar = read("src/components/shell/ContextualAppBar.tsx");
     const stage = read("src/features/profile/ArtistStageProfile.tsx");
-    expect(shell).not.toMatch(/<PrimaryRail\s*\/>/);
-    expect(shell).toContain("PrimaryRail stays in the tree");
+    expect(shell).toMatch(/<PrimaryRail\s*\/>/);
+    expect(shell).toContain("<ShellNavDrawer />");
+    expect(shell).not.toMatch(/<SuiteAppRail\s*\/>/);
     expect(bar).toContain("openCommandPalette");
+    expect(bar).toContain("openShellNavDrawer");
     expect(bar).toContain("Search VYBZ");
     expect(bar).not.toContain("<PeopleMenu />");
     expect(bar).toContain("<ChatIndicator />");
@@ -155,6 +164,16 @@ describe("living profile constitution", () => {
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("profile-arrange-modules");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("Arrange");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("Featured");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).not.toMatch(/dangerouslySetInnerHTML|contenteditable/i);
+  });
+
+  it("lets the owner hide existing sections from the public VYBZ", () => {
+    expect(read("src/features/profile/stageLayout.ts")).toContain("parseStageHiddenModules");
+    expect(read("src/features/profile/stageLayout.ts")).toContain("toggleHiddenModule");
+    expect(read("src/features/profile/placeOnVybz.ts")).toContain("persistStageHiddenModules");
+    expect(read("src/features/profile/StageModuleFrame.tsx")).toContain("Hide");
+    expect(read("src/features/profile/StageModuleFrame.tsx")).toContain("Show");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("commitHidden");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).not.toMatch(/dangerouslySetInnerHTML|contenteditable/i);
   });
 

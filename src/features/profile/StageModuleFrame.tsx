@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ChevronDown, ChevronUp, GripVertical } from "lucide-react";
+import { ChevronDown, ChevronUp, Eye, EyeOff, GripVertical } from "lucide-react";
 import { cx } from "@/lib/utils";
 import {
   STAGE_MODULE_LABEL,
@@ -19,6 +19,9 @@ export function StageModuleFrame({
   onMoveUp,
   onMoveDown,
   onDropOn,
+  hidden = false,
+  hideDisabled = false,
+  onToggleHidden,
   children,
 }: {
   id: StageModuleId;
@@ -29,6 +32,9 @@ export function StageModuleFrame({
   onMoveUp: () => void;
   onMoveDown: () => void;
   onDropOn: (fromId: string) => void;
+  hidden?: boolean;
+  hideDisabled?: boolean;
+  onToggleHidden?: () => void;
   children: ReactNode;
 }) {
   const label = STAGE_MODULE_LABEL[id];
@@ -96,6 +102,20 @@ export function StageModuleFrame({
           </button>
           <span className="text-[11px] uppercase tracking-wider text-white/40">{label}</span>
           {empty ? <span className="text-[11px] text-white/30">Empty</span> : null}
+          {hidden ? <span className="text-[11px] text-white/30">Hidden</span> : null}
+          {onToggleHidden ? (
+            <button
+              type="button"
+              data-testid={`stage-module-${hidden ? "show" : "hide"}-${id}`}
+              aria-label={hidden ? `Show ${label}` : `Hide ${label}`}
+              disabled={hideDisabled}
+              onClick={onToggleHidden}
+              className="ml-auto flex h-8 items-center gap-1 rounded-lg px-2 text-[11px] text-white/45 hover:bg-white/10 hover:text-white disabled:opacity-25"
+            >
+              {hidden ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+              {hidden ? "Show" : "Hide"}
+            </button>
+          ) : null}
         </div>
       ) : null}
       {children}

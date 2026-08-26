@@ -1,10 +1,9 @@
 /**
  * Social-first shell gate.
  *
- * VYBZ leads with quiet chrome: VYBZ, Search, +, Chat, Alerts, Me.
- * Tools live behind one launcher. Kingdoms stay reachable by URL.
- * Nothing is deleted — SuiteAppRail and PrimaryRail stay in the tree,
- * imported by nothing (AGENTS Preservation).
+ * VYBZ leads with quiet top chrome: VYBZ, Search, +, Chat, Alerts, Me.
+ * Desktop adds one PrimaryRail for primary destinations. Narrow viewports
+ * collapse the rail into ShellNavDrawer. SuiteAppRail stays frozen.
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -19,40 +18,43 @@ function read(rel: string) {
 }
 
 describe("social-first shell", () => {
-  it("keeps tools behind a launcher rather than permanent rail chrome", () => {
+  it("mounts PrimaryRail on desktop and keeps SuiteAppRail frozen", () => {
     const shell = read("src/shell/SuiteShell.tsx");
     expect(shell).not.toMatch(/<SuiteAppRail\s*\/>/);
     expect(shell).not.toMatch(/<SuiteAppRailMobile\s*\/>/);
-    expect(shell).not.toMatch(/<PrimaryRail\s*\/>/);
+    expect(shell).toMatch(/<PrimaryRail\s*\/>/);
+    expect(shell).toContain("<ShellNavDrawer />");
   });
 
   it("mounts the tools launcher in the app bar", () => {
     const bar = read("src/components/shell/ContextualAppBar.tsx");
     expect(bar).toContain("ToolsLauncherButton");
     expect(bar).toContain("@/shell/ToolsLauncher");
+    expect(bar).toContain("openShellNavDrawer");
   });
 
   it("launcher offers every visible tool except the social home", () => {
     const ids = toolsLauncherApps().map((a) => a.id);
     expect(ids).not.toContain("home");
-    // Every non-home app that is visible today remains reachable from the menu.
     const expected = SUITE_APPS.filter((a) => a.id !== "home" && (a.visible ? a.visible() : true));
     expect(ids).toHaveLength(expected.length);
-    // Analyzer used to be here. It is now summoned from the track it analyses,
-    // so the launcher carries only the places you browse to.
     expect(ids).not.toContain("analyzer");
     expect(ids).toContain("library");
   });
 
-  it("preserves the previous rail in the tree rather than deleting it", () => {
+  it("preserves SuiteAppRail in the tree rather than deleting it", () => {
     expect(existsSync(path.join(ROOT, "src/shell/SuiteAppRail.tsx"))).toBe(true);
     expect(existsSync(path.join(ROOT, "src/shell/PrimaryRail.tsx"))).toBe(true);
-    // Frozen code must not be imported by the shell (a prose mention is fine).
-    expect(read("src/shell/SuiteShell.tsx")).not.toMatch(
-      /^import\s[^\n]*SuiteAppRail/m,
-    );
-    expect(read("src/shell/SuiteShell.tsx")).not.toMatch(
-      /^import\s[^\n]*PrimaryRail/m,
-    );
+    expect(read("src/shell/SuiteShell.tsx")).not.toMatch(/^import\s[^\n]*SuiteAppRail/m);
+    expect(read("src/shell/SuiteShell.tsx")).toMatch(/^import\s[^\n]*PrimaryRail/m);
+  });
+
+  it("highlights Me on the owner public VYBZ in VDock and PrimaryRail", () => {
+    const rail = read("src/shell/PrimaryRail.tsx");
+    const strip = read("src/components/vdock/VDockSocialStrip.tsx");
+    expect(rail).toContain("homeActive");
+    expect(rail).toMatch(/\/u\/\$\{userId\}/);
+    expect(strip).toContain("homeActive");
+    expect(strip).toContain("forceActive={homeActive}");
   });
 });

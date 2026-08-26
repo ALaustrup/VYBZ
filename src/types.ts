@@ -81,6 +81,11 @@ export interface ProfileDetails {
    * Known ids only. Unknown values are ignored.
    */
   stageModuleOrder?: string[];
+  /**
+   * Living Profile Phase 7 — sections the owner hid from the public VYBZ.
+   * Known ids only. Unknown values are ignored. Arrange still lists them.
+   */
+  stageHiddenModules?: string[];
 }
 
 export interface Profile {

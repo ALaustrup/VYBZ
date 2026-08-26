@@ -47,6 +47,25 @@ export interface ProcessingCapabilities {
   remoteJobs: boolean;
   maxLocalFileBytes: number;
   offlineDrafts: boolean;
+  /** Local Stable Audio 3 worker (loopback). Not in-browser inference. */
+  localGenerate: boolean;
+}
+
+export type GenerateAudioModel = "small-music";
+
+export interface GenerateAudioRequest {
+  prompt: string;
+  durationSec: number;
+  model?: GenerateAudioModel;
+  seed?: number;
+}
+
+export interface GenerateAudioResult {
+  file: SelectedFile;
+  model: GenerateAudioModel;
+  prompt: string;
+  durationSec: number;
+  seed: number;
 }
 
 /** M9 — playback capability surface (Law 5). No hidden DSP on the play element. */

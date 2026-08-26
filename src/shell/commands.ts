@@ -36,6 +36,7 @@ export type CommandContext = {
   queueLength: number;
   queueIndex: number;
   canCompose: boolean;
+  canGenerate: boolean;
   canBulkUpload: boolean;
 };
 
@@ -98,6 +99,13 @@ export function buildCommands(ctx: CommandContext): Command[] {
       group: "Create",
       keywords: ["upload", "track", "music video", "publish"],
       unavailableReason: ctx.canCompose ? undefined : "Not available on this screen",
+    },
+    {
+      id: "create:generate",
+      title: "Generate audio",
+      group: "Create",
+      keywords: ["stable", "audio", "prompt", "make", "worker"],
+      unavailableReason: ctx.canGenerate ? undefined : "Not available on this screen",
     },
     {
       id: "create:batch",

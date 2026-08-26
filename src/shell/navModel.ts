@@ -1,4 +1,7 @@
 import {
+  Library,
+  MessageSquare,
+  Radio,
   ShieldCheck,
   User,
   Wrench,
@@ -20,16 +23,38 @@ export type NavItem = {
 
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
+/** Primary rail destinations — every item must resolve to a working route. */
+const PRIMARY_NAV: NavItem[] = [
+  {
+    path: "/messages",
+    label: "Messages",
+    hint: "Inbox",
+    icon: MessageSquare,
+    productId: "home",
+    badge: "messages",
+  },
+  {
+    path: "/live",
+    label: "Live",
+    hint: "Who is live",
+    icon: Radio,
+    productId: "live",
+  },
+  {
+    path: "/library",
+    label: "Library",
+    hint: "Your works",
+    icon: Library,
+    productId: "artist",
+  },
+];
+
 /**
- * Default chrome is quiet (PRODUCT.md v9 Phase 2): VYBZ · Search · + · Chat ·
- * Alerts · Me. Kingdoms (Library, Network, Live, Workspace) stay in the tree
- * and resolve by URL — they are listed in ARCHIVED_NAV_PATHS, not deleted.
- *
- * The left rail is unmounted. HOME_ITEM still names Me so tests and the
- * command palette know where home is.
+ * Desktop PrimaryRail and the mobile drawer share this model.
+ * Explore and Settings are omitted until they ship real surfaces (Phase 2+).
  */
 export function navGroups(): NavGroup[] {
-  return [];
+  return [{ id: "navigate", label: "Navigate", items: PRIMARY_NAV }];
 }
 
 /**
@@ -76,16 +101,13 @@ export function navItems(): NavItem[] {
 /** Paths archived from nav but still linkable by URL (freeze-not-delete). */
 export const ARCHIVED_NAV_PATHS = [
   "/workspace",
-  "/library",
   "/feed",
-  "/live",
   "/connect",
   "/codex",
   "/studio",
   "/market",
   "/store",
   "/discover",
-  "/messages",
   "/notifications",
   "/library/mix",
   "/rooms",

@@ -241,6 +241,14 @@ export function createWebBridge(): PlatformBridge {
       async cancelJob(_jobId: string) {
         /* portable jobs complete inline */
       },
+      async generateAudio(input) {
+        const { requestLocalGenerate } = await import("@/features/generate/localWorker");
+        try {
+          return await requestLocalGenerate(input);
+        } catch (err) {
+          throw normalizeUnknown(err);
+        }
+      },
     },
 
     playback: {

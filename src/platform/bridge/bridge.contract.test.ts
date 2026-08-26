@@ -52,6 +52,19 @@ describe("PlatformBridge mock contract", () => {
     expect(job.status).toBe("queued");
   });
 
+  it("returns a labeled wav from mock generateAudio", async () => {
+    const bridge = createMockBridge();
+    const result = await bridge.processing.generateAudio({
+      prompt: "pad",
+      durationSec: 8,
+      seed: 4,
+    });
+    expect(result.model).toBe("small-music");
+    expect(result.prompt).toBe("pad");
+    expect(result.file.mimeType).toBe("audio/wav");
+    expect(result.file.blob).toBeTruthy();
+  });
+
   it("throws unsupported for revealFile", async () => {
     const bridge = createMockBridge();
     await expect(bridge.files.revealFile?.("/tmp/x")).rejects.toBeInstanceOf(PlatformError);
@@ -64,6 +77,10 @@ describe("capability registry", () => {
     expect(capabilitiesFor("desktop").nativeTranscode).toBe(true);
     expect(capabilitiesFor("android").maxLocalFileBytes).toBeGreaterThan(0);
     expect(capabilitiesFor("ios").maxLocalFileBytes).toBeGreaterThan(0);
+    expect(capabilitiesFor("web").localGenerate).toBe(true);
+    expect(capabilitiesFor("desktop").localGenerate).toBe(true);
+    expect(capabilitiesFor("android").localGenerate).toBe(false);
+    expect(capabilitiesFor("ios").localGenerate).toBe(false);
   });
 });
 

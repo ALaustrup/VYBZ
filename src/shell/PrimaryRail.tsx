@@ -38,11 +38,13 @@ function RailLink({
   end,
   badgeCount = 0,
   forceActive,
+  onNavigate,
 }: {
   item: NavItem;
   end?: boolean;
   badgeCount?: number;
   forceActive?: boolean;
+  onNavigate?: () => void;
 }) {
   const accent = PRODUCT_ACCENT_RGB[item.productId];
   const reduce = useReducedMotion();
@@ -52,6 +54,7 @@ function RailLink({
       to={item.path}
       end={end}
       title={item.hint}
+      onClick={() => onNavigate?.()}
       className={({ isActive }) => {
         const on = forceActive ?? isActive;
         return cx(
@@ -66,19 +69,19 @@ function RailLink({
       {({ isActive }) => {
         const on = forceActive ?? isActive;
         return (
-        <>
-          <motion.span
-            className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full"
-            style={{ background: `rgb(${accent})` }}
-            aria-hidden
-            initial={false}
-            animate={{ opacity: on ? 1 : 0, scaleY: on ? 1 : 0.5 }}
-            transition={reduce ? { duration: 0.01 } : { duration: durationFast, ease: "easeOut" }}
-          />
-          <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
-          <span className="truncate">{item.label}</span>
-          <RailBadge count={badgeCount} />
-        </>
+          <>
+            <motion.span
+              className="absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full"
+              style={{ background: `rgb(${accent})` }}
+              aria-hidden
+              initial={false}
+              animate={{ opacity: on ? 1 : 0, scaleY: on ? 1 : 0.5 }}
+              transition={reduce ? { duration: 0.01 } : { duration: durationFast, ease: "easeOut" }}
+            />
+            <Icon className="h-4 w-4 shrink-0 opacity-80" strokeWidth={1.75} aria-hidden />
+            <span className="truncate">{item.label}</span>
+            <RailBadge count={badgeCount} />
+          </>
         );
       }}
     </NavLink>
@@ -89,10 +92,12 @@ function RailGroup({
   group,
   defaultOpen,
   badges,
+  onNavigate,
 }: {
   group: NavGroup;
   defaultOpen?: boolean;
   badges?: Record<string, number>;
+  onNavigate?: () => void;
 }) {
   const [open, setOpen] = useState(!!defaultOpen);
   const reduce = useReducedMotion();
@@ -135,6 +140,7 @@ function RailGroup({
                   key={item.path}
                   item={item}
                   badgeCount={item.badge ? (badges?.[item.badge] ?? 0) : 0}
+                  onNavigate={onNavigate}
                 />
               ))}
             </div>
@@ -145,10 +151,17 @@ function RailGroup({
   );
 }
 
-/**
- * Left suite rail — driven exclusively by `navModel` (never `suiteNavRoutes`).
- */
-export function PrimaryRail() {
+/** Shared nav body for desktop rail and mobile drawer. */
+export function PrimaryRailNav({
+  className,
+  onNavigate,
+  showIdentity = true,
+}: {
+  className?: string;
+  onNavigate?: () => void;
+  /** Drawer renders its own header; desktop rail keeps RailIdentity. */
+  showIdentity?: boolean;
+}) {
   const { profile, userId } = useSession();
   const location = useLocation();
   const account = accountItems(profile?.platformRole ?? "member", !!profile?.isAdmin);
@@ -158,28 +171,38 @@ export function PrimaryRail() {
     location.pathname === "/" || (!!userId && location.pathname === `/u/${userId}`);
 
   return (
+    <div className={cx("relative z-[2] flex min-h-0 flex-col", className)}>
+      {showIdentity ? <RailIdentity /> : null}
+      <div className="px-1 pb-1 pt-2">
+        <RailLink item={HOME_ITEM} end forceActive={homeActive} onNavigate={onNavigate} />
+      </div>
+      <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-2" aria-label="Primary">
+        {groups.map((g, i) => (
+          <RailGroup key={g.id} group={g} defaultOpen={i < 2} badges={badges} onNavigate={onNavigate} />
+        ))}
+        {account.length > 0 ? (
+          <RailGroup
+            group={{ id: "more", label: "More", items: account }}
+            defaultOpen={false}
+            onNavigate={onNavigate}
+          />
+        ) : null}
+      </nav>
+    </div>
+  );
+}
+
+/**
+ * Left suite rail — driven exclusively by `navModel` (never `suiteNavRoutes`).
+ */
+export function PrimaryRail() {
+  return (
     <aside
       className="suite-rail suite-rail--ops forge-glass !rounded-none !border-y-0 !border-l-0"
       aria-label="VYBZ"
       data-testid="suite-primary-rail"
     >
-      <div className="relative z-[2] flex min-h-0 flex-1 flex-col">
-        <RailIdentity />
-        <div className="px-1 pb-1 pt-2">
-          <RailLink item={HOME_ITEM} end forceActive={homeActive} />
-        </div>
-        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto py-2">
-          {groups.map((g, i) => (
-            <RailGroup key={g.id} group={g} defaultOpen={i < 2} badges={badges} />
-          ))}
-          {account.length > 0 ? (
-            <RailGroup
-              group={{ id: "more", label: "More", items: account }}
-              defaultOpen={false}
-            />
-          ) : null}
-        </nav>
-      </div>
+      <PrimaryRailNav className="min-h-0 flex-1" />
     </aside>
   );
 }

@@ -111,6 +111,9 @@ export function createDesktopBridge(): PlatformBridge {
       async cancelJob(_jobId: string) {
         /* native cancel wiring in later Engine pass */
       },
+      async generateAudio(input) {
+        return web.processing.generateAudio(input);
+      },
     },
 
     playback: {

@@ -7,7 +7,7 @@ import {
   type ProfileSection,
   type StageComposition,
 } from "./stageComposition";
-import { parseStageModuleOrder } from "./stageLayout";
+import { parseStageHiddenModules, parseStageModuleOrder } from "./stageLayout";
 
 export async function persistStageComposition(
   details: ProfileDetails,
@@ -22,6 +22,15 @@ export async function persistStageModuleOrder(
 ): Promise<{ error?: string }> {
   return api.updateMyProfile({
     profile: { ...details, stageModuleOrder: parseStageModuleOrder(order) },
+  });
+}
+
+export async function persistStageHiddenModules(
+  details: ProfileDetails,
+  hidden: string[],
+): Promise<{ error?: string }> {
+  return api.updateMyProfile({
+    profile: { ...details, stageHiddenModules: parseStageHiddenModules(hidden) },
   });
 }
 

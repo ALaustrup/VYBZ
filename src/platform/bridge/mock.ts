@@ -80,6 +80,25 @@ export function createMockBridge(options: MockBridgeOptions = {}): PlatformBridg
       async cancelJob(_jobId: string) {
         /* mock: no durable runner */
       },
+      async generateAudio(input) {
+        const prompt = String(input.prompt || "generated").trim() || "generated";
+        const seed = input.seed ?? 1;
+        const name = `generated-${seed}.wav`;
+        const blob = new Blob([new Uint8Array([82, 73, 70, 70])], { type: "audio/wav" });
+        return {
+          file: {
+            id: "mock-gen",
+            name,
+            mimeType: "audio/wav",
+            sizeBytes: 4,
+            blob,
+          },
+          model: "small-music" as const,
+          prompt,
+          durationSec: input.durationSec,
+          seed,
+        };
+      },
     },
 
     playback: {

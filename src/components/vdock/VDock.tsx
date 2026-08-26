@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
 import { DockPlaybackProgress, MusicDockPlayer } from "@/components/GlobalPlayer";
+import { VDockSocialStrip } from "@/components/vdock/VDockSocialStrip";
 import { DockVisualizer } from "@/components/vdock/DockVisualizer";
 import { DockVisualOptions } from "@/components/vdock/DockVisualOptions";
 
 /**
- * Music Dock — edge-to-edge bottom bar (full width + safe-area).
+ * V-Dock — social shortcuts + music player. One dock, one AudioBus graph.
  * Fixed chrome height so track changes never resize the layout.
  */
-export function VDock(_props: { onCompose: () => void }) {
+export function VDock({ onCompose }: { onCompose?: () => void }) {
   const [visualsOpen, setVisualsOpen] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty(
       "--dock-reserve",
-      "calc(var(--vdock-h, 5.25rem) + env(safe-area-inset-bottom, 0px))",
+      "calc(var(--vdock-h, 5.25rem) + var(--vdock-social-h, 2.25rem) + env(safe-area-inset-bottom, 0px))",
     );
-    return () => { root.style.removeProperty("--dock-reserve"); };
+    return () => {
+      root.style.removeProperty("--dock-reserve");
+    };
   }, []);
 
   return (
@@ -25,11 +28,9 @@ export function VDock(_props: { onCompose: () => void }) {
       data-vdock
       data-dark-stage
       role="complementary"
-      aria-label="Music player"
+      aria-label="V-Dock"
     >
       <DockVisualizer className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-100" />
-      {/* Clicking the dock's visual surface opens the options panel. It sits under
-          the transport controls (z-10), so it only catches empty dock background. */}
       <button
         type="button"
         onClick={() => setVisualsOpen((v) => !v)}
@@ -40,6 +41,7 @@ export function VDock(_props: { onCompose: () => void }) {
         className="absolute inset-0 z-[2] cursor-pointer bg-transparent"
       />
       <div className="vdock-shell-veil vdock-forge-veil pointer-events-none absolute inset-0 z-[1]" aria-hidden />
+      <VDockSocialStrip onCompose={onCompose} />
       <DockPlaybackProgress />
       <DockVisualOptions open={visualsOpen} onClose={() => setVisualsOpen(false)} />
       <div className="relative z-10 flex min-h-[var(--vdock-h,5.25rem)] flex-1 items-center px-3 pb-[env(safe-area-inset-bottom,0px)] sm:px-5">

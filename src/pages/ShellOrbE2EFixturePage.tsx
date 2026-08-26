@@ -1,8 +1,9 @@
+import { BRAND_BG } from "@/lib/surfaceTheme";
 import { useState } from "react";
 import { DynamicBackground } from "@/components/DynamicBackground";
 import { PlatformProvider } from "@/platform/bridge/PlatformProvider";
 import { SuiteShell } from "@/shell/SuiteShell";
-import { BRAND_BG } from "@/lib/surfaceTheme";
+import { VDock } from "@/components/vdock/VDock";
 
 /**
  * Renders the real SuiteShell — left rail, mobile nav, and command palette —
@@ -22,6 +23,7 @@ export function ShellOrbE2EFixturePage() {
       <SuiteShell
         showCommandBar
         onCompose={() => setFired((f) => [...f, "compose"])}
+        onGenerate={() => setFired((f) => [...f, "generate"])}
         onBulkUpload={() => setFired((f) => [...f, "bulk"])}
         stage={
           <div className="flex flex-col gap-4 py-8" data-testid="shell-fixture-stage">
@@ -41,7 +43,7 @@ export function ShellOrbE2EFixturePage() {
             ))}
           </div>
         }
-        dock={<div className="h-[5.25rem] w-full" aria-hidden />}
+        dock={<VDock onCompose={() => setFired((f) => [...f, "compose"])} />}
       />
     </PlatformProvider>
   );

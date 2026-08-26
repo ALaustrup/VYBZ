@@ -51,16 +51,16 @@ describe("creator operating system lock", () => {
     expect(product).not.toContain("liveAudioIsTheProduct");
   });
 
-  it("orients default chrome as quiet — Me is home, kingdoms are not rail items", () => {
+  it("orients default chrome as quiet with truthful primary rail destinations", () => {
     expect(HOME_ITEM.label).toBe("Me");
     expect(HOME_ITEM.path).toBe("/");
     const items = navItems();
-    expect(items.map((i) => i.path)).toEqual(["/"]);
-    expect(navGroups()).toEqual([]);
-    expect(items.map((i) => i.path)).not.toContain("/library");
+    expect(items.map((i) => i.path)).toEqual(["/", "/messages", "/live", "/library"]);
+    expect(navGroups()).toHaveLength(1);
     expect(items.map((i) => i.path)).not.toContain("/feed");
-    expect(items.map((i) => i.path)).not.toContain("/live");
     expect(items.map((i) => i.path)).not.toContain("/devices");
     expect(items.map((i) => i.path)).not.toContain("/workspace");
+    expect(items.map((i) => i.path)).not.toContain("/discover");
+    expect(items.map((i) => i.path)).not.toContain("/settings");
   });
 });
