@@ -3,10 +3,22 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-25
-**Branch:** `feat/stable-audio-generate`
-**HEAD:** `ea85015e` on `feat/stable-audio-generate` — pushed
-**PR:** https://github.com/ALaustrup/VYBZ/pull/210 (open, not merged; **not deployed** to `main`)
-**Production:** https://vybz.cloud — `main` **`75426388`** (PR 208 STATE; Phase 6 code PR 206 `3d22afe4`). Vercel last recorded: **`dpl_5D7iC6tkBDbjL2iQB26uxBUTMThK`** READY, alias `vybz.cloud`. Rollback target: `79ce3edd` / `dpl_EQLCfvtRZ56EbybmwkCGouqdzBun`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+**Branch:** `main`
+**HEAD:** `8f173164` — merged PR **#210**
+**PR:** https://github.com/ALaustrup/VYBZ/pull/210 — **merged** 2026-08-26
+**Production:** https://vybz.cloud — `main` **`8f173164`**. Vercel production **`dpl_Gb93Bx5G3zjGqhxGSk8rxLKVoZc9`** READY, alias `vybz.cloud` (verified HTTP 200). Rollback target: `75426388` / `dpl_Fb3AzPmawZp6hBjnudZP2y1TjD57`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+
+## PR #210 — merged and deployed — 2026-08-26
+
+**Merge:** `8f173164` — Living Profile stack (Phase 7 Hide, Phase 1a shell, Generate intake, Phase 2 owner pulse, Phase 2B live profile presence).
+
+**Deploy:** Vercel production `dpl_Gb93Bx5G3zjGqhxGSk8rxLKVoZc9` READY on `vybz.cloud` at `8f173164`.
+
+**Pre-merge smoke test (2026-08-25):** Owner signed-in walk — all checklist items pass (Hide, shell, Generate intake UI, owner pulse, live profile presence).
+
+**Post-merge production verification:** HTTP 200 on `https://vybz.cloud`. Signed-in feature walk on live production build: **Not measured** (pre-merge smoke assumed still valid; re-walk optional).
+
+`npm run lint` pass. `npm run test` pass — **201 files / 1015 tests**. `npm run build` pass.
 
 ## PR #210 review pass — 2026-08-25
 
@@ -22,7 +34,7 @@ Final in-scope review fixes before production smoke test:
 
 Gate tests updated. `npm run lint` pass. `npm run test` pass — **201 files / 1015 tests**. `npm run build` pass. Pushed at `c4ebf52a`.
 
-**Production smoke test (2026-08-25):** Owner signed-in walk — **all checklist items pass** (Hide, shell, Generate intake UI, owner pulse, live profile presence). Evidence: owner confirmation in session; deploy SHA on production `main` unchanged (`75426388`).
+**Production smoke test (2026-08-25):** Owner signed-in walk — **all checklist items pass** (Hide, shell, Generate intake UI, owner pulse, live profile presence). Evidence: owner confirmation in session. Merged to `main` at `8f173164`; deployed `dpl_Gb93Bx5G3zjGqhxGSk8rxLKVoZc9`.
 
 ## Phase 2B — Live profile presence — 2026-08-25
 
