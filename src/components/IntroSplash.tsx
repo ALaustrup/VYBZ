@@ -44,7 +44,7 @@ export function IntroSplash() {
               draggable={false}
             />
           </div>
-          <p className="nexus-intro-tagline">Make packs. Sell them.</p>
+          <p className="nexus-intro-tagline">Find Yours.</p>
         </motion.div>
       )}
     </AnimatePresence>

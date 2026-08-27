@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-27
-**Branch:** `main`
-**HEAD:** `53d8c65e` — merge PR #211
+**Branch:** `fix/no-autoplay-intro-tagline`
+**HEAD:** local — no autoplay + intro tagline
 **Production:** https://vybz.cloud — Vercel **`9P8iPFjgps2YDSzKAgMQPbs7oKcf`** READY at `53d8c65e`
+
+## No autoplay + intro tagline — 2026-08-27
+
+On `fix/no-autoplay-intro-tagline`:
+
+- Intro splash tagline: **Find Yours.** (replaces pack-maker copy)
+- Featured mini-player: preloads only — tap to play on landing/auth
+- Vibes Radio host: sync metadata only — no autoplay on signed-in load
+
+`npm run validate` pass — **202 files / 1019 tests**, build pass. Vercel Preview: pending PR.
+
+Production walk: **Not measured** for this slice.
 
 ## PR #211 — merged — Vercel validate merge gate — 2026-08-27
 
@@ -18,7 +30,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Pre-merge proof:** Vercel Preview **Pass** — deployment `GrGU64iZShJVpWxGzUXSrteSTzLN` at `56762264`; full validate in build log.
 
-**Production deploy:** Vercel building at merge — **Not measured** until READY.
+**Production deploy:** Vercel **`9P8iPFjgps2YDSzKAgMQPbs7oKcf`** READY on `vybz.cloud` at `53d8c65e`; build ran `npm run validate`.
 
 Production walk remains release evidence — compile gate does not prove presence, auth, or persistence.
 

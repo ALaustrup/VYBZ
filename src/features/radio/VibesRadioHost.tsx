@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import {
-  joinVibesRadio,
+  fetchVibesRadioSync,
   type VibesRadioAudience,
 } from "@/features/radio/vibesRadio";
 import { getSnapshot } from "@/lib/audioBus";
@@ -9,8 +9,8 @@ const POLL_MS = 10_000;
 const RADIO_PREFIX = "vibes-radio:";
 
 /**
- * Keeps the client joined to the global Vibes Radio clock.
- * Does not steal playback if the user already started a non-radio track (suite only).
+ * Keeps the client synced to the global Vibes Radio clock (metadata only).
+ * Does not autoplay — users start audio explicitly from track controls or the mini-player.
  */
 export function VibesRadioHost({
   audience,
@@ -36,7 +36,7 @@ export function VibesRadioHost({
         const t = getSnapshot().track;
         if (t && !t.id.startsWith(RADIO_PREFIX)) return;
       }
-      await joinVibesRadio(audienceRef.current);
+      await fetchVibesRadioSync(audienceRef.current);
     };
 
     void tick();
