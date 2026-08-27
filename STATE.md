@@ -3,19 +3,15 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-27
-**Branch:** `fix/no-autoplay-intro-tagline`
-**HEAD:** local — no autoplay + intro tagline
-**Production:** https://vybz.cloud — Vercel **`9P8iPFjgps2YDSzKAgMQPbs7oKcf`** READY at `53d8c65e`
+**Branch:** `main`
+**HEAD:** `f9f59c79` — merge PR #212
+**Production:** https://vybz.cloud — Vercel **`BcePpVeu3reXtHEsVBgAWZBZBSxw`** READY at `f9f59c79`
 
-## No autoplay + intro tagline — 2026-08-27
+## PR #212 — merged — no autoplay + intro tagline — 2026-08-27
 
-On `fix/no-autoplay-intro-tagline`:
+**Merge:** `f9f59c79` — intro **Find Yours.**; featured player tap-to-play; Vibes Radio metadata-only sync (no load autoplay).
 
-- Intro splash tagline: **Find Yours.** (replaces pack-maker copy)
-- Featured mini-player: preloads only — tap to play on landing/auth
-- Vibes Radio host: sync metadata only — no autoplay on signed-in load
-
-`npm run validate` pass — **202 files / 1019 tests**, build pass. Vercel Preview: pending PR.
+**Production deploy:** Vercel **`BcePpVeu3reXtHEsVBgAWZBZBSxw`** READY on `vybz.cloud` at `f9f59c79`.
 
 Production walk: **Not measured** for this slice.
 
