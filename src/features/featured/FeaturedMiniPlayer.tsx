@@ -8,7 +8,6 @@ import {
   playTrack,
   toggle,
   usePlayer,
-  type PlayerTrack,
 } from "@/lib/audioBus";
 import { supabase } from "@/lib/supabase";
 import { catalogSignal } from "@/lib/vdock/playbackSignal";
@@ -23,14 +22,13 @@ function formatTime(sec: number): string {
 
 /**
  * Compact featured player for pre-login shells — fixed bottom, away from auth controls.
- * Plays curated platform music through AudioBus so brand marks stay audio-reactive.
+ * Preloads curated platform music; playback starts only when the user taps play.
  */
 export function FeaturedMiniPlayer({ className }: { className?: string }) {
   const trackMeta = FEATURED_SIGNIN_TRACK;
   const player = usePlayer();
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const startedRef = useRef(false);
+  const urlRef = useRef<string | null>(null);
 
   const isThis =
     player.track?.id === trackMeta.id ||
@@ -44,7 +42,6 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    startedRef.current = false;
 
     (async () => {
       setStatus("loading");
@@ -55,27 +52,10 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
         return;
       }
 
-      const next: PlayerTrack = {
-        id: trackMeta.id,
-        url,
-        title: trackMeta.title,
-        artist: trackMeta.artist,
-        durationSec: trackMeta.durationSec,
-        signal: catalogSignal(),
-      };
-
-      // Do not steal if something else is already playing (e.g. signed-in radio).
-      const snap = getSnapshot();
-      if (snap.track && snap.playing && snap.track.id !== trackMeta.id) {
-        setStatus("ready");
-        return;
-      }
-
-      playTrack(next);
-      startedRef.current = true;
+      urlRef.current = url;
       setStatus("ready");
 
-      // Measured waveform improves brand reactive pulse (optional — anon read).
+      // Measured waveform improves brand reactive pulse when the user plays (optional — anon read).
       if (supabase) {
         void supabase
           .from("assets")
@@ -88,15 +68,6 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
             patchCurrentTrack({ waveform: data.waveform as number[] });
           });
       }
-
-      // Detect autoplay block after a short settle.
-      window.setTimeout(() => {
-        if (cancelled) return;
-        const after = getSnapshot();
-        if (after.track?.id === trackMeta.id && !after.playing) {
-          setAutoplayBlocked(true);
-        }
-      }, 400);
     })();
 
     return () => {
@@ -104,21 +75,37 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
     };
   }, [trackMeta]);
 
+  function playFeatured() {
+    const url = urlRef.current;
+    if (!url) return;
+    playTrack({
+      id: trackMeta.id,
+      url,
+      title: trackMeta.title,
+      artist: trackMeta.artist,
+      durationSec: trackMeta.durationSec,
+      signal: catalogSignal(),
+    });
+  }
+
   function onToggle() {
     if (status === "error") return;
     const snap = getSnapshot();
     if (snap.track?.id === trackMeta.id) {
       void toggle();
-      setAutoplayBlocked(false);
       return;
     }
-    // Reload if another track replaced us.
+    if (urlRef.current) {
+      playFeatured();
+      return;
+    }
     void (async () => {
       const url = await mintFeaturedPlayUrl(trackMeta.assetPath);
       if (!url) {
         setStatus("error");
         return;
       }
+      urlRef.current = url;
       playTrack({
         id: trackMeta.id,
         url,
@@ -127,7 +114,6 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
         durationSec: trackMeta.durationSec,
         signal: catalogSignal(),
       });
-      setAutoplayBlocked(false);
     })();
   }
 
@@ -168,9 +154,9 @@ export function FeaturedMiniPlayer({ className }: { className?: string }) {
           <p className="truncate text-[10px] leading-tight text-white/45">
             {status === "error"
               ? "Playback failed"
-              : autoplayBlocked
-                ? "Tap to play"
-                : `${trackMeta.artist} · ${formatTime(current)}`}
+              : playing
+                ? `${trackMeta.artist} · ${formatTime(current)}`
+                : "Tap to play"}
           </p>
           <div className="mt-1 h-[2px] overflow-hidden rounded-full bg-white/10" aria-hidden>
             <div
