@@ -3,20 +3,20 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-27
-**Branch:** `feat/d2-social-home`
-**HEAD:** local — D2 social home route
-**Production:** https://vybz.cloud — prior deploy at `f9f59c79` (PR #212)
+**Branch:** `main`
+**HEAD:** `e2adb2d5` — merge PR #213
+**Production:** https://vybz.cloud — Vercel **`Fq6boH5haHf7rs2JpZQrDvR3EHsv`** READY at `e2adb2d5`
 
-## D2 social home route — 2026-08-27 (in progress)
+## PR #213 — merged — D2 social home route — 2026-08-27
 
-On `feat/d2-social-home`:
+**Merge:** `e2adb2d5` — signed-in `/` is people-first social landing; owner Stage File at `/u/:id`.
 
-- Signed-in `/` → `SocialHomePage` (people & live, identity strip, My VYBZ link)
-- Owner Stage File → `/u/:id`; `/feed` redirects to `/`
-- Gate `livingProfilePhase2c`; invariants `loggedInHomeIsSocialLanding`, `ownerStageFileAtPublicRoute`
-- `PRODUCT.md` + decision 0011 Phase 2C updated
+- `SocialHomePage` at `/` — identity strip, live, people discovery, work stream
+- `/feed` → `/`; PrimaryRail **Home** at `/`
+- Identity menu: **My VYBZ** → `/u/:id`; **Open public VYBZ** → visitor preview
+- Gate `livingProfilePhase2c`; `PRODUCT.md` + decision 0011 Phase 2C
 
-`npm run validate` pass — **203 files / 1023 tests**, build pass. Vercel Preview: pending PR.
+**Production deploy:** Vercel **`Fq6boH5haHf7rs2JpZQrDvR3EHsv`** READY on `vybz.cloud` at `e2adb2d5`.
 
 Production walk: **Not measured** for this slice.
 
