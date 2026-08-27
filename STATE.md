@@ -3,24 +3,24 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-27
-**Branch:** `feat/vercel-validate-gate`
-**HEAD:** `1dc7221d` on `feat/vercel-validate-gate`
-**PR:** https://github.com/ALaustrup/VYBZ/pull/211 (open)
+**Branch:** `main`
+**HEAD:** `53d8c65e` — merge PR #211
+**Production:** https://vybz.cloud — Vercel **`9P8iPFjgps2YDSzKAgMQPbs7oKcf`** READY at `53d8c65e`
 
-## Vercel validate merge gate — 2026-08-27
+## PR #211 — merged — Vercel validate merge gate — 2026-08-27
 
-On `feat/vercel-validate-gate`:
+**Merge:** `53d8c65e` — `npm run validate` pipeline, Vercel Preview gate, branch protection docs.
 
 - `npm run validate` — lint → typecheck → test → production build
 - `vercel.json` `buildCommand`: `npm run validate` (Preview + Production)
 - Gate `validatePipeline` + [`docs/engineering/VERCEL_BRANCH_GATE.md`](docs/engineering/VERCEL_BRANCH_GATE.md)
 - GitHub `main` branch protection: **Vercel** status required (`strict: true`) — applied 2026-08-27
 
-Local proof: `npm run validate` pass — **202 files / 1019 tests**, build pass.
+**Pre-merge proof:** Vercel Preview **Pass** — deployment `GrGU64iZShJVpWxGzUXSrteSTzLN` at `56762264`; full validate in build log.
 
-Vercel Preview proof (PR #211): **Pass** — deployment `EoWyKmEvdWPE8Go7WrsYzwhy2dDm` at `1dc7221d`; build log ran full validate (~200s tests + build). First Preview failed on gate test whitespace (fixed `8fa50234`).
+**Production deploy:** Vercel building at merge — **Not measured** until READY.
 
-Production walk remains release evidence — **Not measured** for this slice.
+Production walk remains release evidence — compile gate does not prove presence, auth, or persistence.
 
 ## PR #210 — merged and deployed — 2026-08-26
 
