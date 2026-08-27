@@ -60,5 +60,6 @@ The owner can **Arrange** modules that already exist on the Stage File (stage, f
 
 Signed-in `/` is the people-first social landing (live, people, activity, discovery). Owner Stage File stays at `/u/:id`. `/feed` redirects to `/`. Identity menu: **My VYBZ** → owner profile; **Open public VYBZ** → visitor preview.
 
+## Phase 7 — Hide existing sections (2026-08-25)
 
 The owner can **Hide** a section that already exists on the Stage File. Public and visitor-preview omit it even when it has content. Arrange still lists it with **Show**. Stored on the same profile jsonb as `stageHiddenModules`. Identity banner, sticky chrome, and Book a session stay fixed. No rename, no invent, no theme engine, no CSS/JS injection.

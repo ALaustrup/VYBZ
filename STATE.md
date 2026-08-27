@@ -18,7 +18,11 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 **Production deploy:** Vercel **`Fq6boH5haHf7rs2JpZQrDvR3EHsv`** READY on `vybz.cloud` at `e2adb2d5`.
 
-Production walk: **Not measured** for this slice.
+Production walk (2026-08-27): Owner confirmed — `/` shows People & live; **My VYBZ** → owner Stage File; **Open public VYBZ** → visitor preview.
+
+## Social home rooms — 2026-08-27 (in progress)
+
+`feat/social-home-rooms`: `SocialRoomsPanel` on signed-in home (Gather section). `npm run validate` pass — **203 files / 1023 tests**.
 
 ## PR #212 — merged — no autoplay + intro tagline — 2026-08-27
 

@@ -6,6 +6,7 @@ import { FeedTrackRow } from "@/components/FeedTrackRow";
 import { FeedHero } from "@/components/FeedHero";
 import { EmptyState } from "@/components/EmptyState";
 import { HubActivity } from "@/components/home/HubActivity";
+import { SocialRoomsPanel } from "@/components/home/SocialRoomsPanel";
 import { WhosLivePanel } from "@/features/live/WhosLivePanel";
 import { listFollowedCreatorIds } from "@/features/network/followApi";
 import * as api from "@/lib/api";
@@ -152,6 +153,7 @@ export function FeedPage({
             <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/45">
               <Link to="/live" className="hover:text-white/80">Live</Link>
               <Link to="/connect" className="hover:text-white/80">People</Link>
+              {isHome ? <Link to="/social" className="hover:text-white/80">Rooms</Link> : null}
               <Link to="/messages" className="hover:text-white/80">Messages</Link>
             </div>
           </div>
@@ -159,6 +161,11 @@ export function FeedPage({
         <div className="mx-auto mb-5 max-w-2xl px-0.5">
           <WhosLivePanel variant="shelf" />
         </div>
+        {isHome ? (
+          <div className="mx-auto mb-5 max-w-2xl px-0.5">
+            <SocialRoomsPanel />
+          </div>
+        ) : null}
         <div className="mx-auto max-w-2xl px-0.5">
           <FeedHero />
         </div>
