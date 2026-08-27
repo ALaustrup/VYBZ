@@ -4,7 +4,9 @@
 
 | Script | Purpose |
 |--------|---------|
+| `npm run validate` | **Merge gate:** lint → typecheck → test → production build |
 | `npm run lint` | `tsc --noEmit` |
+| `npm run typecheck` | `tsc --noEmit` |
 | `npm run test` | Vitest unit/component |
 | `npm run test:watch` | Vitest watch |
 | `npm run build` | Typecheck + Vite production build |
@@ -16,7 +18,7 @@
 
 - **Vitest 3** + jsdom + Testing Library (`vitest.config.ts`, `src/test/setup.ts`)
 - **Playwright** (`playwright.config.cjs`, `e2e/smoke.spec.ts`, `scripts/run-e2e.mjs`)
-- **CI:** [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) — lint, test, build, e2e
+- **CI / merge gate:** Vercel Preview runs `npm run validate` — see [`VERCEL_BRANCH_GATE.md`](./VERCEL_BRANCH_GATE.md). Supplementary GHA: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml).
 
 ## E2E startup contract
 

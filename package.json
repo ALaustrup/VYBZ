@@ -43,6 +43,7 @@
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "validate": "npm run lint && npm run typecheck && npm run test && npm run build",
     "test:watch": "vitest",
     "test:shared": "vitest run src/platform src/contracts src/domain src/shell",
     "test:web": "vitest run",
