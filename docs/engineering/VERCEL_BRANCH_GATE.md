@@ -46,10 +46,12 @@ Vercel ↔ GitHub integration exposes deployment environments as merge gates.
 
 ### Verify on a test PR
 
-1. Open a PR (e.g. this CI-replacement PR).
+1. Open a PR (e.g. PR **#211** — `feat/vercel-validate-gate`).
 2. Confirm a **Vercel** check appears on the PR Checks tab.
 3. Confirm Preview URL is only available when `npm run validate` succeeded in the Vercel build log.
 4. After branch protection is enabled, confirm merge is blocked until **Vercel** is green.
+
+**Applied 2026-08-27:** `main` requires the **Vercel** status check (`strict: true`). Evidence: GitHub branch protection API response on `ALaustrup/VYBZ`.
 
 ## What validate does *not* prove
 
