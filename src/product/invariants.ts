@@ -186,6 +186,25 @@ export const GENERATE_AUDIO = {
 } as const;
 
 /* ------------------------------------------------------------------------- */
+/* Validation pipeline (Vercel Preview merge gate)                            */
+/* ------------------------------------------------------------------------- */
+
+/**
+ * One validate command before Preview/Production deploy. Signed-in production
+ * walks are separate release evidence for presence, auth, and persistence.
+ */
+export const VALIDATION = {
+  /** lint → typecheck → test → production build in one npm script. */
+  singleValidateCommand: true,
+  /** Vercel Preview buildCommand runs validate; failure blocks Preview. */
+  vercelPreviewRunsValidate: true,
+  /** GitHub main requires Vercel status — not GitHub Actions — for merge. */
+  vercelIsMergeGate: true,
+  /** Compile green ≠ signed-in production walk. Walks live in STATE.md. */
+  productionWalkIsReleaseEvidence: true,
+} as const;
+
+/* ------------------------------------------------------------------------- */
 /* Creator Operating System (decision 0010 — now a capability of the profile) */
 /* ------------------------------------------------------------------------- */
 
@@ -564,6 +583,7 @@ export const GATE_REGISTRY = [
   "livingProfilePhase2",
   "livingProfilePhase2b",
   "generateAudio",
+  "validatePipeline",
   "assetNode",
   "creatorNetwork",
   "creatorOsHarden",

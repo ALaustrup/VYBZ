@@ -50,9 +50,7 @@ Delivery state for each of these is recorded in [`STATE.md`](./STATE.md). Code m
 npm install
 cp .env.example .env   # set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
 npm run dev            # http://localhost:5173
-npm run lint
-npm run test
-npm run build
+npm run validate       # lint → typecheck → test → build (same gate as Vercel Preview)
 ```
 
 Node 20+. Missing Supabase env → app hard-stops (not a mock offline mode).

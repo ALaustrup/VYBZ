@@ -25,7 +25,7 @@ main                    ← production
 
 ## Testing
 
-- Correctness gate: `npm run lint` && `npm run test` && `npm run build`.
+- Correctness gate: `npm run validate` (lint → typecheck → test → production build). Vercel Preview runs the same command — see [`docs/engineering/VERCEL_BRANCH_GATE.md`](docs/engineering/VERCEL_BRANCH_GATE.md).
 - Unit (Vitest), component (RTL), e2e + a11y smoke (Playwright: `npm run test:e2e`).
 - `npm run check:no-fixtures` must pass — test fixtures may never reach a production bundle.
 - Migrations: RLS policy tests for any new user-scoped table.

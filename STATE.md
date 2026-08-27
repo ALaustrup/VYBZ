@@ -2,11 +2,25 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-25
-**Branch:** `main`
-**HEAD:** `8f173164` — merged PR **#210**
-**PR:** https://github.com/ALaustrup/VYBZ/pull/210 — **merged** 2026-08-26
-**Production:** https://vybz.cloud — `main` **`8f173164`**. Vercel production **`dpl_Gb93Bx5G3zjGqhxGSk8rxLKVoZc9`** READY, alias `vybz.cloud` (verified HTTP 200). Rollback target: `75426388` / `dpl_Fb3AzPmawZp6hBjnudZP2y1TjD57`. GitHub Actions: account still locked for billing. Docs rewrite is PR 209. PR 207 (set-password) stays open and is not this work.
+**Date:** 2026-08-27
+**Branch:** `feat/vercel-validate-gate`
+**HEAD:** `1dc7221d` on `feat/vercel-validate-gate`
+**PR:** https://github.com/ALaustrup/VYBZ/pull/211 (open)
+
+## Vercel validate merge gate — 2026-08-27
+
+On `feat/vercel-validate-gate`:
+
+- `npm run validate` — lint → typecheck → test → production build
+- `vercel.json` `buildCommand`: `npm run validate` (Preview + Production)
+- Gate `validatePipeline` + [`docs/engineering/VERCEL_BRANCH_GATE.md`](docs/engineering/VERCEL_BRANCH_GATE.md)
+- GitHub `main` branch protection: **Vercel** status required (`strict: true`) — applied 2026-08-27
+
+Local proof: `npm run validate` pass — **202 files / 1019 tests**, build pass.
+
+Vercel Preview proof (PR #211): **Pass** — deployment `EoWyKmEvdWPE8Go7WrsYzwhy2dDm` at `1dc7221d`; build log ran full validate (~200s tests + build). First Preview failed on gate test whitespace (fixed `8fa50234`).
+
+Production walk remains release evidence — **Not measured** for this slice.
 
 ## PR #210 — merged and deployed — 2026-08-26
 

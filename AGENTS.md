@@ -62,19 +62,27 @@ over one large one.
 
 ## Validation
 
-All three must pass before anything is claimed:
+One command runs the full pre-merge compile gate:
 
 ```
-npm run lint     # tsc --noEmit
-npm run test
-npm run build
+npm run validate   # lint → typecheck → test → production build
 ```
+
+Individual steps remain available: `npm run lint`, `npm run typecheck`, `npm run test`,
+`npm run build`.
+
+**Merge gate:** Vercel Preview runs `npm run validate` via [`vercel.json`](./vercel.json).
+A failing step blocks the Preview deployment. GitHub `main` requires the **Vercel** status
+check — not GitHub Actions. Setup: [`docs/engineering/VERCEL_BRANCH_GATE.md`](./docs/engineering/VERCEL_BRANCH_GATE.md).
 
 Fixture guard: `npm run check:no-fixtures` against `dist/`. E2E: `npm run test:e2e`.
 Fixtures are enabled only by `npm run build:e2e`, which produces a **non-deployable** build.
 
-Merged is not delivered. Reachable is not discoverable. A green run proves the code compiles
-and nothing more. Use the delivery vocabulary in `PRODUCT.md` §13 and never write "complete".
+Merged is not delivered. Reachable is not discoverable. A green `validate` run proves the
+code compiles and unit gates pass — nothing more. **Signed-in production walks** prove
+presence, authentication, and persistence; those are release evidence and are **Not measured**
+until someone actually walks them. Use the delivery vocabulary in `PRODUCT.md` §13 and never
+write "complete".
 
 ## Ask before
 
