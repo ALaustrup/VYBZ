@@ -29,12 +29,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BrandMark } from "@/components/Brand";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { cx } from "@/lib/utils";
-import { FeedPage } from "@/pages/FeedPage";
 import { ConnectPage } from "@/pages/ConnectPage";
 import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { ProfileEditPage } from "@/pages/ProfileEditPage";
-import { MyVybzHome, UserProfilePage } from "@/pages/UserProfilePage";
+import { UserProfilePage } from "@/pages/UserProfilePage";
+import { SocialHomePage } from "@/pages/SocialHomePage";
 import { ProjectPage } from "@/pages/ProjectPage";
 import { MessagesPage } from "@/pages/MessagesPage";
 import { NotificationsPage } from "@/pages/NotificationsPage";
@@ -207,10 +207,10 @@ export function App() {
       <AnimatePresence mode="wait" initial={false}>
         <PageTransition routeKey={location.pathname}>
           <Routes location={location}>
-        <Route path="/" element={<MyVybzHome />} />
+        <Route path="/" element={<SocialHomePage onCompose={() => setComposeOpen(true)} />} />
         <Route path="/workspace" element={<ProfilePage />} />
         <Route path="/enter" element={<Navigate to="/" replace />} />
-        <Route path="/feed" element={<FeedPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
+        <Route path="/feed" element={<Navigate to="/" replace />} />
         <Route path="/discover" element={<DiscoverPage />} />
         <Route path="/activity" element={<Navigate to="/workspace?tab=live" replace />} />
         <Route path="/connect" element={<ConnectPage />} />

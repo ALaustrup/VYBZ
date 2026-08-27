@@ -1,9 +1,9 @@
 import {
+  Home,
   Library,
   MessageSquare,
   Radio,
   ShieldCheck,
-  User,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
@@ -88,11 +88,16 @@ export function accountItems(role: string, isAdmin: boolean): NavItem[] {
 
 export const HOME_ITEM: NavItem = {
   path: "/",
-  label: "Me",
-  hint: "Your VYBZ",
-  icon: User,
-  productId: "artist",
+  label: "Home",
+  hint: "People & live",
+  icon: Home,
+  productId: "home",
 };
+
+/** Owner Stage File — same object as public `/u/:id`, owner perspective. */
+export function ownerProfilePath(userId: string | null | undefined): string {
+  return userId ? `/u/${userId}` : "/";
+}
 
 export function navItems(): NavItem[] {
   return [HOME_ITEM, ...navGroups().flatMap((g) => g.items)];

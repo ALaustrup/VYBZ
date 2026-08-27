@@ -53,11 +53,11 @@ function StripLink({
  * Compact social shortcuts above the music player — one dock, not a second player.
  */
 export function VDockSocialStrip({ onCompose }: { onCompose?: () => void }) {
-  const { unread, userId } = useSession();
+  const { unread } = useSession();
   const { pathname } = useLocation();
   const { threads } = useInboxThreads(50);
   const messageBadge = threads.reduce((n, t) => n + (t.unread ? 1 : 0), 0);
-  const homeActive = pathname === "/" || (!!userId && pathname === `/u/${userId}`);
+  const homeActive = pathname === "/";
 
   return (
     <div
@@ -65,7 +65,7 @@ export function VDockSocialStrip({ onCompose }: { onCompose?: () => void }) {
       data-testid="vdock-social-strip"
       aria-label="Social shortcuts"
     >
-      <StripLink to="/" end label="Me" icon={Home} forceActive={homeActive} />
+      <StripLink to="/" end label="Home" icon={Home} forceActive={homeActive} />
       <StripLink to="/live" label="Live" icon={Radio} />
       <button
         type="button"

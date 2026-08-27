@@ -11,6 +11,7 @@ import { listFollowedCreatorIds } from "@/features/network/followApi";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/store/session";
+import { ownerProfilePath } from "@/shell/navModel";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
 import { cx } from "@/lib/utils";
 import type { Drop, Reaction } from "@/types";
@@ -19,8 +20,14 @@ type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: 
 type Mode = "discovery" | "latest" | "following";
 type Layout = "comfortable" | "grid";
 
-/** Network stream — public works, latest first. */
-export function FeedPage({ onCompose }: { onCompose: () => void }) {
+/** Network stream — public works, latest first. `home` variant is the signed-in `/` landing. */
+export function FeedPage({
+  onCompose,
+  variant = "feed",
+}: {
+  onCompose: () => void;
+  variant?: "feed" | "home";
+}) {
   const { userId } = useSession();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -71,6 +78,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
   }, []);
 
   useRegisterAppBar({
+    ...(variant === "home" ? { title: "Home" } : {}),
     actions: (
       <div className="flex items-center gap-0.5">
         <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Network options" aria-expanded={filtersOpen}
@@ -87,7 +95,9 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
         </button>
       </div>
     ),
-  }, [filtersOpen, layout]);
+  }, [filtersOpen, layout, variant]);
+
+  const isHome = variant === "home";
 
   function react(d: FeedItem, r: Reaction) {
     const next = d.myReaction === r ? undefined : r;
@@ -125,9 +135,17 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
 
       <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
         <div className="mx-auto mb-4 max-w-2xl px-0.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">Network</p>
-          <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">New work</h1>
-          <p className="mt-1 text-[13px] text-white/45">Public works the moment they are shared.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
+            {isHome ? "Home" : "Network"}
+          </p>
+          <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            {isHome ? "People & live" : "New work"}
+          </h1>
+          <p className="mt-1 text-[13px] text-white/45">
+            {isHome
+              ? "Connections, live rooms, and work from people you follow."
+              : "Public works the moment they are shared."}
+          </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setMode("latest")} className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "latest" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Latest</button>
             <button type="button" onClick={() => setMode("following")} data-testid="network-following" className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "following" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Following</button>
@@ -165,7 +183,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
                   queue={drops}
                   onReact={(r) => react(d, r)}
                   onRate={(s) => rate(d, s)}
-                  onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
+                  onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate(ownerProfilePath(userId))}
                 />
               </div>
             ))}
@@ -178,7 +196,7 @@ export function FeedPage({ onCompose }: { onCompose: () => void }) {
                 drop={d}
                 queue={drops}
                 onReact={(r) => react(d, r)}
-                onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate("/")}
+                onOpenAuthor={() => userId && d.authorId !== userId ? navigate(`/u/${d.authorId}`) : navigate(ownerProfilePath(userId))}
               />
             ))}
           </div>

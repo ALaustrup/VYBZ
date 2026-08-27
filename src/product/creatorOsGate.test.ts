@@ -52,7 +52,7 @@ describe("creator operating system lock", () => {
   });
 
   it("orients default chrome as quiet with truthful primary rail destinations", () => {
-    expect(HOME_ITEM.label).toBe("Me");
+    expect(HOME_ITEM.label).toBe("Home");
     expect(HOME_ITEM.path).toBe("/");
     const items = navItems();
     expect(items.map((i) => i.path)).toEqual(["/", "/messages", "/live", "/library"]);

@@ -136,8 +136,10 @@ export const LIVING_PROFILE = {
   quieterInterfaceAsPowerGrows: true,
   /** Do not ship a grid of stat cards as the product. */
   noGenericDashboard: true,
-  /** Signed-in `/` is the owner's VYBZ. Workspace stays at `/workspace`. */
-  loggedInHomeIsMyVybz: true,
+  /** Signed-in `/` is the people-first social landing (D2). */
+  loggedInHomeIsSocialLanding: true,
+  /** Owner Stage File is `/u/:id` — same object, owner perspective. */
+  ownerStageFileAtPublicRoute: true,
   /** Top bar stays quiet: VYBZ · Search · + · Chat · Alerts · Me. No kingdom labels there. */
   defaultChromeIsQuiet: true,
   /** Desktop mounts one adapted PrimaryRail — not a parallel navigation system. */
@@ -582,6 +584,7 @@ export const GATE_REGISTRY = [
   "livingProfile",
   "livingProfilePhase2",
   "livingProfilePhase2b",
+  "livingProfilePhase2c",
   "generateAudio",
   "validatePipeline",
   "assetNode",

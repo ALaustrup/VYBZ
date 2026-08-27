@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { LogOut, Settings, UserRound } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { useSession } from "@/store/session";
+import { ownerProfilePath } from "@/shell/navModel";
 import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 
@@ -41,7 +42,7 @@ export function AccountMenu() {
 
   const name = profile?.username?.trim() || null;
   const display = profile?.displayName?.trim() || name;
-  const onHome = pathname === "/" || (!!userId && pathname === `/u/${userId}`);
+  const onHome = pathname === "/";
 
   return (
     <div ref={ref} className="relative">
@@ -109,7 +110,7 @@ export function AccountMenu() {
               role="menuitem"
               onClick={() => {
                 setOpen(false);
-                if (userId) navigate(`/u/${userId}`);
+                if (userId) navigate(`${ownerProfilePath(userId)}?view=visitor`);
               }}
               className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:bg-white/10"
             >
@@ -124,7 +125,7 @@ export function AccountMenu() {
               role="menuitem"
               onClick={() => {
                 setOpen(false);
-                navigate("/");
+                if (userId) navigate(ownerProfilePath(userId));
               }}
               className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-left text-[13px] font-medium text-white/85 transition hover:bg-white/10"
             >
