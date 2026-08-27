@@ -28,8 +28,8 @@ describe("validation pipeline (Vercel merge gate)", () => {
   });
 
   it("runs validate on every Vercel Preview and Production build", () => {
-    const vercel = read("vercel.json");
-    expect(vercel).toContain('"buildCommand": "npm run validate"');
+    const vercel = JSON.parse(read("vercel.json")) as { buildCommand?: string };
+    expect(vercel.buildCommand).toBe("npm run validate");
   });
 
   it("documents Vercel as the merge gate and production walk as release evidence", () => {
