@@ -3,9 +3,22 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-27
-**Branch:** `main`
-**HEAD:** `f9f59c79` — merge PR #212
-**Production:** https://vybz.cloud — Vercel **`BcePpVeu3reXtHEsVBgAWZBZBSxw`** READY at `f9f59c79`
+**Branch:** `feat/d2-social-home`
+**HEAD:** local — D2 social home route
+**Production:** https://vybz.cloud — prior deploy at `f9f59c79` (PR #212)
+
+## D2 social home route — 2026-08-27 (in progress)
+
+On `feat/d2-social-home`:
+
+- Signed-in `/` → `SocialHomePage` (people & live, identity strip, My VYBZ link)
+- Owner Stage File → `/u/:id`; `/feed` redirects to `/`
+- Gate `livingProfilePhase2c`; invariants `loggedInHomeIsSocialLanding`, `ownerStageFileAtPublicRoute`
+- `PRODUCT.md` + decision 0011 Phase 2C updated
+
+`npm run validate` pass — **203 files / 1023 tests**, build pass. Vercel Preview: pending PR.
+
+Production walk: **Not measured** for this slice.
 
 ## PR #212 — merged — no autoplay + intro tagline — 2026-08-27
 

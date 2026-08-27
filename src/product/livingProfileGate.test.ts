@@ -36,7 +36,8 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.socialSignalsInformNotManipulate).toBe(true);
     expect(LIVING_PROFILE.quieterInterfaceAsPowerGrows).toBe(true);
     expect(LIVING_PROFILE.noGenericDashboard).toBe(true);
-    expect(LIVING_PROFILE.loggedInHomeIsMyVybz).toBe(true);
+    expect(LIVING_PROFILE.loggedInHomeIsSocialLanding).toBe(true);
+    expect(LIVING_PROFILE.ownerStageFileAtPublicRoute).toBe(true);
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
     expect(LIVING_PROFILE.desktopPrimaryRail).toBe(true);
     expect(LIVING_PROFILE.mobileNavDrawer).toBe(true);
@@ -69,7 +70,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("Community First");
     expect(product).toContain("Refine before replacing");
     expect(product).toContain("ARE YOU A CREATOR?");
-    expect(product).toContain("Logged-in home is My VYBZ");
+    expect(product).toContain("Logged-in home is the people-first social landing");
     expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
     expect(product).not.toContain("Logged-in home remains Workspace until Phase 1");
     expect(product).toContain("View as Visitor");
@@ -83,14 +84,14 @@ describe("living profile constitution", () => {
     expect(product).not.toMatch(/VYBZ is the Creator Operating System\./);
   });
 
-  it("puts signed-in home on the existing Stage File", () => {
+  it("puts signed-in home on the people-first social landing", () => {
     expect(HOME_ITEM.path).toBe("/");
-    expect(HOME_ITEM.label).toBe("Me");
-    expect(HOME_ITEM.hint).toBe("Your VYBZ");
+    expect(HOME_ITEM.label).toBe("Home");
+    expect(HOME_ITEM.hint).toBe("People & live");
     const app = read("src/App.tsx");
-    expect(app).toContain('path="/" element={<MyVybzHome />}');
-    expect(app).toContain('path="/workspace" element={<ProfilePage />}');
+    expect(app).toContain('path="/" element={<SocialHomePage');
     expect(app).toContain('path="/u/:id" element={<UserProfilePage />}');
+    expect(read("src/pages/SocialHomePage.tsx")).toContain("export function SocialHomePage");
     expect(read("src/pages/UserProfilePage.tsx")).toContain("export function MyVybzHome");
     expect(read("src/pages/ProfilePage.tsx")).toContain("export function ProfilePage");
   });

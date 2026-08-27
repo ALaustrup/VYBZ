@@ -162,13 +162,12 @@ export function PrimaryRailNav({
   /** Drawer renders its own header; desktop rail keeps RailIdentity. */
   showIdentity?: boolean;
 }) {
-  const { profile, userId } = useSession();
+  const { profile } = useSession();
   const location = useLocation();
   const account = accountItems(profile?.platformRole ?? "member", !!profile?.isAdmin);
   const groups = navGroups();
   const badges = useNavBadgeCounts();
-  const homeActive =
-    location.pathname === "/" || (!!userId && location.pathname === `/u/${userId}`);
+  const homeActive = location.pathname === "/";
 
   return (
     <div className={cx("relative z-[2] flex min-h-0 flex-col", className)}>

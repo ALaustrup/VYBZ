@@ -49,12 +49,13 @@ describe("social-first shell", () => {
     expect(read("src/shell/SuiteShell.tsx")).toMatch(/^import\s[^\n]*PrimaryRail/m);
   });
 
-  it("highlights Me on the owner public VYBZ in VDock and PrimaryRail", () => {
+  it("highlights Home on the signed-in social landing in VDock and PrimaryRail", () => {
     const rail = read("src/shell/PrimaryRail.tsx");
     const strip = read("src/components/vdock/VDockSocialStrip.tsx");
     expect(rail).toContain("homeActive");
-    expect(rail).toMatch(/\/u\/\$\{userId\}/);
+    expect(rail).toContain('location.pathname === "/"');
     expect(strip).toContain("homeActive");
-    expect(strip).toContain("forceActive={homeActive}");
+    expect(strip).toContain('pathname === "/"');
+    expect(strip).toContain('label="Home"');
   });
 });
