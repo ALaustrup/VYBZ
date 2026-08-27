@@ -39,6 +39,7 @@ describe("creator network", () => {
     const feed = read("src/pages/FeedPage.tsx");
     expect(feed).toContain("WhosLivePanel");
     expect(feed).toContain("HubActivity");
+    expect(feed).toContain("SocialRoomsPanel");
     expect(feed).toContain('to="/messages"');
     expect(feed).toContain("network-following");
     expect(feed).toContain("listFollowedCreatorIds");
