@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { HubActivity } from "@/components/home/HubActivity";
 import { SocialRoomsPanel } from "@/components/home/SocialRoomsPanel";
 import { WhosLivePanel } from "@/features/live/WhosLivePanel";
+import { TastePeopleStrip } from "@/features/network/TastePeopleStrip";
 import { listFollowedCreatorIds } from "@/features/network/followApi";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
@@ -144,12 +145,19 @@ export function FeedPage({
           </h1>
           <p className="mt-1 text-[13px] text-white/45">
             {isHome
-              ? "Connections, live rooms, and work from people you follow."
+              ? "People, live rooms, and public work to hear."
               : "Public works the moment they are shared."}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setMode("latest")} className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "latest" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Latest</button>
             <button type="button" onClick={() => setMode("following")} data-testid="network-following" className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "following" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Following</button>
+            <button type="button" onClick={() => setMode("discovery")} data-testid="network-explore" className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "discovery" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Explore</button>
+            {mode === "discovery" ? (
+              <button type="button" onClick={() => setSeed(Math.floor(Math.random() * 1e9))} aria-label="Shuffle explore" className="forge-chip h-8 gap-1 !px-2.5 text-[11px]">
+                <Shuffle className="h-3 w-3" />
+                Shuffle
+              </button>
+            ) : null}
             <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/45">
               <Link to="/live" className="hover:text-white/80">Live</Link>
               <Link to="/connect" className="hover:text-white/80">People</Link>
@@ -158,6 +166,11 @@ export function FeedPage({
             </div>
           </div>
         </div>
+        {isHome ? (
+          <div className="mx-auto mb-5 max-w-2xl px-0.5">
+            <TastePeopleStrip />
+          </div>
+        ) : null}
         <div className="mx-auto mb-5 max-w-2xl px-0.5">
           <WhosLivePanel variant="shelf" />
         </div>
@@ -174,11 +187,19 @@ export function FeedPage({
         ) : drops.length === 0 ? (
           <EmptyState
             icon={AudioLines}
-            title={mode === "following" ? "No followed work yet" : "Nothing here yet"}
+            title={
+              mode === "following"
+                ? "No followed work yet"
+                : mode === "discovery"
+                  ? "Nothing to explore yet"
+                  : "Nothing here yet"
+            }
             body={
               mode === "following"
                 ? "Follow a creator from their profile. Their public work lands here. VYB a piece when it resonates."
-                : "Public work lands here for everyone, and on the creator's profile."
+                : mode === "discovery"
+                  ? "Public work to hear. Follow a Stage File so it lands in Following."
+                  : "Public work lands here for everyone, and on the creator's profile."
             }
           />
         ) : layout === "grid" ? (

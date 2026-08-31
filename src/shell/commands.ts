@@ -114,6 +114,13 @@ export function buildCommands(ctx: CommandContext): Command[] {
       keywords: ["bulk", "multiple", "masters", "upload"],
       unavailableReason: ctx.canBulkUpload ? undefined : "Not available on this screen",
     },
+    {
+      id: "create:node",
+      title: "Index this device",
+      group: "Create",
+      keywords: ["node", "index", "folder", "catalog", "local"],
+      to: "/library?tab=device",
+    },
   ];
 
   return [...go, ...playback, ...create];

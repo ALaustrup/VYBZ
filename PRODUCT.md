@@ -69,7 +69,7 @@ These laws are checked against every design decision, route change, feature, and
 | **Library** (`/library`) | Authorized works and assets, local and published. Owner layer, hidden from default chrome | **Catalog** |
 | **Network** (`/connect`, `/live`) | People, who is live. `/feed` redirects to Home. Reachable from Search, not a permanent kingdom | **Discovery and relationships** |
 | **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: profile banner state | **Live Creation** |
-| **Devices** | Desktop / mobile Asset Nodes and availability | **Local originals** |
+| **Devices** | Desktop / mobile Asset Nodes and availability. Node is a Search and + tool at Library This device — not a rail kingdom. | **Local originals** |
 | **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
 | **In-session desks** (`/tools/*`) | Existing DSP / stem / MIDI / translation desks | **Toolkit** |
 | **DAW bridge** | Master-bus ingest when the host is in a DAW | **Studio ingest** |
@@ -83,6 +83,8 @@ The public Creator Profile (`/u/:id`) is the host Stage File. Talk, podcast, mus
 Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Creator identity, viewer access, public chat, the Stage File, and `live_sessions` logging stay. Live should become a **profile banner state**, not a disconnected destination. That remaining chrome change is later than this lock. `/live` stays reachable; it is not a permanent nav item.
 
 The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
+
+**Explore on Home** lists public work to hear. It reuses `discovery_feed`. Follow a Stage File so it lands in Following. The Node tool opens Library This device (`/library?tab=device`) from Search and +. It is not a rail kingdom.
 
 Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. Alerts appears once, in that chrome — not on the rail, not on the dock. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
 

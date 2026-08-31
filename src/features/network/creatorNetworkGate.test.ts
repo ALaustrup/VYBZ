@@ -23,6 +23,7 @@ describe("creator network", () => {
     expect(CREATOR_NETWORK.messagingReusesDirectMessages).toBe(true);
     expect(CREATOR_NETWORK.activityReusesNotifications).toBe(true);
     expect(CREATOR_NETWORK.networkCentersOnCreativeWork).toBe(true);
+    expect(CREATOR_NETWORK.exploreIsOnSocialHome).toBe(true);
     expect(ARTIST_STAGE_PROFILE.connectIsARequest).toBe(true);
     expect(ARTIST_STAGE_PROFILE.noVanityFollowerCounts).toBe(true);
   });
@@ -33,6 +34,8 @@ describe("creator network", () => {
     expect(product).toContain("It is not Connect");
     expect(product).toContain("No public follower counts");
     expect(product).toContain("VYB");
+    expect(product).toContain("Explore on Home");
+    expect(product).toContain("Node is a Search and + tool");
   });
 
   it("composes existing Network primitives instead of a second social stack", () => {
@@ -44,6 +47,13 @@ describe("creator network", () => {
     expect(feed).toContain("network-following");
     expect(feed).toContain("listFollowedCreatorIds");
     expect(feed).toContain("listDropsFromAuthors");
+    expect(feed).toContain("network-explore");
+    expect(feed).toContain("listDiscovery");
+    expect(feed).toContain("TastePeopleStrip");
+    expect(read("src/features/network/TastePeopleStrip.tsx")).toContain("FollowButton");
+    expect(read("src/features/network/TastePeopleStrip.tsx")).not.toContain("api.connect");
+    expect(read("src/features/network/TastePeopleStrip.tsx")).not.toContain("sharedPlays");
+    expect(read("src/components/dashboard/DashMatchPanel.tsx")).toContain("export function DashMatchPanel");
     expect(read("src/lib/trackActions.ts")).toContain('"Vyb"');
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("FollowButton");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("profile-connect");

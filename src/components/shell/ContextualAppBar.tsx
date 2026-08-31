@@ -147,7 +147,7 @@ export function ContextualAppBar({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                  className="forge-glass absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-40 overflow-hidden p-1.5"
+                  className="forge-glass absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-44 overflow-hidden p-1.5"
                 >
                   <span className="forge-glass-edge pointer-events-none" aria-hidden />
                   <button
@@ -173,6 +173,18 @@ export function ContextualAppBar({
                     className="relative z-[1] flex h-10 w-full items-center rounded-xl px-3 text-left text-[13px] text-white/85 transition hover:bg-white/[0.06]"
                   >
                     Generate
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-testid="add-node"
+                    onClick={() => {
+                      setAddOpen(false);
+                      navigate("/library?tab=device");
+                    }}
+                    className="relative z-[1] flex h-10 w-full items-center rounded-xl px-3 text-left text-[13px] text-white/85 transition hover:bg-white/[0.06]"
+                  >
+                    This device
                   </button>
                 </motion.div>
               ) : null}

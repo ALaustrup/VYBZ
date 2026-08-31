@@ -80,11 +80,12 @@ export function isPlaceholderPath(path: string, flags?: { storefront: boolean })
  * same dishonesty as offering a placeholder.
  */
 export const WORKING_DESTINATIONS: readonly Destination[] = [
-  { path: "/", title: "My VYBZ", keywords: ["home", "profile", "me", "identity", "start"] },
+  { path: "/", title: "Home", keywords: ["home", "people", "live", "network"] },
   { path: "/workspace", title: "Workspace", keywords: ["dashboard", "work", "hub"] },
   { path: "/make", title: "Make pack", keywords: ["upload", "pipeline", "sample pack", "flow"] },
   { path: "/make/dashboard", title: "Sales", keywords: ["orders", "sales", "dashboard"] },
   { path: "/library", title: "Library", keywords: ["works", "tracks", "media", "files", "catalog", "assets"] },
+  { path: "/library?tab=device", title: "This device", keywords: ["node", "index", "catalog", "folder", "local"] },
   { path: "/library/mix", title: "Mix", keywords: ["mix", "catalog", "session", "living"] },
   { path: "/releases", title: "Scan", keywords: ["prepare", "projects", "scan", "finalize", "analyze", "analyser"] },
   { path: "/releases/new", title: "New scan", keywords: ["upload", "scan", "readiness", "analyse", "analyze"] },

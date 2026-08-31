@@ -70,7 +70,10 @@ describe("working destinations are real", () => {
     // Each destination must appear as a literal route path in one of the two
     // routers, so a typo cannot ship as a dead command.
     const routers = `${APP}\n${PLACEHOLDER_ROUTER}`;
-    const missing = WORKING_DESTINATIONS.filter((d) => !routers.includes(`path="${d.path}"`));
+    const missing = WORKING_DESTINATIONS.filter((d) => {
+      const routePath = d.path.split("?")[0] ?? d.path;
+      return !routers.includes(`path="${routePath}"`);
+    });
     expect(missing.map((d) => d.path)).toEqual([]);
   });
 

@@ -475,6 +475,7 @@ export function ArtistStageProfile({
           <div className="space-y-3 lg:col-span-12" data-testid="profile-owner-empty">
             <p className="text-sm text-white/45">
               This is your VYBZ. Place work from Library when you want — it stays one file.
+              Public work is heard when it is placed, not when it is indexed on this device.
             </p>
             <button
               type="button"

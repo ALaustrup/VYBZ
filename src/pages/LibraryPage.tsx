@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Check,
   Film,
@@ -24,7 +24,12 @@ import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import { listVisibleCatalog } from "@/features/assetNode/catalog";
 
-type Tab = "tracks" | "device" | "mixes" | "projects" | "stages";
+const LIBRARY_TABS = ["tracks", "device", "mixes", "projects", "stages"] as const;
+type Tab = (typeof LIBRARY_TABS)[number];
+
+function isLibraryTab(value: string | null): value is Tab {
+  return !!value && (LIBRARY_TABS as readonly string[]).includes(value);
+}
 
 /** Tracks stream in a page at a time so the first screen is fast and nothing is capped. */
 const PAGE_SIZE = 100;
@@ -36,7 +41,17 @@ const PAGE_SIZE = 100;
 export function LibraryPage() {
   const { userId, profile, refreshProfile, showToast } = useSession();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("tracks");
+  const [params, setParams] = useSearchParams();
+  const rawTab = params.get("tab");
+  const tab: Tab = isLibraryTab(rawTab) ? rawTab : "tracks";
+  function setTab(next: Tab) {
+    setParams((prev) => {
+      const n = new URLSearchParams(prev);
+      if (next === "tracks") n.delete("tab");
+      else n.set("tab", next);
+      return n;
+    }, { replace: true });
+  }
   const [drops, setDrops] = useState<Drop[]>([]);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [scans, setScans] = useState<ReleaseProject[]>([]);

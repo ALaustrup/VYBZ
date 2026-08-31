@@ -387,6 +387,8 @@ export const CREATOR_NETWORK = {
   messagingReusesDirectMessages: true,
   activityReusesNotifications: true,
   networkCentersOnCreativeWork: true,
+  /** Explore chip on signed-in Home reuses listDiscovery / discovery_feed. */
+  exploreIsOnSocialHome: true,
 } as const;
 
 /** Chat (`message`) badges and lists stay on Chat — never Alerts or `/notifications`. */
