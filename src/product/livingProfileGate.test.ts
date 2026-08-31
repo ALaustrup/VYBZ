@@ -39,6 +39,8 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.loggedInHomeIsSocialLanding).toBe(true);
     expect(LIVING_PROFILE.ownerStageFileAtPublicRoute).toBe(true);
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
+    expect(LIVING_PROFILE.oneAlertsChrome).toBe(true);
+    expect(LIVING_PROFILE.dashboardIsOwnerStageFile).toBe(true);
     expect(LIVING_PROFILE.desktopPrimaryRail).toBe(true);
     expect(LIVING_PROFILE.mobileNavDrawer).toBe(true);
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
@@ -72,6 +74,10 @@ describe("living profile constitution", () => {
     expect(product).toContain("ARE YOU A CREATOR?");
     expect(product).toContain("Logged-in home is the people-first social landing");
     expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
+    expect(product).toContain("Alerts appears once");
+    expect(product).toContain("That Stage File is the owner dashboard");
+    expect(product).toContain("Chat is Chat. Alerts is Alerts");
+    expect(product).not.toContain("Owner sees Library, Workspace, Go live");
     expect(product).not.toContain("Logged-in home remains Workspace until Phase 1");
     expect(product).toContain("View as Visitor");
     expect(product).toContain("module registry");
@@ -93,6 +99,8 @@ describe("living profile constitution", () => {
     expect(app).toContain('path="/u/:id" element={<UserProfilePage />}');
     expect(read("src/pages/SocialHomePage.tsx")).toContain("export function SocialHomePage");
     expect(read("src/pages/UserProfilePage.tsx")).toContain("export function MyVybzHome");
+    expect(app).toContain('path="/workspace" element={<WorkspaceGateway');
+    expect(app).toContain("ownerProfilePath");
     expect(read("src/pages/ProfilePage.tsx")).toContain("export function ProfilePage");
   });
 
@@ -112,11 +120,13 @@ describe("living profile constitution", () => {
     expect(bar).toContain("<AccountMenu />");
     expect(bar).toContain('aria-label="Add"');
     expect(bar).toContain('aria-label="VYBZ"');
+    expect(read("src/shell/RailIdentity.tsx")).not.toContain("rail-notify-button");
+    expect(read("src/components/vdock/VDockSocialStrip.tsx")).not.toContain("/notifications");
     expect(read("src/components/shell/PeopleMenu.tsx")).toContain("export function PeopleMenu");
     expect(read("src/components/shell/PeopleMenu.tsx")).toContain("openCommandPalette");
     expect(read("src/components/shell/AccountMenu.tsx")).toContain('aria-label="Me"');
     expect(stage).toContain('navigate("/library")');
-    expect(stage).toContain('navigate("/workspace")');
+    expect(stage).not.toContain('navigate("/workspace")');
     expect(stage).toContain("Go live");
   });
 

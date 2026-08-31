@@ -5,6 +5,7 @@ import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
 import { cx, timeAgo } from "@/lib/utils";
+import { filterAlertsNotifications, isChatNotification } from "@/lib/notificationRouting";
 import type { AppNotification } from "@/types";
 
 const ICON: Record<string, typeof Bell> = {
@@ -22,13 +23,14 @@ export function NotificationsPage() {
   const [acting, setActing] = useState<string | null>(null);
 
   useEffect(() => {
-    api.listNotifications().then((n) => { setItems(n); setLoading(false); });
+    api.listNotifications()
+      .then((n) => { setItems(filterAlertsNotifications(n)); setLoading(false); });
     void markNotificationsRead();
   }, [markNotificationsRead]);
 
   function open(n: AppNotification) {
-    if (n.kind === "message" && n.refId) navigate(`/messages/${n.refId}`);
-    else if (n.kind === "connection" && n.actorId) navigate(`/u/${n.actorId}`);
+    if (isChatNotification(n)) return;
+    if (n.kind === "connection" && n.actorId) navigate(`/u/${n.actorId}`);
     else if (n.kind === "application") navigate("/opportunities");
   }
 
@@ -56,7 +58,7 @@ export function NotificationsPage() {
     <div className="flex h-full flex-col">
       <div className="no-scrollbar flex-1 overflow-y-auto px-1 pb-6 pt-2">
         {loading ? <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-veil-300" /></div>
-          : items.length === 0 ? <EmptyState icon={Bell} title="Nothing yet" body="Requests and messages show up here." />
+          : items.length === 0 ? <EmptyState icon={Bell} title="Nothing yet" body="Connection requests and activity show up here. Messages live in Chat." />
           : <div className="divide-y divide-[var(--hairline)]">{items.map((n) => {
               const Icon = ICON[n.kind] ?? Bell;
               const incoming = isIncomingRequest(n);

@@ -29,11 +29,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BrandMark } from "@/components/Brand";
 import { GeometricBackdrop } from "@/components/GeometricBackdrop";
 import { cx } from "@/lib/utils";
+import { ownerProfilePath } from "@/shell/navModel";
 import { ConnectPage } from "@/pages/ConnectPage";
 import { OpportunitiesPage } from "@/pages/OpportunitiesPage";
-import { ProfilePage } from "@/pages/ProfilePage";
 import { ProfileEditPage } from "@/pages/ProfileEditPage";
 import { UserProfilePage } from "@/pages/UserProfilePage";
+import { WalletPage } from "@/pages/WalletPage";
 import { SocialHomePage } from "@/pages/SocialHomePage";
 import { ProjectPage } from "@/pages/ProjectPage";
 import { MessagesPage } from "@/pages/MessagesPage";
@@ -208,11 +209,11 @@ export function App() {
         <PageTransition routeKey={location.pathname}>
           <Routes location={location}>
         <Route path="/" element={<SocialHomePage onCompose={() => setComposeOpen(true)} />} />
-        <Route path="/workspace" element={<ProfilePage />} />
+        <Route path="/workspace" element={<WorkspaceGateway />} />
         <Route path="/enter" element={<Navigate to="/" replace />} />
         <Route path="/feed" element={<Navigate to="/" replace />} />
         <Route path="/discover" element={<DiscoverPage />} />
-        <Route path="/activity" element={<Navigate to="/workspace?tab=live" replace />} />
+        <Route path="/activity" element={<Navigate to="/live" replace />} />
         <Route path="/connect" element={<ConnectPage />} />
         <Route path="/opportunities" element={<OpportunitiesPage />} />
         <Route path="/projects" element={<ProjectsPage onBulkUpload={() => setComposeOpen(true)} />} />
@@ -396,15 +397,20 @@ function PublicDocShell() {
   );
 }
 
-/** Map legacy /profile?tab=… onto the archived Workspace. */
-function LegacyProfileRedirect() {
+/** Archived Workspace — wallet still lives here; hub/dashboard tabs fold into the Stage File. */
+function WorkspaceGateway() {
   const [params] = useSearchParams();
-  const tab = params.get("tab");
-  const mapped =
-    tab === "inbox" ? "you"
-    : tab === "match" ? "connect"
-    : tab === "live" || tab === "you" || tab === "listen" || tab === "wallet" || tab === "hub" || tab === "connect"
-      ? tab
-      : "hub";
-  return <Navigate to={`/workspace?tab=${mapped}`} replace />;
+  const { userId } = useSession();
+  const tab = params.get("tab") ?? "hub";
+  if (tab === "wallet") return <WalletPage />;
+  if (tab === "live") return <Navigate to="/live" replace />;
+  if (tab === "listen") return <Navigate to="/" replace />;
+  if (tab === "connect") return <Navigate to="/connect" replace />;
+  return <Navigate to={ownerProfilePath(userId)} replace />;
+}
+
+/** Legacy /profile → owner Stage File (dashboard is that object, not Workspace). */
+function LegacyProfileRedirect() {
+  const { userId } = useSession();
+  return <Navigate to={ownerProfilePath(userId)} replace />;
 }

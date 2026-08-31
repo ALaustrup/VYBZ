@@ -57,5 +57,7 @@ describe("social-first shell", () => {
     expect(strip).toContain("homeActive");
     expect(strip).toContain('pathname === "/"');
     expect(strip).toContain('label="Home"');
+    expect(strip).not.toContain("/notifications");
+    expect(strip).not.toContain('label="Alerts"');
   });
 });

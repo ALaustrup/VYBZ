@@ -134,7 +134,7 @@ export function availableDestinations(flags: { storefront: boolean }): Destinati
  */
 export const REDIRECTS: readonly { from: string; to: string; flag?: "storefront" }[] = [
   { from: "/studio", to: "/projects" },
-  { from: "/activity", to: "/workspace" },
+  { from: "/activity", to: "/live" },
   { from: "/profile", to: "/" },
 ] as const;
 

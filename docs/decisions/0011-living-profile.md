@@ -60,6 +60,10 @@ The owner can **Arrange** modules that already exist on the Stage File (stage, f
 
 Signed-in `/` is the people-first social landing (live, people, activity, discovery). Owner Stage File stays at `/u/:id`. `/feed` redirects to `/`. Identity menu: **My VYBZ** → owner profile; **Open public VYBZ** → visitor preview.
 
+## Phase 2D — Chat, one Alerts, dashboard is Stage File (2026-08-31)
+
+Message notifications (`kind = message`) badge **Chat** only. Alerts appears once in default chrome — not on the rail, not on the dock. Owner dashboard is the Stage File at `/u/:id`. `/workspace` stays reachable; it is not a second home. Owner chrome does not open Workspace.
+
 ## Phase 7 — Hide existing sections (2026-08-25)
 
 The owner can **Hide** a section that already exists on the Stage File. Public and visitor-preview omit it even when it has content. Arrange still lists it with **Show**. Stored on the same profile jsonb as `stageHiddenModules`. Identity banner, sticky chrome, and Book a session stay fixed. No rename, no invent, no theme engine, no CSS/JS injection.

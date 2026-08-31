@@ -1,27 +1,28 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Check, Loader2, MessageCircle, UserPlus, Video, X, ChevronLeft, ChevronRight,
+  Check, Loader2, UserPlus, X, ChevronLeft, ChevronRight, Bell,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { useMessagePopout } from "@/lib/messagePopout";
 import { useSession } from "@/store/session";
 import { timeAgo } from "@/lib/utils";
 import type { AppNotification } from "@/types";
+import { isChatNotification } from "@/lib/notificationRouting";
 
 const ROTATE_MS = 15_000;
 
 export function isMustAckNotification(n: AppNotification): boolean {
+  if (isChatNotification(n)) return false;
   if (n.payload?.mustAck === true) return true;
   if (n.payload?.action === "reconnect") return true;
   if (n.kind === "connection" && !!n.actorId && /wants to connect/i.test(n.title)) return true;
-  if (n.kind === "message" && (n.payload?.mediaKind === "video" || /video message/i.test(n.title))) return true;
   return false;
 }
 
 /**
  * Rotating must-acknowledge alerts (hub / profile surfaces).
- * Cannot soft-dismiss — user must Accept/Decline or open the video message.
+ * Cannot soft-dismiss — user must Accept/Decline or send a reconnect hello.
  */
 export function WallAlerts({
   onQueueChange,
@@ -72,14 +73,6 @@ export function WallAlerts({
     await load();
   }
 
-  async function openVideo() {
-    if (!current?.refId) return;
-    openThread(current.refId);
-    await api.markNotificationRead(current.id);
-    void refreshUnread();
-    await load();
-  }
-
   async function reconnect() {
     const peerId = String(current?.payload?.peerId ?? current?.actorId ?? "");
     const nudge = String(current?.payload?.nudgeBody ?? "Hey, I sent a friend request — if you accept we can both enjoy the VYBZ together!");
@@ -99,7 +92,6 @@ export function WallAlerts({
   if (loading || !current) return null;
 
   const isConn = current.kind === "connection" && /wants to connect/i.test(current.title);
-  const isVideo = current.kind === "message" && (current.payload?.mediaKind === "video" || /video message/i.test(current.title));
   const isExpiredNudge = current.kind === "connection" && current.payload?.action === "reconnect";
 
   return (
@@ -124,7 +116,7 @@ export function WallAlerts({
       <div className="forge-card border-feel/30 ring-1 ring-feel/25">
         <div className="flex items-start gap-3">
           <span className="forge-card-icon flex h-10 w-10 shrink-0 items-center justify-center text-feel">
-            {isVideo ? <Video className="h-5 w-5" /> : isConn || isExpiredNudge ? <UserPlus className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
+            {isConn || isExpiredNudge ? <UserPlus className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-display text-sm font-semibold text-white">{current.title}</p>
@@ -148,12 +140,6 @@ export function WallAlerts({
               </button>
             </>
           )}
-          {isVideo && (
-            <button type="button" disabled={acting} onClick={() => void openVideo()}
-              className="forge-cta h-9 w-full !min-h-9 !px-3 !text-xs">
-              <Video className="h-3.5 w-3.5" /> Watch message
-            </button>
-          )}
           {isExpiredNudge && (
             <button type="button" disabled={acting} onClick={() => void reconnect()}
               className="forge-cta h-9 w-full !min-h-9 !px-3 !text-xs disabled:opacity-50">
@@ -161,7 +147,7 @@ export function WallAlerts({
               Send again + hello
             </button>
           )}
-          {!isConn && !isVideo && !isExpiredNudge && current.actorId && (
+          {!isConn && !isExpiredNudge && current.actorId && (
             <button type="button" onClick={() => navigate(`/u/${current.actorId}`)}
               className="forge-cta-ghost h-9 w-full !min-h-9 !px-3 !text-xs">
               View profile
