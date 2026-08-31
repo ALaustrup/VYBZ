@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `feat/heard-and-node` @ `118d67d2` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `0860a116` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Creative Library intake — 2026-08-31
+
+**Commit:** `0860a116` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Library intake is **Creative Work**, not a song catalog. Compose accepts audio, image, video, and allowed files (`CREATIVE_ACCEPT`). Video stays video — extract lives in Convert. New files default **private** and save into `/library`. Place on your VYBZ is unchanged (ids only, one catalog). Stage File classifies placed drops (`classifyDrop`) instead of forcing audio. AudioBus does not play image/video/file URLs. `LIVING_PROFILE.libraryIngestsUniversalWork` locked. Gate `creativeLibrary`.
+
+**Validate (local):** `npm run validate` pass (2026-08-31). lint (`tsc --noEmit`), typecheck, **206 files / 1041 tests**, production `vite build`.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` shows Library / Your work / `1 work · 0 on this device` / Upload; kind chips All / Audio / Image / Video / File; Image filter shows empty match (the one work is audio); Upload opens compose **Drop files here** with accept including `image/*` and `.pdf`; This device honesty copy still present; Home library panel still `1 work · 0 on this device` and Place; phone 390×844 still shows Upload + kind chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Menu-only chrome + discovery Home — 2026-08-31
 
