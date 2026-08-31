@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `feat/heard-and-node`
+**Branch:** `feat/heard-and-node` @ `118d67d2` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Menu-only chrome + discovery Home — 2026-08-31
+
+**Commit:** `118d67d2` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Default chrome is the **menu**. Search, +, Chat, Alerts, Me, Tools, and the V¢ wallet identity live in `ShellNavDrawer` / `DrawerChrome` on every viewport. `ContextualAppBar` is hamburger only (Back stays on nested routes). `PrimaryRail` and `VDockSocialStrip` stay in the tree, unmounted. Signed-in `/` centers the VYBZ mark (`BrandMark orb reactive`) as a gentle hue + audio neon pulse. Home composes existing live, rooms, library (`HomeLibraryPanel` — measured `countDropsBy` / `listVisibleCatalog`), taste, and Hear (`FeedPage` Latest / Following / Explore). No Phantom / NFT / SOL. V¢ is not a chain token.
+
+**Validate (local):** lint (`tsc --noEmit`), typecheck, **204 files / 1031 tests**, production `vite build` (2026-08-31). Full `npm run validate` was run as those four steps in this session.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): header is hamburger only; Home mark + Find Yours. + `@Andrew · ~Andrew`; drawer has Search / Upload / Generate / This device / Chat / Alerts / Tools / Me / wallet `~Andrew`; library panel `1 work · 0 on this device`; Explore shows Shuffle; Library `/library` Works (1) and `/library?tab=device`; phone viewport 390×844 stacks the same Home. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Heard, identity, Node tool — 2026-08-31 (local)
 
