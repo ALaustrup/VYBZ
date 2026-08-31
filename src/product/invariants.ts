@@ -170,6 +170,8 @@ export const LIVING_PROFILE = {
   profileOwnerAmbientAttention: true,
   /** Live belongs to the Profile banner. `/live` remains network discovery. */
   liveIsProfilePresence: true,
+  /** Library intake is Creative Work — audio, image, video, file. Not a song catalog. */
+  libraryIngestsUniversalWork: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -577,6 +579,7 @@ export const GATE_REGISTRY = [
   "suiteUxCostRemoval",
   "socialFirstShell",
   "libraryCompleteness",
+  "creativeLibrary",
   "livingMix",
   "sparks",
   "reception",

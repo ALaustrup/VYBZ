@@ -9,6 +9,7 @@ import {
   Loader2,
   Pencil,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
@@ -38,7 +39,7 @@ const PAGE_SIZE = 100;
  * Library — works, project posts, stage backdrops, plus Analyzer scan strip.
  * Counts come from measured drops / posts / listReleases only (Law 1).
  */
-export function LibraryPage() {
+export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
   const { userId, profile, refreshProfile, showToast } = useSession();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -111,6 +112,31 @@ export function LibraryPage() {
       testId="library-desk"
       className="library-desk flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
     >
+      <header className="flex items-end justify-between gap-3 px-0.5">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
+            Library
+          </p>
+          <h1 className="font-display text-lg font-semibold text-white">Your work</h1>
+          <p className="mt-0.5 text-[12px] text-white/40">
+            {loading
+              ? "…"
+              : `${trackTotal || drops.length} ${trackTotal === 1 ? "work" : "works"} · ${localCount} on this device`}
+          </p>
+        </div>
+        {onCompose ? (
+          <button
+            type="button"
+            onClick={onCompose}
+            data-testid="library-upload-header"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.06] px-3 text-[12px] font-semibold text-white/85"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Upload
+          </button>
+        ) : null}
+      </header>
+
       {scans.length > 0 && (
         <section className="forge-glass relative !rounded-2xl p-3" aria-label="Analyzer scans" data-testid="library-scan-strip">
           <span className="forge-glass-edge pointer-events-none" aria-hidden />
@@ -171,6 +197,7 @@ export function LibraryPage() {
           initialDrops={drops}
           featuredId={profile?.featuredDropId}
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
+          onCompose={onCompose}
         />
       ) : tab === "mixes" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">

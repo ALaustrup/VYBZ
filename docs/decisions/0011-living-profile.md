@@ -52,6 +52,10 @@ Creative Work on the Stage File goes through a kind → renderer registry (`MODU
 
 A person selects existing Library work, **Place on your VYBZ**, chooses Works or Featured, and is done. Ids only — the asset is not copied. Until they compose, the Stage File still shows catalog drops so existing public work does not vanish. After the first place or hide, new uploads stay off the Stage File until placed. Library views: grid, list, table, and shelves. Arrangement (view / sort / group) is remembered per person. Profile layout editing is later (Phase 6).
 
+## Phase 5b — Creative Library intake (2026-08-31)
+
+Library intake is Creative Work, not a song catalog. Compose accepts audio, image, video, and allowed files. Video stays video (extract lives in Convert). New files default private and land in Library. Place on your VYBZ is unchanged — ids only, one catalog. Stage File classifies placed drops instead of forcing audio.
+
 ## Phase 6 — Modular arrangement (2026-08-22)
 
 The owner can **Arrange** modules that already exist on the Stage File (stage, featured, works, story, packs, measured, credits, more). Order is stored on the same profile jsonb. Empty modules omit; Arrange still shows them so they can be moved. Identity banner, sticky chrome, and Book a session stay out of the layout toy. Featured is its own module when a work is pinned or placed there. No theme engine, no CSS/JS injection, no cinematic canvas. Phase 6 is **frozen**.

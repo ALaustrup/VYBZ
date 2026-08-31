@@ -24,7 +24,7 @@ export function OriginalityClaim({
       <span className="text-[12px] leading-relaxed text-white/75">
         <span className="font-semibold text-white/90">I made this, or I own it.</span>
         {" "}
-        Don&apos;t upload other people&apos;s music. We will take it down. You deal with
+        Don&apos;t upload other people&apos;s work. We will take it down. You deal with
         any copyright claims. See{" "}
         <Link to="/legal/dmca" className="text-cyan-200 underline decoration-cyan-200/40 underline-offset-2" onClick={(e) => e.stopPropagation()}>
           Copyright &amp; DMCA

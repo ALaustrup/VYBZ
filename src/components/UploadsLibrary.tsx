@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AudioLines, Check, Play, SearchX, Sparkles, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { AudioLines, Check, HardDrive, Play, SearchX, Sparkles, Star, Upload } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { EmptyState } from "@/components/EmptyState";
 import { LibraryToolbar } from "@/components/library/LibraryToolbar";
@@ -31,6 +32,7 @@ import { useVirtualRows } from "@/lib/useVirtualRows";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import type { Drop } from "@/types";
+import type { LibraryWorkKind } from "@/lib/libraryQuery";
 
 const ROW_HEIGHT = { list: 64, table: 44 } as const;
 /** Grid rows are two-up on >=sm; height covers the compact card plus its stats strip. */
@@ -42,14 +44,24 @@ type LibraryChange = {
   title?: string;
 };
 
+const KIND_CHIPS: Array<{ id: LibraryWorkKind; label: string }> = [
+  { id: "any", label: "All" },
+  { id: "audio", label: "Audio" },
+  { id: "image", label: "Image" },
+  { id: "video", label: "Video" },
+  { id: "file", label: "File" },
+];
+
 export function UploadsLibrary({
   initialDrops,
   featuredId,
   onFeaturedChange,
+  onCompose,
 }: {
   initialDrops: Drop[];
   featuredId?: string | null;
   onFeaturedChange?: () => void;
+  onCompose?: () => void;
 }) {
   const { userId, profile } = useSession();
   const [drops, setDrops] = useState<Drop[]>(initialDrops);
@@ -117,7 +129,29 @@ export function UploadsLibrary({
       <EmptyState
         icon={AudioLines}
         title="Nothing in your library yet"
-        body="Published work lives here for you to manage. Originals stay yours until you share them."
+        body="Upload a file. It stays private until you Place it on your VYBZ."
+        action={
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {onCompose ? (
+              <button
+                type="button"
+                onClick={onCompose}
+                data-testid="library-upload"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.06] px-3 text-[12px] font-semibold text-white/85"
+              >
+                <Upload className="h-3.5 w-3.5" />
+                Upload
+              </button>
+            ) : null}
+            <Link
+              to="/library?tab=device"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.06] px-3 text-[12px] font-semibold text-white/85"
+            >
+              <HardDrive className="h-3.5 w-3.5" />
+              This device
+            </Link>
+          </div>
+        }
       />
     );
   }
@@ -140,6 +174,27 @@ export function UploadsLibrary({
         onFiltersOpen={setFiltersOpen}
         composed={composed}
       />
+
+      <div className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid="library-kind-chips" role="tablist" aria-label="Work kind">
+        {KIND_CHIPS.map((chip) => (
+          <button
+            key={chip.id}
+            type="button"
+            role="tab"
+            aria-selected={filters.workKind === chip.id}
+            data-testid={`library-kind-${chip.id}`}
+            onClick={() => setFilters({ ...filters, workKind: chip.id })}
+            className={cx(
+              "shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wider transition",
+              filters.workKind === chip.id
+                ? "border-white/20 bg-white/[0.12] text-white"
+                : "border-white/8 bg-white/[0.03] text-white/45 hover:text-white/70",
+            )}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
 
       {matched.length > 0 && (
         <div className="flex items-center gap-2 text-[11px]">

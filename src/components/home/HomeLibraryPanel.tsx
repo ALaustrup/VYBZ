@@ -5,6 +5,7 @@ import { listVisibleCatalog } from "@/features/assetNode/catalog";
 import * as api from "@/lib/api";
 import { playTrack, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
+import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import { useSession } from "@/store/session";
 import type { Drop } from "@/types";
 
@@ -45,12 +46,10 @@ export function HomeLibraryPanel({ onCompose }: { onCompose: () => void }) {
   if (!userId) return null;
 
   function toggle(d: Drop) {
-    if (!d.audioUrl || !/^(https?:|blob:|data:)/i.test(d.audioUrl)) return;
+    if (!isPlayableAudioWork(d)) return;
     playTrack(
       toPlayerTrack(d),
-      (drops ?? [])
-        .filter((x) => x.audioUrl && /^(https?:|blob:|data:)/i.test(x.audioUrl))
-        .map(toPlayerTrack),
+      (drops ?? []).filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
     );
   }
 
@@ -109,20 +108,32 @@ export function HomeLibraryPanel({ onCompose }: { onCompose: () => void }) {
             const isCurrent = player.track?.id === d.id;
             const playing = isCurrent && player.playing;
             const title = d.title?.trim() || "Untitled";
+            const kind = classifyDrop(d);
+            const playable = isPlayableAudioWork(d);
             return (
               <li key={d.id} className="border-b border-white/[0.06] last:border-b-0">
                 <button
                   type="button"
-                  onClick={() => toggle(d)}
+                  onClick={() => (playable ? toggle(d) : navigate("/library"))}
                   className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition hover:bg-white/[0.04]"
                 >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/70">
-                    {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                  </span>
+                  {kind === "image" && d.audioUrl ? (
+                    <img
+                      src={d.audioUrl}
+                      alt=""
+                      className="h-8 w-8 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/70">
+                      {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                    </span>
+                  )}
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium text-white">{title}</span>
                     <span className="block truncate text-[11px] text-white/40">
-                      {fmtTime(d.durationSec ?? 0) || "Private until placed"}
+                      {kind !== "audio"
+                        ? kind
+                        : fmtTime(d.durationSec ?? 0) || "Private until placed"}
                     </span>
                   </span>
                 </button>

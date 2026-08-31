@@ -234,7 +234,7 @@ export function App() {
         <Route path="/make" element={<PackUploadStage />} />
         <Route path="/library/mix/:listId" element={<LivingMixPage />} />
         <Route path="/library/mix" element={<LivingMixPage />} />
-        <Route path="/library" element={<LibraryPage key={feedKey} />} />
+        <Route path="/library" element={<LibraryPage key={feedKey} onCompose={() => setComposeOpen(true)} />} />
         <Route path="/tools/metadata" element={<MetadataEditorPage />} />
         <Route path="/tools/art-check" element={<ArtCheckPage />} />
         <Route path="/tools/midi" element={<MidiMakerPage />} />

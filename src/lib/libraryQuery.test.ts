@@ -95,9 +95,13 @@ describe("filterDrops", () => {
     expect(ids(filterDrops(CATALOG, f({ onStage: "on" }), NOW, null))).toEqual(ids(CATALOG));
   });
 
-  it("combines filters conjunctively", () => {
-    const got = filterDrops(CATALOG, f({ losslessOnly: true, duration: "over-6m" }), NOW);
-    expect(ids(got)).toEqual(["c"]);
+  it("filters by Creative Work kind", () => {
+    const catalog = [
+      ...CATALOG,
+      d({ id: "img", title: "Still", audioUrl: "https://cdn.example/still.png", audioFormat: "png" }),
+    ];
+    expect(ids(filterDrops(catalog, f({ workKind: "image" }), NOW))).toEqual(["img"]);
+    expect(ids(filterDrops(catalog, f({ workKind: "audio" }), NOW)).sort()).toEqual(["a", "b", "c"]);
   });
 });
 

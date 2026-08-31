@@ -125,7 +125,7 @@ export interface SocialScore {
   updatedAt: number;
 }
 
-/** A drop = an audio post carrying the creator's identity. */
+/** A drop = a Creative Work record. Audio is one kind; image, video, and file share the same row. */
 export interface Drop {
   id: string;
   authorId: string;

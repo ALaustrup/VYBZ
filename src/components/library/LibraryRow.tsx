@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { Check, MoreVertical, Pause, Play, Star } from "lucide-react";
+import { Check, FileText, Film, Image as ImageIcon, MoreVertical, Pause, Play, Star } from "lucide-react";
 import { TrackActionMenu } from "@/components/TrackActionMenu";
 import type { MenuAnchor } from "@/components/menu/ContextMenu";
-import { isPlayableMediaUrl, playTrack, usePlayer } from "@/lib/audioBus";
+import { playTrack, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
+import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { cx } from "@/lib/utils";
@@ -44,7 +45,8 @@ export function LibraryRow({
 
   const isCurrent = player.track?.id === d.id;
   const playing = isCurrent && player.playing;
-  const playable = isPlayableMediaUrl(d.audioUrl);
+  const playable = isPlayableAudioWork(d);
+  const workKind = classifyDrop(d);
 
   function togglePlay() {
     if (!playable) {
@@ -168,21 +170,36 @@ export function LibraryRow({
       }}
     >
       {checkbox}
-      <button
-        type="button"
-        onClick={togglePlay}
-        aria-label={playing ? "Pause" : "Play"}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/[0.05] text-white/75 hover:text-white active:scale-90"
-      >
-        {playing ? <Pause className="h-4 w-4" /> : <Play className="ml-0.5 h-4 w-4" />}
-      </button>
+      {playable ? (
+        <button
+          type="button"
+          onClick={togglePlay}
+          aria-label={playing ? "Pause" : "Play"}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/[0.05] text-white/75 hover:text-white active:scale-90"
+        >
+          {playing ? <Pause className="h-4 w-4" /> : <Play className="ml-0.5 h-4 w-4" />}
+        </button>
+      ) : (
+        <span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/12 bg-white/[0.05] text-white/45"
+          aria-hidden
+        >
+          {workKind === "image" ? (
+            <ImageIcon className="h-4 w-4" />
+          ) : workKind === "video" ? (
+            <Film className="h-4 w-4" />
+          ) : (
+            <FileText className="h-4 w-4" />
+          )}
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1.5 truncate text-[14px] font-medium text-white/90">
           <span className="truncate">{d.title?.trim() || "Untitled"}</span>
           {isFeatured && <Star className="h-3 w-3 shrink-0 text-amber-300" fill="currentColor" />}
         </p>
         <p className="truncate font-mono text-[10px] uppercase tracking-wide text-white/35">
-          {[d.album?.trim() || "Single", d.audioFormat ?? null, fmtTime(d.durationSec)]
+          {[workKind !== "audio" ? workKind : d.album?.trim() || "Single", d.audioFormat ?? null, playable ? fmtTime(d.durationSec) : null]
             .filter(Boolean)
             .join(" · ")}
         </p>

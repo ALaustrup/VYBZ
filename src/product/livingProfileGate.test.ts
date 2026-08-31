@@ -30,6 +30,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.creationIsOptional).toBe(true);
     expect(LIVING_PROFILE.oneProfileTwoPerspectives).toBe(true);
     expect(LIVING_PROFILE.creativeWorkIsUniversal).toBe(true);
+    expect(LIVING_PROFILE.libraryIngestsUniversalWork).toBe(true);
     expect(LIVING_PROFILE.toolsServeWork).toBe(true);
     expect(LIVING_PROFILE.customizationWithoutScriptInjection).toBe(true);
     expect(LIVING_PROFILE.privateByDefaultPublicByIntent).toBe(true);
@@ -85,6 +86,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("module registry");
     expect(product).toContain("text, and collection");
     expect(product).toContain("Place on your VYBZ");
+    expect(product).toContain("audio, image, video, or a file");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");

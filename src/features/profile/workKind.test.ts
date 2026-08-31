@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { classifyUrl, collectStageWorks, isWorkKind, WORK_KINDS } from "./workKind";
+import { classifyDrop, classifyUrl, collectStageWorks, isPlayableAudioWork, isWorkKind, WORK_KINDS } from "./workKind";
 import { MODULE_RENDERERS, rendererFor, UnknownWork, WORK_RENDERERS } from "./WorkCard";
 import type { Drop, ProfileProject, ProjectPost } from "@/types";
 
@@ -52,6 +52,16 @@ describe("work kinds", () => {
     expect(classifyUrl("https://x.com/a", "image")).toBe("image");
   });
 
+  it("classifies a drop from format or url, and refuses non-audio playback", () => {
+    expect(classifyDrop(drop({ audioUrl: "https://cdn.example/still.png" }))).toBe("image");
+    expect(classifyDrop(drop({ audioUrl: "https://cdn.example/x", audioFormat: "png" }))).toBe("image");
+    expect(classifyDrop(drop({ audioUrl: "https://cdn.example/clip.mp4" }))).toBe("video");
+    expect(classifyDrop(drop({ audioUrl: "https://cdn.example/press.pdf" }))).toBe("file");
+    expect(classifyDrop(drop())).toBe("audio");
+    expect(isPlayableAudioWork(drop())).toBe(true);
+    expect(isPlayableAudioWork(drop({ audioUrl: "https://cdn.example/still.png" }))).toBe(false);
+  });
+
   it("collects more than audio onto the Stage File", () => {
     const project: ProfileProject = {
       id: "p1",
@@ -84,6 +94,26 @@ describe("work kinds", () => {
     expect(works.find((w) => w.kind === "project")?.href).toBe("/p/p1");
     expect(works.find((w) => w.id === "drop:d2")?.kind).toBe("text");
     expect(works.find((w) => w.id === "post:t1")?.body).toBe("Written note");
+  });
+
+  it("places an image drop as image, not audio", () => {
+    const works = collectStageWorks({
+      drops: [drop({ id: "pic", title: "Still", audioUrl: "https://cdn.example/still.png" })],
+    });
+    expect(works).toHaveLength(1);
+    expect(works[0].kind).toBe("image");
+    expect(works[0].id).toBe("drop:pic");
+  });
+
+  it("does not fold image drops into an album collection", () => {
+    const works = collectStageWorks({
+      drops: [
+        drop({ id: "i1", title: "A", album: "Shots", audioUrl: "https://cdn.example/a.png" }),
+        drop({ id: "i2", title: "B", album: "Shots", audioUrl: "https://cdn.example/b.png" }),
+      ],
+    });
+    expect(works.filter((w) => w.kind === "collection")).toHaveLength(0);
+    expect(works.map((w) => w.kind)).toEqual(["image", "image"]);
   });
 
   it("folds two album tracks into one collection and leaves singles as audio", () => {
