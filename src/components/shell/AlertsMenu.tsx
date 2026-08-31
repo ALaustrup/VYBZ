@@ -6,6 +6,7 @@ import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { useReduceFx } from "@/lib/display";
 import { cx, timeAgo } from "@/lib/utils";
+import { filterAlertsNotifications } from "@/lib/notificationRouting";
 import type { AppNotification } from "@/types";
 
 /**
@@ -23,7 +24,7 @@ export function AlertsMenu() {
 
   const load = useCallback(async () => {
     const list = await api.listNotifications().catch(() => [] as AppNotification[]);
-    setItems(list.slice(0, 6));
+    setItems(filterAlertsNotifications(list).slice(0, 6));
   }, []);
 
   useEffect(() => {
@@ -119,7 +120,6 @@ export function AlertsMenu() {
                       onClick={() => {
                         setOpen(false);
                         if (n.kind === "live") navigate(n.refId ? `/live/${n.refId}` : "/live");
-                        else if (n.kind === "message" && n.refId) navigate(`/messages/${n.refId}`);
                         else if (n.actorId) navigate(`/u/${n.actorId}`);
                         else navigate("/notifications");
                       }}

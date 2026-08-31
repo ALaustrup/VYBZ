@@ -4,6 +4,7 @@ import { Bell, Loader2, Radio } from "lucide-react";
 import * as api from "@/lib/api";
 import { useSession } from "@/store/session";
 import { cx, timeAgo } from "@/lib/utils";
+import { filterAlertsNotifications } from "@/lib/notificationRouting";
 import type { AppNotification } from "@/types";
 
 /**
@@ -17,7 +18,7 @@ export function HubActivity() {
 
   const load = useCallback(async () => {
     const list = await api.listNotifications().catch(() => [] as AppNotification[]);
-    setItems(list.slice(0, 5));
+    setItems(filterAlertsNotifications(list).slice(0, 5));
   }, []);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function HubActivity() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
             Activity
           </p>
-          <h2 className="font-display text-lg font-semibold text-white">Notifications</h2>
+          <h2 className="font-display text-lg font-semibold text-white">Happening</h2>
         </div>
         <Link
           to="/notifications"
@@ -51,7 +52,7 @@ export function HubActivity() {
         <div className="forge-glass relative flex items-center gap-3 !rounded-xl !py-4 px-4">
           <span className="forge-glass-edge pointer-events-none" aria-hidden />
           <Bell className="relative z-[1] h-4 w-4 shrink-0 text-white/35" />
-          <p className="relative z-[1] text-sm text-white/50">Nothing new. Live alerts land here.</p>
+          <p className="relative z-[1] text-sm text-white/50">Quiet for now. Live moments land here.</p>
         </div>
       ) : (
         <ul className="divide-y divide-white/[0.05] overflow-hidden rounded-2xl border border-white/8 bg-white/[0.03]">
@@ -61,7 +62,6 @@ export function HubActivity() {
                 type="button"
                 onClick={() => {
                   if (n.kind === "live") navigate(n.refId ? `/live/${n.refId}` : "/live");
-                  else if (n.kind === "message" && n.refId) navigate(`/messages/${n.refId}`);
                   else if (n.actorId) navigate(`/u/${n.actorId}`);
                   else navigate("/notifications");
                 }}

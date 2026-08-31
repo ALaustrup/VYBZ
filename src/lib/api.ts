@@ -2795,11 +2795,26 @@ function mapNotification(n: any): AppNotification {
 }
 export async function unreadNotificationCount(): Promise<number> {
   const { count } = await db().from("notifications")
-    .select("id", { count: "exact", head: true }).eq("read", false);
+    .select("id", { count: "exact", head: true })
+    .eq("read", false)
+    .neq("kind", "message");
   return count ?? 0;
 }
+
+/** Unread message notifications — badge belongs on Chat, not Alerts. */
+export async function unreadChatNotificationCount(): Promise<number> {
+  const { count } = await db().from("notifications")
+    .select("id", { count: "exact", head: true })
+    .eq("read", false)
+    .eq("kind", "message");
+  return count ?? 0;
+}
+
 export async function markNotificationsRead() {
-  await db().rpc("mark_notifications_read");
+  await db().from("notifications")
+    .update({ read: true })
+    .eq("read", false)
+    .neq("kind", "message");
 }
 
 /** Explicit ack for a single must-ack notification (video watched / request handled). */

@@ -2,10 +2,33 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-27
-**Branch:** `main`
-**HEAD:** `e2adb2d5` — merge PR #213
-**Production:** https://vybz.cloud — Vercel **`Fq6boH5haHf7rs2JpZQrDvR3EHsv`** READY at `e2adb2d5`
+**Date:** 2026-08-31
+**Branch:** `fix/chat-alerts-separation` (local, uncommitted)
+**HEAD (main):** `1a0d4097` — merge PR #214
+**Production:** https://vybz.cloud — Vercel **`BL7VfaoQGQiAQGxRDiQFHkhmUL3C`** READY at `1a0d4097`
+
+## Chat, alerts chrome, dashboard integration — 2026-08-31 (local, not merged)
+
+**Branch:** `fix/chat-alerts-separation`
+
+Product law already said this. The chrome was still shipping two Alerts bells and a second dashboard.
+
+- **Chat** owns `kind = message`. Alerts does not.
+- **One Alerts control** — top chrome `AlertsMenu` only. Rail bell and VDock Alerts icon removed. Files for the old controls stay in the tree.
+- **Dashboard is the Stage File** (`/u/:id`). Workspace hub/listen/live/you fold into `/u/:id`, `/`, `/live`. `/workspace?tab=wallet` still renders the wallet. Owner chrome no longer has a Workspace door.
+- Gates: `notificationRouting`, `LIVING_PROFILE.oneAlertsChrome`, `LIVING_PROFILE.dashboardIsOwnerStageFile`
+
+**Validate (local):** `npm run validate` pass (2026-08-27). Test file/count for this run: **Not measured** beyond exit 0.
+
+Production walk: **Not measured**. Not on production.
+
+## PR #214 — merged — social rooms on home — 2026-08-27
+
+**Merge:** `1a0d4097` — `SocialRoomsPanel` on signed-in home (Gather section).
+
+**Production deploy:** Vercel **`BL7VfaoQGQiAQGxRDiQFHkhmUL3C`** READY on `vybz.cloud` at `1a0d4097` ([deploy](https://vercel.com/astramatrix/vybz/BL7VfaoQGQiAQGxRDiQFHkhmUL3C)).
+
+Production walk: **Not measured**.
 
 ## PR #213 — merged — D2 social home route — 2026-08-27
 
@@ -19,11 +42,6 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Production deploy:** Vercel **`Fq6boH5haHf7rs2JpZQrDvR3EHsv`** READY on `vybz.cloud` at `e2adb2d5`.
 
 Production walk (2026-08-27): Owner confirmed — `/` shows People & live; **My VYBZ** → owner Stage File; **Open public VYBZ** → visitor preview.
-
-## Social home rooms — 2026-08-27 (in progress)
-
-`feat/social-home-rooms`: `SocialRoomsPanel` on signed-in home (Gather section). `npm run validate` pass — **203 files / 1023 tests**.
-
 ## PR #212 — merged — no autoplay + intro tagline — 2026-08-27
 
 **Merge:** `f9f59c79` — intro **Find Yours.**; featured player tap-to-play; Vibes Radio metadata-only sync (no load autoplay).

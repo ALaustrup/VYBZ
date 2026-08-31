@@ -1,8 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Bell, Home, MessageSquare, Plus, Radio } from "lucide-react";
+import { Home, MessageSquare, Plus, Radio } from "lucide-react";
 import { useInboxThreads } from "@/hooks/useInboxThreads";
 import { cx } from "@/lib/utils";
-import { useSession } from "@/store/session";
 
 function StripLink({
   to,
@@ -51,9 +50,9 @@ function StripLink({
 
 /**
  * Compact social shortcuts above the music player — one dock, not a second player.
+ * Alerts stay on the top-chrome Alerts control, not here.
  */
 export function VDockSocialStrip({ onCompose }: { onCompose?: () => void }) {
-  const { unread } = useSession();
   const { pathname } = useLocation();
   const { threads } = useInboxThreads(50);
   const messageBadge = threads.reduce((n, t) => n + (t.unread ? 1 : 0), 0);
@@ -77,7 +76,6 @@ export function VDockSocialStrip({ onCompose }: { onCompose?: () => void }) {
         <Plus className="h-[19px] w-[19px]" strokeWidth={2.25} aria-hidden />
       </button>
       <StripLink to="/messages" label="Messages" icon={MessageSquare} badge={messageBadge} />
-      <StripLink to="/notifications" label="Alerts" icon={Bell} badge={unread} />
     </div>
   );
 }

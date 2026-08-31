@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Bell, Briefcase, Check, Heart, Loader2, MessageCircle, Sparkles, UserPlus, X, Radio,
+  Bell, Briefcase, Check, Heart, Loader2, Sparkles, UserPlus, X, Radio,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useMessagePopout } from "@/lib/messagePopout";
 import { useSession } from "@/store/session";
 import { cx, timeAgo } from "@/lib/utils";
+import { filterAlertsNotifications } from "@/lib/notificationRouting";
 import type { AppNotification, NotificationKind } from "@/types";
 import { isMustAckNotification } from "@/components/home/WallAlerts";
 
 const ICON: Partial<Record<NotificationKind, typeof Bell>> = {
   connection: UserPlus,
   application: Briefcase,
-  message: MessageCircle,
   match: Sparkles,
   reaction: Heart,
   vibe: Sparkles,
@@ -34,7 +34,7 @@ export function ProfileLiveFeed({ excludeMustAck = false }: { excludeMustAck?: b
 
   const load = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
-    const all = await api.listLiveFeed(60);
+    const all = filterAlertsNotifications(await api.listLiveFeed(60));
     setItems(excludeMustAck ? all.filter((n) => !isMustAckNotification(n) || n.read) : all);
     setLoading(false);
   }, [excludeMustAck]);
@@ -54,7 +54,7 @@ export function ProfileLiveFeed({ excludeMustAck = false }: { excludeMustAck?: b
       navigate(href);
       return;
     }
-    if ((n.kind === "message" || action === "open_dm") && n.refId) {
+    if (action === "open_dm" && n.refId) {
       openThread(n.refId);
       return;
     }
@@ -90,7 +90,7 @@ export function ProfileLiveFeed({ excludeMustAck = false }: { excludeMustAck?: b
       <EmptyState
         icon={Bell}
         title="Your live feed is quiet"
-        body="Messages, connections, reactions, and matches that involve you appear here in realtime."
+        body="Connections, reactions, matches, and live moments that involve you appear here in realtime. Direct messages live in Chat."
       />
     );
   }
@@ -118,9 +118,6 @@ export function ProfileLiveFeed({ excludeMustAck = false }: { excludeMustAck?: b
             <button type="button" onClick={() => open(n)} className="min-w-0 flex-1 text-left">
               <p className="truncate text-sm font-semibold text-white">{n.title}</p>
               {n.body && <p className="truncate text-xs text-white/50">{n.body}</p>}
-              {n.kind === "message" && (
-                <p className="mt-0.5 text-[11px] font-medium text-veil-200/80">Tap to reply in pop-out</p>
-              )}
             </button>
             {incoming ? (
               <div className="flex shrink-0 items-center gap-1.5">

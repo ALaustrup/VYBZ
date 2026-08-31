@@ -63,10 +63,11 @@ These laws are checked against every design decision, route change, feature, and
 
 | Surface | Job | Primary Role |
 |---|---|---|
-| **My VYBZ** (`/` owner home, `/u/:id` the same object) | Living profile. Owner dashboard and visitor experience are one Stage File | **The product. Logged-in home is My VYBZ** |
-| **Workspace** (`/workspace`) | Private operating environment. Hidden from default chrome | **Archived from nav** |
+| **Home** (`/`) | People-first social landing. Live, people, rooms, work | **Signed-in landing** |
+| **My VYBZ** (`/u/:id`) | Living profile. Owner dashboard and visitor experience are one Stage File | **The product** |
+| **Workspace** (`/workspace`) | Archived private desk. Hub folds into the Stage File. Wallet still at `?tab=wallet` | **Archived from nav** |
 | **Library** (`/library`) | Authorized works and assets, local and published. Owner layer, hidden from default chrome | **Catalog** |
-| **Network** (`/feed`, `/connect`, `/live`) | People, activity, who is live. Reachable from Search, not a permanent kingdom | **Discovery and relationships** |
+| **Network** (`/connect`, `/live`) | People, who is live. `/feed` redirects to Home. Reachable from Search, not a permanent kingdom | **Discovery and relationships** |
 | **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: profile banner state | **Live Creation** |
 | **Devices** | Desktop / mobile Asset Nodes and availability | **Local originals** |
 | **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
@@ -83,7 +84,7 @@ Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Crea
 
 The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
 
-Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
+Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. Alerts appears once, in that chrome — not on the rail, not on the dock. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
 
 ## 5. Local-first originals
 
@@ -192,9 +193,10 @@ Permitted states — never "complete":
 
 ## 14. Interface Direction
 
-- **Logged-in home is the people-first social landing.** `/` shows connections, live cards, recent activity, and discovery. The owner's Stage File lives at `/u/:id` (same object as the public VYBZ, owner perspective). **Open public VYBZ** and **My VYBZ** live in the identity menu — not a competing Home vs My VYBZ pair. Workspace remains at `/workspace`, hidden from default chrome. `/feed` redirects to `/`.
+- **Logged-in home is the people-first social landing.** `/` shows connections, live cards, recent activity, and discovery. The owner's Stage File lives at `/u/:id` (same object as the public VYBZ, owner perspective). **That Stage File is the owner dashboard.** `/workspace` stays reachable; it is not a second home. **Open public VYBZ** and **My VYBZ** live in the identity menu — not a competing Home vs My VYBZ pair. `/feed` redirects to `/`.
 - **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. **Desktop** adds one frosted PrimaryRail (Home, Messages, Live, Library — truthful routes only). **Mobile and tablet** collapse the rail into an accessible drawer; no permanently expanded rail on narrow screens. Library, Network, Live, and Workspace also stay reachable by URL and from owner controls. Frozen `MobileNav` and `SuiteAppRail` stay unmounted.
-- **One Stage File, two perspectives.** Owner sees Library, Workspace, Go live, Edit, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity.
+- **One Stage File, two perspectives.** Owner sees Library, Go live, Edit, Arrange, Hide, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity. Workspace is not an owner door.
+- **Chat is Chat. Alerts is Alerts.** Message events badge the Chat control. Alerts never lists messages. No second Alerts icon on the rail or the dock.
 - **Works go through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash the Stage File. 3D and games are later.
 - **Library places work on your VYBZ.** Select a file you already have. Place on your VYBZ. Choose Works or Featured. Done. No second upload. No second catalog. New files stay private until placed. Library can be viewed as grid, list, table, or shelves, and that arrangement is remembered.
 - **The owner can Arrange existing Stage File modules.** Order is remembered on the profile. Empty modules omit. Identity chrome stays fixed. No theme engine. No custom CSS or JS.
@@ -215,7 +217,7 @@ The first convincing Living Profile release proves five things:
 **D.** People can socially interact with me and my work.  
 **E.** The interface stays extremely quiet until I ask it to do something.
 
-A signed-in person lands on the people-first home at `/`. My VYBZ (owner Stage File) is at `/u/:id`. Workspace at `/workspace` is still in the tree. Default chrome is quiet. Owner and visitor share one Stage File. Owner sees controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ.
+A signed-in person lands on the people-first home at `/`. My VYBZ (owner Stage File) is at `/u/:id`. That Stage File is the owner dashboard. Workspace at `/workspace` is still in the tree. Default chrome is quiet: one Chat, one Alerts. Owner and visitor share one Stage File. Owner sees controls. Visitor sees experience. **View as Visitor** lets the owner check the public VYBZ.
 
 A person may register creative files from a device they control, see them in Library without giving up the originals, organize a Work, choose what becomes public on their VYBZ, and can VYB or Follow another person.
 

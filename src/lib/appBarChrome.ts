@@ -26,7 +26,7 @@ export function chromeForPath(pathname: string): ChromeDef {
     return { title: "Repo", showBack: true, backTo: "/" };
   }
   if (pathname.startsWith("/projects")) return { title: "Studio", showBack: true, backTo: "/" };
-  if (pathname.startsWith("/social")) return { title: "Social", showBack: true, backTo: "/workspace?tab=live" };
+  if (pathname.startsWith("/social")) return { title: "Social", showBack: true, backTo: "/live" };
   if (pathname.startsWith("/live/") && pathname !== "/live") {
     return { title: "Live", showBack: true, backTo: "/live" };
   }

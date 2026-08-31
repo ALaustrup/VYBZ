@@ -142,6 +142,10 @@ export const LIVING_PROFILE = {
   ownerStageFileAtPublicRoute: true,
   /** Top bar stays quiet: VYBZ · Search · + · Chat · Alerts · Me. No kingdom labels there. */
   defaultChromeIsQuiet: true,
+  /** Alerts appears once in default chrome. Not on the rail. Not on the dock. */
+  oneAlertsChrome: true,
+  /** Owner dashboard is the Stage File. Workspace stays archived, not a second home. */
+  dashboardIsOwnerStageFile: true,
   /** Desktop mounts one adapted PrimaryRail — not a parallel navigation system. */
   desktopPrimaryRail: true,
   /** Narrow viewports collapse the rail into an accessible drawer. */
@@ -385,6 +389,12 @@ export const CREATOR_NETWORK = {
   networkCentersOnCreativeWork: true,
 } as const;
 
+/** Chat (`message`) badges and lists stay on Chat — never Alerts or `/notifications`. */
+export const NOTIFICATION_ROUTING = {
+  chatKinds: ["message"] as const,
+  chatSeparateFromAlerts: true,
+} as const;
+
 /* ------------------------------------------------------------------------- */
 /* Airtime Credits (ATC) — live hosting commons                               */
 /* ------------------------------------------------------------------------- */
@@ -589,6 +599,7 @@ export const GATE_REGISTRY = [
   "validatePipeline",
   "assetNode",
   "creatorNetwork",
+  "notificationRouting",
   "creatorOsHarden",
 ] as const;
 

@@ -60,7 +60,7 @@ export const LEGACY_REDIRECTS: readonly { from: string; to: string }[] = [
   { from: "/projects/:id", to: "/studio/:id" },
   { from: "/tools/packs", to: "/market" },
   { from: "/wallet", to: "/wallet" },
-  { from: "/activity", to: "/workspace?tab=live" },
+  { from: "/activity", to: "/live" },
 ] as const;
 
 function matchPattern(pattern: string, pathname: string): boolean {
