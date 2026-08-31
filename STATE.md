@@ -3,24 +3,23 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `fix/chat-alerts-separation` (local, uncommitted)
-**HEAD (main):** `1a0d4097` — merge PR #214
-**Production:** https://vybz.cloud — Vercel **`BL7VfaoQGQiAQGxRDiQFHkhmUL3C`** READY at `1a0d4097`
+**Branch:** `feat/chrome-one-control-per-surface`
+**HEAD (main):** `96f38ef5` — merge PR #215
+**Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
 
-## Chat, alerts chrome, dashboard integration — 2026-08-31 (local, not merged)
+## Chrome uniqueness — 2026-08-31 (in progress)
 
-**Branch:** `fix/chat-alerts-separation`
+Dock social strip is thumbs-only (`lg:hidden`). Desktop rail already has Home / Live / Messages. Home no longer repeats Live / Chat / Rooms as text links. People stays as one icon to `/connect`.
 
-Product law already said this. The chrome was still shipping two Alerts bells and a second dashboard.
+## PR #215 — merged — one Alerts; dashboard is Stage File — 2026-08-31
 
-- **Chat** owns `kind = message`. Alerts does not.
-- **One Alerts control** — top chrome `AlertsMenu` only. Rail bell and VDock Alerts icon removed. Files for the old controls stay in the tree.
-- **Dashboard is the Stage File** (`/u/:id`). Workspace hub/listen/live/you fold into `/u/:id`, `/`, `/live`. `/workspace?tab=wallet` still renders the wallet. Owner chrome no longer has a Workspace door.
-- Gates: `notificationRouting`, `LIVING_PROFILE.oneAlertsChrome`, `LIVING_PROFILE.dashboardIsOwnerStageFile`
+**Merge:** `96f38ef5` — Chat owns messages; one Alerts in top chrome; owner dashboard is `/u/:id`.
 
-**Validate (local):** `npm run validate` pass (2026-08-27). Test file/count for this run: **Not measured** beyond exit 0.
+**Preview proof:** Vercel **`5Sj6WMjKKFQgtuvxDmo2LTN7mzUw`** READY (GitHub **Vercel** SUCCESS).
 
-Production walk: **Not measured**. Not on production.
+**Production deploy:** Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY on `vybz.cloud` at `96f38ef5`.
+
+Production walk: **Not measured**.
 
 ## PR #214 — merged — social rooms on home — 2026-08-27
 

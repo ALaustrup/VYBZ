@@ -49,8 +49,8 @@ function StripLink({
 }
 
 /**
- * Compact social shortcuts above the music player — one dock, not a second player.
- * Alerts stay on the top-chrome Alerts control, not here.
+ * Compact social shortcuts above the music player on narrow screens.
+ * Desktop uses PrimaryRail for the same destinations — do not duplicate them here.
  */
 export function VDockSocialStrip({ onCompose }: { onCompose?: () => void }) {
   const { pathname } = useLocation();
@@ -60,7 +60,7 @@ export function VDockSocialStrip({ onCompose }: { onCompose?: () => void }) {
 
   return (
     <div
-      className="relative z-10 flex items-center gap-0.5 border-b border-white/[0.06] px-2 py-1 sm:px-4"
+      className="relative z-10 flex items-center gap-0.5 border-b border-white/[0.06] px-2 py-1 lg:hidden sm:px-4"
       data-testid="vdock-social-strip"
       aria-label="Social shortcuts"
     >
