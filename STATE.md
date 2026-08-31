@@ -9,7 +9,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 
 ## Heard, identity, Node tool — 2026-08-31 (local)
 
-**Branch:** `feat/heard-and-node` (not merged)
+**Branch:** `feat/heard-and-node` @ `9471c477` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 
 Signed-in `/` stays the people-first social landing. Underground work is hearable via **Explore** (`listDiscovery` / `discovery_feed`) on Home. Taste matches mount as a Follow strip (`TastePeopleStrip`); archived `DashMatchPanel` stays in the tree. Search titles `/` as **Home**, not My VYBZ. The Asset Node is a Search and `+` tool at `/library?tab=device` — not a `/devices` rail kingdom. Bytes stay on device; cloud metadata is names and sizes; Swarm is not this catalog.
 
