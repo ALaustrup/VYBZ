@@ -5,7 +5,7 @@ The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.
 **Date:** 2026-08-31
 **Branch:** `feat/chrome-one-control-per-surface`
 **HEAD (main):** `96f38ef5` — merge PR #215
-**Production:** https://vybz.cloud — Vercel production for `96f38ef5` **Not measured** (deploy `4HaHkwpK8GpbHwJCNBnGTzqTkDow` was BUILDING at last check)
+**Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
 
 ## Chrome uniqueness — 2026-08-31 (in progress)
 
@@ -17,7 +17,7 @@ Dock social strip is thumbs-only (`lg:hidden`). Desktop rail already has Home / 
 
 **Preview proof:** Vercel **`5Sj6WMjKKFQgtuvxDmo2LTN7mzUw`** READY (GitHub **Vercel** SUCCESS).
 
-**Production deploy:** `4HaHkwpK8GpbHwJCNBnGTzqTkDow` — **Not measured** as READY at last check.
+**Production deploy:** Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY on `vybz.cloud` at `96f38ef5`.
 
 Production walk: **Not measured**.
 
