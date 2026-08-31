@@ -150,6 +150,10 @@ export const LIVING_PROFILE = {
   desktopPrimaryRail: true,
   /** Narrow viewports collapse the rail into an accessible drawer. */
   mobileNavDrawer: true,
+  /** Thumb dock strip on narrow screens only. Desktop rail already has those destinations. */
+  dockStripNarrowOnly: true,
+  /** A destination already in chrome is not repeated as a text link on the same page. */
+  oneControlPerJob: true,
   /** One Stage File. Owner controls vs visitor experience. View as Visitor is the check. */
   ownerVisitorDualMode: true,
   /** Stage File works go through a kind → renderer registry. Unknown kinds do not crash. */

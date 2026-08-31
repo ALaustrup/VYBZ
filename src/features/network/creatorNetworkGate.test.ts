@@ -40,9 +40,12 @@ describe("creator network", () => {
     expect(feed).toContain("WhosLivePanel");
     expect(feed).toContain("HubActivity");
     expect(feed).toContain("SocialRoomsPanel");
-    expect(feed).toContain('to="/messages"');
+    expect(feed).not.toContain('to="/messages"');
     expect(feed).toContain("network-following");
+    expect(feed).toContain("network-people");
     expect(feed).toContain("listFollowedCreatorIds");
+    expect(read("src/components/shell/ChatIndicator.tsx")).toContain('navigate("/messages")');
+    expect(read("src/components/vdock/VDockSocialStrip.tsx")).toContain('to="/messages"');
     expect(feed).toContain("listDropsFromAuthors");
     expect(read("src/lib/trackActions.ts")).toContain('"Vyb"');
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("FollowButton");

@@ -43,6 +43,8 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.dashboardIsOwnerStageFile).toBe(true);
     expect(LIVING_PROFILE.desktopPrimaryRail).toBe(true);
     expect(LIVING_PROFILE.mobileNavDrawer).toBe(true);
+    expect(LIVING_PROFILE.dockStripNarrowOnly).toBe(true);
+    expect(LIVING_PROFILE.oneControlPerJob).toBe(true);
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
     expect(LIVING_PROFILE.profileModuleRegistry).toBe(true);
     expect(LIVING_PROFILE.libraryToProfilePipeline).toBe(true);
@@ -74,6 +76,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("ARE YOU A CREATOR?");
     expect(product).toContain("Logged-in home is the people-first social landing");
     expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
+    expect(product).toContain("thumb dock strip");
     expect(product).toContain("Alerts appears once");
     expect(product).toContain("That Stage File is the owner dashboard");
     expect(product).toContain("Chat is Chat. Alerts is Alerts");

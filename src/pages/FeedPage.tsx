@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3, SlidersHorizontal } from "lucide-react";
+import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3, SlidersHorizontal, Users } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { FeedTrackRow } from "@/components/FeedTrackRow";
 import { FeedHero } from "@/components/FeedHero";
@@ -150,12 +150,14 @@ export function FeedPage({
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setMode("latest")} className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "latest" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Latest</button>
             <button type="button" onClick={() => setMode("following")} data-testid="network-following" className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "following" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Following</button>
-            <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/45">
-              <Link to="/live" className="hover:text-white/80">Live</Link>
-              <Link to="/connect" className="hover:text-white/80">People</Link>
-              {isHome ? <Link to="/social" className="hover:text-white/80">Rooms</Link> : null}
-              <Link to="/messages" className="hover:text-white/80">Messages</Link>
-            </div>
+            <Link
+              to="/connect"
+              aria-label="People"
+              data-testid="network-people"
+              className="forge-chip ml-auto flex h-9 w-9 active:scale-90"
+            >
+              <Users className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+            </Link>
           </div>
         </div>
         <div className="mx-auto mb-5 max-w-2xl px-0.5">
