@@ -86,7 +86,7 @@ The Network reuses VYB on works, Live discovery, direct messages, and activity. 
 
 **Explore on Home** lists public work to hear. It reuses `discovery_feed`. Follow a Stage File so it lands in Following. The Node tool opens Library This device (`/library?tab=device`) from Search and +. It is not a rail kingdom.
 
-Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. Alerts appears once, in that chrome — not on the rail, not on the dock. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
+Default chrome is **the menu**. Search, +, Chat, Alerts, and Me live in the drawer. Alerts appears once, in that drawer — not on the rail, not on the dock. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
 
 ## 5. Local-first originals
 
@@ -196,7 +196,7 @@ Permitted states — never "complete":
 ## 14. Interface Direction
 
 - **Logged-in home is the people-first social landing.** `/` shows connections, live cards, recent activity, and discovery. The owner's Stage File lives at `/u/:id` (same object as the public VYBZ, owner perspective). **That Stage File is the owner dashboard.** `/workspace` stays reachable; it is not a second home. **Open public VYBZ** and **My VYBZ** live in the identity menu — not a competing Home vs My VYBZ pair. `/feed` redirects to `/`.
-- **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. **Desktop** adds one frosted PrimaryRail (Home, Messages, Live, Library — truthful routes only). **Mobile and tablet** collapse the rail into an accessible drawer; no permanently expanded rail on narrow screens. Library, Network, Live, and Workspace also stay reachable by URL and from owner controls. Frozen `MobileNav` and `SuiteAppRail` stay unmounted.
+- **Default chrome** is the menu. Search, +, Chat, Alerts, and Me live in the drawer on every viewport. **PrimaryRail** stays in the tree, unmounted. The signed-in Home centers the VYBZ mark as a gentle audio-reactive neon pulse. Library, Network, Live, and Workspace also stay reachable by URL and from owner controls. Frozen `MobileNav` and `SuiteAppRail` stay unmounted.
 - **One Stage File, two perspectives.** Owner sees Library, Go live, Edit, Arrange, Hide, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity. Workspace is not an owner door.
 - **Chat is Chat. Alerts is Alerts.** Message events badge the Chat control. Alerts never lists messages. No second Alerts icon on the rail or the dock.
 - **Works go through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash the Stage File. 3D and games are later.

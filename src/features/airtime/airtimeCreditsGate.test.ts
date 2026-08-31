@@ -103,8 +103,8 @@ describe("airtime credits", () => {
   });
 
   it("shows a header meter that never invents a clock", () => {
-    const bar = read("src/components/shell/ContextualAppBar.tsx");
-    expect(bar).toContain("<AtcMeter");
+    const chrome = read("src/components/shell/DrawerChrome.tsx");
+    expect(chrome).toContain("<AtcMeter");
     const meter = read("src/features/airtime/AtcMeter.tsx");
     expect(meter).toContain("useAtcBalance");
     expect(meter).toContain("formatAtcClock");

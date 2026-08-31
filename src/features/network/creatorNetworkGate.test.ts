@@ -24,6 +24,7 @@ describe("creator network", () => {
     expect(CREATOR_NETWORK.activityReusesNotifications).toBe(true);
     expect(CREATOR_NETWORK.networkCentersOnCreativeWork).toBe(true);
     expect(CREATOR_NETWORK.exploreIsOnSocialHome).toBe(true);
+    expect(CREATOR_NETWORK.homeComposesExistingDiscovery).toBe(true);
     expect(ARTIST_STAGE_PROFILE.connectIsARequest).toBe(true);
     expect(ARTIST_STAGE_PROFILE.noVanityFollowerCounts).toBe(true);
   });
@@ -39,17 +40,19 @@ describe("creator network", () => {
   });
 
   it("composes existing Network primitives instead of a second social stack", () => {
+    const home = read("src/pages/SocialHomePage.tsx");
     const feed = read("src/pages/FeedPage.tsx");
-    expect(feed).toContain("WhosLivePanel");
+    expect(home).toContain("WhosLivePanel");
+    expect(home).toContain("SocialRoomsPanel");
+    expect(home).toContain("TastePeopleStrip");
+    expect(home).toContain("HomeLibraryPanel");
     expect(feed).toContain("HubActivity");
-    expect(feed).toContain("SocialRoomsPanel");
-    expect(feed).toContain('to="/messages"');
     expect(feed).toContain("network-following");
     expect(feed).toContain("listFollowedCreatorIds");
     expect(feed).toContain("listDropsFromAuthors");
     expect(feed).toContain("network-explore");
     expect(feed).toContain("listDiscovery");
-    expect(feed).toContain("TastePeopleStrip");
+    expect(read("src/components/shell/DrawerChrome.tsx")).toContain("ChatIndicator");
     expect(read("src/features/network/TastePeopleStrip.tsx")).toContain("FollowButton");
     expect(read("src/features/network/TastePeopleStrip.tsx")).not.toContain("api.connect");
     expect(read("src/features/network/TastePeopleStrip.tsx")).not.toContain("sharedPlays");

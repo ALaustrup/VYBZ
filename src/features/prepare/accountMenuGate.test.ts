@@ -21,10 +21,11 @@ describe("account menu", () => {
     expect(GATE_REGISTRY).toContain("accountMenu");
   });
 
-  it("is mounted in the app bar, not merely defined", () => {
-    const bar = read("src/components/shell/ContextualAppBar.tsx");
-    expect(bar).toContain("<AccountMenu />");
-    expect(bar).toContain("@/components/shell/AccountMenu");
+  it("is mounted in the drawer, not merely defined", () => {
+    const chrome = read("src/components/shell/DrawerChrome.tsx");
+    expect(chrome).toContain("<AccountMenu />");
+    expect(chrome).toContain("@/components/shell/AccountMenu");
+    expect(read("src/components/shell/ContextualAppBar.tsx")).not.toContain("<AccountMenu />");
   });
 
   it("offers a sign out that actually signs out", () => {

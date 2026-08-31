@@ -64,6 +64,10 @@ Signed-in `/` is the people-first social landing (live, people, activity, discov
 
 Message notifications (`kind = message`) badge **Chat** only. Alerts appears once in default chrome — not on the rail, not on the dock. Owner dashboard is the Stage File at `/u/:id`. `/workspace` stays reachable; it is not a second home. Owner chrome does not open Workspace.
 
+## Phase 2E — Menu-only chrome, discovery home (2026-08-31)
+
+Default chrome is the menu. Search, +, Chat, Alerts, and Me live in the drawer on every viewport. `PrimaryRail` and `VDockSocialStrip` stay in the tree, unmounted. Signed-in Home centers the VYBZ mark as a gentle audio-reactive neon pulse and composes existing discovery panels (live, rooms, library, taste, hear).
+
 ## Phase 7 — Hide existing sections (2026-08-25)
 
 The owner can **Hide** a section that already exists on the Stage File. Public and visitor-preview omit it even when it has content. Arrange still lists it with **Show**. Stored on the same profile jsonb as `stageHiddenModules`. Identity banner, sticky chrome, and Book a session stay fixed. No rename, no invent, no theme engine, no CSS/JS injection.

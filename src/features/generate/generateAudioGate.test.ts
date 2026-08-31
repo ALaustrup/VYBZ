@@ -48,10 +48,10 @@ describe("generate audio", () => {
   });
 
   it("keeps + as Add, with Generate as a menu action", () => {
-    const bar = read("src/components/shell/ContextualAppBar.tsx");
-    expect(bar).toContain('aria-label="Add"');
-    expect(bar).toContain("onGenerate");
-    expect(bar).toContain("add-generate");
+    const chrome = read("src/components/shell/DrawerChrome.tsx");
+    expect(chrome).toContain('aria-label="Add"');
+    expect(chrome).toContain("onGenerate");
+    expect(chrome).toContain("add-generate");
     expect(read("src/shell/commands.ts")).toContain("create:generate");
   });
 

@@ -147,6 +147,18 @@
   opacity: 0.85;
 }
 
+.app-bar.app-bar--ops.app-bar--quiet {
+  background: transparent;
+  border-bottom-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.app-bar.app-bar--ops.app-bar--quiet::after {
+  display: none;
+}
+
 /* ── Stage frame ──────────────────────────────────────────────────────────── */
 .suite-stage.suite-stage-frame {
   background:

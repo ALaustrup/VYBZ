@@ -92,8 +92,8 @@ describe("local asset node", () => {
     expect(read("src/app/routeTruth.ts")).toContain('title: "This device"');
     expect(read("src/app/routeTruth.ts")).toContain("/library?tab=device");
     expect(read("src/shell/commands.ts")).toContain("Index this device");
-    expect(read("src/components/shell/ContextualAppBar.tsx")).toContain("add-node");
-    expect(read("src/components/shell/ContextualAppBar.tsx")).toContain("/library?tab=device");
+    expect(read("src/components/shell/DrawerChrome.tsx")).toContain("add-node");
+    expect(read("src/components/shell/DrawerChrome.tsx")).toContain("/library?tab=device");
     expect(read("supabase/migrations/20260709_0001_vybz_v1.sql")).toContain("url text not null");
   });
 });

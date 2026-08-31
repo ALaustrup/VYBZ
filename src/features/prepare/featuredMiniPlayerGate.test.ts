@@ -32,14 +32,12 @@ describe("pre-login featured mini-player", () => {
     expect(edge).toContain("GUEST_FEATURED_PATHS");
   });
 
-  // The owner asked for the brand to stop reacting to audio (2026-08-11). The
-  // capability stays in the tree behind an opt-in prop; nothing turns it on.
+  // Default stays still. Home hero is the one opt-in (gentle neon pulse).
   it("keeps the VYBZ mark and wordmark still by default", () => {
     const brand = read("src/components/Brand.tsx");
     const word = read("src/components/shell/AppBarWordmark.tsx");
     expect(brand).toMatch(/reactive\s*=\s*false/);
     expect(word).toMatch(/reactive\s*=\s*false/);
-    // No brand element may pass the opt-in prop.
     const optIn = /<(?:BrandMark|BrandLockup|AppBarWordmark)[^>]*\breactive\b/;
     for (const rel of [
       "src/components/AuthShell.tsx",
@@ -51,5 +49,6 @@ describe("pre-login featured mini-player", () => {
     ]) {
       expect(read(rel)).not.toMatch(optIn);
     }
+    expect(read("src/pages/SocialHomePage.tsx")).toMatch(optIn);
   });
 });

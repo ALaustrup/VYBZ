@@ -67,14 +67,16 @@ describe("OR-032 song workspace working set", () => {
     expect(chrome).not.toMatch(/\/tools\/metadata[\s\S]{0,80}showBack:\s*true/);
   });
 
-  it("centers a container-free reactive brand mark and reactive wordmark", () => {
+  it("centers a container-free reactive brand mark on Home, not in the bar", () => {
     const bar = read("src/components/shell/ContextualAppBar.tsx");
+    const home = read("src/pages/SocialHomePage.tsx");
     const word = read("src/components/shell/AppBarWordmark.tsx");
-    expect(bar).toContain("suite-app-bar-mark");
-    expect(bar).toContain("bg-transparent");
-    expect(bar).toContain("<BrandMark");
-    expect(bar).toContain("reactive");
-    expect(bar).toContain("<AppBarWordmark");
+    expect(bar).not.toContain("suite-app-bar-mark");
+    expect(bar).not.toContain("<BrandMark");
+    expect(bar).not.toContain("<AppBarWordmark");
+    expect(home).toContain("<BrandMark");
+    expect(home).toContain("reactive");
+    expect(home).toContain("orb");
     expect(word).toContain("readBands");
     expect(word).toContain("reactive");
   });

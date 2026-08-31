@@ -140,16 +140,20 @@ export const LIVING_PROFILE = {
   loggedInHomeIsSocialLanding: true,
   /** Owner Stage File is `/u/:id` — same object, owner perspective. */
   ownerStageFileAtPublicRoute: true,
-  /** Top bar stays quiet: VYBZ · Search · + · Chat · Alerts · Me. No kingdom labels there. */
+  /** Top bar is the menu. Search, +, Chat, Alerts, Me live in the drawer. */
   defaultChromeIsQuiet: true,
-  /** Alerts appears once in default chrome. Not on the rail. Not on the dock. */
+  /** Alerts appears once in the drawer. Not on the rail. Not on the dock. */
   oneAlertsChrome: true,
   /** Owner dashboard is the Stage File. Workspace stays archived, not a second home. */
   dashboardIsOwnerStageFile: true,
-  /** Desktop mounts one adapted PrimaryRail — not a parallel navigation system. */
-  desktopPrimaryRail: true,
-  /** Narrow viewports collapse the rail into an accessible drawer. */
+  /** PrimaryRail stays in the tree. Drawer is chrome on every viewport. */
+  desktopPrimaryRail: false,
+  /** Drawer is the nav and the chrome on every viewport, including desktop. */
   mobileNavDrawer: true,
+  /** Header has the menu. Identity mark lives on Home, not in the bar. */
+  chromeIsMenuOnly: true,
+  /** Search, +, Chat, Alerts, Me, Tools, and wallet mount in the drawer. */
+  chromeControlsLiveInDrawer: true,
   /** One Stage File. Owner controls vs visitor experience. View as Visitor is the check. */
   ownerVisitorDualMode: true,
   /** Stage File works go through a kind → renderer registry. Unknown kinds do not crash. */
@@ -389,6 +393,8 @@ export const CREATOR_NETWORK = {
   networkCentersOnCreativeWork: true,
   /** Explore chip on signed-in Home reuses listDiscovery / discovery_feed. */
   exploreIsOnSocialHome: true,
+  /** Home discovery composes live, rooms, library, taste, and hear — not a second stack. */
+  homeComposesExistingDiscovery: true,
 } as const;
 
 /** Chat (`message`) badges and lists stay on Chat — never Alerts or `/notifications`. */
