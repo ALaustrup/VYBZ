@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `0a074f0c` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `7695fa90` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema visual Space + video on the stage — 2026-09-01
+
+**Commit:** `7695fa90` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Full-screen visual: Space is a tap (`cinemaVisualSpaceIsTap`, `library-visual-tap`). Video uses the stage, not native controls (no `autoPlay`, no `controls`). Opening visual still starts playback. Overlay still recedes. Sound still starts on tap. Cinema arrows still do not start sound.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 28 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; maximize opens `library-visual-stage` (audio playing); Space on the stage Pause → Play → Pause; Escape closes; gallery Space still taps play (Play → Pause); phone 390×844 visual Space Pause → Play → Pause, Escape. Video on the stage: **Not measured** (catalog is one audio work). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema keys — 2026-09-01
 
