@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `d0dcf565` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `bcd0aea9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema ending does not start the next work — 2026-09-01
+
+**Commit:** `bcd0aea9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Ending a work does not start the next work (`cinemaEndedAdvancesWork`, `cinemaPlaybackList`). Cinema and visual play this work only. Arrows and taps still move. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 31 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; tap-to-play; end stays Play on the same work (dock Next disabled); visual `0:00 / 0:07` → `0:07 / 0:07` Play, `1 / 1` still open; phone 390×844 end stays Play on the same heading. Neighbor advance with two audio works: **Not measured** (catalog is one audio work). Video ended: **Not measured**. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## DSP test timeouts under suite load — 2026-09-01
 
