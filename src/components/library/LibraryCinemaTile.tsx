@@ -306,6 +306,7 @@ export function LibraryCinemaTile({
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (playable && !playing) toggleMedia();
                   onVisual();
                 }}
                 aria-label="Full screen visual"

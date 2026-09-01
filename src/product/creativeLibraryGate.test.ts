@@ -81,6 +81,11 @@ describe("creative library", () => {
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaKeyboardIsGalleryNav");
     expect(read("src/components/library/useCinemaKeyboard.ts")).toContain("library-cinema-tap");
     expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("library-cinema-tap");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaVisualSpaceIsTap");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("cinemaVisualSpaceIsTap");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("library-visual-tap");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).not.toContain("autoPlay");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).not.toMatch(/^\s*controls$/m);
     expect(read("src/features/library/libraryArrangement.ts")).toContain('view: "cinema"');
     expect(read("src/components/UploadsLibrary.tsx")).toContain("min-w-0 flex-1");
     expect(read("src/components/library/LibraryToolbar.tsx")).toContain('work" : "works"');

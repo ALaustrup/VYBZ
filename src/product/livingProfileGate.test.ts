@@ -99,6 +99,8 @@ describe("living profile constitution", () => {
     expect(product).toContain("Arrows move between works");
     expect(product).toContain("Space is a tap");
     expect(product).toContain("Arrows do not start sound");
+    expect(product).toContain("Full-screen visual: Space is a tap");
+    expect(product).toContain("Video uses the stage, not native controls");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");

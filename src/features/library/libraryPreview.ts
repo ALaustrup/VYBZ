@@ -83,6 +83,11 @@ export function cinemaKeyboardIsGalleryNav(input: {
   return input.cinema && !input.targetIsControl && !input.visualOpen && !input.filtersOpen;
 }
 
+/** Full-screen visual: Space is a tap. Native video controls stay off the stage. */
+export function cinemaVisualSpaceIsTap(input: { visualOpen: boolean; targetIsControl: boolean }): boolean {
+  return input.visualOpen && !input.targetIsControl;
+}
+
 export function cinemaKeyboardTargetIsControl(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;

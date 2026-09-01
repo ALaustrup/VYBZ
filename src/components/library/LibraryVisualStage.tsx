@@ -1,11 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, FileText, Pause, Play, X } from "lucide-react";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { Waveform } from "@/components/Waveform";
-import { getSnapshot, pause, playTrack, seekFraction, usePlayer } from "@/lib/audioBus";
+import { getPlaybackProgress, getSnapshot, pause, play, playTrack, seek, seekFraction, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
+import {
+  cinemaKeyboardTargetIsControl,
+  cinemaPlayRestartsFromStart,
+  cinemaProgressFraction,
+  cinemaVisualSpaceIsTap,
+} from "@/features/library/libraryPreview";
 import { paletteFor } from "@/lib/utils";
 import * as api from "@/lib/api";
 import type { Drop } from "@/types";
@@ -29,12 +35,15 @@ export function LibraryVisualStage({
   onPlace?: (drop: Drop) => void;
 }) {
   const player = usePlayer();
+  const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const drop = drops[index];
   const kind = drop ? classifyDrop(drop) : "file";
   const playable = drop ? isPlayableAudioWork(drop) : false;
+  const videoWork = kind === "video" && !!drop?.audioUrl;
   const isCurrent = !!drop && player.track?.id === drop.id;
-  const playing = isCurrent && player.playing;
+  const playing = videoWork ? videoPlaying : isCurrent && player.playing;
   const accent = drop ? paletteFor(drop.seed)[0] : "#00c2ff";
   const dur = (isCurrent ? player.duration : 0) || drop?.durationSec || 0;
   const progress = isCurrent && dur > 0 ? player.currentTime / dur : 0;
@@ -49,21 +58,39 @@ export function LibraryVisualStage({
   }, []);
 
   useEffect(() => {
+    stageRef.current?.focus();
+  }, [drop?.id]);
+
+  useEffect(() => {
     if (!drop) return;
     if (kind === "video") {
       pause();
+      const v = videoRef.current;
+      if (v) {
+        v.playsInline = true;
+        void v.play().catch(() => {});
+      }
       return;
     }
     if (playable) {
       const snap = getSnapshot();
-      if (snap.track?.id !== drop.id) {
+      const clock = getPlaybackProgress();
+      const fraction = cinemaProgressFraction({
+        currentTime: clock.currentTime,
+        duration: clock.duration || drop.durationSec || 0,
+      });
+      const current = snap.track?.id === drop.id;
+      if (cinemaPlayRestartsFromStart({ isCurrent: current, playing: current && snap.playing, fraction })) {
+        seek(0);
+      }
+      if (!current) {
         void api.recordPlay(drop.id);
         playTrack(
           toPlayerTrack(drop),
           drops.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
         );
       } else if (!snap.playing) {
-        playTrack(toPlayerTrack(drop));
+        void play();
       }
       return;
     }
@@ -73,35 +100,81 @@ export function LibraryVisualStage({
   }, [drop?.id, kind, playable]);
 
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowRight" && index < drops.length - 1) {
-        e.preventDefault();
-        onIndex(index + 1);
-      }
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        if (index > 0) onIndex(index - 1);
-      }
+    const v = videoRef.current;
+    if (!v || kind !== "video") {
+      setVideoPlaying(false);
+      return;
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [index, drops.length, onClose, onIndex]);
+    const sync = () => setVideoPlaying(!v.paused);
+    sync();
+    v.addEventListener("play", sync);
+    v.addEventListener("pause", sync);
+    return () => {
+      v.removeEventListener("play", sync);
+      v.removeEventListener("pause", sync);
+    };
+  }, [drop?.id, kind]);
 
-  function toggleAudio() {
+  const toggleMedia = useCallback(() => {
+    if (videoWork) {
+      const v = videoRef.current;
+      if (!v) return;
+      if (v.paused) void v.play().catch(() => {});
+      else v.pause();
+      return;
+    }
     if (!drop || !playable) return;
+    const clock = getPlaybackProgress();
+    const fraction = cinemaProgressFraction({
+      currentTime: clock.currentTime,
+      duration: clock.duration || drop.durationSec || 0,
+    });
+    if (cinemaPlayRestartsFromStart({ isCurrent, playing: isCurrent && player.playing, fraction })) seek(0);
     playTrack(
       toPlayerTrack(drop),
       drops.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
     );
-  }
+  }, [videoWork, drop, playable, isCurrent, player.playing, drops]);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key === "ArrowRight" && index < drops.length - 1) {
+        e.preventDefault();
+        onIndex(index + 1);
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (index > 0) onIndex(index - 1);
+        return;
+      }
+        if (
+        (e.key === " " || e.key === "Spacebar" || e.code === "Space") &&
+        cinemaVisualSpaceIsTap({
+          visualOpen: true,
+          targetIsControl: cinemaKeyboardTargetIsControl(e.target),
+        })
+      ) {
+        e.preventDefault();
+        toggleMedia();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [index, drops.length, onClose, onIndex, toggleMedia]);
 
   if (!drop) return null;
 
   return (
     <OverlayPortal>
       <div
-        className="fixed inset-0 z-[94] flex flex-col bg-black"
+        ref={stageRef}
+        tabIndex={-1}
+        className="fixed inset-0 z-[94] flex flex-col bg-black outline-none"
         data-testid="library-visual-stage"
         data-dark-stage
         role="dialog"
@@ -125,8 +198,6 @@ export function LibraryVisualStage({
             src={drop.audioUrl}
             className="absolute inset-0 h-full w-full object-contain"
             playsInline
-            controls
-            autoPlay
           />
         ) : kind === "image" && drop.audioUrl ? (
           <img src={drop.audioUrl} alt="" className="absolute inset-0 h-full w-full object-contain" />
@@ -200,11 +271,12 @@ export function LibraryVisualStage({
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
-            {playable ? (
+            {playable || videoWork ? (
               <button
                 type="button"
-                onClick={toggleAudio}
+                onClick={toggleMedia}
                 aria-label={playing ? "Pause" : "Play"}
+                data-testid="library-visual-tap"
                 className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-black"
               >
                 {playing ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}

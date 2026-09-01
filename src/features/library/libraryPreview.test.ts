@@ -11,6 +11,7 @@ import {
   cinemaArrowStartsAudio,
   cinemaKeyboardIsGalleryNav,
   cinemaKeyboardTargetIsControl,
+  cinemaVisualSpaceIsTap,
 } from "./libraryPreview";
 
 describe("library cinema preview", () => {
@@ -98,6 +99,12 @@ describe("library cinema preview", () => {
     expect(cinemaKeyboardIsGalleryNav({ ...base, targetIsControl: true })).toBe(false);
     expect(cinemaKeyboardIsGalleryNav({ ...base, visualOpen: true })).toBe(false);
     expect(cinemaKeyboardIsGalleryNav({ ...base, filtersOpen: true })).toBe(false);
+  });
+
+  it("lets Space tap the full-screen visual, not when a control is held", () => {
+    expect(cinemaVisualSpaceIsTap({ visualOpen: true, targetIsControl: false })).toBe(true);
+    expect(cinemaVisualSpaceIsTap({ visualOpen: false, targetIsControl: false })).toBe(false);
+    expect(cinemaVisualSpaceIsTap({ visualOpen: true, targetIsControl: true })).toBe(false);
   });
 
   it("treats fields and chrome as cinema key controls, not the gallery surface", () => {
