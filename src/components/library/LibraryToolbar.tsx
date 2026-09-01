@@ -156,7 +156,10 @@ export function LibraryToolbar({
           onChange={(e) => onSort(e.target.value as LibrarySort)}
           aria-label="Sort library"
           data-testid="library-sort"
-          className="h-8 max-w-[7.5rem] shrink-0 rounded-full border-0 bg-white/[0.04] px-2 text-[11px] text-white/80 focus:outline-none"
+          className={cx(
+            "h-8 shrink-0 rounded-full border-0 bg-white/[0.04] px-2 text-[11px] text-white/80 focus:outline-none",
+            cinema ? "max-w-[5.5rem] sm:max-w-[7.5rem]" : "max-w-[7.5rem]",
+          )}
         >
           {(Object.keys(SORT_LABEL) as LibrarySort[]).map((s) => (
             <option key={s} value={s}>
@@ -182,7 +185,7 @@ export function LibraryToolbar({
           className={cx("font-mono text-[11px] text-white/30", cinema ? "hidden sm:inline" : "ml-auto")}
           data-testid="library-count"
         >
-          {matched === total ? `${total} ${total === 1 ? "track" : "tracks"}` : `${matched} of ${total}`}
+          {matched === total ? `${total} ${total === 1 ? "work" : "works"}` : `${matched} of ${total}`}
         </span>
 
         {!filtersOpen ? (

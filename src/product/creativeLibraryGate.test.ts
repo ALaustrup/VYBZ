@@ -72,8 +72,7 @@ describe("creative library", () => {
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaScrollStartsAudio");
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaChromeShouldHide");
     expect(read("src/features/library/libraryArrangement.ts")).toContain('view: "cinema"');
-    expect(read("src/components/UploadsLibrary.tsx")).toContain(
-      "flex items-center gap-2 overflow-x-auto",
-    );
+    expect(read("src/components/UploadsLibrary.tsx")).toContain("min-w-0 flex-1");
+    expect(read("src/components/library/LibraryToolbar.tsx")).toContain('work" : "works"');
   });
 });

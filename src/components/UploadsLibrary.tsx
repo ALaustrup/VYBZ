@@ -65,7 +65,7 @@ function KindChips({
 }) {
   return (
     <div
-      className={cx("no-scrollbar flex gap-1 overflow-x-auto", compact && "shrink-0")}
+      className={cx("no-scrollbar flex gap-1 overflow-x-auto", compact && "min-w-0 flex-1")}
       data-testid="library-kind-chips"
       role="tablist"
       aria-label="Work kind"
@@ -261,7 +261,7 @@ export function UploadsLibrary({
         onBlur={(e) => chrome.onToolsBlur(e.relatedTarget, e.currentTarget)}
       >
         {cinema ? (
-          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto">
+          <div className="flex items-center gap-2">
             <KindChips
               compact
               value={filters.workKind}

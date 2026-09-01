@@ -5,7 +5,7 @@ const FIXTURE = "/__e2e__/library";
 test.describe("Media library — search, filter, sort", () => {
   test("search narrows the list and reports how many matched", async ({ page }) => {
     await page.goto(FIXTURE);
-    await expect(page.getByTestId("library-count")).toHaveText("4 tracks");
+    await expect(page.getByTestId("library-count")).toHaveText("4 works");
 
     await page.getByTestId("library-search").fill("neon");
     await expect(page.getByTestId("library-count")).toHaveText("1 of 4");
@@ -37,7 +37,7 @@ test.describe("Media library — search, filter, sort", () => {
     await expect(page.getByTestId("library-count")).toHaveText("1 of 4");
 
     await page.getByTestId("library-filters-clear").click();
-    await expect(page.getByTestId("library-count")).toHaveText("4 tracks");
+    await expect(page.getByTestId("library-count")).toHaveText("4 works");
   });
 
   test("filter count badge reflects how many filters are narrowing", async ({ page }) => {
@@ -74,14 +74,14 @@ test.describe("Media library — search, filter, sort", () => {
     await expect(page.getByTestId("library-group")).toHaveValue("album");
     await expect(page.getByRole("heading", { name: /Night Drive/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /Singles/i })).toBeVisible();
-    await expect(page.getByTestId("library-count")).toHaveText("4 tracks");
+    await expect(page.getByTestId("library-count")).toHaveText("4 works");
   });
 
   test("view switching keeps the same result count", async ({ page }) => {
     await page.goto(FIXTURE);
     for (const view of ["list", "table", "grid"]) {
       await page.getByTestId(`library-view-${view}`).click();
-      await expect(page.getByTestId("library-count")).toHaveText("4 tracks");
+      await expect(page.getByTestId("library-count")).toHaveText("4 works");
     }
   });
 });
@@ -142,7 +142,7 @@ test.describe("Media library — multi-select and batch", () => {
     await page.getByTestId("batch-delete-cancel").click();
     await expect(confirm).toHaveCount(0);
     // Nothing was removed.
-    await expect(page.getByTestId("library-count")).toHaveText("4 tracks");
+    await expect(page.getByTestId("library-count")).toHaveText("4 works");
   });
 
   test("selection survives changing the sort order", async ({ page }) => {
