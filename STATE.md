@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `47020c8a` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `8d844afb` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema progress fills and seeks — 2026-09-01
+
+**Commit:** `8d844afb` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema progress fills from a known duration (`cinemaProgressFraction`) instead of sitting empty. Tap or drag the bar to move in the work (`seekFraction`). Tap play on an ended work starts from the start. Overlay still recedes. Sound still starts on tap. Empty cinema stays the gallery.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 23 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; tap-to-play; bar filled `0.015 → 0.095` then seek to `0.36`; center click sought to `0.5` without toggling Play; ended tap restarted from `scaleX 1 → 0`; phone 390×844 Pause + progress, seek `0.50 → 0.70`. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema empty stays the gallery — 2026-09-01
 
