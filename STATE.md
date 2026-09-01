@@ -3,13 +3,13 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `feat/heard-and-node` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `0cd14072` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
 
 ## Library cinema gallery — 2026-08-31
 
-**Commit:** (this unit) — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Commit:** `0cd14072` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 
 Library is a **media gallery**, not a forge desk. Cinema is the default view (grid, list, table, and shelves stay). Snap-scroll tiles; video may muted-preview in view; **sound starts on tap**. Full-screen visual uses existing DropStage / TrackVisualizer via OverlayPortal. `LIVING_PROFILE.libraryIsMediaGallery` locked. ToolWorkbench + `library-desk` stay.
 
