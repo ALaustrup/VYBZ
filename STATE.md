@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `a7414a20` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `47020c8a` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema empty stays the gallery — 2026-09-01
+
+**Commit:** `47020c8a` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema empty match stays a cinema tile (`library-cinema-empty`) so the gallery frame does not collapse. Show all restores the catalog (`library-cinema-clear`). Playing (or paused) work shows display-only progress on the tile (`library-cinema-progress`); RAF + `getPlaybackProgress()`, no seek. Overlay still recedes. Sound still starts on tap. Grid / list / table / shelves still use desk EmptyState.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 20 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; Image chip empty match keeps `.library-cinema` (tile 542px desktop / 696px at 390×844); Show all restores the work; tap-to-play shows Pause and `library-cinema-progress`; overlay `data-cinema-chrome=hidden` with reveal; list Image empty is desk EmptyState (no `library-cinema-empty`). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema tools stay put — 2026-09-01
 
