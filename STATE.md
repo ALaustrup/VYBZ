@@ -3,9 +3,19 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `d03cf3f9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `d0dcf565` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## DSP test timeouts under suite load — 2026-09-01
+
+**Commit:** `d0dcf565` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Combined `npm run test` was aborting real 48 kHz / 3 s PCM correction work at Vitest’s 5 s default. Isolation already passed. Describe-level `{ timeout: 45_000 }` on the M6/M7 gates and the apply/preview files that do that work. Default `testTimeout` in `vitest.config.ts` is still 5 s. DSP algorithms unchanged.
+
+**Validate (local):** `npm run test` — **207 files / 1060 tests**, 217.72 s. Lint / typecheck / production build this unit: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema video progress on the tile — 2026-09-01
 
