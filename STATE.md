@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `4f921b76` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `d03cf3f9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema video progress on the tile — 2026-09-01
+
+**Commit:** `d03cf3f9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Playing video shows progress on the tile (`cinemaVideoProgressShouldShow`). The bar reads the video clock, not AudioBus. Muted preview is not the playing work. Tap or drag still seeks. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 30 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema audio still fills `0.026 → 0.120` then seeks to `0.50`; Pause; Video chip empty stays cinema; phone 390×844 `Show all` then progress `0.021 → 0.088`. Playing video on the tile: **Not measured** (catalog is one audio work). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema visual clock fills live — 2026-09-01
 
