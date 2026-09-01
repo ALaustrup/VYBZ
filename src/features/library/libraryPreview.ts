@@ -26,6 +26,22 @@ export function cinemaScrollStartsAudio(): false {
   return false;
 }
 
+/**
+ * Cinema overlay recedes while you watch or scroll.
+ * Filters, reduced motion, and a held search keep it.
+ */
+export function cinemaChromeShouldHide(input: {
+  cinema: boolean;
+  filtersOpen: boolean;
+  reduceFx: boolean;
+  hold: boolean;
+  scrolled: boolean;
+  playingSettled: boolean;
+}): boolean {
+  if (!input.cinema || input.filtersOpen || input.reduceFx || input.hold) return false;
+  return input.scrolled || input.playingSettled;
+}
+
 export function libraryStillUrl(drop: Drop): string | null {
   const kind = classifyDrop(drop);
   if (kind === "image" && drop.audioUrl) return drop.audioUrl;

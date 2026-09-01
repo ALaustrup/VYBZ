@@ -58,7 +58,7 @@ Library intake is Creative Work, not a song catalog. Compose accepts audio, imag
 
 ## Phase 5c — Library gallery (2026-08-31)
 
-Library is a media gallery. Cinema is the default view (grid, list, table, and shelves remain). Full-screen visual uses the existing DropStage / TrackVisualizer. Sound starts on tap. Video may muted-preview while in view. Arrangement is remembered.
+Library is a media gallery. Cinema is the default view (grid, list, table, and shelves remain). Full-screen visual uses the existing DropStage / TrackVisualizer. Sound starts on tap. Video may muted-preview while in view. Cinema overlay recedes while you watch or scroll. Arrangement is remembered.
 
 ## Phase 6 — Modular arrangement (2026-08-22)
 

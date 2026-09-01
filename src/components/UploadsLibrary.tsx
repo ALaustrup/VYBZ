@@ -8,6 +8,7 @@ import { LibraryRow } from "@/components/library/LibraryRow";
 import { LibraryShelfTile } from "@/components/library/LibraryShelfTile";
 import { LibraryCinemaTile } from "@/components/library/LibraryCinemaTile";
 import { LibraryVisualStage } from "@/components/library/LibraryVisualStage";
+import { useCinemaChrome } from "@/components/library/useCinemaChrome";
 import { PlaceOnVybzSheet } from "@/features/profile/PlaceOnVybzSheet";
 import {
   isComposed,
@@ -31,6 +32,7 @@ import {
 import { useSelection } from "@/lib/useSelection";
 import { useVirtualRows } from "@/lib/useVirtualRows";
 import { usePlayer } from "@/lib/audioBus";
+import { useReduceFx } from "@/lib/display";
 import { useSession } from "@/store/session";
 import { cx } from "@/lib/utils";
 import type { Drop } from "@/types";
@@ -103,6 +105,16 @@ export function UploadsLibrary({
   const snapshotDropIds = useMemo(() => drops.map((d) => d.id), [drops]);
   const selection = useSelection(useMemo(() => matched.map((d) => d.id), [matched]));
   const visualIndex = visualId ? matched.findIndex((d) => d.id === visualId) : -1;
+  const cinema = view === "cinema";
+  const reduceFx = useReduceFx();
+  const watching = cinema && player.playing && matched.some((d) => d.id === player.track?.id);
+  const chrome = useCinemaChrome({
+    cinema,
+    filtersOpen,
+    playing: watching,
+    reduceFx,
+    scrollRef,
+  });
 
   function applyChange(change: LibraryChange) {
     if (change.kind === "deleted") {
@@ -170,11 +182,26 @@ export function UploadsLibrary({
     );
   }
 
-  const cinema = view === "cinema";
-
   return (
-    <div className={cx("library-uploads flex min-h-0 flex-1 flex-col", cinema ? "relative gap-0" : "gap-2.5")}>
-      <div data-library-tools className={cinema ? "library-tools-overlay" : undefined}>
+    <div
+      className={cx("library-uploads flex min-h-0 flex-1 flex-col", cinema ? "relative gap-0" : "gap-2.5")}
+      data-cinema-chrome={cinema && chrome.hidden ? "hidden" : "shown"}
+    >
+      {cinema && chrome.hidden ? (
+        <button
+          type="button"
+          aria-label="Show library controls"
+          data-testid="library-chrome-reveal"
+          className="absolute inset-x-0 top-0 z-40 h-14"
+          onClick={chrome.reveal}
+        />
+      ) : null}
+      <div
+        data-library-tools
+        className={cinema ? "library-tools-overlay" : undefined}
+        onFocus={chrome.onToolsFocus}
+        onBlur={(e) => chrome.onToolsBlur(e.relatedTarget, e.currentTarget)}
+      >
         <LibraryToolbar
           filters={filters}
           onFilters={setFilters}

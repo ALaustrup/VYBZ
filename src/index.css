@@ -1863,6 +1863,27 @@ button, a { -webkit-tap-highlight-color: transparent; }
   pointer-events: auto;
 }
 
+.library-desk:has(.library-cinema) [data-library-chrome],
+.library-tools-overlay {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.library-desk:has([data-cinema-chrome="hidden"]) [data-library-chrome],
+.library-desk:has([data-cinema-chrome="hidden"]) [data-library-chrome] > *,
+.library-desk:has([data-cinema-chrome="hidden"]) .library-tools-overlay,
+.library-desk:has([data-cinema-chrome="hidden"]) .library-tools-overlay > * {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-0.4rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .library-desk:has(.library-cinema) [data-library-chrome],
+  .library-tools-overlay {
+    transition: none;
+  }
+}
+
 .library-cinema {
   position: absolute;
   inset: 0;

@@ -1,9 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { cinemaScrollStartsAudio, cinemaVideoShouldPreview } from "./libraryPreview";
+import { cinemaChromeShouldHide, cinemaScrollStartsAudio, cinemaVideoShouldPreview } from "./libraryPreview";
 
 describe("library cinema preview", () => {
   it("never starts AudioBus from scroll", () => {
     expect(cinemaScrollStartsAudio()).toBe(false);
+  });
+
+  it("recedes cinema overlay while watching or scrolling, not while filtering or reducing motion", () => {
+    const base = {
+      cinema: true,
+      filtersOpen: false,
+      reduceFx: false,
+      hold: false,
+      scrolled: false,
+      playingSettled: false,
+    };
+    expect(cinemaChromeShouldHide(base)).toBe(false);
+    expect(cinemaChromeShouldHide({ ...base, playingSettled: true })).toBe(true);
+    expect(cinemaChromeShouldHide({ ...base, scrolled: true })).toBe(true);
+    expect(cinemaChromeShouldHide({ ...base, playingSettled: true, filtersOpen: true })).toBe(false);
+    expect(cinemaChromeShouldHide({ ...base, playingSettled: true, reduceFx: true })).toBe(false);
+    expect(cinemaChromeShouldHide({ ...base, playingSettled: true, hold: true })).toBe(false);
+    expect(cinemaChromeShouldHide({ ...base, playingSettled: true, cinema: false })).toBe(false);
   });
 
   it("muted-previews video only while in view, motion allowed, and nothing else is playing", () => {
