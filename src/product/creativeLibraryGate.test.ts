@@ -55,6 +55,8 @@ describe("creative library", () => {
     const query = read("src/lib/libraryQuery.ts");
     expect(page).toContain("onCompose");
     expect(page).toContain("library-upload-header");
+    expect(page).toContain("library-more-sections");
+    expect(page).toContain("library-tab-mixes");
     expect(library).toContain("library-kind-chips");
     expect(library).toContain("library-kind-${chip.id}");
     expect(query).toContain("workKind");
@@ -64,7 +66,7 @@ describe("creative library", () => {
   it("is a media gallery with cinema, remembered views, and tap-to-play sound", () => {
     expect(LIVING_PROFILE.libraryIsMediaGallery).toBe(true);
     expect(read("src/lib/libraryQuery.ts")).toContain('"cinema"');
-    expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "cinema"');
+    expect(read("src/components/library/LibraryToolbar.tsx")).toContain("library-view-menu");
     expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("muted");
     expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("OverlayPortal");
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaScrollStartsAudio");

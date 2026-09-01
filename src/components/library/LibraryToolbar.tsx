@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { GalleryHorizontal, LayoutGrid, Maximize2, RectangleVertical, Rows3, Search, SlidersHorizontal, Table2, X } from "lucide-react";
 import {
   EMPTY_FILTERS,
@@ -61,6 +62,9 @@ export function LibraryToolbar({
   const active = activeFilterCount(filters);
   const patch = (p: Partial<LibraryFilters>) => onFilters({ ...filters, ...p });
   const cinema = view === "cinema";
+  const [viewsOpen, setViewsOpen] = useState(false);
+  const currentView = VIEWS.find((v) => v.id === view) ?? VIEWS[0];
+  const CurrentViewIcon = currentView.icon;
 
   return (
     <div className="space-y-2">
@@ -105,20 +109,46 @@ export function LibraryToolbar({
           {active > 0 ? `${active} ${active === 1 ? "filter" : "filters"}` : cinema ? null : "Filters"}
         </button>
 
-        <div className="flex shrink-0 items-center gap-0.5" role="group" aria-label="Library view">
-          {VIEWS.map((v) => (
+        <div className="relative flex shrink-0 items-center">
+          {cinema ? (
             <button
-              key={v.id}
               type="button"
-              onClick={() => onView(v.id)}
-              aria-label={`${v.label} view`}
-              aria-pressed={view === v.id}
-              data-testid={`library-view-${v.id}`}
-              className={cx(PILL, "h-8 w-8", view === v.id && "bg-white/[0.1] text-white")}
+              aria-label="Library views"
+              aria-expanded={viewsOpen}
+              data-testid="library-view-menu"
+              onClick={() => setViewsOpen((v) => !v)}
+              className={cx(PILL, "h-8 w-8 sm:hidden", viewsOpen && "bg-white/[0.1] text-white")}
             >
-              <v.icon className="h-4 w-4" />
+              <CurrentViewIcon className="h-4 w-4" />
             </button>
-          ))}
+          ) : null}
+          <div
+            role="group"
+            aria-label="Library view"
+            className={cx(
+              "flex shrink-0 items-center gap-0.5",
+              cinema && !viewsOpen && "max-sm:hidden",
+              cinema && viewsOpen &&
+                "max-sm:fixed max-sm:right-3 max-sm:top-28 max-sm:z-50 max-sm:flex max-sm:rounded-2xl max-sm:bg-ink-950/95 max-sm:p-1 max-sm:ring-1 max-sm:ring-white/10",
+            )}
+          >
+            {VIEWS.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => {
+                  onView(v.id);
+                  setViewsOpen(false);
+                }}
+                aria-label={`${v.label} view`}
+                aria-pressed={view === v.id}
+                data-testid={`library-view-${v.id}`}
+                className={cx(PILL, "h-8 w-8", view === v.id && "bg-white/[0.1] text-white")}
+              >
+                <v.icon className="h-4 w-4" />
+              </button>
+            ))}
+          </div>
         </div>
 
         <select

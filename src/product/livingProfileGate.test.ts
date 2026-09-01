@@ -91,6 +91,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("Library is a media gallery");
     expect(product).toContain("Sound starts on tap");
     expect(product).toContain("one bar of kinds and tools");
+    expect(product).toContain("Works, This device, and Upload");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Check,
@@ -6,6 +6,7 @@ import {
   Image as ImageIcon,
   Layers,
   Loader2,
+  MoreHorizontal,
   Pencil,
   Trash2,
   Upload,
@@ -130,24 +131,15 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
             This device
             <span className="ml-1 font-mono text-white/35">{localCount}</span>
           </QuietTab>
-          <QuietTab active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
-            Mixes
-          </QuietTab>
-          <QuietTab active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
-            Projects
-            <span className="ml-1 font-mono text-white/35">{posts.length}</span>
-          </QuietTab>
         </div>
-        {scans.length > 0 ? (
-          <button
-            type="button"
-            onClick={() => navigate("/releases")}
-            data-testid="library-scan-strip"
-            className="shrink-0 text-[11px] text-white/30 hover:text-white/60"
-          >
-            {scans.length} {scans.length === 1 ? "scan" : "scans"}
-          </button>
-        ) : null}
+        <LibraryMore
+          tab={tab}
+          postsCount={posts.length}
+          scanCount={scans.length}
+          onMixes={() => setTab("mixes")}
+          onProjects={() => setTab("projects")}
+          onScans={() => navigate("/releases")}
+        />
         {onCompose ? (
           <button
             type="button"
@@ -195,6 +187,108 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
         </div>
       )}
     </ToolWorkbench>
+  );
+}
+
+function LibraryMore({
+  tab,
+  postsCount,
+  scanCount,
+  onMixes,
+  onProjects,
+  onScans,
+}: {
+  tab: Tab;
+  postsCount: number;
+  scanCount: number;
+  onMixes: () => void;
+  onProjects: () => void;
+  onScans: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const secondary = tab === "mixes" || tab === "projects";
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function pick(next: () => void) {
+    next();
+    setOpen(false);
+  }
+
+  return (
+    <div className="relative shrink-0" ref={rootRef}>
+      <button
+        type="button"
+        data-testid="library-more-sections"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={tab === "mixes" ? "Mixes" : tab === "projects" ? "Projects" : "More library sections"}
+        onClick={() => setOpen((v) => !v)}
+        className={cx(
+          "flex h-8 items-center justify-center rounded-full px-2.5 text-[12px] font-medium transition",
+          secondary ? "bg-white/[0.1] text-white" : "text-white/40 hover:text-white/70",
+        )}
+      >
+        {tab === "mixes" ? "Mixes" : tab === "projects" ? "Projects" : <MoreHorizontal className="h-4 w-4" />}
+      </button>
+      <div
+        hidden={!open}
+        role="menu"
+        className="absolute left-0 top-full z-50 mt-1 min-w-[11rem] rounded-2xl bg-ink-950/95 p-1 ring-1 ring-white/10 backdrop-blur"
+      >
+        <button
+          type="button"
+          role="menuitem"
+          data-testid="library-tab-mixes"
+          onClick={() => pick(onMixes)}
+          className={cx(
+            "flex w-full items-center rounded-xl px-3 py-2 text-left text-[12px] font-medium",
+            tab === "mixes" ? "bg-white/[0.08] text-white" : "text-white/70 hover:bg-white/[0.06] hover:text-white",
+          )}
+        >
+          Mixes
+        </button>
+        <button
+          type="button"
+          role="menuitem"
+          data-testid="library-tab-projects"
+          onClick={() => pick(onProjects)}
+          className={cx(
+            "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[12px] font-medium",
+            tab === "projects" ? "bg-white/[0.08] text-white" : "text-white/70 hover:bg-white/[0.06] hover:text-white",
+          )}
+        >
+          Projects
+          <span className="font-mono text-white/35">{postsCount}</span>
+        </button>
+        {scanCount > 0 ? (
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="library-scan-strip"
+            onClick={() => pick(onScans)}
+            className="flex w-full items-center rounded-xl px-3 py-2 text-left text-[12px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white"
+          >
+            {scanCount} {scanCount === 1 ? "scan" : "scans"}
+          </button>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
