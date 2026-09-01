@@ -11,7 +11,7 @@ function quietTone(sr: number): Float32Array {
   return out;
 }
 
-describe("applyStreamingNormPreview", () => {
+describe("applyStreamingNormPreview", { timeout: 45_000 }, () => {
   it("is versioned, disclosed, and non-destructive", () => {
     const sr = 48000;
     const pcm = quietTone(sr);

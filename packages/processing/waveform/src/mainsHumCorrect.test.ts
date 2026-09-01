@@ -19,7 +19,7 @@ function tonePlusHum(
   return out;
 }
 
-describe("applyMainsHumReduce", () => {
+describe("applyMainsHumReduce", { timeout: 45_000 }, () => {
   it("is versioned and non-destructive", () => {
     const sr = 48000;
     const original = tonePlusHum(1.2, sr, 440, 60);

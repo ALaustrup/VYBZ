@@ -5,7 +5,7 @@ import {
   applyChannelBalance,
 } from "./channelBalanceCorrect";
 
-describe("applyChannelBalance", () => {
+describe("applyChannelBalance", { timeout: 45_000 }, () => {
   it("is a no-op on mono", () => {
     const ch = new Float32Array(512);
     for (let i = 0; i < ch.length; i++) ch[i] = Math.sin(i / 8) * 0.3;

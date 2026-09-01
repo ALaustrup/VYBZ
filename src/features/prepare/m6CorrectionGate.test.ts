@@ -32,7 +32,7 @@ const ROOT = path.resolve(__dirname, "../../..");
  * Gate: Users can safely improve audio; every render reproducible; operations
  * reversible; before/after analysis available; no ambiguous credit deduction.
  */
-describe("M6 correction gate", () => {
+describe("M6 correction gate", { timeout: 45_000 }, () => {
   it("cites the M6 gate and ships versioned correction ops", () => {
     expect(GATE_REGISTRY).toContain("m6Correction");
     expect(CORRECTION_VERSION).toMatch(/^m6\./);

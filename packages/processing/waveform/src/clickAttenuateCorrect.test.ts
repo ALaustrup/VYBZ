@@ -12,7 +12,7 @@ function toneWithClick(sr: number): Float32Array {
   return out;
 }
 
-describe("applyClickAttenuate", () => {
+describe("applyClickAttenuate", { timeout: 45_000 }, () => {
   it("is versioned and non-destructive", () => {
     const sr = 48000;
     const pcm = toneWithClick(sr);

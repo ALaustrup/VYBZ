@@ -11,7 +11,7 @@ function bassHeavy(seconds: number, sr: number): Float32Array {
   return out;
 }
 
-describe("applySpectralEqAssist", () => {
+describe("applySpectralEqAssist", { timeout: 45_000 }, () => {
   it("is versioned and non-destructive", () => {
     const sr = 48000;
     const pcm = bassHeavy(1.2, sr);

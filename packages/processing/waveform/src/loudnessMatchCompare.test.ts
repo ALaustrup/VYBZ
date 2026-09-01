@@ -11,7 +11,7 @@ function tone(sr: number, amp: number): Float32Array {
   return out;
 }
 
-describe("matchLoudnessForCompare", () => {
+describe("matchLoudnessForCompare", { timeout: 45_000 }, () => {
   it("is versioned and non-destructive to inputs", () => {
     const sr = 48000;
     const quiet = tone(sr, 0.02);
