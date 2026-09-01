@@ -3,11 +3,33 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `feat/heard-and-node` @ `0cd14072` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `1b0068e4` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
 
+## Library cinema fills the page — 2026-08-31
+
+**Commit:** `1b0068e4` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema tiles are the remaining viewport (100cqh of the gallery scroller), not `100dvh − 19.5rem`. Tabs, scans, search, views, sort, and kind chips overlay the top of the media. Title, play, and full-screen sit at the bottom of the tile, above the dock. Group lives in Filters (`library-group` stays in the DOM). Grid, list, table, and shelves stay. Sound still starts on tap.
+
+**Validate (local):** lint (`tsc --noEmit`) and typecheck pass. Combined `npm run test`: **207 files / 1048 tests**, **8 failed** under load (DSP 5s timeouts: silence trim, streaming-norm preview, loudness gain, loudness match, M6, M7). Those six files re-run in isolation: **23 passed**. Production `vite build` pass.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema fills the gallery; title “Odd Frecuency…” visible above the dock; tap-to-play sets dock Now playing; full-screen visual 1/1 and Escape closes it; list, table, shelves, and grid still render; Image kind chip empty match; sort Title A–Z; This device honesty copy still present; phone 390×844 cinema tile fills, title in view, Upload + kind chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
 ## Library cinema gallery — 2026-08-31
+
+**Commit:** `0cd14072` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Library is a **media gallery**, not a forge desk. Cinema is the default view (grid, list, table, and shelves stay). Snap-scroll tiles; video may muted-preview in view; **sound starts on tap**. Full-screen visual uses existing DropStage / TrackVisualizer via OverlayPortal. `LIVING_PROFILE.libraryIsMediaGallery` locked. ToolWorkbench + `library-desk` stay.
+
+**Validate (local):** lint (`tsc --noEmit`) and typecheck pass. `npm run test` earlier this session: **207 files / 1047 tests**. After this unit the suite is **207 files / 1048 tests**. Combined `npm run validate` then hit three DSP tests at the 5s timeout under load (`loudnessMatchCompare`, M6 loudness gain, M7 streaming preview); those three files re-run in isolation: **18 passed**. Production `vite build` pass after the gallery CSS.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema default; one audio tile (Odd Frecuency…) with AUDIO label + maximize; tap-to-play sets dock Now playing; full-screen visual 1/1 with waveform and Escape to close; list, table, shelves still render; Image kind chip empty match; sort Title A–Z then Newest first; This device tab still opens; phone 390×844 still cinema + Upload + kind chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 **Commit:** `0cd14072` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 
