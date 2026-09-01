@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `feat/heard-and-node` @ `aaa5d6fd` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `a384a171` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema overlay one bar — 2026-08-31
+
+**Commit:** `a384a171` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema overlay is **one bar**: kind chips (All / Audio / Image / Video / File) sit on the same row as search, filters, views, and sort. Search is an icon that expands on focus. Full-screen visual stays on the tile on phone (`library-visual-toggle` from `sm`). Grid, list, table, and shelves still stack chips below the toolbar. Overlay still recedes while you watch.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile gates: **2 files / 16 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; chips and cinema view `sameRow` (tops within 12px) at 802px and 1280px; phone 390×844 `sameRow`, search expands to 176px without overlapping File; Image chip empty match; list and grid chips stacked below toolbar (`stacked: true`). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema overlay recedes — 2026-08-31
 
