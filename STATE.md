@@ -2,10 +2,22 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-31
-**Branch:** `feat/heard-and-node` @ `ee063c18` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Date:** 2026-09-01
+**Branch:** `feat/heard-and-node` @ `a7414a20` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema tools stay put — 2026-09-01
+
+**Commit:** `a7414a20` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema search, filters, views, and sort stay on screen. Kind chips scroll. Library counts **works**, not tracks (`library-count`). Overlay still recedes. Mixes still in More.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile gates: **2 files / 16 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema `library-count` is `1 work`; phone 390×844 search, filters, view menu, and sort all `inView`; chips overflow (`scrollWidth` 254 / `clientWidth` 132); view menu tap expands Cinema/Grid/List/Table/Shelves; Image chip empty match; desktop 1280 `sameRow`. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema header is quiet — 2026-08-31
 
