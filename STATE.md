@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `8d844afb` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `0a074f0c` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema keys — 2026-09-01
+
+**Commit:** `0a074f0c` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema arrows move between works. Space is a tap (`library-cinema-tap`). Arrows do not start sound (`cinemaArrowStartsAudio`). Search, filters, and full-screen keep their own keys. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 27 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; Space on the gallery starts playback (`Pause`); ArrowDown keeps it playing (does not start a new work); Space pauses; Space in search does not start playback; phone 390×844 Space starts, ArrowDown stays playing. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema progress fills and seeks — 2026-09-01
 
