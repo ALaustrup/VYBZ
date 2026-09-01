@@ -65,20 +65,22 @@ export function LibraryToolbar({
   return (
     <div className="space-y-2">
       <div className="no-scrollbar flex items-center gap-1 overflow-x-auto sm:gap-2">
-        <div
+        <label
           className={cx(
-            "flex min-w-0 items-center gap-2 rounded-full bg-white/[0.04] px-3 ring-1 ring-white/[0.06] focus-within:ring-white/15",
-            cinema ? "w-24 sm:w-auto sm:flex-1" : "flex-1",
+            "flex min-w-0 cursor-text items-center gap-2 rounded-full bg-white/[0.04] ring-1 ring-white/[0.06] focus-within:ring-white/15",
+            cinema
+              ? "w-9 shrink-0 px-2 focus-within:w-44 sm:w-auto sm:flex-1 sm:px-3"
+              : "flex-1 px-3",
           )}
         >
           <Search className="h-3.5 w-3.5 shrink-0 text-white/30" />
           <input
             value={filters.q}
             onChange={(e) => patch({ q: e.target.value })}
-            placeholder="Search"
+            placeholder={cinema ? "" : "Search"}
             aria-label="Search your works"
             data-testid="library-search"
-            className="h-9 w-full bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none"
+            className="h-9 w-full min-w-0 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none"
           />
           {filters.q && (
             <button
@@ -90,7 +92,7 @@ export function LibraryToolbar({
               <X className="h-4 w-4" />
             </button>
           )}
-        </div>
+        </label>
 
         <button
           type="button"
@@ -140,7 +142,7 @@ export function LibraryToolbar({
             aria-label="Full screen visual"
             aria-pressed={visualOpen}
             data-testid="library-visual-toggle"
-            className={cx(PILL, "h-8 w-8", visualOpen && "bg-white/[0.1] text-white")}
+            className={cx(PILL, "h-8 w-8", cinema && "hidden sm:flex", visualOpen && "bg-white/[0.1] text-white")}
           >
             <Maximize2 className="h-4 w-4" />
           </button>

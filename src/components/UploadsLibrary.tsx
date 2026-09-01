@@ -54,6 +54,43 @@ const KIND_CHIPS: Array<{ id: LibraryWorkKind; label: string }> = [
   { id: "file", label: "File" },
 ];
 
+function KindChips({
+  value,
+  onChange,
+  compact = false,
+}: {
+  value: LibraryWorkKind;
+  onChange: (next: LibraryWorkKind) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={cx("no-scrollbar flex gap-1 overflow-x-auto", compact && "shrink-0")}
+      data-testid="library-kind-chips"
+      role="tablist"
+      aria-label="Work kind"
+    >
+      {KIND_CHIPS.map((chip) => (
+        <button
+          key={chip.id}
+          type="button"
+          role="tab"
+          aria-selected={value === chip.id}
+          data-testid={`library-kind-${chip.id}`}
+          onClick={() => onChange(chip.id)}
+          className={cx(
+            "shrink-0 rounded-full font-medium tracking-wide transition",
+            compact ? "px-2.5 py-1 text-[11px]" : "px-3 py-1 text-[11px]",
+            value === chip.id ? "bg-white/[0.1] text-white" : "text-white/40 hover:text-white/70",
+          )}
+        >
+          {chip.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function UploadsLibrary({
   initialDrops,
   featuredId,
@@ -115,6 +152,27 @@ export function UploadsLibrary({
     reduceFx,
     scrollRef,
   });
+
+  const toolbar = (
+    <LibraryToolbar
+      filters={filters}
+      onFilters={setFilters}
+      sort={sort}
+      onSort={setSort}
+      group={group}
+      onGroup={setGroup}
+      view={view}
+      onView={setView}
+      facets={facets}
+      matched={matched.length}
+      total={total}
+      filtersOpen={filtersOpen}
+      onFiltersOpen={setFiltersOpen}
+      composed={composed}
+      visualOpen={!!visualId}
+      onToggleVisual={matched.length > 0 ? toggleVisual : undefined}
+    />
+  );
 
   function applyChange(change: LibraryChange) {
     if (change.kind === "deleted") {
@@ -202,45 +260,24 @@ export function UploadsLibrary({
         onFocus={chrome.onToolsFocus}
         onBlur={(e) => chrome.onToolsBlur(e.relatedTarget, e.currentTarget)}
       >
-        <LibraryToolbar
-          filters={filters}
-          onFilters={setFilters}
-          sort={sort}
-          onSort={setSort}
-          group={group}
-          onGroup={setGroup}
-          view={view}
-          onView={setView}
-          facets={facets}
-          matched={matched.length}
-          total={total}
-          filtersOpen={filtersOpen}
-          onFiltersOpen={setFiltersOpen}
-          composed={composed}
-          visualOpen={!!visualId}
-          onToggleVisual={matched.length > 0 ? toggleVisual : undefined}
-        />
-
-        <div className="no-scrollbar flex gap-1 overflow-x-auto" data-testid="library-kind-chips" role="tablist" aria-label="Work kind">
-          {KIND_CHIPS.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              role="tab"
-              aria-selected={filters.workKind === chip.id}
-              data-testid={`library-kind-${chip.id}`}
-              onClick={() => setFilters({ ...filters, workKind: chip.id })}
-              className={cx(
-                "shrink-0 rounded-full px-3 py-1 text-[11px] font-medium tracking-wide transition",
-                filters.workKind === chip.id
-                  ? "bg-white/[0.1] text-white"
-                  : "text-white/40 hover:text-white/70",
-              )}
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
+        {cinema ? (
+          <div className="no-scrollbar flex items-center gap-2 overflow-x-auto">
+            <KindChips
+              compact
+              value={filters.workKind}
+              onChange={(workKind) => setFilters({ ...filters, workKind })}
+            />
+            <div className="shrink-0">{toolbar}</div>
+          </div>
+        ) : (
+          <>
+            {toolbar}
+            <KindChips
+              value={filters.workKind}
+              onChange={(workKind) => setFilters({ ...filters, workKind })}
+            />
+          </>
+        )}
       </div>
 
       {matched.length > 0 && view !== "cinema" && (
