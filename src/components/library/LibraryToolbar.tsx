@@ -60,11 +60,17 @@ export function LibraryToolbar({
 }) {
   const active = activeFilterCount(filters);
   const patch = (p: Partial<LibraryFilters>) => onFilters({ ...filters, ...p });
+  const cinema = view === "cinema";
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-white/[0.04] px-3 ring-1 ring-white/[0.06] focus-within:ring-white/15">
+      <div className="no-scrollbar flex items-center gap-1 overflow-x-auto sm:gap-2">
+        <div
+          className={cx(
+            "flex min-w-0 items-center gap-2 rounded-full bg-white/[0.04] px-3 ring-1 ring-white/[0.06] focus-within:ring-white/15",
+            cinema ? "w-24 sm:w-auto sm:flex-1" : "flex-1",
+          )}
+        >
           <Search className="h-3.5 w-3.5 shrink-0 text-white/30" />
           <input
             value={filters.q}
@@ -91,10 +97,10 @@ export function LibraryToolbar({
           onClick={() => onFiltersOpen(!filtersOpen)}
           aria-expanded={filtersOpen}
           data-testid="library-filters-toggle"
-          className={cx(PILL, "gap-1.5 px-3 text-[11px] font-medium", (filtersOpen || active > 0) && "bg-white/[0.1] text-white")}
+          className={cx(PILL, "gap-1.5 px-2.5 text-[11px] font-medium", (filtersOpen || active > 0) && "bg-white/[0.1] text-white")}
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
-          {active > 0 ? `${active}` : "Filters"}
+          {active > 0 ? `${active} ${active === 1 ? "filter" : "filters"}` : cinema ? null : "Filters"}
         </button>
 
         <div className="flex shrink-0 items-center gap-0.5" role="group" aria-label="Library view">
@@ -113,6 +119,20 @@ export function LibraryToolbar({
           ))}
         </div>
 
+        <select
+          value={sort}
+          onChange={(e) => onSort(e.target.value as LibrarySort)}
+          aria-label="Sort library"
+          data-testid="library-sort"
+          className="h-8 max-w-[7.5rem] shrink-0 rounded-full border-0 bg-white/[0.04] px-2 text-[11px] text-white/80 focus:outline-none"
+        >
+          {(Object.keys(SORT_LABEL) as LibrarySort[]).map((s) => (
+            <option key={s} value={s}>
+              {SORT_LABEL[s]}
+            </option>
+          ))}
+        </select>
+
         {onToggleVisual ? (
           <button
             type="button"
@@ -125,34 +145,21 @@ export function LibraryToolbar({
             <Maximize2 className="h-4 w-4" />
           </button>
         ) : null}
-      </div>
 
-      <div className="flex flex-wrap items-center gap-2 text-xs">
-        <label className="flex items-center gap-1.5 text-white/35">
-          Sort
-          <select
-            value={sort}
-            onChange={(e) => onSort(e.target.value as LibrarySort)}
-            aria-label="Sort library"
-            data-testid="library-sort"
-            className="rounded-full border-0 bg-white/[0.04] px-2.5 py-1.5 text-white/80 focus:outline-none"
-          >
-            {(Object.keys(SORT_LABEL) as LibrarySort[]).map((s) => (
-              <option key={s} value={s}>
-                {SORT_LABEL[s]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <span
+          className={cx("font-mono text-[11px] text-white/30", cinema ? "hidden sm:inline" : "ml-auto")}
+          data-testid="library-count"
+        >
+          {matched === total ? `${total} ${total === 1 ? "track" : "tracks"}` : `${matched} of ${total}`}
+        </span>
 
-        <label className="flex items-center gap-1.5 text-white/35">
-          Group
+        {!filtersOpen ? (
           <select
             value={group}
             onChange={(e) => onGroup(e.target.value as LibraryGroup)}
             aria-label="Group library"
             data-testid="library-group"
-            className="rounded-full border-0 bg-white/[0.04] px-2.5 py-1.5 text-white/80 focus:outline-none"
+            className="sr-only"
           >
             {(Object.keys(GROUP_LABEL) as LibraryGroup[]).map((g) => (
               <option key={g} value={g}>
@@ -160,15 +167,27 @@ export function LibraryToolbar({
               </option>
             ))}
           </select>
-        </label>
-
-        <span className="ml-auto font-mono text-[11px] text-white/30" data-testid="library-count">
-          {matched === total ? `${total}` : `${matched} of ${total}`}
-        </span>
+        ) : null}
       </div>
 
       {filtersOpen && (
         <div className="space-y-3 rounded-2xl bg-white/[0.03] p-3 ring-1 ring-white/[0.06]" data-testid="library-filters">
+          <label className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-white/35">
+            Group
+            <select
+              value={group}
+              onChange={(e) => onGroup(e.target.value as LibraryGroup)}
+              aria-label="Group library"
+              data-testid="library-group"
+              className="rounded-full border-0 bg-white/[0.04] px-2.5 py-1.5 text-[13px] normal-case tracking-normal text-white/80 focus:outline-none"
+            >
+              {(Object.keys(GROUP_LABEL) as LibraryGroup[]).map((g) => (
+                <option key={g} value={g}>
+                  {GROUP_LABEL[g]}
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="grid gap-2.5 sm:grid-cols-2">
             {facets.formats.length > 0 && (
               <Select

@@ -1805,21 +1805,87 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .library-desk > .relative.z-\[1\] {
   gap: 0.75rem;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 .library-desk .forge-atmosphere {
   display: none;
 }
 
+.library-desk:has(.library-cinema) {
+  height: calc(100dvh - var(--app-bar-h, 3.25rem)) !important;
+  min-height: calc(100dvh - var(--app-bar-h, 3.25rem)) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
+  overflow: hidden;
+}
+
+.library-desk:has(.library-cinema) > .relative.z-\[1\] {
+  gap: 0;
+  position: relative;
+}
+
+.library-desk:has(.library-cinema) [data-library-chrome] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: 0.5rem 0.75rem 2.75rem;
+  background: linear-gradient(to bottom, rgb(5 8 16 / 0.88) 0%, rgb(5 8 16 / 0.4) 58%, transparent 100%);
+  pointer-events: none;
+}
+
+.library-desk:has(.library-cinema) [data-library-chrome] > * {
+  pointer-events: auto;
+}
+
+.library-uploads:has(.library-cinema) {
+  position: absolute;
+  inset: 0;
+}
+
+.library-tools-overlay {
+  position: absolute;
+  top: 2.55rem;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  padding: 0 0.75rem 2.5rem;
+  background: linear-gradient(to bottom, rgb(5 8 16 / 0.5), transparent);
+  pointer-events: none;
+}
+
+.library-tools-overlay > * {
+  pointer-events: auto;
+}
+
 .library-cinema {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  container-type: size;
+  overflow-y: auto;
   scroll-snap-type: y mandatory;
-  scroll-padding-top: 0;
 }
 
 .library-cinema-tile {
-  scroll-snap-align: start;
-  height: calc(100dvh - 19.5rem);
+  height: 100cqh;
   min-height: 18rem;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+@media (min-width: 640px) {
+  .library-cinema-tile {
+    height: calc(100cqh - 1rem);
+    margin: 0.5rem auto;
+    max-width: calc(100% - 1rem);
+    border-radius: 1.75rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

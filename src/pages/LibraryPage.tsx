@@ -113,7 +113,7 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
       testId="library-desk"
       className="library-desk flex h-full !max-w-none min-h-0 flex-col !px-3 !pb-[calc(var(--dock-reserve,6.25rem)+0.75rem)] !pt-2 sm:!px-5"
     >
-      <header className="flex items-center gap-2">
+      <header data-library-chrome className="flex items-center gap-2">
         <div
           className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto"
           data-testid="library-tabs"
@@ -138,6 +138,16 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
             <span className="ml-1 font-mono text-white/35">{posts.length}</span>
           </QuietTab>
         </div>
+        {scans.length > 0 ? (
+          <button
+            type="button"
+            onClick={() => navigate("/releases")}
+            data-testid="library-scan-strip"
+            className="shrink-0 text-[11px] text-white/30 hover:text-white/60"
+          >
+            {scans.length} {scans.length === 1 ? "scan" : "scans"}
+          </button>
+        ) : null}
         {onCompose ? (
           <button
             type="button"
@@ -150,17 +160,6 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
           </button>
         ) : null}
       </header>
-
-      {scans.length > 0 && (
-        <button
-          type="button"
-          onClick={() => navigate("/releases")}
-          data-testid="library-scan-strip"
-          className="self-start text-[11px] text-white/30 hover:text-white/60"
-        >
-          {scans.length} {scans.length === 1 ? "scan" : "scans"}
-        </button>
-      )}
 
       {tab === "device" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">

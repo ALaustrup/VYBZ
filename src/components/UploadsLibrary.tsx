@@ -170,46 +170,50 @@ export function UploadsLibrary({
     );
   }
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2.5">
-      <LibraryToolbar
-        filters={filters}
-        onFilters={setFilters}
-        sort={sort}
-        onSort={setSort}
-        group={group}
-        onGroup={setGroup}
-        view={view}
-        onView={setView}
-        facets={facets}
-        matched={matched.length}
-        total={total}
-        filtersOpen={filtersOpen}
-        onFiltersOpen={setFiltersOpen}
-        composed={composed}
-        visualOpen={!!visualId}
-        onToggleVisual={matched.length > 0 ? toggleVisual : undefined}
-      />
+  const cinema = view === "cinema";
 
-      <div className="no-scrollbar flex gap-1 overflow-x-auto" data-testid="library-kind-chips" role="tablist" aria-label="Work kind">
-        {KIND_CHIPS.map((chip) => (
-          <button
-            key={chip.id}
-            type="button"
-            role="tab"
-            aria-selected={filters.workKind === chip.id}
-            data-testid={`library-kind-${chip.id}`}
-            onClick={() => setFilters({ ...filters, workKind: chip.id })}
-            className={cx(
-              "shrink-0 rounded-full px-3 py-1 text-[11px] font-medium tracking-wide transition",
-              filters.workKind === chip.id
-                ? "bg-white/[0.1] text-white"
-                : "text-white/40 hover:text-white/70",
-            )}
-          >
-            {chip.label}
-          </button>
-        ))}
+  return (
+    <div className={cx("library-uploads flex min-h-0 flex-1 flex-col", cinema ? "relative gap-0" : "gap-2.5")}>
+      <div data-library-tools className={cinema ? "library-tools-overlay" : undefined}>
+        <LibraryToolbar
+          filters={filters}
+          onFilters={setFilters}
+          sort={sort}
+          onSort={setSort}
+          group={group}
+          onGroup={setGroup}
+          view={view}
+          onView={setView}
+          facets={facets}
+          matched={matched.length}
+          total={total}
+          filtersOpen={filtersOpen}
+          onFiltersOpen={setFiltersOpen}
+          composed={composed}
+          visualOpen={!!visualId}
+          onToggleVisual={matched.length > 0 ? toggleVisual : undefined}
+        />
+
+        <div className="no-scrollbar flex gap-1 overflow-x-auto" data-testid="library-kind-chips" role="tablist" aria-label="Work kind">
+          {KIND_CHIPS.map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              role="tab"
+              aria-selected={filters.workKind === chip.id}
+              data-testid={`library-kind-${chip.id}`}
+              onClick={() => setFilters({ ...filters, workKind: chip.id })}
+              className={cx(
+                "shrink-0 rounded-full px-3 py-1 text-[11px] font-medium tracking-wide transition",
+                filters.workKind === chip.id
+                  ? "bg-white/[0.1] text-white"
+                  : "text-white/40 hover:text-white/70",
+              )}
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {matched.length > 0 && view !== "cinema" && (
@@ -247,17 +251,40 @@ export function UploadsLibrary({
           title="Nothing matches those filters"
           body="Try a different search term, or clear the filters to see your whole library."
         />
+      ) : cinema ? (
+        <div
+          ref={scrollRef}
+          className="library-cinema no-scrollbar"
+          data-testid="library-results"
+        >
+          {groups.flatMap((g) =>
+            g.drops.map((d, i) => (
+              <LibraryCinemaTile
+                key={d.id}
+                drop={d}
+                queue={matched}
+                variant="cinema"
+                groupLabel={i === 0 ? g.label : null}
+                selected={selection.isSelected(d.id)}
+                onSelect={(e) => (e.shiftKey ? selection.extendTo(d.id) : selection.toggle(d.id))}
+                isFeatured={d.id === featuredId}
+                onStage={composed && isOnStage(composition, d.id, featuredId)}
+                snapshotDropIds={snapshotDropIds}
+                onChanged={applyChange}
+                onVisual={() => setVisualId(d.id)}
+                visualOpen={visualId === d.id}
+              />
+            )),
+          )}
+        </div>
       ) : (
         <div
           ref={scrollRef}
-          className={cx(
-            "no-scrollbar min-h-0 flex-1 overflow-y-auto",
-            view === "cinema" && "library-cinema",
-          )}
+          className="no-scrollbar min-h-0 flex-1 overflow-y-auto"
           data-testid="library-results"
         >
           {groups.map((g) => (
-            <section key={g.key} className={view === "cinema" ? "mb-3" : "mb-4"}>
+            <section key={g.key} className="mb-4">
               {g.label && (
                 <div className="sticky top-0 z-10 mb-2 bg-abyss-950/70 py-1 backdrop-blur">
                   <h3 className="text-[11px] font-medium uppercase tracking-wider text-white/40">

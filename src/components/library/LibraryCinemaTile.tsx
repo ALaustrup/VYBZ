@@ -25,6 +25,7 @@ export function LibraryCinemaTile({
   drop: d,
   queue,
   variant,
+  groupLabel,
   selected,
   onSelect,
   isFeatured,
@@ -37,6 +38,7 @@ export function LibraryCinemaTile({
   drop: Drop;
   queue: Drop[];
   variant: "cinema" | "grid";
+  groupLabel?: string | null;
   selected: boolean;
   onSelect: (e: React.MouseEvent) => void;
   isFeatured: boolean;
@@ -124,7 +126,7 @@ export function LibraryCinemaTile({
       data-testid={`library-${variant}-tile-${d.id}`}
       className={cx(
         "group relative overflow-hidden bg-ink-950",
-        cinema ? "library-cinema-tile rounded-[1.75rem]" : "aspect-[4/5] rounded-2xl sm:aspect-square",
+        cinema ? "library-cinema-tile" : "aspect-[4/5] rounded-2xl sm:aspect-square",
         selected && "ring-2 ring-white/25",
       )}
       onContextMenu={(e) => {
@@ -173,51 +175,55 @@ export function LibraryCinemaTile({
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/20" />
 
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={selected}
-        aria-label={`Select ${d.title?.trim() || "Untitled"}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelect(e);
-        }}
-        data-testid="library-select-item"
-        className={cx(
-          "absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition",
-          selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
-        )}
-      >
-        <Check className={cx("h-3.5 w-3.5", selected ? "opacity-100" : "opacity-0")} />
-      </button>
+      {!cinema ? (
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={selected}
+          aria-label={`Select ${d.title?.trim() || "Untitled"}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(e);
+          }}
+          data-testid="library-select-item"
+          className={cx(
+            "absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition",
+            selected ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+          )}
+        >
+          <Check className={cx("h-3.5 w-3.5", selected ? "opacity-100" : "opacity-0")} />
+        </button>
+      ) : null}
 
-      <div className="absolute right-3 top-3 z-20 flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onVisual();
-          }}
-          aria-label="Full screen visual"
-          data-testid={`library-visual-${d.id}`}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur transition hover:text-white"
-        >
-          <Maximize2 className="h-4 w-4" />
-        </button>
-        <button
-          ref={moreRef}
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            const rect = moreRef.current?.getBoundingClientRect();
-            setMenuAnchor(rect ? { x: rect.right - 248, y: rect.bottom + 6 } : { x: 16, y: 16 });
-          }}
-          aria-label={`Actions for ${d.title?.trim() || "this work"}`}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur transition hover:text-white"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </button>
-      </div>
+      {!cinema ? (
+        <div className="absolute right-3 top-3 z-20 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onVisual();
+            }}
+            aria-label="Full screen visual"
+            data-testid={`library-visual-${d.id}`}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur transition hover:text-white"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
+          <button
+            ref={moreRef}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = moreRef.current?.getBoundingClientRect();
+              setMenuAnchor(rect ? { x: rect.right - 248, y: rect.bottom + 6 } : { x: 16, y: 16 });
+            }}
+            aria-label={`Actions for ${d.title?.trim() || "this work"}`}
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 backdrop-blur transition hover:text-white"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </button>
+        </div>
+      ) : null}
 
       <button
         type="button"
@@ -226,21 +232,55 @@ export function LibraryCinemaTile({
         className="absolute inset-0 z-10"
       />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 p-5">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-3 p-5 sm:p-6">
         <div className="min-w-0">
+          {groupLabel ? (
+            <h3 className="mb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">{groupLabel}</h3>
+          ) : null}
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
             {KIND_LABEL[kind] ?? kind}
             {isFeatured ? " · Featured" : onStage ? " · On VYBZ" : ""}
           </p>
-          <h2 className={cx("mt-1 truncate font-display text-white", cinema ? "text-2xl font-semibold" : "text-base font-medium")}>
+          <h2 className={cx("mt-1 truncate font-display text-white", cinema ? "text-2xl font-semibold tracking-tight" : "text-base font-medium")}>
             {d.title?.trim() || "Untitled"}
           </h2>
         </div>
-        {(playable || kind === "video") && (
-          <span className="pointer-events-none flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur">
-            {playing ? <Pause className="h-4 w-4" /> : <Play className="ml-0.5 h-4 w-4" />}
-          </span>
-        )}
+        <div className="pointer-events-auto flex shrink-0 items-center gap-1.5">
+          {(playable || kind === "video") && (
+            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur">
+              {playing ? <Pause className="h-4 w-4" /> : <Play className="ml-0.5 h-4 w-4" />}
+            </span>
+          )}
+          {cinema ? (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onVisual();
+                }}
+                aria-label="Full screen visual"
+                data-testid={`library-visual-${d.id}`}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+              >
+                <Maximize2 className="h-4 w-4" />
+              </button>
+              <button
+                ref={moreRef}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const rect = moreRef.current?.getBoundingClientRect();
+                  setMenuAnchor(rect ? { x: rect.right - 248, y: rect.top - 8 } : { x: 16, y: 16 });
+                }}
+                aria-label={`Actions for ${d.title?.trim() || "this work"}`}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition hover:bg-white/20"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+            </>
+          ) : null}
+        </div>
       </div>
 
       {menuAnchor !== null ? (
