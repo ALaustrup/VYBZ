@@ -3,9 +3,9 @@ import { Check, FileText, Maximize2, MoreVertical, Pause, Play } from "lucide-re
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { TrackActionMenu } from "@/components/TrackActionMenu";
 import type { MenuAnchor } from "@/components/menu/ContextMenu";
-import { pause, playTrack, usePlayer } from "@/lib/audioBus";
+import { pause, playTrack, getPlaybackProgress, usePlayerShell } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
-import { cinemaVideoShouldPreview, libraryStillUrl } from "@/features/library/libraryPreview";
+import { cinemaProgressShouldShow, cinemaVideoShouldPreview, libraryStillUrl } from "@/features/library/libraryPreview";
 import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import { useReduceFx } from "@/lib/display";
 import { useInView } from "@/components/library/useInView";
@@ -48,12 +48,13 @@ export function LibraryCinemaTile({
   onVisual: () => void;
   visualOpen: boolean;
 }) {
-  const player = usePlayer();
+  const player = usePlayerShell();
   const reduce = useReduceFx();
   const { showToast } = useSession();
   const rootRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const moreRef = useRef<HTMLButtonElement>(null);
+  const progressRef = useRef<HTMLSpanElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
   const inView = useInView(rootRef, variant === "cinema" ? 0.2 : 0.35);
 
@@ -61,6 +62,8 @@ export function LibraryCinemaTile({
   const playable = isPlayableAudioWork(d);
   const isCurrent = player.track?.id === d.id;
   const playing = isCurrent && player.playing;
+  const cinema = variant === "cinema";
+  const showProgress = cinemaProgressShouldShow({ cinema, isCurrent });
   const accent = paletteFor(d.seed)[0];
   const still = libraryStillUrl(d);
   const [c1, c2] = paletteFor(d.seed);
@@ -85,6 +88,23 @@ export function LibraryCinemaTile({
       v.pause();
     }
   }, [previewVideo, visualOpen]);
+
+  useEffect(() => {
+    if (!showProgress) return;
+    let raf = 0;
+    let running = true;
+    const tick = () => {
+      if (!running) return;
+      const el = progressRef.current;
+      if (el) el.style.transform = `scaleX(${getPlaybackProgress().fraction})`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+  }, [showProgress]);
 
   function toggleMedia(e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -117,8 +137,6 @@ export function LibraryCinemaTile({
     }
     onVisual();
   }
-
-  const cinema = variant === "cinema";
 
   return (
     <article
@@ -287,6 +305,19 @@ export function LibraryCinemaTile({
           ) : null}
         </div>
       </div>
+
+      {showProgress ? (
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-0.5 overflow-hidden bg-white/10"
+          data-testid="library-cinema-progress"
+        >
+          <span
+            ref={progressRef}
+            className="block h-full origin-left bg-white/80"
+            style={{ transform: "scaleX(0)" }}
+          />
+        </div>
+      ) : null}
 
       {menuAnchor !== null ? (
         <TrackActionMenu

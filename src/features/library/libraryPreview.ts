@@ -42,6 +42,11 @@ export function cinemaChromeShouldHide(input: {
   return input.scrolled || input.playingSettled;
 }
 
+/** Playing (or paused) work shows progress on the cinema tile. Scroll does not. */
+export function cinemaProgressShouldShow(input: { cinema: boolean; isCurrent: boolean }): boolean {
+  return input.cinema && input.isCurrent;
+}
+
 export function libraryStillUrl(drop: Drop): string | null {
   const kind = classifyDrop(drop);
   if (kind === "image" && drop.audioUrl) return drop.audioUrl;

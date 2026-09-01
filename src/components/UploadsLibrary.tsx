@@ -310,11 +310,39 @@ export function UploadsLibrary({
       )}
 
       {matched.length === 0 ? (
-        <EmptyState
-          icon={SearchX}
-          title="Nothing matches those filters"
-          body="Try a different search term, or clear the filters to see your whole library."
-        />
+        cinema ? (
+          <div
+            ref={scrollRef}
+            className="library-cinema no-scrollbar"
+            data-testid="library-results"
+          >
+            <div
+              className="library-cinema-tile flex flex-col items-center justify-center px-8 text-center"
+              data-testid="library-cinema-empty"
+            >
+              <p className="font-display text-2xl font-semibold tracking-tight text-white">
+                Nothing matches those filters
+              </p>
+              <p className="mt-2 max-w-sm text-[13px] text-white/45">
+                Try a different search term, or clear the filters to see your whole library.
+              </p>
+              <button
+                type="button"
+                onClick={() => setFilters({ ...EMPTY_FILTERS })}
+                data-testid="library-cinema-clear"
+                className="mt-5 rounded-full bg-white/[0.08] px-4 py-2 text-[12px] font-medium text-white/80 hover:bg-white/[0.12]"
+              >
+                Show all
+              </button>
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            icon={SearchX}
+            title="Nothing matches those filters"
+            body="Try a different search term, or clear the filters to see your whole library."
+          />
+        )
       ) : cinema ? (
         <div
           ref={scrollRef}

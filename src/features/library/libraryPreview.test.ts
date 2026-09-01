@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cinemaChromeShouldHide, cinemaScrollStartsAudio, cinemaVideoShouldPreview } from "./libraryPreview";
+import { cinemaChromeShouldHide, cinemaProgressShouldShow, cinemaScrollStartsAudio, cinemaVideoShouldPreview } from "./libraryPreview";
 
 describe("library cinema preview", () => {
   it("never starts AudioBus from scroll", () => {
@@ -39,5 +39,11 @@ describe("library cinema preview", () => {
     expect(cinemaVideoShouldPreview({ ...base, visualOpen: true })).toBe(false);
     expect(cinemaVideoShouldPreview({ ...base, kind: "audio" })).toBe(false);
     expect(cinemaVideoShouldPreview({ ...base, kind: "image" })).toBe(false);
+  });
+
+  it("shows cinema progress on the current work, not on scroll neighbors", () => {
+    expect(cinemaProgressShouldShow({ cinema: true, isCurrent: true })).toBe(true);
+    expect(cinemaProgressShouldShow({ cinema: true, isCurrent: false })).toBe(false);
+    expect(cinemaProgressShouldShow({ cinema: false, isCurrent: true })).toBe(false);
   });
 });
