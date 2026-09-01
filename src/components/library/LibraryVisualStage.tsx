@@ -3,23 +3,20 @@ import { ChevronLeft, ChevronRight, FileText, Pause, Play, X } from "lucide-reac
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { Waveform } from "@/components/Waveform";
-import { getPlaybackProgress, getSnapshot, pause, play, playTrack, seek, seekFraction, usePlayer } from "@/lib/audioBus";
+import { getPlaybackProgress, getSnapshot, pause, play, playTrack, seek, seekFraction, usePlayerShell } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import {
+  cinemaClockLabel,
   cinemaKeyboardTargetIsControl,
   cinemaPlayRestartsFromStart,
   cinemaProgressFraction,
+  cinemaProgressSeekFraction,
   cinemaVisualSpaceIsTap,
 } from "@/features/library/libraryPreview";
 import { paletteFor } from "@/lib/utils";
 import * as api from "@/lib/api";
 import type { Drop } from "@/types";
-
-function fmtTime(s: number): string {
-  if (!Number.isFinite(s) || s <= 0) return "0:00";
-  return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, "0")}`;
-}
 
 export function LibraryVisualStage({
   drops,
@@ -34,9 +31,11 @@ export function LibraryVisualStage({
   onIndex: (next: number) => void;
   onPlace?: (drop: Drop) => void;
 }) {
-  const player = usePlayer();
+  const player = usePlayerShell();
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const clockRef = useRef<HTMLParagraphElement>(null);
+  const progressRef = useRef<HTMLSpanElement>(null);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const drop = drops[index];
   const kind = drop ? classifyDrop(drop) : "file";
@@ -45,9 +44,16 @@ export function LibraryVisualStage({
   const isCurrent = !!drop && player.track?.id === drop.id;
   const playing = videoWork ? videoPlaying : isCurrent && player.playing;
   const accent = drop ? paletteFor(drop.seed)[0] : "#00c2ff";
-  const dur = (isCurrent ? player.duration : 0) || drop?.durationSec || 0;
-  const progress = isCurrent && dur > 0 ? player.currentTime / dur : 0;
   const peaks = drop?.waveform && drop.waveform.length ? drop.waveform : undefined;
+  const showBar = videoWork || (playable && !peaks);
+
+  const liveWave = useCallback(() => {
+    const clock = getPlaybackProgress();
+    return cinemaProgressFraction({
+      currentTime: clock.currentTime,
+      duration: clock.duration || drop?.durationSec || 0,
+    });
+  }, [drop?.durationSec]);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -115,6 +121,39 @@ export function LibraryVisualStage({
     };
   }, [drop?.id, kind]);
 
+  useEffect(() => {
+    if (!playable && !videoWork) return;
+    const known = drop?.durationSec || 0;
+    let raf = 0;
+    let running = true;
+    const tick = () => {
+      if (!running) return;
+      const v = videoWork ? videoRef.current : null;
+      const clock = v
+        ? {
+            currentTime: v.currentTime,
+            duration: (Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 0) || known,
+          }
+        : getPlaybackProgress();
+      const duration = clock.duration || known;
+      if (clockRef.current) {
+        clockRef.current.textContent = `${cinemaClockLabel(clock.currentTime)} / ${cinemaClockLabel(duration)}`;
+      }
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${cinemaProgressFraction({
+          currentTime: clock.currentTime,
+          duration,
+        })})`;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+  }, [playable, videoWork, drop?.id, drop?.durationSec]);
+
   const toggleMedia = useCallback(() => {
     if (videoWork) {
       const v = videoRef.current;
@@ -152,7 +191,7 @@ export function LibraryVisualStage({
         if (index > 0) onIndex(index - 1);
         return;
       }
-        if (
+      if (
         (e.key === " " || e.key === "Spacebar" || e.code === "Space") &&
         cinemaVisualSpaceIsTap({
           visualOpen: true,
@@ -166,6 +205,20 @@ export function LibraryVisualStage({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [index, drops.length, onClose, onIndex, toggleMedia]);
+
+  function scrubVisual(e: React.PointerEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const frac = cinemaProgressSeekFraction({ clientX: e.clientX, left: rect.left, width: rect.width });
+    if (videoWork) {
+      const v = videoRef.current;
+      if (!v || !(v.duration > 0)) return;
+      v.currentTime = frac * v.duration;
+      return;
+    }
+    seekFraction(frac);
+  }
 
   if (!drop) return null;
 
@@ -249,16 +302,45 @@ export function LibraryVisualStage({
           {kind === "audio" && peaks ? (
             <Waveform
               peaks={peaks}
-              progress={progress}
+              liveProgress={liveWave}
               accent={accent}
               height={48}
               className="mt-4"
               onSeek={(frac) => seekFraction(frac)}
             />
           ) : null}
-          {kind === "audio" ? (
-            <p className="mt-2 font-mono text-[11px] text-white/40">
-              {fmtTime(isCurrent ? player.currentTime : 0)} / {fmtTime(dur)}
+          {showBar ? (
+            <div
+              role="slider"
+              aria-label="Playback position"
+              aria-valuemin={0}
+              aria-valuemax={1}
+              data-testid="library-visual-progress"
+              className="mt-4 flex h-8 cursor-ew-resize items-end"
+              onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture(e.pointerId);
+                scrubVisual(e);
+              }}
+              onPointerMove={(e) => {
+                if (e.buttons) scrubVisual(e);
+              }}
+            >
+              <span className="block h-1 w-full overflow-hidden bg-white/15">
+                <span
+                  ref={progressRef}
+                  className="block h-full w-full origin-left bg-white/85"
+                  style={{ transform: "scaleX(0)" }}
+                />
+              </span>
+            </div>
+          ) : null}
+          {playable || videoWork ? (
+            <p
+              ref={clockRef}
+              data-testid="library-visual-clock"
+              className="mt-2 font-mono text-[11px] text-white/40"
+            >
+              0:00 / {cinemaClockLabel(drop.durationSec || 0)}
             </p>
           ) : null}
           <div className="mt-4 flex items-center justify-center gap-6">

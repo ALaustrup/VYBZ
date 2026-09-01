@@ -12,6 +12,8 @@ import {
   cinemaKeyboardIsGalleryNav,
   cinemaKeyboardTargetIsControl,
   cinemaVisualSpaceIsTap,
+  cinemaVisualClockIsLive,
+  cinemaClockLabel,
 } from "./libraryPreview";
 
 describe("library cinema preview", () => {
@@ -105,6 +107,14 @@ describe("library cinema preview", () => {
     expect(cinemaVisualSpaceIsTap({ visualOpen: true, targetIsControl: false })).toBe(true);
     expect(cinemaVisualSpaceIsTap({ visualOpen: false, targetIsControl: false })).toBe(false);
     expect(cinemaVisualSpaceIsTap({ visualOpen: true, targetIsControl: true })).toBe(false);
+  });
+
+  it("fills the visual clock live, with 0:00 for a missing time", () => {
+    expect(cinemaVisualClockIsLive()).toBe(true);
+    expect(cinemaClockLabel(0)).toBe("0:00");
+    expect(cinemaClockLabel(7)).toBe("0:07");
+    expect(cinemaClockLabel(65)).toBe("1:05");
+    expect(cinemaClockLabel(Number.NaN)).toBe("0:00");
   });
 
   it("treats fields and chrome as cinema key controls, not the gallery surface", () => {

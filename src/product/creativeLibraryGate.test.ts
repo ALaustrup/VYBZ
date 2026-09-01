@@ -86,6 +86,11 @@ describe("creative library", () => {
     expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("library-visual-tap");
     expect(read("src/components/library/LibraryVisualStage.tsx")).not.toContain("autoPlay");
     expect(read("src/components/library/LibraryVisualStage.tsx")).not.toMatch(/^\s*controls$/m);
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaVisualClockIsLive");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("usePlayerShell");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).not.toMatch(/\busePlayer\(/);
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("library-visual-clock");
+    expect(read("src/components/Waveform.tsx")).toContain("liveProgress");
     expect(read("src/features/library/libraryArrangement.ts")).toContain('view: "cinema"');
     expect(read("src/components/UploadsLibrary.tsx")).toContain("min-w-0 flex-1");
     expect(read("src/components/library/LibraryToolbar.tsx")).toContain('work" : "works"');

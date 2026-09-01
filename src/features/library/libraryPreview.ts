@@ -88,6 +88,17 @@ export function cinemaVisualSpaceIsTap(input: { visualOpen: boolean; targetIsCon
   return input.visualOpen && !input.targetIsControl;
 }
 
+/** Full-screen visual clock fills live. The stage does not subscribe to timeupdate. */
+export function cinemaVisualClockIsLive(): true {
+  return true;
+}
+
+/** Clock text for the visual stage. Missing time is 0:00, not NaN. */
+export function cinemaClockLabel(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
+  return `${Math.floor(seconds / 60)}:${Math.floor(seconds % 60).toString().padStart(2, "0")}`;
+}
+
 export function cinemaKeyboardTargetIsControl(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
