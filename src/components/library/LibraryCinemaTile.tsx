@@ -277,6 +277,7 @@ export function LibraryCinemaTile({
         type="button"
         onClick={toggleMedia}
         aria-label={playing ? "Pause" : kind === "image" || kind === "file" ? "Open" : "Play"}
+        data-testid="library-cinema-tap"
         className="absolute inset-0 z-10"
       />
 

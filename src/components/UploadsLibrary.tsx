@@ -9,6 +9,7 @@ import { LibraryShelfTile } from "@/components/library/LibraryShelfTile";
 import { LibraryCinemaTile } from "@/components/library/LibraryCinemaTile";
 import { LibraryVisualStage } from "@/components/library/LibraryVisualStage";
 import { useCinemaChrome } from "@/components/library/useCinemaChrome";
+import { useCinemaKeyboard } from "@/components/library/useCinemaKeyboard";
 import { PlaceOnVybzSheet } from "@/features/profile/PlaceOnVybzSheet";
 import {
   isComposed,
@@ -149,6 +150,13 @@ export function UploadsLibrary({
     cinema,
     filtersOpen,
     playing: watching,
+    reduceFx,
+    scrollRef,
+  });
+  useCinemaKeyboard({
+    cinema,
+    filtersOpen,
+    visualOpen: visualIndex >= 0,
     reduceFx,
     scrollRef,
   });

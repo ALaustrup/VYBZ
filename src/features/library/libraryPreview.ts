@@ -68,6 +68,39 @@ export function cinemaPlayRestartsFromStart(input: {
   return input.isCurrent && !input.playing && input.fraction >= 0.995;
 }
 
+/** Arrows move between works. They do not start speaker playback. */
+export function cinemaArrowStartsAudio(): false {
+  return false;
+}
+
+/** Space is a tap. Search, filters, menus, and full-screen keep their own keys. */
+export function cinemaKeyboardIsGalleryNav(input: {
+  cinema: boolean;
+  targetIsControl: boolean;
+  visualOpen: boolean;
+  filtersOpen: boolean;
+}): boolean {
+  return input.cinema && !input.targetIsControl && !input.visualOpen && !input.filtersOpen;
+}
+
+export function cinemaKeyboardTargetIsControl(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  const tag = target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || tag === "OPTION") return true;
+  return !!target.closest("button, a, [role='slider'], [role='combobox'], [role='menu']");
+}
+
+/** Snap index from gallery scroll. Viewport 0 or an empty gallery is the first work. */
+export function cinemaActiveTileIndex(input: {
+  scrollTop: number;
+  viewport: number;
+  count: number;
+}): number {
+  if (!(input.viewport > 0) || input.count <= 0) return 0;
+  return Math.max(0, Math.min(input.count - 1, Math.round(input.scrollTop / input.viewport)));
+}
+
 export function libraryStillUrl(drop: Drop): string | null {
   const kind = classifyDrop(drop);
   if (kind === "image" && drop.audioUrl) return drop.audioUrl;

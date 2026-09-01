@@ -7,6 +7,10 @@ import {
   cinemaProgressShouldShow,
   cinemaScrollStartsAudio,
   cinemaVideoShouldPreview,
+  cinemaActiveTileIndex,
+  cinemaArrowStartsAudio,
+  cinemaKeyboardIsGalleryNav,
+  cinemaKeyboardTargetIsControl,
 } from "./libraryPreview";
 
 describe("library cinema preview", () => {
@@ -76,5 +80,41 @@ describe("library cinema preview", () => {
     expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: false, fraction: 0.5 })).toBe(false);
     expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: true, fraction: 1 })).toBe(false);
     expect(cinemaPlayRestartsFromStart({ isCurrent: false, playing: false, fraction: 1 })).toBe(false);
+  });
+
+  it("never starts AudioBus from an arrow", () => {
+    expect(cinemaArrowStartsAudio()).toBe(false);
+  });
+
+  it("keeps cinema keys for the gallery, not for search, filters, or full-screen", () => {
+    const base = {
+      cinema: true,
+      targetIsControl: false,
+      visualOpen: false,
+      filtersOpen: false,
+    };
+    expect(cinemaKeyboardIsGalleryNav(base)).toBe(true);
+    expect(cinemaKeyboardIsGalleryNav({ ...base, cinema: false })).toBe(false);
+    expect(cinemaKeyboardIsGalleryNav({ ...base, targetIsControl: true })).toBe(false);
+    expect(cinemaKeyboardIsGalleryNav({ ...base, visualOpen: true })).toBe(false);
+    expect(cinemaKeyboardIsGalleryNav({ ...base, filtersOpen: true })).toBe(false);
+  });
+
+  it("treats fields and chrome as cinema key controls, not the gallery surface", () => {
+    const field = document.createElement("input");
+    const play = document.createElement("button");
+    const surface = document.createElement("div");
+    expect(cinemaKeyboardTargetIsControl(field)).toBe(true);
+    expect(cinemaKeyboardTargetIsControl(play)).toBe(true);
+    expect(cinemaKeyboardTargetIsControl(surface)).toBe(false);
+    expect(cinemaKeyboardTargetIsControl(null)).toBe(false);
+  });
+
+  it("snaps cinema index from gallery scroll, not past the last work", () => {
+    expect(cinemaActiveTileIndex({ scrollTop: 0, viewport: 500, count: 3 })).toBe(0);
+    expect(cinemaActiveTileIndex({ scrollTop: 500, viewport: 500, count: 3 })).toBe(1);
+    expect(cinemaActiveTileIndex({ scrollTop: 980, viewport: 500, count: 3 })).toBe(2);
+    expect(cinemaActiveTileIndex({ scrollTop: 0, viewport: 0, count: 3 })).toBe(0);
+    expect(cinemaActiveTileIndex({ scrollTop: 100, viewport: 500, count: 0 })).toBe(0);
   });
 });
