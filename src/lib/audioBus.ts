@@ -477,8 +477,14 @@ export function usePlayerShell(): PlayerShellSnapshot {
 
 /** Instant clock read for ref-driven progress (no React subscription). */
 export function getPlaybackProgress(): { currentTime: number; duration: number; fraction: number } {
-  const dur = snapshot.duration || snapshot.track?.durationSec || 0;
-  const t = audioEl?.currentTime ?? snapshot.currentTime;
+  const elDur = audioEl?.duration;
+  const dur =
+    (elDur && Number.isFinite(elDur) && elDur > 0 ? elDur : 0) ||
+    snapshot.duration ||
+    snapshot.track?.durationSec ||
+    0;
+  const raw = audioEl?.currentTime ?? snapshot.currentTime;
+  const t = Number.isFinite(raw) ? raw : 0;
   return {
     currentTime: t,
     duration: dur,

@@ -3,9 +3,16 @@ import { Check, FileText, Maximize2, MoreVertical, Pause, Play } from "lucide-re
 import { TrackVisualizer } from "@/components/TrackVisualizer";
 import { TrackActionMenu } from "@/components/TrackActionMenu";
 import type { MenuAnchor } from "@/components/menu/ContextMenu";
-import { pause, playTrack, getPlaybackProgress, usePlayerShell } from "@/lib/audioBus";
+import { pause, playTrack, getPlaybackProgress, seek, seekFraction, usePlayerShell } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
-import { cinemaProgressShouldShow, cinemaVideoShouldPreview, libraryStillUrl } from "@/features/library/libraryPreview";
+import {
+  cinemaPlayRestartsFromStart,
+  cinemaProgressFraction,
+  cinemaProgressSeekFraction,
+  cinemaProgressShouldShow,
+  cinemaVideoShouldPreview,
+  libraryStillUrl,
+} from "@/features/library/libraryPreview";
 import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import { useReduceFx } from "@/lib/display";
 import { useInView } from "@/components/library/useInView";
@@ -91,12 +98,17 @@ export function LibraryCinemaTile({
 
   useEffect(() => {
     if (!showProgress) return;
+    const known = d.durationSec || 0;
     let raf = 0;
     let running = true;
     const tick = () => {
       if (!running) return;
       const el = progressRef.current;
-      if (el) el.style.transform = `scaleX(${getPlaybackProgress().fraction})`;
+      if (el) {
+        const clock = getPlaybackProgress();
+        const duration = clock.duration || known;
+        el.style.transform = `scaleX(${cinemaProgressFraction({ currentTime: clock.currentTime, duration })})`;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -104,7 +116,7 @@ export function LibraryCinemaTile({
       running = false;
       cancelAnimationFrame(raf);
     };
-  }, [showProgress]);
+  }, [showProgress, d.durationSec]);
 
   function toggleMedia(e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -124,6 +136,12 @@ export function LibraryCinemaTile({
       return;
     }
     if (playable) {
+      const clock = getPlaybackProgress();
+      const fraction = cinemaProgressFraction({
+        currentTime: clock.currentTime,
+        duration: clock.duration || d.durationSec || 0,
+      });
+      if (cinemaPlayRestartsFromStart({ isCurrent, playing, fraction })) seek(0);
       if (!isCurrent) void api.recordPlay(d.id);
       playTrack(
         toPlayerTrack(d),
@@ -136,6 +154,13 @@ export function LibraryCinemaTile({
       return;
     }
     onVisual();
+  }
+
+  function scrubProgress(e: React.PointerEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    seekFraction(cinemaProgressSeekFraction({ clientX: e.clientX, left: rect.left, width: rect.width }));
   }
 
   return (
@@ -308,14 +333,28 @@ export function LibraryCinemaTile({
 
       {showProgress ? (
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-0.5 overflow-hidden bg-white/10"
+          role="slider"
+          aria-label="Playback position"
+          aria-valuemin={0}
+          aria-valuemax={1}
           data-testid="library-cinema-progress"
+          className="absolute inset-x-0 bottom-0 z-30 flex h-8 cursor-ew-resize items-end"
+          onPointerDown={(e) => {
+            e.currentTarget.setPointerCapture(e.pointerId);
+            scrubProgress(e);
+          }}
+          onPointerMove={(e) => {
+            if (e.buttons) scrubProgress(e);
+          }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <span
-            ref={progressRef}
-            className="block h-full origin-left bg-white/80"
-            style={{ transform: "scaleX(0)" }}
-          />
+          <span className="block h-1 w-full overflow-hidden bg-white/15">
+            <span
+              ref={progressRef}
+              className="block h-full w-full origin-left bg-white/85"
+              style={{ transform: "scaleX(0)" }}
+            />
+          </span>
         </div>
       ) : null}
 

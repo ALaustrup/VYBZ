@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { cinemaChromeShouldHide, cinemaProgressShouldShow, cinemaScrollStartsAudio, cinemaVideoShouldPreview } from "./libraryPreview";
+import {
+  cinemaChromeShouldHide,
+  cinemaPlayRestartsFromStart,
+  cinemaProgressFraction,
+  cinemaProgressSeekFraction,
+  cinemaProgressShouldShow,
+  cinemaScrollStartsAudio,
+  cinemaVideoShouldPreview,
+} from "./libraryPreview";
 
 describe("library cinema preview", () => {
   it("never starts AudioBus from scroll", () => {
@@ -45,5 +53,28 @@ describe("library cinema preview", () => {
     expect(cinemaProgressShouldShow({ cinema: true, isCurrent: true })).toBe(true);
     expect(cinemaProgressShouldShow({ cinema: true, isCurrent: false })).toBe(false);
     expect(cinemaProgressShouldShow({ cinema: false, isCurrent: true })).toBe(false);
+  });
+
+  it("fills cinema progress from a known duration, not from a missing clock", () => {
+    expect(cinemaProgressFraction({ currentTime: 3.5, duration: 7 })).toBe(0.5);
+    expect(cinemaProgressFraction({ currentTime: 0, duration: 7 })).toBe(0);
+    expect(cinemaProgressFraction({ currentTime: 7, duration: 7 })).toBe(1);
+    expect(cinemaProgressFraction({ currentTime: 9, duration: 7 })).toBe(1);
+    expect(cinemaProgressFraction({ currentTime: 3, duration: 0 })).toBe(0);
+    expect(cinemaProgressFraction({ currentTime: Number.NaN, duration: 7 })).toBe(0);
+  });
+
+  it("seeks cinema progress from a tap on the bar", () => {
+    expect(cinemaProgressSeekFraction({ clientX: 50, left: 0, width: 100 })).toBe(0.5);
+    expect(cinemaProgressSeekFraction({ clientX: -10, left: 0, width: 100 })).toBe(0);
+    expect(cinemaProgressSeekFraction({ clientX: 200, left: 0, width: 100 })).toBe(1);
+    expect(cinemaProgressSeekFraction({ clientX: 50, left: 0, width: 0 })).toBe(0);
+  });
+
+  it("restarts an ended cinema work on tap, not a neighbor or a playing work", () => {
+    expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: false, fraction: 1 })).toBe(true);
+    expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: false, fraction: 0.5 })).toBe(false);
+    expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: true, fraction: 1 })).toBe(false);
+    expect(cinemaPlayRestartsFromStart({ isCurrent: false, playing: false, fraction: 1 })).toBe(false);
   });
 });

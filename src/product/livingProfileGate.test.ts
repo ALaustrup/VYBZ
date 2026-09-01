@@ -95,6 +95,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("counts works, not tracks");
     expect(product).toContain("Cinema empty stays the gallery");
     expect(product).toContain("progress on the tile");
+    expect(product).toContain("Tap progress to move in the work");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");

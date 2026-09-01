@@ -72,8 +72,11 @@ describe("creative library", () => {
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaScrollStartsAudio");
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaChromeShouldHide");
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaProgressShouldShow");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaProgressFraction");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaProgressSeekFraction");
     expect(read("src/components/UploadsLibrary.tsx")).toContain("library-cinema-empty");
     expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("library-cinema-progress");
+    expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("seekFraction");
     expect(read("src/features/library/libraryArrangement.ts")).toContain('view: "cinema"');
     expect(read("src/components/UploadsLibrary.tsx")).toContain("min-w-0 flex-1");
     expect(read("src/components/library/LibraryToolbar.tsx")).toContain('work" : "works"');
