@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `7695fa90` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `4f921b76` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema visual clock fills live — 2026-09-01
+
+**Commit:** `4f921b76` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Full-screen visual clock fills live (`cinemaVisualClockIsLive`, `library-visual-clock`). The stage uses `usePlayerShell` and RAF instead of a timeupdate subscription. Waveform fills from `liveProgress`. Video on the stage gets the same clock and a seek bar (`library-visual-progress`). Space is still a tap. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 29 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; maximize opens `library-visual-stage`; clock `0:01 / 0:07` → `0:02 / 0:07` while Pause; waveform seek `0:07 → 0:03`; phone 390×844 clock `0:03 → 0:05`, Escape. Video clock on the stage: **Not measured** (catalog is one audio work). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema visual Space + video on the stage — 2026-09-01
 
