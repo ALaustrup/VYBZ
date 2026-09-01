@@ -10,6 +10,8 @@ import {
   cinemaVideoShouldPreview,
   cinemaActiveTileIndex,
   cinemaArrowStartsAudio,
+  cinemaEndedAdvancesWork,
+  cinemaPlaybackList,
   cinemaKeyboardIsGalleryNav,
   cinemaKeyboardTargetIsControl,
   cinemaVisualSpaceIsTap,
@@ -92,6 +94,12 @@ describe("library cinema preview", () => {
     expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: false, fraction: 0.5 })).toBe(false);
     expect(cinemaPlayRestartsFromStart({ isCurrent: true, playing: true, fraction: 1 })).toBe(false);
     expect(cinemaPlayRestartsFromStart({ isCurrent: false, playing: false, fraction: 1 })).toBe(false);
+  });
+
+  it("does not start the next work when this one ends", () => {
+    expect(cinemaEndedAdvancesWork()).toBe(false);
+    expect(cinemaPlaybackList({ current: "a", neighbors: ["a", "b", "c"] })).toEqual(["a"]);
+    expect(cinemaPlaybackList({ current: "b", neighbors: ["a", "b"] })).toEqual(["b"]);
   });
 
   it("never starts AudioBus from an arrow", () => {

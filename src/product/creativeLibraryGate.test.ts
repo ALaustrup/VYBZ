@@ -90,6 +90,11 @@ describe("creative library", () => {
     expect(read("src/components/library/LibraryVisualStage.tsx")).not.toContain("autoPlay");
     expect(read("src/components/library/LibraryVisualStage.tsx")).not.toMatch(/^\s*controls$/m);
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaVisualClockIsLive");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaEndedAdvancesWork");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaPlaybackList");
+    expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("cinemaPlaybackList");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("cinemaPlaybackList");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("cinemaEndedAdvancesWork");
     expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("usePlayerShell");
     expect(read("src/components/library/LibraryVisualStage.tsx")).not.toMatch(/\busePlayer\(/);
     expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("library-visual-clock");

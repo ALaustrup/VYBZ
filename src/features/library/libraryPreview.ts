@@ -79,6 +79,17 @@ export function cinemaPlayRestartsFromStart(input: {
   return input.isCurrent && !input.playing && input.fraction >= 0.995;
 }
 
+/** Ending a work does not start the next work. Arrows and taps still move. */
+export function cinemaEndedAdvancesWork(): false {
+  return false;
+}
+
+/** Cinema and visual play this work only. Neighbors stay for arrows, not for ended. */
+export function cinemaPlaybackList<T>(input: { current: T; neighbors: T[] }): T[] {
+  if (cinemaEndedAdvancesWork()) return input.neighbors;
+  return [input.current];
+}
+
 /** Arrows move between works. They do not start speaker playback. */
 export function cinemaArrowStartsAudio(): false {
   return false;

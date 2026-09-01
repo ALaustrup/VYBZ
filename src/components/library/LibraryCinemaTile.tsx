@@ -6,6 +6,7 @@ import type { MenuAnchor } from "@/components/menu/ContextMenu";
 import { pause, playTrack, getPlaybackProgress, seek, seekFraction, usePlayerShell } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import {
+  cinemaPlaybackList,
   cinemaPlayRestartsFromStart,
   cinemaProgressFraction,
   cinemaProgressSeekFraction,
@@ -191,9 +192,13 @@ export function LibraryCinemaTile({
       });
       if (cinemaPlayRestartsFromStart({ isCurrent, playing, fraction })) seek(0);
       if (!isCurrent) void api.recordPlay(d.id);
+      const track = toPlayerTrack(d);
       playTrack(
-        toPlayerTrack(d),
-        queue.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
+        track,
+        cinemaPlaybackList({
+          current: track,
+          neighbors: queue.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
+        }),
       );
       return;
     }

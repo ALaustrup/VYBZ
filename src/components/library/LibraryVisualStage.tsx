@@ -8,7 +8,9 @@ import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import {
   cinemaClockLabel,
+  cinemaEndedAdvancesWork,
   cinemaKeyboardTargetIsControl,
+  cinemaPlaybackList,
   cinemaPlayRestartsFromStart,
   cinemaProgressFraction,
   cinemaProgressSeekFraction,
@@ -91,9 +93,13 @@ export function LibraryVisualStage({
       }
       if (!current) {
         void api.recordPlay(drop.id);
+        const track = toPlayerTrack(drop);
         playTrack(
-          toPlayerTrack(drop),
-          drops.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
+          track,
+          cinemaPlaybackList({
+            current: track,
+            neighbors: drops.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
+          }),
         );
       } else if (!snap.playing) {
         void play();
@@ -112,14 +118,20 @@ export function LibraryVisualStage({
       return;
     }
     const sync = () => setVideoPlaying(!v.paused);
+    const onEnded = () => {
+      if (!cinemaEndedAdvancesWork()) return;
+      if (index < drops.length - 1) onIndex(index + 1);
+    };
     sync();
     v.addEventListener("play", sync);
     v.addEventListener("pause", sync);
+    v.addEventListener("ended", onEnded);
     return () => {
       v.removeEventListener("play", sync);
       v.removeEventListener("pause", sync);
+      v.removeEventListener("ended", onEnded);
     };
-  }, [drop?.id, kind]);
+  }, [drop?.id, kind, index, drops.length, onIndex]);
 
   useEffect(() => {
     if (!playable && !videoWork) return;
@@ -169,9 +181,13 @@ export function LibraryVisualStage({
       duration: clock.duration || drop.durationSec || 0,
     });
     if (cinemaPlayRestartsFromStart({ isCurrent, playing: isCurrent && player.playing, fraction })) seek(0);
+    const track = toPlayerTrack(drop);
     playTrack(
-      toPlayerTrack(drop),
-      drops.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
+      track,
+      cinemaPlaybackList({
+        current: track,
+        neighbors: drops.filter((x) => isPlayableAudioWork(x)).map(toPlayerTrack),
+      }),
     );
   }, [videoWork, drop, playable, isCurrent, player.playing, drops]);
 
