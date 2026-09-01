@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-08-31
-**Branch:** `feat/heard-and-node` @ `a384a171` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `ee063c18` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Cinema header is quiet — 2026-08-31
+
+**Commit:** `ee063c18` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Library header is **Works, This device, and Upload**. Mixes, Projects, and scans stay in More (`library-more-sections`) — routes and testids stay. Phone cinema collapses the five view icons into one control (`library-view-menu`); sm+ still shows all five. Cinema tile scrim is lighter so the visualizer reads. Overlay still recedes. Grid / list / table / shelves stay.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + Living Mix gates: **3 files / 21 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema header is Works / This device / More / Upload; More opens Mixes, Projects 0, 6 scans; Mixes tab `library?tab=mixes` with Mix this catalog; Works returns to cinema; This device honesty copy still present; phone 390×844 More + Upload, view menu expands Cinema/Grid/List/Table/Shelves, List still stacks chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema overlay one bar — 2026-08-31
 
