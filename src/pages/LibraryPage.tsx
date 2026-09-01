@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Check,
   Film,
   Image as ImageIcon,
   Layers,
-  ListChecks,
   Loader2,
   Pencil,
   Trash2,
@@ -15,7 +14,7 @@ import {
 import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { MixesLibrary } from "@/features/livingMix/MixesLibrary";
 import { EmptyState } from "@/components/EmptyState";
-import { ForgeChip, ToolWorkbench } from "@/components/ToolWorkbench";
+import { ToolWorkbench } from "@/components/ToolWorkbench";
 import { LocalAssetsLibrary } from "@/components/library/LocalAssetsLibrary";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -24,6 +23,7 @@ import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import { listVisibleCatalog } from "@/features/assetNode/catalog";
+import { cx } from "@/lib/utils";
 
 const LIBRARY_TABS = ["tracks", "device", "mixes", "projects", "stages"] as const;
 type Tab = (typeof LIBRARY_TABS)[number];
@@ -109,27 +109,41 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
   return (
     <ToolWorkbench
       wide
+      wave={false}
       testId="library-desk"
-      className="library-desk flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
+      className="library-desk flex h-full !max-w-none min-h-0 flex-col !px-3 !pb-[calc(var(--dock-reserve,6.25rem)+0.75rem)] !pt-2 sm:!px-5"
     >
-      <header className="flex items-end justify-between gap-3 px-0.5">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
-            Library
-          </p>
-          <h1 className="font-display text-lg font-semibold text-white">Your work</h1>
-          <p className="mt-0.5 text-[12px] text-white/40">
-            {loading
-              ? "…"
-              : `${trackTotal || drops.length} ${trackTotal === 1 ? "work" : "works"} · ${localCount} on this device`}
-          </p>
+      <header className="flex items-center gap-2">
+        <div
+          className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto"
+          data-testid="library-tabs"
+          role="tablist"
+          aria-label="Library sections"
+        >
+          <QuietTab active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
+            Works
+            <span className="ml-1 font-mono text-white/35">
+              {loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length}
+            </span>
+          </QuietTab>
+          <QuietTab active={tab === "device"} onClick={() => setTab("device")} testId="library-tab-device">
+            This device
+            <span className="ml-1 font-mono text-white/35">{localCount}</span>
+          </QuietTab>
+          <QuietTab active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
+            Mixes
+          </QuietTab>
+          <QuietTab active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
+            Projects
+            <span className="ml-1 font-mono text-white/35">{posts.length}</span>
+          </QuietTab>
         </div>
         {onCompose ? (
           <button
             type="button"
             onClick={onCompose}
             data-testid="library-upload-header"
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.06] px-3 text-[12px] font-semibold text-white/85"
+            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-3 text-[12px] font-medium text-white/80"
           >
             <Upload className="h-3.5 w-3.5" />
             Upload
@@ -138,51 +152,15 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
       </header>
 
       {scans.length > 0 && (
-        <section className="forge-glass relative !rounded-2xl p-3" aria-label="Analyzer scans" data-testid="library-scan-strip">
-          <span className="forge-glass-edge pointer-events-none" aria-hidden />
-          <div className="relative z-[1] mb-2 flex items-center justify-between gap-2">
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
-              <ListChecks className="h-3.5 w-3.5 text-[rgb(var(--app-accent-rgb))]" /> Scans
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate("/releases")}
-              className="text-[11px] font-semibold text-white/50 hover:text-white/80"
-            >
-              Open scan
-            </button>
-          </div>
-          <div className="relative z-[1] no-scrollbar flex gap-2 overflow-x-auto pb-0.5">
-            {scans.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => navigate(`/release/${r.id}`)}
-                className="forge-card min-w-[10.5rem] shrink-0 !p-3 text-left active:scale-[0.99]"
-              >
-                <p className="truncate text-[13px] font-medium text-white/90">{r.title || "Untitled scan"}</p>
-                <p className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{r.status}</p>
-              </button>
-            ))}
-          </div>
-        </section>
+        <button
+          type="button"
+          onClick={() => navigate("/releases")}
+          data-testid="library-scan-strip"
+          className="self-start text-[11px] text-white/30 hover:text-white/60"
+        >
+          {scans.length} {scans.length === 1 ? "scan" : "scans"}
+        </button>
       )}
-
-      <div className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid="library-tabs" role="tablist" aria-label="Library sections">
-        <ForgeChip active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
-          {/* While paging, show progress rather than a total that is still growing. */}
-          Works ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
-        </ForgeChip>
-        <ForgeChip active={tab === "device"} onClick={() => setTab("device")} testId="library-tab-device">
-          This device ({localCount})
-        </ForgeChip>
-        <ForgeChip active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
-          Mixes
-        </ForgeChip>
-        <ForgeChip active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
-          Projects ({posts.length})
-        </ForgeChip>
-      </div>
 
       {tab === "device" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
@@ -218,6 +196,34 @@ export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
         </div>
       )}
     </ToolWorkbench>
+  );
+}
+
+function QuietTab({
+  active,
+  onClick,
+  testId,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  testId: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      data-testid={testId}
+      onClick={onClick}
+      className={cx(
+        "shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition",
+        active ? "bg-white/[0.1] text-white" : "text-white/40 hover:text-white/70",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 

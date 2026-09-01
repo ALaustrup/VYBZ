@@ -31,6 +31,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.oneProfileTwoPerspectives).toBe(true);
     expect(LIVING_PROFILE.creativeWorkIsUniversal).toBe(true);
     expect(LIVING_PROFILE.libraryIngestsUniversalWork).toBe(true);
+    expect(LIVING_PROFILE.libraryIsMediaGallery).toBe(true);
     expect(LIVING_PROFILE.toolsServeWork).toBe(true);
     expect(LIVING_PROFILE.customizationWithoutScriptInjection).toBe(true);
     expect(LIVING_PROFILE.privateByDefaultPublicByIntent).toBe(true);
@@ -87,6 +88,8 @@ describe("living profile constitution", () => {
     expect(product).toContain("text, and collection");
     expect(product).toContain("Place on your VYBZ");
     expect(product).toContain("audio, image, video, or a file");
+    expect(product).toContain("Library is a media gallery");
+    expect(product).toContain("Sound starts on tap");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
@@ -176,7 +179,9 @@ describe("living profile constitution", () => {
     expect(read("src/features/profile/stageComposition.ts")).toContain("placeDrops");
     expect(read("src/features/profile/PlaceOnVybzSheet.tsx")).toContain("Place on your VYBZ");
     expect(read("src/pages/UserProfilePage.tsx")).toContain("applyDropComposition");
+    expect(read("src/lib/libraryQuery.ts")).toContain('"cinema"');
     expect(read("src/lib/libraryQuery.ts")).toContain('"shelves"');
+    expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "cinema"');
     expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "shelves"');
   });
 

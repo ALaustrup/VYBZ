@@ -9,7 +9,7 @@ import { classifyDrop, type WorkKind } from "@/features/profile/workKind";
  * storefront status, sales — are deliberately absent rather than shown and broken.
  */
 
-export type LibraryView = "grid" | "list" | "table" | "shelves";
+export type LibraryView = "cinema" | "grid" | "list" | "table" | "shelves";
 
 export type LibrarySort =
   | "newest"

@@ -172,6 +172,8 @@ export const LIVING_PROFILE = {
   liveIsProfilePresence: true,
   /** Library intake is Creative Work — audio, image, video, file. Not a song catalog. */
   libraryIngestsUniversalWork: true,
+  /** Library is a media gallery. Cinema, grid, list, table, shelves. Sound starts on tap. */
+  libraryIsMediaGallery: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */

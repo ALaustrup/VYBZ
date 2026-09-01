@@ -19,6 +19,7 @@ describe("creative library", () => {
   it("is a registered gate", () => {
     expect(GATE_REGISTRY).toContain("creativeLibrary");
     expect(LIVING_PROFILE.libraryIngestsUniversalWork).toBe(true);
+    expect(LIVING_PROFILE.libraryIsMediaGallery).toBe(true);
     expect(LIVING_PROFILE.creativeWorkIsUniversal).toBe(true);
     expect(LIVING_PROFILE.oneLibrary).toBe(true);
     expect(LIVING_PROFILE.libraryToProfilePipeline).toBe(true);
@@ -58,5 +59,15 @@ describe("creative library", () => {
     expect(library).toContain("library-kind-${chip.id}");
     expect(query).toContain("workKind");
     expect(read("src/App.tsx")).toContain("LibraryPage key={feedKey} onCompose=");
+  });
+
+  it("is a media gallery with cinema, remembered views, and tap-to-play sound", () => {
+    expect(LIVING_PROFILE.libraryIsMediaGallery).toBe(true);
+    expect(read("src/lib/libraryQuery.ts")).toContain('"cinema"');
+    expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "cinema"');
+    expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("muted");
+    expect(read("src/components/library/LibraryVisualStage.tsx")).toContain("OverlayPortal");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaScrollStartsAudio");
+    expect(read("src/features/library/libraryArrangement.ts")).toContain('view: "cinema"');
   });
 });
