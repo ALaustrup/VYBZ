@@ -96,6 +96,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("Cinema empty stays the gallery");
     expect(product).toContain("progress on the tile");
     expect(product).toContain("Tap progress to move in the work");
+    expect(product).toContain("Playing video shows progress on the tile");
     expect(product).toContain("Arrows move between works");
     expect(product).toContain("Space is a tap");
     expect(product).toContain("Arrows do not start sound");

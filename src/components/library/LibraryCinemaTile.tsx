@@ -10,6 +10,7 @@ import {
   cinemaProgressFraction,
   cinemaProgressSeekFraction,
   cinemaProgressShouldShow,
+  cinemaVideoProgressShouldShow,
   cinemaVideoShouldPreview,
   libraryStillUrl,
 } from "@/features/library/libraryPreview";
@@ -63,14 +64,19 @@ export function LibraryCinemaTile({
   const moreRef = useRef<HTMLButtonElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<MenuAnchor | null>(null);
+  const [videoUnmuted, setVideoUnmuted] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const inView = useInView(rootRef, variant === "cinema" ? 0.2 : 0.35);
 
   const kind = classifyDrop(d);
   const playable = isPlayableAudioWork(d);
+  const videoWork = kind === "video" && !!d.audioUrl;
   const isCurrent = player.track?.id === d.id;
-  const playing = isCurrent && player.playing;
+  const playing = videoWork ? videoPlaying : isCurrent && player.playing;
   const cinema = variant === "cinema";
-  const showProgress = cinemaProgressShouldShow({ cinema, isCurrent });
+  const showProgress =
+    cinemaProgressShouldShow({ cinema, isCurrent }) ||
+    cinemaVideoProgressShouldShow({ cinema, video: videoWork, unmuted: videoUnmuted });
   const accent = paletteFor(d.seed)[0];
   const still = libraryStillUrl(d);
   const [c1, c2] = paletteFor(d.seed);
@@ -80,21 +86,45 @@ export function LibraryCinemaTile({
     reduceFx: reduce,
     audioPlaying: player.playing,
     visualOpen,
+    unmuted: videoUnmuted,
   });
   const showStage = kind === "audio" && (inView || playing);
-  const showVideo = kind === "video" && !!d.audioUrl && inView && !visualOpen;
+  const showVideo = videoWork && inView && !visualOpen;
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (previewVideo) {
       v.muted = true;
+      v.loop = true;
       v.playsInline = true;
       void v.play().catch(() => {});
-    } else if (!visualOpen) {
+    } else if (!visualOpen && !videoUnmuted) {
       v.pause();
     }
-  }, [previewVideo, visualOpen]);
+  }, [previewVideo, visualOpen, videoUnmuted]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !videoWork) {
+      setVideoUnmuted(false);
+      setVideoPlaying(false);
+      return;
+    }
+    const sync = () => {
+      setVideoUnmuted(!v.muted);
+      setVideoPlaying(!v.paused && !v.muted);
+    };
+    sync();
+    v.addEventListener("play", sync);
+    v.addEventListener("pause", sync);
+    v.addEventListener("volumechange", sync);
+    return () => {
+      v.removeEventListener("play", sync);
+      v.removeEventListener("pause", sync);
+      v.removeEventListener("volumechange", sync);
+    };
+  }, [d.id, videoWork, showVideo]);
 
   useEffect(() => {
     if (!showProgress) return;
@@ -105,7 +135,13 @@ export function LibraryCinemaTile({
       if (!running) return;
       const el = progressRef.current;
       if (el) {
-        const clock = getPlaybackProgress();
+        const v = videoWork ? videoRef.current : null;
+        const clock = v && !v.muted
+          ? {
+              currentTime: v.currentTime,
+              duration: (Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 0) || known,
+            }
+          : getPlaybackProgress();
         const duration = clock.duration || known;
         el.style.transform = `scaleX(${cinemaProgressFraction({ currentTime: clock.currentTime, duration })})`;
       }
@@ -116,7 +152,7 @@ export function LibraryCinemaTile({
       running = false;
       cancelAnimationFrame(raf);
     };
-  }, [showProgress, d.durationSec]);
+  }, [showProgress, d.durationSec, videoWork]);
 
   function toggleMedia(e?: React.MouseEvent) {
     e?.stopPropagation();
@@ -127,8 +163,20 @@ export function LibraryCinemaTile({
         onVisual();
         return;
       }
+      const duration = (Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 0) || d.durationSec || 0;
+      const fraction = cinemaProgressFraction({ currentTime: v.currentTime, duration });
+      if (
+        cinemaPlayRestartsFromStart({
+          isCurrent: !v.muted,
+          playing: !v.paused && !v.muted,
+          fraction,
+        })
+      ) {
+        v.currentTime = 0;
+      }
       if (v.paused || v.muted) {
         v.muted = false;
+        v.loop = false;
         void v.play().catch(() => onVisual());
       } else {
         v.pause();
@@ -160,7 +208,16 @@ export function LibraryCinemaTile({
     e.stopPropagation();
     e.preventDefault();
     const rect = e.currentTarget.getBoundingClientRect();
-    seekFraction(cinemaProgressSeekFraction({ clientX: e.clientX, left: rect.left, width: rect.width }));
+    const frac = cinemaProgressSeekFraction({ clientX: e.clientX, left: rect.left, width: rect.width });
+    if (videoWork) {
+      const v = videoRef.current;
+      if (!v) return;
+      const duration = (Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 0) || d.durationSec || 0;
+      if (!(duration > 0)) return;
+      v.currentTime = frac * duration;
+      return;
+    }
+    seekFraction(frac);
   }
 
   return (
@@ -184,7 +241,6 @@ export function LibraryCinemaTile({
           className="absolute inset-0 h-full w-full object-cover"
           muted
           playsInline
-          loop
           preload="metadata"
           aria-hidden={previewVideo}
         />

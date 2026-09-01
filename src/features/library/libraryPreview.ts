@@ -11,13 +11,15 @@ export function cinemaVideoShouldPreview(input: {
   reduceFx: boolean;
   audioPlaying: boolean;
   visualOpen: boolean;
+  unmuted?: boolean;
 }): boolean {
   return (
     input.kind === "video" &&
     input.inView &&
     !input.reduceFx &&
     !input.audioPlaying &&
-    !input.visualOpen
+    !input.visualOpen &&
+    !input.unmuted
   );
 }
 
@@ -45,6 +47,15 @@ export function cinemaChromeShouldHide(input: {
 /** Playing (or paused) work shows progress on the cinema tile. Scroll does not. */
 export function cinemaProgressShouldShow(input: { cinema: boolean; isCurrent: boolean }): boolean {
   return input.cinema && input.isCurrent;
+}
+
+/** Playing video shows progress on the tile. Muted preview is not the playing work. */
+export function cinemaVideoProgressShouldShow(input: {
+  cinema: boolean;
+  video: boolean;
+  unmuted: boolean;
+}): boolean {
+  return input.cinema && input.video && input.unmuted;
 }
 
 /** Clock → bar. Duration 0 or a bad clock is an empty bar, not NaN. */

@@ -77,6 +77,9 @@ describe("creative library", () => {
     expect(read("src/components/UploadsLibrary.tsx")).toContain("library-cinema-empty");
     expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("library-cinema-progress");
     expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("seekFraction");
+    expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaVideoProgressShouldShow");
+    expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("cinemaVideoProgressShouldShow");
+    expect(read("src/components/library/LibraryCinemaTile.tsx")).toContain("v.currentTime");
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaArrowStartsAudio");
     expect(read("src/features/library/libraryPreview.ts")).toContain("cinemaKeyboardIsGalleryNav");
     expect(read("src/components/library/useCinemaKeyboard.ts")).toContain("library-cinema-tap");

@@ -5,6 +5,7 @@ import {
   cinemaProgressFraction,
   cinemaProgressSeekFraction,
   cinemaProgressShouldShow,
+  cinemaVideoProgressShouldShow,
   cinemaScrollStartsAudio,
   cinemaVideoShouldPreview,
   cinemaActiveTileIndex,
@@ -52,6 +53,7 @@ describe("library cinema preview", () => {
     expect(cinemaVideoShouldPreview({ ...base, reduceFx: true })).toBe(false);
     expect(cinemaVideoShouldPreview({ ...base, audioPlaying: true })).toBe(false);
     expect(cinemaVideoShouldPreview({ ...base, visualOpen: true })).toBe(false);
+    expect(cinemaVideoShouldPreview({ ...base, unmuted: true })).toBe(false);
     expect(cinemaVideoShouldPreview({ ...base, kind: "audio" })).toBe(false);
     expect(cinemaVideoShouldPreview({ ...base, kind: "image" })).toBe(false);
   });
@@ -60,6 +62,13 @@ describe("library cinema preview", () => {
     expect(cinemaProgressShouldShow({ cinema: true, isCurrent: true })).toBe(true);
     expect(cinemaProgressShouldShow({ cinema: true, isCurrent: false })).toBe(false);
     expect(cinemaProgressShouldShow({ cinema: false, isCurrent: true })).toBe(false);
+  });
+
+  it("shows cinema video progress when unmuted, not on muted preview", () => {
+    expect(cinemaVideoProgressShouldShow({ cinema: true, video: true, unmuted: true })).toBe(true);
+    expect(cinemaVideoProgressShouldShow({ cinema: true, video: true, unmuted: false })).toBe(false);
+    expect(cinemaVideoProgressShouldShow({ cinema: true, video: false, unmuted: true })).toBe(false);
+    expect(cinemaVideoProgressShouldShow({ cinema: false, video: true, unmuted: true })).toBe(false);
   });
 
   it("fills cinema progress from a known duration, not from a missing clock", () => {
