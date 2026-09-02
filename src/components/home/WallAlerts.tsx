@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Check, Loader2, UserPlus, X, ChevronLeft, ChevronRight, Bell,
+  Check, Handshake, Loader2, X, ChevronLeft, ChevronRight, Bell,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { useMessagePopout } from "@/lib/messagePopout";
@@ -116,7 +116,7 @@ export function WallAlerts({
       <div className="forge-card border-feel/30 ring-1 ring-feel/25">
         <div className="flex items-start gap-3">
           <span className="forge-card-icon flex h-10 w-10 shrink-0 items-center justify-center text-feel">
-            {isConn || isExpiredNudge ? <UserPlus className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
+            {isConn || isExpiredNudge ? <Handshake className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-display text-sm font-semibold text-white">{current.title}</p>
@@ -143,7 +143,7 @@ export function WallAlerts({
           {isExpiredNudge && (
             <button type="button" disabled={acting} onClick={() => void reconnect()}
               className="forge-cta h-9 w-full !min-h-9 !px-3 !text-xs disabled:opacity-50">
-              {acting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+              {acting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Handshake className="h-3.5 w-3.5" />}
               Send again + hello
             </button>
           )}

@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContextualAppBar } from "@/components/shell/ContextualAppBar";
-import { SongWorkspaceBanner } from "@/features/workspace/SongWorkspaceBanner";
 import { useShellMode } from "@/platform/bridge/PlatformProvider";
 import { CommandBar } from "@/shell/CommandBar";
 import { CommandPalette } from "@/shell/CommandPalette";
@@ -54,7 +53,7 @@ export function SuiteShell({
         {/* SuiteAppRail stays in the tree, imported by nothing — not a second nav system. */}
         {showCommandBar ? <CommandBar /> : null}
         {isPackPipelinePath(pathname) ? <PackPipelineBar /> : null}
-        <SongWorkspaceBanner />
+        {/* SongWorkspaceBanner stays in src/features/workspace/SongWorkspaceBanner.tsx — hidden from default chrome. */}
         <div className="flex min-h-0 flex-1 overflow-hidden">
           <SuiteStage>{stage}</SuiteStage>
         </div>

@@ -483,7 +483,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
             </div>
             <div className="flex items-center gap-2 px-3 py-2.5">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white/90">{d.title || "Untitled track"}</p>
+                <p className="truncate text-sm font-medium text-white/90">{d.title || "Untitled work"}</p>
                 <p className="text-[11px] text-white/40">Stage backdrop</p>
               </div>
               <button
@@ -491,7 +491,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
                 onClick={onOpenDrop}
                 className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/70 hover:text-white active:scale-95"
               >
-                Manage track
+                Manage work
               </button>
             </div>
           </li>

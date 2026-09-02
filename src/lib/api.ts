@@ -22,6 +22,7 @@ import type {
   SocialScore,
 } from "@/types";
 import { canStartLive } from "@/features/airtime/atcApi";
+import { connectButtonIsSpent } from "@/features/network/connectStatus";
 import { openProvenanceForLive, sealProvenanceForLive } from "@/features/provenance/provenanceApi";
 import {
   audioModeForSource,
@@ -2626,6 +2627,17 @@ export async function connect(peerId: string): Promise<boolean> {
     .from("connections")
     .upsert({ requester_id: uid, addressee_id: peerId, status: "pending" });
   return !error;
+}
+
+/** True when a pending or accepted connection already exists in either direction. */
+export async function connectionBlocksNewRequest(peerId: string): Promise<boolean> {
+  const uid = await currentUserId();
+  if (!uid || uid === peerId) return false;
+  const [outgoing, incoming] = await Promise.all([
+    db().from("connections").select("status").eq("requester_id", uid).eq("addressee_id", peerId).maybeSingle(),
+    db().from("connections").select("status").eq("requester_id", peerId).eq("addressee_id", uid).maybeSingle(),
+  ]);
+  return connectButtonIsSpent(outgoing.data?.status) || connectButtonIsSpent(incoming.data?.status);
 }
 
 /** Accept or decline an incoming connection request (addressee only). */

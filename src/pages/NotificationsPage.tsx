@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Briefcase, Check, Loader2, MessageCircle, UserPlus, X } from "lucide-react";
+import { Bell, Briefcase, Check, Handshake, Loader2, MessageCircle, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { useSession } from "@/store/session";
@@ -9,7 +9,7 @@ import { filterAlertsNotifications, isChatNotification } from "@/lib/notificatio
 import type { AppNotification } from "@/types";
 
 const ICON: Record<string, typeof Bell> = {
-  connection: UserPlus,
+  connection: Handshake,
   application: Briefcase,
   message: MessageCircle,
   match: Bell,

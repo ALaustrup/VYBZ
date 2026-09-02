@@ -80,7 +80,7 @@ export function isPlaceholderPath(path: string, flags?: { storefront: boolean })
  * same dishonesty as offering a placeholder.
  */
 export const WORKING_DESTINATIONS: readonly Destination[] = [
-  { path: "/", title: "Home", keywords: ["home", "people", "live", "network"] },
+  { path: "/", title: "Home", keywords: ["home", "people", "live", "network", "follow", "following"] },
   { path: "/workspace", title: "Workspace", keywords: ["dashboard", "work", "hub"] },
   { path: "/make", title: "Make pack", keywords: ["upload", "pipeline", "sample pack", "flow"] },
   { path: "/make/dashboard", title: "Sales", keywords: ["orders", "sales", "dashboard"] },
@@ -105,7 +105,7 @@ export const WORKING_DESTINATIONS: readonly Destination[] = [
   { path: "/notifications", title: "Notifications", keywords: ["alerts", "requests", "activity", "unread"] },
   { path: "/rooms", title: "Rooms", keywords: ["collab", "sessions"] },
   { path: "/social", title: "Social", keywords: ["people", "network"] },
-  { path: "/connect", title: "Connect", keywords: ["people", "follow"] },
+  { path: "/connect", title: "Connect", keywords: ["people", "request", "collab"] },
   { path: "/opportunities", title: "Opportunities", keywords: ["gigs", "briefs", "sync"] },
   { path: "/store", title: "Store", keywords: ["credits", "cosmetics", "buy", "vc"] },
   { path: "/market", title: "Shop", keywords: ["packs", "browse", "buy", "sample packs", "storefront", "market"], flag: "storefront" },

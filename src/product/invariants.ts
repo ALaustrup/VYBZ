@@ -174,6 +174,8 @@ export const LIVING_PROFILE = {
   libraryIngestsUniversalWork: true,
   /** Library is a media gallery. Cinema, grid, list, table, shelves. Sound starts on tap. */
   libraryIsMediaGallery: true,
+  /** Sign-in does not start speaker audio. Ambient radio may seed a queue. */
+  soundDoesNotStartOnSignIn: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -364,6 +366,8 @@ export const ARTIST_STAGE_PROFILE = {
   liveNightsLead: true,
   /** Connect is a request. The other person must accept. */
   connectIsARequest: true,
+  /** Stage File Connect pending/accepted hydrates from connections, not local state only. */
+  connectRequestHydratesFromServer: true,
   /** Book-a-session opens a DM and must say it is not a calendar. */
   bookIsAMessageNotACalendar: true,
   /** Profile cells are measured or omitted. Unknown is not invented. */
@@ -399,6 +403,10 @@ export const CREATOR_NETWORK = {
   exploreIsOnSocialHome: true,
   /** Home discovery composes live, rooms, library, taste, and hear — not a second stack. */
   homeComposesExistingDiscovery: true,
+  /** Search for Follow opens Home / Following, not Connect. */
+  searchFollowIsNotConnect: true,
+  /** Home work acknowledgment is VYB, not Like. */
+  vybLabelIsVyb: true,
 } as const;
 
 /** Chat (`message`) badges and lists stay on Chat — never Alerts or `/notifications`. */

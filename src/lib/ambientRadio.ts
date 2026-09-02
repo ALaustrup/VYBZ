@@ -1,6 +1,5 @@
 /**
- * Always-on ambient radio — seeds AudioBus after auth.
- * Prefers network drops with playable audio; falls back to a soft generated pad.
+ * Seeds AudioBus after auth. Does not start speaker audio — tap to play.
  */
 
 import * as api from "@/lib/api";
@@ -100,8 +99,9 @@ function dropToTrack(d: {
 }
 
 /**
- * Start soundtrack after login. Safe if called twice; skips when user already
- * has a non-ambient track loaded (e.g. listen-together / feed play).
+ * Seed a soundtrack queue after login. Does not start speaker audio.
+ * Safe if called twice; skips when user already has a non-ambient track loaded
+ * (e.g. listen-together / feed play).
  */
 export async function startAmbientRadio(userId: string): Promise<void> {
   if (startedForUser === userId) return;
@@ -136,9 +136,9 @@ export async function startAmbientRadio(userId: string): Promise<void> {
 
   if (!list.length) {
     list = [await ensureAmbientPadTrack()];
-    loadQueue(list, { autoplay: true, loop: true });
+    loadQueue(list, { autoplay: false, loop: true });
   } else {
-    loadQueue(list, { autoplay: true, loop: false });
+    loadQueue(list, { autoplay: false, loop: false });
   }
   startedForUser = userId;
 }

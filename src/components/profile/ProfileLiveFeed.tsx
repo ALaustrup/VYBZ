@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Bell, Briefcase, Check, Heart, Loader2, Sparkles, UserPlus, X, Radio,
+  Bell, Briefcase, Check, Handshake, Heart, Loader2, Sparkles, UserPlus, X, Radio,
 } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
@@ -13,7 +13,7 @@ import type { AppNotification, NotificationKind } from "@/types";
 import { isMustAckNotification } from "@/components/home/WallAlerts";
 
 const ICON: Partial<Record<NotificationKind, typeof Bell>> = {
-  connection: UserPlus,
+  connection: Handshake,
   application: Briefcase,
   match: Sparkles,
   reaction: Heart,

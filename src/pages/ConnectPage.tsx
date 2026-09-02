@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, UserPlus, Users, SlidersHorizontal } from "lucide-react";
+import { Loader2, MessageCircle, Music2, Repeat, Sparkles, Star, Target, Handshake, Users, SlidersHorizontal } from "lucide-react";
 import * as api from "@/lib/api";
 import { EmptyState } from "@/components/EmptyState";
 import { NetworkModes } from "@/components/network/NetworkModes";
@@ -129,7 +129,7 @@ export function ConnectPage() {
                     </div>
                   </div>
                   <button type="button" onClick={() => connect(m)} aria-label="Connect" className="btn btn-ghost h-9 w-9 shrink-0 p-0">
-                    <UserPlus className="h-4 w-4" />
+                    <Handshake className="h-4 w-4" />
                   </button>
                   <button type="button" onClick={() => message(m)} aria-label="Message" className="btn btn-primary h-9 w-9 shrink-0 p-0">
                     <MessageCircle className="h-4 w-4" />

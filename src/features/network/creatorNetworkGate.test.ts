@@ -25,7 +25,10 @@ describe("creator network", () => {
     expect(CREATOR_NETWORK.networkCentersOnCreativeWork).toBe(true);
     expect(CREATOR_NETWORK.exploreIsOnSocialHome).toBe(true);
     expect(CREATOR_NETWORK.homeComposesExistingDiscovery).toBe(true);
+    expect(CREATOR_NETWORK.searchFollowIsNotConnect).toBe(true);
+    expect(CREATOR_NETWORK.vybLabelIsVyb).toBe(true);
     expect(ARTIST_STAGE_PROFILE.connectIsARequest).toBe(true);
+    expect(ARTIST_STAGE_PROFILE.connectRequestHydratesFromServer).toBe(true);
     expect(ARTIST_STAGE_PROFILE.noVanityFollowerCounts).toBe(true);
   });
 
@@ -58,9 +61,19 @@ describe("creator network", () => {
     expect(read("src/features/network/TastePeopleStrip.tsx")).not.toContain("sharedPlays");
     expect(read("src/components/dashboard/DashMatchPanel.tsx")).toContain("export function DashMatchPanel");
     expect(read("src/lib/trackActions.ts")).toContain('"Vyb"');
+    expect(read("src/components/FeedTrackRow.tsx")).toContain('aria-label="Vyb"');
+    expect(read("src/components/FeedTrackRow.tsx")).not.toContain('aria-label="Like"');
+    expect(read("src/pages/UserProfilePage.tsx")).toContain("connectionBlocksNewRequest");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("FollowButton");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("profile-connect");
+    expect(read("src/features/profile/ArtistStageProfile.tsx")).toContain("Handshake");
     expect(read("src/features/profile/ArtistStageProfile.tsx")).not.toMatch(/Followers/);
+    const truth = read("src/app/routeTruth.ts");
+    expect(truth).toContain('path: "/", title: "Home"');
+    expect(truth).toContain('"follow"');
+    expect(truth).toContain('"following"');
+    expect(truth).toMatch(/path: "\/connect", title: "Connect", keywords: \["people", "request", "collab"\]/);
+    expect(truth).not.toMatch(/path: "\/connect"[^}]*"follow"/);
     const sql = read("supabase/migrations/20260821_0113_creator_follows.sql");
     expect(sql).toContain("creator_follows");
     expect(sql).toContain("Do not expose a public follower count");

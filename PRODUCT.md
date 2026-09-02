@@ -208,6 +208,12 @@ Permitted states — never "complete":
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
 - **Dark, restrained, workstation-grade** — without presenting as a SaaS control panel.
+- **Follow is not Connect in Search.** Searching Follow opens Home / Following. Connect is a request. Follow is a subscribe.
+- **VYB is the work acknowledgment.** Home rows say VYB, not Like.
+- **No public play counts** as social proof.
+- **Sign-in does not start sound.** Ambient radio may seed a queue; speaker audio starts on tap.
+- **Song workspace banner stays in the tree, hidden from default chrome.**
+- **Alignment now / next / later.** Now: Living Profile copy; Follow ≠ Connect; VYB; no public play vanity; tap-to-play including after sign-in; hydrate Connect from `connections`; song workspace banner hidden. Next: Follow alerts if Follow is social (no schema this unit); restore social only on Home + Stage File + drawer. Later: Live as profile banner; Settings as real prefs; playback ticket by asset id; uploader hang. Do not remount `ProfilePage`.
 
 ## 15. Definition of Success
 

@@ -32,6 +32,7 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.creativeWorkIsUniversal).toBe(true);
     expect(LIVING_PROFILE.libraryIngestsUniversalWork).toBe(true);
     expect(LIVING_PROFILE.libraryIsMediaGallery).toBe(true);
+    expect(LIVING_PROFILE.soundDoesNotStartOnSignIn).toBe(true);
     expect(LIVING_PROFILE.toolsServeWork).toBe(true);
     expect(LIVING_PROFILE.customizationWithoutScriptInjection).toBe(true);
     expect(LIVING_PROFILE.privateByDefaultPublicByIntent).toBe(true);
@@ -104,6 +105,12 @@ describe("living profile constitution", () => {
     expect(product).toContain("Full-screen visual: Space is a tap");
     expect(product).toContain("Video uses the stage, not native controls");
     expect(product).toContain("Full-screen visual clock fills live");
+    expect(product).toContain("Follow is not Connect in Search");
+    expect(product).toContain("VYB is the work acknowledgment");
+    expect(product).toContain("No public play counts");
+    expect(product).toContain("Sign-in does not start sound");
+    expect(product).toContain("Song workspace banner stays in the tree, hidden from default chrome");
+    expect(product).toContain("Alignment now / next / later");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
@@ -224,5 +231,20 @@ describe("living profile constitution", () => {
     expect(agents).toContain(
       "living social identity that becomes a creative operating system when you create",
     );
+  });
+
+  it("keeps Living Profile copy, hides the song workspace banner, and does not start sound on sign-in", () => {
+    expect(read("package.json")).toContain(
+      "living social identity that becomes a creative operating system when you create",
+    );
+    expect(read("index.html")).toContain("living social identity");
+    expect(read("src/lib/ambientRadio.ts")).not.toContain("autoplay: true");
+    expect(read("src/features/workspace/SongWorkspaceBanner.tsx")).toContain(
+      "export function SongWorkspaceBanner",
+    );
+    expect(read("src/shell/SuiteShell.tsx")).not.toContain("<SongWorkspaceBanner");
+    expect(read("src/pages/TrackDetailPage.tsx")).not.toContain('label="Plays"');
+    expect(read("src/pages/LibraryPage.tsx")).toContain("Untitled work");
+    expect(read("src/pages/LibraryPage.tsx")).toContain("Manage work");
   });
 });
