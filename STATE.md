@@ -3,9 +3,21 @@
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
 **Date:** 2026-09-01
-**Branch:** `feat/heard-and-node` @ `bcd0aea9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**Branch:** `feat/heard-and-node` @ `f015f94f` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 **HEAD (main):** `96f38ef5` — merge PR #215
 **Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
+
+## Living Profile alignment — 2026-09-01
+
+**Commit:** `f015f94f` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Living Profile copy, Follow ≠ Connect in Search, VYB not Like, no public play vanity, Connect hydrates from `connections`, Handshake vs Follow, song workspace banner hidden from default chrome, sign-in does not start sound. Now / next / later is locked in PRODUCT §14.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Alignment gates: **7 files / 73 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): Home rows are **Vyb**; dock **No track** / Play disabled (no audio element); Search `follow` offers only **Go Home**; `/u/98b3ce34-…` (Love) **Request sent** disabled with Handshake after reload; Follow remains **Following**; `/library` Works with no song workspace banner. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
 
 ## Cinema ending does not start the next work — 2026-09-01
 
