@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3, SlidersHorizontal } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { Loader2, AudioLines, Shuffle, LayoutGrid, Rows3 } from "lucide-react";
 import { TrackCard } from "@/components/TrackCard";
 import { FeedTrackRow } from "@/components/FeedTrackRow";
 import { FeedHero } from "@/components/FeedHero";
 import { EmptyState } from "@/components/EmptyState";
 import { HubActivity } from "@/components/home/HubActivity";
-import { SocialRoomsPanel } from "@/components/home/SocialRoomsPanel";
-import { WhosLivePanel } from "@/features/live/WhosLivePanel";
 import { listFollowedCreatorIds } from "@/features/network/followApi";
 import * as api from "@/lib/api";
 import { supabase } from "@/lib/supabase";
@@ -21,7 +19,7 @@ type FeedItem = Drop & { myReaction?: Reaction; myRating?: number; popularity?: 
 type Mode = "discovery" | "latest" | "following";
 type Layout = "comfortable" | "grid";
 
-/** Network stream — public works, latest first. `home` variant is the signed-in `/` landing. */
+/** Network stream — public works, latest first. `home` variant is the Hear board on `/`. */
 export function FeedPage({
   onCompose,
   variant = "feed",
@@ -33,7 +31,6 @@ export function FeedPage({
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [mode, setMode] = useState<Mode>("latest");
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const [layout, setLayout] = useState<Layout>(() => {
     try { return (localStorage.getItem("vybz.feedLayout") as Layout) || "comfortable"; } catch { return "comfortable"; }
   });
@@ -78,27 +75,9 @@ export function FeedPage({
     return () => { if (t) clearTimeout(t); void sb.removeChannel(ch); };
   }, []);
 
-  useRegisterAppBar({
-    ...(variant === "home" ? { title: "Home" } : {}),
-    actions: (
-      <div className="flex items-center gap-0.5">
-        <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-label="Network options" aria-expanded={filtersOpen}
-          className={cx("forge-chip h-9 w-9", filtersOpen && "forge-chip--active")}>
-          <SlidersHorizontal className="h-4 w-4" />
-        </button>
-        <button type="button" onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout"
-          className={cx("forge-chip h-9 w-9", layout === "comfortable" && "forge-chip--active")}>
-          <Rows3 className="h-4 w-4" />
-        </button>
-        <button type="button" onClick={() => setLayoutPersist("grid")} aria-label="Grid layout"
-          className={cx("forge-chip h-9 w-9", layout === "grid" && "forge-chip--active")}>
-          <LayoutGrid className="h-4 w-4" />
-        </button>
-      </div>
-    ),
-  }, [filtersOpen, layout, variant]);
-
   const isHome = variant === "home";
+
+  useRegisterAppBar(isHome ? {} : {}, [variant]);
 
   function react(d: FeedItem, r: Reaction) {
     const next = d.myReaction === r ? undefined : r;
@@ -119,53 +98,42 @@ export function FeedPage({
   const gridCls = useMemo(() => layout === "grid" ? "grid w-full sm:grid-cols-2 xl:grid-cols-3 gap-3" : "flex max-w-2xl flex-col gap-3.5", [layout]);
 
   return (
-    <div className="flex h-full flex-col">
-      {filtersOpen && (
-        <div className="forge-glass relative mb-2 mt-2 flex flex-wrap items-center gap-3 p-3 text-[12px]">
-          <span className="forge-glass-edge" aria-hidden />
-          <button type="button" onClick={() => setMode("discovery")} className={cx("rounded-full px-3 py-1 font-semibold transition", mode === "discovery" ? "bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "text-white/45 hover:text-white/75")}>Explore</button>
-          <button type="button" onClick={() => setMode("latest")} className={cx("rounded-full px-3 py-1 font-semibold transition", mode === "latest" ? "bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "text-white/45 hover:text-white/75")}>Latest</button>
-          <button type="button" onClick={() => setMode("following")} className={cx("rounded-full px-3 py-1 font-semibold transition", mode === "following" ? "bg-[rgb(var(--accent-rgb)/0.12)] text-white" : "text-white/45 hover:text-white/75")}>Following</button>
-          {mode === "discovery" && (
-            <button type="button" onClick={() => setSeed(Math.floor(Math.random() * 1e9))} className="forge-cta-ghost ml-auto !min-h-8 !px-3 !text-xs">
-              <Shuffle className="h-3 w-3" /> Shuffle
-            </button>
-          )}
-        </div>
-      )}
-
-      <div className="no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5">
+    <div className={cx("flex flex-col", !isHome && "h-full")}>
+      <div className={cx(isHome ? "pb-3 pt-1.5" : "no-scrollbar flex-1 overflow-y-auto pb-3 pt-1.5")}>
         <div className="mx-auto mb-4 max-w-2xl px-0.5">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
-            {isHome ? "Home" : "Network"}
+            {isHome ? "Hear" : "Network"}
           </p>
           <h1 className="font-display text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-            {isHome ? "People & live" : "New work"}
+            {isHome ? "Public work" : "New work"}
           </h1>
           <p className="mt-1 text-[13px] text-white/45">
             {isHome
-              ? "Connections, live rooms, and work from people you follow."
+              ? "Latest, Following, and Explore. Follow a Stage File so it lands here."
               : "Public works the moment they are shared."}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => setMode("latest")} className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "latest" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Latest</button>
             <button type="button" onClick={() => setMode("following")} data-testid="network-following" className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "following" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Following</button>
-            <div className="ml-auto flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/45">
-              <Link to="/live" className="hover:text-white/80">Live</Link>
-              <Link to="/connect" className="hover:text-white/80">People</Link>
-              {isHome ? <Link to="/social" className="hover:text-white/80">Rooms</Link> : null}
-              <Link to="/messages" className="hover:text-white/80">Messages</Link>
+            <button type="button" onClick={() => setMode("discovery")} data-testid="network-explore" className={cx("rounded-full px-3 py-1 text-[12px] font-semibold transition", mode === "discovery" ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75")}>Explore</button>
+            {mode === "discovery" ? (
+              <button type="button" onClick={() => setSeed(Math.floor(Math.random() * 1e9))} aria-label="Shuffle explore" className="forge-chip h-8 gap-1 !px-2.5 text-[11px]">
+                <Shuffle className="h-3 w-3" />
+                Shuffle
+              </button>
+            ) : null}
+            <div className="ml-auto flex items-center gap-0.5">
+              <button type="button" onClick={() => setLayoutPersist("comfortable")} aria-label="Comfortable layout"
+                className={cx("forge-chip h-8 w-8", layout === "comfortable" && "forge-chip--active")}>
+                <Rows3 className="h-3.5 w-3.5" />
+              </button>
+              <button type="button" onClick={() => setLayoutPersist("grid")} aria-label="Grid layout"
+                className={cx("forge-chip h-8 w-8", layout === "grid" && "forge-chip--active")}>
+                <LayoutGrid className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </div>
-        <div className="mx-auto mb-5 max-w-2xl px-0.5">
-          <WhosLivePanel variant="shelf" />
-        </div>
-        {isHome ? (
-          <div className="mx-auto mb-5 max-w-2xl px-0.5">
-            <SocialRoomsPanel />
-          </div>
-        ) : null}
         <div className="mx-auto max-w-2xl px-0.5">
           <FeedHero />
         </div>
@@ -174,11 +142,19 @@ export function FeedPage({
         ) : drops.length === 0 ? (
           <EmptyState
             icon={AudioLines}
-            title={mode === "following" ? "No followed work yet" : "Nothing here yet"}
+            title={
+              mode === "following"
+                ? "No followed work yet"
+                : mode === "discovery"
+                  ? "Nothing to explore yet"
+                  : "Nothing here yet"
+            }
             body={
               mode === "following"
                 ? "Follow a creator from their profile. Their public work lands here. VYB a piece when it resonates."
-                : "Public work lands here for everyone, and on the creator's profile."
+                : mode === "discovery"
+                  ? "Public work to hear. Follow a Stage File so it lands in Following."
+                  : "Public work lands here for everyone, and on the creator's profile."
             }
           />
         ) : layout === "grid" ? (

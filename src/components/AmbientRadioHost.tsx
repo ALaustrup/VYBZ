@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useSession } from "@/store/session";
 import { resetAmbientRadioGate, startAmbientRadio } from "@/lib/ambientRadio";
 
-/** Boots always-on soundtrack once the user is authenticated. */
+/** Seeds a soundtrack queue after auth. Does not start speaker audio. */
 export function AmbientRadioHost() {
   const { userId, profile } = useSession();
 

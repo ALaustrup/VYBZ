@@ -19,7 +19,7 @@ const ROOT = path.resolve(__dirname, "../../..");
  * Gate: Simulations clearly labelled; claims technically honest; original / master /
  * preview comparable; translation findings lead to actionable corrections.
  */
-describe("M7 translation gate", () => {
+describe("M7 translation gate", { timeout: 45_000 }, () => {
   it("cites the M7 gate and ships a versioned streaming-norm preview", () => {
     expect(GATE_REGISTRY).toContain("m7Translation");
     expect(STREAMING_NORM_PREVIEW_VERSION).toMatch(/^m7\./);

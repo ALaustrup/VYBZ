@@ -2,8 +2,9 @@ import { useRef, useState } from "react";
 import { Check, MoreVertical, Pause, Play, Sparkles } from "lucide-react";
 import { TrackActionMenu } from "@/components/TrackActionMenu";
 import type { MenuAnchor } from "@/components/menu/ContextMenu";
-import { isPlayableMediaUrl, playTrack, usePlayer } from "@/lib/audioBus";
+import { playTrack, usePlayer } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
+import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import { paletteFor, cx } from "@/lib/utils";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
@@ -38,9 +39,13 @@ export function LibraryShelfTile({
   const moreRef = useRef<HTMLButtonElement>(null);
   const isCurrent = player.track?.id === d.id;
   const playing = isCurrent && player.playing;
-  const playable = isPlayableMediaUrl(d.audioUrl);
+  const playable = isPlayableAudioWork(d);
+  const workKind = classifyDrop(d);
   const [c1, c2] = paletteFor(d.seed);
-  const cover = d.playbackCustomization?.backdropUrl;
+  const cover =
+    workKind === "image" && d.audioUrl
+      ? d.audioUrl
+      : d.playbackCustomization?.backdropUrl;
 
   function togglePlay() {
     if (!playable) {
@@ -63,7 +68,9 @@ export function LibraryShelfTile({
       }}
     >
       <div className="relative aspect-square overflow-hidden">
-        {cover ? (
+        {workKind === "video" && d.audioUrl ? (
+          <video src={d.audioUrl} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+        ) : cover ? (
           <img src={cover} alt="" className="h-full w-full object-cover" />
         ) : (
           <div
@@ -90,24 +97,26 @@ export function LibraryShelfTile({
         >
           <Check className="h-3 w-3" />
         </button>
-        <button
-          type="button"
-          onClick={togglePlay}
-          aria-label={playing ? "Pause" : "Play"}
-          className="absolute inset-0 z-[1] flex items-center justify-center bg-black/0 hover:bg-black/25"
-        >
-          {playing ? (
-            <Pause className="h-8 w-8 text-white drop-shadow" />
-          ) : (
-            <Play className="ml-0.5 h-8 w-8 text-white/90 opacity-0 drop-shadow transition group-hover:opacity-100 hover:opacity-100" />
-          )}
-        </button>
+        {playable ? (
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={playing ? "Pause" : "Play"}
+            className="absolute inset-0 z-[1] flex items-center justify-center bg-black/0 hover:bg-black/25"
+          >
+            {playing ? (
+              <Pause className="h-8 w-8 text-white drop-shadow" />
+            ) : (
+              <Play className="ml-0.5 h-8 w-8 text-white/90 opacity-0 drop-shadow transition group-hover:opacity-100 hover:opacity-100" />
+            )}
+          </button>
+        ) : null}
       </div>
       <div className="flex items-start gap-1 px-2 py-2">
         <div className="min-w-0 flex-1">
           <p className="truncate text-[12px] font-semibold text-white/90">{d.title?.trim() || "Untitled"}</p>
           <p className="truncate font-mono text-[10px] uppercase tracking-wide text-white/35">
-            {d.audioFormat ?? "File"}
+            {workKind !== "audio" ? workKind : (d.audioFormat ?? "File")}
             {onStage ? " · On VYBZ" : ""}
           </p>
         </div>

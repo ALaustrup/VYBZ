@@ -1,4 +1,5 @@
 import type { Drop } from "@/types";
+import { classifyDrop, type WorkKind } from "@/features/profile/workKind";
 
 /**
  * Filter, sort and group model for the media library.
@@ -8,7 +9,7 @@ import type { Drop } from "@/types";
  * storefront status, sales — are deliberately absent rather than shown and broken.
  */
 
-export type LibraryView = "grid" | "list" | "table" | "shelves";
+export type LibraryView = "cinema" | "grid" | "list" | "table" | "shelves";
 
 export type LibrarySort =
   | "newest"
@@ -27,6 +28,8 @@ export type DurationBucket = "any" | "under-1m" | "1-3m" | "3-6m" | "over-6m";
 export type UploadedBucket = "any" | "7d" | "30d" | "365d";
 export type RateBucket = "any" | "lt-44100" | "44100" | "48000" | "gt-48000" | "unknown";
 
+export type LibraryWorkKind = "any" | Extract<WorkKind, "audio" | "image" | "video" | "file">;
+
 export type LibraryFilters = {
   /** Free text across title, album, credited artist and username. */
   q: string;
@@ -44,6 +47,8 @@ export type LibraryFilters = {
   withAssetOnly: boolean;
   /** Composed Stage File only. Ignored until the owner has placed work. */
   onStage: "any" | "on" | "off";
+  /** Creative Work kind, classified from the stored file — not a second catalog. */
+  workKind: LibraryWorkKind;
 };
 
 export const EMPTY_FILTERS: LibraryFilters = {
@@ -59,6 +64,7 @@ export const EMPTY_FILTERS: LibraryFilters = {
   withStageOnly: false,
   withAssetOnly: false,
   onStage: "any",
+  workKind: "any",
 };
 
 export const SORT_LABEL: Record<LibrarySort, string> = {
@@ -95,6 +101,7 @@ export function activeFilterCount(f: LibraryFilters): number {
   if (f.withStageOnly) n++;
   if (f.withAssetOnly) n++;
   if (f.onStage !== "any") n++;
+  if (f.workKind !== "any") n++;
   return n;
 }
 
@@ -156,6 +163,7 @@ export function filterDrops(
       if (filters.onStage === "on" && !on) return false;
       if (filters.onStage === "off" && on) return false;
     }
+    if (filters.workKind !== "any" && classifyDrop(d) !== filters.workKind) return false;
     return true;
   });
 }

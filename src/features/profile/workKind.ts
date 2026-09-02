@@ -49,19 +49,51 @@ export function classifyUrl(url: string, declared?: string | null): WorkKind {
   if (isWorkKind(k)) return k;
   const u = url.toLowerCase();
   if (/\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u)) return "image";
-  if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)) return "video";
-  if (/\.(mp3|wav|flac|aac|ogg|m4a)(\?|$)/i.test(u)) return "audio";
-  if (/\.(zip|pdf|epub|gz|tgz)(\?|$)/i.test(u)) return "file";
+  if (/\.(mp4|webm|mov|m4v|mkv|avi)(\?|$)/i.test(u)) return "video";
+  if (/\.(mp3|wav|flac|aac|ogg|oga|opus|m4a|aiff|aif|alac|mid|midi)(\?|$)/i.test(u)) return "audio";
+  if (/\.(zip|pdf|epub|gz|tgz|7z)(\?|$)/i.test(u)) return "file";
   if (/^https?:\/\//i.test(u)) return "link";
   return "file";
 }
 
-function dropToAudioWork(drop: Drop): StageWork {
+const IMAGE_FORMAT = new Set(["png", "jpg", "jpeg", "gif", "webp", "avif", "svg"]);
+const VIDEO_FORMAT = new Set(["mp4", "webm", "mov", "m4v", "mkv", "avi"]);
+const FILE_FORMAT = new Set(["zip", "pdf", "epub", "gz", "tgz", "7z"]);
+const AUDIO_FORMAT = new Set([
+  "mp3", "wav", "flac", "aac", "ogg", "oga", "opus", "m4a", "aiff", "aif", "alac", "mid", "midi",
+]);
+
+/** Map a stored format label (WAV, PNG, …) onto a WorkKind when the URL has no extension. */
+export function formatToWorkKind(format?: string | null): WorkKind | undefined {
+  const f = (format ?? "").toLowerCase().replace(/^\./, "");
+  if (!f) return undefined;
+  if (isWorkKind(f)) return f;
+  if (IMAGE_FORMAT.has(f)) return "image";
+  if (VIDEO_FORMAT.has(f)) return "video";
+  if (AUDIO_FORMAT.has(f)) return "audio";
+  if (FILE_FORMAT.has(f)) return "file";
+  return undefined;
+}
+
+export function classifyDrop(drop: { audioUrl?: string; audioFormat?: string | null }): WorkKind {
+  return classifyUrl(drop.audioUrl ?? "", formatToWorkKind(drop.audioFormat));
+}
+
+/** Speaker playback is audio. Image / video / file URLs must not enter AudioBus. */
+export function isPlayableAudioWork(drop: { audioUrl?: string; audioFormat?: string | null }): boolean {
+  if (!drop.audioUrl || !/^(https?:|blob:|data:)/i.test(drop.audioUrl)) return false;
+  const kind = classifyDrop(drop);
+  return kind !== "image" && kind !== "video" && kind !== "file";
+}
+
+function dropToWork(drop: Drop): StageWork {
+  const kind = classifyDrop(drop);
   return {
     id: `drop:${drop.id}`,
-    kind: "audio",
+    kind,
     title: drop.title || "Untitled",
     mediaUrl: drop.audioUrl,
+    href: kind === "file" || kind === "link" ? drop.audioUrl : undefined,
     drop,
   };
 }
@@ -169,7 +201,7 @@ export function collectStageWorks(input: {
   const drops = input.drops ?? [];
   const albumCounts = new Map<string, number>();
   for (const drop of drops) {
-    if (!drop.audioUrl) continue;
+    if (!drop.audioUrl || classifyDrop(drop) !== "audio") continue;
     const key = albumKey(drop);
     if (key) albumCounts.set(key, (albumCounts.get(key) ?? 0) + 1);
   }
@@ -177,23 +209,28 @@ export function collectStageWorks(input: {
 
   for (const drop of drops) {
     if (drop.audioUrl) {
-      const key = albumKey(drop);
-      if (key && (albumCounts.get(key) ?? 0) >= 2) {
-        if (!emittedAlbums.has(key)) {
-          emittedAlbums.add(key);
-          const members = drops.filter((d) => d.audioUrl && albumKey(d) === key).map(dropToAudioWork);
-          add({
-            id: `album:${key}`,
-            kind: "collection",
-            title: drop.album!.trim(),
-            collectionLabel: "Album",
-            items: members,
-            itemCount: members.length,
-          });
+      const kind = classifyDrop(drop);
+      if (kind === "audio") {
+        const key = albumKey(drop);
+        if (key && (albumCounts.get(key) ?? 0) >= 2) {
+          if (!emittedAlbums.has(key)) {
+            emittedAlbums.add(key);
+            const members = drops
+              .filter((d) => d.audioUrl && classifyDrop(d) === "audio" && albumKey(d) === key)
+              .map(dropToWork);
+            add({
+              id: `album:${key}`,
+              kind: "collection",
+              title: drop.album!.trim(),
+              collectionLabel: "Album",
+              items: members,
+              itemCount: members.length,
+            });
+          }
+          continue;
         }
-        continue;
       }
-      add(dropToAudioWork(drop));
+      add(dropToWork(drop));
     } else if (drop.body) {
       add({
         id: `drop:${drop.id}`,

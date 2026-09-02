@@ -52,6 +52,14 @@ Creative Work on the Stage File goes through a kind → renderer registry (`MODU
 
 A person selects existing Library work, **Place on your VYBZ**, chooses Works or Featured, and is done. Ids only — the asset is not copied. Until they compose, the Stage File still shows catalog drops so existing public work does not vanish. After the first place or hide, new uploads stay off the Stage File until placed. Library views: grid, list, table, and shelves. Arrangement (view / sort / group) is remembered per person. Profile layout editing is later (Phase 6).
 
+## Phase 5b — Creative Library intake (2026-08-31)
+
+Library intake is Creative Work, not a song catalog. Compose accepts audio, image, video, and allowed files. Video stays video (extract lives in Convert). New files default private and land in Library. Place on your VYBZ is unchanged — ids only, one catalog. Stage File classifies placed drops instead of forcing audio.
+
+## Phase 5c — Library gallery (2026-08-31)
+
+Library is a media gallery. Cinema is the default view (grid, list, table, and shelves remain). Full-screen visual uses the existing DropStage / TrackVisualizer. Sound starts on tap. Video may muted-preview while in view. Cinema overlay is one bar of kinds and tools; it recedes while you watch or scroll. Header is Works, This device, and Upload — Mixes, Projects, and scans stay in More. Cinema tools stay put; kinds scroll. Library counts works, not tracks. Cinema empty stays the gallery. Playing work shows progress on the tile. Tap progress to move in the work. Playing video shows progress on the tile. Arrows move between works. Space is a tap. Arrows do not start sound. Full-screen visual: Space is a tap. Video uses the stage, not native controls. Full-screen visual clock fills live. Arrangement is remembered.
+
 ## Phase 6 — Modular arrangement (2026-08-22)
 
 The owner can **Arrange** modules that already exist on the Stage File (stage, featured, works, story, packs, measured, credits, more). Order is stored on the same profile jsonb. Empty modules omit; Arrange still shows them so they can be moved. Identity banner, sticky chrome, and Book a session stay out of the layout toy. Featured is its own module when a work is pinned or placed there. No theme engine, no CSS/JS injection, no cinematic canvas. Phase 6 is **frozen**.
@@ -63,6 +71,10 @@ Signed-in `/` is the people-first social landing (live, people, activity, discov
 ## Phase 2D — Chat, one Alerts, dashboard is Stage File (2026-08-31)
 
 Message notifications (`kind = message`) badge **Chat** only. Alerts appears once in default chrome — not on the rail, not on the dock. Owner dashboard is the Stage File at `/u/:id`. `/workspace` stays reachable; it is not a second home. Owner chrome does not open Workspace.
+
+## Phase 2E — Menu-only chrome, discovery home (2026-08-31)
+
+Default chrome is the menu. Search, +, Chat, Alerts, and Me live in the drawer on every viewport. `PrimaryRail` and `VDockSocialStrip` stay in the tree, unmounted. Signed-in Home centers the VYBZ mark as a gentle audio-reactive neon pulse and composes existing discovery panels (live, rooms, library, taste, hear).
 
 ## Phase 7 — Hide existing sections (2026-08-25)
 

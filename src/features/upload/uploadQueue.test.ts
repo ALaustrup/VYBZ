@@ -43,12 +43,21 @@ describe("collectUploadFiles", () => {
   it("keeps audio and counts what it turned away, by reason", () => {
     const big = audioFile("huge.wav", MAX_UPLOAD_BYTES + 1);
     const empty = audioFile("empty.wav", 0);
-    const doc = new File([new Uint8Array(1)], "notes.pdf", { type: "application/pdf" });
-    const out = collectUploadFiles([audioFile(), big, empty, doc]);
+    const exe = new File([new Uint8Array(1)], "notes.exe", { type: "application/x-msdownload" });
+    const out = collectUploadFiles([audioFile(), big, empty, exe]);
     expect(out.files).toHaveLength(1);
     expect(out.skippedOversize).toBe(1);
     expect(out.skippedEmpty).toBe(1);
     expect(out.skippedNonAudio).toBe(1);
+  });
+
+  it("keeps image, video, and documents as Creative Work", () => {
+    const png = new File([new Uint8Array(1)], "still.png", { type: "image/png" });
+    const mp4 = new File([new Uint8Array(1)], "cut.mp4", { type: "video/mp4" });
+    const pdf = new File([new Uint8Array(1)], "notes.pdf", { type: "application/pdf" });
+    const out = collectUploadFiles([png, mp4, pdf]);
+    expect(out.files).toHaveLength(3);
+    expect(out.skippedNonAudio).toBe(0);
   });
 
   it("treats no selection as an empty batch rather than throwing", () => {

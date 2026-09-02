@@ -106,7 +106,7 @@ export default defineConfig({
         name: "VYBZ — Find Yours.",
         short_name: "VYBZ",
         description:
-          "Tip + live + catalog for indie artists. Upload, stream on VDock, tip with Vc, go live. Real identity. No ads.",
+          "VYBZ is a living social identity that becomes a creative operating system when you create. Follow, talk, go live. Find Yours.",
         id: "/",
         start_url: "/",
         scope: "/",

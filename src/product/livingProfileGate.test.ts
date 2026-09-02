@@ -30,6 +30,9 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.creationIsOptional).toBe(true);
     expect(LIVING_PROFILE.oneProfileTwoPerspectives).toBe(true);
     expect(LIVING_PROFILE.creativeWorkIsUniversal).toBe(true);
+    expect(LIVING_PROFILE.libraryIngestsUniversalWork).toBe(true);
+    expect(LIVING_PROFILE.libraryIsMediaGallery).toBe(true);
+    expect(LIVING_PROFILE.soundDoesNotStartOnSignIn).toBe(true);
     expect(LIVING_PROFILE.toolsServeWork).toBe(true);
     expect(LIVING_PROFILE.customizationWithoutScriptInjection).toBe(true);
     expect(LIVING_PROFILE.privateByDefaultPublicByIntent).toBe(true);
@@ -41,8 +44,10 @@ describe("living profile constitution", () => {
     expect(LIVING_PROFILE.defaultChromeIsQuiet).toBe(true);
     expect(LIVING_PROFILE.oneAlertsChrome).toBe(true);
     expect(LIVING_PROFILE.dashboardIsOwnerStageFile).toBe(true);
-    expect(LIVING_PROFILE.desktopPrimaryRail).toBe(true);
+    expect(LIVING_PROFILE.desktopPrimaryRail).toBe(false);
     expect(LIVING_PROFILE.mobileNavDrawer).toBe(true);
+    expect(LIVING_PROFILE.chromeIsMenuOnly).toBe(true);
+    expect(LIVING_PROFILE.chromeControlsLiveInDrawer).toBe(true);
     expect(LIVING_PROFILE.ownerVisitorDualMode).toBe(true);
     expect(LIVING_PROFILE.profileModuleRegistry).toBe(true);
     expect(LIVING_PROFILE.libraryToProfilePipeline).toBe(true);
@@ -73,7 +78,7 @@ describe("living profile constitution", () => {
     expect(product).toContain("Refine before replacing");
     expect(product).toContain("ARE YOU A CREATOR?");
     expect(product).toContain("Logged-in home is the people-first social landing");
-    expect(product).toContain("VYBZ · Search · + · Chat · Alerts · Me");
+    expect(product).toContain("Search, +, Chat, Alerts, and Me live in the drawer");
     expect(product).toContain("Alerts appears once");
     expect(product).toContain("That Stage File is the owner dashboard");
     expect(product).toContain("Chat is Chat. Alerts is Alerts");
@@ -83,6 +88,29 @@ describe("living profile constitution", () => {
     expect(product).toContain("module registry");
     expect(product).toContain("text, and collection");
     expect(product).toContain("Place on your VYBZ");
+    expect(product).toContain("audio, image, video, or a file");
+    expect(product).toContain("Library is a media gallery");
+    expect(product).toContain("Sound starts on tap");
+    expect(product).toContain("one bar of kinds and tools");
+    expect(product).toContain("Works, This device, and Upload");
+    expect(product).toContain("counts works, not tracks");
+    expect(product).toContain("Cinema empty stays the gallery");
+    expect(product).toContain("progress on the tile");
+    expect(product).toContain("Tap progress to move in the work");
+    expect(product).toContain("Playing video shows progress on the tile");
+    expect(product).toContain("Arrows move between works");
+    expect(product).toContain("Space is a tap");
+    expect(product).toContain("Arrows do not start sound");
+    expect(product).toContain("Ending a work does not start the next work");
+    expect(product).toContain("Full-screen visual: Space is a tap");
+    expect(product).toContain("Video uses the stage, not native controls");
+    expect(product).toContain("Full-screen visual clock fills live");
+    expect(product).toContain("Follow is not Connect in Search");
+    expect(product).toContain("VYB is the work acknowledgment");
+    expect(product).toContain("No public play counts");
+    expect(product).toContain("Sign-in does not start sound");
+    expect(product).toContain("Song workspace banner stays in the tree, hidden from default chrome");
+    expect(product).toContain("Alignment now / next / later");
     expect(product).toContain("Arrange");
     expect(product).toContain("hide existing");
     expect(product).not.toContain("Owner vs visitor dual-mode polish is later than this lock");
@@ -107,19 +135,27 @@ describe("living profile constitution", () => {
   it("mounts desktop PrimaryRail and mobile nav drawer without duplicating kingdom chrome", () => {
     const shell = read("src/shell/SuiteShell.tsx");
     const bar = read("src/components/shell/ContextualAppBar.tsx");
+    const drawer = read("src/shell/ShellNavDrawer.tsx");
+    const chrome = read("src/components/shell/DrawerChrome.tsx");
     const stage = read("src/features/profile/ArtistStageProfile.tsx");
-    expect(shell).toMatch(/<PrimaryRail\s*\/>/);
-    expect(shell).toContain("<ShellNavDrawer />");
+    expect(read("src/shell/PrimaryRail.tsx")).toContain("export function PrimaryRail");
+    expect(shell).not.toMatch(/<PrimaryRail\s*\/>/);
+    expect(shell).toContain("<ShellNavDrawer");
     expect(shell).not.toMatch(/<SuiteAppRail\s*\/>/);
-    expect(bar).toContain("openCommandPalette");
     expect(bar).toContain("openShellNavDrawer");
-    expect(bar).toContain("Search VYBZ");
+    expect(bar).toContain("shell-nav-menu");
     expect(bar).not.toContain("<PeopleMenu />");
-    expect(bar).toContain("<ChatIndicator />");
-    expect(bar).toContain("<AlertsMenu />");
-    expect(bar).toContain("<AccountMenu />");
-    expect(bar).toContain('aria-label="Add"');
-    expect(bar).toContain('aria-label="VYBZ"');
+    expect(bar).not.toContain("<ChatIndicator />");
+    expect(bar).not.toContain("<AlertsMenu />");
+    expect(bar).not.toContain("<AccountMenu />");
+    expect(bar).not.toContain("suite-app-bar-mark");
+    expect(chrome).toContain("openCommandPalette");
+    expect(chrome).toContain("Search VYBZ");
+    expect(chrome).toContain("<ChatIndicator />");
+    expect(chrome).toContain("<AlertsMenu />");
+    expect(chrome).toContain("<AccountMenu />");
+    expect(chrome).toContain('aria-label="Add"');
+    expect(drawer).toContain("DrawerChrome");
     expect(read("src/shell/RailIdentity.tsx")).not.toContain("rail-notify-button");
     expect(read("src/components/vdock/VDockSocialStrip.tsx")).not.toContain("/notifications");
     expect(read("src/components/shell/PeopleMenu.tsx")).toContain("export function PeopleMenu");
@@ -164,7 +200,9 @@ describe("living profile constitution", () => {
     expect(read("src/features/profile/stageComposition.ts")).toContain("placeDrops");
     expect(read("src/features/profile/PlaceOnVybzSheet.tsx")).toContain("Place on your VYBZ");
     expect(read("src/pages/UserProfilePage.tsx")).toContain("applyDropComposition");
+    expect(read("src/lib/libraryQuery.ts")).toContain('"cinema"');
     expect(read("src/lib/libraryQuery.ts")).toContain('"shelves"');
+    expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "cinema"');
     expect(read("src/components/library/LibraryToolbar.tsx")).toContain('id: "shelves"');
   });
 
@@ -193,5 +231,20 @@ describe("living profile constitution", () => {
     expect(agents).toContain(
       "living social identity that becomes a creative operating system when you create",
     );
+  });
+
+  it("keeps Living Profile copy, hides the song workspace banner, and does not start sound on sign-in", () => {
+    expect(read("package.json")).toContain(
+      "living social identity that becomes a creative operating system when you create",
+    );
+    expect(read("index.html")).toContain("living social identity");
+    expect(read("src/lib/ambientRadio.ts")).not.toContain("autoplay: true");
+    expect(read("src/features/workspace/SongWorkspaceBanner.tsx")).toContain(
+      "export function SongWorkspaceBanner",
+    );
+    expect(read("src/shell/SuiteShell.tsx")).not.toContain("<SongWorkspaceBanner");
+    expect(read("src/pages/TrackDetailPage.tsx")).not.toContain('label="Plays"');
+    expect(read("src/pages/LibraryPage.tsx")).toContain("Untitled work");
+    expect(read("src/pages/LibraryPage.tsx")).toContain("Manage work");
   });
 });

@@ -12,7 +12,7 @@ import {
   Radio,
   Send,
   Target,
-  UserPlus,
+  Handshake,
   Volume2,
 } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
@@ -398,7 +398,7 @@ export function LiveWatchPage() {
                 <Gift className="h-3.5 w-3.5 mr-1" /> Tip Vc
               </button>
               <button type="button" onClick={() => void connectHost()} className="btn btn-ghost h-9 flex-1 py-0 text-xs">
-                <UserPlus className="h-3.5 w-3.5 mr-1" /> Connect
+                <Handshake className="h-3.5 w-3.5 mr-1" /> Connect
               </button>
               <button type="button" onClick={() => void messageHost()} className="btn btn-ghost h-9 flex-1 py-0 text-xs">
                 <MessageCircle className="h-3.5 w-3.5 mr-1" /> Message

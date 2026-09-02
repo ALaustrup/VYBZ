@@ -1,9 +1,9 @@
 /**
  * Social-first shell gate.
  *
- * VYBZ leads with quiet top chrome: VYBZ, Search, +, Chat, Alerts, Me.
- * Desktop adds one PrimaryRail for primary destinations. Narrow viewports
- * collapse the rail into ShellNavDrawer. SuiteAppRail stays frozen.
+ * VYBZ leads with menu-only top chrome. Search, +, Chat, Alerts, Me live
+ * in the drawer on every viewport. PrimaryRail stays in the tree, unmounted.
+ * SuiteAppRail stays frozen.
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -18,18 +18,19 @@ function read(rel: string) {
 }
 
 describe("social-first shell", () => {
-  it("mounts PrimaryRail on desktop and keeps SuiteAppRail frozen", () => {
+  it("keeps PrimaryRail in the tree and SuiteAppRail frozen", () => {
     const shell = read("src/shell/SuiteShell.tsx");
     expect(shell).not.toMatch(/<SuiteAppRail\s*\/>/);
     expect(shell).not.toMatch(/<SuiteAppRailMobile\s*\/>/);
-    expect(shell).toMatch(/<PrimaryRail\s*\/>/);
-    expect(shell).toContain("<ShellNavDrawer />");
+    expect(shell).not.toMatch(/<PrimaryRail\s*\/>/);
+    expect(shell).toContain("<ShellNavDrawer");
   });
 
-  it("mounts the tools launcher in the app bar", () => {
+  it("mounts the tools launcher in the drawer", () => {
+    const chrome = read("src/components/shell/DrawerChrome.tsx");
     const bar = read("src/components/shell/ContextualAppBar.tsx");
-    expect(bar).toContain("ToolsLauncherButton");
-    expect(bar).toContain("@/shell/ToolsLauncher");
+    expect(chrome).toContain("ToolsLauncherButton");
+    expect(chrome).toContain("@/shell/ToolsLauncher");
     expect(bar).toContain("openShellNavDrawer");
   });
 
@@ -46,7 +47,8 @@ describe("social-first shell", () => {
     expect(existsSync(path.join(ROOT, "src/shell/SuiteAppRail.tsx"))).toBe(true);
     expect(existsSync(path.join(ROOT, "src/shell/PrimaryRail.tsx"))).toBe(true);
     expect(read("src/shell/SuiteShell.tsx")).not.toMatch(/^import\s[^\n]*SuiteAppRail/m);
-    expect(read("src/shell/SuiteShell.tsx")).toMatch(/^import\s[^\n]*PrimaryRail/m);
+    expect(read("src/shell/SuiteShell.tsx")).not.toMatch(/^import\s[^\n]*PrimaryRail/m);
+    expect(read("src/shell/ShellNavDrawer.tsx")).toContain("PrimaryRailNav");
   });
 
   it("highlights Home on the signed-in social landing in VDock and PrimaryRail", () => {

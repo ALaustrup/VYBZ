@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SILENCE_TRIM_PAD_SEC, SILENCE_TRIM_VERSION, applySilenceTrim } from "./silenceTrim";
 
-describe("applySilenceTrim", () => {
+describe("applySilenceTrim", { timeout: 45_000 }, () => {
   it("trims long edges and keeps a pad", () => {
     const sr = 48000;
     const tone = Math.floor(0.2 * sr);

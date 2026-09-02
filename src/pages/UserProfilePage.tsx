@@ -52,6 +52,7 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
       return;
     }
     let alive = true;
+    setRequested(false);
     Promise.all([
       api.getPublicProfile(id),
       api.dropsBy(id, 40),
@@ -63,7 +64,10 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
         : Promise.resolve([] as StorefrontPackPublic[]),
       api.listProfileProjects(id).catch(() => [] as ProfileProject[]),
       listCreationSessionLinks(id).catch(() => [] as WorkSessionLink[]),
-    ]).then(async ([prof, d, s, c, nightsList, packList, projectList, linkList]) => {
+      userId && userId !== id
+        ? api.connectionBlocksNewRequest(id)
+        : Promise.resolve(false),
+    ]).then(async ([prof, d, s, c, nightsList, packList, projectList, linkList, connectSpent]) => {
       const details = await Promise.all(
         projectList.slice(0, 8).map((project) => api.getProjectDetail(project.id).catch(() => null)),
       );
@@ -84,6 +88,7 @@ export function UserProfilePage({ id: idProp }: { id?: string } = {}) {
       setPosts(details.flatMap((detail) => detail?.posts ?? []));
       setProjectLinks(details.flatMap((detail) => detail?.links ?? []));
       setSessionLinks(linkList);
+      setRequested(connectSpent);
       setLoading(false);
     }).catch(() => {
       if (alive) setLoading(false);

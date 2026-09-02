@@ -8,7 +8,7 @@
     "codename": "Suite Genesis"
   },
   "type": "module",
-    "description": "VYBZ — the Creator Operating System. Organize work, keep originals local, go live while creating, and connect with other creators.",
+    "description": "VYBZ — a living social identity that becomes a creative operating system when you create. Keep originals local. Follow, talk, go live.",
   "engines": {
     "node": ">=20"
   },

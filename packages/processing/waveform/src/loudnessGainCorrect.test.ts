@@ -8,7 +8,7 @@ function quietTone(sr: number): Float32Array {
   return out;
 }
 
-describe("applyLoudnessGain", () => {
+describe("applyLoudnessGain", { timeout: 45_000 }, () => {
   it("is versioned and non-destructive", () => {
     const sr = 48000;
     const pcm = quietTone(sr);

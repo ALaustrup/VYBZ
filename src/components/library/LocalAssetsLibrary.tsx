@@ -221,10 +221,10 @@ export function LocalAssetsLibrary({ onChanged }: { onChanged?: () => void }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3" data-testid="library-local-node">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[12px] text-white/45">
+        <p className="text-[12px] text-white/45" data-testid="node-honesty">
           {phone
-            ? "Indexed on this phone. Files stay available while this app is open. Not a background host. Not published."
-            : "Indexed on this device. Not published. Originals stay here."}
+            ? "Bytes stay on this phone while the app is open. vybz.cloud stores names and sizes only. Swarm is not this catalog. A phone is not a background host. Indexing is not publishing. Not published."
+            : "Bytes stay on this device. vybz.cloud stores names and sizes only. Swarm is not this catalog. Indexing is not publishing. Not published."}
         </p>
         <button
           type="button"

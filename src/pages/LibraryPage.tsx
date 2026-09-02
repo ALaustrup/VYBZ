@@ -1,20 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Check,
   Film,
   Image as ImageIcon,
   Layers,
-  ListChecks,
   Loader2,
+  MoreHorizontal,
   Pencil,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { UploadsLibrary } from "@/components/UploadsLibrary";
 import { MixesLibrary } from "@/features/livingMix/MixesLibrary";
 import { EmptyState } from "@/components/EmptyState";
-import { ForgeChip, ToolWorkbench } from "@/components/ToolWorkbench";
+import { ToolWorkbench } from "@/components/ToolWorkbench";
 import { LocalAssetsLibrary } from "@/components/library/LocalAssetsLibrary";
 import { useSession } from "@/store/session";
 import { useRegisterAppBar } from "@/lib/appBarBridge";
@@ -23,8 +24,14 @@ import type { Drop, FeedPost } from "@/types";
 import { getPrepareOwnerId, listReleases } from "@/features/prepare/service";
 import type { ReleaseProject } from "@vybz/domain/releases";
 import { listVisibleCatalog } from "@/features/assetNode/catalog";
+import { cx } from "@/lib/utils";
 
-type Tab = "tracks" | "device" | "mixes" | "projects" | "stages";
+const LIBRARY_TABS = ["tracks", "device", "mixes", "projects", "stages"] as const;
+type Tab = (typeof LIBRARY_TABS)[number];
+
+function isLibraryTab(value: string | null): value is Tab {
+  return !!value && (LIBRARY_TABS as readonly string[]).includes(value);
+}
 
 /** Tracks stream in a page at a time so the first screen is fast and nothing is capped. */
 const PAGE_SIZE = 100;
@@ -33,10 +40,20 @@ const PAGE_SIZE = 100;
  * Library — works, project posts, stage backdrops, plus Analyzer scan strip.
  * Counts come from measured drops / posts / listReleases only (Law 1).
  */
-export function LibraryPage() {
+export function LibraryPage({ onCompose }: { onCompose?: () => void }) {
   const { userId, profile, refreshProfile, showToast } = useSession();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>("tracks");
+  const [params, setParams] = useSearchParams();
+  const rawTab = params.get("tab");
+  const tab: Tab = isLibraryTab(rawTab) ? rawTab : "tracks";
+  function setTab(next: Tab) {
+    setParams((prev) => {
+      const n = new URLSearchParams(prev);
+      if (next === "tracks") n.delete("tab");
+      else n.set("tab", next);
+      return n;
+    }, { replace: true });
+  }
   const [drops, setDrops] = useState<Drop[]>([]);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [scans, setScans] = useState<ReleaseProject[]>([]);
@@ -93,55 +110,48 @@ export function LibraryPage() {
   return (
     <ToolWorkbench
       wide
+      wave={false}
       testId="library-desk"
-      className="library-desk flex h-full !max-w-5xl min-h-0 flex-col !pb-4 !pt-2"
+      className="library-desk flex h-full !max-w-none min-h-0 flex-col !px-3 !pb-[calc(var(--dock-reserve,6.25rem)+0.75rem)] !pt-2 sm:!px-5"
     >
-      {scans.length > 0 && (
-        <section className="forge-glass relative !rounded-2xl p-3" aria-label="Analyzer scans" data-testid="library-scan-strip">
-          <span className="forge-glass-edge pointer-events-none" aria-hidden />
-          <div className="relative z-[1] mb-2 flex items-center justify-between gap-2">
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">
-              <ListChecks className="h-3.5 w-3.5 text-[rgb(var(--app-accent-rgb))]" /> Scans
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate("/releases")}
-              className="text-[11px] font-semibold text-white/50 hover:text-white/80"
-            >
-              Open scan
-            </button>
-          </div>
-          <div className="relative z-[1] no-scrollbar flex gap-2 overflow-x-auto pb-0.5">
-            {scans.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => navigate(`/release/${r.id}`)}
-                className="forge-card min-w-[10.5rem] shrink-0 !p-3 text-left active:scale-[0.99]"
-              >
-                <p className="truncate text-[13px] font-medium text-white/90">{r.title || "Untitled scan"}</p>
-                <p className="mt-0.5 text-[10px] uppercase tracking-wider text-white/35">{r.status}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <div className="no-scrollbar flex gap-1.5 overflow-x-auto" data-testid="library-tabs" role="tablist" aria-label="Library sections">
-        <ForgeChip active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
-          {/* While paging, show progress rather than a total that is still growing. */}
-          Works ({loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length})
-        </ForgeChip>
-        <ForgeChip active={tab === "device"} onClick={() => setTab("device")} testId="library-tab-device">
-          This device ({localCount})
-        </ForgeChip>
-        <ForgeChip active={tab === "mixes"} onClick={() => setTab("mixes")} testId="library-tab-mixes">
-          Mixes
-        </ForgeChip>
-        <ForgeChip active={tab === "projects"} onClick={() => setTab("projects")} testId="library-tab-projects">
-          Projects ({posts.length})
-        </ForgeChip>
-      </div>
+      <header data-library-chrome className="flex items-center gap-2">
+        <div
+          className="no-scrollbar flex min-w-0 flex-1 gap-1 overflow-x-auto"
+          data-testid="library-tabs"
+          role="tablist"
+          aria-label="Library sections"
+        >
+          <QuietTab active={tab === "tracks"} onClick={() => setTab("tracks")} testId="library-tab-tracks">
+            Works
+            <span className="ml-1 font-mono text-white/35">
+              {loadingMore ? `${drops.length} of ${trackTotal}` : trackTotal || drops.length}
+            </span>
+          </QuietTab>
+          <QuietTab active={tab === "device"} onClick={() => setTab("device")} testId="library-tab-device">
+            This device
+            <span className="ml-1 font-mono text-white/35">{localCount}</span>
+          </QuietTab>
+        </div>
+        <LibraryMore
+          tab={tab}
+          postsCount={posts.length}
+          scanCount={scans.length}
+          onMixes={() => setTab("mixes")}
+          onProjects={() => setTab("projects")}
+          onScans={() => navigate("/releases")}
+        />
+        {onCompose ? (
+          <button
+            type="button"
+            onClick={onCompose}
+            data-testid="library-upload-header"
+            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-white/[0.06] px-3 text-[12px] font-medium text-white/80"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Upload
+          </button>
+        ) : null}
+      </header>
 
       {tab === "device" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
@@ -156,6 +166,7 @@ export function LibraryPage() {
           initialDrops={drops}
           featuredId={profile?.featuredDropId}
           onFeaturedChange={() => { void refreshProfile(); void load(); }}
+          onCompose={onCompose}
         />
       ) : tab === "mixes" ? (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-6">
@@ -176,6 +187,136 @@ export function LibraryPage() {
         </div>
       )}
     </ToolWorkbench>
+  );
+}
+
+function LibraryMore({
+  tab,
+  postsCount,
+  scanCount,
+  onMixes,
+  onProjects,
+  onScans,
+}: {
+  tab: Tab;
+  postsCount: number;
+  scanCount: number;
+  onMixes: () => void;
+  onProjects: () => void;
+  onScans: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const secondary = tab === "mixes" || tab === "projects";
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  function pick(next: () => void) {
+    next();
+    setOpen(false);
+  }
+
+  return (
+    <div className="relative shrink-0" ref={rootRef}>
+      <button
+        type="button"
+        data-testid="library-more-sections"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={tab === "mixes" ? "Mixes" : tab === "projects" ? "Projects" : "More library sections"}
+        onClick={() => setOpen((v) => !v)}
+        className={cx(
+          "flex h-8 items-center justify-center rounded-full px-2.5 text-[12px] font-medium transition",
+          secondary ? "bg-white/[0.1] text-white" : "text-white/40 hover:text-white/70",
+        )}
+      >
+        {tab === "mixes" ? "Mixes" : tab === "projects" ? "Projects" : <MoreHorizontal className="h-4 w-4" />}
+      </button>
+      <div
+        hidden={!open}
+        role="menu"
+        className="absolute left-0 top-full z-50 mt-1 min-w-[11rem] rounded-2xl bg-ink-950/95 p-1 ring-1 ring-white/10 backdrop-blur"
+      >
+        <button
+          type="button"
+          role="menuitem"
+          data-testid="library-tab-mixes"
+          onClick={() => pick(onMixes)}
+          className={cx(
+            "flex w-full items-center rounded-xl px-3 py-2 text-left text-[12px] font-medium",
+            tab === "mixes" ? "bg-white/[0.08] text-white" : "text-white/70 hover:bg-white/[0.06] hover:text-white",
+          )}
+        >
+          Mixes
+        </button>
+        <button
+          type="button"
+          role="menuitem"
+          data-testid="library-tab-projects"
+          onClick={() => pick(onProjects)}
+          className={cx(
+            "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[12px] font-medium",
+            tab === "projects" ? "bg-white/[0.08] text-white" : "text-white/70 hover:bg-white/[0.06] hover:text-white",
+          )}
+        >
+          Projects
+          <span className="font-mono text-white/35">{postsCount}</span>
+        </button>
+        {scanCount > 0 ? (
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="library-scan-strip"
+            onClick={() => pick(onScans)}
+            className="flex w-full items-center rounded-xl px-3 py-2 text-left text-[12px] font-medium text-white/70 hover:bg-white/[0.06] hover:text-white"
+          >
+            {scanCount} {scanCount === 1 ? "scan" : "scans"}
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function QuietTab({
+  active,
+  onClick,
+  testId,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  testId: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      data-testid={testId}
+      onClick={onClick}
+      className={cx(
+        "shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition",
+        active ? "bg-white/[0.1] text-white" : "text-white/40 hover:text-white/70",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -342,7 +483,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
             </div>
             <div className="flex items-center gap-2 px-3 py-2.5">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white/90">{d.title || "Untitled track"}</p>
+                <p className="truncate text-sm font-medium text-white/90">{d.title || "Untitled work"}</p>
                 <p className="text-[11px] text-white/40">Stage backdrop</p>
               </div>
               <button
@@ -350,7 +491,7 @@ function StagesLibrary({ drops, onOpenDrop }: { drops: Drop[]; onOpenDrop: () =>
                 onClick={onOpenDrop}
                 className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-white/70 hover:text-white active:scale-95"
               >
-                Manage track
+                Manage work
               </button>
             </div>
           </li>

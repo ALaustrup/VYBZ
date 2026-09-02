@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, MessageCircle, Target, UserPlus, X } from "lucide-react";
+import { ArrowRight, Handshake, MessageCircle, Target, X } from "lucide-react";
 import * as api from "@/lib/api";
 import { openFreeDm } from "@/lib/freeConnect";
 import { useMessagePopout } from "@/lib/messagePopout";
@@ -103,7 +103,7 @@ export function FeedHero() {
                       <span className={cx("font-medium", r.tone)}>{r.label}</span>
                     </p>
                   </div>
-                  <button type="button" onClick={() => connect(m)} aria-label="Connect" className="btn btn-ghost h-8 w-8 p-0"><UserPlus className="h-3.5 w-3.5" /></button>
+                  <button type="button" onClick={() => connect(m)} aria-label="Connect" className="btn btn-ghost h-8 w-8 p-0"><Handshake className="h-3.5 w-3.5" /></button>
                   <button
                     type="button"
                     onClick={async () => {

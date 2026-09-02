@@ -9,8 +9,7 @@ import { useReduceFx } from "@/lib/display";
 import { cx } from "@/lib/utils";
 
 /**
- * Me — home when you are elsewhere; account when you are already home.
- * Sign-out lives here because ProfileMenu and OrbMenu are unmounted.
+ * Me — identity, public VYBZ, and sign-out. ProfileMenu and OrbMenu stay unmounted.
  */
 export function AccountMenu() {
   const { profile, email, signOut, userId } = useSession();
@@ -42,16 +41,12 @@ export function AccountMenu() {
 
   const name = profile?.username?.trim() || null;
   const display = profile?.displayName?.trim() || name;
-  const onHome = pathname === "/";
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={() => {
-          if (onHome) setOpen((v) => !v);
-          else navigate("/");
-        }}
+        onClick={() => setOpen((v) => !v)}
         aria-label="Me"
         aria-expanded={open}
         aria-haspopup="menu"
@@ -78,7 +73,7 @@ export function AccountMenu() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
-            className="forge-glass absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-56 overflow-hidden p-1.5 shadow-suite-lg"
+            className="forge-glass absolute left-0 top-[calc(100%+0.45rem)] z-[80] w-56 overflow-hidden p-1.5 shadow-suite-lg"
             data-testid="account-menu"
           >
             <div className="px-2.5 pb-1.5 pt-1">

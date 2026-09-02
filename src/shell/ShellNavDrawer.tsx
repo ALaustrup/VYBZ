@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { X } from "lucide-react";
 import { useReduceFx } from "@/lib/display";
@@ -6,6 +7,7 @@ import { overlayVariants, springDrawer, withReduce } from "@/lib/motion";
 import { OverlayPortal } from "@/lib/overlayPortal";
 import { PrimaryRailNav } from "@/shell/PrimaryRail";
 import { closeShellNavDrawer, useShellNavDrawerOpen } from "@/shell/shellNavDrawerStore";
+import { DrawerChrome } from "@/components/shell/DrawerChrome";
 
 const leftDrawerVariants: Variants = {
   hidden: { x: "-100%" },
@@ -50,13 +52,24 @@ function trapFocus(panel: HTMLElement, onClose: () => void) {
 }
 
 /**
- * Accessible left drawer for primary destinations on narrow viewports.
- * Desktop uses the fixed PrimaryRail instead.
+ * Accessible left drawer — the default chrome on every viewport.
+ * PrimaryRail stays in the tree, unmounted. Destinations share PrimaryRailNav.
  */
-export function ShellNavDrawer() {
+export function ShellNavDrawer({
+  onCompose,
+  onGenerate,
+}: {
+  onCompose?: () => void;
+  onGenerate?: () => void;
+}) {
   const open = useShellNavDrawerOpen();
   const reduce = useReduceFx();
   const panelRef = useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    closeShellNavDrawer();
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -101,10 +114,10 @@ export function ShellNavDrawer() {
               animate="visible"
               exit="exit"
               transition={withReduce(reduce, springDrawer)}
-              className="shell-nav-drawer mat-surface-strong fixed inset-y-0 left-0 z-[71] flex w-[min(100%,16.5rem)] flex-col border-r border-white/12"
+              className="shell-nav-drawer mat-surface-strong fixed inset-y-0 left-0 z-[71] flex w-[min(100%,18.5rem)] flex-col overflow-visible border-r border-white/12"
             >
               <div className="flex items-center justify-between border-b border-[var(--hairline)] px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-                <p className="font-display text-[15px] font-semibold text-white">Navigate</p>
+                <p className="font-display text-[15px] font-semibold text-white">VYBZ</p>
                 <button
                   type="button"
                   aria-label="Close"
@@ -114,9 +127,11 @@ export function ShellNavDrawer() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
+              <DrawerChrome onCompose={onCompose} onGenerate={onGenerate} />
               <PrimaryRailNav
                 className="min-h-0 flex-1 overflow-y-auto py-2"
                 onNavigate={closeShellNavDrawer}
+                showIdentity={false}
               />
             </motion.aside>
           </>

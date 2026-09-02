@@ -48,8 +48,12 @@ describe("local asset node", () => {
     expect(desktop).toContain("web.files.selectFolder");
     expect(page).toContain("library-tab-device");
     expect(page).toContain("This device");
+    expect(page).toContain('params.get("tab")');
+    expect(page).toContain('n.set("tab", next)');
     expect(ui).toContain("Indexing is not publishing");
     expect(ui).toContain("Not published");
+    expect(ui).toContain("Swarm is not this catalog");
+    expect(ui).toContain("node-honesty");
     expect(store).toContain("Unindex only. Does not delete files on disk.");
 
     for (const src of [walk, index, store, ui]) {
@@ -84,6 +88,12 @@ describe("local asset node", () => {
     expect(store).toContain("Never written to IndexedDB");
     expect(read("PRODUCT.md")).toContain("While this app is open");
     expect(read("PRODUCT.md")).toContain("A phone is not a background file host");
+    expect(read("PRODUCT.md")).toContain("Node is a Search and + tool");
+    expect(read("src/app/routeTruth.ts")).toContain('title: "This device"');
+    expect(read("src/app/routeTruth.ts")).toContain("/library?tab=device");
+    expect(read("src/shell/commands.ts")).toContain("Index this device");
+    expect(read("src/components/shell/DrawerChrome.tsx")).toContain("add-node");
+    expect(read("src/components/shell/DrawerChrome.tsx")).toContain("/library?tab=device");
     expect(read("supabase/migrations/20260709_0001_vybz_v1.sql")).toContain("url text not null");
   });
 });

@@ -4,14 +4,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { overlayVariants, sheetVariants, springSoft, withReduce } from "@/lib/motion";
 import { useReduceFx } from "@/lib/display";
 import {
-  AudioLines, CheckCircle2, Globe, Loader2, Lock, RotateCw, Send, Trash2, Users, X,
+  CheckCircle2, FileUp, Globe, Loader2, Lock, RotateCw, Send, Trash2, Users, X,
 } from "lucide-react";
 import { useSession } from "@/store/session";
 import * as api from "@/lib/api";
 import { OriginalityClaim } from "@/components/OriginalityClaim";
 import { Waveform } from "@/components/Waveform";
-import { AUDIO_ACCEPT, acousticSignature, qualityLabel } from "@/lib/waveform";
+import { acousticSignature, isAudioFile, qualityLabel } from "@/lib/waveform";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
+import { CREATIVE_ACCEPT, classifyFile } from "@/features/upload/creativeFile";
 import {
   buildDropInput, canReleaseItem, clearReleasedUploads, editUploadMeta, enqueueUploads,
   getUploadQueue,
@@ -43,6 +44,8 @@ function UploadRow({ item, disabled }: { item: UploadItem; disabled: boolean }) 
   const released = item.status === "released";
   const failed = item.status === "failed";
   const sending = item.status === "reading" || item.status === "uploading";
+  const kind = classifyFile(item.file);
+  const audio = kind === "audio";
   const auto = item.autoFilled.length
     ? item.autoFilled
         .map((f) => (f === "creditedArtist" ? "artist" : f === "musicalKey" ? "key" : f))
@@ -106,16 +109,18 @@ function UploadRow({ item, disabled }: { item: UploadItem; disabled: boolean }) 
 
       {!released && (
         <>
-          <div className="mt-2.5">
-            <Waveform peaks={item.meta.peaks} progress={0} accent={accent} height={28} />
-          </div>
+          {audio ? (
+            <div className="mt-2.5">
+              <Waveform peaks={item.meta.peaks} progress={0} accent={accent} height={28} />
+            </div>
+          ) : null}
 
-          <div className="mt-2.5 grid gap-2 sm:grid-cols-2">
+          <div className={cx("mt-2.5 grid gap-2", audio ? "sm:grid-cols-2" : "")}>
             <div className="forge-field !py-2 sm:col-span-2">
               <input
                 value={item.meta.title}
                 onChange={(e) => editUploadMeta(item.id, "title", e.target.value.slice(0, 80))}
-                placeholder="Song title…"
+                placeholder="Title"
                 aria-label={`Title for ${item.name}`}
                 disabled={disabled}
               />
@@ -129,48 +134,52 @@ function UploadRow({ item, disabled }: { item: UploadItem; disabled: boolean }) 
                 disabled={disabled}
               />
             </div>
-            <div className="forge-field !py-2">
-              <input
-                value={item.meta.album}
-                onChange={(e) => editUploadMeta(item.id, "album", e.target.value.slice(0, 80))}
-                placeholder="Album — blank for Single"
-                aria-label={`Album for ${item.name}`}
-                disabled={disabled}
-              />
-            </div>
-            <div className="forge-field !py-2">
-              <input
-                type="number"
-                inputMode="numeric"
-                value={item.meta.bpm}
-                onChange={(e) =>
-                  editUploadMeta(item.id, "bpm", e.target.value.replace(/[^0-9]/g, "").slice(0, 3))
-                }
-                placeholder="BPM"
-                aria-label={`BPM for ${item.name}`}
-                disabled={disabled}
-              />
-            </div>
-            <div className="forge-field !py-2">
-              <select
-                value={item.meta.musicalKey}
-                onChange={(e) => editUploadMeta(item.id, "musicalKey", e.target.value)}
-                aria-label={`Key for ${item.name}`}
-                disabled={disabled}
-                className="w-full bg-transparent text-sm text-white/85 outline-none"
-              >
-                <option value="">Key</option>
-                {MUSICAL_KEYS.map((k) => (
-                  <option key={k} value={k} className="bg-ink-900">
-                    {k}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {audio ? (
+              <>
+                <div className="forge-field !py-2">
+                  <input
+                    value={item.meta.album}
+                    onChange={(e) => editUploadMeta(item.id, "album", e.target.value.slice(0, 80))}
+                    placeholder="Album — blank for Single"
+                    aria-label={`Album for ${item.name}`}
+                    disabled={disabled}
+                  />
+                </div>
+                <div className="forge-field !py-2">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={item.meta.bpm}
+                    onChange={(e) =>
+                      editUploadMeta(item.id, "bpm", e.target.value.replace(/[^0-9]/g, "").slice(0, 3))
+                    }
+                    placeholder="BPM"
+                    aria-label={`BPM for ${item.name}`}
+                    disabled={disabled}
+                  />
+                </div>
+                <div className="forge-field !py-2">
+                  <select
+                    value={item.meta.musicalKey}
+                    onChange={(e) => editUploadMeta(item.id, "musicalKey", e.target.value)}
+                    aria-label={`Key for ${item.name}`}
+                    disabled={disabled}
+                    className="w-full bg-transparent text-sm text-white/85 outline-none"
+                  >
+                    <option value="">Key</option>
+                    {MUSICAL_KEYS.map((k) => (
+                      <option key={k} value={k} className="bg-ink-900">
+                        {k}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            ) : null}
           </div>
 
           <p className="mt-1.5 text-[11px] text-white/35">
-            {qualityLabel(item.meta.format, item.meta.sampleRate, item.meta.lossless) || "Audio"}
+            {qualityLabel(item.meta.format, item.meta.sampleRate, item.meta.lossless) || kind}
             {auto ? <span className="text-veil-200"> · from file: {auto}</span> : null}
           </p>
         </>
@@ -185,7 +194,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   const reduce = useReduceFx();
   const items = useUploadQueue();
   const [releaseType, setReleaseType] = useState<ReleaseType>("original");
-  const [audience, setAudience] = useState<PostAudience>("public");
+  const [audience, setAudience] = useState<PostAudience>("private");
   const [ownershipClaim, setOwnershipClaim] = useState(false);
   const [releasing, setReleasing] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -193,6 +202,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
 
   const summary = summarizeQueue(items);
   const releasable = items.filter(canReleaseItem);
+  const hasAudio = items.some((item) => classifyFile(item.file) === "audio");
 
   const add = useCallback(
     (list: FileList | File[] | null) => {
@@ -201,7 +211,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       const skipped = skippedNonAudio + skippedEmpty + skippedOversize;
       if (skipped > 0 && !ids.length) {
         showToast(
-          skippedOversize > 0 ? "That file is over the 1 GB limit." : "Choose audio or video files.",
+          skippedOversize > 0 ? "That file is over the 1 GB limit." : "Choose audio, image, video, or a file.",
         );
       } else if (skipped > 0) {
         showToast(`Added ${ids.length} · skipped ${skipped}`);
@@ -226,20 +236,25 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
   }
 
   useEffect(() => {
-    if (open) setOwnershipClaim(false);
+    if (open) {
+      setOwnershipClaim(false);
+      setAudience("private");
+    }
   }, [open]);
 
   async function releaseAll() {
     if (!releasable.length || releasing) return;
     if (!ownershipClaim) {
-      showToast("Tick the box — this has to be your music.");
+      showToast("Tick the box — this has to be your work.");
       return;
     }
     setReleasing(true);
     let ok = 0;
     try {
       for (const item of releasable) {
-        const fingerprint = await acousticSignature(item.meta.peaks).catch(() => undefined);
+        const fingerprint = isAudioFile(item.file)
+          ? await acousticSignature(item.meta.peaks).catch(() => undefined)
+          : undefined;
         const drop = await api.createDrop(
           buildDropInput(item, { audience, releaseType, fingerprint }),
         );
@@ -254,17 +269,13 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
       setReleasing(false);
     }
     if (ok > 0) {
-      celebrate(
-        audience === "private"
-          ? `${ok} private ${ok === 1 ? "drop" : "drops"} saved`
-          : `${ok} ${ok === 1 ? "drop is" : "drops are"} live`,
-      );
+      celebrate(`${ok} saved to Library`);
       onPosted();
       clearReleasedUploads();
       // An empty sheet is just in the way. Anything that failed, or is still
       // uploading, is a reason to stay open — nothing left is a reason to go.
       if (getUploadQueue().length === 0) onClose();
-      if (audience === "public") navigate("/feed");
+      navigate("/library");
     }
   }
 
@@ -329,7 +340,7 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                 ref={fileRef}
                 type="file"
                 multiple
-                accept={AUDIO_ACCEPT}
+                accept={CREATIVE_ACCEPT}
                 onChange={handleFile}
                 className="hidden"
                 data-testid="compose-file-input"
@@ -345,9 +356,9 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
                     : "border-white/15 bg-white/[0.02] hover:border-white/25",
                 )}
               >
-                <AudioLines className="h-6 w-6 text-white/30" />
+                <FileUp className="h-6 w-6 text-white/30" />
                 <span className="text-[13px] font-medium text-white/70">
-                  {items.length ? "Add more" : "Drop audio here"}
+                  {items.length ? "Add more" : "Drop files here"}
                 </span>
                 <span className="text-[11px] text-white/35">Upload starts now</span>
               </button>
@@ -362,27 +373,29 @@ export function ComposeSheet({ open, onClose, onPosted }: { open: boolean; onClo
 
               {items.length > 0 && (
                 <div className="mt-4 space-y-3">
-                  <div>
-                    <p className="mb-1.5 text-[12px] font-semibold text-white/60">
-                      Type (all files)
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {RELEASE_TYPES.map((r) => (
-                        <button
-                          key={r.id}
-                          type="button"
-                          onClick={() => setReleaseType(r.id)}
-                          className={cx("forge-chip", releaseType === r.id ? "forge-chip--active" : "")}
-                        >
-                          {r.label}
-                        </button>
-                      ))}
+                  {hasAudio ? (
+                    <div>
+                      <p className="mb-1.5 text-[12px] font-semibold text-white/60">
+                        Type (all files)
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {RELEASE_TYPES.map((r) => (
+                          <button
+                            key={r.id}
+                            type="button"
+                            onClick={() => setReleaseType(r.id)}
+                            className={cx("forge-chip", releaseType === r.id ? "forge-chip--active" : "")}
+                          >
+                            {r.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
 
                   <div>
                     <p className="mb-1.5 text-[12px] font-semibold text-white/60">
-                      Who can hear it
+                      Who can see it
                     </p>
                     <div className="flex gap-1.5">
                       <button type="button" onClick={() => setAudience("public")} className={cx("flex flex-1 items-center justify-center gap-1 rounded-xl py-2 text-[12px] font-semibold transition", audience === "public" ? "bg-veil-500/25 text-white ring-1 ring-veil-400/40" : "bg-white/[0.04] text-white/55")}><Globe className="h-3.5 w-3.5" /> Public</button>

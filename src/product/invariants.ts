@@ -140,16 +140,20 @@ export const LIVING_PROFILE = {
   loggedInHomeIsSocialLanding: true,
   /** Owner Stage File is `/u/:id` — same object, owner perspective. */
   ownerStageFileAtPublicRoute: true,
-  /** Top bar stays quiet: VYBZ · Search · + · Chat · Alerts · Me. No kingdom labels there. */
+  /** Top bar is the menu. Search, +, Chat, Alerts, Me live in the drawer. */
   defaultChromeIsQuiet: true,
-  /** Alerts appears once in default chrome. Not on the rail. Not on the dock. */
+  /** Alerts appears once in the drawer. Not on the rail. Not on the dock. */
   oneAlertsChrome: true,
   /** Owner dashboard is the Stage File. Workspace stays archived, not a second home. */
   dashboardIsOwnerStageFile: true,
-  /** Desktop mounts one adapted PrimaryRail — not a parallel navigation system. */
-  desktopPrimaryRail: true,
-  /** Narrow viewports collapse the rail into an accessible drawer. */
+  /** PrimaryRail stays in the tree. Drawer is chrome on every viewport. */
+  desktopPrimaryRail: false,
+  /** Drawer is the nav and the chrome on every viewport, including desktop. */
   mobileNavDrawer: true,
+  /** Header has the menu. Identity mark lives on Home, not in the bar. */
+  chromeIsMenuOnly: true,
+  /** Search, +, Chat, Alerts, Me, Tools, and wallet mount in the drawer. */
+  chromeControlsLiveInDrawer: true,
   /** One Stage File. Owner controls vs visitor experience. View as Visitor is the check. */
   ownerVisitorDualMode: true,
   /** Stage File works go through a kind → renderer registry. Unknown kinds do not crash. */
@@ -166,6 +170,12 @@ export const LIVING_PROFILE = {
   profileOwnerAmbientAttention: true,
   /** Live belongs to the Profile banner. `/live` remains network discovery. */
   liveIsProfilePresence: true,
+  /** Library intake is Creative Work — audio, image, video, file. Not a song catalog. */
+  libraryIngestsUniversalWork: true,
+  /** Library is a media gallery. Cinema, grid, list, table, shelves. Sound starts on tap. */
+  libraryIsMediaGallery: true,
+  /** Sign-in does not start speaker audio. Ambient radio may seed a queue. */
+  soundDoesNotStartOnSignIn: true,
 } as const;
 
 /* ------------------------------------------------------------------------- */
@@ -356,6 +366,8 @@ export const ARTIST_STAGE_PROFILE = {
   liveNightsLead: true,
   /** Connect is a request. The other person must accept. */
   connectIsARequest: true,
+  /** Stage File Connect pending/accepted hydrates from connections, not local state only. */
+  connectRequestHydratesFromServer: true,
   /** Book-a-session opens a DM and must say it is not a calendar. */
   bookIsAMessageNotACalendar: true,
   /** Profile cells are measured or omitted. Unknown is not invented. */
@@ -387,6 +399,14 @@ export const CREATOR_NETWORK = {
   messagingReusesDirectMessages: true,
   activityReusesNotifications: true,
   networkCentersOnCreativeWork: true,
+  /** Explore chip on signed-in Home reuses listDiscovery / discovery_feed. */
+  exploreIsOnSocialHome: true,
+  /** Home discovery composes live, rooms, library, taste, and hear — not a second stack. */
+  homeComposesExistingDiscovery: true,
+  /** Search for Follow opens Home / Following, not Connect. */
+  searchFollowIsNotConnect: true,
+  /** Home work acknowledgment is VYB, not Like. */
+  vybLabelIsVyb: true,
 } as const;
 
 /** Chat (`message`) badges and lists stay on Chat — never Alerts or `/notifications`. */
@@ -569,6 +589,7 @@ export const GATE_REGISTRY = [
   "suiteUxCostRemoval",
   "socialFirstShell",
   "libraryCompleteness",
+  "creativeLibrary",
   "livingMix",
   "sparks",
   "reception",

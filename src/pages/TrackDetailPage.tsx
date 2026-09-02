@@ -395,8 +395,7 @@ function Overview({ drop }: { drop: Drop }) {
 
       <section className="forge-card">
         <p className="nexus-eyebrow mb-2">Engagement</p>
-        <ul className="grid grid-cols-3 gap-2 text-center">
-          <Stat label="Plays" value={formatCount(drop.plays ?? 0)} />
+        <ul className="grid grid-cols-2 gap-2 text-center">
           <Stat label="Vybs" value={formatCount(drop.feels)} />
           <Stat
             label="Rating"

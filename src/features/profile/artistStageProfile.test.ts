@@ -21,6 +21,7 @@ describe("artist stage profile", () => {
   it("locks the Stage File rules", () => {
     expect(ARTIST_STAGE_PROFILE.liveNightsLead).toBe(true);
     expect(ARTIST_STAGE_PROFILE.connectIsARequest).toBe(true);
+    expect(ARTIST_STAGE_PROFILE.connectRequestHydratesFromServer).toBe(true);
     expect(ARTIST_STAGE_PROFILE.bookIsAMessageNotACalendar).toBe(true);
     expect(ARTIST_STAGE_PROFILE.measuredStatsOnly).toBe(true);
     expect(ARTIST_STAGE_PROFILE.noVanityFollowerCounts).toBe(true);
@@ -55,7 +56,9 @@ describe("artist stage profile", () => {
     expect(ui).toContain("Book a session");
     expect(ui).toContain("this is not a calendar");
     expect(ui).toContain("profile-connect");
+    expect(ui).toContain("Handshake");
     expect(ui).toContain("Request sent");
+    expect(page).toContain("connectionBlocksNewRequest");
     expect(ui).toContain("No live nights yet");
     expect(ui).toContain("TipButton");
     expect(ui).not.toMatch(/Followers|Human certified|AI-free/i);

@@ -30,15 +30,15 @@ function useReactiveGlow(
     if (!enabled || (!icon && !halo)) { reset(); return; }
 
     const apply = (g: number) => {
-      // g: ~0 (silent) .. ~1.6 (loud transient).
+      // g: ~0 (silent) .. ~1.6 (loud transient). Keep the pulse gentle.
       if (icon) {
-        icon.style.filter = `brightness(${(1 + g * 0.55).toFixed(3)}) saturate(${(1 + g * 0.6).toFixed(3)})`;
-        icon.style.transform = `scale(${(1 + Math.min(0.24, g * 0.2)).toFixed(3)})`;
+        icon.style.filter = `brightness(${(1 + g * 0.22).toFixed(3)}) saturate(${(1 + g * 0.28).toFixed(3)})`;
+        icon.style.transform = `scale(${(1 + Math.min(0.08, g * 0.08)).toFixed(3)})`;
         icon.style.willChange = "filter, transform";
       }
       if (halo) {
-        halo.style.opacity = Math.min(0.95, 0.16 + g * 0.72).toFixed(3);
-        halo.style.transform = `scale(${(0.85 + Math.min(1.7, g * 1.25)).toFixed(3)})`;
+        halo.style.opacity = Math.min(0.42, 0.08 + g * 0.32).toFixed(3);
+        halo.style.transform = `scale(${(0.9 + Math.min(0.85, g * 0.7)).toFixed(3)})`;
       }
     };
 
@@ -90,10 +90,9 @@ export function BrandMark({
   title?: string;
   reactive?: boolean;
   /**
-   * Circular treatment: soft ring and a slow hue cycle.
-   *
-   * Time-based, not audio-driven — the marks stay still against playback by
-   * design (see featuredMiniPlayerGate). Honours reduced-motion via CSS.
+   * Circular treatment: soft ring, slow hue cycle, optional audio halo.
+   * Home hero passes `orb` with `reactive`. Default call sites stay still.
+   * Honours reduced-motion via CSS.
    */
   orb?: boolean;
 }) {
@@ -146,9 +145,15 @@ export function BrandMark({
   if (orb) {
     return (
       <span
-        className="vybz-mark-orb relative inline-flex shrink-0 items-center justify-center rounded-full"
+        className={cx(
+          "vybz-mark-orb relative inline-flex shrink-0 items-center justify-center overflow-visible rounded-full",
+          reactive && "vybz-mark-orb--alive",
+        )}
         data-testid="brand-mark-orb"
       >
+        {reactive ? (
+          <span ref={haloRef} aria-hidden className="vybz-mark-halo pointer-events-none absolute inset-0" />
+        ) : null}
         <span className="vybz-mark-orb-spin relative z-10 inline-flex">{mark}</span>
       </span>
     );

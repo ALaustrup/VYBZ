@@ -4,12 +4,12 @@ import {
   Calendar,
   Flag,
   Gift,
+  Handshake,
   Loader2,
   MapPin,
   MessageCircle,
   Radio,
   Star,
-  UserPlus,
 } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
 import { toPlayerTrack } from "@/components/TrackCard";
@@ -420,7 +420,7 @@ export function ArtistStageProfile({
           {visitorSocial && (
             <>
               <button type="button" disabled={!!busy || requested} onClick={onConnect} data-testid="profile-connect" className="btn btn-ghost h-10 flex-1 py-0 text-xs disabled:opacity-40 sm:flex-none sm:px-4">
-                {busy === "connect" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5" />}
+                {busy === "connect" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Handshake className="h-3.5 w-3.5" />}
                 {requested ? "Request sent" : "Connect"}
               </button>
               <FollowButton creatorId={id} />
@@ -475,6 +475,7 @@ export function ArtistStageProfile({
           <div className="space-y-3 lg:col-span-12" data-testid="profile-owner-empty">
             <p className="text-sm text-white/45">
               This is your VYBZ. Place work from Library when you want — it stays one file.
+              Public work is heard when it is placed, not when it is indexed on this device.
             </p>
             <button
               type="button"

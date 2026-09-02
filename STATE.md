@@ -2,25 +2,234 @@
 
 The current checkpoint. Every claim cites evidence. Replaces the former `STATUS.md`.
 
-**Date:** 2026-08-31
-**Branch:** `fix/chat-alerts-separation` (local, uncommitted)
-**HEAD (main):** `1a0d4097` — merge PR #214
-**Production:** https://vybz.cloud — Vercel **`BL7VfaoQGQiAQGxRDiQFHkhmUL3C`** READY at `1a0d4097`
+**Date:** 2026-09-01
+**Branch:** `feat/heard-and-node` @ `f015f94f` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+**HEAD (main):** `96f38ef5` — merge PR #215
+**Production:** https://vybz.cloud — Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY at `96f38ef5`
 
-## Chat, alerts chrome, dashboard integration — 2026-08-31 (local, not merged)
+## Living Profile alignment — 2026-09-01
 
-**Branch:** `fix/chat-alerts-separation`
+**Commit:** `f015f94f` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
 
-Product law already said this. The chrome was still shipping two Alerts bells and a second dashboard.
+Living Profile copy, Follow ≠ Connect in Search, VYB not Like, no public play vanity, Connect hydrates from `connections`, Handshake vs Follow, song workspace banner hidden from default chrome, sign-in does not start sound. Now / next / later is locked in PRODUCT §14.
 
-- **Chat** owns `kind = message`. Alerts does not.
-- **One Alerts control** — top chrome `AlertsMenu` only. Rail bell and VDock Alerts icon removed. Files for the old controls stay in the tree.
-- **Dashboard is the Stage File** (`/u/:id`). Workspace hub/listen/live/you fold into `/u/:id`, `/`, `/live`. `/workspace?tab=wallet` still renders the wallet. Owner chrome no longer has a Workspace door.
-- Gates: `notificationRouting`, `LIVING_PROFILE.oneAlertsChrome`, `LIVING_PROFILE.dashboardIsOwnerStageFile`
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Alignment gates: **7 files / 73 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
 
-**Validate (local):** `npm run validate` pass (2026-08-27). Test file/count for this run: **Not measured** beyond exit 0.
+**Local signed-in walk** (http://localhost:5173 as Andrew): Home rows are **Vyb**; dock **No track** / Play disabled (no audio element); Search `follow` offers only **Go Home**; `/u/98b3ce34-…` (Love) **Request sent** disabled with Handshake after reload; Follow remains **Following**; `/library` Works with no song workspace banner. Production walk: **Not measured**.
 
-Production walk: **Not measured**. Not on production.
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema ending does not start the next work — 2026-09-01
+
+**Commit:** `bcd0aea9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Ending a work does not start the next work (`cinemaEndedAdvancesWork`, `cinemaPlaybackList`). Cinema and visual play this work only. Arrows and taps still move. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 31 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; tap-to-play; end stays Play on the same work (dock Next disabled); visual `0:00 / 0:07` → `0:07 / 0:07` Play, `1 / 1` still open; phone 390×844 end stays Play on the same heading. Neighbor advance with two audio works: **Not measured** (catalog is one audio work). Video ended: **Not measured**. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## DSP test timeouts under suite load — 2026-09-01
+
+**Commit:** `d0dcf565` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Combined `npm run test` was aborting real 48 kHz / 3 s PCM correction work at Vitest’s 5 s default. Isolation already passed. Describe-level `{ timeout: 45_000 }` on the M6/M7 gates and the apply/preview files that do that work. Default `testTimeout` in `vitest.config.ts` is still 5 s. DSP algorithms unchanged.
+
+**Validate (local):** `npm run test` — **207 files / 1060 tests**, 217.72 s. Lint / typecheck / production build this unit: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema video progress on the tile — 2026-09-01
+
+**Commit:** `d03cf3f9` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Playing video shows progress on the tile (`cinemaVideoProgressShouldShow`). The bar reads the video clock, not AudioBus. Muted preview is not the playing work. Tap or drag still seeks. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 30 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema audio still fills `0.026 → 0.120` then seeks to `0.50`; Pause; Video chip empty stays cinema; phone 390×844 `Show all` then progress `0.021 → 0.088`. Playing video on the tile: **Not measured** (catalog is one audio work). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema visual clock fills live — 2026-09-01
+
+**Commit:** `4f921b76` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Full-screen visual clock fills live (`cinemaVisualClockIsLive`, `library-visual-clock`). The stage uses `usePlayerShell` and RAF instead of a timeupdate subscription. Waveform fills from `liveProgress`. Video on the stage gets the same clock and a seek bar (`library-visual-progress`). Space is still a tap. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 29 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; maximize opens `library-visual-stage`; clock `0:01 / 0:07` → `0:02 / 0:07` while Pause; waveform seek `0:07 → 0:03`; phone 390×844 clock `0:03 → 0:05`, Escape. Video clock on the stage: **Not measured** (catalog is one audio work). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema visual Space + video on the stage — 2026-09-01
+
+**Commit:** `7695fa90` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Full-screen visual: Space is a tap (`cinemaVisualSpaceIsTap`, `library-visual-tap`). Video uses the stage, not native controls (no `autoPlay`, no `controls`). Opening visual still starts playback. Overlay still recedes. Sound still starts on tap. Cinema arrows still do not start sound.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 28 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; maximize opens `library-visual-stage` (audio playing); Space on the stage Pause → Play → Pause; Escape closes; gallery Space still taps play (Play → Pause); phone 390×844 visual Space Pause → Play → Pause, Escape. Video on the stage: **Not measured** (catalog is one audio work). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema keys — 2026-09-01
+
+**Commit:** `0a074f0c` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema arrows move between works. Space is a tap (`library-cinema-tap`). Arrows do not start sound (`cinemaArrowStartsAudio`). Search, filters, and full-screen keep their own keys. Overlay still recedes. Sound still starts on tap.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 27 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; Space on the gallery starts playback (`Pause`); ArrowDown keeps it playing (does not start a new work); Space pauses; Space in search does not start playback; phone 390×844 Space starts, ArrowDown stays playing. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema progress fills and seeks — 2026-09-01
+
+**Commit:** `8d844afb` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema progress fills from a known duration (`cinemaProgressFraction`) instead of sitting empty. Tap or drag the bar to move in the work (`seekFraction`). Tap play on an ended work starts from the start. Overlay still recedes. Sound still starts on tap. Empty cinema stays the gallery.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 23 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; tap-to-play; bar filled `0.015 → 0.095` then seek to `0.36`; center click sought to `0.5` without toggling Play; ended tap restarted from `scaleX 1 → 0`; phone 390×844 Pause + progress, seek `0.50 → 0.70`. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema empty stays the gallery — 2026-09-01
+
+**Commit:** `47020c8a` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema empty match stays a cinema tile (`library-cinema-empty`) so the gallery frame does not collapse. Show all restores the catalog (`library-cinema-clear`). Playing (or paused) work shows display-only progress on the tile (`library-cinema-progress`); RAF + `getPlaybackProgress()`, no seek. Overlay still recedes. Sound still starts on tap. Grid / list / table / shelves still use desk EmptyState.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + preview: **3 files / 20 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; Image chip empty match keeps `.library-cinema` (tile 542px desktop / 696px at 390×844); Show all restores the work; tap-to-play shows Pause and `library-cinema-progress`; overlay `data-cinema-chrome=hidden` with reveal; list Image empty is desk EmptyState (no `library-cinema-empty`). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema tools stay put — 2026-09-01
+
+**Commit:** `a7414a20` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema search, filters, views, and sort stay on screen. Kind chips scroll. Library counts **works**, not tracks (`library-count`). Overlay still recedes. Mixes still in More.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile gates: **2 files / 16 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema `library-count` is `1 work`; phone 390×844 search, filters, view menu, and sort all `inView`; chips overflow (`scrollWidth` 254 / `clientWidth` 132); view menu tap expands Cinema/Grid/List/Table/Shelves; Image chip empty match; desktop 1280 `sameRow`. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema header is quiet — 2026-08-31
+
+**Commit:** `ee063c18` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Library header is **Works, This device, and Upload**. Mixes, Projects, and scans stay in More (`library-more-sections`) — routes and testids stay. Phone cinema collapses the five view icons into one control (`library-view-menu`); sm+ still shows all five. Cinema tile scrim is lighter so the visualizer reads. Overlay still recedes. Grid / list / table / shelves stay.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile + Living Mix gates: **3 files / 21 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema header is Works / This device / More / Upload; More opens Mixes, Projects 0, 6 scans; Mixes tab `library?tab=mixes` with Mix this catalog; Works returns to cinema; This device honesty copy still present; phone 390×844 More + Upload, view menu expands Cinema/Grid/List/Table/Shelves, List still stacks chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema overlay one bar — 2026-08-31
+
+**Commit:** `a384a171` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema overlay is **one bar**: kind chips (All / Audio / Image / Video / File) sit on the same row as search, filters, views, and sort. Search is an icon that expands on focus. Full-screen visual stays on the tile on phone (`library-visual-toggle` from `sm`). Grid, list, table, and shelves still stack chips below the toolbar. Overlay still recedes while you watch.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery + living-profile gates: **2 files / 16 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; chips and cinema view `sameRow` (tops within 12px) at 802px and 1280px; phone 390×844 `sameRow`, search expands to 176px without overlapping File; Image chip empty match; list and grid chips stacked below toolbar (`stacked: true`). Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Cinema overlay recedes — 2026-08-31
+
+**Commit:** `aaa5d6fd` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema overlay (tabs, search, views, sort, kind chips) recedes ~1.4s after tap-to-play, and when the gallery scrolls. Tap the top strip to bring it back. Filters, search focus, and reduced motion keep it. Title, play, and full-screen stay on the tile. `cinemaChromeShouldHide` is tested. Grid / list / table / shelves keep their chrome.
+
+**Validate (local):** typecheck (`tsc --noEmit`) pass. Gallery gates + preview: **3 files / 19 tests**. Production `vite build` pass. Combined `npm run test` this unit: **Not measured**.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema; tap-to-play; overlay `data-cinema-chrome=hidden` with reveal control while Pause is showing; title still on the tile; top strip restores overlay; hamburger stays. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Library cinema fills the page — 2026-08-31
+
+**Commit:** `1b0068e4` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Cinema tiles are the remaining viewport (100cqh of the gallery scroller), not `100dvh − 19.5rem`. Tabs, scans, search, views, sort, and kind chips overlay the top of the media. Title, play, and full-screen sit at the bottom of the tile, above the dock. Group lives in Filters (`library-group` stays in the DOM). Grid, list, table, and shelves stay. Sound still starts on tap.
+
+**Validate (local):** lint (`tsc --noEmit`) and typecheck pass. Combined `npm run test`: **207 files / 1048 tests**, **8 failed** under load (DSP 5s timeouts: silence trim, streaming-norm preview, loudness gain, loudness match, M6, M7). Those six files re-run in isolation: **23 passed**. Production `vite build` pass.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema fills the gallery; title “Odd Frecuency…” visible above the dock; tap-to-play sets dock Now playing; full-screen visual 1/1 and Escape closes it; list, table, shelves, and grid still render; Image kind chip empty match; sort Title A–Z; This device honesty copy still present; phone 390×844 cinema tile fills, title in view, Upload + kind chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Library cinema gallery — 2026-08-31
+
+**Commit:** `0cd14072` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Library is a **media gallery**, not a forge desk. Cinema is the default view (grid, list, table, and shelves stay). Snap-scroll tiles; video may muted-preview in view; **sound starts on tap**. Full-screen visual uses existing DropStage / TrackVisualizer via OverlayPortal. `LIVING_PROFILE.libraryIsMediaGallery` locked. ToolWorkbench + `library-desk` stay.
+
+**Validate (local):** lint (`tsc --noEmit`) and typecheck pass. `npm run test` earlier this session: **207 files / 1047 tests**. After this unit the suite is **207 files / 1048 tests**. Combined `npm run validate` then hit three DSP tests at the 5s timeout under load (`loudnessMatchCompare`, M6 loudness gain, M7 streaming preview); those three files re-run in isolation: **18 passed**. Production `vite build` pass after the gallery CSS.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` cinema default; one audio tile (Odd Frecuency…) with AUDIO label + maximize; tap-to-play sets dock Now playing; full-screen visual 1/1 with waveform and Escape to close; list, table, shelves still render; Image kind chip empty match; sort Title A–Z then Newest first; This device tab still opens; phone 390×844 still cinema + Upload + kind chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Creative Library intake — 2026-08-31
+
+**Commit:** `0860a116` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Library intake is **Creative Work**, not a song catalog. Compose accepts audio, image, video, and allowed files (`CREATIVE_ACCEPT`). Video stays video — extract lives in Convert. New files default **private** and save into `/library`. Place on your VYBZ is unchanged (ids only, one catalog). Stage File classifies placed drops (`classifyDrop`) instead of forcing audio. AudioBus does not play image/video/file URLs. `LIVING_PROFILE.libraryIngestsUniversalWork` locked. Gate `creativeLibrary`.
+
+**Validate (local):** `npm run validate` pass (2026-08-31). lint (`tsc --noEmit`), typecheck, **206 files / 1041 tests**, production `vite build`.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): `/library` shows Library / Your work / `1 work · 0 on this device` / Upload; kind chips All / Audio / Image / Video / File; Image filter shows empty match (the one work is audio); Upload opens compose **Drop files here** with accept including `image/*` and `.pdf`; This device honesty copy still present; Home library panel still `1 work · 0 on this device` and Place; phone 390×844 still shows Upload + kind chips. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Menu-only chrome + discovery Home — 2026-08-31
+
+**Commit:** `118d67d2` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Default chrome is the **menu**. Search, +, Chat, Alerts, Me, Tools, and the V¢ wallet identity live in `ShellNavDrawer` / `DrawerChrome` on every viewport. `ContextualAppBar` is hamburger only (Back stays on nested routes). `PrimaryRail` and `VDockSocialStrip` stay in the tree, unmounted. Signed-in `/` centers the VYBZ mark (`BrandMark orb reactive`) as a gentle hue + audio neon pulse. Home composes existing live, rooms, library (`HomeLibraryPanel` — measured `countDropsBy` / `listVisibleCatalog`), taste, and Hear (`FeedPage` Latest / Following / Explore). No Phantom / NFT / SOL. V¢ is not a chain token.
+
+**Validate (local):** lint (`tsc --noEmit`), typecheck, **204 files / 1031 tests**, production `vite build` (2026-08-31). Full `npm run validate` was run as those four steps in this session.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): header is hamburger only; Home mark + Find Yours. + `@Andrew · ~Andrew`; drawer has Search / Upload / Generate / This device / Chat / Alerts / Tools / Me / wallet `~Andrew`; library panel `1 work · 0 on this device`; Explore shows Shuffle; Library `/library` Works (1) and `/library?tab=device`; phone viewport 390×844 stacks the same Home. Production walk: **Not measured**.
+
+On PR #217. Not merged. Production walk: **Not measured**.
+
+## Heard, identity, Node tool — 2026-08-31 (local)
+
+**Branch:** `feat/heard-and-node` @ `9471c477` — [PR #217](https://github.com/ALaustrup/VYBZ/pull/217) (not merged)
+
+Signed-in `/` stays the people-first social landing. Underground work is hearable via **Explore** (`listDiscovery` / `discovery_feed`) on Home. Taste matches mount as a Follow strip (`TastePeopleStrip`); archived `DashMatchPanel` stays in the tree. Search titles `/` as **Home**, not My VYBZ. The Asset Node is a Search and `+` tool at `/library?tab=device` — not a `/devices` rail kingdom. Bytes stay on device; cloud metadata is names and sizes; Swarm is not this catalog.
+
+**PR #216** remains open (chrome uniqueness). This branch is from `main`, not stacked on #216.
+
+**Validate (local):** `npm run validate` pass (2026-08-31). lint, typecheck, **204 files / 1031 tests**, production build.
+
+**Local signed-in walk** (http://localhost:5173 as Andrew): Home shows Latest / Following / **Explore**; Explore activates Shuffle; `+` includes **This device** and opens `/library?tab=device` with honesty copy; Search `node` ranks **This device**. Taste strip had no matches on this account (hidden). Production walk: **Not measured**.
+
+Production walk: **Not measured**.
+
+## PR #215 — merged — one Alerts; dashboard is Stage File — 2026-08-31
+
+**Merge:** `96f38ef5` — Chat owns messages; one Alerts in top chrome; owner dashboard is `/u/:id`.
+
+**Production deploy:** Vercel **`4HaHkwpK8GpbHwJCNBnGTzqTkDow`** READY on `vybz.cloud` at `96f38ef5`.
+
+Production walk: **Not measured**.
 
 ## PR #214 — merged — social rooms on home — 2026-08-27
 

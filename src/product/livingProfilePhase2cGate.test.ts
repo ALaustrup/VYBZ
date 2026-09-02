@@ -42,7 +42,10 @@ describe("living profile phase 2C — social home route", () => {
     const menu = read("src/components/shell/AccountMenu.tsx");
     expect(menu).toContain("ownerProfilePath");
     expect(menu).toContain("My VYBZ");
-    expect(read("src/pages/FeedPage.tsx")).toContain("SocialRoomsPanel");
+    expect(read("src/pages/FeedPage.tsx")).toContain("HubActivity");
+    expect(read("src/pages/SocialHomePage.tsx")).toContain("SocialRoomsPanel");
     expect(read("src/components/home/SocialRoomsPanel.tsx")).toContain("listSocialRooms");
+    expect(read("src/app/routeTruth.ts")).toContain('path: "/", title: "Home"');
+    expect(read("src/app/routeTruth.ts")).not.toContain('path: "/", title: "My VYBZ"');
   });
 });

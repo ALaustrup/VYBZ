@@ -7,6 +7,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { GATE_REGISTRY } from "@/product/invariants";
 
 const ROOT = path.resolve(__dirname, "../../..");
 
@@ -15,6 +16,10 @@ function read(rel: string) {
 }
 
 describe("OR-032 song workspace working set", () => {
+  it("is a registered gate", () => {
+    expect(GATE_REGISTRY).toContain("or032WorkingSet");
+  });
+
   it("defines a shared working-set module", () => {
     const ws = read("src/features/workspace/workingSet.ts");
     expect(ws).toContain("setWorkingTrack");
@@ -41,9 +46,11 @@ describe("OR-032 song workspace working set", () => {
     }
   });
 
-  it("shows the song workspace banner in SuiteShell", () => {
-    const shell = read("src/shell/SuiteShell.tsx");
-    expect(shell).toContain("SongWorkspaceBanner");
+  it("keeps the song workspace banner in the tree, hidden from default chrome", () => {
+    expect(read("src/features/workspace/SongWorkspaceBanner.tsx")).toContain(
+      "export function SongWorkspaceBanner",
+    );
+    expect(read("src/shell/SuiteShell.tsx")).not.toContain("<SongWorkspaceBanner");
   });
 
   it("keeps desk dropzones owned (data-no-library-drop + ForgeDropzone onDrop)", () => {
@@ -67,14 +74,16 @@ describe("OR-032 song workspace working set", () => {
     expect(chrome).not.toMatch(/\/tools\/metadata[\s\S]{0,80}showBack:\s*true/);
   });
 
-  it("centers a container-free reactive brand mark and reactive wordmark", () => {
+  it("centers a container-free reactive brand mark on Home, not in the bar", () => {
     const bar = read("src/components/shell/ContextualAppBar.tsx");
+    const home = read("src/pages/SocialHomePage.tsx");
     const word = read("src/components/shell/AppBarWordmark.tsx");
-    expect(bar).toContain("suite-app-bar-mark");
-    expect(bar).toContain("bg-transparent");
-    expect(bar).toContain("<BrandMark");
-    expect(bar).toContain("reactive");
-    expect(bar).toContain("<AppBarWordmark");
+    expect(bar).not.toContain("suite-app-bar-mark");
+    expect(bar).not.toContain("<BrandMark");
+    expect(bar).not.toContain("<AppBarWordmark");
+    expect(home).toContain("<BrandMark");
+    expect(home).toContain("reactive");
+    expect(home).toContain("orb");
     expect(word).toContain("readBands");
     expect(word).toContain("reactive");
   });

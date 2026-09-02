@@ -13,7 +13,7 @@
 import { useSyncExternalStore } from "react";
 import * as api from "@/lib/api";
 import type { NewDrop, UploadFailureReason } from "@/lib/api";
-import { isVideoFile, prepareUploadFile } from "@/lib/audioEdit";
+import { isIngestibleCreativeFile } from "@/features/upload/creativeFile";
 import { readId3Tags, titleFromFilename, type Id3Tags } from "@/lib/id3Tags";
 import { MUSICAL_KEYS } from "@/lib/profileFields";
 import { hashBlobGuarded } from "@/lib/sha256Worker";
@@ -120,16 +120,16 @@ export function createUploadItem(file: File, id: string, seed: number): UploadIt
       musicalKey: hint.musicalKey ?? "",
       durationSec: 0,
       peaks: placeholderWaveform(seed, WAVEFORM_BUCKETS),
-      format: isVideoFile(file) ? "WAV" : meta.format,
+      format: meta.format,
       sampleRate: 0,
-      lossless: isVideoFile(file) ? true : meta.lossless,
+      lossless: isAudioFile(file) ? meta.lossless : false,
     },
   };
 }
 
-/** Files we can ingest: audio, plus video containers we extract audio from. */
+/** Audio, image, video, or an allowed file. Video stays video — extract lives in Convert. */
 export function isIngestibleFile(file: File): boolean {
-  return isAudioFile(file) || isVideoFile(file);
+  return isIngestibleCreativeFile(file);
 }
 
 export function collectUploadFiles(list: FileList | File[] | null | undefined): {
@@ -280,7 +280,7 @@ export function canReleaseItem(item: UploadItem): boolean {
 export function itemStatusLabel(item: UploadItem): string {
   switch (item.status) {
     case "reading":
-      return isVideoFile(item.file) ? "Extracting audio…" : "Starting upload…";
+      return "Starting upload…";
     case "uploading":
       return item.percent >= 100 ? "Finalizing — waiting for storage…" : `Uploading… ${item.percent}%`;
     case "analyzing":
@@ -339,7 +339,7 @@ export function summarizeQueue(items: UploadItem[]): QueueSummary {
   };
 }
 
-/** The drop payload for one row. Intake only ever makes tracks. */
+/** One Library row. `assets.kind` stays `track` (database check); format carries the media type. */
 export function buildDropInput(
   item: UploadItem,
   opts: {
@@ -447,36 +447,8 @@ async function runUpload(id: string) {
     if (!item) return;
     const file = item.file;
 
-    let blob: Blob = file;
-    let ext = extOf(file.name);
-
-    if (isVideoFile(file)) {
-      // A video container is not an audio asset, so this one file has to be
-      // read before anything can be sent. Audio goes straight to the network.
-      try {
-        const prepared = await prepareUploadFile({
-          file,
-          range: { startSec: 0, endSec: 0 },
-          targetFormat: "wav",
-          baseName: item.meta.title || file.name,
-        });
-        blob = prepared.file;
-        ext = "wav";
-        patch(id, (i) => ({
-          ...i,
-          meta: {
-            ...i.meta,
-            format: prepared.format.toUpperCase(),
-            lossless: prepared.lossless,
-            durationSec: prepared.durationSec || i.meta.durationSec,
-            sampleRate: prepared.sampleRate || i.meta.sampleRate,
-          },
-        }));
-      } catch {
-        patch(id, { status: "failed", error: "Couldn't read the audio out of that video." });
-        return;
-      }
-    }
+    const blob: Blob = file;
+    const ext = extOf(file.name);
 
     patch(id, { status: "uploading", percent: 0, error: null });
 
@@ -536,6 +508,7 @@ export function enqueueUploads(list: FileList | File[]): {
   if (added.length) {
     setItems([...items, ...added]);
     for (const item of added) {
+      if (!isAudioFile(item.file)) continue;
       // Container tags are a header read, not a decode — cheap enough to run now.
       void readId3Tags(item.file)
         .then((tags) => {

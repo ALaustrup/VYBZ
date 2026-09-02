@@ -10,6 +10,7 @@ import type { MenuAnchor } from "@/components/menu/ContextMenu";
 import { usePlayer, playTrack, seekFraction } from "@/lib/audioBus";
 import { toPlayerTrack } from "@/lib/toPlayerTrack";
 import { qualityLabel } from "@/lib/waveform";
+import { classifyDrop, isPlayableAudioWork } from "@/features/profile/workKind";
 import * as api from "@/lib/api";
 import { FLAGS } from "@/lib/flags";
 import { trySwarmDownload, swarmSeedOptIn } from "@/lib/swarm";
@@ -25,6 +26,13 @@ const LICENSE_LABEL: Record<string, string> = {
 const KIND_LABEL: Record<string, string> = {
   sample: "Sample", loop: "Loop", oneshot: "One-shot", stem: "Stem",
   acapella: "Acapella", midi: "MIDI", preset: "Preset", project: "Project", track: "Track",
+};
+
+const WORK_KIND_LABEL: Record<string, string> = {
+  audio: "Audio",
+  image: "Image",
+  video: "Video",
+  file: "File",
 };
 
 const RELEASE_LABEL: Record<string, string> = {
@@ -149,6 +157,8 @@ export function TrackCard({
   const dur = (isCurrent ? player.duration : 0) || d.durationSec || 0;
   const progress = isCurrent && dur > 0 ? player.currentTime / dur : 0;
   const peaks = d.waveform && d.waveform.length ? d.waveform : undefined;
+  const workKind = classifyDrop(d);
+  const playable = isPlayableAudioWork(d);
 
   const mine = d.myRating ?? 0;
   const avg = d.rating ?? (mine || 0);
@@ -161,15 +171,15 @@ export function TrackCard({
     ?? null;
 
   function togglePlayFromMenu() {
-    if (!d.audioUrl || !/^(https?:|blob:|data:)/i.test(d.audioUrl)) {
-      showToast("This drop has no playable audio URL yet");
+    if (!playable) {
+      showToast(workKind === "audio" ? "This drop has no playable audio URL yet" : "Place this on your VYBZ from Library");
       return;
     }
     if (!isCurrent) void api.recordPlay(d.id);
     playTrack(
       toPlayerTrack(d),
       (queue ?? [])
-        .filter((x) => x.audioUrl && /^(https?:|blob:|data:)/i.test(x.audioUrl))
+        .filter((x) => isPlayableAudioWork(x))
         .map(toPlayerTrack),
     );
   }
@@ -227,7 +237,11 @@ export function TrackCard({
 
       <div className={cx("relative w-full", compact ? "h-24" : "h-36")}>
         <div className="absolute inset-0">
-          {playing ? (
+          {workKind === "image" && d.audioUrl ? (
+            <img src={d.audioUrl} alt="" className="h-full w-full object-cover" />
+          ) : workKind === "video" && d.audioUrl ? (
+            <video src={d.audioUrl} className="h-full w-full object-cover" muted playsInline preload="metadata" />
+          ) : playing ? (
             <TrackVisualizer
               seed={d.seed}
               accent={accent}
@@ -248,23 +262,27 @@ export function TrackCard({
           )}
         </div>
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-ink-950/70" />
-        {d.lossless && (
+        {d.lossless && workKind === "audio" && (
           <span className="absolute right-2.5 top-2.5 rounded-full border border-white/20 bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-white/90 backdrop-blur">Lossless</span>
         )}
-        {(d.releaseType || d.assetKind) && (
-          <span className="forge-card-icon absolute left-2.5 top-2.5 !h-auto !w-auto px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/90">
-            {d.releaseType ? (RELEASE_LABEL[d.releaseType] ?? d.releaseType) : (KIND_LABEL[d.assetKind ?? "track"] ?? "Track")}
-          </span>
-        )}
-        <button onClick={togglePlay} aria-label={playing ? "Pause" : "Play"}
-          className={cx(
-            "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur transition active:scale-90 group-hover:scale-105",
-            compact ? "h-11 w-11" : "h-12 w-12",
-          )}
-          style={{ boxShadow: `0 0 30px -6px ${accent}` }}>
-          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : playing ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
-        </button>
-        {peaks && (
+        <span className="forge-card-icon absolute left-2.5 top-2.5 !h-auto !w-auto px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/90">
+          {workKind !== "audio"
+            ? (WORK_KIND_LABEL[workKind] ?? workKind)
+            : d.releaseType
+              ? (RELEASE_LABEL[d.releaseType] ?? d.releaseType)
+              : (KIND_LABEL[d.assetKind ?? "track"] ?? "Track")}
+        </span>
+        {playable ? (
+          <button onClick={togglePlay} aria-label={playing ? "Pause" : "Play"}
+            className={cx(
+              "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white backdrop-blur transition active:scale-90 group-hover:scale-105",
+              compact ? "h-11 w-11" : "h-12 w-12",
+            )}
+            style={{ boxShadow: `0 0 30px -6px ${accent}` }}>
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : playing ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
+          </button>
+        ) : null}
+        {peaks && playable && (
           <div className="absolute inset-x-2.5 bottom-1.5">
             <Waveform peaks={peaks} progress={progress} accent={accent} height={compact ? 22 : 28}
               onSeek={isCurrent ? (f) => seekFraction(f) : undefined} />
@@ -279,7 +297,7 @@ export function TrackCard({
               {d.title?.trim() || KIND_LABEL[d.assetKind ?? "track"] || "Untitled"}
             </p>
             <p className={cx("truncate text-white/55", compact ? "text-[11px]" : "text-[12px]")}>
-              {d.album?.trim() || "Single"}
+              {workKind !== "audio" ? (WORK_KIND_LABEL[workKind] ?? workKind) : (d.album?.trim() || "Single")}
             </p>
             <button
               type="button"

@@ -72,6 +72,13 @@ describe("command registry", () => {
     expect(end.find((c) => c.id === "player:prev")?.unavailableReason).toBeUndefined();
   });
 
+  it("offers Index this device as a create command that navigates", () => {
+    const cmd = buildCommands(ctx()).find((c) => c.id === "create:node");
+    expect(cmd?.title).toBe("Index this device");
+    expect(cmd?.to).toBe("/library?tab=device");
+    expect(cmd?.unavailableReason).toBeUndefined();
+  });
+
   it("offers generate as a create action, not a destination", () => {
     const gen = buildCommands(ctx()).find((c) => c.id === "create:generate");
     expect(gen?.title).toBe("Generate audio");
@@ -136,6 +143,10 @@ describe("rankCommands", () => {
 
   it("finds the library by prefix", () => {
     expect(rankCommands(all, "lib")[0]?.to).toBe("/library");
+  });
+
+  it("finds This device by the node keyword", () => {
+    expect(rankCommands(all, "node")[0]?.to).toBe("/library?tab=device");
   });
 
   it("finds a destination through a keyword the title does not contain", () => {

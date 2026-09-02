@@ -94,7 +94,7 @@ export function FeedTrackRow({
             <button
               type="button"
               onClick={() => onReact?.("feel")}
-              aria-label="Like"
+              aria-label="Vyb"
               className={cx(
                 "inline-flex items-center gap-1 rounded-full px-1.5 py-1 text-[12px] transition",
                 d.myReaction === "feel" ? "text-feel" : "text-white/35 hover:text-white/70",

@@ -87,7 +87,7 @@ export function AlertsMenu() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 420, damping: 28 }}
-            className="forge-glass absolute right-0 top-[calc(100%+0.45rem)] z-[80] w-[min(18.5rem,calc(100vw-1.5rem))] overflow-hidden p-2 shadow-suite-lg"
+            className="forge-glass absolute left-0 top-[calc(100%+0.45rem)] z-[80] w-[min(18.5rem,calc(100vw-1.5rem))] overflow-hidden p-2 shadow-suite-lg"
           >
             <span className="forge-glass-edge pointer-events-none" aria-hidden />
             <div className="relative z-[1] mb-1.5 flex items-center justify-between px-1.5 pt-1">

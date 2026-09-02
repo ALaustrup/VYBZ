@@ -69,7 +69,7 @@ These laws are checked against every design decision, route change, feature, and
 | **Library** (`/library`) | Authorized works and assets, local and published. Owner layer, hidden from default chrome | **Catalog** |
 | **Network** (`/connect`, `/live`) | People, who is live. `/feed` redirects to Home. Reachable from Search, not a permanent kingdom | **Discovery and relationships** |
 | **Live room** (`/live/:id`) | Host + listeners, chat, presence, Airtime meter. Target: profile banner state | **Live Creation** |
-| **Devices** | Desktop / mobile Asset Nodes and availability | **Local originals** |
+| **Devices** | Desktop / mobile Asset Nodes and availability. Node is a Search and + tool at Library This device — not a rail kingdom. | **Local originals** |
 | **Studio rooms** (`/rooms`, `/projects/:id`) | Multi-human collab. Still in the tree | **Co-Production** |
 | **In-session desks** (`/tools/*`) | Existing DSP / stem / MIDI / translation desks | **Toolkit** |
 | **DAW bridge** | Master-bus ingest when the host is in a DAW | **Studio ingest** |
@@ -84,7 +84,9 @@ Live Creation reuses LiveKit. Go Live leads with screen/window, then audio. Crea
 
 The Network reuses VYB on works, Live discovery, direct messages, and activity. **Follow** is a unidirectional subscribe so a creator's public work can land in Following. It is not Connect. Connect remains a request. No public follower counts.
 
-Default chrome is **VYBZ · Search · + · Chat · Alerts · Me**. Alerts appears once, in that chrome — not on the rail, not on the dock. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
+**Explore on Home** lists public work to hear. It reuses `discovery_feed`. Follow a Stage File so it lands in Following. The Node tool opens Library This device (`/library?tab=device`) from Search and +. It is not a rail kingdom.
+
+Default chrome is **the menu**. Search, +, Chat, Alerts, and Me live in the drawer. Alerts appears once, in that drawer — not on the rail, not on the dock. When the person hits Me, they are home. Discover can emerge from Search. Library, Live, Network, and Workspace stay in the tree.
 
 ## 5. Local-first originals
 
@@ -194,11 +196,11 @@ Permitted states — never "complete":
 ## 14. Interface Direction
 
 - **Logged-in home is the people-first social landing.** `/` shows connections, live cards, recent activity, and discovery. The owner's Stage File lives at `/u/:id` (same object as the public VYBZ, owner perspective). **That Stage File is the owner dashboard.** `/workspace` stays reachable; it is not a second home. **Open public VYBZ** and **My VYBZ** live in the identity menu — not a competing Home vs My VYBZ pair. `/feed` redirects to `/`.
-- **Default chrome** is VYBZ, Search, +, Chat, Alerts, and Me. **Desktop** adds one frosted PrimaryRail (Home, Messages, Live, Library — truthful routes only). **Mobile and tablet** collapse the rail into an accessible drawer; no permanently expanded rail on narrow screens. Library, Network, Live, and Workspace also stay reachable by URL and from owner controls. Frozen `MobileNav` and `SuiteAppRail` stay unmounted.
+- **Default chrome** is the menu. Search, +, Chat, Alerts, and Me live in the drawer on every viewport. **PrimaryRail** stays in the tree, unmounted. The signed-in Home centers the VYBZ mark as a gentle audio-reactive neon pulse. Library, Network, Live, and Workspace also stay reachable by URL and from owner controls. Frozen `MobileNav` and `SuiteAppRail` stay unmounted.
 - **One Stage File, two perspectives.** Owner sees Library, Go live, Edit, Arrange, Hide, and View as Visitor. Visitor sees the experience. Preview never runs Connect, Follow, Message, or Tip against your own identity. Workspace is not an owner door.
 - **Chat is Chat. Alerts is Alerts.** Message events badge the Chat control. Alerts never lists messages. No second Alerts icon on the rail or the dock.
 - **Works go through a module registry.** Audio, image, video, file (download), project, link, text, and collection each have a renderer. Unknown kinds do not crash the Stage File. 3D and games are later.
-- **Library places work on your VYBZ.** Select a file you already have. Place on your VYBZ. Choose Works or Featured. Done. No second upload. No second catalog. New files stay private until placed. Library can be viewed as grid, list, table, or shelves, and that arrangement is remembered.
+- **Library places work on your VYBZ.** Upload audio, image, video, or a file. It stays private until you Place it. Select a file you already have. Place on your VYBZ. Choose Works or Featured. Done. No second upload. No second catalog. Library is a media gallery. Cinema, grid, list, table, and shelves. Full-screen visual. Sound starts on tap. Cinema overlay is one bar of kinds and tools; it recedes while you watch. Header is Works, This device, and Upload — Mixes, Projects, and scans stay in More. Cinema tools stay put; kinds scroll. Library counts works, not tracks. Cinema empty stays the gallery. Playing work shows progress on the tile. Tap progress to move in the work. Playing video shows progress on the tile. Arrows move between works. Space is a tap. Arrows do not start sound. Ending a work does not start the next work. Full-screen visual: Space is a tap. Video uses the stage, not native controls. Full-screen visual clock fills live. Arrangement is remembered.
 - **The owner can Arrange existing Stage File modules.** Order is remembered on the profile. Empty modules omit. Identity chrome stays fixed. No theme engine. No custom CSS or JS.
 - **The owner can hide existing sections** from the public VYBZ. Hidden sections stay available in Arrange. Add, rename, and invent sections are later. No theme engine.
 - **Generate is a tool, not a surface.** + → Generate makes a private Library file through the local Stable Audio 3 worker. It is labeled generated. Powered by Stability AI. It is not placed on My VYBZ until you Place.
@@ -206,6 +208,12 @@ Permitted states — never "complete":
 - **Host profiles are not artist-only.** Talk, podcast, music, image, video, and software share `/u/:id`.
 - **Auto-adjusting** across phone, companion, and desktop studio.
 - **Dark, restrained, workstation-grade** — without presenting as a SaaS control panel.
+- **Follow is not Connect in Search.** Searching Follow opens Home / Following. Connect is a request. Follow is a subscribe.
+- **VYB is the work acknowledgment.** Home rows say VYB, not Like.
+- **No public play counts** as social proof.
+- **Sign-in does not start sound.** Ambient radio may seed a queue; speaker audio starts on tap.
+- **Song workspace banner stays in the tree, hidden from default chrome.**
+- **Alignment now / next / later.** Now: Living Profile copy; Follow ≠ Connect; VYB; no public play vanity; tap-to-play including after sign-in; hydrate Connect from `connections`; song workspace banner hidden. Next: Follow alerts if Follow is social (no schema this unit); restore social only on Home + Stage File + drawer. Later: Live as profile banner; Settings as real prefs; playback ticket by asset id; uploader hang. Do not remount `ProfilePage`.
 
 ## 15. Definition of Success
 
